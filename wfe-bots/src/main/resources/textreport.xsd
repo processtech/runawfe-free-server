@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://runa.ru/xml" xmlns="http://runa.ru/xml" elementFormDefault="qualified">
+	<xs:element name="config">
+		<xs:complexType>
+			<xs:sequence>
+
+				<xs:element name="template" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:attribute name="fileName" type="xs:string" use="required" />
+						<xs:attribute name="fileEncoding" type="xs:string" default="UTF8" />
+					</xs:complexType>
+				</xs:element>
+	
+				<xs:element name="report" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:attribute name="fileName" type="xs:string" use="required" />
+						<xs:attribute name="fileEncoding" type="xs:string" default="UTF8" />
+						<xs:attribute name="variableName" type="xs:string" use="required" />
+						<xs:attribute name="contentType" type="xs:string" default="application/ms-word" />
+					</xs:complexType>
+				</xs:element>
+	
+				<xs:element name="replacements" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="replacement" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:attribute name="source" type="xs:string" use="required" />
+									<xs:attribute name="dest" type="xs:string" use="required" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="xmlFormat" type="xs:boolean" default="true" />
+						<xs:attribute name="applyToRegexp" type="xs:boolean" default="false" />
+					</xs:complexType>
+				</xs:element>
+	
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

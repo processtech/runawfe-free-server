@@ -1,0 +1,10 @@
+commons-codec-1.7.jar                   jboss-marshalling-1.3.11.GA.jar                 spring-core-3.1.2.RELEASE.jar
+commons-logging.jar                     jboss-marshalling-river-1.3.11.GA.jar           spring-expression-3.1.2.RELEASE.jar
+dom4j-1.6.1.jar                         jboss-remote-naming-1.0.2.Final.jar             spring-jdbc-3.1.2.RELEASE.jar
+guava-17.0.jar                          jboss-remoting-3.2.3.GA.jar                     spring-orm-3.1.2.RELEASE.jar
+jboss7ejbclient-0.0.1-SNAPSHOT.jar      jboss-sasl-1.0.0.Final.jar                      spring-tx-3.1.2.RELEASE.jar
+jboss-ejb-api_3.1_spec-1.0.1.Final.jar  jboss-transaction-api_1.1_spec-1.0.0.Final.jar  wfe-bots-4.2.0-SNAPSHOT.jar
+jboss-ejb-client-1.0.5.Final.jar        spring-aop-3.1.2.RELEASE.jar                    wfe-core-4.2.0-SNAPSHOT.jar
+jboss-logging-3.1.0.GA.jar              spring-asm-3.1.2.RELEASE.jar                    wfe-service-4.2.0-SNAPSHOT.jar
+jboss-logmanager-1.2.2.GA.jar           spring-beans-3.1.2.RELEASE.jar                  xnio-api-3.0.3.GA.jar
+jboss-logmanager-log4j-1.0.0.GA.jar     spring-context-3.1.2.RELEASE.jar                xnio-nio-3.0.3.GA.jar

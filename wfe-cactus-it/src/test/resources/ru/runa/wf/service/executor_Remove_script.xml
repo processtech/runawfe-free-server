@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
+	 <!-- Sample wfe script -->
+	<createGroup name="employee"/>
+	<createActor name="dorothy" fullName="Dorothy Gale" password="shout"/>
+	<createActor name="toto" description="Dorothy's dog" password="bark"/>
+    <createActor name="tin" fullName="The Tin Man"  password="secretword" />
+	<createActor name="gulch" fullName="The Wicked Witch of the West"  description="Someone we will create and delete in this script" password="www"/>
+	
+	<deleteExecutor name="gulch" />
+
+	<addExecutorsToGroup name="employee">
+		<executor name="dorothy"/>
+		<executor name="tin"/>
+	</addExecutorsToGroup>
+	
+	<removeExecutorsFromGroup name="employee">
+		<executor name="dorothy"/>
+	</removeExecutorsFromGroup>
+
+	<setPermissionsOnActor name="toto" executor="dorothy">
+	    <permission name="permission.update_executor"/>
+		<permission name="permission.update_permissions"/>
+		<permission name="permission.read"/>
+	</setPermissionsOnActor>
+	
+	<removePermissionsOnActor name="toto" executor="dorothy">
+		<permission name="permission.update_permissions"/>
+	</removePermissionsOnActor>
+
+	<setPermissionsOnGroup name="employee" executor="dorothy">
+		<permission name="permission.read"/>
+		<permission name="permission.update_permissions"/>
+		<permission name="permission.update_executor"/>
+	</setPermissionsOnGroup>
+		
+	<removePermissionsOnGroup name="employee" executor="dorothy">
+		<permission name="permission.update_permissions"/>
+	</removePermissionsOnGroup>
+        
+	<addPermissionsOnGroup name="employee" executor="employee">
+	
+		<permission name="permission.read"/>
+		<permission name="permission.list_group"/>
+		<permission name="permission.add_to_group"/>
+		<permission name="permission.remove_from_group"/>
+	</addPermissionsOnGroup>
+	
+	<removePermissionsOnGroup name="employee" executor="employee">
+	    <permission name="permission.add_to_group"/>
+		<permission name="permission.remove_from_group"/>
+	</removePermissionsOnGroup>
+	
+	<addPermissionsOnActor name="tin" executor="employee">
+		<permission name="permission.read"/>
+		<permission name="permission.update_permissions"/>
+	</addPermissionsOnActor>
+
+	<removePermissionsOnActor name="tin" executor="employee">
+		<permission name="permission.update_permissions"/>
+	</removePermissionsOnActor>
+	
+	<setPermissionsOnSystem executor="employee">
+		<permission name="permission.read" />
+		<permission name="permission.update_permissions" />
+    	<permission name="permission.login_to_system" />
+    	<permission name="permission.create_executor" />
+		<permission name="permission.deploy_definition" />
+	</setPermissionsOnSystem>
+
+    <removePermissionsOnSystem executor="employee">
+		<permission name="permission.update_permissions" />
+	</removePermissionsOnSystem>
+
+</workflowScript>

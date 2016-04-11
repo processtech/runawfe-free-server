@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml">
+	<component name="AjaxGroupMembers" class="ru.runa.wf.web.ftl.component.AjaxGroupMembers" />
+	<component name="ChooseRelationName" class="ru.runa.wf.web.ftl.component.ChooseRelationName" />
+	<component name="ChooseActorByRelation" class="ru.runa.wf.web.ftl.component.ChooseActorByRelation" />
+	<component name="ChooseExecutorByRelation" class="ru.runa.wf.web.ftl.component.ChooseExecutorByRelation" />
+	<component name="ChooseExecutorFromRelation" class="ru.runa.wf.web.ftl.component.ChooseExecutorFromRelation" />
+	<component name="DisplayLinkedLists" class="ru.runa.wf.web.ftl.component.DisplayLinkedLists" />
+	<component name="DisplayLinkedMaps" class="ru.runa.wf.web.ftl.component.DisplayLinkedMaps" />
+	<component name="DisplayListElement" class="ru.runa.wf.web.ftl.component.DisplayListElement" />
+	<component name="DisplayMapElement" class="ru.runa.wf.web.ftl.component.DisplayMapElement" />
+	<component name="DisplayVariable" class="ru.runa.wf.web.ftl.component.DisplayVariable" />
+	<component name="EditLinkedLists" class="ru.runa.wf.web.ftl.component.EditLinkedLists" />
+	<component name="GroupMembers" class="ru.runa.wf.web.ftl.component.GroupMembers" />
+	<component name="InputVariable" class="ru.runa.wf.web.ftl.component.InputVariable" />
+	<component name="MultiLanguageExample" class="ru.runa.wf.web.ftl.component.MultiLanguageExample" />
+	<component name="MultipleSelectFromList" class="ru.runa.wf.web.ftl.component.MultipleSelectFromList" />
+	<component name="DisplayMultipleSelectInList" class="ru.runa.wf.web.ftl.component.DisplayMultipleSelectInList" />
+	<component name="SelectFromList" class="ru.runa.wf.web.ftl.component.SelectFromList" />
+	<component name="ChooseValueFromList" class="ru.runa.wf.web.ftl.component.ChooseValueFromList" />
+	<component name="ViewFile" class="ru.runa.wf.web.ftl.component.ViewFile" />
+	<component name="TreeviewSupport" class="ru.runa.wf.web.ftl.component.TreeviewSupport" />
+	<component name="GetExecutorEmails" class="ru.runa.wf.web.ftl.component.GetExecutorEmails" />
+	<component name="DisplayListUserVariables" class="ru.runa.wf.web.ftl.component.DisplayListUserVariables" />
+	<component name="MultipleSelectFromListUserVariables" class="ru.runa.wf.web.ftl.component.MultipleSelectFromListUserVariables" />
+</configuration>

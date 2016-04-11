@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
+<!--used format pattern for DateTime="2007-02-02T23:59:59" -->
+<!--  
+ <removeOldProcesses id="9" /> 
+ <removeOldProcesses id="1" idTill="100"/> 
+ <removeOldProcesses startDate="2010-06-23T11:30:00" endDate="2010-06-23T11:32:00" dateInterval="true" />
+ <removeOldProcesses endDate="2010-05-20T20:00:00" /> 
+ <removeOldProcesses startDate="2010-05-20T20:00:00" />
+ <removeOldProcesses startDate="2009-10-06T18:30:00" endDate="2009-10-07T12:01:00" /> 
+ <removeOldProcesses startDate="2010-05-28T20:00:00" name="Vacation" version="2" /> 
+ <removeOldProcesses startDate="2010-05-28T20:00:00" name="Vacation" /> 
+ <removeOldProcesses startDate="2010-05-28T20:00:00" name="Vacation" onlyFinished="false"/> 
+ <removeOldProcessDefinitionVersion name="Vacation" version="5" />
+ 
+  <archiveOldProcesses id="69" />
+  <archiveOldProcesses id="400" idTill="420" />
+  <archiveOldProcesses startDate="2010-06-23T11:30:00" endDate="2010-06-23T11:32:00" dateInterval="true" />  
+
+  <archiveOldProcesses startDate="2010-05-28T16:36:00" />  
+  <archiveOldProcesses startDate="2010-06-04T15:00:00" name="Vacation" version="2" /> 
+ <archiveOldProcesses startDate="2009-12-29T13:29:00" />
+
+ -->
+ 
+ <archiveOldProcesses id="1" idTill="100"/> 
+ 
+ 
+</workflowScript>

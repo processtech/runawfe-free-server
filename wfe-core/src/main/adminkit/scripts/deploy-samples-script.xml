@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
+	<createGroup name="manager" description="group for managers"/>
+	<createGroup name="human resource" description="group for human resource department"/>
+	<createGroup name="bookkeeper" description="group for bookkeepers"/>
+	<createGroup name="staff" description="group for main work personal"/>
+	<createGroup name="all" description="group for all employees"/>
+
+	<createActor name="julius" fullName="Gaius Julius Caesar" password="123" />
+	<createActor name="nero" fullName="Nero Claudius Caesar" password="123" />
+	<createActor name="cleopatra" fullName="Cleopatra VII The Daughter of the Pharaoh" password="123" />
+	<createActor name="octavia" fullName="Octavia Minor" password="123" />
+	<createActor name="tiberius" fullName="Tiberius Claudius Drusus" password="123" />
+	<createActor name="marcus" fullName="Marcus Aurelius Antoninus" password="123" />
+	<createActor name="gaiua" fullName="Gaiua Flavius Valerius Constantinus" password="123" />
+	<createActor name="attila" fullName="Attila the King of Huns" password="123" />
+	<createActor name="caligula" fullName="Gaius Iulius Germanicus" password="123" />
+	<createActor name="UniversalBot" fullName="Bot for a Demo" password="321" />
+	<createActor name="StopBot" fullName="Bot for stopping old processes" password="321" />
+	<createActor name="WebServiceBot" fullName="Bot for executing web service requests" password="321" />
+
+	<namedIdentitySet name="allProcesses" type="ProcessDefinition">
+		<identity name="TextFileCreation"/>
+		<identity name="BotDemo"/>
+		<identity name="Businesstrip"/>
+		<identity name="Vacation"/>
+		<identity name="Overtime Work"/>
+		<identity name="Report"/>
+		<identity name="FileUpload"/>
+		<identity name="Hello World"/>
+		<identity name="SubProcess"/>
+		<identity name="MainProcess"/>
+		<identity name="MultiInstanceSubProcess"/>
+		<identity name="MultiInstanceProcess"/>
+		<identity name="ExecuteFormulaDemo"/>
+		<identity name="TimerDemo"/>
+		<identity name="BPMNdemo"/>
+		<identity name="AjaxFormDemo"/>
+		<identity name="WebService - who is"/>
+		<identity name="MSWordReport"/>
+	</namedIdentitySet>
+	<namedIdentitySet name="managerProcesses" type="ProcessDefinition">
+		<identity name="Businesstrip"/>
+		<identity name="Overtime Work"/>
+		<identity name="Report"/>
+	</namedIdentitySet>
+	<namedIdentitySet name="genericProcesses" type="ProcessDefinition">
+		<identity name="TextFileCreation"/>
+		<identity name="BotDemo"/>
+		<identity name="Vacation"/>
+		<identity name="FileUpload"/>
+		<identity name="Hello World"/>
+		<identity name="MainProcess"/>
+		<identity name="MultiInstanceProcess"/>
+		<identity name="ExecuteFormulaDemo"/>
+		<identity name="TimerDemo"/>
+		<identity name="AjaxFormDemo"/>
+		<identity name="BPMNdemo"/>
+		<identity name="WebService - who is"/>
+		<identity name="MSWordReport"/>
+	</namedIdentitySet>
+		
+	<namedIdentitySet name="allActors" type="Executor">
+		<identity name="julius"/>
+		<identity name="nero"/>
+		<identity name="cleopatra"/>
+		<identity name="octavia"/>
+		<identity name="tiberius"/>
+		<identity name="marcus"/>
+		<identity name="gaiua"/>
+		<identity name="attila"/>
+		<identity name="caligula"/>
+		<identity name="UniversalBot"/>
+	</namedIdentitySet>
+	<namedIdentitySet name="allGroupsExceptALL" type="Executor">
+		<identity name="manager"/>
+		<identity name="human resource"/>
+		<identity name="bookkeeper"/>
+		<identity name="staff"/>
+	</namedIdentitySet>
+
+	<deployProcessDefinition file="../samples/Hello World.par" />
+	<deployProcessDefinition file="../samples/BPMNdemo.par" />
+	<deployProcessDefinition file="../samples/ExecuteFormulaDemo.par"/>
+	<deployProcessDefinition file="../samples/AjaxFormDemo.par" />
+	<deployProcessDefinition file="../samples/FileUpload.par" />
+	<deployProcessDefinition file="../samples/TimerDemo.par" />
+	<deployProcessDefinition file="../samples/Report.par" />
+	<deployProcessDefinition file="../samples/Overtime Work.par" />
+	<deployProcessDefinition file="../samples/Vacation.par" /> 
+	<deployProcessDefinition file="../samples/Businesstrip.par" />
+	<deployProcessDefinition file="../samples/MainProcess.par" />
+	<deployProcessDefinition file="../samples/SubProcess.par" />
+	<deployProcessDefinition file="../samples/MultiInstanceProcess.par" />
+	<deployProcessDefinition file="../samples/MultiInstanceSubProcess.par" />
+	<deployProcessDefinition file="../samples/BotDemo.par" />
+	<deployProcessDefinition file="../samples/TextFileCreation.par" />
+	<deployProcessDefinition file="../samples/WebService - who is.par" />
+	<deployProcessDefinition file="../samples/MSWordReport.par" />
+
+	<addPermissionsOnDefinition executor="all">
+		<namedIdentitySet name="allProcesses" type="ProcessDefinition"/>
+		<permission name="permission.read"/>
+		<permission name="permission.read_process"/>
+	</addPermissionsOnDefinition>
+	<addPermissionsOnDefinition executor="manager">
+		<namedIdentitySet name="managerProcesses" type="ProcessDefinition"/>
+		<permission name="permission.start_process"/>
+	</addPermissionsOnDefinition>
+	<addPermissionsOnDefinition executor="all">
+		<namedIdentitySet name="genericProcesses" type="ProcessDefinition"/>
+		<permission name="permission.start_process"/>
+	</addPermissionsOnDefinition>
+
+	<addExecutorsToGroup name="Administrators">
+		<executor name="StopBot"/>
+	</addExecutorsToGroup>
+
+	<addExecutorsToGroup name="manager">
+		<executor name="julius"/>
+		<executor name="nero"/>
+	</addExecutorsToGroup>
+
+	<addExecutorsToGroup name="human resource">
+		<executor name="cleopatra"/>
+		<executor name="octavia"/>
+	</addExecutorsToGroup>
+
+	<addExecutorsToGroup name="bookkeeper">
+		<executor name="caligula"/>
+		<executor name="tiberius"/>
+	</addExecutorsToGroup>
+
+	<addExecutorsToGroup name="staff">
+		<executor name="marcus"/>
+		<executor name="gaiua"/>
+		<executor name="attila"/>
+	</addExecutorsToGroup>
+
+	<addExecutorsToGroup name="all">
+		<namedIdentitySet name="allActors" type="Executor"/>
+	</addExecutorsToGroup>
+
+	<addPermissionsOnSystem executor="all">
+		<permission name="permission.read"/>
+		<permission name="permission.login_to_system"/>
+	</addPermissionsOnSystem> 
+	
+	<addPermissionsOnGroup executor="all">
+		<namedIdentitySet name="allGroupsExceptALL" type="Executor"/>
+		<permission name="permission.read"/>
+		<permission name="permission.list_group"/>
+	</addPermissionsOnGroup>
+
+	<addPermissionsOnActor executor="all">
+		<namedIdentitySet name="allActors" type="Executor"/>
+		<permission name="permission.read"/>
+	</addPermissionsOnActor>
+
+	<addPermissionsOnBotStations executor="UniversalBot">
+		<permission name="permission.read"/>
+	</addPermissionsOnBotStations>
+	<addPermissionsOnBotStations executor="StopBot">
+		<permission name="permission.read"/>
+	</addPermissionsOnBotStations>
+	<addPermissionsOnBotStations executor="WebServiceBot">
+		<permission name="permission.read"/>
+	</addPermissionsOnBotStations>
+	
+	<createBotStation name="localbotstation" address="localhost:10099" />
+	<createBot botStation="localbotstation" name="UniversalBot" password="321" startTimeout="200"/>
+	<createBot botStation="localbotstation" name="StopBot" password="321" startTimeout="200"/>
+	<createBot botStation="localbotstation" name="WebServiceBot" password="321" startTimeout="200"/>
+	<addConfigurationsToBot botStation="localbotstation" name="UniversalBot">
+		<botConfiguration name="DoNothing" handler="ru.runa.wf.logic.bot.DoNothingTaskHandler" configuration="" />
+		<botConfiguration name = "create text file" handler="ru.runa.wf.logic.bot.TextReportTaskHandler" configuration="bot/handler/textFile.xml" />
+		<botConfiguration name = "Generate MS Word Report" handler="ru.runa.wf.logic.bot.MSWordReportTaskHandler" configuration="bot/handler/msword-report.xml" />
+	</addConfigurationsToBot>
+	<addConfigurationsToBot botStation="localbotstation" name="StopBot">
+		<botConfiguration name="state1" handler="ru.runa.wf.logic.bot.CancelOldProcesses" configuration=""/>
+	</addConfigurationsToBot>
+	<addConfigurationsToBot botStation="localbotstation" name="WebServiceBot">
+		<botConfiguration name="Load whois information" handler="ru.runa.wf.logic.bot.WebServiceTaskHandler" configuration="bot/demo/soapBot-whois.xml"/>
+	</addConfigurationsToBot>
+	
+	<relation name="Boss">
+		<left>
+			<executor name="nero"/>
+		</left>
+		<right>
+			<executor name="caligula"/>
+			<executor name="attila"/>
+		</right>
+	</relation>
+	<relation name="Boss">
+		<left>
+			<executor name="julius"/>
+		</left>
+		<right>
+			<executor name="julius"/>
+			<executor name="nero"/>
+			<executor name="cleopatra"/>
+			<executor name="octavia"/>
+			<executor name="tiberius"/>
+			<executor name="marcus"/>
+		</right>
+	</relation>
+	
+</workflowScript>

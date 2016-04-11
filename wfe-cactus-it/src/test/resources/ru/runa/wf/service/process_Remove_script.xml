@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
+	 <!-- Sample wfe script set add process permissions-->
+		
+	<setPermissionsOnDefinition name="validProcess" executor="employee">
+		<permission name="permission.read"/>
+		<permission name="permission.update_permissions"/>
+		<permission name="permission.redeploy_definition"/>
+		<permission name="permission.undeploy_definition"/>
+		<permission name="permission.start_process"/>
+		<permission name="permission.read_process"/>
+		<permission name="permission.cancel_process"/>		
+	</setPermissionsOnDefinition>
+	
+	<removePermissionsOnDefinition name="validProcess" executor="employee">
+		<permission name="permission.update_permissions"/>
+	</removePermissionsOnDefinition>
+	
+	<addPermissionsOnProcesses name="validProcess" executor="employee">
+		<permission name="permission.read" />
+		<permission name="permission.update_permissions" />
+		<permission name="permission.cancel_process" />
+	</addPermissionsOnProcesses>
+
+    <addPermissionsOnProcesses name="validProcess" executor="employee">
+		<permission name="permission.update_permissions" />
+	</addPermissionsOnProcesses>
+
+
+</workflowScript>

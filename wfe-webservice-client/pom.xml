@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ru.runa.wfe</groupId>
+	<artifactId>wfe-webservice-client</artifactId>
+	<version>4.3.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>wfe-webservice-client</name>
+	<description>RunaWFE WebServices Client API</description>
+
+	<properties>
+		<maven.compiler.target>1.6</maven.compiler.target>
+		<maven.compiler.source>1.6</maven.compiler.source>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>
+		<repository>
+			<id>JBOSS</id>
+			<name>JBoss Repository</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>JBOSS</id>
+			<name>JBoss Repository</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<profiles>
+		<profile>
+			<id>jboss7</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+				<property>
+					<name>appserver</name>
+					<value>jboss7</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jboss.ws.plugins</groupId>
+						<artifactId>maven-jaxws-tools-plugin</artifactId>
+						<version>1.0.1.GA</version>
+						<executions>
+							<execution>
+								<id>RunaWFE WebServices</id>
+								<goals>
+									<goal>wsconsume</goal>
+								</goals>
+								<configuration>
+									<wsdls>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/AuthenticationWebService/AuthenticationAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/AuthorizationWebService/AuthorizationAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/BotWebService/BotAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/DefinitionWebService/DefinitionAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/ExecutionWebService/ExecutionAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/TaskWebService/TaskAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/ExecutorWebService/ExecutorAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/ProfileWebService/ProfileAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/RelationWebService/RelationAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/ScriptingWebService/ScriptingAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/SystemWebService/SystemAPI?wsdl</wsdl>
+										<wsdl>http://localhost:8080/wfe-service-${project.version}/SubstitutionWebService/SubstitutionAPI?wsdl</wsdl>
+									</wsdls>
+									<targetPackage>ru.runa.wfe.webservice</targetPackage>
+									<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+									<extension>true</extension>
+									<verbose>true</verbose>
+									<goalPrefix>wsconsume</goalPrefix>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.jboss.ws.native</groupId>
+			<artifactId>jbossws-native-client</artifactId>
+			<version>3.4.1.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jbossxb</artifactId>
+			<version>2.0.3.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>14.0.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.istack</groupId>
+			<artifactId>istack-commons-runtime</artifactId>
+			<version>2.19</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.gmbal</groupId>
+			<artifactId>gmbal-api-only</artifactId>
+			<version>3.2.0-b003</version>
+		</dependency>
+	</dependencies>
+</project>

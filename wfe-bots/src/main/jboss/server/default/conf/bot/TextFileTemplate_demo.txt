@@ -1,0 +1,8 @@
+        Report title: ${header}.
+
+                     number: ${number}       
+		     date:   ${date}
+
+
+        Text: 
+${mainText}

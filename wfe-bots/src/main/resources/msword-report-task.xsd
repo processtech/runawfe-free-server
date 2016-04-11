@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://runa.ru/xml" xmlns="http://runa.ru/xml" elementFormDefault="qualified">
+
+    <xs:complexType name="reportType">
+    	<xs:sequence>
+    		<xs:element name="mapping" maxOccurs="unbounded" minOccurs="0">
+    			<xs:complexType>
+    				<xs:attribute name="bookmark" type="xs:string" use="required"></xs:attribute>
+    				<xs:attribute name="variable" type="xs:string" use="required"></xs:attribute>
+    			</xs:complexType>
+    		</xs:element>
+    	</xs:sequence>
+    	<xs:attribute name="template-path" type="xs:string" use="required"></xs:attribute>
+    	<xs:attribute name="output-variable" type="xs:string" use="required"></xs:attribute>
+    	<xs:attribute name="output-variable-file-name" type="xs:string" use="required"></xs:attribute>
+    	<xs:attribute name="strict-mode" type="xs:boolean" use="optional"></xs:attribute>
+    </xs:complexType>
+
+    <xs:element name="msword-report-task">
+    	<xs:complexType>
+    		<xs:sequence>
+    			<xs:element name="report" type="reportType" minOccurs="1" maxOccurs="1"></xs:element>
+    		</xs:sequence>
+    	</xs:complexType>
+    </xs:element>
+    
+</xs:schema>

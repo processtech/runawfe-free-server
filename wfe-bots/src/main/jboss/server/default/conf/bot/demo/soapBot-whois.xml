@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml webServiceTaskHandlerConfig.xsd">
+	<url>http://www.webservicex.net/whois.asmx</url>
+	<SOAPAction>http://www.webservicex.net/GetWhoIS</SOAPAction>
+	<request-method>POST</request-method>
+	<errorAction>IGNORE</errorAction>
+	<log>true</log>
+	<interaction>
+		<request>
+<![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:runawfe="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetWhoIS xmlns="http://www.webservicex.net">
+      <HostName><runawfe:variable name="DNS_name"/></HostName>
+    </GetWhoIS>
+  </soap:Body>
+</soap:Envelope>]]>
+		</request>
+		<response variable="DNS_information">
+<![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:wsx="http://www.webservicex.net" xmlns:wfe_ve="ru.runa.wf.logic.bot.WebServiceTaskHandler">
+    <xsl:script implements-prefix="wsx" language="java" src="java:ru.runa.wf.logic.bot.WebServiceTaskHandler"/>
+    <xsl:output method="text" indent="yes"/>
+    <xsl:template match="text()|@*|*|processing-instruction()|comment()"> 
+        <xsl:copy> 
+                <xsl:apply-templates select="text()|@*|*|processing-instruction()|comment()"/> 
+        </xsl:copy> 
+    </xsl:template> 
+    <xsl:template match="wsx:GetWhoISResult">
+      <xsl:variable name="variableName" value="DNS_information"/>
+      <xsl:variable name="variableValue" select="text()"/>
+      <xsl:value-of select="wfe_ve:setNewVariable('DNS_information', $variableValue)"/>
+    </xsl:template>
+</xsl:stylesheet>
+]]>
+		</response>
+	</interaction>
+</config>

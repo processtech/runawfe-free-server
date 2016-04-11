@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/tx 
+       http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       http://www.springframework.org/schema/aop 
+       http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+       http://www.springframework.org/schema/jee 
+       http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-2.5.xsd
+       http://www.springframework.org/schema/task 
+       http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+	<bean id="systemPropertiesConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders">
+			<value>true</value>
+		</property>
+		<property name="locations">
+			<list>
+				<value>classpath:system.properties</value>
+				<value>classpath*:wfe.custom.system.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="hibernateProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:database.properties</value>
+				<value>classpath*:wfe.custom.database.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<tx:jta-transaction-manager />
+	<tx:annotation-driven proxy-target-class="true" />
+	<context:annotation-config />
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="hibernateProperties" ref="hibernateProperties" />
+		<property name="entityInterceptor">
+			<bean class="ru.runa.wfe.commons.hibernate.CacheInterceptor" />
+		</property>
+		<property name="packagesToScan">
+			<list>
+				<value>ru.runa.wfe</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- converters -->
+	<bean id="stringToByteArrayConverter" class="ru.runa.wfe.var.converter.StringToByteArrayConverter" />
+	<bean id="booleanToStringConverter" class="ru.runa.wfe.var.converter.BooleanToStringConverter" />
+	<bean id="intToLongConverter" class="ru.runa.wfe.var.converter.IntegerToLongConverter" />
+	<bean id="serializableToByteArrayConverter"
+		class="ru.runa.wfe.var.converter.SerializableToByteArrayConverter" />
+	<bean id="executorToLongConverter" class="ru.runa.wfe.var.converter.ExecutorToLongConverter" />
+	<bean id="fileToByteArrayConverter"
+		class="ru.runa.wfe.var.converter.FileVariableToByteArrayConverter">
+		<property name="storage">
+			<bean class="ru.runa.wfe.var.file.LocalFileSystemStorage" />
+		</property>
+	</bean>
+
+	<bean id="converters" class="ru.runa.wfe.commons.hibernate.Converters">
+		<property name="mappings">
+			<map>
+				<entry key="B" value-ref="booleanToStringConverter" />
+				<entry key="I" value-ref="intToLongConverter" />
+				<entry key="R" value-ref="serializableToByteArrayConverter" />
+				<entry key="S" value-ref="stringToByteArrayConverter" />
+				<entry key="E" value-ref="executorToLongConverter" />
+				<entry key="F" value-ref="fileToByteArrayConverter" />
+			</map>
+		</property>
+	</bean>
+
+	<!-- java.lang.String (<= 1024 symbols) -->
+	<bean id="stringVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.StringMatcher">
+				<property name="large" value="false" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.StringVariable" />
+	</bean>
+	<!-- java.lang.String (> 1024 symbols) -->
+	<bean id="largeStringVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.StringMatcher">
+				<property name="large" value="true" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.ByteArrayVariable" />
+		<property name="converter" ref="stringToByteArrayConverter" />
+	</bean>
+	<!-- java.lang.Boolean -->
+	<bean id="booleanVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.lang.Boolean" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.StringVariable" />
+		<property name="converter" ref="booleanToStringConverter" />
+	</bean>
+	<!-- java.lang.Long -->
+	<bean id="longVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.lang.Long" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.LongVariable" />
+	</bean>
+	<!-- java.lang.Integer -->
+	<bean id="integerVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.lang.Integer" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.LongVariable" />
+		<property name="converter" ref="intToLongConverter" />
+	</bean>
+	<!-- java.lang.Double -->
+	<bean id="doubleVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.lang.Double" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.DoubleVariable" />
+	</bean>
+	<!-- java.util.Date -->
+	<bean id="dateVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="java.util.Date" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.DateVariable" />
+	</bean>
+	<!-- byte[] -->
+	<bean id="bytesVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="[B" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.ByteArrayVariable" />
+	</bean>
+	<!-- ru.runa.wfe.user.Executor -->
+	<bean id="executorVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.ClassNameMatcher">
+				<property name="className" value="ru.runa.wfe.user.Executor" />
+			</bean>
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.LongVariable" />
+		<property name="converter" ref="executorToLongConverter" />
+	</bean>
+	<!-- ru.runa.wfe.var.FileVariable -->
+	<bean id="fileVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.FileVariableMatcher" />
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.ByteArrayVariable" />
+		<property name="converter" ref="fileToByteArrayConverter" />
+	</bean>
+	<!-- java.io.Serializable -->
+	<bean id="serializableVariableType" class="ru.runa.wfe.var.VariableType">
+		<property name="matcher">
+			<bean class="ru.runa.wfe.var.matcher.SerializableMatcher" />
+		</property>
+		<property name="variableClass" value="ru.runa.wfe.var.impl.ByteArrayVariable" />
+		<property name="converter" ref="serializableToByteArrayConverter" />
+	</bean>
+
+	<bean id="variableCreator" class="ru.runa.wfe.var.VariableCreator">
+		<property name="types">
+			<list>
+				<ref bean="stringVariableType" />
+				<ref bean="largeStringVariableType" />
+				<ref bean="booleanVariableType" />
+				<ref bean="longVariableType" />
+				<ref bean="integerVariableType" />
+				<ref bean="doubleVariableType" />
+				<ref bean="dateVariableType" />
+				<ref bean="bytesVariableType" />
+				<ref bean="executorVariableType" />
+				<ref bean="fileVariableType" />
+				<ref bean="serializableVariableType" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="batchPresentationDAO" class="ru.runa.wfe.presentation.dao.BatchPresentationDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="botStationDAO" class="ru.runa.wfe.bot.dao.BotStationDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="botDAO" class="ru.runa.wfe.bot.dao.BotDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="botTaskDAO" class="ru.runa.wfe.bot.dao.BotTaskDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="constantDAO" class="ru.runa.wfe.commons.dao.ConstantDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="settingDAO" class="ru.runa.wfe.commons.dao.SettingDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="deploymentDAO" class="ru.runa.wfe.definition.dao.DeploymentDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="executorDAO" class="ru.runa.wfe.user.dao.ExecutorDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="jobDAO" class="ru.runa.wfe.job.dao.JobDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="localizationDAO" class="ru.runa.wfe.commons.dao.LocalizationDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="nodeProcessDAO" class="ru.runa.wfe.execution.dao.NodeProcessDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="permissionDAO" class="ru.runa.wfe.security.dao.PermissionDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="processDAO" class="ru.runa.wfe.execution.dao.ProcessDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="processLogAwareDAO" class="ru.runa.wfe.audit.dao.DoNothingProcessLogAwareDao">
+	</bean>
+	<bean id="processLogDAO" class="ru.runa.wfe.audit.dao.ProcessLogDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="profileDAO" class="ru.runa.wfe.user.dao.ProfileDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="relationDAO" class="ru.runa.wfe.relation.dao.RelationDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="relationPairDAO" class="ru.runa.wfe.relation.dao.RelationPairDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="substitutionDAO" class="ru.runa.wfe.ss.dao.SubstitutionDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="substitutionCriteriaDAO" class="ru.runa.wfe.ss.dao.SubstitutionCriteriaDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="systemLogDAO" class="ru.runa.wfe.audit.dao.SystemLogDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="taskDAO" class="ru.runa.wfe.task.dao.TaskDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="tokenDAO" class="ru.runa.wfe.execution.dao.TokenDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="variableDAO" class="ru.runa.wfe.var.dao.VariableDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+
+	<bean id="executorCache" class="ru.runa.wfe.user.cache.CacheFactory" factory-method="getInstance"/>
+	<bean id="substitutionCache" class="ru.runa.wfe.ss.cache.CacheFactory" factory-method="getInstance"/>
+	<bean id="taskCache" class="ru.runa.wfe.task.cache.CacheFactory" factory-method="getInstance"/>
+	<bean id="processDefCache" class="ru.runa.wfe.definition.cache.CacheFactory" factory-method="getInstance"/>
+
+	<bean id="processDefinitionLoader" class="ru.runa.wfe.definition.dao.ProcessDefinitionLoader" />
+
+	<bean id="taskFactory" class="ru.runa.wfe.task.TaskFactory" />
+
+	<bean id="wfTaskFactory" class="ru.runa.wfe.task.dto.WfTaskFactory" />
+
+	<bean id="processFactory" class="ru.runa.wfe.execution.ProcessFactory" />
+
+	<bean id="taskListBuilder" class="ru.runa.wfe.task.logic.TaskListBuilder">
+		<constructor-arg ref="taskCache"/>
+	</bean>
+
+	<bean id="commonLogic" class="ru.runa.wfe.commons.logic.CommonLogic" />
+
+	<bean id="loginModuleConfiguration" class="ru.runa.wfe.security.auth.LoginModuleConfiguration">
+		<property name="loginModuleClassNames">
+			<list>
+				<value>ru.runa.wfe.security.auth.InternalDBPasswordLoginModule</value>
+				<!-- value>ru.runa.wfe.security.auth.LdapLoginModule</value -->
+				<value>ru.runa.wfe.security.auth.KerberosLoginModule</value>
+				<!-- value>ru.runa.wfe.security.auth.PrincipalLoginModule</value -->
+				<value>ru.runa.wfe.security.auth.TrustedLoginModule</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="authenticationLogic" class="ru.runa.wfe.security.logic.AuthenticationLogic">
+		<property name="loginHandlers">
+			<list>
+			</list>
+		</property>
+	</bean>
+	<bean id="authorizationLogic" class="ru.runa.wfe.security.logic.AuthorizationLogic" />
+	<bean id="botLogic" class="ru.runa.wfe.bot.logic.BotLogic" />
+	<bean id="executorLogic" class="ru.runa.wfe.user.logic.ExecutorLogic">
+		<property name="setStatusHandlers">
+			<list>
+				<!-- bean class="ru.runa.wfe.synchronizer.online.ActorStatusSynchronizer" 
+					/ -->
+			</list>
+		</property>
+	</bean>
+	<bean id="profileLogic" class="ru.runa.wfe.user.logic.ProfileLogic" />
+	<bean id="relationLogic" class="ru.runa.wfe.relation.logic.RelationLogic" />
+	<bean id="substitutionLogic" class="ru.runa.wfe.ss.logic.SubstitutionLogic" />
+	<bean id="auditLogic" class="ru.runa.wfe.audit.logic.AuditLogic" />
+	<bean id="ldapLogic" class="ru.runa.wfe.security.logic.LDAPLogic" />
+	<bean id="definitionLogic" class="ru.runa.wfe.definition.logic.DefinitionLogic" />
+	<bean id="executionLogic" class="ru.runa.wfe.execution.logic.ExecutionLogic" />
+	<bean id="taskLogic" class="ru.runa.wfe.task.logic.TaskLogic" />
+	<bean id="variableLogic" class="ru.runa.wfe.var.logic.VariableLogic" />
+	<bean id="assignmentHelper" class="ru.runa.wfe.extension.assign.AssignmentHelper" />
+	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
+
+	<bean id="initializerLogic" class="ru.runa.wfe.commons.logic.InitializerLogic" />
+	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
+
+
+
+	<bean id="jobExecutorTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="delay" value="${timertask.start.millis.job.execution}" />
+		<property name="period" value="${timertask.period.millis.job.execution}" />
+		<property name="timerTask">
+			<bean class="ru.runa.wfe.job.impl.ExpiredJobCheckerTask">
+				<property name="transactionalExecutor">
+					<bean class="ru.runa.wfe.job.impl.JobTransactionalExecutor" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+	<bean id="cacheUsageStatisticTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="delay" value="60000" />
+		<property name="period" value="60000" />
+		<property name="timerTask">
+			<bean class="ru.runa.wfe.job.impl.CacheUsageStatisticLogger" />
+		</property>
+	</bean>
+	<bean id="tasksAssignTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="delay" value="${timertask.start.millis.unassigned.tasks.execution}" />
+		<property name="period" value="${timertask.period.millis.unassigned.tasks.execution}" />
+		<property name="timerTask">
+			<bean class="ru.runa.wfe.job.impl.AssignStalledTasks">
+				<property name="transactionalExecutor">
+					<bean class="ru.runa.wfe.job.impl.AssignStalledTasksExecutor" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+	<bean id="ldapSynchronizerTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="delay" value="${timertask.start.millis.ldap.sync}" />
+		<property name="period" value="${timertask.period.millis.ldap.sync}" />
+		<property name="timerTask">
+			<bean class="ru.runa.wfe.job.impl.LDAPSynchronizerTask">
+				<property name="transactionalExecutor" ref="ldapLogic" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="removeUnusedTemporaryGroupsTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="delay" value="${timertask.start.millis.remove.temp.groups}" />
+		<property name="period" value="${timertask.period.millis.remove.temp.groups}" />
+		<property name="timerTask">
+			<bean class="ru.runa.wfe.job.impl.RemoveUnusedTemporaryGroupsTask">
+				<property name="transactionalExecutor">
+					<bean class="ru.runa.wfe.job.impl.RemoveUnusedTemporaryGroupsExecutor" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
+		<property name="scheduledTimerTasks">
+			<list>
+				<ref bean="jobExecutorTask" />
+				<!-- ref bean="cacheUsageStatisticTask" / -->
+				<ref bean="tasksAssignTask" />
+				<ref bean="ldapSynchronizerTask" />
+				<ref bean="removeUnusedTemporaryGroupsTask" />
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
+	
+	<bean id="executionContextFactory" class="ru.runa.wfe.execution.DefaultExecutionContextFactory" />
+	
+	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
+	
+</beans>

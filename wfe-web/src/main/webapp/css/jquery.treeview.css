@@ -1,0 +1,46 @@
+.treeview .node {
+	background: url('images/treeview-default-line.gif') 0 0 no-repeat;
+	margin: 0;
+	padding: 3px 0pt 3px 16px;
+}
+.treeview .node.collapsed, .treeview .node.expanded {
+	background-position: 0 -176px;
+}
+.treeview .node.last {
+	background-position: 0 -1766px;
+}
+.treeview .node.loading, .node.expanded.last {
+	background-position: 0 -1792px;
+}
+.treeview .hitarea {
+	background: url('images/treeview-default.gif') -64px -25px no-repeat;
+	height: 16px;
+	width: 16px;
+	margin-left: -16px;
+	float: left;
+	cursor: pointer;
+}
+.treeview .node.last > .hitarea {
+	background-position: 0 -114px;
+}
+.treeview .node.collapsed > .hitarea {
+	background-position: -80px -3px;
+}
+.treeview .node.collapsed.last > .hitarea {
+	background-position: -32px -70px
+}
+.treeview .node.expanded.last > .hitarea {
+	background-position: 0 -114px;
+}
+.treeview .node.loading > .hitarea, .treeview.root.loading {
+	background: url('../images/loading.gif') 0px 0px no-repeat;
+}
+.treeview .node span.selectable { 
+	cursor: pointer; 
+}
+.treeview .node span.selected { 
+	background-color: #bbb; 
+}
+.treeview .node span.disabled { 
+	color: #bbb; 
+}

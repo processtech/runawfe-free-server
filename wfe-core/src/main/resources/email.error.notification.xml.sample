@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<email-config>
+	<common>
+		<param name="throwErrorOnFailure" value="true"/>
+		<param name="exception.includes" value="java.lang.Throwable"/>
+		<param name="exception.excludes" value="ru.runa.wfe.security.AuthenticationException; ru.runa.wfe.security.AuthenticationExpiredException; ru.runa.wfe.validation.ValidationException"/>
+	</common>
+	<headers>
+		<param name="To" value="admin@org.ru"/>
+	</headers>
+	<connection>
+		<param name="mail.transport.protocol" value="smtp"/>
+		<param name="mail.host" value="172.16.100.7"/>
+		<param name="mail.smtp.port" value="25"/>
+	</connection>
+	<message>
+		<body>
+			<![CDATA[
+				<h3>Error occured</h3>
+				<#if botTaskIdentifier??>
+					<p>On bot <b>${botTaskIdentifier.bot.username}</b> task <b>${botTaskIdentifier.botTask.name}</b> configuration</p>
+				</#if>
+				<#if processError??>
+					<p>In <b>${processError.taskName}</b>: <b>${processError.throwableMessage}</b></p>
+				</#if>
+				<br />
+				<br />
+				<i>Details are available in <a href="http://localhost:8080/wfe/manage_system.do">page</a></i>
+			]]>
+		</body>
+	</message>
+</email-config>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://runa.ru/xml" xmlns="http://runa.ru/xml" elementFormDefault="qualified">
+	<xs:element name="config">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="conditions">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="condition" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="swimlaneName" type="xs:string" minOccurs="1" maxOccurs="1" />
+										<xs:element name="function" type="xs:string" minOccurs="1" maxOccurs="1" />
+										<xs:element name="variableName" type="xs:string" minOccurs="1" maxOccurs="1" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

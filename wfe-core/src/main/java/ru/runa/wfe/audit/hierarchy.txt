@@ -1,0 +1,34 @@
+
+    <!-- A : ru.runa.bpm.log.ActionLog -->
+    <!-- B : ru.runa.bpm.log.SubprocessStartLog -->
+    <!-- C : ru.runa.bpm.log.CreateTimerActionLog -->
+    <!-- D : ru.runa.bpm.log.VariableDeleteLog -->
+    <!-- E : ru.runa.bpm.log.AdminActionLog -->
+    <!-- F : ru.runa.bpm.log.TaskDelegationLog -->
+    <!-- I : ru.runa.bpm.log.ProcessCreateLog -->
+    <!-- K : ru.runa.bpm.log.TaskEndByAdminLog -->
+    <!-- L : ru.runa.bpm.log.NodeLeaveLog -->
+    <!-- M : ru.runa.bpm.log.TaskRemovedOnProcessEndLog -->
+    <!-- N : ru.runa.bpm.log.NodeEnterLog -->
+    <!-- O : ru.runa.bpm.log.TaskCancelledLog -->
+    <!-- P :  -->
+    <!-- R : ru.runa.bpm.log.VariableCreateLog -->
+    <!-- S : ru.runa.bpm.log.TaskEndBySubstitutorLog -->
+    <!-- T : ru.runa.bpm.log.TransitionLog -->
+    <!-- U :  -->
+    <!-- V :  -->
+    <!-- W : ru.runa.bpm.log.VariableUpdateLog -->
+    <!-- X : ru.runa.bpm.log.ProcessEndLog -->
+    <!-- Y : ru.runa.bpm.log.ProcessCancelLog -->
+    <!-- Z : ru.runa.bpm.log.SubprocessEndLog -->
+    <!-- 0 : ru.runa.wfe.audit.ProcessLog & abstract subclasses -->
+    <!-- 1 : ru.runa.bpm.log.TaskCreateLog -->
+    <!-- 2 : ru.runa.bpm.log.TaskAssignLog -->
+    <!-- 3 : ru.runa.bpm.log.TaskEndLog -->
+    <!-- 4 : ru.runa.bpm.log.SwimlaneAssignLog -->
+    <!-- 5 : ru.runa.bpm.log.TaskEscalationLog -->
+    <!-- 6 :  -->
+    <!-- 7 : ru.runa.bpm.log.SendMessageLog -->
+    <!-- 8 : ru.runa.bpm.log.ReceiveMessageLog -->
+    <!-- 9 : ru.runa.bpm.log.TaskExpiredLog -->
+    

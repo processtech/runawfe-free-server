@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ru.runa.wfe</groupId>
+		<artifactId>wfe-app</artifactId>
+		<version>4.3.0-SNAPSHOT</version>
+		<relativePath>../wfe-app/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>wfe-remotebots</artifactId>
+	<packaging>ear</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-service</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-bots</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+		</dependency>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>jboss4</id>
+			<activation>
+				<property>
+					<name>appserver</name>
+					<value>!jboss7</value>
+				</property>
+			</activation>
+			<properties>
+				<java.naming.factory.initial>org.jnp.interfaces.NamingContextFactory</java.naming.factory.initial>
+				<java.naming.provider.url>jnp://localhost:10099</java.naming.provider.url>
+				<java.naming.factory.url.pkgs>org.jboss.naming:org.jnp.interfaces</java.naming.factory.url.pkgs>
+				<jboss.naming.client.ejb.context></jboss.naming.client.ejb.context>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-ear-plugin</artifactId>
+						<configuration>
+							<finalName>runawfe</finalName>
+							<displayName>RunaWFE remote botstation</displayName>
+							<version>5</version>
+							<defaultLibBundleDir>lib</defaultLibBundleDir>
+							<filtering>true</filtering>
+							<modules>
+								<jarModule>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>wfe-core</artifactId>
+								</jarModule>
+								<jarModule>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>wfe-service</artifactId>
+								</jarModule>
+								<ejbModule>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>wfe-bots</artifactId>
+								</ejbModule>
+							</modules>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>jboss7</id>
+			<activation>
+				<property>
+					<name>appserver</name>
+					<value>jboss7</value>
+				</property>
+			</activation>
+			<properties>
+				<java.naming.factory.initial>org.jboss.naming.remote.client.InitialContextFactory</java.naming.factory.initial>
+				<java.naming.provider.url>remote://localhost:4447</java.naming.provider.url>
+				<java.naming.factory.url.pkgs></java.naming.factory.url.pkgs>
+				<jboss.naming.client.ejb.context>true</jboss.naming.client.ejb.context>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-ear-plugin</artifactId>
+						<configuration>
+							<finalName>runawfe</finalName>
+							<displayName>RunaWFE remote botstation</displayName>
+							<version>5</version>
+							<defaultLibBundleDir>lib</defaultLibBundleDir>
+							<filtering>true</filtering>
+							<modules>
+								<jarModule>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>wfe-core</artifactId>
+								</jarModule>
+								<jarModule>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>wfe-service</artifactId>
+								</jarModule>
+								<ejbModule>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>wfe-bots</artifactId>
+								</ejbModule>
+							</modules>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

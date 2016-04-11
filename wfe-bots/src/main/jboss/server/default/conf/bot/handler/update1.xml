@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml update-permissions.xsd">
+	<method>set</method>
+	<orgFunctions>
+		<orgFunction>ru.runa.af.organizationfunction.ExecutorByNameFunction(Dofs)</orgFunction>
+		<orgFunction>ru.runa.af.organizationfunction.ExecutorByNameFunction(?)</orgFunction>
+		<orgFunction>ru.runa.af.organizationfunction.ExecutorByNameFunction(${executorId})</orgFunction>
+	</orgFunctions>
+	<permissions>
+		<permission>permission.read</permission>
+	</permissions>
+	<condition varName="testDecisionVar" varValue="test" />
+</config>

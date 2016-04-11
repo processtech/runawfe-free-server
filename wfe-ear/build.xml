@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project basedir=".">
+	
+	<target name="deploy">
+		<echo message="copying EAR to Jboss" />
+		<copy todir="${deployment.dir}" overwrite="true">
+			<fileset dir="target">
+				<include name="runawfe.ear" />
+			</fileset>
+		</copy>
+	</target>
+
+	<property name="jboss.home.dir" value="E:/Dofs/jboss4" />
+
+	<target name="dist.adminkit" description="Make distribution of admin kit">
+		<copy todir="${jboss.home.dir}/samples" overwrite="true">
+			<fileset dir="${samples.dir}" />
+		</copy>
+		<copy todir="${jboss.home.dir}/adminkit" overwrite="true">
+			<fileset dir="${adminkit.dir}" />
+		</copy>
+		<mkdir dir="${adminkit.dir}" />
+		<mkdir dir="${adminkit.dir}/lib" />
+		<mkdir dir="${adminkit.dir}/conf" />
+
+		<copy todir="${adminkit.dir}/lib" flatten="true" overwrite="true">
+			<fileset dir="${jboss.home.dir}/client">
+				<include name="jbossall-client.jar" />
+			</fileset>
+			<fileset dir="${lib.dir}">
+				<include name="commons/commons-logging*.jar" />
+				<include name="commons/commons-io*.jar" />
+				<include name="xerces/xercesImpl.jar" />
+			</fileset>
+			<fileset dir="${dist.deploy.dir}">
+				<include name="wfe.core.jar" />
+				<include name="wfe.service.jar" />
+				<include name="wfe-botstation.jar" />
+				<include name="runa-common.jar" />
+			</fileset>
+		</copy>
+
+		<copy todir="${adminkit.dir}/conf" flatten="true" overwrite="true">
+			<fileset dir="resources">
+				<include name="wf/wfe.delegate.properties" />
+				<include name="wf/workflowScript.xsd" />
+			</fileset>
+		</copy>
+
+		<copy todir="${adminkit.dir}" overwrite="true">
+			<fileset dir="resources/adminkit">
+				<include name="**" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="deploy.processes" description="Make distribution of admin kit" depends="dist.adminkit">
+		<java classname="ru.runa.wfe.wfe.wf.delegate.impl.WfeScriptClient">
+			<arg line="${wfescript.path}  ${wfescript.user} ${wfescript.password}" />
+			<classpath>
+				<fileset dir="dist/adminkit/lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<pathelement location="dist/adminkit/conf" />
+				<pathelement path="${java.class.path}/" />
+			</classpath>
+		</java>
+	</target>
+	
+</project>

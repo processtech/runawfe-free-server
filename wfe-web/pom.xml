@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ru.runa.wfe</groupId>
+		<artifactId>wfe-app</artifactId>
+		<version>4.3.0-SNAPSHOT</version>
+		<relativePath>../wfe-app/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>wfe-web</artifactId>
+	<packaging>war</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-service</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>wfe-bots</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>portlet-api</groupId>
+			<artifactId>portlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<artifactId>antlr</artifactId>
+			<groupId>antlr</groupId>
+			<version>2.7.6</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Include in WAR -->
+		<dependency>
+			<groupId>ecs</groupId>
+			<artifactId>ecs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts-taglib</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts-tiles</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts-extras</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts-el</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.portals.bridges</groupId>
+			<artifactId>portals-bridges-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.portals.bridges</groupId>
+			<artifactId>portals-bridges-struts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>nekohtml</groupId>
+			<artifactId>nekohtml</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>jcifs</groupId>
+			<artifactId>jcifs</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>servlet-api</artifactId>
+					<groupId>javax.servlet</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>jcifs</groupId>
+			<artifactId>jcifs-ext</artifactId>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>jboss7</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+				<property>
+					<name>appserver</name>
+					<value>jboss7</value>
+				</property>
+			</activation>
+			<properties>
+				<enable.resteasy.start></enable.resteasy.start>
+				<enable.resteasy.end></enable.resteasy.end>
+			</properties>
+		</profile>
+		<profile>
+			<id>simulation</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<configuration>
+									<target>
+										<copy file="src/main/simulation/webapp/images/big_logo.png"
+											tofile="${project.build.directory}/wfe-web-${project.version}/images/big_logo.png"
+											overwrite="true" />
+										<copy file="src/main/webapp/WEB-INF/af/login.jsp"
+											tofile="${project.build.directory}/wfe-web-${project.version}/WEB-INF/af/login.jsp"
+											overwrite="true" />
+										<replace
+											file="${project.build.directory}/wfe-web-${project.version}/WEB-INF/af/login.jsp"
+											token="&lt;/html:form&gt;">
+											<replacevalue><![CDATA[
+</html:form>
+<% 
+String pr = null;
+try {
+	ru.runa.wfe.commons.PropertyResources resources = new ru.runa.wfe.commons.PropertyResources("simulation.properties");
+	pr = resources.getStringProperty("skipLoginLinks", null);
+} catch (Throwable e) {
+}
+if ( pr == null || !pr.trim().toLowerCase().equals("true") ){ 
+%>
+<table>
+	<tr><td><bean:message key="login.page.login.as"/></td></tr>
+	<tr><td><html:link action="/login.do?login=julius&amp;password=123">julius (manager)</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=nero&amp;password=123">nero (manager)</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=tiberius&amp;password=123">tiberius (bookkeeper)</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=caligula&amp;password=123">caligula (bookkeeper)</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=octavia&amp;password=123">octavia (human resource</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=cleopatra&amp;password=123">cleopatra (human resource)</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=marcus&amp;password=123">marcus (staff)</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=gaiua&amp;password=123">gaiua (staff)</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=attila&amp;password=123">attila (staff)</html:link></td></tr>
+	<tr><td><html:link action="/login.do?login=Administrator&amp;password=wf" style="color: #ababab;">Administrator</html:link></td></tr>
+</table>
+<% } %>
+]]></replacevalue>
+										</replace>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-war-plugin</artifactId>
+						<version>2.3</version>
+						<executions>
+							<execution>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>exploded</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<useCache>true</useCache>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
