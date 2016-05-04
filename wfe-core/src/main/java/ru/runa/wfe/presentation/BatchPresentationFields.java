@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 
@@ -251,8 +252,7 @@ public class BatchPresentationFields implements Serializable {
     public static BatchPresentationFields createDefaultFields(ClassPresentationType type) {
         ClassPresentation classPresentation = ClassPresentations.getClassPresentation(type);
         BatchPresentationFields fields = new BatchPresentationFields();
-        fields.sortIds = new int[0];
-        fields.sortModes = new boolean[0];
+        
         fields.groupIds = new int[0];
         int displayedFieldsCount = classPresentation.getFields().length;
         for (FieldDescriptor field : classPresentation.getFields()) {
@@ -267,6 +267,36 @@ public class BatchPresentationFields implements Serializable {
             }
             fields.displayIds[--displayedFieldsCount] = i;
         }
+        
+        // Default sorting - creates array of sortIds,
+        // which contains indexes of only(!) sorted fields - in order of sorting(!),
+        // and synchronized array of sortModes.
+        // All based on info from FieldDescriptors in current type ClassPresentation
+        // (e.g. TaskClassPresentation, ProcessClassPresentation... - all can be found in ClassPresentations class).
+        int sortedByDefaultFieldsCount = 0;
+        for (FieldDescriptor field : classPresentation.getFields()) {
+            if (field.defaultSortOrder > 0) {
+            	sortedByDefaultFieldsCount++;
+            }
+        }
+	    fields.sortIds = new int[sortedByDefaultFieldsCount];
+	    fields.sortModes = new boolean[sortedByDefaultFieldsCount];
+      for (int i = 0; i < classPresentation.getFields().length; i++) {
+	  	if (classPresentation.getFields()[i].defaultSortOrder > 0) {
+	  		try {
+	  		fields.sortIds[classPresentation.getFields()[i].defaultSortOrder - 1] = i;
+	  		fields.sortModes[classPresentation.getFields()[i].defaultSortOrder - 1] = classPresentation.getFields()[i].defaultSortMode;
+	  		} catch (IndexOutOfBoundsException e){
+	  			throw new InternalApplicationException("Sequence of indexes for default sorted fields in class " + type.name() 
+	  					+ "-ClassPresentation are broken with index " 
+	  					+ classPresentation.getFields()[i].defaultSortOrder + ". "
+	  					+ "Revise noted class please. "
+	  					+ "Sorted fields indexes must start with 1 and be exactly sequential.");	  			
+	  		}
+	  	}
+	  }
+        
+        
         return fields;
     }
 }
