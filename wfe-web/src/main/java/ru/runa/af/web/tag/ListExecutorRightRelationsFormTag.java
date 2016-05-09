@@ -25,7 +25,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.form.RelationPairForm;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
@@ -53,6 +55,7 @@ import com.google.common.collect.Lists;
 /**
  * List relations in which executor exists in right side.
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorRightRelationsForm")
 public class ListExecutorRightRelationsFormTag extends IdentifiableFormTag {
     private static final long serialVersionUID = 1L;
 
@@ -76,7 +79,7 @@ public class ListExecutorRightRelationsFormTag extends IdentifiableFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_EXECUTOR_RIGHT_RELATIONS, pageContext);
+        return MessagesExecutor.TITLE_EXECUTOR_RIGHT_RELATIONS.message(pageContext);
     }
 
     @Override

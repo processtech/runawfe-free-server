@@ -28,11 +28,11 @@ import org.apache.struts.action.ActionMessages;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Profile;
@@ -40,18 +40,12 @@ import ru.runa.wfe.user.Profile;
 /**
  * Created on 18.08.2004
  * 
- * @struts:action path="/startProcess" name="idForm" validate="true" input =
- *                "/WEB-INF/wf/manage_process_definitions.jsp"
- * @struts.action-forward name="success" path="/manage_process_definitions.do"
- *                        redirect = "true"
- * @struts.action-forward name="failure" path="/manage_process_definitions.do"
- *                        redirect = "true"
- * @struts.action-forward name="success_display_start_form"
- *                        path="/submit_start_process.do" redirect = "true"
- * @struts.action-forward name="submitTask" path="/submit_task.do" redirect =
- *                        "false"
- * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect =
- *                        "true"
+ * @struts:action path="/startProcess" name="idForm" validate="true" input = "/WEB-INF/wf/manage_process_definitions.jsp"
+ * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/manage_process_definitions.do" redirect = "true"
+ * @struts.action-forward name="success_display_start_form" path="/submit_start_process.do" redirect = "true"
+ * @struts.action-forward name="submitTask" path="/submit_task.do" redirect = "false"
+ * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect = "true"
  */
 public class StartProcessAction extends ActionBase {
 
@@ -69,10 +63,11 @@ public class StartProcessAction extends ActionBase {
             } else {
                 WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
                 Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
-                addMessage(request, new ActionMessage(Messages.PROCESS_STARTED, processId.toString()));
+                addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
 
                 ActionMessages messages = new ActionMessages();
-                messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.PROCESS_STARTED, processId.toString()));
+                messages.add(ActionMessages.GLOBAL_MESSAGE,
+                        new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
                 saveMessages(request.getSession(), messages);
 
                 successForward = mapping.findForward(Resources.FORWARD_SUCCESS);

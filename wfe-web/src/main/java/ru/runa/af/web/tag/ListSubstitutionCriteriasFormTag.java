@@ -30,12 +30,16 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.DeleteSubstitutionCriteriasAction;
 import ru.runa.af.web.action.UpdateSubstitutionCriteriaAction;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
+import ru.runa.common.web.MessagesConfirmation;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.SubstitutionCriteriasForm;
@@ -49,22 +53,16 @@ import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.user.Actor;
 
-/**
- * Created on 24.04.2012
- * 
- * @jsp.tag name = "listSubstitutionCriteriasForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listSubstitutionCriteriasForm")
 public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
     private static final long serialVersionUID = 1L;
     private String substitutionCriteriaIds;
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public String getSubstitutionCriteriaIds() {
         return substitutionCriteriaIds;
     }
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setSubstitutionCriteriaIds(String substitutionCriteriaIds) {
         this.substitutionCriteriaIds = substitutionCriteriaIds;
     }
@@ -88,7 +86,7 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
         tdFormElement.addElement(new Input(Input.HIDDEN, SubstitutionCriteriasForm.REMOVE_METHOD_INPUT_NAME,
                 SubstitutionCriteriasForm.REMOVE_METHOD_CONFIRM));
         if (substitutionCriteriaIds != null && !substitutionCriteriaIds.isEmpty()) {
-            String message = Messages.getMessage(Messages.LABEL_SUBSTITUTION_CRITERIA_USED_BY, pageContext) + ":<ul>";
+            String message = MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_USED_BY.message(pageContext) + ":<ul>";
             ArrayList<Long> ids = arrayFromString(substitutionCriteriaIds);
             ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
             SubstitutionService substitutionService = Delegates.getSubstitutionService();
@@ -101,14 +99,14 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
                 Actor actor = executorService.getExecutor(getUser(), substitution.getActorId());
                 message += "<li>" + actor.getFullName() + " (" + actor.getName() + ")</li>";
             }
-            message += "</ul>" + Messages.getMessage(Messages.CONF_POPUP_REMOVE_SUBSTITUTION_CRITERIA, pageContext);
+            message += "</ul>" + MessagesConfirmation.CONF_POPUP_REMOVE_SUBSTITUTION_CRITERIA.message(pageContext);
             getForm().addAttribute("id", "substitutionCriteriasForm");
             String javascript = "onload = function() {" + "openSubstitutionCriteriasConfirmPopup('" + message + "', '"
                     + SubstitutionCriteriasForm.REMOVE_METHOD_ALL + "', '"
-                    + Messages.getMessage(Messages.CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ALL, pageContext) + "', '"
+                    + MessagesConfirmation.CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ALL.message(pageContext) + "', '"
                     + SubstitutionCriteriasForm.REMOVE_METHOD_ONLY + "', '"
-                    + Messages.getMessage(Messages.CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ONLY, pageContext) + "', '"
-                    + Messages.getMessage(Messages.CONF_POPUP_BUTTON_CANCEL, pageContext) + "');" + "}";
+                    + MessagesConfirmation.CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ONLY.message(pageContext) + "', '"
+                    + MessagesConfirmation.CONF_POPUP_BUTTON_CANCEL.message(pageContext) + "');" + "}";
             tdFormElement.addElement(WebUtils.getScript(javascript));
         }
     }
@@ -120,12 +118,12 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_REMOVE, pageContext);
+        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_SUBSTITUTION_CRITERIA, pageContext);
+        return MessagesExecutor.TITLE_SUBSTITUTION_CRITERIA.message(pageContext);
     }
 
     @Override
@@ -161,9 +159,9 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
         private TR createTableHeaderTR() {
             TR tr = new TR();
             tr.addElement(new TH().setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_SUBSTITUTION_CRITERIA_NAME, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_SUBSTITUTION_CRITERIA_TYPE, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_SUBSTITUTION_CRITERIA_CONF, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_TYPE.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_CONF.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             return tr;
         }
 

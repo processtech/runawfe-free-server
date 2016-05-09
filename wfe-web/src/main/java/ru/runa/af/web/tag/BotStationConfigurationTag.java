@@ -18,9 +18,10 @@
 package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.UpdatePermissionsOnBotStationAction;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.wfe.bot.BotStation;
@@ -30,8 +31,8 @@ import ru.runa.wfe.security.Permission;
 
 /**
  * @author: stan79 Date: 25.05.2008 Time: 20:04:19
- * @jsp.tag name = "botStationConfigurationTag" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botStationConfigurationTag")
 public class BotStationConfigurationTag extends IdentifiableFormTag {
     private static final long serialVersionUID = -1187003724875968614L;
 
@@ -58,11 +59,11 @@ public class BotStationConfigurationTag extends IdentifiableFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PERMISSION_OWNERS, pageContext);
+        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
     }
 }

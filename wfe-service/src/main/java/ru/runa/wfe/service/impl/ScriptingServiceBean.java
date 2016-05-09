@@ -33,16 +33,15 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.script.AdminScriptException;
+import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
 import ru.runa.wfe.script.AdminScriptRunner;
+import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.interceptors.CacheReloader;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -50,6 +49,8 @@ import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.User;
+
+import com.google.common.base.Throwables;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -62,40 +63,34 @@ public class ScriptingServiceBean implements ScriptingService {
     private AdminScriptRunner runner;
 
     @Override
-    @WebResult(name = "result")
-    public void executeAdminScript(@WebParam(name = "user") User user, @WebParam(name = "configData") byte[] configData,
-            @WebParam(name = "processDefinitionsBytes") byte[][] processDefinitionsBytes) {
-        runner.setUser(user);
-        runner.setProcessDefinitionsBytes(processDefinitionsBytes);
-        runner.runScript(configData);
+    @WebMethod(exclude = true)
+    public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) {
+        ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, null);
+        runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
+            @Override
+            public void handle(Throwable th) {
+                Throwables.propagate(th);
+            }
+        });
     }
 
     @Override
     @WebMethod(exclude = true)
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, byte[][] processDefinitionsBytes, Map<String, byte[]> configs,
-            String defaultPasswordValue) {
-        runner.setUser(user);
-        runner.setProcessDefinitionsBytes(processDefinitionsBytes);
-        runner.setConfigs(configs);
-        runner.setDefaultPasswordValue(defaultPasswordValue);
-        runner.init();
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue) {
+        ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue);
+        final List<String> errors = new ArrayList<String>();
+        runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
+            @Override
+            public void handle(Throwable th) {
+                if (!(th instanceof AdminScriptException)) {
+                    Throwables.propagate(th);
+                }
 
-        Document document = XmlUtils.parseWithXSDValidation(configData, "workflowScript.xsd");
-        Element scriptElement = document.getRootElement();
-        List<Element> elements = scriptElement.elements();
-        List<String> errors = new ArrayList<String>();
-        for (Element element : elements) {
-            try {
-                runner.handleElement(element);
-            } catch (AdminScriptException e) {
-                if (!(e.getCause() instanceof ExecutorAlreadyExistsException)) {
-                    errors.add(e.getMessage());
+                if (!(th.getCause() instanceof ExecutorAlreadyExistsException)) {
+                    errors.add(th.getMessage());
                 }
             }
-        }
-
-        runner.setConfigs(null);
-        runner.setDefaultPasswordValue(null);
+        });
         return errors;
     }
 

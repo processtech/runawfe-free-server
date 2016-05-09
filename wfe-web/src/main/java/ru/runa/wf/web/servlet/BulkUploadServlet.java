@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -22,12 +23,12 @@ import com.google.common.io.ByteStreams;
 
 public class BulkUploadServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    public static final String UPLOADED_FILES = "UploadedFiles";
+    private static final String UPLOADED_FILES = "UploadedFiles";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        JSONArray jarray = bulkUploadProcessDefinition(request);
+        JSONArray jarray = bulkUpload(request);
 
         response.setContentType("text/html");
         response.setCharacterEncoding(Charsets.UTF_8.name());
@@ -38,7 +39,7 @@ public class BulkUploadServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        Map<String, UploadedFile> uploadedParFiles = getUploadedParFilesMap(request);
+        Map<String, UploadedFile> uploadedParFiles = getUploadedFilesMap(request);
         if ("delete".equals(action)) {
             String key = request.getParameter("key");
             if (uploadedParFiles.containsKey(key)) {
@@ -63,7 +64,7 @@ public class BulkUploadServlet extends HttpServlet {
         }
     }
 
-    public JSONArray bulkUploadProcessDefinition(HttpServletRequest request) throws IOException {
+    public JSONArray bulkUpload(HttpServletRequest request) throws IOException {
 
         Integer key = Integer.parseInt(request.getParameter("fileKey"));
         JSONArray jarray = new JSONArray();
@@ -87,7 +88,7 @@ public class BulkUploadServlet extends HttpServlet {
                         file.setMimeType(item.getContentType());
 
                         key++;
-                        Map<String, UploadedFile> uploadedParFiles = getUploadedParFilesMap(request);
+                        Map<String, UploadedFile> uploadedParFiles = getUploadedFilesMap(request);
                         uploadedParFiles.put(key.toString(), file);
                         JSONObject fileObject = new JSONObject();
                         fileObject.put("name", name);
@@ -104,11 +105,15 @@ public class BulkUploadServlet extends HttpServlet {
         return jarray;
     }
 
-    public Map<String, UploadedFile> getUploadedParFilesMap(HttpServletRequest request) {
-        Map<String, UploadedFile> map = (Map<String, UploadedFile>) request.getSession().getAttribute(UPLOADED_FILES);
+    public static Map<String, UploadedFile> getUploadedFilesMap(HttpServletRequest request) {
+        return getUploadedFilesMap(request.getSession());
+    }
+
+    public static Map<String, UploadedFile> getUploadedFilesMap(HttpSession session) {
+        Map<String, UploadedFile> map = (Map<String, UploadedFile>) session.getAttribute(UPLOADED_FILES);
         if (map == null) {
             map = Maps.newHashMap();
-            request.getSession().setAttribute(UPLOADED_FILES, map);
+            session.setAttribute(UPLOADED_FILES, map);
         }
         return map;
     }

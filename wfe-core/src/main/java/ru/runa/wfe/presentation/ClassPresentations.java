@@ -10,6 +10,7 @@ import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
 import ru.runa.wfe.relation.RelationPairClassPresentation;
+import ru.runa.wfe.report.ReportClassPresentation;
 import ru.runa.wfe.task.TaskClassPresentation;
 import ru.runa.wfe.user.ActorClassPresentation;
 import ru.runa.wfe.user.ExecutorClassPresentation;
@@ -28,6 +29,7 @@ public class ClassPresentations {
         registerClassPresentation(ClassPresentationType.RELATIONPAIR, RelationPairClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.RELATION, RelationClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.SYSTEM_LOG, SystemLogClassPresentation.getInstance());
+        registerClassPresentation(ClassPresentationType.REPORTS, ReportClassPresentation.getInstance());
     }
 
     private static void registerClassPresentation(ClassPresentationType type, ClassPresentation classPresentation) {

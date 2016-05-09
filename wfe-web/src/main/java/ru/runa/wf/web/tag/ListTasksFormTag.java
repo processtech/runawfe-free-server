@@ -24,10 +24,10 @@ import javax.servlet.jsp.PageContext;
 
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.CssClassStrategy;
 import ru.runa.common.web.html.HeaderBuilder;
@@ -36,6 +36,7 @@ import ru.runa.common.web.html.SortingHeaderBuilder;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ProcessTaskAssignmentAction;
 import ru.runa.wf.web.html.AssignTaskCheckboxTDBuilder;
 import ru.runa.wf.web.html.TaskUrlStrategy;
@@ -49,8 +50,8 @@ import ru.runa.wfe.user.User;
  * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
- * @jsp.tag name = "listTasksForm" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listTasksForm")
 public class ListTasksFormTag extends BatchReturningTitledFormTag {
 
     private static final long serialVersionUID = -6863052817853155919L;
@@ -99,12 +100,12 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_TASKS, pageContext);
+        return MessagesProcesses.TITLE_TASKS.message(pageContext);
     }
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_ACCEPT_TASK, pageContext);
+        return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
     }
 
     @Override

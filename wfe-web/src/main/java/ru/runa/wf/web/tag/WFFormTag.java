@@ -27,10 +27,10 @@ import org.apache.struts.Globals;
 import org.apache.struts.taglib.html.Constants;
 
 import ru.runa.common.web.ActionExceptionHelper;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.FormSubmissionUtils;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 
@@ -107,7 +107,7 @@ public abstract class WFFormTag extends TitledFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_COMPLETE, pageContext);
+        return MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
     }
 
     protected abstract Long getDefinitionId();

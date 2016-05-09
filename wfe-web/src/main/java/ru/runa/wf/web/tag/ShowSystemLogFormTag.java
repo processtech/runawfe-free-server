@@ -20,8 +20,10 @@ package ru.runa.wf.web.tag;
 import java.util.List;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
@@ -36,9 +38,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * @jsp.tag name = "showSystemLogForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showSystemLogForm")
 public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
 
     private static final long serialVersionUID = 1L;
@@ -71,7 +71,7 @@ public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_SYSTEM_HISTORY, pageContext);
+        return MessagesOther.TITLE_SYSTEM_HISTORY.message(pageContext);
     }
 
     @Override

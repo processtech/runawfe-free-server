@@ -30,9 +30,13 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesBatch;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.TableViewSetupFormAction;
@@ -48,37 +52,31 @@ import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.user.Profile;
 
-/**
- * Created on 24.01.2005
- * 
- * @jsp.tag name = "tableViewSetupForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "tableViewSetupForm")
 public class TableViewSetupFormTag extends AbstractReturningTag implements BatchedTag {
     private static final long serialVersionUID = 6534068425896008626L;
 
     private static boolean groupBySubprocessEnabled = ru.runa.common.WebResources.isGroupBySubprocessEnabled();
 
     public String getApplyButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     public String getSaveButtonName() {
-        return Messages.getMessage(Messages.BUTTON_SAVE, pageContext);
+        return MessagesCommon.BUTTON_SAVE.message(pageContext);
     }
 
     public String getCreateNewButtonName() {
-        return Messages.getMessage(Messages.BUTTON_SAVE_AS, pageContext);
+        return MessagesCommon.BUTTON_SAVE_AS.message(pageContext);
     }
 
     public String getRemoveButtonName() {
-        return Messages.getMessage(Messages.BUTTON_REMOVE, pageContext);
+        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     private String batchPresentationId;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
+    @Attribute(required = true, rtexprvalue = true)
     @Override
     public void setBatchPresentationId(String id) {
         batchPresentationId = id;
@@ -117,7 +115,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             tr.addElement(td);
             td.setClass(Resources.CLASS_VIEW_SETUP_TD);
             // td.addElement(Entities.NBSP);
-            td.addElement(Messages.getMessage(Messages.LABEL_VIEW_SIZE, pageContext));
+            td.addElement(MessagesBatch.VIEW_SIZE.message(pageContext));
             td.addElement(Entities.NBSP);
             Select selectSize = new Select(TableViewSetupForm.VIEW_SIZE_NAME);
             int[] allowedSizes = BatchPresentationConsts.getAllowedViewSizes();
@@ -237,7 +235,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                     groupingInput.setChecked(true);
                 }
                 td = new TD(groupingInput);
-                td.addElement(Messages.getMessage("batch_presentation.process.group_by_id", pageContext));
+                td.addElement(MessagesCommon.LABEL_GROUP_BY_ID.message(pageContext));
             } else {
                 td = new TD(Messages.getMessage(field.displayName, pageContext));
             }
@@ -245,8 +243,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.IDS_INPUT_NAME, String.valueOf(fieldIdx)));
             tr.addElement(td);
         }
-        if (isEditable || isFilterable) { // Editable fields havn't fields for
-                                          // sorting/filtering e t.c.
+        if (isEditable || isFilterable) { // Editable fields havn't fields for sorting/filtering e t.c.
             for (int idx = 0; idx < 5; ++idx) {
                 tr.addElement(new TD().setClass(Resources.CLASS_VIEW_SETUP_TD));
             }
@@ -315,7 +312,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
     protected Option[] createPositionOptions(BatchPresentation batchPresentation, int fieldIdx) {
         FieldDescriptor[] fields = batchPresentation.getAllFields();
         if (fields[fieldIdx].displayName.startsWith(ClassPresentation.editable_prefix)) {
-            return new Option[] { new Option("-1").addElement(new StringElement(Messages.getMessage(Messages.LABEL_NONE, pageContext))) };
+            return new Option[] { new Option("-1").addElement(new StringElement(MessagesBatch.OPTION_NONE.message(pageContext))) };
         }
         int fieldsCount = fields.length;
         for (int i = fields.length - 1; i >= 0; --i) {
@@ -325,7 +322,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         }
 
         Option[] positionOptions = new Option[fieldsCount + 1];
-        positionOptions[0] = new Option("-1").addElement(new StringElement(Messages.getMessage(Messages.LABEL_NONE, pageContext)));
+        positionOptions[0] = new Option("-1").addElement(new StringElement(MessagesBatch.OPTION_NONE.message(pageContext)));
         for (int position = 1; position < positionOptions.length; position++) {
             String positionString = new Integer(position).toString();
             String positionIdString = new Integer(position - 1).toString();
@@ -335,21 +332,20 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
     }
 
     protected Option[] createSortModeOptions() {
-        Option[] sortingModesOptions = {
-                new Option(TableViewSetupForm.ASC_SORTING_MODE).addElement(Messages.getMessage(Messages.LABEL_ASC, pageContext)),
-                new Option(TableViewSetupForm.DSC_SORTING_MODE).addElement(Messages.getMessage(Messages.LABEL_DESC, pageContext)) };
+        Option[] sortingModesOptions = { new Option(TableViewSetupForm.ASC_SORTING_MODE).addElement(MessagesBatch.SORT_ASC.message(pageContext)),
+                new Option(TableViewSetupForm.DSC_SORTING_MODE).addElement(MessagesBatch.SORT_DESC.message(pageContext)) };
         return sortingModesOptions;
     }
 
     private TR getHeaderRow() {
         TR tr = new TR();
         String[] headerNames = {
-                Messages.getMessage(Messages.LABEL_FIELD_NAMES, pageContext),
-                Messages.getMessage(Messages.LABEL_DISPLAY_POSITION, pageContext),
-                Messages.getMessage(Messages.LABEL_SORTING_TYPE, pageContext),
-                Messages.getMessage(Messages.LABEL_SORTING_POSITION, pageContext),
-                Messages.getMessage(Messages.LABEL_GROUPING, pageContext),
-                Messages.getMessage(Messages.LABEL_FILTER_CRITERIA, pageContext)
+                MessagesBatch.FIELD_NAMES.message(pageContext),
+                MessagesBatch.DISPLAY_POSITION.message(pageContext),
+                MessagesBatch.SORTING_TYPE.message(pageContext),
+                MessagesBatch.SORTING_POSITION.message(pageContext),
+                MessagesBatch.GROUPING.message(pageContext),
+                MessagesBatch.FILTER_CRITERIA.message(pageContext)
                         + " <a href='javascript:showFiltersHelp();' style='color: red; text-decoration: none;'>*</a>" };
         for (int i = 0; i < headerNames.length; i++) {
             tr.addElement(new TH(headerNames[i]).setClass(Resources.CLASS_VIEW_SETUP_TH));

@@ -18,6 +18,7 @@
 package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.A;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
@@ -26,11 +27,7 @@ import ru.runa.common.web.tag.MessageTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.user.User;
 
-/**
- * Created on 06.09.2004
- * 
- * @jsp.tag name = "loginAsMessage" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "loginAsMessage")
 public class LoginAsMessageTag extends MessageTag {
 
     private static final long serialVersionUID = 1L;

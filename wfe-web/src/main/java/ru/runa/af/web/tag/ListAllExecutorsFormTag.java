@@ -20,12 +20,14 @@ package ru.runa.af.web.tag;
 import java.util.List;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.BatchExecutorPermissionHelper;
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveExecutorsAction;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
@@ -46,8 +48,8 @@ import ru.runa.wfe.user.ExecutorPermission;
  * 
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
- * @jsp.tag name = "listAllExecutorsForm" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listAllExecutorsForm")
 public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     private static final long serialVersionUID = -7478022960008761625L;
@@ -74,7 +76,7 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_REMOVE, pageContext);
+        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
@@ -84,7 +86,7 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_EXECUTORS, pageContext);
+        return MessagesExecutor.TITLE_EXECUTORS.message(pageContext);
     }
 
     @Override

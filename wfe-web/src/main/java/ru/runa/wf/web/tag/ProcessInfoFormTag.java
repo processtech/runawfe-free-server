@@ -27,13 +27,17 @@ import org.apache.ecs.html.Div;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wf.web.action.RemoveProcessAction;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
@@ -53,23 +57,17 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 import com.google.common.collect.Maps;
 
-/**
- * Created on 29.11.2004
- *
- * @jsp.tag name = "processInfoForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processInfoForm")
 public class ProcessInfoFormTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = -1275657878697999574L;
 
     private Long taskId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getTaskId() {
         return taskId;
     }
@@ -117,7 +115,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     @Override
     public String getFormButtonName() {
         boolean ended = getProcess().isEnded();
-        return Messages.getMessage(ended ? Messages.BUTTON_REMOVE : Messages.BUTTON_CANCEL_PROCESS, pageContext);
+        return ended ? MessagesCommon.BUTTON_REMOVE.message(pageContext) : MessagesProcesses.BUTTON_CANCEL_PROCESS.message(pageContext);
     }
 
     // end #179
@@ -177,7 +175,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         if (parentProcess != null) {
             TR parentTR = new TR();
             table.addElement(parentTR);
-            String parentNameString = Messages.getMessage(Messages.LABEL_PARENT_PROCESS, pageContext);
+            String parentNameString = MessagesProcesses.LABEL_PARENT_PROCESS.message(pageContext);
             parentTR.addElement(new TD(parentNameString).setClass(Resources.CLASS_LIST_TABLE_TD));
             TD td = new TD();
             td.setClass(Resources.CLASS_LIST_TABLE_TD);
@@ -207,7 +205,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         div.addElement(Entities.NBSP);
         String url = Commons.getActionUrl(UpgradeProcessToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(), pageContext,
                 PortletUrlType.Render);
-        A upgradeLink = new A(url, Commons.getMessage(Messages.PROCESS_UPGRADE_TO_DEFINITION_VERSION, pageContext));
+        A upgradeLink = new A(url, MessagesProcesses.PROCESS_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
         upgradeLink.addAttribute("data-processId", process.getId());
         upgradeLink.addAttribute("data-definitionName", process.getName());
         upgradeLink.addAttribute("data-definitionVersion", process.getVersion());
@@ -222,7 +220,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PROCESS, pageContext);
+        return MessagesProcesses.TITLE_PROCESS.message(pageContext);
     }
 
 }

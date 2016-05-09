@@ -24,7 +24,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 
 /**
  * Created on 18.08.2004
@@ -47,15 +47,17 @@ public class IdsForm extends IdForm {
         this.ids = ids;
     }
 
+    @Override
     public void reset(ActionMapping mapping, HttpServletRequest request) {
         super.reset(mapping, request);
         ids = new Long[0];
     }
 
+    @Override
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = super.validate(mapping, request);
         if (ids == null) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_NULL_VALUE));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_NULL_VALUE.getKey()));
         }
         return errors;
     }

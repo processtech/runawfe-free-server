@@ -17,20 +17,18 @@
  */
 package ru.runa.wf.web.tag;
 
-import ru.runa.common.web.Messages;
-import ru.runa.common.web.tag.IdLinkBaseTag;
+import org.tldgen.annotations.BodyContent;
 
-/**
- * Created on 17.03.2006
- * 
- * @jsp.tag name = "updateProcessLink" body-content = "empty"
- */
+import ru.runa.common.web.tag.IdLinkBaseTag;
+import ru.runa.wf.web.MessagesProcesses;
+
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateProcessLink")
 public class UpdateProcessLinkTag extends IdLinkBaseTag {
 
     private static final long serialVersionUID = 3114678609093894112L;
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.TITLE_PROCESS, pageContext);
+        return MessagesProcesses.TITLE_PROCESS.message(pageContext);
     }
 }

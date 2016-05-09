@@ -26,11 +26,12 @@ import org.apache.ecs.html.TD;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTDBuilder;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.StartDisabledImageProcessAction;
 import ru.runa.wf.web.action.StartImageProcessAction;
+import ru.runa.wf.web.tag.DefinitionUrlStrategy;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -56,20 +57,20 @@ public class StartProcessTDBuilder extends BaseTDBuilder {
         if (definition.isCanBeStarted()) {
             if (definition.hasStartImage()) {
                 href = Commons.getActionUrl(StartImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(), env.getPageContext(),
-                        PortletUrlType.Resource);
+                    PortletUrlType.Resource);
             } else {
                 href = Commons.getUrl(WebResources.START_PROCESS_IMAGE, env.getPageContext(), PortletUrlType.Resource);
             }
         } else {
             if (definition.hasDisabledImage()) {
                 href = Commons.getActionUrl(StartDisabledImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
-                        env.getPageContext(), PortletUrlType.Resource);
+                    env.getPageContext(), PortletUrlType.Resource);
             } else {
                 href = Commons.getUrl(WebResources.START_PROCESS_DISABLED_IMAGE, env.getPageContext(), PortletUrlType.Resource);
             }
         }
         IMG startImg = new IMG(href);
-        String startMessage = Messages.getMessage(Messages.LABEL_START_PROCESS, env.getPageContext());
+        String startMessage = MessagesProcesses.LABEL_START_PROCESS.message(env.getPageContext());
         startImg.setAlt(startMessage);
         startImg.setBorder(0);
         if (definition.isCanBeStarted()) {
@@ -83,7 +84,7 @@ public class StartProcessTDBuilder extends BaseTDBuilder {
                         .getOutputTransitionNames(env.getUser(), definition.getId(), null, false).size() > 1)) {
                     actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
                     startLink.addAttribute("onclick",
-                            ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, env.getPageContext()));
+                        ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, env.getPageContext()));
                 }
             }
         } else {

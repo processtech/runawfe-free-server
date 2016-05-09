@@ -18,6 +18,7 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class WfScriptServiceTestHelper extends WfServiceTestHelper {
 
@@ -68,14 +69,14 @@ public class WfScriptServiceTestHelper extends WfServiceTestHelper {
     }
 
     public void executeScript(String resourceName) throws IOException, ExecutorDoesNotExistException, AuthenticationException, AuthorizationException {
-        Delegates.getScriptingService().executeAdminScript(adminUser, readBytesFromFile(resourceName), new byte[0][]);
+        Delegates.getScriptingService().executeAdminScript(adminUser, readBytesFromFile(resourceName), Maps.<String, byte[]> newHashMap());
     }
 
     public WfProcess startProcessInstance(String processDefinitionName, Executor performer) throws InternalApplicationException {
         Collection<Permission> validPermissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ,
-                DefinitionPermission.READ_STARTED_PROCESS);
+            DefinitionPermission.READ_STARTED_PROCESS);
         getAuthorizationService().setPermissions(adminUser, performer.getId(), validPermissions,
-                getDefinitionService().getLatestProcessDefinition(adminUser, processDefinitionName));
+            getDefinitionService().getLatestProcessDefinition(adminUser, processDefinitionName));
         getExecutionService().startProcess(adminUser, processDefinitionName, null);
         return getExecutionService().getProcesses(adminUser, getProcessInstanceBatchPresentation()).get(0);
     }

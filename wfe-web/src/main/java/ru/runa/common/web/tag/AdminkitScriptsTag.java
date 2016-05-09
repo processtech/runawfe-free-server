@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.action.AdminkitScriptsAction;
 import ru.runa.wfe.commons.IOCommons;
@@ -15,6 +17,7 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 
 import com.google.common.base.Throwables;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "viewAdminkitScripts")
 public class AdminkitScriptsTag extends TagSupport {
     private static final long serialVersionUID = 1L;
 

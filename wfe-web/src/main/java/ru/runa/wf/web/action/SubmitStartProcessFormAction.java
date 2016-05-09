@@ -27,10 +27,10 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.FormSubmissionUtils;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.CommonProcessForm;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -42,17 +42,11 @@ import ru.runa.wfe.user.User;
 /**
  * Created on 18.08.2004
  *
- * @struts:action path="/submitStartProcessForm" name="commonProcessForm"
- *                validate="true" input =
- *                "/WEB-INF/wf/manage_process_definitions.jsp"
- * @struts.action-forward name="success" path="/manage_process_definitions.do"
- *                        redirect = "true"
- * @struts.action-forward name="failure" path="/submit_start_process.do"
- *                        redirect = "false"
- * @struts.action-forward name="submitTask" path="/submit_task.do" redirect =
- *                        "false"
- * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect =
- *                        "true"
+ * @struts:action path="/submitStartProcessForm" name="commonProcessForm" validate="true" input = "/WEB-INF/wf/manage_process_definitions.jsp"
+ * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/submit_start_process.do" redirect = "false"
+ * @struts.action-forward name="submitTask" path="/submit_task.do" redirect = "false"
+ * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect = "true"
  */
 public class SubmitStartProcessFormAction extends BaseProcessFormAction {
 
@@ -79,7 +73,7 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
 
     @Override
     protected ActionMessage getMessage(Long processId) {
-        return new ActionMessage(Messages.PROCESS_STARTED, processId.toString());
+        return new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString());
     }
 
     protected ActionForward getForward(ActionMapping mapping) {

@@ -18,21 +18,19 @@
 package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdatePasswordAction;
 import ru.runa.af.web.html.PasswordTableBuilder;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorPermission;
 
-/**
- * Created on 18.08.2004
- * 
- * @jsp.tag name = "updatePasswordForm" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updatePasswordForm")
 public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
 
     private static final long serialVersionUID = -3273077346043267061L;
@@ -50,7 +48,7 @@ public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
@@ -71,7 +69,7 @@ public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_ACTOR_PASSWORD, pageContext);
+        return MessagesExecutor.TITLE_ACTOR_PASSWORD.message(pageContext);
     }
 
     @Override

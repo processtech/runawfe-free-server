@@ -17,6 +17,8 @@
  */
 package ru.runa.wf.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.af.web.tag.ListExecutorsWithoutPermissionsBase;
 import ru.runa.wf.web.action.GrantPermissionsOnProcessAction;
 import ru.runa.wfe.security.Identifiable;
@@ -27,9 +29,8 @@ import ru.runa.wfe.service.delegate.Delegates;
  * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
- * @jsp.tag name = "listExecutorsWithoutPermissionsOnProcessForm" body-content =
- *          "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsOnProcessForm")
 public class ListExecutorsWithoutPermissionsOnProcessFormTag extends ListExecutorsWithoutPermissionsBase {
 
     private static final long serialVersionUID = 6198982529519240035L;

@@ -31,7 +31,7 @@ import org.apache.struts.actions.LookupDispatchAction;
 
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.form.TableViewSetupForm;
 import ru.runa.common.web.html.format.FilterFormatsFactory;
@@ -48,8 +48,7 @@ import ru.runa.wfe.user.Profile;
 /**
  * Created on 26.01.2005
  * 
- * @struts:action path="/tableViewSetup" name="tableViewSetupForm"
- *                validate="false" parameter = "dispatch"
+ * @struts:action path="/tableViewSetup" name="tableViewSetupForm" validate="false" parameter = "dispatch"
  */
 public class TableViewSetupFormAction extends LookupDispatchAction {
     private static final String DEFAULT_VIEW_SETUP_NAME = " ";
@@ -61,10 +60,10 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
     @Override
     protected Map<String, String> getKeyMethodMap() {
         Map<String, String> map = new HashMap<String, String>();
-        map.put(Messages.BUTTON_APPLY, "apply");
-        map.put(Messages.BUTTON_SAVE, "save");
-        map.put(Messages.BUTTON_SAVE_AS, "saveAs");
-        map.put(Messages.BUTTON_REMOVE, "delete");
+        map.put(MessagesCommon.BUTTON_APPLY.getKey(), "apply");
+        map.put(MessagesCommon.BUTTON_SAVE.getKey(), "save");
+        map.put(MessagesCommon.BUTTON_SAVE_AS.getKey(), "saveAs");
+        map.put(MessagesCommon.BUTTON_REMOVE.getKey(), "delete");
         return map;
     }
 

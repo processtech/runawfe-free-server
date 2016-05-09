@@ -21,15 +21,16 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessages;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.ActionExceptionHelper;
 
 /**
  * Created on 07.09.2004
  * 
- * @jsp.tag name = "globalExceptions" body-content = "empty" description =
- *          "Tag translate global JSP exceptions declared in web.xml into Struts ActionErrors and save them"
+ * Tag translate global JSP exceptions declared in web.xml into Struts ActionErrors and save them
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "globalExceptions")
 public class GlobalExceptions extends TagSupport {
     private static final long serialVersionUID = 1L;
 

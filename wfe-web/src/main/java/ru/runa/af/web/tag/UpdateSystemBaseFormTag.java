@@ -17,18 +17,18 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Identifiable;
 
-/**
- * Created on 30.08.2004
- * 
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateSystemBaseForm")
 public abstract class UpdateSystemBaseFormTag extends IdentifiableFormTag {
 
     private static final long serialVersionUID = 1L;
 
+    @Override
     protected Identifiable getIdentifiable() {
         return getSystem();
     }

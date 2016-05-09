@@ -34,6 +34,7 @@ public class Timer extends Job {
 
     private String repeatDurationString;
     private String outTransitionName;
+    private String dueDateExpression;
 
     public Timer() {
     }
@@ -58,6 +59,15 @@ public class Timer extends Job {
 
     public void setOutTransitionName(String outTransitionName) {
         this.outTransitionName = outTransitionName;
+    }
+
+    @Column(name = "DUE_DATE_EXPRESSION")
+    public String getDueDateExpression() {
+        return dueDateExpression;
+    }
+
+    public void setDueDateExpression(String dueDateExpression) {
+        this.dueDateExpression = dueDateExpression;
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 
 import ru.runa.af.web.form.BotForm;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wfe.bot.Bot;
@@ -20,10 +20,8 @@ import com.google.common.base.Strings;
 /**
  * @author petrmikheev
  * 
- * @struts:action path="/create_bot" name="botForm" validate="false" input =
- *                "/WEB-INF/wf/add_bot.jsp"
- * @struts.action-forward name="success" path="/bot_station.do" redirect =
- *                        "true"
+ * @struts:action path="/create_bot" name="botForm" validate="false" input = "/WEB-INF/wf/add_bot.jsp"
+ * @struts.action-forward name="success" path="/bot_station.do" redirect = "true"
  * @struts.action-forward name="failure" path="/create_bot.do" redirect = "true"
  */
 public class CreateBotAction extends ActionBase {
@@ -35,7 +33,7 @@ public class CreateBotAction extends ActionBase {
         BotForm botForm = (BotForm) form;
         try {
             if (Strings.isNullOrEmpty(botForm.getWfeUser())) {
-                addError(request, new ActionMessage(Messages.ERROR_FILL_REQUIRED_VALUES));
+                addError(request, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
                 return mapping.findForward(Resources.FORWARD_FAILURE);
             }
             Bot bot = new Bot(Delegates.getBotService().getBotStation(botForm.getBotStationId()), botForm.getWfeUser(), botForm.getWfePassword());

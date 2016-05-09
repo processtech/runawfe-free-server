@@ -17,16 +17,14 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.IdLinkBaseTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
 
-/**
- * Created on 24.04.2012
- * 
- * @jsp.tag name = "addSubstitutionCriteriaLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "addSubstitutionCriteriaLink")
 public class AddSubstitutionCriteriaLinkTag extends IdLinkBaseTag {
 
     private static final long serialVersionUID = 1L;
@@ -45,6 +43,6 @@ public class AddSubstitutionCriteriaLinkTag extends IdLinkBaseTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.BUTTON_ADD, pageContext);
+        return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 }

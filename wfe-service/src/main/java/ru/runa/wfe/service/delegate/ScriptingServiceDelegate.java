@@ -34,18 +34,18 @@ public class ScriptingServiceDelegate extends EJB3Delegate implements ScriptingS
     }
 
     @Override
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, byte[][] processFiles, Map<String, byte[]> configs, String defaultPasswordValue) {
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue) {
         try {
-            return getScriptingService().executeAdminScriptSkipError(user, configData, processFiles, configs, defaultPasswordValue);
+            return getScriptingService().executeAdminScriptSkipError(user, configData, externalResources, defaultPasswordValue);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void executeAdminScript(User user, byte[] configData, byte[][] processFiles) {
+    public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) {
         try {
-            getScriptingService().executeAdminScript(user, configData, processFiles);
+            getScriptingService().executeAdminScript(user, configData, externalResources);
         } catch (Exception e) {
             throw handleException(e);
         }

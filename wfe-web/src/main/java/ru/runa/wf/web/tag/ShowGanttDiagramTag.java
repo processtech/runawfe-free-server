@@ -6,8 +6,9 @@ import java.util.Map;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.Script;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
-import ru.runa.common.web.Messages;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -25,12 +26,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 import com.google.common.base.Objects;
 
-/**
- * Renders Gantt diagram.
- * 
- * @author Dofs
- * @jsp.tag name = "showGanttDiagram" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showGanttDiagram")
 public class ShowGanttDiagramTag extends ProcessBaseFormTag {
 
     private static final long serialVersionUID = 1L;
@@ -109,7 +105,7 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.LABEL_SHOW_GANTT_DIAGRAM, pageContext);
+        return MessagesProcesses.LABEL_SHOW_GANTT_DIAGRAM.message(pageContext);
     }
 
     @Override

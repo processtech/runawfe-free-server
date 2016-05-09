@@ -28,11 +28,13 @@ import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.commons.web.PortletUrlType;
 
 /**
@@ -45,32 +47,37 @@ abstract public class FormTag extends VisibleTag {
     public static final String SUBMIT_BUTTON_NAME = "submitButton";
     public static final String MULTIPLE_SUBMIT_BUTTONS = "multipleSubmit";
 
-    protected String action;
+    private String action;
 
-    protected String method = Form.POST;
+    private String method = Form.POST;
 
-    protected String buttonAlignment;
+    private String buttonAlignment;
 
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public void setMethod(String string) {
-        method = string;
-    }
-
-    /**
-     * @jsp.attribute required = "false"
-     */
     public String getAction() {
         return action;
     }
 
-    /**
-     * @jsp.attribute required = "false"
-     */
+    @Attribute(required = false, rtexprvalue = false)
+    public void setAction(String action) {
+        this.action = action;
+    }
+
     public String getMethod() {
         return method;
+    }
+
+    @Attribute(required = false, rtexprvalue = false)
+    public void setMethod(String string) {
+        method = string;
+    }
+
+    public String getButtonAlignment() {
+        return buttonAlignment;
+    }
+
+    @Attribute(required = false, rtexprvalue = true)
+    public void setButtonAlignment(String buttonAlignment) {
+        this.buttonAlignment = buttonAlignment;
     }
 
     /**
@@ -96,7 +103,7 @@ abstract public class FormTag extends VisibleTag {
     }
 
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_FORM, pageContext);
+        return MessagesProcesses.BUTTON_FORM.message(pageContext);
     }
 
     protected Map<String, Object> getFormButtonParam() {
@@ -185,7 +192,7 @@ abstract public class FormTag extends VisibleTag {
                 td.addElement(submitButton);
             }
             if (isCancelButtonEnabled()) {
-                Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, Messages.getMessage(Messages.BUTTON_CANCEL, pageContext));
+                Input cancelButton = new Input(Input.BUTTON, SUBMIT_BUTTON_NAME, MessagesCommon.BUTTON_CANCEL.message(pageContext));
                 cancelButton.setClass(Resources.CLASS_BUTTON);
                 cancelButton.addAttribute("onclick", "window.location='" + getCancelButtonAction() + "'");
                 td.addElement(Entities.NBSP);

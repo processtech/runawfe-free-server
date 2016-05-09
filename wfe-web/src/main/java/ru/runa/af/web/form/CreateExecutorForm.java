@@ -24,7 +24,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 
 /*
  * Created on 20.08.2004
@@ -48,11 +48,12 @@ public class CreateExecutorForm extends UpdateExecutorDetailsForm {
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = super.validate(mapping, request);
         if (getExecutorType() == null || getExecutorType().length() < 1) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_NULL_VALUE));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_NULL_VALUE.getKey()));
         }
         if (getExecutorType() != null && !CreateExecutorForm.TYPE_ACTOR.equals(getExecutorType())
                 && !CreateExecutorForm.TYPE_GROUP.equals(getExecutorType())) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.EXCEPTION_UNKNOWN, "Unknown type " + getExecutorType()));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.EXCEPTION_UNKNOWN.getKey(), "Unknown type "
+                    + getExecutorType()));
         }
         return errors;
     }

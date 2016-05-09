@@ -7,7 +7,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 
 public class IdVersionForm extends IdForm {
     private static final long serialVersionUID = 1L;
@@ -28,7 +28,7 @@ public class IdVersionForm extends IdForm {
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = super.validate(mapping, request);
         if (getVersion() == null) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_NULL_VALUE));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_NULL_VALUE.getKey()));
         }
         return errors;
     }

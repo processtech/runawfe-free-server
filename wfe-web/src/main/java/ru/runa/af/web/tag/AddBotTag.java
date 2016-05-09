@@ -20,29 +20,29 @@ package ru.runa.af.web.tag;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.CreateBotAction;
 import ru.runa.af.web.form.BotForm;
 import ru.runa.af.web.html.BotTableBuilder;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesBot;
 
 /**
  * @author: petrmikheev
- * @jsp.tag name = "addBotTag" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "addBotTag")
 public class AddBotTag extends TitledFormTag {
     private static final long serialVersionUID = 1920713038009470026L;
 
     private Long botStationId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setBotStationId(Long botStationId) {
         this.botStationId = botStationId;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getBotStationId() {
         return botStationId;
     }
@@ -57,7 +57,7 @@ public class AddBotTag extends TitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_ADD_BOT, pageContext);
+        return MessagesBot.TITLE_ADD_BOT.message(pageContext);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class AddBotTag extends TitledFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_ADD_BOT, pageContext);
+        return MessagesBot.BUTTON_ADD_BOT.message(pageContext);
     }
 
     @Override

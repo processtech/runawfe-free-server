@@ -248,7 +248,8 @@
 	<bean id="processDAO" class="ru.runa.wfe.execution.dao.ProcessDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
-	<bean id="processLogAwareDAO" class="ru.runa.wfe.audit.dao.DoNothingProcessLogAwareDao">
+	<bean id="processLogAwareDAO" class="ru.runa.wfe.audit.dao.AggregatedProcessLogAwareDao">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
 	<bean id="processLogDAO" class="ru.runa.wfe.audit.dao.ProcessLogDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
@@ -278,6 +279,9 @@
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
 	<bean id="variableDAO" class="ru.runa.wfe.var.dao.VariableDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
+	<bean id="reportDAO" class="ru.runa.wfe.report.dao.ReportDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
 
@@ -339,11 +343,10 @@
 	<bean id="variableLogic" class="ru.runa.wfe.var.logic.VariableLogic" />
 	<bean id="assignmentHelper" class="ru.runa.wfe.extension.assign.AssignmentHelper" />
 	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
+	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />
 
 	<bean id="initializerLogic" class="ru.runa.wfe.commons.logic.InitializerLogic" />
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
-
-
 
 	<bean id="jobExecutorTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
 		<property name="delay" value="${timertask.start.millis.job.execution}" />
@@ -395,6 +398,17 @@
 			</bean>
 		</property>
 	</bean>
+	<bean id="aggregatedHistoryImportTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="delay" value="20000" />
+		<property name="period" value="60000" />
+		<property name="timerTask">
+			<bean class="ru.runa.wfe.job.impl.ImportAggregatedHistoryTask">
+				<property name="transactionalExecutor">
+					<bean class="ru.runa.wfe.job.impl.AggregatedHistoryImporter"/>
+				</property>
+			</bean>
+		</property>
+	</bean>
 	
 	<bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
 		<property name="scheduledTimerTasks">
@@ -404,6 +418,7 @@
 				<ref bean="tasksAssignTask" />
 				<ref bean="ldapSynchronizerTask" />
 				<ref bean="removeUnusedTemporaryGroupsTask" />
+				<ref bean="aggregatedHistoryImportTask" />
 			</list>
 		</property>
 	</bean>

@@ -266,6 +266,7 @@ public class WfServiceTestHelper extends ServiceTestHelper {
     private void createDelegates() {
         definitionService = Delegates.getDefinitionService();
         executionService = Delegates.getExecutionService();
+        taskService = Delegates.getTaskService();
         PropertyResources.setDatabaseAvailable(true);
         Delegates.getSystemService().setSetting(SystemProperties.CONFIG_FILE_NAME, "undefined.variables.allowed", "true");
     }

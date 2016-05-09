@@ -19,6 +19,7 @@ package ru.runa.wf.web.tag;
 
 import org.apache.ecs.html.IFrame;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
@@ -32,11 +33,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * Created on 30.08.2004
- * 
- * @jsp.tag name = "processDefinitionDescriptionForm" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "processDefinitionDescriptionForm")
 public class ProcessDefinitionDescriptionFormTag extends ProcessDefinitionBaseFormTag {
     private static final long serialVersionUID = 1L;
 

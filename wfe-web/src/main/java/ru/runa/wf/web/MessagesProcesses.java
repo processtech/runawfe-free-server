@@ -1,0 +1,71 @@
+package ru.runa.wf.web;
+
+import ru.runa.common.web.StrutsMessage;
+
+public final class MessagesProcesses {
+
+    public static final StrutsMessage BUTTON_CANCEL_PROCESS = new StrutsMessage("button.cancel_process");
+    public static final StrutsMessage TITLE_PROCESS_DEFINITIONS = new StrutsMessage("title.process_definitions");
+    public static final StrutsMessage TITLE_DEPLOY_DEFINITION = new StrutsMessage("title.deploy_definition");
+    public static final StrutsMessage TITLE_REDEPLOY_DEFINITION = new StrutsMessage("title.redeploy_definition");
+    public static final StrutsMessage BUTTON_DEPLOY_DEFINITION = new StrutsMessage("button.deploy_definition");
+    public static final StrutsMessage BUTTON_UNDEPLOY_DEFINITION = new StrutsMessage("button.undeploy_definition");
+    public static final StrutsMessage TITLE_DEFINITIONS_HISTORY = new StrutsMessage("title.definitions_history");
+    public static final StrutsMessage TITLE_PROCESSES = new StrutsMessage("title.processes");
+    public static final StrutsMessage TITLE_INSANCE_SWINLANE_LIST = new StrutsMessage("title.process_swimlane_list");
+    public static final StrutsMessage TITLE_INSANCE_TASKS_LIST = new StrutsMessage("title.process_tasks_list");
+    public static final StrutsMessage TITLE_INSANCE_VARIABLE_LIST = new StrutsMessage("title.process_variable_list");
+    public static final StrutsMessage TITLE_PROCESS = new StrutsMessage("title.process");
+    public static final StrutsMessage TITLE_PROCESS_DEFINITION = new StrutsMessage("title.process_definition");
+    public static final StrutsMessage TITLE_TASKS = new StrutsMessage("title.tasks");
+    public static final StrutsMessage TITLE_PROCESS_GRAPH = new StrutsMessage("title.process_graph");
+    public static final StrutsMessage TITLE_HISTORY = new StrutsMessage("title.history");
+    public static final StrutsMessage LABEL_REDEPLOY_PROCESS_DEFINIION = new StrutsMessage("label.redeploy_process_definition");
+    public static final StrutsMessage LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.show_deploy_definition_controls");
+    public static final StrutsMessage LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.hide_deploy_definition_controls");
+    public static final StrutsMessage PROCESS_STARTED = new StrutsMessage("process.started");
+    public static final StrutsMessage PROCESS_CANCELED = new StrutsMessage("process.canceled");
+    public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
+    public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");
+    public static final StrutsMessage PROCESS_UPGRADE_TO_DEFINITION_VERSION = new StrutsMessage("process.upgrade.to.definition.version");
+    public static final StrutsMessage LABEL_SHOW_GRAPH_HISTORY = new StrutsMessage("label.manage_graph_history");
+    public static final StrutsMessage LABEL_SHOW_GANTT_DIAGRAM = new StrutsMessage("label.show_gantt_diagram");
+    public static final StrutsMessage LABEL_DEFINITIONS_ARCHIVE = new StrutsMessage("process_definition.archive");
+    public static final StrutsMessage LABEL_DEPLOY_APPLY_TYPE = new StrutsMessage("batch_presentation.process_definition.application_type");
+    public static final StrutsMessage LABEL_DEPLOY_APPLY_NEW = new StrutsMessage("batch_presentation.process_definition.application_type.new.label");
+    public static final StrutsMessage LABEL_DEPLOY_APPLY_ALL = new StrutsMessage("batch_presentation.process_definition.application_type.all.label");
+    public static final StrutsMessage PROCESS_STARTER_NAME = new StrutsMessage("process_starter.name");
+    public static final StrutsMessage LABEL_STATE_NAME = new StrutsMessage("label.state_name");
+    public static final StrutsMessage LABEL_PARENT_PROCESS = new StrutsMessage("label.parent_process");
+    public static final StrutsMessage LABEL_START_PROCESS = new StrutsMessage("label.start_process");
+    public static final StrutsMessage LABEL_SWIMLANE = new StrutsMessage("label.swimlane");
+    public static final StrutsMessage LABEL_SWIMLANE_NAME = new StrutsMessage("label.swimlane_name");
+    public static final StrutsMessage LABEL_SWIMLANE_ASSIGNMENT = new StrutsMessage("label.swimlane_assigned_to");
+    public static final StrutsMessage LINK_UPDATE_VARIABLE = new StrutsMessage("link.update_variable");
+    public static final StrutsMessage BUTTON_UPDATE_VARIABLE = new StrutsMessage("button.update_variable");
+    public static final StrutsMessage BUTTON_FORM = new StrutsMessage("button.form");
+    public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
+    public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
+    public static final StrutsMessage BUTTON_DELEGATE_TASK = new StrutsMessage("button.delegate_task");
+    public static final StrutsMessage TITLE_UPDATE_VARIABLE = new StrutsMessage("title.update_variable");
+    public static final StrutsMessage LABEL_VARIABLE_NAME = new StrutsMessage("label.variable_name");
+    public static final StrutsMessage LABEL_VARIABLE_VALUE = new StrutsMessage("label.variable_value");
+    public static final StrutsMessage LABEL_VARIABLE_TYPE = new StrutsMessage("label.variable_type");
+    public static final StrutsMessage LABEL_VARIABLE_SCRIPTING_VALUE = new StrutsMessage("label.variable_script_value");
+    public static final StrutsMessage LABEL_VARIABLE = new StrutsMessage("label.variable");
+    public static final StrutsMessage LABEL_VARIABLE_NULL_VALUE = new StrutsMessage("label.variable_null_value");
+    public static final StrutsMessage LABEL_VARIABLE_OLD_VALUE = new StrutsMessage("label.variable_old_value");
+    public static final StrutsMessage LABEL_VARIABLE_NEW_VALUE = new StrutsMessage("label.variable_new_value");
+    public static final StrutsMessage LABEL_NO_VARIABLES = new StrutsMessage("label.no_variables");
+    public static final StrutsMessage TASK_COMPLETED = new StrutsMessage("task.completed");
+    public static final StrutsMessage LABEL_SHOW_TASKS_HISTORY = new StrutsMessage("label.manage_tasks_history");
+    public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_NAME = new StrutsMessage("label.task_history_table_name");
+    public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_TASK_NAME = new StrutsMessage("label.task_history_table_task_name");
+    public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_EXECUTOR = new StrutsMessage("label.task_history_table_executor");
+    public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_START_DATE = new StrutsMessage("label.task_history_table_start_date");
+    public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_END_DATE = new StrutsMessage("label.task_history_table_end_date");
+    public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_DURATION = new StrutsMessage("label.task_history_table_duration");
+    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage("batch_presentation.process_definition.update_current_version");
+    public static final StrutsMessage TITLE_SUBPROCESSES_LIST = new StrutsMessage("title.process_subprocess_list");
+
+}

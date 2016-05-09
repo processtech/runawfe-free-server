@@ -24,14 +24,16 @@ import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.StringsHeaderBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessVariablesRowBuilder;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -43,26 +45,19 @@ import ru.runa.wfe.var.dto.WfVariable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-/**
- * Created on 29.11.2004
- * 
- * 
- * @jsp.tag name = "processVariableMonitor" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processVariableMonitor")
 public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
     private static final long serialVersionUID = 161759402000861245L;
 
     private Long identifiableId;
 
+    @Attribute(required = false, rtexprvalue = true)
     @Override
     public void setIdentifiableId(Long id) {
         identifiableId = id;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     @Override
     public Long getIdentifiableId() {
         return identifiableId;
@@ -87,17 +82,17 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
             Map<String, Object> params = Maps.newHashMap();
             params.put("id", identifiableId);
             String updateVariableUrl = Commons.getActionUrl(WebResources.ACTION_UPDATE_PROCESS_VARIABLES, params, pageContext, PortletUrlType.Render);
-            A a = new A(updateVariableUrl, Messages.getMessage(Messages.LINK_UPDATE_VARIABLE, pageContext));
+            A a = new A(updateVariableUrl, MessagesProcesses.LINK_UPDATE_VARIABLE.message(pageContext));
             updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
         }
         List<WfVariable> variables = Delegates.getExecutionService().getVariables(getUser(), getIdentifiableId());
         List<String> headerNames = Lists.newArrayList();
-        headerNames.add(Messages.getMessage(Messages.LABEL_VARIABLE_NAME, pageContext));
-        headerNames.add(Messages.getMessage(Messages.LABEL_VARIABLE_TYPE, pageContext));
+        headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
+        headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
         if (WebResources.isDisplayVariablesJavaType()) {
-            headerNames.add("Java " + Messages.getMessage(Messages.LABEL_VARIABLE_TYPE, pageContext));
+            headerNames.add("Java " + MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
         }
-        headerNames.add(Messages.getMessage(Messages.LABEL_VARIABLE_VALUE, pageContext));
+        headerNames.add(MessagesProcesses.LABEL_VARIABLE_VALUE.message(pageContext));
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);
 
         RowBuilder rowBuilder = new ProcessVariablesRowBuilder(getIdentifiableId(), variables, pageContext);
@@ -111,6 +106,6 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_INSANCE_VARIABLE_LIST, pageContext);
+        return MessagesProcesses.TITLE_INSANCE_VARIABLE_LIST.message(pageContext);
     }
 }

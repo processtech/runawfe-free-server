@@ -5,6 +5,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.tldgen.annotations.Listener;
 
 import ru.runa.wf.logic.bot.BotStationResources;
 import ru.runa.wfe.bot.BotStation;
@@ -13,6 +14,7 @@ import ru.runa.wfe.service.BotInvokerService;
 import ru.runa.wfe.service.delegate.BotInvokerServiceDelegate;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@Listener()
 public class InitializeDBListener implements ServletContextListener {
     public static Log log = LogFactory.getLog(InitializeDBListener.class);
 

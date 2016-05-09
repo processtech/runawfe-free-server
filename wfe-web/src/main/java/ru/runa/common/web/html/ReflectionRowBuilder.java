@@ -37,6 +37,7 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ExpandCollapseGroupAction;
 import ru.runa.common.web.form.GroupForm;
@@ -132,10 +133,8 @@ public class ReflectionRowBuilder implements RowBuilder {
     }
 
     /**
-     * TODO This is temporary workaround. Fix should be made in authorization
-     * subsystem by refactoring executor permissions. Only 1 SecuredObjectType
-     * should be introduced for identifiables hierarchy due to simplifying SQL
-     * quieries and non-crossing IDs.
+     * TODO This is temporary workaround. Fix should be made in authorization subsystem by refactoring executor permissions. Only 1 SecuredObjectType
+     * should be introduced for identifiables hierarchy due to simplifying SQL quieries and non-crossing IDs.
      * 
      * @author dofs
      * @since 4.0.6
@@ -347,7 +346,7 @@ public class ReflectionRowBuilder implements RowBuilder {
                             } else {
                                 message = Messages.getMessage(displayName, pageContext);
                             }
-                            message += " " + Messages.getMessage("label.is.missed", pageContext);
+                            message += " " + MessagesOther.LABEL_IS_MISSED.message(pageContext);
                             td = new TD();
                             td.addElement(new A(href, message));
                             td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);

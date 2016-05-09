@@ -23,16 +23,20 @@ import java.util.Map;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesBatch;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.TRRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.HistoryHeaderBuilder;
@@ -50,9 +54,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-/**
- * @jsp.tag name = "showHistory" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showHistory")
 public class ShowHistoryTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = 1L;
 
@@ -72,13 +74,13 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         String filterHtml = "\n";
         filterHtml += "<form action=\"" + Commons.getActionUrl("/show_history", pageContext, PortletUrlType.Action) + "\" method=\"get\">\n";
         filterHtml += "<input type=\"hidden\" name=\"id\" value=\"" + filter.getProcessId() + "\">\n";
-        filterHtml += "<table class=\"box\"><tr><th class=\"box\">" + Commons.getMessage("label.filter_criteria", pageContext) + "</th></tr>\n";
+        filterHtml += "<table class=\"box\"><tr><th class=\"box\">" + MessagesBatch.FILTER_CRITERIA.message(pageContext) + "</th></tr>\n";
         filterHtml += "<tr><td>\n";
         filterHtml += "<input type=\"checkbox\" name=\"withSubprocesses\" value=\"true\"";
         if (filter.isIncludeSubprocessLogs()) {
             filterHtml += " checked=\"true\"";
         }
-        filterHtml += ">" + Commons.getMessage("title.process_subprocess_list", pageContext) + "\n";
+        filterHtml += ">" + MessagesProcesses.TITLE_SUBPROCESSES_LIST.message(pageContext) + "\n";
         filterHtml += "<span class=\"width: 100px;\">";
         for (Severity severity : Severity.values()) {
             filterHtml += "<input type=\"checkbox\" name=\"severities\" value=\"" + severity.name() + "\"";
@@ -87,7 +89,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
             }
             filterHtml += "> " + severity.name() + "\n";
         }
-        filterHtml += "<button type=\"submit\">" + Commons.getMessage("button.form", pageContext) + "</button>\n";
+        filterHtml += "<button type=\"submit\">" + MessagesProcesses.BUTTON_FORM.message(pageContext) + "</button>\n";
         filterHtml += "</td></tr></table>\n";
         tdFormElement.addElement(filterHtml);
         // content
@@ -136,8 +138,8 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         if (mergedEventDateTD != null) {
             mergedEventDateTD.setRowSpan(mergedRowsCount + 1);
         }
-        HeaderBuilder tasksHistoryHeaderBuilder = new HistoryHeaderBuilder(maxLevel, Messages.getMessage(Messages.LABEL_HISTORY_DATE, pageContext),
-                Messages.getMessage(Messages.LABEL_HISTORY_EVENT, pageContext));
+        HeaderBuilder tasksHistoryHeaderBuilder = new HistoryHeaderBuilder(maxLevel, MessagesOther.LABEL_HISTORY_DATE.message(pageContext),
+                MessagesOther.LABEL_HISTORY_EVENT.message(pageContext));
         RowBuilder rowBuilder = new TRRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         tdFormElement.addElement(tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder));
@@ -150,7 +152,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_HISTORY, pageContext);
+        return MessagesProcesses.TITLE_HISTORY.message(pageContext);
     }
 
     @Override

@@ -19,28 +19,23 @@ package ru.runa.common.web.tag;
 
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
 
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * Created on 07.10.2004
- * 
- */
 public abstract class IdentifiableFormTag extends TitledFormTag {
 
     private static final long serialVersionUID = 1L;
     private Long identifiableId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setIdentifiableId(Long identifiableId) {
         this.identifiableId = identifiableId;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getIdentifiableId() {
         return identifiableId;
     }

@@ -19,11 +19,12 @@ package ru.runa.af.web.html;
 
 import javax.servlet.jsp.PageContext;
 
+import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Table;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.form.UpdateExecutorDetailsForm;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
@@ -68,25 +69,28 @@ public class ExecutorTableBuilder {
         Actor actor = (Actor) (executor instanceof Actor ? executor : null);
         Table table = new Table();
         table.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE);
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_EXECUTOR_NAME, pageContext),
-                UpdateExecutorDetailsForm.NEW_NAME_INPUT_NAME, executor.getName(), enabled, true));
+        Input nameInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.NEW_NAME_INPUT_NAME, executor.getName(), enabled, true);
+        table.addElement(HTMLUtils.createRow(MessagesExecutor.EXECUTOR_NAME.message(pageContext), nameInput));
         if (actor != null) {
-            table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_ACTOR_FULL_NAME, pageContext),
-                    UpdateExecutorDetailsForm.FULL_NAME_INPUT_NAME, actor.getFullName(), enabled, false));
+            Input fullNameInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.FULL_NAME_INPUT_NAME, actor.getFullName(), enabled, false);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_FULL_NAME.message(pageContext), fullNameInput));
         }
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_EXECUTOR_DESCRIPTION, pageContext),
-                UpdateExecutorDetailsForm.DESCRIPTION_INPUT_NAME, executor.getDescription() == null ? "" : executor.getDescription(), enabled, false));
+        Input descriptionInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.DESCRIPTION_INPUT_NAME, executor.getDescription(), enabled, false);
+        table.addElement(HTMLUtils.createRow(MessagesExecutor.EXECUTOR_DESCRIPTION.message(pageContext), descriptionInput));
         if (actor != null) {
-            table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_ACTOR_CODE, pageContext),
-                    UpdateExecutorDetailsForm.CODE_INPUT_NAME, actor.getCode() != null ? actor.getCode().toString() : "", enabled, false));
-            table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_ACTOR_EMAIL, pageContext),
-                    UpdateExecutorDetailsForm.EMAIL_INPUT_NAME, actor.getEmail() == null ? "" : actor.getEmail(), enabled, false));
-            table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_ACTOR_PHONE, pageContext),
-                    UpdateExecutorDetailsForm.PHONE_INPUT_NAME, actor.getPhone() == null ? "" : actor.getPhone(), enabled, false));
+            String code = actor.getCode() != null ? actor.getCode().toString() : "";
+            Input codeInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.CODE_INPUT_NAME, code, enabled, false);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_CODE.message(pageContext), codeInput));
+
+            Input emailInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.EMAIL_INPUT_NAME, actor.getEmail(), enabled, false);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_EMAIL.message(pageContext), emailInput));
+
+            Input phoneInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.PHONE_INPUT_NAME, actor.getPhone(), enabled, false);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_PHONE.message(pageContext), phoneInput));
         } else {
             Group group = (Group) executor;
-            table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_GROUP_AD, pageContext),
-                    UpdateExecutorDetailsForm.EMAIL_INPUT_NAME, group.getLdapGroupName() != null ? group.getLdapGroupName() : "", enabled, false));
+            Input adLdapGroupInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.EMAIL_INPUT_NAME, group.getLdapGroupName(), enabled, false);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.GROUP_AD.message(pageContext), adLdapGroupInput));
         }
         return table;
     }

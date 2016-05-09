@@ -17,18 +17,17 @@
  */
 package ru.runa.af.web.tag;
 
-import ru.runa.common.web.Messages;
+import org.tldgen.annotations.BodyContent;
+
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.IdLinkBaseTag;
 
-/**
- * Created on 03.09.2004
- * 
- * @jsp.tag name = "addExecutorToGroupsLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "addExecutorToGroupsLink")
 public class AddExecutorToGroupsLinkTag extends IdLinkBaseTag {
     private static final long serialVersionUID = 3206241469956443614L;
 
+    @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.BUTTON_ADD, pageContext);
+        return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 }

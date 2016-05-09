@@ -17,18 +17,17 @@
  */
 package ru.runa.af.web.tag;
 
-import ru.runa.common.web.Messages;
+import org.tldgen.annotations.BodyContent;
+
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.IdLinkBaseTag;
 
-/**
- * Created on 17.03.2006
- * 
- * @jsp.tag name = "updatePermissionsOnIdentifiableLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updatePermissionsOnIdentifiableLink")
 public class UpdatePermissionsOnIdentifiableLinkTag extends IdLinkBaseTag {
     private static final long serialVersionUID = 9211226789239135433L;
 
+    @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.TITLE_PERMISSION_OWNERS, pageContext);
+        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
     }
 }

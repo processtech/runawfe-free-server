@@ -24,7 +24,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdNameForm;
 import ru.runa.common.web.html.HeaderBuilder;
@@ -354,7 +354,8 @@ public class ErrorDetailsAction extends ActionBase {
             mergedEventDateTD.setRowSpan(mergedRowsCount + 1);
         }
         HeaderBuilder tasksHistoryHeaderBuilder = new ru.runa.wf.web.html.HistoryHeaderBuilder(maxLevel, getResources(request).getMessage(
-                Messages.LABEL_HISTORY_DATE), getResources(request).getMessage(Messages.LABEL_HISTORY_EVENT));
+                MessagesOther.LABEL_HISTORY_DATE.getKey()), getResources(request).getMessage(
+                MessagesOther.LABEL_HISTORY_EVENT.getKey()));
         RowBuilder rowBuilder = new TRRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         return tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder).toString();

@@ -28,24 +28,23 @@ import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.AdminScriptRunner;
+import ru.runa.wfe.script.botstation.BotSystemScriptOperation;
+import ru.runa.wfe.script.botstation.RemoveConfigurationsFromBotOperation;
+import ru.runa.wfe.script.common.ScriptOperation;
+import ru.runa.wfe.script.common.WorkflowScriptDto;
 import ru.runa.wfe.service.utils.AdminScriptUtils;
-import ru.runa.wfe.user.User;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 public class WfeScriptForBotStations extends AdminScriptRunner {
 
     private final boolean replace;
-    private BotStation botStation = null;
+    private final BotStation botStation;
 
-    public WfeScriptForBotStations(User user, boolean replace) {
+    public WfeScriptForBotStations(BotStation bs, boolean replace) {
         this.replace = replace;
-        setUser(user);
-        setProcessDefinitionsBytes(new byte[0][0]);
-    }
-
-    public void setBotStation(BotStation bs) {
-        botStation = bs;
+        this.botStation = bs;
     }
 
     public static byte[] createScriptForBotLoading(Bot bot, List<BotTask> tasks) {
@@ -54,8 +53,6 @@ public class WfeScriptForBotStations extends AdminScriptRunner {
         Element createBotElement = root.addElement("createBot", XmlUtils.RUNA_NAMESPACE);
         createBotElement.addAttribute(AdminScriptConstants.NAME_ATTRIBUTE_NAME, bot.getUsername());
         createBotElement.addAttribute(AdminScriptConstants.PASSWORD_ATTRIBUTE_NAME, "");
-        // createBotElement.addAttribute(STARTTIMEOUT_ATTRIBUTE_NAME, "" +
-        // bot.getStartTimeout());
 
         if (tasks.size() > 0) {
             Element removeTasks = root.addElement("removeConfigurationsFromBot", XmlUtils.RUNA_NAMESPACE);
@@ -75,7 +72,7 @@ public class WfeScriptForBotStations extends AdminScriptRunner {
                     taskElement.addAttribute(AdminScriptConstants.EMBEDDED_FILE_ATTRIBUTE_NAME, task.getEmbeddedFileName());
                 }
 
-                if (task.getConfiguration() != null) {
+                if (task.getConfiguration() != null && task.getConfiguration().length != 0) {
                     taskElement.addAttribute(AdminScriptConstants.CONFIGURATION_STRING_ATTRIBUTE_NAME, task.getName() + ".conf");
                 }
             }
@@ -84,24 +81,17 @@ public class WfeScriptForBotStations extends AdminScriptRunner {
     }
 
     @Override
-    public void removeConfigurationsFromBot(Element element) {
-        if (replace) {
-            super.removeConfigurationsFromBotCommon(element, botStation);
+    protected void prepareScript(WorkflowScriptDto data) {
+        List<ScriptOperation> updatedOperations = Lists.newArrayList();
+        for (ScriptOperation operation : data.operations) {
+            if (!replace && operation instanceof RemoveConfigurationsFromBotOperation) {
+                continue;
+            }
+            if (operation instanceof BotSystemScriptOperation) {
+                ((BotSystemScriptOperation) operation).configureForBotstation(botStation);
+            }
+            updatedOperations.add(operation);
         }
-    }
-
-    @Override
-    public void addConfigurationsToBot(Element element) {
-        addConfigurationsToBotCommon(element, botStation);
-    }
-
-    @Override
-    public void createBot(Element element) {
-        createBotCommon(element, botStation);
-    }
-
-    @Override
-    protected byte[] getBotTaskConfiguration(String config) {
-        return configs.get(config);
+        data.operations = updatedOperations;
     }
 }

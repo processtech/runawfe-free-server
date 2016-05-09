@@ -21,6 +21,7 @@
  */
 package ru.runa.wfe.execution;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,13 +39,18 @@ import ru.runa.wfe.commons.DBType;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.Timer;
+import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.UserType;
@@ -54,6 +60,8 @@ import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.DateFormat;
+import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -79,6 +87,10 @@ public class ExecutionContext {
     private ProcessLogDAO processLogDAO;
     @Autowired
     private VariableDAO variableDAO;
+    @Autowired
+    protected TaskDAO taskDAO;
+    @Autowired
+    protected JobDAO jobDAO;
 
     protected ExecutionContext(ApplicationContext appContext, ProcessDefinition processDefinition, Token token) {
         this.processDefinition = processDefinition;
@@ -200,7 +212,7 @@ public class ExecutionContext {
 
     /**
      * TODO old
-     *
+     * 
      * @return the variable value with the given name.
      */
     public Object getVariableValue(String name) {
@@ -275,8 +287,10 @@ public class ExecutionContext {
             sizeDefinition.setDefaultValue(0);
             int oldSize = (Integer) variableDAO.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
             int maxSize = Math.max(oldSize, newSize);
-            String componentFormat = variableDefinition.getFormatComponentClassNames()[0];
-            UserType componentUserType = variableDefinition.getFormatComponentUserTypes()[0];
+            String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
+            String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
+            UserType[] formatComponentUserTypes = variableDefinition.getFormatComponentUserTypes();
+            UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
             List<?> list = (List<?>) value;
             for (int i = 0; i < maxSize; i++) {
                 String name = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
@@ -325,11 +339,38 @@ public class ExecutionContext {
                     + (value != null ? " of " + value.getClass() : ""));
             variable.setValue(this, value, variableDefinition.getFormatNotNull());
         }
+        if (DateTimeFormat.class.getName().equals(variableDefinition.getFormatClassName())
+            || DateFormat.class.getName().equals(variableDefinition.getFormatClassName())) {
+            updateRelatedObjects(variableDefinition, value);
+        }
+    }
+
+    private void updateRelatedObjects(VariableDefinition variableDefinition, Object value) {
+        // Проверяем сроки выполнения задач
+        List<Task> taskList = taskDAO.findTasks(getProcess());
+        for (Task task : taskList) {
+            if (task.getDeadlineDateExpression().contains(variableDefinition.getName())) {
+                task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
+                log.info("DeadLineDate for Task [id=" + task.getId() + "; name=" + task.getName() + "] has been changed");
+            }
+        }
+        // Проверяем таймеры ( включая таймеры эскалации)
+        List<Job> jobList = jobDAO.findByProcess(getProcess());
+        for (Job job : jobList) {
+            if (job.getDueDate().compareTo(new Date()) <= 0  && job instanceof Timer) {
+                Timer timer = (Timer)job;
+                if (timer.getDueDateExpression().contains(variableDefinition.getName())) {
+                    timer.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), timer.getDueDateExpression()));
+                    jobDAO.update(timer);
+                    log.info("DueDate for timer [id=" + timer.getId() + "; name=" + timer.getName() + "] has been changed");
+                }
+
+            }
+        }
     }
 
     /**
-     * Adds all the given variables. It doesn't remove any existing variables
-     * unless they are overwritten by the given variables.
+     * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
      */
     public void setVariableValues(Map<String, Object> variables) {
         for (Map.Entry<String, Object> entry : variables.entrySet()) {

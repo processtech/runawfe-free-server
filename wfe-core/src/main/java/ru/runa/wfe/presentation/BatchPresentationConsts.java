@@ -80,11 +80,14 @@ public class BatchPresentationConsts { // TODO move constants to
 
     public static final String ID_EXECUTORS_WITHOUT_BOT_STATION_PERMISSION = "listExecutorsWithoutBotStationPermission";
 
+    public static final String ID_EXECUTORS_WITHOUT_REPORTS_PERMISSION = "listExecutorsWithoutPermissionsOnReportsForm";
+
     public static final String ID_RELATIONS = "listRelations";
 
     public static final String ID_RELATION_PAIRS = "listRelationPairs";
 
-    //
+    public static final String REPORTS = "listReportsForm";
+
     public static final String ID_PROCESSES = "listProcessesForm";
 
     public static final String ID_DEFINITIONS = "listProcessesDefinitionsForm";

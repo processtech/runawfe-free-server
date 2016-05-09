@@ -17,15 +17,15 @@
  */
 package ru.runa.af.web.tag;
 
-import ru.runa.common.web.Messages;
+import org.tldgen.annotations.BodyContent;
+
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * @jsp.tag name = "grantBotStationPermissionLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "grantBotStationPermissionLink")
 public class GrantBotStationPermissionLinkTag extends LinkTag {
     private static final long serialVersionUID = -8445857392805848169L;
 
@@ -36,6 +36,6 @@ public class GrantBotStationPermissionLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.BUTTON_ADD, pageContext);
+        return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 }

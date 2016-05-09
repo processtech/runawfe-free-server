@@ -24,9 +24,9 @@ import org.apache.ecs.html.TD;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTDBuilder;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -48,8 +48,7 @@ public class RedeployProcessTDBuilder extends BaseTDBuilder {
 
         if (isEnabled(object, env)) {
             startLink = new A(Commons.getActionUrl(WebResources.ACTION_MAPPING_REDEPLOY_PROCESS_DEFINITION, IdForm.ID_INPUT_NAME, pd.getId(),
-                    env.getPageContext(), PortletUrlType.Action),
-                    Messages.getMessage(Messages.LABEL_REDEPLOY_PROCESS_DEFINIION, env.getPageContext()));
+                    env.getPageContext(), PortletUrlType.Action), MessagesProcesses.LABEL_REDEPLOY_PROCESS_DEFINIION.message(env.getPageContext()));
         } else {
             startLink = new StringElement();
         }
@@ -60,7 +59,7 @@ public class RedeployProcessTDBuilder extends BaseTDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        String result = Messages.getMessage(Messages.LABEL_REDEPLOY_PROCESS_DEFINIION, env.getPageContext());
+        String result = MessagesProcesses.LABEL_REDEPLOY_PROCESS_DEFINIION.message(env.getPageContext());
         if (result == null) {
             result = "";
         }

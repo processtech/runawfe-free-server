@@ -68,6 +68,17 @@
             <!-- ...also note a 'compile' scope: -->
             <scope>compile</scope>
         </dependency>
+        <dependency>
+          <groupId>cglib</groupId>
+          <artifactId>cglib</artifactId>
+          <version>3.0</version>
+          <exclusions>
+            <exclusion>
+              <artifactId>asm</artifactId>
+              <groupId>asm</groupId>
+            </exclusion>
+          </exclusions>
+        </dependency>
     </dependencies>
     <build>
         <finalName>cactus</finalName>
