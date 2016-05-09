@@ -82,13 +82,11 @@ public class VariableDAO extends GenericDAO<Variable> {
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
                     map.put(entry.getKey(),
-                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0],
-                                    entry.getValue()));
+                        processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], entry.getValue()));
                 }
                 if (variableDefinition.getFormatComponentUserTypes()[1] != null) {
                     map.put(entry.getKey(),
-                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[1],
-                                    entry.getValue()));
+                        processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[1], entry.getValue()));
                 }
             }
         }
@@ -97,10 +95,8 @@ public class VariableDAO extends GenericDAO<Variable> {
             List<Object> list = (List<Object>) value;
             for (int i = 0; i < list.size(); i++) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
-                    list.set(
-                            i,
-                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0],
-                                    list.get(i)));
+                    list.set(i,
+                        processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], list.get(i)));
                 }
             }
         }
@@ -131,8 +127,10 @@ public class VariableDAO extends GenericDAO<Variable> {
             }
             return null;
         }
-        String componentFormat = variableDefinition.getFormatComponentClassNames()[0];
-        UserType componentUserType = variableDefinition.getFormatComponentUserTypes()[0];
+        String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
+        String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
+        UserType[] formatComponentUserTypes = variableDefinition.getFormatComponentUserTypes();
+        UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
         for (int i = 0; i < size; i++) {
             String componentName = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
                     + VariableFormatContainer.COMPONENT_QUALIFIER_END;
@@ -151,7 +149,7 @@ public class VariableDAO extends GenericDAO<Variable> {
                     && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
                 String listVariableName = variableName.substring(0, variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START));
                 int listIndex = Integer.parseInt(variableName.substring(variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START) + 1,
-                        variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END)));
+                    variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END)));
                 VariableDefinition listVariableDefinition = processDefinition.getVariable(listVariableName, false);
                 List<Object> list = (List<Object>) getVariableValue(processDefinition, process, listVariableDefinition);
                 if (list != null && list.size() > listIndex) {

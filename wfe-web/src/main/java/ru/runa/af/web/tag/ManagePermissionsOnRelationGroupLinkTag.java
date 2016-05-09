@@ -17,14 +17,17 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "managePermissionsOnRelationGroupLink")
 public class ManagePermissionsOnRelationGroupLinkTag extends LinkTag {
     private static final long serialVersionUID = 1L;
     private static final String HREF = "/manage_relation_group_permissions.do";
@@ -41,7 +44,7 @@ public class ManagePermissionsOnRelationGroupLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.TITLE_PERMISSION_OWNERS, pageContext);
+        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
     }
 
 }

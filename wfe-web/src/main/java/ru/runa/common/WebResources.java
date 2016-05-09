@@ -30,7 +30,7 @@ import com.google.common.base.Strings;
 
 /**
  * Created on 30.09.2004
- *
+ * 
  */
 public class WebResources {
     private static final PropertyResources RESOURCES = new PropertyResources("web.properties");
@@ -49,7 +49,6 @@ public class WebResources {
     public static final String ACTION_MAPPING_SUBMIT_TASK_DISPATCHER = "/submitTaskDispatcher";
     public static final String ACTION_MAPPING_REDEPLOY_PROCESS_DEFINITION = "/redeploy_process_definition";
     public static final String ACTION_UPDATE_PROCESS_VARIABLES = "/update_process_variables";
-    public static final String UNAUTHORIZED_EXECUTOR_NAME = "label.executor.unauthorized";
     public static final String FORWARD_SUCCESS_DISPLAY_START_FORM = "success_display_start_form";
 
     public static final String START_PROCESS_IMAGE = "/images/start.gif";
@@ -57,6 +56,9 @@ public class WebResources {
 
     public static final String HIDDEN_ONE_TASK_INDICATOR = "one_task_hidden_field";
     public static final String HIDDEN_TASK_PREVIOUS_OWNER_ID = "taskOwnerId_hidden_field";
+
+    public static final String ACTION_MAPPING_MANAGE_REPORT = "/manage_report";
+    public static final String ACTION_MAPPING_BUILD_REPORT = "/build_report";
 
     public static PropertyResources getResources() {
         return RESOURCES;

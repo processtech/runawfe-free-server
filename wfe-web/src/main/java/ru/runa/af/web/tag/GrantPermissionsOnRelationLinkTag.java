@@ -20,8 +20,11 @@ package ru.runa.af.web.tag;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -29,6 +32,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "grantPermissionsOnRelationLink")
 public class GrantPermissionsOnRelationLinkTag extends LinkTag {
     private static final long serialVersionUID = 1L;
     private static final String HREF = "/grant_permissions_on_relation.do";
@@ -38,6 +42,7 @@ public class GrantPermissionsOnRelationLinkTag extends LinkTag {
         return relationId;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setRelationId(Long relationId) {
         this.relationId = relationId;
     }
@@ -56,7 +61,7 @@ public class GrantPermissionsOnRelationLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.BUTTON_ADD, pageContext);
+        return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 
 }

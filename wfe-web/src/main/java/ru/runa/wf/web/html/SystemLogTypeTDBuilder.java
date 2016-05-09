@@ -20,6 +20,7 @@ package ru.runa.wf.web.html;
 import org.apache.ecs.html.TD;
 
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.wfe.presentation.SystemLogTypeHelper;
@@ -43,7 +44,7 @@ public class SystemLogTypeTDBuilder implements TDBuilder {
         if (displayProperty != null) {
             return Messages.getMessage(displayProperty, env.getPageContext());
         } else {
-            return Messages.getMessage(Messages.SYSTEM_LOG_UNDEFINED_TYPE, env.getPageContext());
+            return MessagesOther.SYSTEM_LOG_UNDEFINED_TYPE.message(env.getPageContext());
         }
     }
 

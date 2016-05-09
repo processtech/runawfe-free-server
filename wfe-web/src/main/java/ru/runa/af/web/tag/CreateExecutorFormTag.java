@@ -19,37 +19,35 @@ package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.CreateExecutorAction;
 import ru.runa.af.web.form.CreateExecutorForm;
 import ru.runa.af.web.html.ExecutorTableBuilder;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.TitledFormTag;
 
-/**
- * Created on 18.08.2004
- * 
- * @jsp.tag name = "createExecutorForm" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "createExecutorForm")
 public class CreateExecutorFormTag extends TitledFormTag {
     private static final long serialVersionUID = 8049519129092850184L;
     private String type;
 
     @Override
     protected String getTitle() {
-        String key;
         if (CreateExecutorForm.TYPE_ACTOR.equals(type)) {
-            key = "title.create_actor";
+            return MessagesExecutor.TITLE_CREATE_ACTOR.message(pageContext);
         } else {
-            key = "title.create_group";
+            return MessagesExecutor.TITLE_CREATE_GROUP.message(pageContext);
         }
-        return Messages.getMessage(key, pageContext);
     }
 
     public String getType() {
         return type;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setType(String type) {
         this.type = type;
     }
@@ -68,7 +66,7 @@ public class CreateExecutorFormTag extends TitledFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override

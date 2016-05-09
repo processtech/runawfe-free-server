@@ -22,7 +22,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateDefinitionVariableProvider;
 import ru.runa.wfe.service.client.DelegateTaskVariableProvider;
@@ -93,7 +93,7 @@ public abstract class TaskFormBuilder {
     private String buildEmptyForm() {
         String message = "Task form is not defined";
         if (pageContext != null) {
-            message = Messages.getMessage("task.form.not.defined.error", pageContext);
+            message = MessagesException.ERROR_TASK_FORM_NOT_DEFINED.message(pageContext);
         }
         return message;
     }

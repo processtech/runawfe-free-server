@@ -20,6 +20,7 @@ package ru.runa.wf.web.tag;
 import java.util.List;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.PagingNavigationHelper;
@@ -31,6 +32,7 @@ import ru.runa.common.web.html.SortingHeaderBuilder;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -44,8 +46,8 @@ import ru.runa.wfe.service.delegate.Delegates;
  * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
- * @jsp.tag name = "listProcessesForm" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listProcessesForm")
 public class ListProcessesFormTag extends BatchReturningTitledFormTag {
 
     private static final long serialVersionUID = 585180395259884607L;
@@ -100,6 +102,6 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PROCESSES, pageContext);
+        return MessagesProcesses.TITLE_PROCESSES.message(pageContext);
     }
 }

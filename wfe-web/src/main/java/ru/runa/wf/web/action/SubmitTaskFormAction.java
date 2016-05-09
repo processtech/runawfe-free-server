@@ -29,8 +29,8 @@ import org.apache.struts.action.ActionMessage;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.wf.web.FormSubmissionUtils;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.ProcessForm;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
@@ -42,16 +42,11 @@ import ru.runa.wfe.user.User;
 /**
  * Created on 18.08.2004
  *
- * @struts:action path="/submitTaskForm" name="processForm" validate="true"
- *                input = "/WEB-INF/wf/manage_tasks.jsp"
- * @struts.action-forward name="success" path="/manage_tasks.do" redirect =
- *                        "true"
- * @struts.action-forward name="failure" path="/submit_task.do" redirect =
- *                        "false"
- * @struts.action-forward name="submitTask" path="/submit_task.do" redirect =
- *                        "false"
- * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect =
- *                        "true"
+ * @struts:action path="/submitTaskForm" name="processForm" validate="true" input = "/WEB-INF/wf/manage_tasks.jsp"
+ * @struts.action-forward name="success" path="/manage_tasks.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/submit_task.do" redirect = "false"
+ * @struts.action-forward name="submitTask" path="/submit_task.do" redirect = "false"
+ * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect = "true"
  */
 public class SubmitTaskFormAction extends BaseProcessFormAction {
 
@@ -85,6 +80,6 @@ public class SubmitTaskFormAction extends BaseProcessFormAction {
 
     @Override
     protected ActionMessage getMessage(Long processId) {
-        return new ActionMessage(Messages.TASK_COMPLETED);
+        return new ActionMessage(MessagesProcesses.TASK_COMPLETED.getKey());
     }
 }

@@ -26,6 +26,7 @@ import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.relation.dao.RelationDAO;
 import ru.runa.wfe.relation.dao.RelationPairDAO;
+import ru.runa.wfe.report.dao.ReportDAO;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.ss.dao.SubstitutionDAO;
 import ru.runa.wfe.task.dao.TaskDAO;
@@ -161,6 +162,10 @@ public class ApplicationContextFactory {
 
     public static SubstitutionDAO getSubstitutionDAO() {
         return getContext().getBean(SubstitutionDAO.class);
+    }
+
+    public static ReportDAO getReportDAO() {
+        return getContext().getBean(ReportDAO.class);
     }
 
     public static List<ITaskNotifier> getTaskNotifiers() {

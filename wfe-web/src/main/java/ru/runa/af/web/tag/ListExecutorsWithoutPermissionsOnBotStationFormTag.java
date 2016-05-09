@@ -17,6 +17,8 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.af.web.action.GrantPermissionsOnBotStationAction;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.security.Identifiable;
@@ -25,9 +27,8 @@ import ru.runa.wfe.security.Identifiable;
  * Created on 31.08.2004
  * 
  * @author stan79
- * @jsp.tag name = "ListExecutorsWithoutPermissionsOnBotStationFormTag"
- *          body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "ListExecutorsWithoutPermissionsOnBotStationFormTag")
 public class ListExecutorsWithoutPermissionsOnBotStationFormTag extends ListExecutorsWithoutPermissionsBase {
 
     private static final long serialVersionUID = 1L;

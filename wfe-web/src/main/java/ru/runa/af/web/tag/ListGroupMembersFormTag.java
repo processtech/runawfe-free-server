@@ -19,9 +19,12 @@ package ru.runa.af.web.tag;
 
 import java.util.List;
 
+import org.tldgen.annotations.BodyContent;
+
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveExecutorsFromGroupAction;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.ExecutorService;
@@ -31,11 +34,7 @@ import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
 
-/**
- * Created on 23.08.2004
- * 
- * @jsp.tag name = "listGroupMembersForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listGroupMembersForm")
 public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     private static final long serialVersionUID = -2400457393576894819L;
@@ -47,7 +46,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_REMOVE, pageContext);
+        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_GROUP_MEMBERS, pageContext);
+        return MessagesExecutor.TITLE_GROUP_MEMBERS.message(pageContext);
     }
 
     @Override

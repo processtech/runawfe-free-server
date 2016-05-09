@@ -19,6 +19,8 @@ package ru.runa.af.web.tag;
 
 import java.util.Map;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.af.web.action.GrantPermissionsOnRelationAction;
 import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.web.form.IdForm;
@@ -27,6 +29,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 import com.google.common.collect.Maps;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsOnRelationForm")
 public class ListExecutorsWithoutPermissionsOnRelationFormTag extends ListExecutorsWithoutPermissionsBase {
     private static final long serialVersionUID = 1L;
 

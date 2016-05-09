@@ -22,6 +22,7 @@ import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.TD;
 
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -56,9 +57,9 @@ public class SystemLogTDBuilder implements TDBuilder {
         if (placeHolderProcess != null) {
             return;
         }
-        placeHolderProcess = Messages.getMessage(Messages.HISTORY_SYSTEM_PH_PI, pageContext);
-        placeHolderProcessDefinition = Messages.getMessage(Messages.HISTORY_SYSTEM_PH_PD, pageContext);
-        placeHolderVersion = Messages.getMessage(Messages.HISTORY_SYSTEM_PH_VERSION, pageContext);
+        placeHolderProcess = MessagesOther.HISTORY_SYSTEM_PH_PI.message(pageContext);
+        placeHolderProcessDefinition = MessagesOther.HISTORY_SYSTEM_PH_PD.message(pageContext);
+        placeHolderVersion = MessagesOther.HISTORY_SYSTEM_PH_VERSION.message(pageContext);
     }
 
     @Override
@@ -74,12 +75,12 @@ public class SystemLogTDBuilder implements TDBuilder {
         SystemLog systemLog = (SystemLog) object;
         if (systemLog instanceof ProcessDeleteLog) {
             ProcessDeleteLog log = (ProcessDeleteLog) systemLog;
-            return Messages.getMessage(Messages.SYSTEM_LOG_PROCESS_DELETED, env.getPageContext())
+            return MessagesOther.SYSTEM_LOG_PROCESS_DELETED.message(env.getPageContext())
                     .replaceAll("\\{" + placeHolderProcessDefinition + "\\}", log.getName() != null ? log.getName() : "")
                     .replaceAll("\\{" + placeHolderProcess + "\\}", String.valueOf(log.getProcessId()));
         } else if (systemLog instanceof ProcessDefinitionDeleteLog) {
             ProcessDefinitionDeleteLog log = (ProcessDefinitionDeleteLog) systemLog;
-            return Messages.getMessage(Messages.SYSTEM_LOG_DEFINITION_DELETED, env.getPageContext())
+            return MessagesOther.SYSTEM_LOG_DEFINITION_DELETED.message(env.getPageContext())
                     .replaceAll("\\{" + placeHolderProcessDefinition + "\\}", log.getName())
                     .replaceAll("\\{" + placeHolderVersion + "\\}", String.valueOf(log.getVersion()));
         }

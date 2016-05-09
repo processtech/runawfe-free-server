@@ -25,7 +25,7 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
 import ru.runa.common.WebResources;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 import ru.runa.common.web.form.IdForm;
 
 import com.google.common.base.Strings;
@@ -105,25 +105,25 @@ public class UpdateExecutorDetailsForm extends IdForm {
         ActionErrors errors = new ActionErrors();
 
         if (Strings.isNullOrEmpty(getNewName())) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_FILL_REQUIRED_VALUES));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
         } else if (getNewName().length() > WebResources.VALIDATOR_STRING_255) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_VALIDATION));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         }
 
         if (getDescription() == null) {
             setDescription("");
         } else if (getDescription().length() > 1024) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_VALIDATION));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         }
         if (getFullName() == null) {
             setFullName("");
         } else if (getFullName().length() > WebResources.VALIDATOR_STRING_255) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_VALIDATION));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         }
         if (getEmail() == null) {
             setEmail("");
         } else if (getEmail().length() > WebResources.VALIDATOR_STRING_255) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_VALIDATION));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_VALIDATION.getKey()));
         }
         return errors;
     }

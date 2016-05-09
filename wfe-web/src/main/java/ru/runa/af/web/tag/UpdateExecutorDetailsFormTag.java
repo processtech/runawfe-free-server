@@ -18,18 +18,16 @@
 package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateExecutorDetailsAction;
 import ru.runa.af.web.html.ExecutorTableBuilder;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.ExecutorPermission;
 
-/**
- * Created on 18.08.2004
- * 
- * @jsp.tag name = "updateExecutorDetailsForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateExecutorDetailsForm")
 public class UpdateExecutorDetailsFormTag extends UpdateExecutorBaseFormTag {
     private static final long serialVersionUID = 9096797376521541558L;
 
@@ -47,12 +45,12 @@ public class UpdateExecutorDetailsFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_EXECUTOR_DETAILS, pageContext);
+        return MessagesExecutor.TITLE_EXECUTOR_DETAILS.message(pageContext);
     }
 
     @Override

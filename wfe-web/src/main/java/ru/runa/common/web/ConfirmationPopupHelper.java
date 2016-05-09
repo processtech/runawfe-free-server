@@ -37,6 +37,7 @@ public class ConfirmationPopupHelper {
     public static final String REDEPLOY_PROCESS_DEFINITION_PARAMETER = "redeploy.processdefinition";
     public static final String UNDEPLOY_PROCESS_DEFINITION_PARAMETER = "undeploy.processdefinition";
     public static final String REMOVE_SUBSTITUTION_CRITERIA_PARAMETER = "remove.substitutioncriteria";
+    public static final String UNDEPLOY_REPORT_PARAMETER = "undeploy.report";
 
     public static final String REMOVE_EXECUTORS_PARAMETER = "remove.executors";
     public static final String REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER = "remove.executorsfromgroups";
@@ -44,45 +45,45 @@ public class ConfirmationPopupHelper {
     public static final String REMOVE_BOT_PARAMETER = "remove.bot";
     public static final String USE_DEFAULT_PROPERTIES_PARAMETER = "use.default.properties";
 
-    private static final Map<String, String> confirmationResource = new HashMap<String, String>();
-    private static final Map<String, String> confirmationCookies = new HashMap<String, String>();
+    private static final Map<String, StrutsMessage> confirmationResource = new HashMap<String, StrutsMessage>();
+    private static final Map<String, StrutsMessage> confirmationCookies = new HashMap<String, StrutsMessage>();
 
     static {
-        confirmationCookies.put(ACCEPT_TASK_PARAMETER, "accept.task.cookie");
-        confirmationCookies.put(EXECUTE_TASK_PARAMETER, "execute.task.cookie");
-        confirmationCookies.put(CANCEL_PROCESS_PARAMETER, "cancel.process.cookie");
-        confirmationCookies.put(REMOVE_PROCESS_PARAMETER, "remove.process.cookie");
-        confirmationCookies.put(START_PROCESS_PARAMETER, "start.process.cookie");
-        confirmationCookies.put(START_PROCESS_FORM_PARAMETER, "start.process.form.cookie");
-        confirmationCookies.put(DEPLOY_PROCESS_DEFINITION_PARAMETER, "deploy.processdefinition.cookie");
-        confirmationCookies.put(REDEPLOY_PROCESS_DEFINITION_PARAMETER, "redeploy.processdefinition.cookie");
-        confirmationCookies.put(UNDEPLOY_PROCESS_DEFINITION_PARAMETER, "undeploy.processdefinition.cookie");
-        confirmationCookies.put(REMOVE_SUBSTITUTION_CRITERIA_PARAMETER, "remove.substitutioncriteria.cookie");
+        confirmationCookies.put(ACCEPT_TASK_PARAMETER, MessagesConfirmation.COOKIE_ACCEPT_TASK);
+        confirmationCookies.put(EXECUTE_TASK_PARAMETER, MessagesConfirmation.COOKIE_EXECUTE_TASK);
+        confirmationCookies.put(CANCEL_PROCESS_PARAMETER, MessagesConfirmation.COOKIE_CANCEL_PROCESS);
+        confirmationCookies.put(REMOVE_PROCESS_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_PROCESS);
+        confirmationCookies.put(START_PROCESS_PARAMETER, MessagesConfirmation.COOKIE_START_PROCESS);
+        confirmationCookies.put(START_PROCESS_FORM_PARAMETER, MessagesConfirmation.COOKIE_START_PROCESS);
+        confirmationCookies.put(DEPLOY_PROCESS_DEFINITION_PARAMETER, MessagesConfirmation.COOKIE_DEPLOY_PROCESSDEFINIION);
+        confirmationCookies.put(REDEPLOY_PROCESS_DEFINITION_PARAMETER, MessagesConfirmation.COOKIE_REDEPLOY_PROCESSDEFINIION);
+        confirmationCookies.put(UNDEPLOY_PROCESS_DEFINITION_PARAMETER, MessagesConfirmation.COOKIE_UNDEPLOY_PROCESSDEFINIION);
+        confirmationCookies.put(REMOVE_SUBSTITUTION_CRITERIA_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_SUBSTITUTION_CRITERIA);
 
-        confirmationCookies.put(REMOVE_BOT_PARAMETER, "remove.bot.cookie");
-        confirmationCookies.put(REMOVE_BOT_STATION_PARAMETER, "remove.botstation.cookie");
-        confirmationCookies.put(REMOVE_EXECUTORS_PARAMETER, "remove.executors.cookie");
-        confirmationCookies.put(REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER, "remove.executorsfromgroups.cookie");
-        confirmationCookies.put(USE_DEFAULT_PROPERTIES_PARAMETER, "use.default.properties.cookie");
+        confirmationCookies.put(REMOVE_BOT_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_BOT);
+        confirmationCookies.put(REMOVE_BOT_STATION_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_BOT_STATION);
+        confirmationCookies.put(REMOVE_EXECUTORS_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_EXECUTORS);
+        confirmationCookies.put(REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER, MessagesConfirmation.COOKIE_REMOVE_EXECUTORS_FROM_GROUPS);
+        confirmationCookies.put(USE_DEFAULT_PROPERTIES_PARAMETER, MessagesConfirmation.COOKIE_USE_DEFAULT_PROPERTIES);
     }
 
     static {
-        confirmationResource.put(ACCEPT_TASK_PARAMETER, Messages.CONF_POPUP_ACCEPT_TASK);
-        confirmationResource.put(EXECUTE_TASK_PARAMETER, Messages.CONF_POPUP_EXECUTE_TASK);
-        confirmationResource.put(CANCEL_PROCESS_PARAMETER, Messages.CONF_POPUP_CANCEL_PROCESS);
-        confirmationResource.put(REMOVE_PROCESS_PARAMETER, Messages.CONF_POPUP_REMOVE_PROCESS);
-        confirmationResource.put(START_PROCESS_PARAMETER, Messages.CONF_POPUP_START_PROCESS);
-        confirmationResource.put(START_PROCESS_FORM_PARAMETER, Messages.CONF_POPUP_START_PROCESS);
-        confirmationResource.put(DEPLOY_PROCESS_DEFINITION_PARAMETER, Messages.CONF_POPUP_DEPLOY_PROCESSDEFINIION);
-        confirmationResource.put(REDEPLOY_PROCESS_DEFINITION_PARAMETER, Messages.CONF_POPUP_REDEPLOY_PROCESSDEFINIION);
-        confirmationResource.put(UNDEPLOY_PROCESS_DEFINITION_PARAMETER, Messages.CONF_POPUP_UNDEPLOY_PROCESSDEFINIION);
-        confirmationResource.put(REMOVE_SUBSTITUTION_CRITERIA_PARAMETER, Messages.CONF_POPUP_REMOVE_SUBSTITUTION_CRITERIA);
+        confirmationResource.put(ACCEPT_TASK_PARAMETER, MessagesConfirmation.CONF_POPUP_ACCEPT_TASK);
+        confirmationResource.put(EXECUTE_TASK_PARAMETER, MessagesConfirmation.CONF_POPUP_EXECUTE_TASK);
+        confirmationResource.put(CANCEL_PROCESS_PARAMETER, MessagesConfirmation.CONF_POPUP_CANCEL_PROCESS);
+        confirmationResource.put(REMOVE_PROCESS_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_PROCESS);
+        confirmationResource.put(START_PROCESS_PARAMETER, MessagesConfirmation.CONF_POPUP_START_PROCESS);
+        confirmationResource.put(START_PROCESS_FORM_PARAMETER, MessagesConfirmation.CONF_POPUP_START_PROCESS);
+        confirmationResource.put(DEPLOY_PROCESS_DEFINITION_PARAMETER, MessagesConfirmation.CONF_POPUP_DEPLOY_PROCESSDEFINIION);
+        confirmationResource.put(REDEPLOY_PROCESS_DEFINITION_PARAMETER, MessagesConfirmation.CONF_POPUP_REDEPLOY_PROCESSDEFINIION);
+        confirmationResource.put(UNDEPLOY_PROCESS_DEFINITION_PARAMETER, MessagesConfirmation.CONF_POPUP_UNDEPLOY_PROCESSDEFINIION);
+        confirmationResource.put(REMOVE_SUBSTITUTION_CRITERIA_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_SUBSTITUTION_CRITERIA);
 
-        confirmationResource.put(REMOVE_BOT_PARAMETER, Messages.CONF_POPUP_REMOVE_BOT);
-        confirmationResource.put(REMOVE_BOT_STATION_PARAMETER, Messages.CONF_POPUP_REMOVE_BOT_STATION);
-        confirmationResource.put(REMOVE_EXECUTORS_PARAMETER, Messages.CONF_POPUP_REMOVE_EXECUTORS);
-        confirmationResource.put(REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER, Messages.CONF_POPUP_REMOVE_EXECUTORS_FROM_GROUPS);
-        confirmationResource.put(USE_DEFAULT_PROPERTIES_PARAMETER, Messages.CONF_POPUP_USE_DEFAULT_PROPERTIES);
+        confirmationResource.put(REMOVE_BOT_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_BOT);
+        confirmationResource.put(REMOVE_BOT_STATION_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_BOT_STATION);
+        confirmationResource.put(REMOVE_EXECUTORS_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_EXECUTORS);
+        confirmationResource.put(REMOVE_EXECUTORS_FROM_GROUPS_PARAMETER, MessagesConfirmation.CONF_POPUP_REMOVE_EXECUTORS_FROM_GROUPS);
+        confirmationResource.put(USE_DEFAULT_PROPERTIES_PARAMETER, MessagesConfirmation.CONF_POPUP_USE_DEFAULT_PROPERTIES);
     }
 
     public static ConfirmationPopupHelper getInstance() {
@@ -97,10 +98,10 @@ public class ConfirmationPopupHelper {
     }
 
     public String getConfirmationPopupCodeHTML(String parameter, PageContext pageContext) {
-        return "openConfirmPopup(this,'" + Messages.getMessage(confirmationCookies.get(parameter), pageContext) + "', '"
-                + Messages.getMessage(confirmationResource.get(parameter), pageContext) + "', '"
-                + Messages.getMessage(Messages.CONF_POPUP_CONFIRM_ACTION, pageContext) + "','"
-                + Messages.getMessage(Messages.CONF_POPUP_BUTTON_CANCEL, pageContext) + "', '"
-                + Messages.getMessage(Messages.CONF_POPUP_BUTTON_OK, pageContext) + "'); return false;";
+        return "openConfirmPopup(this,'" + confirmationCookies.get(parameter).message(pageContext) + "', '"
+                + confirmationResource.get(parameter).message(pageContext) + "', '"
+                + MessagesConfirmation.CONF_POPUP_CONFIRM_ACTION.message(pageContext) + "','"
+                + MessagesConfirmation.CONF_POPUP_BUTTON_CANCEL.message(pageContext) + "', '"
+                + MessagesConfirmation.CONF_POPUP_BUTTON_OK.message(pageContext) + "'); return false;";
     }
 }

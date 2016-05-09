@@ -23,14 +23,14 @@ public interface ScriptingService {
      *            authorized user
      * @param scriptData
      *            script data
-     * @param processDefinitionsBytes
-     *            process definitions data to deploy or update
+     * @param externalResources
+     *            external script data (par files, bot configurations and so one).
      * @throws AdminScriptException
      *             if script execution fails
      */
-    public void executeAdminScript(User user, byte[] scriptData, byte[][] processDefinitionsBytes) throws AdminScriptException;
+    public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) throws AdminScriptException;
 
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, byte[][] processDefinitionsBytes, Map<String, byte[]> configs, String defaultPasswordValue);
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue);
 
     /**
      * Executes Groovy script.

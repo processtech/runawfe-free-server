@@ -26,10 +26,10 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -50,7 +50,7 @@ public class RemoveProcessAction extends ActionBase {
             addError(request, e);
             return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), IdForm.ID_INPUT_NAME, form.getId());
         }
-        addMessage(request, new ActionMessage(Messages.PROCESS_REMOVED));
+        addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_REMOVED.getKey()));
         return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, form.getId());
     }
 

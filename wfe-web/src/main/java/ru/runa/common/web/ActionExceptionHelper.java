@@ -88,81 +88,83 @@ public class ActionExceptionHelper {
     public static ActionMessage getActionMessage(Throwable e) {
         ActionMessage actionMessage;
         if (e instanceof AuthenticationException || e instanceof LoginException || e instanceof AuthenticationExpiredException) {
-            actionMessage = new ActionMessage(Messages.EXCEPTION_AUTHENTICATION);
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_AUTHENTICATION.getKey());
         } else if (e instanceof AuthorizationException) {
-            actionMessage = new ActionMessage(Messages.EXCEPTION_AUTHORIZATION);
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_AUTHORIZATION.getKey());
         } else if (e instanceof WeakPasswordException) {
-            actionMessage = new ActionMessage(Messages.EXCEPTION_PASSWORD_IS_WEAK);
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_PASSWORD_IS_WEAK.getKey());
         } else if (e instanceof ExecutorDoesNotExistException) {
             ExecutorDoesNotExistException exception = (ExecutorDoesNotExistException) e;
             if (exception.getExecutorClass().equals(Actor.class)) {
-                actionMessage = new ActionMessage(Messages.EXCEPTION_ACTOR_DOES_NOT_EXISTS, exception.getExecutorName());
+                actionMessage = new ActionMessage(MessagesException.EXCEPTION_ACTOR_DOES_NOT_EXISTS.getKey(), exception.getExecutorName());
             } else if (exception.getExecutorClass().equals(Group.class)) {
-                actionMessage = new ActionMessage(Messages.EXCEPTION_GROUP_DOES_NOT_EXISTS, exception.getExecutorName());
+                actionMessage = new ActionMessage(MessagesException.EXCEPTION_GROUP_DOES_NOT_EXISTS.getKey(), exception.getExecutorName());
             } else {
-                actionMessage = new ActionMessage(Messages.EXCEPTION_EXECUTOR_DOES_NOT_EXISTS, exception.getExecutorName());
+                actionMessage = new ActionMessage(MessagesException.EXCEPTION_EXECUTOR_DOES_NOT_EXISTS.getKey(), exception.getExecutorName());
             }
         } else if (e instanceof ExecutorAlreadyExistsException) {
             ExecutorAlreadyExistsException exception = (ExecutorAlreadyExistsException) e;
-            actionMessage = new ActionMessage(Messages.EXCEPTION_EXECUTOR_ALREADY_EXISTS, exception.getExecutorName());
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_EXECUTOR_ALREADY_EXISTS.getKey(), exception.getExecutorName());
         } else if (e instanceof ExecutorParticipatesInProcessesException) {
             ExecutorParticipatesInProcessesException exception = (ExecutorParticipatesInProcessesException) e;
-            actionMessage = new ActionMessage(Messages.EXCEPTION_EXECUTOR_PARTICIPATES_IN_PROCESSES, exception.getExecutorName(),
-                    exception.getIdsInfo());
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_EXECUTOR_PARTICIPATES_IN_PROCESSES.getKey(),
+                    exception.getExecutorName(), exception.getIdsInfo());
         } else if (e instanceof ProcessDoesNotExistException) {
-            actionMessage = new ActionMessage(Messages.ERROR_PROCESS_DOES_NOT_EXIST, e.getMessage());
+            actionMessage = new ActionMessage(MessagesException.ERROR_PROCESS_DOES_NOT_EXIST.getKey(), e.getMessage());
         } else if (e instanceof DefinitionAlreadyExistException) {
             DefinitionAlreadyExistException exception = (DefinitionAlreadyExistException) e;
-            actionMessage = new ActionMessage(Messages.ERROR_DEFINITION_ALREADY_EXISTS, exception.getName());
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_ALREADY_EXISTS.getKey(), exception.getName());
         } else if (e instanceof DefinitionDoesNotExistException) {
             DefinitionDoesNotExistException exception = (DefinitionDoesNotExistException) e;
-            actionMessage = new ActionMessage(Messages.ERROR_DEFINITION_DOES_NOT_EXIST, exception.getName());
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_DOES_NOT_EXIST.getKey(), exception.getName());
         } else if (e instanceof DefinitionFileDoesNotExistException) {
-            actionMessage = new ActionMessage(Messages.DEFINITION_FILE_DOES_NOT_EXIST_ERROR, e.getMessage());
+            actionMessage = new ActionMessage(MessagesException.DEFINITION_FILE_DOES_NOT_EXIST_ERROR.getKey(), e.getMessage());
         } else if (e instanceof DefinitionArchiveFormatException) {
-            actionMessage = new ActionMessage(Messages.DEFINITION_ARCHIVE_FORMAT_ERROR);
+            actionMessage = new ActionMessage(MessagesException.DEFINITION_ARCHIVE_FORMAT_ERROR.getKey());
         } else if (e instanceof InvalidDefinitionException) {
-            actionMessage = new ActionMessage(Messages.DEFINITION_FILE_FORMAT_ERROR, ((InvalidDefinitionException) e).getDefinitionName(),
-                    e.getMessage());
+            actionMessage = new ActionMessage(MessagesException.DEFINITION_FILE_FORMAT_ERROR.getKey(),
+                    ((InvalidDefinitionException) e).getDefinitionName(), e.getMessage());
         } else if (e instanceof DefinitionNameMismatchException) {
             DefinitionNameMismatchException exception = (DefinitionNameMismatchException) e;
-            actionMessage = new ActionMessage(Messages.ERROR_DEFINITION_NAME_MISMATCH, exception.getDeployedProcessDefinitionName(),
-                    exception.getGivenProcessDefinitionName());
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(),
+                    exception.getDeployedProcessDefinitionName(), exception.getGivenProcessDefinitionName());
         } else if (e instanceof TaskDoesNotExistException) {
-            actionMessage = new ActionMessage(Messages.ERROR_TASK_DOES_NOT_EXIST);
+            actionMessage = new ActionMessage(MessagesException.ERROR_TASK_DOES_NOT_EXIST.getKey());
         } else if (e instanceof SubstitutionDoesNotExistException) {
-            actionMessage = new ActionMessage(Messages.SUBSTITUTION_OUT_OF_DATE);
+            actionMessage = new ActionMessage(MessagesException.SUBSTITUTION_OUT_OF_DATE.getKey());
         } else if (e instanceof InvalidSessionException) {
-            actionMessage = new ActionMessage(Messages.EXCEPTION_SESSION_INVALID);
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_SESSION_INVALID.getKey());
         } else if (e instanceof FilterFormatException) {
-            actionMessage = new ActionMessage(Messages.EXCEPTION_TABLE_VIEW_SETUP_FORMAT_INCORRECT);
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_TABLE_VIEW_SETUP_FORMAT_INCORRECT.getKey());
         } else if (e instanceof ProcessDefinitionTypeNotPresentException) {
-            actionMessage = new ActionMessage(Messages.EXCEPTION_DEFINITION_TYPE_NOT_PRESENT);
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_DEFINITION_TYPE_NOT_PRESENT.getKey());
         } else if (e instanceof TaskAlreadyAcceptedException) {
-            actionMessage = new ActionMessage(Messages.TASK_WAS_ALREADY_ACCEPTED, e.getMessage());
+            actionMessage = new ActionMessage(MessagesException.TASK_WAS_ALREADY_ACCEPTED.getKey(), e.getMessage());
         } else if (e instanceof ParentProcessExistsException) {
             ParentProcessExistsException exc = (ParentProcessExistsException) e;
-            actionMessage = new ActionMessage(Messages.PROCESS_HAS_SUPER_PROCESS, exc.getDefinitionName(), exc.getParentDefinitionName());
+            actionMessage = new ActionMessage(MessagesException.PROCESS_HAS_SUPER_PROCESS.getKey(), exc.getDefinitionName(),
+                    exc.getParentDefinitionName());
         } else if (e instanceof RelationDoesNotExistException) {
-            actionMessage = new ActionMessage(Messages.MESSAGE_RELATION_GROUP_DOESNOT_EXISTS, e.getMessage());
+            actionMessage = new ActionMessage(MessagesException.MESSAGE_RELATION_GROUP_DOESNOT_EXISTS.getKey(), e.getMessage());
         } else if (e instanceof RelationAlreadyExistException) {
-            actionMessage = new ActionMessage(Messages.MESSAGE_RELATION_GROUP_EXISTS, e.getMessage());
+            actionMessage = new ActionMessage(MessagesException.MESSAGE_RELATION_GROUP_EXISTS.getKey(), e.getMessage());
         } else if (e instanceof VariablesFormatException) {
-            actionMessage = new ActionMessage(Messages.MESSAGE_VARIABLE_FORMAT_ERROR, ((VariablesFormatException) e).getErrorFields());
+            actionMessage = new ActionMessage(MessagesException.MESSAGE_VARIABLE_FORMAT_ERROR.getKey(),
+                    ((VariablesFormatException) e).getErrorFields());
         } else if (e instanceof DataFileNotPresentException) {
-            actionMessage = new ActionMessage(Messages.EXCEPTION_DATAFILE_NOT_PRESENT);
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_DATAFILE_NOT_PRESENT.getKey());
         } else if (e instanceof ValidationException) {
-            actionMessage = new ActionMessage(Messages.MESSAGE_VALIDATION_ERROR);
+            actionMessage = new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey());
         } else if (e instanceof LocalizableException) {
             actionMessage = new ActionMessage(e.getLocalizedMessage(), false);
         } else if (e instanceof InternalApplicationException) {
-            actionMessage = new ActionMessage(Messages.EXCEPTION_UNKNOWN, e.getMessage());
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_UNKNOWN.getKey(), e.getMessage());
         } else {
             String message = e.getMessage();
             if (message == null) {
                 message = e.getClass().getName();
             }
-            actionMessage = new ActionMessage(Messages.EXCEPTION_UNKNOWN, message);
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_UNKNOWN.getKey(), message);
         }
         return actionMessage;
     }

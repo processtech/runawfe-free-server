@@ -21,33 +21,29 @@ import java.util.List;
 
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.TaskFormBuilder;
 import ru.runa.wf.web.TaskFormBuilderFactory;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * Created on 17.11.2004
- * 
- * @jsp.tag name = "startForm" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "startForm")
 public class StartFormTag extends WFFormTag {
 
     private static final long serialVersionUID = -1162637745236395968L;
     private Long definitionId;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
     @Override
     protected Long getDefinitionId() {
         return definitionId;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setDefinitionId(Long definitionId) {
         this.definitionId = definitionId;
     }
@@ -85,7 +81,7 @@ public class StartFormTag extends WFFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.LABEL_START_PROCESS, pageContext);
+        return MessagesProcesses.LABEL_START_PROCESS.message(pageContext);
     }
 
     @Override

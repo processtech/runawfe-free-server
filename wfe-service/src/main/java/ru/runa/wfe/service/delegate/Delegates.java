@@ -30,13 +30,14 @@ import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.InitializerService;
 import ru.runa.wfe.service.ProfileService;
 import ru.runa.wfe.service.RelationService;
+import ru.runa.wfe.service.ReportService;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.SubstitutionService;
 import ru.runa.wfe.service.SynchronizationService;
 import ru.runa.wfe.service.SystemService;
+import ru.runa.wfe.service.TaskService;
 
 import com.google.common.collect.Maps;
-import ru.runa.wfe.service.TaskService;
 
 /**
  * Provides delegates. Delegate's type can not be switched at run-time.
@@ -117,5 +118,9 @@ public class Delegates {
 
     public static TaskService getTaskService() {
         return getDelegate(TaskServiceDelegate.class);
+    }
+
+    public static ReportService getReportService() {
+        return getDelegate(ReportServiceDelegate.class);
     }
 }

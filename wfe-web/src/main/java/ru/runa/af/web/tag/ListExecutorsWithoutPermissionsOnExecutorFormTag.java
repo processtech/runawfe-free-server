@@ -17,16 +17,13 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.af.web.action.GrantPermissionsOnExecutorAction;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * Created on 23.08.2004
- * 
- * @jsp.tag name = "listExecutorsWithoutPermissionsOnExecutorForm" body-content
- *          = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsOnExecutorForm")
 public class ListExecutorsWithoutPermissionsOnExecutorFormTag extends ListExecutorsWithoutPermissionsBase {
 
     private static final long serialVersionUID = 3876313306976711266L;

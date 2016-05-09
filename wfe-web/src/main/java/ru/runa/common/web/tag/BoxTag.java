@@ -28,12 +28,12 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Resources;
 
-/**
- * @jsp.tag name = "box" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "box")
 public class BoxTag extends TagSupport {
     private static final long serialVersionUID = -1392091463949758729L;
     private String align;
@@ -98,57 +98,47 @@ public class BoxTag extends TagSupport {
         return EVAL_PAGE;
     }
 
-    /**
-     * @jsp.attribute required = "false"
-     */
     public String getAlign() {
         return align;
     }
 
-    /**
-     * @jsp.attribute required = "false"
-     */
     public String getHeight() {
         return height;
     }
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
     public String getTitle() {
         return title;
     }
 
-    /**
-     * @jsp.attribute required = "false"
-     */
     public String getValign() {
         return valign;
     }
 
-    /**
-     * @jsp.attribute required = "false"
-     */
     public String getWidth() {
         return width;
     }
 
+    @Attribute(required = false, rtexprvalue = false)
     public void setAlign(String align) {
         this.align = align;
     }
 
+    @Attribute(required = false, rtexprvalue = false)
     public void setHeight(String height) {
         this.height = height;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setTitle(String title) {
         this.title = title;
     }
 
+    @Attribute(required = false, rtexprvalue = false)
     public void setValign(String valign) {
         this.valign = valign;
     }
 
+    @Attribute(required = false, rtexprvalue = false)
     public void setWidth(String width) {
         this.width = width;
     }

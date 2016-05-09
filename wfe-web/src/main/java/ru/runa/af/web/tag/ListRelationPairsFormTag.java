@@ -21,11 +21,13 @@ import java.util.List;
 
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.RemoveRelationPairsAction;
 import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.WebResources;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.IdentifiableCheckboxTDBuilder;
@@ -41,6 +43,7 @@ import ru.runa.wfe.relation.RelationPair;
 import ru.runa.wfe.relation.RelationPermission;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listRelationPairsForm")
 public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
     private static final long serialVersionUID = 1L;
     private Long relationId;
@@ -50,6 +53,7 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
         return relationId;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setRelationId(Long relationId) {
         this.relationId = relationId;
     }
@@ -103,6 +107,6 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_REMOVE, pageContext);
+        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 }

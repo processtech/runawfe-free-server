@@ -20,9 +20,12 @@ package ru.runa.af.web.tag;
 import java.util.List;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.AllEnabledIdentifiableCheckboxTDBuilder;
@@ -45,12 +48,15 @@ import ru.runa.wfe.user.Executor;
  * Created on 31.08.2004
  * 
  * @author stan79
- * @jsp.tag name = "ListExecutorsWithoutPermissionsOnBotStationFormTag"
- *          body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "ListExecutorsWithoutPermissionsOnBotStationFormTag")
 public abstract class ListExecutorsWithoutPermissionsBase extends IdentifiableFormTag implements BatchedTag, ReturningTag {
 
     private static final long serialVersionUID = 1L;
+
+    private String batchPresentationId;
+
+    private String returnAction;
 
     @Override
     protected void fillFormData(TD tdFormElement) {
@@ -77,14 +83,10 @@ public abstract class ListExecutorsWithoutPermissionsBase extends IdentifiableFo
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_ADD, pageContext);
+        return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 
-    private String batchPresentationId;
-
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
+    @Attribute(required = true, rtexprvalue = true)
     @Override
     public void setBatchPresentationId(String batchPresentationId) {
         this.batchPresentationId = batchPresentationId;
@@ -100,16 +102,12 @@ public abstract class ListExecutorsWithoutPermissionsBase extends IdentifiableFo
         return getProfile().getActiveBatchPresentation(batchPresentationId);
     }
 
-    private String returnAction;
-
     @Override
     public String getReturnAction() {
         return returnAction;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     @Override
     public void setReturnAction(String returnAction) {
         this.returnAction = returnAction;
@@ -117,7 +115,7 @@ public abstract class ListExecutorsWithoutPermissionsBase extends IdentifiableFo
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_GRANT_PERMISSION, pageContext);
+        return MessagesExecutor.TITLE_GRANT_PERMISSION.message(pageContext);
     }
 
     @Override

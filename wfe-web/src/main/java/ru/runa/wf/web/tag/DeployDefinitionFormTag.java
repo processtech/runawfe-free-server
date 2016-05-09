@@ -18,38 +18,39 @@
 package ru.runa.wf.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.DeployProcessDefinitionAction;
 
-/**
- * Created on 18.08.2004
- * 
- * @jsp.tag name = "deployDefinitionForm" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployDefinitionForm")
 public class DeployDefinitionFormTag extends TitledFormTag {
     private static final long serialVersionUID = -3361459425268889410L;
 
+    @Override
     protected void fillFormElement(TD tdFormElement) {
         RedeployDefinitionFormTag.fillTD(tdFormElement, getForm(), null, getUser(), pageContext);
     }
 
+    @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_DEPLOY_DEFINITION, pageContext);
+        return MessagesProcesses.TITLE_DEPLOY_DEFINITION.message(pageContext);
     }
 
+    @Override
     public String getAction() {
         return DeployProcessDefinitionAction.ACTION_PATH;
     }
 
+    @Override
     public String getConfirmationPopupParameter() {
         return ConfirmationPopupHelper.DEPLOY_PROCESS_DEFINITION_PARAMETER;
     }
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_DEPLOY_DEFINITION, pageContext);
+        return MessagesProcesses.BUTTON_DEPLOY_DEFINITION.message(pageContext);
     }
 }

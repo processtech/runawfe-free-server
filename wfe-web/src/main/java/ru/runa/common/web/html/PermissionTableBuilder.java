@@ -28,6 +28,7 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
@@ -45,16 +46,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * Builds HTML Table of executors with their own permissions on given
- * identifiable.
+ * Builds HTML Table of executors with their own permissions on given identifiable.
  */
 public class PermissionTableBuilder {
     private final Identifiable identifiable;
     private final User user;
     private final PageContext pageContext;
-    private List<Permission> permissions;
-    private boolean allowedUpdatePermissions;
-    private Map<Executor, List<Permission>> additionalExecutors = Maps.newHashMap();
+    private final List<Permission> permissions;
+    private final boolean allowedUpdatePermissions;
+    private final Map<Executor, List<Permission>> additionalExecutors = Maps.newHashMap();
 
     public PermissionTableBuilder(Identifiable identifiable, User user, PageContext pageContext) {
         this.identifiable = identifiable;
@@ -88,7 +88,7 @@ public class PermissionTableBuilder {
     private TR createTableHeaderTR() {
         TR tr = new TR();
         tr.addElement(new TH().setClass(Resources.CLASS_PERMISSION_TABLE_TH));
-        tr.addElement(new TH(Messages.getMessage(Messages.LABEL_EXECUTOR_NAME, pageContext)).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
+        tr.addElement(new TH(MessagesExecutor.EXECUTOR_NAME.message(pageContext)).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
         for (Permission permission : permissions) {
             String permissioni18nName = Messages.getMessage(permission.getName(), pageContext);
             tr.addElement(new TH(permissioni18nName).setClass(Resources.CLASS_PERMISSION_TABLE_TH));

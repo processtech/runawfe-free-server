@@ -20,11 +20,8 @@ package ru.runa.common.web.tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.ecs.html.Form;
+import org.tldgen.annotations.Attribute;
 
-/**
- * Created on 01.02.2005
- * 
- */
 public abstract class AbstractReturningTag extends TagSupport implements ReturningTag {
     private static final long serialVersionUID = 1L;
 
@@ -32,31 +29,25 @@ public abstract class AbstractReturningTag extends TagSupport implements Returni
     private String action;
     private String method = Form.POST;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setAction(String action) {
         this.action = action;
     }
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setMethod(String string) {
         method = string;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public String getAction() {
         return action;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public String getMethod() {
         return method;
     }
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
+    @Attribute(required = true, rtexprvalue = true)
     @Override
     public void setReturnAction(String forwardName) {
         returnAction = forwardName;

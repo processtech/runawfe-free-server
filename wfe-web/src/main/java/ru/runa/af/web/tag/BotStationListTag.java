@@ -23,13 +23,15 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.DeleteBotStationAction;
 import ru.runa.af.web.html.BotStationTableBuilder;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdsForm;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.security.Identifiable;
@@ -39,9 +41,8 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 /**
  * @author: stan79 Date: 25.05.2008 Time: 20:04:19
- * @jsp.tag name = "botStationList" body-content = "JSP"
  */
-
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botStationList")
 public class BotStationListTag extends TitledFormTag {
     private static final long serialVersionUID = -4263750161023575386L;
 
@@ -68,12 +69,12 @@ public class BotStationListTag extends TitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_BOT_STATIONS, pageContext);
+        return MessagesBot.TITLE_BOT_STATIONS.message(pageContext);
     }
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_REMOVE, pageContext);
+        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override

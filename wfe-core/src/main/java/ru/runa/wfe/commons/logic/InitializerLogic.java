@@ -55,6 +55,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
+import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbpatch.impl.NodeTypeChangePatch;
@@ -78,7 +79,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
- *
+ * 
  * @author Dofs
  */
 public class InitializerLogic {
@@ -142,6 +143,8 @@ public class InitializerLogic {
         // 4.3.0
         dbPatches.add(AddAggregatedTaskIndexPatch.class);
         dbPatches.add(AddParentProcessIdPatch.class);
+        // 4.4.0
+        dbPatches.add(CreateReportsTables.class);
     };
 
     @Autowired
@@ -212,7 +215,7 @@ public class InitializerLogic {
 
     /**
      * Initialize database.
-     *
+     * 
      * @param daoHolder
      *            Helper object for getting DAO's.
      */
@@ -257,6 +260,7 @@ public class InitializerLogic {
         permissionDAO.addType(SecuredObjectType.BOTSTATION, adminWithGroupExecutors);
         permissionDAO.addType(SecuredObjectType.DEFINITION, adminWithGroupExecutors);
         permissionDAO.addType(SecuredObjectType.PROCESS, adminWithGroupExecutors);
+        permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
     }
 
     /**

@@ -18,17 +18,14 @@
 package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.UpdatePermissionsOnSystemAction;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.wfe.security.Permission;
 
-/**
- * Created on 24.08.2004
- * 
- * @jsp.tag name = "updatePermissionsOnSystemForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updatePermissionsOnSystemForm")
 public class UpdatePermissionsOnSystemFormTag extends UpdateSystemBaseFormTag {
     private static final long serialVersionUID = 2102558048751151714L;
 
@@ -45,12 +42,12 @@ public class UpdatePermissionsOnSystemFormTag extends UpdateSystemBaseFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PERMISSION_OWNERS, pageContext);
+        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
     }
 
     @Override

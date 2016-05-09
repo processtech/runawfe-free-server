@@ -26,6 +26,7 @@ import org.apache.ecs.html.TR;
 
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 
@@ -65,7 +66,7 @@ public class ProcessSwimlaneRowBuilder implements RowBuilder {
         organizationFunctionTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         String swimlaneInitializer = swimlane.getDefinition().getOrgFunctionLabel();
         if (Strings.isNullOrEmpty(swimlaneInitializer)) {
-            swimlaneInitializer = Messages.getMessage("label.unset_empty.value", pageContext);
+            swimlaneInitializer = MessagesOther.LABEL_UNSET_EMPTY_VALUE.message(pageContext);
         }
         organizationFunctionTD.addElement(swimlaneInitializer);
         return tr;

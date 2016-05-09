@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -32,36 +34,27 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
-/**
- * Created on 17.11.2004
- * 
- * @jsp.tag name = "taskForm" body-content = "empty"
- */
-
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "taskForm")
 public class TaskFormTag extends WFFormTag {
     private static final long serialVersionUID = -8864271538433581304L;
 
     private Long taskId;
     private Long actorId;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
     public Long getTaskId() {
         return taskId;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
     public Long getActorId() {
         return actorId;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setActorId(Long actorId) {
         this.actorId = actorId;
     }

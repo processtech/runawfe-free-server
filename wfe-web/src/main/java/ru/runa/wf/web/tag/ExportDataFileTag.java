@@ -7,21 +7,19 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.action.ExportDataFileAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * 
- * @author riven
- * @jsp.tag name = "exportDataFile" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "exportDataFile")
 public class ExportDataFileTag extends VisibleTag {
     private static final long serialVersionUID = 1L;
 
@@ -30,14 +28,13 @@ public class ExportDataFileTag extends VisibleTag {
         Table table = new Table();
         TR tr = new TR();
         TD td = new TD();
-        if (Delegates.getExecutorService().isAdministrator(getUser())){
-	        String downloadUrl = Commons.getActionUrl(ExportDataFileAction.ACTION_PATH, pageContext, PortletUrlType.Render);
-	        A a = new A(downloadUrl, Messages.getMessage("label.export", pageContext));
-	        a.setClass(Resources.CLASS_LINK);
-	        td.addElement(a);
-        }
-        else{
-        	td.addElement(Messages.getMessage("label.export", pageContext));
+        if (Delegates.getExecutorService().isAdministrator(getUser())) {
+            String downloadUrl = Commons.getActionUrl(ExportDataFileAction.ACTION_PATH, pageContext, PortletUrlType.Render);
+            A a = new A(downloadUrl, MessagesOther.LABEL_EXPORT.message(pageContext));
+            a.setClass(Resources.CLASS_LINK);
+            td.addElement(a);
+        } else {
+            td.addElement(MessagesOther.LABEL_EXPORT.message(pageContext));
         }
         tr.addElement(td);
         table.addElement(tr);
@@ -73,6 +70,6 @@ public class ExportDataFileTag extends VisibleTag {
     }
 
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_EXPORT_DATAFILE, pageContext);
+        return MessagesOther.TITLE_EXPORT_DATAFILE.message(pageContext);
     }
 }

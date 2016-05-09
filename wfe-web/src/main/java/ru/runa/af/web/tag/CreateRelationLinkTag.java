@@ -17,6 +17,9 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.LinkTag;
@@ -25,6 +28,7 @@ import ru.runa.wfe.relation.RelationPermission;
 import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "createRelationLink")
 public class CreateRelationLinkTag extends LinkTag {
 
     private static final long serialVersionUID = 1L;
@@ -36,7 +40,7 @@ public class CreateRelationLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.LINK_CREATE_RELATION, pageContext);
+        return MessagesExecutor.LINK_CREATE_RELATION.message(pageContext);
     }
 
     @Override

@@ -17,19 +17,17 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * Created on 03.09.2004
- * 
- * @jsp.tag name = "grantLoginPermissionOnSystemLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "grantLoginPermissionOnSystemLink")
 public class GrantLoginPermissionOnSystemLinkTag extends LinkTag {
 
     private static final long serialVersionUID = -9213079200833171255L;
@@ -48,7 +46,7 @@ public class GrantLoginPermissionOnSystemLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.BUTTON_ADD, pageContext);
+        return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 
 }

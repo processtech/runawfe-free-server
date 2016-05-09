@@ -20,22 +20,22 @@ package ru.runa.common.web.tag;
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
+import org.tldgen.annotations.Attribute;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.wfe.commons.web.PortletUrlType;
 
-/**
- * Created on 02.09.2004
- * 
- * @jsp.tag name = "link" body-content = "empty"
- */
-public class LinkTag extends VisibleTag {
+public abstract class LinkTag extends VisibleTag {
 
     private static final long serialVersionUID = -6333366313026520201L;
 
+    private String href = "";
+
+    private String linkText = "";
+
     /**
-     * @return true if link must be enabled @
+     * @return true if link must be enabled
      */
     protected boolean isLinkEnabled() {
         return true;
@@ -59,10 +59,6 @@ public class LinkTag extends VisibleTag {
         return concreteElement;
     }
 
-    protected String href = "";
-
-    protected String linkText = "";
-
     protected String getLinkText() {
         return linkText;
     }
@@ -71,23 +67,17 @@ public class LinkTag extends VisibleTag {
         return href;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setForward(String forward) {
         href = Commons.getForwardUrl(forward, pageContext, PortletUrlType.Action);
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setHref(String href) {
         this.href = Commons.getActionUrl(href, pageContext, PortletUrlType.Render);
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setLinkText(String linkText) {
         this.linkText = linkText;
     }

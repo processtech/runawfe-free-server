@@ -36,7 +36,7 @@ import org.w3c.dom.html.HTMLOptionElement;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.action.LoadProcessDefinitionHtmlFileAction;
@@ -54,9 +54,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- *
+ * 
  * Created on 21.02.2007
- *
+ * 
  */
 public class FormPresentationUtils {
     private static final Log log = LogFactory.getLog(FormPresentationUtils.class);
@@ -314,18 +314,14 @@ public class FormPresentationUtils {
 
     /**
      * Rules:
-     *
-     * 1) don't handling multiple input (we cannot do this properly; they are
-     * handled in according tags.
-     *
-     * 2) Don't fill long strings due to
-     * java.lang.ArrayIndexOutOfBoundsException at
-     * java.lang.String.getChars(String.java:854) at
-     * org.apache.xml.serializer.WriterToUTF8Buffered
-     * .write(WriterToUTF8Buffered.java:347)
-     *
+     * 
+     * 1) don't handling multiple input (we cannot do this properly; they are handled in according tags.
+     * 
+     * 2) Don't fill long strings due to java.lang.ArrayIndexOutOfBoundsException at java.lang.String.getChars(String.java:854) at
+     * org.apache.xml.serializer.WriterToUTF8Buffered .write(WriterToUTF8Buffered.java:347)
+     * 
      * 3) User input has precedence on variables
-     *
+     * 
      * @param valueArray
      *            http values
      * @return <code>null</code> or replacement value
@@ -347,10 +343,11 @@ public class FormPresentationUtils {
     private static String getErrorText(PageContext pageContext, Map<String, String> errors, String inputName) {
         String errorText = errors.get(inputName);
         if (errorText == null) {
-            errorText = Commons.getMessage(Messages.MESSAGE_VARIABLE_FORMAT_ERROR, pageContext, new Object[] { inputName });
+            errorText = Commons
+                    .getMessage(MessagesException.MESSAGE_VARIABLE_FORMAT_ERROR.getKey(), pageContext, new Object[] { inputName });
         }
         if (errorText.trim().length() == 0) {
-            errorText = Commons.getMessage(Messages.MESSAGE_VALIDATION_ERROR, pageContext);
+            errorText = Commons.getMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey(), pageContext);
         }
         return errorText;
     }

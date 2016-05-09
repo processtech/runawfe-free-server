@@ -28,9 +28,8 @@ import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
 import ru.runa.wfe.user.Actor;
 
 /**
- * Class presentation for process definition. Shows only last deployed process
- * definition.
- *
+ * Class presentation for process definition. Shows only last deployed process definition.
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -56,7 +55,7 @@ public class DefinitionClassPresentation extends ClassPresentation {
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new SubstringDBSource(Deployment.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
                 new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(Deployment.class, "category"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TypeProcessTDBuilder", new Object[] {}, true),
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TypeTDBuilder", new Object[] {}, true),
                 new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "createDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTDBuilder", new Object[] {}),
                 new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "createActor"), false,

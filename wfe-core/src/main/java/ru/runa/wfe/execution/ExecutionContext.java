@@ -200,7 +200,7 @@ public class ExecutionContext {
 
     /**
      * TODO old
-     *
+     * 
      * @return the variable value with the given name.
      */
     public Object getVariableValue(String name) {
@@ -275,8 +275,10 @@ public class ExecutionContext {
             sizeDefinition.setDefaultValue(0);
             int oldSize = (Integer) variableDAO.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
             int maxSize = Math.max(oldSize, newSize);
-            String componentFormat = variableDefinition.getFormatComponentClassNames()[0];
-            UserType componentUserType = variableDefinition.getFormatComponentUserTypes()[0];
+            String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
+            String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
+            UserType[] formatComponentUserTypes = variableDefinition.getFormatComponentUserTypes();
+            UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
             List<?> list = (List<?>) value;
             for (int i = 0; i < maxSize; i++) {
                 String name = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
@@ -328,8 +330,7 @@ public class ExecutionContext {
     }
 
     /**
-     * Adds all the given variables. It doesn't remove any existing variables
-     * unless they are overwritten by the given variables.
+     * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
      */
     public void setVariableValues(Map<String, Object> variables) {
         for (Map.Entry<String, Object> entry : variables.entrySet()) {

@@ -20,6 +20,7 @@ package ru.runa.af.web.tag;
 import java.util.List;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
 
 import ru.runa.af.web.BatchExecutorPermissionHelper;
 import ru.runa.common.WebResources;
@@ -55,9 +56,7 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
 
     private String batchPresentationId;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
+    @Attribute(required = true, rtexprvalue = true)
     @Override
     public void setBatchPresentationId(String batchPresentationId) {
         this.batchPresentationId = batchPresentationId;
@@ -101,8 +100,7 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
     protected abstract List<? extends Executor> getExecutors();
 
     /**
-     * Load count of all executors may be shown in tag. Used to setup pages
-     * before and after executor list.
+     * Load count of all executors may be shown in tag. Used to setup pages before and after executor list.
      * 
      * @return Executors count.
      */
@@ -117,9 +115,7 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
         return returnAction;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     @Override
     public void setReturnAction(String returnAction) {
         this.returnAction = returnAction;

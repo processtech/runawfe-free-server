@@ -190,7 +190,8 @@ public class ViewUtil {
         return "<input type=\"hidden\" name=\"" + variable.getDefinition().getName() + "\" value=\"" + stringValue + "\" />";
     }
 
-    public static String getFileInput(WebHelper webHelper, String variableName) {
+    public static String getFileInput(WebHelper webHelper, String variableName, boolean allowMultiple) {
+        String multiple = allowMultiple ? " multiple " : "";
         String attachImageUrl = "";
         String loadingImageUrl = "";
         String uploadFileTitle = webHelper.getMessage("message.upload.file");
@@ -205,7 +206,7 @@ public class ViewUtil {
         html += "<div class=\"dropzone\" >";
         html += "<label class=\"inputFileAttach\">";
         html += "<div class=\"inputFileAttachButtonDiv\"><img src=\"" + attachImageUrl + "\" />" + uploadFileTitle + "</div>";
-        html += "<input class=\"inputFile inputFileAjax \" name=\"" + variableName + "\" type=\"file\" multiple>";
+        html += "<input class=\"inputFile inputFileAjax \" name=\"" + variableName + "\" type=\"file\" " + multiple + ">";
         html += "</label></div>";
         html += "<div class=\"progressbar\" " + hideStyle + ">";
         html += "<div class=\"line\" style=\"width: 0%;\"></div>";
@@ -419,7 +420,7 @@ public class ViewUtil {
             VariableFormat keyFormat = FormatCommons.createComponent(variable, 0);
             VariableFormat valueFormat = FormatCommons.createComponent(variable, 1);
             substitutions.put("COMPONENT_JS_HANDLER",
-                    ViewUtil.getComponentJSFunction(keyFormat) + "\n" + ViewUtil.getComponentJSFunction(valueFormat));
+                ViewUtil.getComponentJSFunction(keyFormat) + "\n" + ViewUtil.getComponentJSFunction(valueFormat));
             StringBuffer html = new StringBuffer();
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditMap.js", ViewUtil.class);
             html.append(WebUtils.getFormComponentScript(webHelper, javascriptStream, substitutions));

@@ -3,32 +3,30 @@ package ru.runa.af.web.tag;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.UpdateBotStationAction;
 import ru.runa.af.web.form.BotStationForm;
 import ru.runa.af.web.html.BotStationTableBuilder;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * @author petrmikheev
- * @jsp.tag name = "botStationTag" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botStationTag")
 public class BotStationTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
 
     private Long botStationId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setBotStationId(Long botStationId) {
         this.botStationId = botStationId;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getBotStationId() {
         return botStationId;
     }
@@ -38,19 +36,18 @@ public class BotStationTag extends TitledFormTag {
         BotStation botStation = Delegates.getBotService().getBotStation(botStationId);
         Input hiddenBotStationID = new Input(Input.HIDDEN, BotStationForm.BOT_STATION_ID, String.valueOf(botStationId));
         tdFormElement.addElement(hiddenBotStationID);
-        String address = botStation.getAddress() != null ? botStation.getAddress() : "";
-        Table table = BotStationTableBuilder.createBotStationDetailsTable(pageContext, botStation.getName(), address);
+        Table table = BotStationTableBuilder.createBotStationDetailsTable(pageContext, botStation.getName(), botStation.getAddress());
         tdFormElement.addElement(table);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_BOT_STATION_DETAILS, pageContext);
+        return MessagesBot.TITLE_BOT_STATION_DETAILS.message(pageContext);
     }
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override

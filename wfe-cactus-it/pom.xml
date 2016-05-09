@@ -9,17 +9,54 @@
         <relativePath>../wfe-app/pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <!-- Zip file with Jboss AS. Used to build wfe application server and so on. -->
-        <jboss.zip.file>C:/dofs/eclipse.mvn/workspace/RunaWFE_Server.cactus.zip</jboss.zip.file>
-        <!-- Jboss AS folder name in zip file. -->
-        <jboss.zip.folder>runawfe.4.0.5</jboss.zip.folder>
-        <jboss.home>${project.build.directory}/${jboss.zip.folder}</jboss.home>
-    </properties>
-
     <artifactId>wfe-cactus-it</artifactId>
     <packaging>war</packaging>
     <name>RunaWFE Cactus Integration Tests</name>
+
+    <profiles>
+        <profile>
+            <id>common</id>
+            <activation>
+                <property>
+                    <name>appserver</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- Folder to locate zip files with different jboss versions -->
+                <zip.files.location>../../../..</zip.files.location>
+                <jboss.test.home>${project.build.directory}/${jboss.zipped.rootfolder}</jboss.test.home>
+                <jboss.zip.file>${zip.files.location}/${jboss.zipped.file}</jboss.zip.file>
+            </properties>
+        </profile>
+        <profile>
+            <id>jboss7</id>
+            <activation>
+                <property>
+                    <name>appserver</name>
+                    <value>jboss7</value>
+                </property>
+            </activation>
+            <properties>
+                <jboss.zipped.rootfolder>jboss</jboss.zipped.rootfolder>
+                <jboss.zipped.file>jboss.zip</jboss.zipped.file>
+                <cargo.containerid>jboss71x</cargo.containerid>
+            </properties>
+        </profile>
+        <profile>
+            <id>wildfly</id>
+            <activation>
+                <property>
+                    <name>appserver</name>
+                    <value>wildfly</value>
+                </property>
+            </activation>
+            <properties>
+                <jboss.zipped.rootfolder>wildfly</jboss.zipped.rootfolder>
+                <jboss.zipped.file>wildfly.zip</jboss.zipped.file>
+                <cargo.containerid>wildfly10x</cargo.containerid>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -67,6 +104,17 @@
             <version>3.8.1</version>
             <!-- ...also note a 'compile' scope: -->
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>cglib</groupId>
+          <artifactId>cglib</artifactId>
+          <version>3.0</version>
+          <exclusions>
+            <exclusion>
+              <artifactId>asm</artifactId>
+              <groupId>asm</groupId>
+            </exclusion>
+          </exclusions>
         </dependency>
     </dependencies>
     <build>
@@ -159,16 +207,16 @@
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.3.3</version>
+                <version>1.4.19</version>
                 <configuration>
                     <skip>${maven.test.skip}</skip>
                     <container>
-                        <containerId>jboss71x</containerId>
-                        <home>${jboss.home}</home>
+                        <containerId>${cargo.containerid}</containerId>
+                        <home>${jboss.test.home}</home>
                     </container>
                     <configuration>
                         <type>existing</type>
-                        <home>${jboss.home}/standalone</home>
+                        <home>${jboss.test.home}/standalone</home>
                         <properties>
                             <cargo.servlet.port>8080</cargo.servlet.port>
                             <!--cargo.jboss.configuration>standalone</cargo.jboss.configuration-->
@@ -185,6 +233,9 @@
                             <type>ear</type>
                             <pingURL>http://localhost:8080/wfe</pingURL>
                             <pingTimeout>180000</pingTimeout>
+                            <properties>
+                                <name>runawfe</name>
+                            </properties>
                         </deployable>
                         <deployable>
                             <groupId>${project.groupId}</groupId>

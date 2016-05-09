@@ -29,6 +29,8 @@ import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.logic.BotLogic;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
+import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.service.decl.BotServiceLocal;
 import ru.runa.wfe.service.decl.BotServiceRemote;
 import ru.runa.wfe.service.delegate.WfeScriptForBotStations;
@@ -259,11 +261,15 @@ public class BotServiceBean implements BotServiceLocal, BotServiceRemote {
             }
             byte[] scriptXml = files.remove("script.xml");
             Preconditions.checkNotNull(scriptXml, "Incorrect bot archive: no script.xml inside");
-            WfeScriptForBotStations wfeScriptForBotStations = new WfeScriptForBotStations(user, replace);
+            WfeScriptForBotStations wfeScriptForBotStations = new WfeScriptForBotStations(botStation, replace);
             ApplicationContextFactory.autowireBean(wfeScriptForBotStations);
-            wfeScriptForBotStations.setBotStation(botStation);
-            wfeScriptForBotStations.setConfigs(files);
-            wfeScriptForBotStations.runScript(scriptXml);
+            ScriptExecutionContext context = ScriptExecutionContext.create(user, files, null);
+            wfeScriptForBotStations.runScript(scriptXml, context, new AdminScriptOperationErrorHandler() {
+                @Override
+                public void handle(Throwable th) {
+                    Throwables.propagate(th);
+                }
+            });
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }

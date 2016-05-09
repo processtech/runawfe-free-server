@@ -28,14 +28,18 @@ import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
+import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.TabHttpSessionHelper;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.relation.RelationsGroupSecure;
+import ru.runa.wfe.report.ReportsSecure;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
@@ -43,14 +47,12 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 /**
- * Represnts tabs for managing different secured objects types. Created on
- * 04.10.2004
+ * Represents tabs for managing different secured objects types. Created on 04.10.2004
  * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
- * @jsp.tag name = "tabHeader" body-content = "JSP"
  */
-
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "tabHeader")
 public class TabHeaderTag extends TagSupport {
     private static final long serialVersionUID = 2424605209992058409L;
 
@@ -58,20 +60,19 @@ public class TabHeaderTag extends TagSupport {
 
     private static final List<MenuForward> FORWARDS = new ArrayList<MenuForward>();
     static {
-        FORWARDS.add(new MenuForward("manage_tasks"));
-        FORWARDS.add(new MenuForward("manage_definitions"));
-        FORWARDS.add(new MenuForward("manage_processes"));
-        FORWARDS.add(new MenuForward("manage_executors"));
-        FORWARDS.add(new MenuForward("manage_relations", RelationsGroupSecure.INSTANCE));
-        FORWARDS.add(new MenuForward("configure_bot_station", BotStation.INSTANCE));
-        FORWARDS.add(new MenuForward("manage_system", ASystem.INSTANCE));
-        FORWARDS.add(new MenuForward("manage_settings"));
-        FORWARDS.add(new MenuForward("view_logs", ASystem.INSTANCE));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_TASKS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DEFINITIONS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_PROCESSES));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_EXECUTORS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_REPORTS, ReportsSecure.INSTANCE));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_RELATIONS, RelationsGroupSecure.INSTANCE));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_BOT_STATION, BotStation.INSTANCE));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, ASystem.INSTANCE));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS, ASystem.INSTANCE));
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setVertical(boolean isVertical) {
         this.isVertical = isVertical;
     }
@@ -90,11 +91,11 @@ public class TabHeaderTag extends TagSupport {
                 if (!isMenuForwardVisible(FORWARDS.get(i))) {
                     continue;
                 }
-                A a = getHref(Messages.getMessage(FORWARDS.get(i).getMenuName(), pageContext), FORWARDS.get(i).getMenuName());
+                A a = getHref(FORWARDS.get(i).getMenuMessage().message(pageContext), FORWARDS.get(i).getMenuMessage().getKey());
                 TR tr = new TR();
                 headerTable.addElement(tr);
                 TD td = new TD();
-                if (FORWARDS.get(i).getMenuName().equals(tabForwardName)) {
+                if (FORWARDS.get(i).getMenuMessage().getKey().equals(tabForwardName)) {
                     td.setClass(Resources.CLASS_TAB_CELL_SELECTED);
                 } else {
                     td.setClass(Resources.CLASS_TAB_CELL);
@@ -110,9 +111,9 @@ public class TabHeaderTag extends TagSupport {
                 if (!isMenuForwardVisible(FORWARDS.get(i))) {
                     continue;
                 }
-                A a = getHref(Messages.getMessage(FORWARDS.get(i).getMenuName(), pageContext), FORWARDS.get(i).getMenuName());
+                A a = getHref(FORWARDS.get(i).getMenuMessage().message(pageContext), FORWARDS.get(i).getMenuMessage().getKey());
                 TD td = new TD();
-                if (FORWARDS.get(i).getMenuName().equals(tabForwardName)) {
+                if (FORWARDS.get(i).getMenuMessage().getKey().equals(tabForwardName)) {
                     td.setClass(Resources.CLASS_TAB_CELL_SELECTED);
                 }
                 tr.addElement(td);
@@ -135,33 +136,34 @@ public class TabHeaderTag extends TagSupport {
     }
 
     private boolean isMenuForwardVisible(MenuForward menuForward) {
-    	try {
-			if (menuForward.menuName.equals("manage_settings"))
-				return Delegates.getExecutorService().isAdministrator(getUser());
-			if (menuForward.menuSecuredObject != null) {
-				return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, menuForward.menuSecuredObject);
-			}
-		} catch (Exception e) {
-			return false;
-		}
+        try {
+            if (menuForward.getMenuMessage().getKey().equals("manage_settings")) {
+                return Delegates.getExecutorService().isAdministrator(getUser());
+            }
+            if (menuForward.menuSecuredObject != null) {
+                return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, menuForward.menuSecuredObject);
+            }
+        } catch (Exception e) {
+            return false;
+        }
         return true;
     }
 
     static class MenuForward {
-        private final String menuName;
+        private final StrutsMessage menuMessage;
         private final Identifiable menuSecuredObject;
 
-        public MenuForward(String menuName, Identifiable menuSecuredObject) {
-            this.menuName = menuName;
+        public MenuForward(StrutsMessage menuMessage, Identifiable menuSecuredObject) {
+            this.menuMessage = menuMessage;
             this.menuSecuredObject = menuSecuredObject;
         }
 
-        public MenuForward(String menuName) {
-            this(menuName, null);
+        public MenuForward(StrutsMessage menuMessage) {
+            this(menuMessage, null);
         }
 
-        public String getMenuName() {
-            return menuName;
+        public StrutsMessage getMenuMessage() {
+            return menuMessage;
         }
 
         public Identifiable getMenuSecuredObject() {

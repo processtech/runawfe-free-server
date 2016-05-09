@@ -34,6 +34,7 @@ public class BatchPresentationFactory {
     public static final BatchPresentationFactory DEFINITIONS = new BatchPresentationFactory(ClassPresentationType.DEFINITION, 100);
     public static final BatchPresentationFactory DEFINITIONS_HISTORY = new BatchPresentationFactory(ClassPresentationType.DEFINITION_HISTORY);
     public static final BatchPresentationFactory TASKS = new BatchPresentationFactory(ClassPresentationType.TASK);
+    public static final BatchPresentationFactory REPORTS = new BatchPresentationFactory(ClassPresentationType.REPORTS);
 
     private final ClassPresentationType type;
     private final int defaultPageRangeSize;
@@ -57,6 +58,7 @@ public class BatchPresentationFactory {
         return result;
     }
 
+    // TODO this method for loading all must be changed? It actually not loaded all - it loaded much, but not all.
     public BatchPresentation createNonPaged() {
         BatchPresentation batchPresentation = createDefault(BatchPresentationConsts.DEFAULT_ID);
         batchPresentation.setRangeSize(10000);

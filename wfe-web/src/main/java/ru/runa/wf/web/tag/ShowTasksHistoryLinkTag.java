@@ -1,16 +1,16 @@
 package ru.runa.wf.web.tag;
 
-import ru.runa.common.web.Messages;
-import ru.runa.common.web.tag.IdLinkBaseTag;
+import org.tldgen.annotations.BodyContent;
 
-/**
- * @jsp.tag name = "showTasksHistoryLink" body-content = "empty"
- */
+import ru.runa.common.web.tag.IdLinkBaseTag;
+import ru.runa.wf.web.MessagesProcesses;
+
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "showTasksHistoryLink")
 public class ShowTasksHistoryLinkTag extends IdLinkBaseTag {
     private static final long serialVersionUID = 1L;
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.LABEL_SHOW_TASKS_HISTORY, pageContext);
+        return MessagesProcesses.LABEL_SHOW_TASKS_HISTORY.message(pageContext);
     }
 }

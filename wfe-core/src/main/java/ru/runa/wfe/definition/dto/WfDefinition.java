@@ -22,6 +22,7 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import ru.runa.wfe.commons.EntityWithType;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
@@ -33,7 +34,7 @@ import ru.runa.wfe.user.Actor;
 import com.google.common.base.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfDefinition extends Identifiable implements Comparable<WfDefinition> {
+public class WfDefinition extends Identifiable implements Comparable<WfDefinition>, EntityWithType {
     private static final long serialVersionUID = -6032491529439317948L;
     private Long id;
     private String name;
@@ -100,6 +101,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         return version;
     }
 
+    @Override
     public String[] getCategories() {
         return categories;
     }

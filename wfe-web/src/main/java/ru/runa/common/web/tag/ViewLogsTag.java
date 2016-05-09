@@ -9,6 +9,9 @@ import java.util.Map;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.action.ViewLogsAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -19,23 +22,16 @@ import ru.runa.wfe.user.User;
 
 import com.google.common.base.Throwables;
 
-/**
- * 
- * @author dofs
- * 
- * @jsp.tag name = "viewLogs" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "viewLogs")
 public class ViewLogsTag extends TagSupport {
     private static final long serialVersionUID = 1L;
     private String logDirPath;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
     public String getLogDirPath() {
         return logDirPath;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setLogDirPath(String logDirPath) {
         this.logDirPath = logDirPath;
     }

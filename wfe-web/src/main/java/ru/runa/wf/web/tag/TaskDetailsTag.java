@@ -21,12 +21,14 @@ import java.util.List;
 
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.ProcessForm;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
@@ -40,8 +42,8 @@ import com.google.common.collect.Lists;
  * Created on 14.04.2008
  * 
  * @author YSK
- * @jsp.tag name = "taskDetails" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "taskDetails")
 public class TaskDetailsTag extends BatchReturningTitledFormTag {
     private static final long serialVersionUID = -8864271538433581304L;
 
@@ -49,24 +51,20 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
     private Long actorId;
     private boolean buttonEnabled = false;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
     private Long getTaskId() {
         return taskId;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
     public Long getActorId() {
         return actorId;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setActorId(Long actorId) {
         this.actorId = actorId;
     }
@@ -101,7 +99,7 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_ACCEPT_TASK, pageContext);
+        return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
     }
 
     @Override

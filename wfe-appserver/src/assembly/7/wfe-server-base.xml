@@ -16,7 +16,7 @@
 			<excludes>
 				<exclude>standalone/data/h2/**/*</exclude>
 			</excludes>
-			<directory>${project.build.directory}/${jboss.zip.folder}</directory>
+			<directory>${project.build.directory}/jboss</directory>
 			<outputDirectory>jboss</outputDirectory>
 		</fileSet>
 	</fileSets>

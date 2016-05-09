@@ -30,14 +30,16 @@ import org.apache.ecs.html.Span;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateSubstitutionCriteriaAction;
 import ru.runa.af.web.form.SubstitutionCriteriaForm;
 import ru.runa.af.web.orgfunction.FunctionDef;
 import ru.runa.af.web.orgfunction.ParamDef;
 import ru.runa.af.web.orgfunction.SubstitutionCriteriaDefinitions;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.wfe.extension.orgfunction.ParamRenderer;
@@ -48,11 +50,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 
 import com.google.common.base.Strings;
 
-/**
- * Created on 14.08.2010
- * 
- * @jsp.tag name = "updateSubstitutionCriteriaForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateSubstitutionCriteriaForm")
 public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
     private static final long serialVersionUID = 1L;
 
@@ -91,12 +89,12 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_SAVE, pageContext);
+        return MessagesCommon.BUTTON_SAVE.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage("substitutioncriteria.edit.title", pageContext);
+        return MessagesExecutor.TITLE_SUBSTITUTION_EDIT.message(pageContext);
     }
 
     @Override
@@ -119,12 +117,9 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
             table.setID("paramsTable");
             table.setClass(Resources.CLASS_LIST_TABLE);
             boolean enabled = substitutionCriteria == null;
-            String criteriaName = "";
-            if (substitutionCriteria != null) {
-                criteriaName = substitutionCriteria.getName();
-            }
-            table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_SUBSTITUTION_CRITERIA_NAME, pageContext),
-                    SubstitutionCriteriaForm.NAME_INPUT_NAME, criteriaName, true, true));
+            String criteriaName = substitutionCriteria != null ? substitutionCriteria.getName() : "";
+            Input nameInput = HTMLUtils.createInput(SubstitutionCriteriaForm.NAME_INPUT_NAME, criteriaName, true, true);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_NAME.message(pageContext), nameInput));
             String criteriaType = null;
             if (substitutionCriteria != null) {
                 criteriaType = substitutionCriteria.getClass().getName();
@@ -133,7 +128,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
             if (Strings.isNullOrEmpty(criteriaType) && typeOptions.length > 0) {
                 criteriaType = typeOptions[0].getValue();
             }
-            table.addElement(HTMLUtils.createSelectRow(Messages.getMessage(Messages.LABEL_SUBSTITUTION_CRITERIA_TYPE, pageContext),
+            table.addElement(HTMLUtils.createSelectRow(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_TYPE.message(pageContext),
                     SubstitutionCriteriaForm.TYPE_INPUT_NAME, typeOptions, enabled, false));
             FunctionDef functionDef = SubstitutionCriteriaDefinitions.getByClassName(criteriaType);
             if (functionDef != null) {
@@ -188,7 +183,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
             span.addElement(Entities.NBSP);
             String url = "javascript:editParameter('" + index + "','" + renderer.getClass().getName() + "');";
             A selectorHref = new A(url);
-            selectorHref.addElement(Messages.getMessage("substitution.select", pageContext));
+            selectorHref.addElement(MessagesExecutor.LABEL_SUBSTITUTION_SELECT.message(pageContext));
             span.addElement(selectorHref);
         }
         return span;

@@ -19,17 +19,14 @@
 package ru.runa.wf.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.FormPresentationUtils;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 
-import com.google.common.base.Charsets;
-
-/**
- * @jsp.tag name = "htmlFilter" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "htmlFilter")
 public class HtmlFilterTag extends TitledFormTag {
 
     private static final long serialVersionUID = 3401243801430914L;

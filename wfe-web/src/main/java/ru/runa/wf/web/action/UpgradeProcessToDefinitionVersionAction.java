@@ -26,11 +26,11 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.IdVersionForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.service.delegate.Delegates;
 
 public class UpgradeProcessToDefinitionVersionAction extends ActionBase {
@@ -41,7 +41,7 @@ public class UpgradeProcessToDefinitionVersionAction extends ActionBase {
         IdVersionForm form = (IdVersionForm) actionForm;
         try {
             if (Delegates.getExecutionService().upgradeProcessToDefinitionVersion(getLoggedUser(request), form.getId(), form.getVersion())) {
-                addMessage(request, new ActionMessage(Messages.PROCESS_UPGRADED_TO_DEFINITION_VERSION));
+                addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_UPGRADED_TO_DEFINITION_VERSION.getKey()));
             }
             return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, form.getId());
         } catch (Exception e) {

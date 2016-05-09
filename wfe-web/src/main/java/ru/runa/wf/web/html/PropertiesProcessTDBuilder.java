@@ -25,6 +25,7 @@ import org.apache.ecs.html.TD;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTDBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -48,7 +49,7 @@ public class PropertiesProcessTDBuilder extends BaseTDBuilder {
         if (isEnabled(object, env)) {
             String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, pd.getId(), env.getPageContext(),
                     PortletUrlType.Render);
-            startLink = new A(url, Messages.getMessage(Messages.LABEL_PROPERTIES, env.getPageContext()));
+            startLink = new A(url, MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext()));
         } else {
             startLink = new StringElement();
         }
@@ -59,7 +60,7 @@ public class PropertiesProcessTDBuilder extends BaseTDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        String result = Messages.getMessage(Messages.LABEL_PROPERTIES, env.getPageContext());
+        String result = MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext());
         if (result == null) {
             result = "";
         }

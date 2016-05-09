@@ -17,6 +17,10 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
+
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.CreateRelationPairAction;
 import ru.runa.af.web.form.RelationPairForm;
 import ru.runa.common.web.Commons;
@@ -27,6 +31,7 @@ import ru.runa.wfe.relation.RelationPermission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "createRelationPairLink")
 public class CreateRelationPairLinkTag extends LinkTag {
     private static final long serialVersionUID = 1L;
     private Long relationId;
@@ -35,6 +40,7 @@ public class CreateRelationPairLinkTag extends LinkTag {
         return relationId;
     }
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setRelationId(Long relationId) {
         this.relationId = relationId;
     }
@@ -46,7 +52,7 @@ public class CreateRelationPairLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.LINK_CREATE_RELATION_PAIR, pageContext);
+        return MessagesExecutor.LINK_CREATE_RELATION_PAIR.message(pageContext);
     }
 
     @Override

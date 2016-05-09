@@ -28,14 +28,16 @@ import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.DeleteSubstitutionsAction;
 import ru.runa.af.web.action.SwitchSubstitutionsPositionsAction;
 import ru.runa.af.web.action.UpdateSubstitutionAction;
 import ru.runa.af.web.form.SubstitutionForm;
 import ru.runa.af.web.orgfunction.SubstitutionHelper;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.IdsForm;
@@ -53,9 +55,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.ExecutorPermission;
 
-/**
- * @jsp.tag name = "listSubstitutionsForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listSubstitutionsForm")
 public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
     private static final long serialVersionUID = 1L;
 
@@ -66,12 +66,12 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_REMOVE, pageContext);
+        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.LABEL_SUBSTITUTORS, pageContext);
+        return MessagesExecutor.LABEL_SUBSTITUTORS.message(pageContext);
     }
 
     @Override
@@ -108,9 +108,9 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
         public TR build() {
             TR tr = new TR();
             tr.addElement(new TH().setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_SWIMLANE_ORGFUNCTION, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_SUBSTITUTORS_CRITERIA, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_SUBSTITUTORS_ENABLED, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTORS_CRITERIA.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTORS_ENABLED.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             return tr;
         }
     }
@@ -168,7 +168,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
             TD criteriaTD = new TD();
             criteriaTD.setClass(Resources.CLASS_LIST_TABLE_TD);
             if (substitution.getCriteria() == null) {
-                criteriaTD.addElement(Messages.getMessage(Messages.SUBSTITUTION_ALWAYS, pageContext));
+                criteriaTD.addElement(MessagesExecutor.SUBSTITUTION_ALWAYS.message(pageContext));
             } else {
                 criteriaTD.addElement(substitution.getCriteria().getName());
             }
@@ -180,7 +180,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
             orgfunctionTD.setClass(Resources.CLASS_LIST_TABLE_TD);
             String string;
             if (substitution instanceof TerminatorSubstitution) {
-                string = Messages.getMessage("terminator.edit.title", pageContext);
+                string = MessagesExecutor.TITLE_TERMINATOR_EDIT.message(pageContext);
             } else {
                 try {
                     string = SubstitutionHelper.getUserFriendlyOrgFunction(getUser(), substitution.getOrgFunction());

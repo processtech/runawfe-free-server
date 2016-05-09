@@ -158,13 +158,12 @@ public final class PagingNavigationHelper {
         }
         if (startIndex > 1) {
             int prevPageNumber = Math.max(1, currentPageNumber - MAX_PAGING_NOVIGATION_ELEMENTS_TO_SHOW);
-            addPageNovigationElement(pagingNovigationElementTD, prevPageNumber, Messages.getMessage(Messages.LABEL_PAGING_PREV_RANGE, pageContext));
+            addPageNovigationElement(pagingNovigationElementTD, prevPageNumber, MessagesBatch.PAGING_PREV_RANGE.message(pageContext));
             addDoubleNBSP(pagingNovigationElementTD);
         }
 
         if (currentPageNumber > 1) {
-            addPageNovigationElement(pagingNovigationElementTD, currentPageNumber - 1,
-                    Messages.getMessage(Messages.LABEL_PAGING_PREV_PAGE, pageContext));
+            addPageNovigationElement(pagingNovigationElementTD, currentPageNumber - 1, MessagesBatch.PAGING_PREV_PAGE.message(pageContext));
             addDoubleNBSP(pagingNovigationElementTD);
         }
         for (int i = startIndex; i <= endIndex; i++) {
@@ -177,13 +176,12 @@ public final class PagingNavigationHelper {
         }
         addDoubleNBSP(pagingNovigationElementTD);
         if (currentPageNumber < pageCount) {
-            addPageNovigationElement(pagingNovigationElementTD, currentPageNumber + 1,
-                    Messages.getMessage(Messages.LABEL_PAGING_NEXT_PAGE, pageContext));
+            addPageNovigationElement(pagingNovigationElementTD, currentPageNumber + 1, MessagesBatch.PAGING_NEXT_PAGE.message(pageContext));
             addDoubleNBSP(pagingNovigationElementTD);
         }
         if (endIndex < pageCount) {
             int nextPageNumber = Math.min(pageCount, currentPageNumber + MAX_PAGING_NOVIGATION_ELEMENTS_TO_SHOW);
-            addPageNovigationElement(pagingNovigationElementTD, nextPageNumber, Messages.getMessage(Messages.LABEL_PAGING_NEXT_PAGE, pageContext));
+            addPageNovigationElement(pagingNovigationElementTD, nextPageNumber, MessagesBatch.PAGING_NEXT_PAGE.message(pageContext));
             addDoubleNBSP(pagingNovigationElementTD);
         }
         return pagingNovigationElementTD;
@@ -192,7 +190,7 @@ public final class PagingNavigationHelper {
     private TD createElementCountTD() {
         TD elementsCountTd = new TD();
         elementsCountTd.setClass(ru.runa.common.web.Resources.CLASS_PAGING_TOTAL_COUNT_TD);
-        elementsCountTd.addElement(new B().addElement(Messages.getMessage(Messages.LABEL_TOTAL, pageContext) + instanceCount));
+        elementsCountTd.addElement(new B().addElement(MessagesBatch.PAGING_TOTAL.message(pageContext) + instanceCount));
         return elementsCountTd;
     }
 

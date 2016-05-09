@@ -25,6 +25,7 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
 
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Resources;
@@ -116,23 +117,17 @@ public abstract class TitledFormTag extends FormTag {
         return result;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setAlign(String align) {
         this.align = align;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setHeight(String height) {
         this.height = height;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setTitle(String title) {
         this.title = title;
     }
@@ -141,29 +136,14 @@ public abstract class TitledFormTag extends FormTag {
         return title;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setValign(String valign) {
         this.valign = valign;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setWidth(String width) {
         this.width = width;
-    }
-
-    public String getButtonAlignment() {
-        return buttonAlignment;
-    }
-
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
-    public void setButtonAlignment(String alignment) {
-        buttonAlignment = alignment;
     }
 
     protected static TDBuilder[] getBuilders(TDBuilder[] prefix, BatchPresentation batchPresentation, TDBuilder[] suffix) {
