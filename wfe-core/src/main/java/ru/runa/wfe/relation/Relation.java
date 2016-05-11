@@ -92,7 +92,7 @@ public class Relation extends IdentifiableBase {
      * 
      * @return Name of relation.
      */
-    @Column(name = "NAME", unique = true)
+    @Column(name = "NAME", unique = true, length = 1024)
     public String getName() {
         return name;
     }

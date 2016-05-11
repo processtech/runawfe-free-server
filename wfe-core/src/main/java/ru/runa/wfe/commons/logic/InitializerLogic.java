@@ -57,6 +57,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandDescriptionsPatch;
+import ru.runa.wfe.commons.dbpatch.impl.ExpandVarcharPatch;
 import ru.runa.wfe.commons.dbpatch.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbpatch.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbpatch.impl.PerformancePatch401;
@@ -145,6 +146,7 @@ public class InitializerLogic {
         dbPatches.add(AddParentProcessIdPatch.class);
         // 4.4.0
         dbPatches.add(CreateReportsTables.class);
+        dbPatches.add(ExpandVarcharPatch.class);
     };
 
     @Autowired

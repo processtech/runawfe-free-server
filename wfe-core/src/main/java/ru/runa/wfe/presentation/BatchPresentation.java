@@ -125,7 +125,7 @@ public class BatchPresentation implements Cloneable, Serializable {
         this.version = version;
     }
 
-    @Column(name = "CLASS_TYPE")
+    @Column(name = "CLASS_TYPE", length = 1024)
     @Enumerated(value = EnumType.STRING)
     public ClassPresentationType getType() {
         return type;
@@ -138,7 +138,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     /**
      * Presentation group identity. Such as tasksList, processLists and so on. Each group refers to some page in web interface.
      */
-    @Column(name = "CATEGORY", nullable = false)
+    @Column(name = "CATEGORY", nullable = false, length = 1024)
     public String getCategory() {
         return category;
     }
@@ -153,7 +153,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     /**
      * Presentation name. Displays in web interface.
      */
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "NAME", nullable = false, length = 1024)
     public String getName() {
         return name;
     }

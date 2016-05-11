@@ -66,7 +66,7 @@ public class Deployment extends Identifiable {
         this.version = version;
     }
 
-    @Column(name = "LANGUAGE", nullable = false)
+    @Column(name = "LANGUAGE", nullable = false, length = 1024)
     @Enumerated(value = EnumType.STRING)
     public Language getLanguage() {
         return language;
@@ -76,7 +76,7 @@ public class Deployment extends Identifiable {
         this.language = language;
     }
 
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "NAME", nullable = false, length = 1024)
     public String getName() {
         return name;
     }
@@ -94,7 +94,7 @@ public class Deployment extends Identifiable {
         this.description = description;
     }
 
-    @Column(name = "CATEGORY", nullable = false)
+    @Column(name = "CATEGORY", nullable = false, length = 1024)
     public String getCategory() {
         return category;
     }

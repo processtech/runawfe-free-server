@@ -149,7 +149,7 @@ public class Process extends IdentifiableBase {
         this.version = version;
     }
 
-    @Column(name = "TREE_PATH")
+    @Column(name = "TREE_PATH", length = 1024)
     public String getHierarchyIds() {
         return hierarchyIds;
     }
