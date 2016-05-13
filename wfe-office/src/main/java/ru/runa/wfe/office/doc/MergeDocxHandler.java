@@ -61,7 +61,7 @@ public class MergeDocxHandler extends OfficeFilesSupplierHandler<MergeDocxConfig
                 }
             }
         }
-        OutputStream outputStream = config.getFileOutputStream(result, true);
+        OutputStream outputStream = config.getFileOutputStream(result, variableProvider, true);
         if (config.getOutputFileName().endsWith("pdf")) {
             PdfOptions options = PdfOptions.create();
             PdfConverter.getInstance().convert(document, outputStream, options);

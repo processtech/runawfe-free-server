@@ -57,7 +57,6 @@ public class EmailSenderBean implements MessageListener {
     @Override
     public void onMessage(Message jmsMessage) {
         ObjectMessage message = (ObjectMessage) jmsMessage;
-        log.debug("Trying to send email " + message);
         EmailConfig config;
         try {
             config = (EmailConfig) message.getObject();

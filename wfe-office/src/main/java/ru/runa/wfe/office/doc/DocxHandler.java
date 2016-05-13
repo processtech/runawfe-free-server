@@ -35,7 +35,7 @@ public class DocxHandler extends OfficeFilesSupplierHandler<DocxConfig> {
             DocxFileChanger fileChanger = new DocxFileChanger(config, variableProvider, templateInputStream);
             document = fileChanger.changeAll();
         }
-        OutputStream outputStream = config.getFileOutputStream(result, true);
+        OutputStream outputStream = config.getFileOutputStream(result, variableProvider, true);
         if (config.getOutputFileName().endsWith(DocxConfig.PDF_EXTENSION)) {
             PdfOptions options = PdfOptions.create();
             PdfConverter.getInstance().convert(document, outputStream, options);

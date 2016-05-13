@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 
 /**
  * DAO for {@link ProcessLog}.
- * 
+ *
  * @author dofs
  * @since 4.0
  */
@@ -42,20 +42,9 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
     @SuppressWarnings("unchecked")
     @Override
     public List<ProcessLog> get(Long processId, ProcessDefinition definition) {
-        // List<ProcessLog> result = Lists.newArrayList();
         String checkQuery = "select count(t) from TransitionLog t where processId=? and t.nodeId is null";
         Number oldLogsCount = (Number) getHibernateTemplate().find(checkQuery, processId).get(0);
         boolean fallbackToOldAlgorithm = oldLogsCount.intValue() > 0;
-        // for (ProcessLog processLog : logs) {
-        // if (processLog instanceof TransitionLog && processLog.getNodeId() ==
-        // null) {
-        // fallbackToOldAlgorithm = true;
-        // break;
-        // }
-        // if (definition instanceof SubprocessDefinition) {
-        //
-        // }
-        // }
         if (fallbackToOldAlgorithm) {
             log.debug("fallbackToOldAlgorithm in " + processId);
             List<ProcessLog> logs = getAll(processId);
@@ -121,22 +110,22 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
                 boolean filterBySeverity = filter.getSeverities().size() != 0 && filter.getSeverities().size() != Severity.values().length;
                 String hql = "from ProcessLog where processId = :processId";
                 if (filter.getIdFrom() != null) {
-                    hql += " and id >= :idFrom)";
+                    hql += " and id >= :idFrom";
                 }
                 if (filter.getIdTo() != null) {
-                    hql += " and id <= :idTo)";
+                    hql += " and id <= :idTo";
                 }
                 if (filter.getCreateDateFrom() != null) {
-                    hql += " and createDate >= :createDateFrom)";
+                    hql += " and createDate >= :createDateFrom";
                 }
                 if (filter.getCreateDateTo() != null) {
-                    hql += " and createDate <= :createDateTo)";
+                    hql += " and createDate <= :createDateTo";
                 }
                 if (filter.getTokenId() != null) {
-                    hql += " and tokenId = :tokenId)";
+                    hql += " and tokenId = :tokenId";
                 }
                 if (filter.getNodeId() != null) {
-                    hql += " and nodeId = :nodeId)";
+                    hql += " and nodeId = :nodeId";
                 }
                 if (filterBySeverity) {
                     hql += " and severity in (:severities)";
