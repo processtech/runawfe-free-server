@@ -278,4 +278,7 @@ public class SystemProperties {
         return processExecutionListeners;
     }
 
+    public static List<String> getRequiredValidatorNames() {
+        return RESOURCES.getMultipleStringProperty("required.validator.names");
+    }
 }
