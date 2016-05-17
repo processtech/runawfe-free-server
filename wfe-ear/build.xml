@@ -3,7 +3,7 @@
 	
 	<target name="deploy">
 		<echo message="copying EAR to Jboss" />
-		<copy todir="${deployment.dir}" overwrite="true">
+		<copy todir="${jboss.home.dir}/standalone/deployments" overwrite="true">
 			<fileset dir="target">
 				<include name="runawfe.ear" />
 			</fileset>
