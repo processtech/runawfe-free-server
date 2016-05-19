@@ -185,7 +185,7 @@ public class FormSubmissionUtils {
                     String[] stringsSize = (String[]) userInput.get(sizeInputName);
                     if (stringsSize == null || stringsSize.length != 1) {
                         log.error("Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
-                        return null;
+                        return IGNORED_VALUE;
                     }
                     int listSize = TypeConversionUtil.convertTo(int.class, stringsSize[0]);
                     list = Lists.newArrayListWithExpectedSize(listSize);
@@ -219,7 +219,7 @@ public class FormSubmissionUtils {
                     // http old-style way
                     String[] strings = (String[]) userInput.get(variableDefinition.getName());
                     if (strings == null || strings.length == 0) {
-                        return null;
+                        return IGNORED_VALUE;
                     }
                     list = Lists.newArrayListWithExpectedSize(strings.length);
                     for (String componentValue : strings) {
@@ -264,7 +264,7 @@ public class FormSubmissionUtils {
                 String[] stringsSize = (String[]) userInput.get(sizeInputName);
                 if (stringsSize == null || stringsSize.length != 1) {
                     log.error("Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
-                    return null;
+                    return IGNORED_VALUE;
                 }
                 int mapSize = TypeConversionUtil.convertTo(int.class, stringsSize[0]);
                 map = Maps.newHashMapWithExpectedSize(mapSize);
