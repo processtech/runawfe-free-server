@@ -49,6 +49,7 @@ public class WebResources {
     public static final String ACTION_MAPPING_SUBMIT_TASK_DISPATCHER = "/submitTaskDispatcher";
     public static final String ACTION_MAPPING_REDEPLOY_PROCESS_DEFINITION = "/redeploy_process_definition";
     public static final String ACTION_UPDATE_PROCESS_VARIABLES = "/update_process_variables";
+    public static final String ACTION_UPDATE_PROCESS_SWIMLANES = "/update_process_swimlanes";
     public static final String FORWARD_SUCCESS_DISPLAY_START_FORM = "success_display_start_form";
 
     public static final String START_PROCESS_IMAGE = "/images/start.gif";
