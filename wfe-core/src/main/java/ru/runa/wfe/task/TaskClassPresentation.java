@@ -69,7 +69,7 @@ public class TaskClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessDefinitionTDBuilder", new Object[] {}),
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDBSource(Task.class, "process.id"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessIdTDBuilder", new Object[] {}),
-                new FieldDescriptor(OWNER, Executor.class.getName(), new DefaultDBSource(Task.class, "executor"), true, FieldFilterMode.NONE,
+                new FieldDescriptor(OWNER, String.class.getName(), new DefaultDBSource(Task.class, "executor.name"), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskOwnerTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),

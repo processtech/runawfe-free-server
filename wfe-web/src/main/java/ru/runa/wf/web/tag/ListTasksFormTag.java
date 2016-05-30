@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.servlet.jsp.PageContext;
 
+import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
@@ -69,7 +70,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
-    }
+   }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
             boolean disableCheckbox) {

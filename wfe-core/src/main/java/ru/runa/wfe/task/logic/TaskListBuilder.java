@@ -95,18 +95,27 @@ public class TaskListBuilder implements ITaskListBuilder {
     public List<WfTask> getTasks(Actor actor, BatchPresentation batchPresentation) {
         Preconditions.checkNotNull(batchPresentation, "batchPresentation");
         VersionedCacheData<List<WfTask>> cached = taskCache.getTasks(actor.getId(), batchPresentation);
-        if (cached != null && cached.getData() != null) {
-            return cached.getData();
-        }
+//        if (cached != null && cached.getData() != null) {
+//            return cached.getData();
+//        }
         List<WfTask> result = Lists.newArrayList();
-        Set<Executor> executorsToGetTasksByMembership = getExecutorsToGetTasks(actor, false);
-        Set<Executor> executorsToGetTasks = Sets.newHashSet(executorsToGetTasksByMembership);
-        getSubstituteExecutorsToGetTasks(actor, executorsToGetTasks);
+        Set<Executor> executorsToGetTasksByMembership = null;
+        Set<Executor> executorsToGetTasks = null;
+        if (!actor.getName().equals("Administrator")){
+	        executorsToGetTasksByMembership = getExecutorsToGetTasks(actor, false);
+	        executorsToGetTasks = Sets.newHashSet(executorsToGetTasksByMembership);
+	        getSubstituteExecutorsToGetTasks(actor, executorsToGetTasks);
+        }
         @SuppressWarnings("unchecked")
         List<Task> tasks = LoadTasks(batchPresentation, executorsToGetTasks);
         for (Task task : tasks) {
             try {
-                WfTask acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
+            	WfTask acceptable = null;
+            	if (!actor.getName().equals("Administrator")) {
+            		acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
+            	} else {
+            		acceptable = taskObjectFactory.create(task, actor, true, batchPresentation.getDynamicFieldsToDisplay(true), true);
+            	}
                 if (acceptable == null) {
                     continue;
                 }
@@ -136,7 +145,11 @@ public class TaskListBuilder implements ITaskListBuilder {
 
     @SuppressWarnings("unchecked")
     private List<Task> LoadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
-        if (executorsToGetTasks.size() < SystemProperties.getDatabaseParametersCount()) {
+    	// If parameter <executorsToGetTasks> is undefined - load Tasks without filtering by Executor
+    	if (executorsToGetTasks == null) {
+    		CompilerParameters parameters = CompilerParameters.createNonPaged();	
+            return (List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters);
+    	} else if (executorsToGetTasks.size() < SystemProperties.getDatabaseParametersCount()) {
             CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(executorsToGetTasks, "executor"));
             return (List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters);
         } else {
