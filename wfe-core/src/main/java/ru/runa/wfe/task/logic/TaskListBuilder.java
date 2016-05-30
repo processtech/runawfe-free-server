@@ -91,32 +91,36 @@ public class TaskListBuilder implements ITaskListBuilder {
         taskCache = cache;
     }
 
+    /**
+     * Return task (in Dto form) convenient for actor and current batchPresentation filtering conditions.
+     * @param actor - current actor
+     * @param batchPresentation - list presentation conditions
+     * @return Tasks (in Dto form) assigned to actor, or acceptable by him. For For Administrators - return all tasks! 
+     */
     @Override
     public List<WfTask> getTasks(Actor actor, BatchPresentation batchPresentation) {
         Preconditions.checkNotNull(batchPresentation, "batchPresentation");
         VersionedCacheData<List<WfTask>> cached = taskCache.getTasks(actor.getId(), batchPresentation);
-//        if (cached != null && cached.getData() != null) {
-//            return cached.getData();
-//        }
-        List<WfTask> result = Lists.newArrayList();
-        Set<Executor> executorsToGetTasksByMembership = null;
-        Set<Executor> executorsToGetTasks = null;
-        if (!actor.getName().equals("Administrator")){
-	        executorsToGetTasksByMembership = getExecutorsToGetTasks(actor, false);
-	        executorsToGetTasks = Sets.newHashSet(executorsToGetTasksByMembership);
-	        getSubstituteExecutorsToGetTasks(actor, executorsToGetTasks);
+        if (cached != null && cached.getData() != null) {
+            return cached.getData();
         }
+        List<WfTask> result = Lists.newArrayList();
+        Set<Executor> executorsToGetTasksByMembership = getExecutorsToGetTasks(actor, false);
+        Set<Executor> executorsToGetTasks = Sets.newHashSet(executorsToGetTasksByMembership);
+	    getSubstituteExecutorsToGetTasks(actor, executorsToGetTasks);
         @SuppressWarnings("unchecked")
-        List<Task> tasks = LoadTasks(batchPresentation, executorsToGetTasks);
+    	List<Task> tasks = null;
+        // For Administrators - load all tasks, for others - filtered for them only.
+        if (!containAdmins(executorsToGetTasksByMembership) || actor.getName().equals("StopBot")){
+            tasks = LoadTasks(batchPresentation, executorsToGetTasks);
+        } else {
+        	// Loading all tasks
+            tasks = LoadTasks(batchPresentation, null);
+        }
         for (Task task : tasks) {
             try {
-            	WfTask acceptable = null;
-            	if (!actor.getName().equals("Administrator")) {
-            		acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
-            	} else {
-            		acceptable = taskObjectFactory.create(task, actor, true, batchPresentation.getDynamicFieldsToDisplay(true), true);
-            	}
-                if (acceptable == null) {
+            	 WfTask	acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
+                 if (acceptable == null) {
                     continue;
                 }
                 result.add(acceptable);
@@ -143,6 +147,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         return result;
     }
 
+    
     @SuppressWarnings("unchecked")
     private List<Task> LoadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
     	// If parameter <executorsToGetTasks> is undefined - load Tasks without filtering by Executor
@@ -206,6 +211,14 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
     }
 
+    /**
+     * Tests task for confirmance to actor's roles, and if convenient -return it in Dto form.
+     * @param task - task to test and convert to Dto
+     * @param actor - current actor
+     * @param batchPresentation - list presentation conditions
+     * @param executorsToGetTasksByMembership - possible executors list
+     * @return Tasks (in Dto form) assigned to actor, or acceptable by him. For For Administrators - return all tasks! 
+     */
     protected WfTask getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, Set<Executor> executorsToGetTasksByMembership) {
         Executor taskExecutor = task.getExecutor();
         ProcessDefinition processDefinition = null;
@@ -215,7 +228,8 @@ public class TaskListBuilder implements ITaskListBuilder {
             log.warn(String.format("getAcceptableTask: not found definition for task: %s with process: %s", task, task.getProcess()));
             return null;
         }
-        if (executorsToGetTasksByMembership.contains(taskExecutor)) {
+        // For Administrators - return all tasks here. (Filtered on BatchPresentation level if needed).
+        if (executorsToGetTasksByMembership.contains(taskExecutor) || containAdmins(executorsToGetTasksByMembership)) { 
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return taskObjectFactory.create(task, actor, false, batchPresentation.getDynamicFieldsToDisplay(true));
         }
@@ -389,6 +403,15 @@ public class TaskListBuilder implements ITaskListBuilder {
             }
         }
         return false;
+    }
+    
+    private boolean containAdmins(Set<Executor> executors){
+    	for (Executor executor : executors){
+    		if(executor.getName().equals("Administrators")) {
+    			return true;
+    		}
+    	}
+    	return false;
     }
 
 }
