@@ -25,7 +25,7 @@ import java.awt.Rectangle;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.image.util.ActionUtils;
 
-public class TaskNodeFigure extends BPMNFigure {
+public class TaskNodeFigure extends AbstractBPMNFigure {
     private static final Color BORDER_COLOR = Color.BLUE;
 
     @Override

@@ -7,14 +7,8 @@ import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.lang.Transition;
 
-public abstract class BPMNFigure  extends AbstractFigure{
+public abstract class AbstractBPMNFigure extends AbstractFigure {
 
-    protected void drawTimer(Graphics2D graphics){
-        if (hasTimer && !minimized) {
-            drawImage(graphics, "image/bpmn/boundary_timer.png", coords[0] + 1, coords[1] + coords[3] - 2 * DrawProperties.GRID_SIZE, true);
-        }
-    }
-    
     @Override
     public Point getTransitionPoint(Transition transition, double x, double y) {
         if (transition != null && transition.isTimerTransition()) {
@@ -22,4 +16,11 @@ public abstract class BPMNFigure  extends AbstractFigure{
         }
         return super.getTransitionPoint(transition, x, y);
     }
+
+    protected void drawTimer(Graphics2D graphics) {
+        if (hasTimer && !minimized) {
+            drawImage(graphics, "image/bpmn/boundary_timer.png", coords[0] + 1, coords[1] + coords[3] - 2 * DrawProperties.GRID_SIZE, true);
+        }
+    }
+
 }

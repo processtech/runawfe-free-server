@@ -20,7 +20,7 @@ package ru.runa.wfe.graph.image.figure.bpmn;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-public class Circle extends BPMNFigure {
+public class Circle extends AbstractBPMNFigure {
     private final String imageName;
 
     public Circle(String imageName) {
