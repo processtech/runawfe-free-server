@@ -38,8 +38,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -59,7 +57,6 @@ import com.google.common.collect.Lists;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BatchPresentation implements Cloneable, Serializable {
     private static final long serialVersionUID = 6631653373163613071L;
-    private static final Log log = LogFactory.getLog(BatchPresentation.class);
 
     private Long id;
     private Long version;
@@ -79,6 +76,8 @@ public class BatchPresentation implements Cloneable, Serializable {
      */
     private transient Store storage;
     private Date createDate;
+    private boolean shared;
+    private Long profileId;
 
     protected BatchPresentation() {
     }
@@ -220,6 +219,36 @@ public class BatchPresentation implements Cloneable, Serializable {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    /**
+     * Is this batchPresentation shared.
+     */
+    @Column(name = "IS_SHARED", nullable = false)
+    public boolean isShared() {
+        return shared;
+    }
+
+    /**
+     * Is this batchPresentation shared.
+     */
+    public void setShared(boolean shared) {
+        this.shared = shared;
+    }
+
+    /**
+     * Profile ID
+     */
+    @Column(name = "PROFILE_ID")
+    public Long getProfileId() {
+        return profileId;
+    }
+
+    /**
+     * Profile ID
+     */
+    public void setProfileId(Long profileId) {
+        this.profileId = profileId;
     }
 
     @Transient

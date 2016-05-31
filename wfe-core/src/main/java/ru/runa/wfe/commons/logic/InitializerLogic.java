@@ -42,6 +42,7 @@ import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddBatchPresentationIsSharedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnsToSubstituteEscalatedTasksPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddCreateDateColumns;
@@ -145,6 +146,7 @@ public class InitializerLogic {
         dbPatches.add(AddParentProcessIdPatch.class);
         // 4.4.0
         dbPatches.add(CreateReportsTables.class);
+        dbPatches.add(AddBatchPresentationIsSharedPatch.class);
     };
 
     @Autowired

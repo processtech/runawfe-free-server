@@ -75,6 +75,7 @@ public final class Profile implements Serializable {
     @XmlTransient
     private Map<String, BatchPresentation> defaultBatchPresentations = Maps.newHashMap();
     private Date createDate;
+    private Set<BatchPresentation> sharedBatchPresentations = Sets.newHashSet();
 
     public Profile() {
     }
@@ -146,7 +147,7 @@ public final class Profile implements Serializable {
     }
 
     /**
-     * @return all batch presentations for specified batchPresentationId
+     * @return all (including shared) batch presentations for specified batchPresentationId
      */
     public List<BatchPresentation> getBatchPresentations(String batchPresentationId) {
         List<BatchPresentation> result = Lists.newArrayList();
@@ -156,19 +157,38 @@ public final class Profile implements Serializable {
                 result.add(batch);
             }
         }
+        for (BatchPresentation batch : sharedBatchPresentations) {
+            if (Objects.equal(batch.getCategory(), batchPresentationId)) {
+                result.add(batch);
+            }
+        }
         return result;
     }
 
     public void setActiveBatchPresentation(String batchPresentationId, String batchPresentationName) {
+        boolean found = false;
         for (BatchPresentation batch : batchPresentations) {
             if (Objects.equal(batch.getCategory(), batchPresentationId)) {
                 batch.setActive(batch.getName().equals(batchPresentationName));
+                found = true;
+            }
+        }
+        if (!found) {
+            for (BatchPresentation batch : sharedBatchPresentations) {
+                if (Objects.equal(batch.getCategory(), batchPresentationId)) {
+                    batch.setActive(batch.getName().equals(batchPresentationName));
+                }
             }
         }
     }
 
     public BatchPresentation getActiveBatchPresentation(String batchPresentationId) {
         for (BatchPresentation batch : batchPresentations) {
+            if (batch.getCategory().equals(batchPresentationId) && batch.isActive()) {
+                return batch;
+            }
+        }
+        for (BatchPresentation batch : sharedBatchPresentations) {
             if (batch.getCategory().equals(batchPresentationId) && batch.isActive()) {
                 return batch;
             }
@@ -183,4 +203,7 @@ public final class Profile implements Serializable {
         batchPresentations.remove(batchPresentation);
     }
 
+    public void addSharedBatchPresentation(BatchPresentation batchPresentation) {
+        sharedBatchPresentations.add(batchPresentation);
+    }
 }
