@@ -28,9 +28,6 @@ public class MultipleSelectFromListUserVariables extends AbstractListUserVariabl
     @Override
     protected Object renderRequest() throws Exception {
         initFields();
-
-        registerVariableHandler(dectVariableName);
-
         return ViewUtil.getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName),
                 variableProvider.getVariableNotNull(dectVariableName), variableProvider.getProcessId(), sortField,
                 displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE);

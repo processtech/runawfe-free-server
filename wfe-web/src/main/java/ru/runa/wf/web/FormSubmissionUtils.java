@@ -16,14 +16,22 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
 
 import ru.runa.common.WebResources;
+import ru.runa.common.web.Commons;
+import ru.runa.common.web.RequestWebHelper;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
+import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandlersHashModel;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
+import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.service.client.DelegateDefinitionVariableProvider;
 import ru.runa.wfe.service.client.FileVariableProxy;
+import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.User;
+import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.file.FileVariable;
@@ -35,6 +43,7 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -75,11 +84,11 @@ public class FormSubmissionUtils {
      * @return saved in request values from previous form submit (used to
      *         re-open form in case of validation errors)
      */
-    public static Map<String, Object> getUserFormInputVariables(HttpServletRequest request, Interaction interaction) {
+    public static Map<String, Object> getUserFormInputVariables(Long definitionId, HttpServletRequest request, Interaction interaction) {
         Map<String, String[]> userInput = getUserFormInput(request);
         if (userInput != null && Objects.equal(userInput.get(FORM_NODE_ID_KEY)[0], interaction.getNodeId())) {
             Map<String, String> errors = Maps.newHashMap();
-            return extractVariables(request, interaction, userInput, errors);
+            return extractVariables(definitionId, request, interaction, userInput, errors);
         }
         return null;
     }
@@ -108,11 +117,11 @@ public class FormSubmissionUtils {
         return variablesMap;
     }
 
-    public static Map<String, Object> extractVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction) {
+    public static Map<String, Object> extractVariables(Long definitionId, HttpServletRequest request, ActionForm actionForm, Interaction interaction) {
         Map<String, String> errors = Maps.newHashMap();
         Map<String, Object> userInput = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
         userInput.putAll(getUploadedFilesInputsMap(request));
-        Map<String, Object> variables = extractVariables(request, interaction, userInput, errors);
+        Map<String, Object> variables = extractVariables(definitionId, request, interaction, userInput, errors);
         if (errors.size() > 0) {
             throw new VariablesFormatException(errors.keySet());
         }
@@ -120,14 +129,20 @@ public class FormSubmissionUtils {
         return variables;
     }
 
-    private static Map<String, Object> extractVariables(HttpServletRequest request, Interaction interaction, Map<String, ? extends Object> userInput,
-            Map<String, String> errors) {
+    private static Map<String, Object> extractVariables(Long definitionId, HttpServletRequest request, Interaction interaction,
+            Map<String, ? extends Object> userInput, Map<String, String> errors) {
         try {
+            User user = Commons.getUser(request.getSession());
+            MapDelegableVariableProvider variableProvider = new MapDelegableVariableProvider(interaction.getDefaultVariableValues(),
+                    new DelegateDefinitionVariableProvider(Delegates.getDefinitionService(), user, definitionId));
+            FormComponentSubmissionHandlersHashModel model = new FormComponentSubmissionHandlersHashModel(user, variableProvider,
+                    new RequestWebHelper(request));
+            String template = new String(interaction.getFormData(), Charsets.UTF_8);
+            FreemarkerProcessor.process(template, model);
             HashMap<String, Object> variables = Maps.newHashMap();
             for (VariableDefinition variableDefinition : interaction.getVariables().values()) {
                 try {
-                    FormComponentSubmissionHandler handler = (FormComponentSubmissionHandler) request.getSession().getAttribute(
-                            FormComponentSubmissionHandler.KEY_PREFIX + variableDefinition.getName());
+                    FormComponentSubmissionHandler handler = model.getComponentsSubmissionHandlers().get(variableDefinition.getName());
                     if (handler != null) {
                         variables.putAll(handler.extractVariables(interaction, variableDefinition, userInput, errors));
                     } else {

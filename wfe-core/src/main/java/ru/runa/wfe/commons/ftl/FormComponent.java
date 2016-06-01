@@ -66,14 +66,17 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
         }
     }
 
+    public String getVariableName() {
+        return getParameterAsString(0);
+    }
+
     protected void registerVariablePostProcessor(String variableName) {
         Preconditions.checkArgument(this instanceof FormComponentSubmissionPostProcessor, "not a FormComponentSubmissionPostProcessor instance");
         webHelper.getRequest().getSession().setAttribute(FormComponentSubmissionPostProcessor.KEY_PREFIX + variableName, this);
     }
 
+    @Deprecated
     protected void registerVariableHandler(String variableName) {
-        Preconditions.checkArgument(this instanceof FormComponentSubmissionHandler, "not a FormComponentSubmissionHandler instance");
-        webHelper.getRequest().getSession().setAttribute(FormComponentSubmissionHandler.KEY_PREFIX + variableName, this);
     }
 
     /**

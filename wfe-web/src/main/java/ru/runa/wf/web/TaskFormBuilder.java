@@ -58,7 +58,8 @@ public abstract class TaskFormBuilder {
         if (interaction.hasForm()) {
             IVariableProvider variableProvider = new MapDelegableVariableProvider(interaction.getDefaultVariableValues(),
                     new DelegateDefinitionVariableProvider(user, definitionId));
-            Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables((HttpServletRequest) pageContext.getRequest(), interaction);
+            Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables(definitionId, (HttpServletRequest) pageContext.getRequest(),
+                    interaction);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
@@ -73,7 +74,8 @@ public abstract class TaskFormBuilder {
         this.task = task;
         if (interaction.hasForm()) {
             IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task.getProcessId(), task.getId());
-            Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables((HttpServletRequest) pageContext.getRequest(), interaction);
+            Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables(definitionId, (HttpServletRequest) pageContext.getRequest(),
+                    interaction);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }

@@ -57,7 +57,8 @@ public class SubmitTaskFormAction extends BaseProcessFormAction {
         Long taskId = form.getId();
         log.debug(user + " submitted task form for id " + taskId);
         Interaction interaction = Delegates.getDefinitionService().getTaskInteraction(user, taskId);
-        Map<String, Object> variables = getFormVariables(request, actionForm, interaction);
+        Long definitionId = Delegates.getTaskService().getTask(user, taskId).getDefinitionId();
+        Map<String, Object> variables = getFormVariables(definitionId, request, actionForm, interaction);
         Long processId = null;
         if (WebResources.isAutoShowForm()) {
             WfTask task = Delegates.getTaskService().getTask(user, taskId);

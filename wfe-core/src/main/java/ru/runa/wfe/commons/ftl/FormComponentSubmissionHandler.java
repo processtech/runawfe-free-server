@@ -30,10 +30,9 @@ import ru.runa.wfe.var.VariableDefinition;
  * @since 4.2.0
  */
 public interface FormComponentSubmissionHandler {
-    public static final String KEY_PREFIX = "var_handler_";
-
     /**
      * Processing method
+     * 
      * @param interaction
      *            task form interaction
      * @param variableDefinition
