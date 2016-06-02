@@ -108,7 +108,7 @@ public class Substitution implements Comparable<Substitution>, Serializable {
         this.position = position;
     }
 
-    @Column(name = "ORG_FUNCTION", nullable = false)
+    @Column(name = "ORG_FUNCTION", nullable = false, length = 1024)
     public String getOrgFunction() {
         return orgFunction;
     }

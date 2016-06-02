@@ -69,7 +69,7 @@ public class SubstitutionCriteria implements Serializable {
         this.id = id;
     }
 
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "NAME", nullable = false, length = 1024)
     public String getName() {
         return name;
     }
@@ -78,7 +78,7 @@ public class SubstitutionCriteria implements Serializable {
         this.name = name;
     }
 
-    @Column(name = "CONF")
+    @Column(name = "CONF", length = 1024)
     public String getConfiguration() {
         return configuration;
     }

@@ -36,7 +36,7 @@ public class ProcessDefinitionDeleteLog extends SystemLog {
         this.version = version;
     }
 
-    @Column(name = "PROCESS_DEFINITION_NAME")
+    @Column(name = "PROCESS_DEFINITION_NAME", length = 1024)
     public String getName() {
         return name;
     }

@@ -94,7 +94,7 @@ public class NodeProcess {
         this.subProcess = subProcess;
     }
 
-    @Column(name = "PARENT_NODE_ID")
+    @Column(name = "PARENT_NODE_ID", length = 1024)
     public String getNodeId() {
         return nodeId;
     }

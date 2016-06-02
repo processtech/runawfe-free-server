@@ -80,7 +80,7 @@ public class PrivelegedMapping {
         this.executor = executor;
     }
 
-    @Column(name = "TYPE", nullable = false)
+    @Column(name = "TYPE", nullable = false, length = 1024)
     @Index(name = "IX_PRIVELEGE_TYPE")
     @Enumerated(value = EnumType.STRING)
     public SecuredObjectType getType() {

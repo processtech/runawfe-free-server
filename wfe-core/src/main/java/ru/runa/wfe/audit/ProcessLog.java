@@ -120,7 +120,7 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
         this.tokenId = tokenId;
     }
 
-    @Column(name = "NODE_ID")
+    @Column(name = "NODE_ID", length = 1024)
     public String getNodeId() {
         return nodeId;
     }
@@ -138,7 +138,7 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
         this.createDate = date;
     }
 
-    @Column(name = "SEVERITY", nullable = false)
+    @Column(name = "SEVERITY", nullable = false, length = 1024)
     @Enumerated(EnumType.STRING)
     public Severity getSeverity() {
         return severity;

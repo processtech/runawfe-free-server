@@ -145,7 +145,7 @@ public class Token implements Serializable {
         this.version = version;
     }
 
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 1024)
     public String getName() {
         return name;
     }
@@ -154,7 +154,7 @@ public class Token implements Serializable {
         this.name = name;
     }
 
-    @Column(name = "NODE_ID")
+    @Column(name = "NODE_ID", length = 1024)
     public String getNodeId() {
         return nodeId;
     }
@@ -163,7 +163,7 @@ public class Token implements Serializable {
         this.nodeId = nodeId;
     }
 
-    @Column(name = "NODE_TYPE")
+    @Column(name = "NODE_TYPE", length = 1024)
     @Enumerated(EnumType.STRING)
     public NodeType getNodeType() {
         return nodeType;
@@ -173,7 +173,7 @@ public class Token implements Serializable {
         this.nodeType = nodeType;
     }
 
-    @Column(name = "TRANSITION_ID")
+    @Column(name = "TRANSITION_ID", length = 1024)
     public String getTransitionId() {
         return transitionId;
     }

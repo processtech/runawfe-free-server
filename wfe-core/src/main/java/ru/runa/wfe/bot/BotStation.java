@@ -98,7 +98,7 @@ public class BotStation extends IdentifiableBase {
         this.version = version;
     }
 
-    @Column(name = "NAME", unique = true, nullable = false)
+    @Column(name = "NAME", unique = true, nullable = false, length = 1024)
     public String getName() {
         return name;
     }
@@ -107,7 +107,7 @@ public class BotStation extends IdentifiableBase {
         this.name = name;
     }
 
-    @Column(name = "ADDRESS")
+    @Column(name = "ADDRESS", length = 1024)
     public String getAddress() {
         return address;
     }

@@ -66,7 +66,7 @@ public class Actor extends Executor {
     }
 
     @Override
-    @Column(name = "FULL_NAME", nullable = false)
+    @Column(name = "FULL_NAME", nullable = false, length = 1024)
     public String getFullName() {
         return super.getFullName();
     }
@@ -96,7 +96,7 @@ public class Actor extends Executor {
         this.active = active;
     }
 
-    @Column(name = "E_MAIL")
+    @Column(name = "E_MAIL", length = 1024)
     public String getEmail() {
         return email;
     }

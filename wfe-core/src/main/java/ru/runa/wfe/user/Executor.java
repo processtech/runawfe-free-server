@@ -93,7 +93,7 @@ public abstract class Executor extends IdentifiableBase implements Comparable<Ex
         this.id = id;
     }
 
-    @Column(name = "NAME", unique = true, nullable = false)
+    @Column(name = "NAME", unique = true, nullable = false, length = 1024)
     public String getName() {
         return name;
     }
@@ -121,7 +121,7 @@ public abstract class Executor extends IdentifiableBase implements Comparable<Ex
         this.version = version;
     }
 
-    @Column(name = "FULL_NAME", insertable = false, updatable = false)
+    @Column(name = "FULL_NAME", insertable = false, updatable = false, length = 1024)
     public String getFullName() {
         return fullName;
     }

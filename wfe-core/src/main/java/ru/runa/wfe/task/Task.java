@@ -134,7 +134,7 @@ public class Task implements Assignable {
         this.version = version;
     }
 
-    @Column(name = "NODE_ID")
+    @Column(name = "NODE_ID", length = 1024)
     public String getNodeId() {
         return nodeId;
     }
@@ -144,7 +144,7 @@ public class Task implements Assignable {
     }
 
     @Override
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 1024)
     public String getName() {
         return name;
     }
