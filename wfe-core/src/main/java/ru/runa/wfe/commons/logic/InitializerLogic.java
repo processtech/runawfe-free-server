@@ -46,6 +46,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnsToSubstituteEscalatedTasksPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddCreateDateColumns;
 import ru.runa.wfe.commons.dbpatch.impl.AddDeploymentAuditPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddDueDateExpressionToJobAndTask;
 import ru.runa.wfe.commons.dbpatch.impl.AddEmbeddedFileForBotTask;
 import ru.runa.wfe.commons.dbpatch.impl.AddHierarchyProcess;
 import ru.runa.wfe.commons.dbpatch.impl.AddMultiTaskIndexToTaskPatch;
@@ -145,6 +146,7 @@ public class InitializerLogic {
         dbPatches.add(AddParentProcessIdPatch.class);
         // 4.4.0
         dbPatches.add(CreateReportsTables.class);
+        dbPatches.add(AddDueDateExpressionToJobAndTask.class);
     };
 
     @Autowired

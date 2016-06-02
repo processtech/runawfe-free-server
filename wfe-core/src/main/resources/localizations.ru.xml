@@ -49,7 +49,8 @@
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.user.ConvertGroupsToUsersHandler" label="Развернуть группы (преобразовать в пользователей)"/>
   <artifact enabled="true" name="ru.runa.wf.logic.bot.TextReportTaskHandler" label="Сделать текстовый отчет"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.CreateOptionActionHandler" label="Создать опцию для выбора"/>
-  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.CreateCalendarHandler" label="Создать переменную даты"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.SetDateVariableHandler" label="Установить переменную даты"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.TargetProcessSetDateVariableHandler" label="Установить переменную даты в другом БП"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.SortListActionHandler" label="Сортировка списка"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.EmailTaskNotifierActionHandler" label="Уведомление о невыполненных заданиях"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.RemoveObjectFromListActionHandler" label="Удалить объект из списка"/>

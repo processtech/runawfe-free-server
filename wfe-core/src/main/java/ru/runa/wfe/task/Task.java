@@ -94,6 +94,7 @@ public class Task implements Assignable {
     private Executor executor;
     private Date createDate;
     private Date deadlineDate;
+    private String deadlineDateExpression;
     private Token token;
     private Swimlane swimlane;
     private Process process;
@@ -177,6 +178,15 @@ public class Task implements Assignable {
 
     public void setDeadlineDate(Date deadlineDate) {
         this.deadlineDate = deadlineDate;
+    }
+
+    @Column(name = "DEADLINE_DATE_EXPRESSION")
+    public String getDeadlineDateExpression() {
+        return deadlineDateExpression;
+    }
+
+    public void setDeadlineDateExpression(String deadlineDateExpression) {
+        this.deadlineDateExpression = deadlineDateExpression;
     }
 
     @CollectionOfElements
