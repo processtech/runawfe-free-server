@@ -44,7 +44,6 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.job.Job;
-import ru.runa.wfe.job.Timer;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -60,8 +59,6 @@ import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.format.DateFormat;
-import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -355,33 +352,23 @@ public class ExecutionContext {
                     + (value != null ? " of " + value.getClass() : ""));
             variable.setValue(this, value, variableDefinition.getFormatNotNull());
         }
-        if (DateTimeFormat.class.getName().equals(variableDefinition.getFormatClassName())
-                || DateFormat.class.getName().equals(variableDefinition.getFormatClassName())) {
-            updateRelatedObjects(variableDefinition, value);
+        if (value instanceof Date) {
+            updateRelatedObjectsDueToDateVariableChange(variableDefinition.getName());
         }
     }
 
-    private void updateRelatedObjects(VariableDefinition variableDefinition, Object value) {
-        // Проверяем сроки выполнения задач
-        List<Task> taskList = taskDAO.findTasks(getProcess());
-        for (Task task : taskList) {
-            if (task.getDeadlineDateExpression() != null && task.getDeadlineDateExpression().contains(variableDefinition.getName())) {
-                task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
-                log.info("DeadLineDate for Task [id=" + task.getId() + "; name=" + task.getName() + "] has been changed");
-            }
+    private void updateRelatedObjectsDueToDateVariableChange(String variableName) {
+        List<Task> tasks = taskDAO.findTasksByProcessAndDeadlineExpressionContaining(getProcess(), variableName);
+        for (Task task : tasks) {
+            Date oldDate = task.getDeadlineDate();
+            task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
+            log.info(String.format("Changed deadlineDate for %s from %s to %s", task, oldDate, task.getDeadlineDate()));
         }
-        // Проверяем таймеры ( включая таймеры эскалации)
-        List<Job> jobList = jobDAO.findByProcess(getProcess());
-        for (Job job : jobList) {
-            if (job.getDueDate().compareTo(new Date()) <= 0 && job instanceof Timer) {
-                Timer timer = (Timer) job;
-                if (timer.getDueDateExpression().contains(variableDefinition.getName())) {
-                    timer.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), timer.getDueDateExpression()));
-                    jobDAO.update(timer);
-                    log.info("DueDate for timer [id=" + timer.getId() + "; name=" + timer.getName() + "] has been changed");
-                }
-
-            }
+        List<Job> jobs = jobDAO.findByProcessAndDeadlineExpressionContaining(getProcess(), variableName);
+        for (Job job : jobs) {
+            Date oldDate = job.getDueDate();
+            job.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), job.getDueDateExpression()));
+            log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
         }
     }
 

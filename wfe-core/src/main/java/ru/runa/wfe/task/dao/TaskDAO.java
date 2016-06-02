@@ -43,17 +43,18 @@ public class TaskDAO extends GenericDAO<Task> {
      * @return active tasks assigned to a given executor.
      */
     public List<Task> findTasks(Executor executor) {
-        return (List<Task>) getHibernateTemplate().find("from Task where executor=?", executor);
+        return getHibernateTemplate().find("from Task where executor=?", executor);
     }
 
-    public List<Task> findTasks(Process process) {
-        return (List<Task>) getHibernateTemplate().find("from Task where process=?", process);
+    public List<Task> findTasksByProcessAndDeadlineExpressionContaining(Process process, String expression) {
+        return getHibernateTemplate().find("from Task where process=? and deadlineDateExpression like ?", process, "%" + expression + "%");
     }
+
     /**
      * @return active tasks but not assigned.
      */
     public List<Task> findUnassignedTasks() {
-        return (List<Task>) getHibernateTemplate().find("from Task where executor is null");
+        return getHibernateTemplate().find("from Task where executor is null");
     }
 
 }

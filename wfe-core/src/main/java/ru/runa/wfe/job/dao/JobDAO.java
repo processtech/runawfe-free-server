@@ -25,6 +25,10 @@ public class JobDAO extends GenericDAO<Job> {
         return getHibernateTemplate().find("from Job where process=? order by dueDate", process);
     }
 
+    public List<Job> findByProcessAndDeadlineExpressionContaining(Process process, String expression) {
+        return getHibernateTemplate().find("from Job where process=? and dueDateExpression like ?", process, "%" + expression + "%");
+    }
+
     public void deleteTimersByName(String name, Token token) {
         log.debug("deleting timers by name '" + name + "' for " + token);
         List<Timer> timers = getHibernateTemplate().find("from Timer where token=? and name=?", token, name);

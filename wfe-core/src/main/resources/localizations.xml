@@ -13,8 +13,8 @@
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ConvertMapKeysToListActionHandler" label="Convert map keys to list"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ConvertMapValuesToListActionHandler" label="Convert map values to list"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.ConvertMapsToListsHandler" label="Convert maps values to lists"/>
-  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.CreateCalendarHandler" label="Create date variable"/>
-    <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.DeadlineTransferHandler" label="change date variable"/>
+  <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.SetDateVariableHandler" label="Set date variable"/>
+    <artifact enabled="true" name="ru.runa.wfe.extension.handler.var.TargetProcessSetDateVariableHandler" label="Set date variable in another process"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.CreateOptionActionHandler" label="Create option"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.handler.DebugHandler" label="Debug (prints configuration)"/>
   <artifact enabled="true" name="ru.runa.wfe.extension.assign.DefaultAssignmentHandler" label="Default assignment handler"/>
