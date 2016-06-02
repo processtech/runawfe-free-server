@@ -116,7 +116,7 @@ public class ReportDefinition {
         this.version = version;
     }
 
-    @Column(name = "NAME", length = 255, nullable = false, unique = true)
+    @Column(name = "NAME", length = 1024, nullable = false, unique = true)
     public String getName() {
         return name;
     }
@@ -165,7 +165,7 @@ public class ReportDefinition {
         this.jarFile = jarFile;
     }
 
-    @Column(name = "PARAM_BUILDER_NAME", length = 255, nullable = true)
+    @Column(name = "PARAM_BUILDER_NAME", length = 1024, nullable = true)
     public String getParameterBuilderClassName() {
         return parameterBuilderClassName;
     }
@@ -174,7 +174,7 @@ public class ReportDefinition {
         this.parameterBuilderClassName = parameterBuilderClassName;
     }
 
-    @Column(name = "CONFIG_TYPE", length = 255, nullable = false)
+    @Column(name = "CONFIG_TYPE", length = 1024, nullable = false)
     @Enumerated(EnumType.STRING)
     public ReportConfigurationType getConfigType() {
         return configType;
@@ -184,7 +184,7 @@ public class ReportDefinition {
         this.configType = reportConfigType;
     }
 
-    @Column(name = "CATEGORY", length = 255, nullable = false)
+    @Column(name = "CATEGORY", length = 1024, nullable = false)
     public String getCategory() {
         return category;
     }

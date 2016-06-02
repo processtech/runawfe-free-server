@@ -42,7 +42,7 @@ public class Timer extends Job {
         super(token);
     }
 
-    @Column(name = "REPEAT_DURATION")
+    @Column(name = "REPEAT_DURATION", length = 1024)
     public String getRepeatDurationString() {
         return repeatDurationString;
     }
@@ -51,7 +51,7 @@ public class Timer extends Job {
         this.repeatDurationString = repeatDurationString;
     }
 
-    @Column(name = "TRANSITION_NAME")
+    @Column(name = "TRANSITION_NAME", length = 1024)
     public String getOutTransitionName() {
         return outTransitionName;
     }

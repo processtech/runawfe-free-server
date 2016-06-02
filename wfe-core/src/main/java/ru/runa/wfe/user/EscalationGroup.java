@@ -55,7 +55,7 @@ public class EscalationGroup extends TemporaryGroup {
         level = escalationLevel;
     }
 
-    @Column(name = "NODE_ID")
+    @Column(name = "NODE_ID", length = 1024)
     public String getNodeId() {
         return nodeId;
     }
