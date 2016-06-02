@@ -32,6 +32,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="updateProcessSwimlanes.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
 		<property title="scriptingServiceAPI.executeGroovyScript.enabled">
 			<value>true</value>
 			<value>false</value>
