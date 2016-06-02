@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web.form;
@@ -31,7 +31,7 @@ import ru.runa.wfe.presentation.BatchPresentationConsts;
 
 /**
  * Created on 26.01.2005
- * 
+ *
  * @struts:form name = "tableViewSetupForm"
  */
 public class TableViewSetupForm extends IdsForm {
@@ -55,6 +55,9 @@ public class TableViewSetupForm extends IdsForm {
     public static final String SORTING_FIELD_IDS = "sortingIds";
     public static final String FILTERING_FIELD_IDS = "filteringIds";
     public static final String REMOVABLE_FIELD_IDS = "removableIds";
+    public static final String SHARED_TYPE_NAME = "sharedType";
+    public static final String SHARED_TYPE_NO = "no";
+    public static final String SHARED_TYPE_SHARED = "shared";
 
     private int viewSize;
     private String saveAsBatchPresentationName;
@@ -76,6 +79,8 @@ public class TableViewSetupForm extends IdsForm {
     private Long[] sortingIds;
     private Long[] filteringIds;
     private int[] removableIds;
+
+    private String sharedType;
 
     public void setSortingIds(Long[] ids) {
         sortingIds = ids;
@@ -131,12 +136,6 @@ public class TableViewSetupForm extends IdsForm {
         if (fieldsToFilterIds == null) {
             return new int[0];
         }
-        /*
-         * long[] ids = getIds(); // dumb convertion from long[] to int[] int[]
-         * tmpFieldsToFilterIds = new int[fieldsToFilterIds.length]; for (int i
-         * = 0; i < tmpFieldsToFilterIds.length; i++) { tmpFieldsToFilterIds[i]
-         * = (int)ids[fieldsToFilterIds[i]]; } return tmpFieldsToFilterIds;
-         */
         return fieldsToFilterIds;
     }
 
@@ -221,7 +220,7 @@ public class TableViewSetupForm extends IdsForm {
         Collections.sort(specifiedPositionList);
         int[] result = new int[specifiedPositionList.size()];
         for (int i = 0; i < result.length; i++) {
-            result[i] = (int) (specifiedPositionList.get(i)).getKey();
+            result[i] = (int) specifiedPositionList.get(i).getKey();
         }
         return result;
     }
@@ -303,5 +302,13 @@ public class TableViewSetupForm extends IdsForm {
 
     public String[] getEditableFieldsValues() {
         return editableFieldsValues;
+    }
+
+    public void setSharedType(String sharedType) {
+        this.sharedType = sharedType;
+    }
+
+    public String getSharedType() {
+        return sharedType;
     }
 }
