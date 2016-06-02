@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web.tag;
@@ -193,7 +193,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             optionNo.addElement(MessagesBatch.SHARED_OPTION_NO.message(pageContext));
             Option optionShared = new Option();
             optionShared.setValue(TableViewSetupForm.SHARED_TYPE_SHARED);
-            optionShared.addElement(MessagesBatch.SHARED_OPTION_SHARED.message(pageContext));
+            optionShared.addElement(MessagesBatch.SHARED_OPTION_YES.message(pageContext));
             if (!activeBatchPresentation.isShared()) {
                 optionNo.setSelected(true);
             } else {
@@ -234,8 +234,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             }
             FieldDescriptor[] allFields = batchPresentation.getAllFields();
             for (int i = 0; i < allFields.length; ++i) {
-                if ((allFields[i].displayName.startsWith(ClassPresentation.editable_prefix) && allFields[i].fieldState == FieldState.ENABLED)
-                        || (allFields[i].displayName.startsWith(ClassPresentation.filterable_prefix) && groupBySubprocessEnabled)) {
+                if (allFields[i].displayName.startsWith(ClassPresentation.editable_prefix) && allFields[i].fieldState == FieldState.ENABLED
+                        || allFields[i].displayName.startsWith(ClassPresentation.filterable_prefix) && groupBySubprocessEnabled) {
                     table.addElement(buildViewRow(batchPresentation, allFields[i].fieldIdx, -1));
                 }
             }
@@ -279,7 +279,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.IDS_INPUT_NAME, String.valueOf(fieldIdx)));
             tr.addElement(td);
         }
-        if (isEditable || isFilterable) { // Editable fields havn't fields for sorting/filtering e t.c.
+        if (isEditable || isFilterable) { // Editable fields havn't fields for
+            // sorting/filtering e t.c.
             for (int idx = 0; idx < 5; ++idx) {
                 tr.addElement(new TD().setClass(Resources.CLASS_VIEW_SETUP_TD));
             }

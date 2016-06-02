@@ -11,20 +11,19 @@ public class AddBatchPresentationIsSharedPatch extends DBPatch {
     @Override
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesBefore();
-        sql.add(getDDLCreateColumn("BATCH_PRESENTATION", new ColumnDef("IS_SHARED", dialect.getTypeName(Types.BIT), true)));
+        sql.add(getDDLCreateColumn("BATCH_PRESENTATION", new ColumnDef("SHARED", dialect.getTypeName(Types.BIT), true)));
         return sql;
     }
 
     @Override
     protected void applyPatch(Session session) throws Exception {
-        session.createSQLQuery("UPDATE BATCH_PRESENTATION SET IS_SHARED = FALSE").executeUpdate();
+        session.createSQLQuery("UPDATE BATCH_PRESENTATION SET SHARED = FALSE").executeUpdate();
     }
 
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesAfter();
-        sql.add(getDDLModifyColumnNullable("BATCH_PRESENTATION", "IS_SHARED", false, dialect.getTypeName(Types.BIT)));
-        sql.add(getDDLCreateIndex("BATCH_PRESENTATION", "IX_BATCH_PRESENTATION_SHARED", "IS_SHARED"));
+        sql.add(getDDLModifyColumnNullability("BATCH_PRESENTATION", "SHARED", dialect.getTypeName(Types.BIT), false));
         return sql;
     }
 }

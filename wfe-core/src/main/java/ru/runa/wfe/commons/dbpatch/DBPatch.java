@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Interface for database patch (Applied during version update).
- * 
+ *
  * @author Dofs
  */
 public abstract class DBPatch {
@@ -31,7 +31,8 @@ public abstract class DBPatch {
     }
 
     /**
-     * Execute patch DDL statements before DML (non-transacted mode in most databases).
+     * Execute patch DDL statements before DML (non-transacted mode in most
+     * databases).
      */
     public final void executeDDLBefore() throws Exception {
         executeDDL("[DDLBefore]", getDDLQueriesBefore());
@@ -61,7 +62,8 @@ public abstract class DBPatch {
     protected abstract void applyPatch(Session session) throws Exception;
 
     /**
-     * Execute patch DDL statements after DML (non-transacted mode in most databases).
+     * Execute patch DDL statements after DML (non-transacted mode in most
+     * databases).
      */
     public final void executeDDLAfter() throws Exception {
         executeDDL("[DDLAfter]", getDDLQueriesAfter());
@@ -279,6 +281,30 @@ public abstract class DBPatch {
         return query;
     }
 
+    protected final String getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName, boolean nullable) {
+        String query;
+        switch (dbType) {
+        case ORACLE:
+            query = "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable == true ? "NULL" : "NOT NULL") + ")";
+            break;
+        case POSTGRESQL:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable == true ? "DROP" : "SET") + " NOT NULL";
+            break;
+        case H2:
+        case HSQL:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        case MYSQL:
+            query = "ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        default:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " "
+                    + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        }
+        return query;
+    }
+
     protected final String getDDLRemoveColumn(String tableName, String columnName) {
         return "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
     }
@@ -343,33 +369,4 @@ public abstract class DBPatch {
         }
     }
 
-    /**
-     * Modify column nullability
-     * 
-     * @param currentSqlTypeName
-     *            current type name, used for MS SQL and MySQL
-     */
-    protected final String getDDLModifyColumnNullable(String tableName, String columnName, boolean nullable, String currentSqlTypeName) {
-        String query;
-        switch (dbType) {
-        case ORACLE:
-            query = "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable == true ? "NULL" : "NOT NULL") + ")";
-            break;
-        case POSTGRESQL:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable == true ? "DROP" : "SET") + " NOT NULL";
-            break;
-        case H2:
-        case HSQL:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable == true ? "NULL" : "NOT NULL");
-            break;
-        case MYSQL:
-            query = "ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable == true ? "NULL" : "NOT NULL");
-            break;
-        default:
-            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " "
-                    + (nullable == true ? "NULL" : "NOT NULL");
-            break;
-        }
-        return query;
-    }
 }

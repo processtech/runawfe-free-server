@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.user.logic;
@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Actor's profile management.
- * 
+ *
  * @author Dofs
  * @since 1.0
  */
@@ -123,12 +123,6 @@ public class ProfileLogic extends CommonLogic {
         if (batchPresentation.isShared() && !executorLogic.isAdministrator(user)) {
             throw new InternalApplicationException("cannot save batch presentation, user is not administrator");
         }
-        if (batchPresentation.getProfileId() == null) {
-            Profile profile = profileDAO.get(user.getActor());
-            if (profile != null) {
-                batchPresentation.setProfileId(profile.getId());
-            }
-        }
         batchPresentation = batchPresentationDAO.update(batchPresentation);
         batchPresentationDAO.flushPendingChanges();
         return getProfileWithSharedBatchPresentations(user.getActor());
@@ -141,11 +135,11 @@ public class ProfileLogic extends CommonLogic {
     }
 
     private void addSharedBatchPresentations(Profile profile) {
-        List<BatchPresentation> shared = batchPresentationDAO.getAllShared();
+        List<BatchPresentation> sharedPresentations = batchPresentationDAO.getAllShared();
         Set<BatchPresentation> existing = profile.getBatchPresentations();
-        for (BatchPresentation p : shared) {
-            if (!existing.contains(p)) {
-                profile.addSharedBatchPresentation(p);
+        for (BatchPresentation presentation : sharedPresentations) {
+            if (!existing.contains(presentation)) {
+                profile.addSharedBatchPresentation(presentation);
             }
         }
     }

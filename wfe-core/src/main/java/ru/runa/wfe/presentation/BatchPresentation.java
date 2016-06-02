@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.presentation;
@@ -49,7 +49,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 /**
- * Presentation of objects collection, contains sorting rules, filter rules and so on.
+ * Presentation of objects collection, contains sorting rules, filter rules and
+ * so on.
  */
 @Entity
 @Table(name = "BATCH_PRESENTATION")
@@ -66,7 +67,8 @@ public class BatchPresentation implements Cloneable, Serializable {
     private boolean active;
     private int rangeSize;
     private int pageNumber = 1;
-    // TODO: only this field or 'BatchPresentationFields fields' must be stay. One of field must be removed.
+    // TODO: only this field or 'BatchPresentationFields fields' must be stay.
+    // One of field must be removed.
     private byte[] fieldsData;
     @XmlTransient
     // TODO: refactor to compatible with WebServices format in jboss7
@@ -77,7 +79,6 @@ public class BatchPresentation implements Cloneable, Serializable {
     private transient Store storage;
     private Date createDate;
     private boolean shared;
-    private Long profileId;
 
     protected BatchPresentation() {
     }
@@ -135,7 +136,8 @@ public class BatchPresentation implements Cloneable, Serializable {
     }
 
     /**
-     * Presentation group identity. Such as tasksList, processLists and so on. Each group refers to some page in web interface.
+     * Presentation group identity. Such as tasksList, processLists and so on.
+     * Each group refers to some page in web interface.
      */
     @Column(name = "CATEGORY", nullable = false)
     public String getCategory() {
@@ -143,7 +145,8 @@ public class BatchPresentation implements Cloneable, Serializable {
     }
 
     /**
-     * Presentation group identity. Such as tasksList, processLists and so on. Each group refers to some page in web interface.
+     * Presentation group identity. Such as tasksList, processLists and so on.
+     * Each group refers to some page in web interface.
      */
     protected void setCategory(String tagName) {
         category = tagName;
@@ -224,7 +227,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     /**
      * Is this batchPresentation shared.
      */
-    @Column(name = "IS_SHARED", nullable = false)
+    @Column(name = "SHARED", nullable = false)
     public boolean isShared() {
         return shared;
     }
@@ -234,21 +237,6 @@ public class BatchPresentation implements Cloneable, Serializable {
      */
     public void setShared(boolean shared) {
         this.shared = shared;
-    }
-
-    /**
-     * Profile ID
-     */
-    @Column(name = "PROFILE_ID")
-    public Long getProfileId() {
-        return profileId;
-    }
-
-    /**
-     * Profile ID
-     */
-    public void setProfileId(Long profileId) {
-        this.profileId = profileId;
     }
 
     @Transient
@@ -474,8 +462,9 @@ public class BatchPresentation implements Cloneable, Serializable {
     }
 
     /**
-     * Get helper to hold fields set (such us fields to display, sort and so on).
-     * 
+     * Get helper to hold fields set (such us fields to display, sort and so
+     * on).
+     *
      * @return Helper to current {@link BatchPresentation}.
      */
     @Transient
@@ -490,8 +479,8 @@ public class BatchPresentation implements Cloneable, Serializable {
     public List<String> getDynamicFieldsToDisplay(boolean treatGrouppedFieldAsDisplayable) {
         List<String> result = Lists.newArrayList();
         for (int i = 0; i < getFields().dynamics.size(); i++) {
-            if (ArraysCommons.contains(getFields().displayIds, i)
-                    || (treatGrouppedFieldAsDisplayable && ArraysCommons.contains(getFields().groupIds, i))) {
+            if (ArraysCommons.contains(getFields().displayIds, i) || treatGrouppedFieldAsDisplayable
+                    && ArraysCommons.contains(getFields().groupIds, i)) {
                 result.add(getFields().dynamics.get(i).getDynamicValue());
             }
         }

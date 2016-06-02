@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web.action;
@@ -44,12 +44,12 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterFormatException;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Profile;
-import ru.runa.wfe.user.User;
 
 /**
  * Created on 26.01.2005
- * 
- * @struts:action path="/tableViewSetup" name="tableViewSetupForm" validate="false" parameter = "dispatch"
+ *
+ * @struts:action path="/tableViewSetup" name="tableViewSetupForm"
+ *                validate="false" parameter = "dispatch"
  */
 public class TableViewSetupFormAction extends LookupDispatchAction {
     private static final String DEFAULT_VIEW_SETUP_NAME = " ";
@@ -117,13 +117,13 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
                     }
                 }
                 batchPresentation.setFilteredFields(result);
-                int[] groupFields = (arrayPos == -1) ? tableViewSetupForm.getSortPositionsIds() : ArraysCommons.remove(
+                int[] groupFields = arrayPos == -1 ? tableViewSetupForm.getSortPositionsIds() : ArraysCommons.remove(
                         tableViewSetupForm.getSortPositionsIds(), arrayPos);
-                boolean[] sortModes = (arrayPos == -1) ? tableViewSetupForm.getSortingModes() : ArraysCommons.remove(
+                boolean[] sortModes = arrayPos == -1 ? tableViewSetupForm.getSortingModes() : ArraysCommons.remove(
                         tableViewSetupForm.getSortingModes(), arrayPos);
                 batchPresentation.setFieldsToSort(groupFields, sortModes);
                 arrayPos = ArraysCommons.findPosition(tableViewSetupForm.getFieldsToGroupIds(), idx);
-                groupFields = (arrayPos == -1) ? tableViewSetupForm.getFieldsToGroupIds() : ArraysCommons.remove(
+                groupFields = arrayPos == -1 ? tableViewSetupForm.getFieldsToGroupIds() : ArraysCommons.remove(
                         tableViewSetupForm.getFieldsToGroupIds(), arrayPos);
                 batchPresentation.setFieldsToGroup(groupFields);
             }
@@ -153,6 +153,11 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
                 }
             }
         }
+        if (TableViewSetupForm.SHARED_TYPE_SHARED.equals(tableViewSetupForm.getSharedType())) {
+            batchPresentation.setShared(true);
+        } else if (TableViewSetupForm.SHARED_TYPE_NO.equals(tableViewSetupForm.getSharedType())) {
+            batchPresentation.setShared(false);
+        }
     }
 
     public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
@@ -161,7 +166,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
             BatchPresentation batchPresentation = profile.getActiveBatchPresentation(tableViewSetupForm.getBatchPresentationId());
             applyBatchPresentation(batchPresentation, tableViewSetupForm);
-            saveBatchPresentation(request, batchPresentation, tableViewSetupForm, profile);
+            profile = Delegates.getProfileService().saveBatchPresentation(Commons.getUser(request.getSession()), batchPresentation);
             ProfileHttpSessionHelper.setProfile(profile, request.getSession());
         } catch (Exception e) {
             ActionMessages errors = getErrors(request);
@@ -184,7 +189,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             BatchPresentation batchPresentation = sourceBatchPresentation.clone();
             batchPresentation.setName(newName);
             applyBatchPresentation(batchPresentation, tableViewSetupForm);
-            saveBatchPresentation(request, batchPresentation, tableViewSetupForm, profile);
+            profile = Delegates.getProfileService().createBatchPresentation(Commons.getUser(request.getSession()), batchPresentation);
             ProfileHttpSessionHelper.setProfile(profile, request.getSession());
         } catch (Exception e) {
             ActionMessages errors = getErrors(request);
@@ -211,14 +216,4 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
         return new ActionForward(tableViewSetupForm.getReturnAction(), true);
     }
 
-    private void saveBatchPresentation(HttpServletRequest request, BatchPresentation batchPresentation, TableViewSetupForm tableViewSetupForm,
-            Profile profile) throws IllegalArgumentException, IllegalAccessException {
-        User user = Commons.getUser(request.getSession());
-        if (TableViewSetupForm.SHARED_TYPE_SHARED.equals(tableViewSetupForm.getSharedType())) {
-            batchPresentation.setShared(true);
-        } else if (TableViewSetupForm.SHARED_TYPE_NO.equals(tableViewSetupForm.getSharedType())) {
-            batchPresentation.setShared(false);
-        }
-        profile = Delegates.getProfileService().saveBatchPresentation(user, batchPresentation);
-    }
 }
