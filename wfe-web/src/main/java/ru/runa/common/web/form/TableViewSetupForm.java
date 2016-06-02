@@ -55,6 +55,9 @@ public class TableViewSetupForm extends IdsForm {
     public static final String SORTING_FIELD_IDS = "sortingIds";
     public static final String FILTERING_FIELD_IDS = "filteringIds";
     public static final String REMOVABLE_FIELD_IDS = "removableIds";
+    public static final String SHARED_TYPE_NAME = "sharedType";
+    public static final String SHARED_TYPE_NO = "no";
+    public static final String SHARED_TYPE_SHARED = "shared";
 
     private int viewSize;
     private String saveAsBatchPresentationName;
@@ -76,6 +79,8 @@ public class TableViewSetupForm extends IdsForm {
     private Long[] sortingIds;
     private Long[] filteringIds;
     private int[] removableIds;
+
+    private String sharedType;
 
     public void setSortingIds(Long[] ids) {
         sortingIds = ids;
@@ -132,10 +137,8 @@ public class TableViewSetupForm extends IdsForm {
             return new int[0];
         }
         /*
-         * long[] ids = getIds(); // dumb convertion from long[] to int[] int[]
-         * tmpFieldsToFilterIds = new int[fieldsToFilterIds.length]; for (int i
-         * = 0; i < tmpFieldsToFilterIds.length; i++) { tmpFieldsToFilterIds[i]
-         * = (int)ids[fieldsToFilterIds[i]]; } return tmpFieldsToFilterIds;
+         * long[] ids = getIds(); // dumb convertion from long[] to int[] int[] tmpFieldsToFilterIds = new int[fieldsToFilterIds.length]; for (int i =
+         * 0; i < tmpFieldsToFilterIds.length; i++) { tmpFieldsToFilterIds[i] = (int)ids[fieldsToFilterIds[i]]; } return tmpFieldsToFilterIds;
          */
         return fieldsToFilterIds;
     }
@@ -266,8 +269,7 @@ public class TableViewSetupForm extends IdsForm {
     }
 
     /*
-     * Map of types (Integer, String[]) Here Integer - fieldId in class
-     * presentation String[] - filter criterias for field
+     * Map of types (Integer, String[]) Here Integer - fieldId in class presentation String[] - filter criterias for field
      */
     public Map<Integer, String[]> getFieldsToFilterCriteriasMap() {
         Map<Integer, String[]> filterCriterias = new HashMap<Integer, String[]>();
@@ -303,5 +305,13 @@ public class TableViewSetupForm extends IdsForm {
 
     public String[] getEditableFieldsValues() {
         return editableFieldsValues;
+    }
+
+    public void setSharedType(String sharedType) {
+        this.sharedType = sharedType;
+    }
+
+    public String getSharedType() {
+        return sharedType;
     }
 }

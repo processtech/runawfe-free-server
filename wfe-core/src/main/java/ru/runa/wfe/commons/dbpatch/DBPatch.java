@@ -342,4 +342,34 @@ public abstract class DBPatch {
             return this;
         }
     }
+
+    /**
+     * Modify column nullability
+     * 
+     * @param currentSqlTypeName
+     *            current type name, used for MS SQL and MySQL
+     */
+    protected final String getDDLModifyColumnNullable(String tableName, String columnName, boolean nullable, String currentSqlTypeName) {
+        String query;
+        switch (dbType) {
+        case ORACLE:
+            query = "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable == true ? "NULL" : "NOT NULL") + ")";
+            break;
+        case POSTGRESQL:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable == true ? "DROP" : "SET") + " NOT NULL";
+            break;
+        case H2:
+        case HSQL:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        case MYSQL:
+            query = "ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        default:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " "
+                    + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        }
+        return query;
+    }
 }

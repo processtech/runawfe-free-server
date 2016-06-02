@@ -44,6 +44,7 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterFormatException;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Profile;
+import ru.runa.wfe.user.User;
 
 /**
  * Created on 26.01.2005
@@ -158,10 +159,9 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
         TableViewSetupForm tableViewSetupForm = (TableViewSetupForm) form;
         try {
             Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
-            tableViewSetupForm = (TableViewSetupForm) form;
             BatchPresentation batchPresentation = profile.getActiveBatchPresentation(tableViewSetupForm.getBatchPresentationId());
             applyBatchPresentation(batchPresentation, tableViewSetupForm);
-            profile = Delegates.getProfileService().saveBatchPresentation(Commons.getUser(request.getSession()), batchPresentation);
+            saveBatchPresentation(request, batchPresentation, tableViewSetupForm, profile);
             ProfileHttpSessionHelper.setProfile(profile, request.getSession());
         } catch (Exception e) {
             ActionMessages errors = getErrors(request);
@@ -184,7 +184,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             BatchPresentation batchPresentation = sourceBatchPresentation.clone();
             batchPresentation.setName(newName);
             applyBatchPresentation(batchPresentation, tableViewSetupForm);
-            profile = Delegates.getProfileService().createBatchPresentation(Commons.getUser(request.getSession()), batchPresentation);
+            saveBatchPresentation(request, batchPresentation, tableViewSetupForm, profile);
             ProfileHttpSessionHelper.setProfile(profile, request.getSession());
         } catch (Exception e) {
             ActionMessages errors = getErrors(request);
@@ -211,4 +211,14 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
         return new ActionForward(tableViewSetupForm.getReturnAction(), true);
     }
 
+    private void saveBatchPresentation(HttpServletRequest request, BatchPresentation batchPresentation, TableViewSetupForm tableViewSetupForm,
+            Profile profile) throws IllegalArgumentException, IllegalAccessException {
+        User user = Commons.getUser(request.getSession());
+        if (TableViewSetupForm.SHARED_TYPE_SHARED.equals(tableViewSetupForm.getSharedType())) {
+            batchPresentation.setShared(true);
+        } else if (TableViewSetupForm.SHARED_TYPE_NO.equals(tableViewSetupForm.getSharedType())) {
+            batchPresentation.setShared(false);
+        }
+        profile = Delegates.getProfileService().saveBatchPresentation(user, batchPresentation);
+    }
 }
