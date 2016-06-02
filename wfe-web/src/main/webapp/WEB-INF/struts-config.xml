@@ -684,6 +684,14 @@
 			<forward name="failure" path="/update_process_variables.do"
 				redirect="false" />
 		</action>
+		<action path="/updateProcessSwimlane"
+			type="ru.runa.wf.web.action.UpdateProcessSwimlaneAction" name="commonProcessForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process.do"
+				redirect="true" />
+			<forward name="failure" path="/update_process_swimlanes.do"
+				redirect="false" />
+		</action>
 		<action path="/setViewPage" type="ru.runa.wf.web.action.SetViewPageAction"
 			name="pagingForm" scope="request" unknown="false" validate="false">
 		</action>
@@ -927,6 +935,9 @@
 		
 		<action path="/update_process_variables" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/update_process_variables_value.jsp" />
+		
+		<action path="/update_process_swimlanes" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/update_process_swimlanes.jsp" />
 	</action-mappings>
 
 	<controller contentType="text/html; charset=UTF-8" nocache="true"
