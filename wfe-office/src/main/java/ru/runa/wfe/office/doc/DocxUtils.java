@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
@@ -44,6 +46,8 @@ public class DocxUtils {
     private static final String GROOVY = "groovy:";
     private static final String LINE_DELIMITER = "\n";
     private static final String ITERATOR_NAME_DELIMITER = " as ";
+    private static final Pattern STRIP_HTML_TAGS_PATTERN = Pattern.compile("<.+?>");
+
     public static final String PLACEHOLDER_START = OfficeProperties.getDocxPlaceholderStart();
     public static final String PLACEHOLDER_END = OfficeProperties.getDocxPlaceholderEnd();
     public static final String CLOSING_PLACEHOLDER_START = PLACEHOLDER_START + "/";
@@ -167,63 +171,68 @@ public class DocxUtils {
                 return executor.evaluateScript(variableProvider, script);
             }
             value = variableProvider.getValue(selector);
-            if (value != null) {
-                return value;
-            }
         }
-        StringTokenizer tokenizer = new StringTokenizer(selector, "\\.");
-        while (tokenizer.hasMoreTokens()) {
-            String variableName = tokenizer.nextToken();
-            String keyName = null;
-            int elementStartIndex = variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
-            if (elementStartIndex > 0 && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
-                keyName = variableName.substring(elementStartIndex + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(),
-                        variableName.length() - VariableFormatContainer.COMPONENT_QUALIFIER_END.length());
-                variableName = variableName.substring(0, elementStartIndex);
-            }
-            if (value == null) {
-                value = variableProvider.getValue(variableName);
-            } else {
-                if (value instanceof Map) {
-                    value = ((Map<?, ?>) value).get(variableName);
-                } else {
-                    try {
-                        value = PropertyUtils.getProperty(value, variableName);
-                    } catch (Exception e) {
-                        config.reportProblem(e);
-                    }
+        if (value == null) {
+            StringTokenizer tokenizer = new StringTokenizer(selector, "\\.");
+            while (tokenizer.hasMoreTokens()) {
+                String variableName = tokenizer.nextToken();
+                String keyName = null;
+                int elementStartIndex = variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
+                if (elementStartIndex > 0 && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
+                    keyName = variableName.substring(elementStartIndex + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(),
+                            variableName.length() - VariableFormatContainer.COMPONENT_QUALIFIER_END.length());
+                    variableName = variableName.substring(0, elementStartIndex);
                 }
-            }
-            if (value == null) {
-                // TODO? config.reportProblem("returning null for " + selector +
-                // " at stage " + variableName);
-                return null;
-            }
-            if (keyName != null) {
-                if (value instanceof Map) {
-                    Object key = variableProvider.getValue(keyName);
-                    if (key == null) {
-                        key = keyName;
-                        if (keyName.startsWith("\"") && keyName.endsWith("\"")) {
-                            key = keyName.substring(1, keyName.length() - 1);
+                if (value == null) {
+                    value = variableProvider.getValue(variableName);
+                } else {
+                    if (value instanceof Map) {
+                        value = ((Map<?, ?>) value).get(variableName);
+                    } else {
+                        try {
+                            value = PropertyUtils.getProperty(value, variableName);
+                        } catch (Exception e) {
+                            config.reportProblem(e);
                         }
                     }
-                    value = ((Map<?, ?>) value).get(key);
-                } else if (value instanceof List) {
-                    Integer index;
-                    try {
-                        index = Integer.parseInt(keyName);
-                    } catch (Exception e) {
-                        index = variableProvider.getValue(Integer.class, keyName);
+                }
+                if (value == null) {
+                    // TODO? config.reportProblem("returning null for " +
+                    // selector +
+                    // " at stage " + variableName);
+                    return null;
+                }
+                if (keyName != null) {
+                    if (value instanceof Map) {
+                        Object key = variableProvider.getValue(keyName);
+                        if (key == null) {
+                            key = keyName;
+                            if (keyName.startsWith("\"") && keyName.endsWith("\"")) {
+                                key = keyName.substring(1, keyName.length() - 1);
+                            }
+                        }
+                        value = ((Map<?, ?>) value).get(key);
+                    } else if (value instanceof List) {
+                        Integer index;
+                        try {
+                            index = Integer.parseInt(keyName);
+                        } catch (Exception e) {
+                            index = variableProvider.getValue(Integer.class, keyName);
+                        }
+                        if (index == null) {
+                            config.reportProblem("Null index for " + keyName);
+                        }
+                        value = TypeConversionUtil.getListValue(value, index);
+                    } else {
+                        config.reportProblem("Unable to get element '" + keyName + "' value from " + value);
                     }
-                    if (index == null) {
-                        config.reportProblem("Null index for " + keyName);
-                    }
-                    value = TypeConversionUtil.getListValue(value, index);
-                } else {
-                    config.reportProblem("Unable to get element '" + keyName + "' value from " + value);
                 }
             }
+        }
+        if (value instanceof String) {
+            value = ((String) value).replaceAll(Pattern.quote("</p>"), "\n");
+            Matcher m = STRIP_HTML_TAGS_PATTERN.matcher((String) value);
+            return m.replaceAll("");
         }
         return value;
     }
@@ -481,7 +490,9 @@ public class DocxUtils {
 
     private static class PlaceholderMatch {
         enum Status {
-            MOVE_NEW_RUN, MOVE_NEXT_RUN, COMPLETED
+            MOVE_NEW_RUN,
+            MOVE_NEXT_RUN,
+            COMPLETED
         }
 
         final char[] placeholderChars;
