@@ -32,10 +32,6 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="updateProcessSwimlanes.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
 		<property title="scriptingServiceAPI.executeGroovyScript.enabled">
 			<value>true</value>
 			<value>false</value>
@@ -186,6 +182,10 @@
 			<value>false</value>
 		</property>
 		<property title="task.delegation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="process.swimlane.assignment.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>

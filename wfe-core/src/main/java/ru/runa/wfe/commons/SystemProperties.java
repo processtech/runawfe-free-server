@@ -110,14 +110,6 @@ public class SystemProperties {
         return RESOURCES.getIntegerProperty("file.variable.local.storage.enableforfilesgreaterthan", 100000);
     }
 
-    public static boolean isUpdateVariablesEnabled() {
-        return RESOURCES.getBooleanProperty("executionServiceAPI.updateVariables.enabled", false);
-    }
-
-    public static boolean isUpdateProcessSwimlanesEnabled() {
-        return RESOURCES.getBooleanProperty("updateProcessSwimlanes.enabled", false);
-    }
-
     public static String getStrongPasswordsRegexp() {
         return RESOURCES.getStringProperty("strong.passwords.regexp");
     }
@@ -147,7 +139,8 @@ public class SystemProperties {
     }
 
     /**
-     * ORA-24816: Expanded non LONG bind data supplied after actual LONG or LOB column (if string length > 1000)
+     * ORA-24816: Expanded non LONG bind data supplied after actual LONG or LOB
+     * column (if string length > 1000)
      */
     public static int getLogMaxAttributeValueLength() {
         return RESOURCES.getIntegerProperty("log.attribute.max.length", 512);

@@ -30,7 +30,7 @@ import com.google.common.base.Strings;
 
 /**
  * Created on 30.09.2004
- * 
+ *
  */
 public class WebResources {
     private static final PropertyResources RESOURCES = new PropertyResources("web.properties");
@@ -180,6 +180,10 @@ public class WebResources {
 
     public static boolean isProcessRemovalEnabled() {
         return RESOURCES.getBooleanProperty("process.removal.enabled", false);
+    }
+
+    public static boolean isUpdateProcessSwimlanesEnabled() {
+        return RESOURCES.getBooleanProperty("process.swimlane.assignment.enabled", false);
     }
 
 }
