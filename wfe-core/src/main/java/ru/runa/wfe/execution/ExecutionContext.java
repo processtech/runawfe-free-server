@@ -168,7 +168,7 @@ public class ExecutionContext {
             SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
                 Swimlane swimlane = getProcess().getSwimlane(swimlaneDefinition.getName());
-                return new WfVariable(name, swimlane != null ? swimlane.getExecutor() : null);
+                return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
         }
         WfVariable variable = variableDAO.getVariable(getProcessDefinition(), getProcess(), name);
