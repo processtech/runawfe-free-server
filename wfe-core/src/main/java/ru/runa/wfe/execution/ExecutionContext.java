@@ -228,7 +228,7 @@ public class ExecutionContext {
 
     /**
      * TODO old
-     * 
+     *
      * @return the variable value with the given name.
      */
     public Object getVariableValue(String name) {
@@ -356,7 +356,7 @@ public class ExecutionContext {
             variable.setValue(this, value, variableDefinition.getFormatNotNull());
         }
         if (DateTimeFormat.class.getName().equals(variableDefinition.getFormatClassName())
-            || DateFormat.class.getName().equals(variableDefinition.getFormatClassName())) {
+                || DateFormat.class.getName().equals(variableDefinition.getFormatClassName())) {
             updateRelatedObjects(variableDefinition, value);
         }
     }
@@ -365,7 +365,7 @@ public class ExecutionContext {
         // Проверяем сроки выполнения задач
         List<Task> taskList = taskDAO.findTasks(getProcess());
         for (Task task : taskList) {
-            if (task.getDeadlineDateExpression().contains(variableDefinition.getName())) {
+            if (task.getDeadlineDateExpression() != null && task.getDeadlineDateExpression().contains(variableDefinition.getName())) {
                 task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
                 log.info("DeadLineDate for Task [id=" + task.getId() + "; name=" + task.getName() + "] has been changed");
             }
@@ -373,8 +373,8 @@ public class ExecutionContext {
         // Проверяем таймеры ( включая таймеры эскалации)
         List<Job> jobList = jobDAO.findByProcess(getProcess());
         for (Job job : jobList) {
-            if (job.getDueDate().compareTo(new Date()) <= 0  && job instanceof Timer) {
-                Timer timer = (Timer)job;
+            if (job.getDueDate().compareTo(new Date()) <= 0 && job instanceof Timer) {
+                Timer timer = (Timer) job;
                 if (timer.getDueDateExpression().contains(variableDefinition.getName())) {
                     timer.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), timer.getDueDateExpression()));
                     jobDAO.update(timer);
@@ -386,7 +386,8 @@ public class ExecutionContext {
     }
 
     /**
-     * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
+     * Adds all the given variables. It doesn't remove any existing variables
+     * unless they are overwritten by the given variables.
      */
     public void setVariableValues(Map<String, Object> variables) {
         for (Map.Entry<String, Object> entry : variables.entrySet()) {
