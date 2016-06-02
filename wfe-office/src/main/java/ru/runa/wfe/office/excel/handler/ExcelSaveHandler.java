@@ -40,7 +40,7 @@ public class ExcelSaveHandler extends OfficeFilesSupplierHandler<ExcelBindings> 
                 log.warn("Omitted binding as variable was null: " + binding.getVariableName());
             }
         }
-        dataStore.saveWorkbook(workbook, config.getFileOutputStream(result, true));
+        dataStore.saveWorkbook(workbook, config.getFileOutputStream(result, variableProvider, true));
         return result;
     }
 

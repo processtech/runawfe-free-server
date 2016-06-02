@@ -8,6 +8,7 @@ import java.util.Map;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -22,7 +23,6 @@ public class ValidationXmlParser {
     private static final String GLOBAL_VALIDATOR_ELEMENT_NAME = "validator";
     private static final String NAME_ATTRIBUTE_NAME = "name";
     private static final String TYPE_ATTRIBUTE_NAME = "type";
-    private static final String REQUIRED_VALIDATOR_NAME = "required";
     private static final String TRANSITION_CONTEXT_ELEMENT_NAME = "transition-context";
     private static final String TRANSITION_NAME_ELEMENT_NAME = "on";
     private static final String MESSAGE_ELEMENT_NAME = "message";
@@ -48,12 +48,13 @@ public class ValidationXmlParser {
             Document document = XmlUtils.parseWithoutValidation(xmlFileBytes);
             List<Element> fieldElements = document.getRootElement().elements(FIELD_ELEMENT_NAME);
             List<String> variableNames = new ArrayList<String>(fieldElements.size());
+            List<String> requiredValidatorNames = SystemProperties.getRequiredValidatorNames();
             for (Element fieldElement : fieldElements) {
                 String variableName = fieldElement.attributeValue(NAME_ATTRIBUTE_NAME);
                 List<Element> validatorElements = fieldElement.elements(FIELD_VALIDATOR_ELEMENT_NAME);
                 for (Element validatorElement : validatorElements) {
                     String typeName = validatorElement.attributeValue(TYPE_ATTRIBUTE_NAME);
-                    if (REQUIRED_VALIDATOR_NAME.equals(typeName)) {
+                    if (requiredValidatorNames.contains(typeName)) {
                         if (validatorElement.element(TRANSITION_CONTEXT_ELEMENT_NAME) == null) {
                             variableNames.add(variableName);
                         }

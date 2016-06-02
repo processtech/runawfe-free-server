@@ -238,6 +238,10 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("base.process.id.variable.name");
     }
 
+    public static String getBaseProcessIdMappingVariablePrefix() {
+        return RESOURCES.getStringProperty("base.process.id.mapping.variable.prefix");
+    }
+
     public static int getDatabaseParametersCount() {
         return RESOURCES.getIntegerProperty("database.parameters.count", 900);
     }
@@ -274,4 +278,7 @@ public class SystemProperties {
         return processExecutionListeners;
     }
 
+    public static List<String> getRequiredValidatorNames() {
+        return RESOURCES.getMultipleStringProperty("required.validator.names");
+    }
 }

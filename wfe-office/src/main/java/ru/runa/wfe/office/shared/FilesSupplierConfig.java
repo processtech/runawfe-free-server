@@ -111,9 +111,10 @@ public abstract class FilesSupplierConfig {
         throw new InternalApplicationException("Variable '" + inputFileVariableName + "' should contains a file");
     }
 
-    public OutputStream getFileOutputStream(Map<String, Object> outputVariables, boolean required) {
+    public OutputStream getFileOutputStream(Map<String, Object> outputVariables, IVariableProvider variableProvider, boolean required) {
+        final String outputFileName = ExpressionEvaluator.process(null, getOutputFileName(), variableProvider, null);
         if (outputFileVariableName != null) {
-            FileVariable fileVariable = new FileVariable(getOutputFileName(), getContentType().toString());
+            FileVariable fileVariable = new FileVariable(outputFileName, getContentType().toString());
             outputVariables.put(outputFileVariableName, fileVariable);
             return new FileVariableOutputStream(fileVariable);
         }
@@ -125,7 +126,7 @@ public abstract class FilesSupplierConfig {
             if (!dir.exists() || !dir.isDirectory()) {
                 throw new InternalApplicationException("Unable to locate output directory '" + outputDirPath + "'");
             }
-            File file = new File(dir, getOutputFileName());
+            File file = new File(dir, outputFileName);
             if (!file.exists()) {
                 try {
                     file.createNewFile();

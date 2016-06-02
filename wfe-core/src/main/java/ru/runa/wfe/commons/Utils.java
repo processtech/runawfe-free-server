@@ -160,7 +160,7 @@ public class Utils {
             ObjectMessage message = session.createObjectMessage(config);
             sender.send(message);
             sender.close();
-            log.info("email request sent: " + (config.getMessageId() != null ? config.getMessageId() : message));
+            log.info("email request sent: " + message);
             return message;
         } catch (Exception e) {
             throw Throwables.propagate(e);

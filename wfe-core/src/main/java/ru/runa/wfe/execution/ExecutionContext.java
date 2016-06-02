@@ -194,6 +194,22 @@ public class ExecutionContext {
         if (baseProcessIdVariableName != null && processDefinition.getVariable(baseProcessIdVariableName, false) != null) {
             WfVariable baseProcessIdVariable = variableDAO.getVariable(processDefinition, process, baseProcessIdVariableName);
             if (baseProcessIdVariable != null && baseProcessIdVariable.getValue() != null) {
+                String baseProcessIdMappingVariablePrefix = SystemProperties.getBaseProcessIdMappingVariablePrefix();
+                if (baseProcessIdMappingVariablePrefix != null) {
+                    String baseMappingVariableName = name;
+                    String userTypeAttributeName = "";
+                    int userTypeAttributeNameStartIndex = name.indexOf(UserType.DELIM);
+                    if (userTypeAttributeNameStartIndex != -1) {
+                        userTypeAttributeName = name.substring(userTypeAttributeNameStartIndex);
+                        baseMappingVariableName = name.substring(0, userTypeAttributeNameStartIndex);
+                    }
+                    String baseProcessIdMappingVariableName = baseProcessIdMappingVariablePrefix + " " + baseMappingVariableName;
+                    WfVariable baseProcessIdMappingVariable = variableDAO.getVariable(processDefinition, process, baseProcessIdMappingVariableName);
+                    if (baseProcessIdMappingVariable != null && baseProcessIdMappingVariable.getValue() != null) {
+                        log.debug("Mapping rule '" + baseMappingVariableName + "' -> '" + baseProcessIdMappingVariable.getValue() + "'");
+                        name = (String) baseProcessIdMappingVariable.getValue() + userTypeAttributeName;
+                    }
+                }
                 log.debug("Loading variable '" + name + "' from process '" + baseProcessIdVariable.getValue() + "'");
                 Process baseProcess = processDAO.getNotNull((Long) baseProcessIdVariable.getValue());
                 ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
