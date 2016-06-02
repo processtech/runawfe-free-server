@@ -22,6 +22,7 @@ package ru.runa.wfe.task;
 
 import java.util.Date;
 
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -61,13 +62,13 @@ public class TaskClassPresentation extends ClassPresentation {
         super(Task.class, "", false, new FieldDescriptor[] {
                 // display name field type DB source isSort filter mode
                 // get value/show in web getter parameters
-                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Task.class, "name"), true, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Task.class, "name"), true, 3, BatchPresentationConsts.ASC,
+                		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new SubstringDBSource(Task.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDescriptionTDBuilder", new Object[] {}),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDBSource(Task.class, "process.deployment.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessDefinitionTDBuilder", new Object[] {}),
-                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDBSource(Task.class, "process.id"), true,
+                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDBSource(Task.class, "process.id"), true, 2, BatchPresentationConsts.ASC,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskProcessIdTDBuilder", new Object[] {}),
                 new FieldDescriptor(OWNER, Executor.class.getName(), new DefaultDBSource(Task.class, "executor"), true, FieldFilterMode.NONE,
                         "ru.runa.wf.web.html.TaskOwnerTDBuilder", new Object[] {}),
@@ -75,7 +76,7 @@ public class TaskClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskVariableTDBuilder", new Object[] {}, true),
-                new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDBSource(Task.class, "deadlineDate"), true,
+                new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDBSource(Task.class, "deadlineDate"), true, 1, BatchPresentationConsts.DSC,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDeadlineTDBuilder", new Object[] {}) });
     }
 

@@ -19,6 +19,7 @@ package ru.runa.wfe.definition;
 
 import java.util.Date;
 
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -48,8 +49,8 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                 new FieldDescriptor[] {
                         // display name field type DB source isSort filter mode
                         // get value/show in web getter parameters
-                        new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
+                        new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), true, 2,
+                    BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
                                         DefinitionPermission.START_PROCESS, "name" }),
                         new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDBSource(Deployment.class, "version"), true,
                                 FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { DefinitionPermission.READ,
