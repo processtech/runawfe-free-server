@@ -17,7 +17,7 @@ import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.report.web.MessagesReport;
-import ru.runa.report.web.action.AnalizeReportAction;
+import ru.runa.report.web.action.AnalyzeReportAction;
 import ru.runa.report.web.form.DeployReportForm;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.report.ReportParameterType;
@@ -107,11 +107,11 @@ public abstract class BaseReportFormTag extends TitledFormTag {
     protected void createSelectJasperFileTable(TD tdFormElement, String[] entityType) {
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
-        String name = (String) pageContext.getRequest().getAttribute(AnalizeReportAction.REPORT_NAME_PARAM);
-        Input reportName = HTMLUtils.createInput(AnalizeReportAction.REPORT_NAME_PARAM, name == null ? "" : name);
+        String name = (String) pageContext.getRequest().getAttribute(AnalyzeReportAction.REPORT_NAME_PARAM);
+        Input reportName = HTMLUtils.createInput(AnalyzeReportAction.REPORT_NAME_PARAM, name == null ? "" : name);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_NAME.message(pageContext), reportName));
-        String description = (String) pageContext.getRequest().getAttribute(AnalizeReportAction.REPORT_DESCRIPTION_PARAM);
-        Input reportDescription = HTMLUtils.createInput(AnalizeReportAction.REPORT_DESCRIPTION_PARAM, description == null ? "" : description);
+        String description = (String) pageContext.getRequest().getAttribute(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM);
+        Input reportDescription = HTMLUtils.createInput(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM, description == null ? "" : description);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_DESCRIPTION.message(pageContext), reportDescription));
         String fileInput = ViewUtil.getFileInput(new StrutsWebHelper(pageContext), FileForm.FILE_INPUT_NAME, false);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_FILE.message(pageContext), new TD(fileInput)));

@@ -31,7 +31,7 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.report.web.MessagesReport;
-import ru.runa.report.web.action.AnalizeReportAction;
+import ru.runa.report.web.action.AnalyzeReportAction;
 import ru.runa.report.web.action.RedeployReportAction;
 import ru.runa.wfe.report.dto.ReportDto;
 import ru.runa.wfe.report.dto.ReportParameterDto;
@@ -60,8 +60,8 @@ public class ManageReportFormTag extends BaseReportFormTag {
         if (parameters == null) {
             ReportDto report = Delegates.getReportService().getReportDefinition(getUser(), reportId);
             parameters = report.getParameters();
-            request.setAttribute(AnalizeReportAction.REPORT_NAME_PARAM, report.getName());
-            request.setAttribute(AnalizeReportAction.REPORT_DESCRIPTION_PARAM, report.getDescription());
+            request.setAttribute(AnalyzeReportAction.REPORT_NAME_PARAM, report.getName());
+            request.setAttribute(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM, report.getDescription());
             CategoriesSelectUtils.saveAsAttribute(request, "", report.getCategory());
             request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, parameters);
         }

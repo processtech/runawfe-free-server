@@ -30,7 +30,6 @@ public class CreateReportsTables extends DBPatch {
     @Override
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesBefore();
-
         sql.addAll(createReportParametersTable());
         sql.addAll(createReportsTable());
         sql.add(getDDLCreateForeignKey("REPORT_PARAMETER", "FK_REPORT_PARAMETER_REPORT", "REPORT_ID", "REPORT", "ID"));
@@ -54,9 +53,7 @@ public class CreateReportsTables extends DBPatch {
         columns.add(new ColumnDef("INNER_NAME", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
         columns.add(new ColumnDef("REQUIRED", dialect.getTypeName(Types.BIT), false));
         sql.add(getDDLCreateTable("REPORT_PARAMETER", columns, null));
-
         sql.add(getDDLCreateSequence("SEQ_REPORT_PARAMETER"));
-
         sql.add(getDDLCreateIndex("REPORT_PARAMETER", "IX_PARAMETER_REPORT_ID", "REPORT_ID"));
         return sql;
     }
@@ -77,14 +74,10 @@ public class CreateReportsTables extends DBPatch {
         columns.add(new ColumnDef("DESCRIPTION", dialect.getTypeName(Types.VARCHAR, 2048, 2048, 2048), true));
         int fileLength = 128 * 1024 * 1024;
         columns.add(new ColumnDef("COMPILED_REPORT", dialect.getTypeName(Types.VARBINARY, fileLength, fileLength, fileLength), false));
-        columns.add(new ColumnDef("JAR_FILE", dialect.getTypeName(Types.VARBINARY, fileLength, fileLength, fileLength), true));
-        columns.add(new ColumnDef("PARAM_BUILDER_NAME", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true));
         columns.add(new ColumnDef("CONFIG_TYPE", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
         columns.add(new ColumnDef("CATEGORY", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true));
         sql.add(getDDLCreateTable("REPORT", columns, null));
-
         sql.add(getDDLCreateSequence("SEQ_REPORT"));
-
         sql.add(getDDLCreateUniqueKey("REPORT", "IX_REPORT_NAME", "NAME"));
         return sql;
     }

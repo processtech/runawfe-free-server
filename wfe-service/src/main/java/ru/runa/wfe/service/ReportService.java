@@ -12,7 +12,7 @@ public interface ReportService {
 
     /**
      * Load all report definitions according to batch presentation.
-     * 
+     *
      * @param user
      *            User, requested reports.
      * @param batchPresentation
@@ -25,7 +25,7 @@ public interface ReportService {
 
     /**
      * Load report definition by id.
-     * 
+     *
      * @param user
      *            User, requested report
      * @param id
@@ -35,19 +35,20 @@ public interface ReportService {
     ReportDto getReportDefinition(User user, Long id);
 
     /**
-     * Analize report definition and returns list of report parameters.
-     * 
+     * Analyzes report definition and returns list of report parameters.
+     *
      * @param report
-     *            Report dto. It will be used to load currently loaded report parameters.
+     *            Report dto. It will be used to load currently loaded report
+     *            parameters.
      * @param reportFileContent
      *            Report file content (jasper file).
      * @return
      */
-    List<ReportParameterDto> analizeReportFile(ReportDto report, byte[] reportFileContent);
+    List<ReportParameterDto> analyzeReportFile(ReportDto report, byte[] reportFileContent);
 
     /**
      * Deploy report definition to system.
-     * 
+     *
      * @param user
      *            User, which deploy report.
      * @param report
@@ -59,7 +60,7 @@ public interface ReportService {
 
     /**
      * Redeploy report definition to system.
-     * 
+     *
      * @param user
      *            User, which redeploy report.
      * @param report
@@ -71,7 +72,7 @@ public interface ReportService {
 
     /**
      * Undeploy report definition.
-     * 
+     *
      * @param user
      *            User, which undeploy report.
      * @param reportId

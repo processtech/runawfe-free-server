@@ -58,10 +58,10 @@ public abstract class BaseDeployReportAction extends ActionBase {
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         DeployReportForm deployForm = (DeployReportForm) form;
         try {
-            String reportName = request.getParameter(AnalizeReportAction.REPORT_NAME_PARAM);
-            request.setAttribute(AnalizeReportAction.REPORT_NAME_PARAM, reportName);
-            String reportDescription = request.getParameter(AnalizeReportAction.REPORT_DESCRIPTION_PARAM);
-            request.setAttribute(AnalizeReportAction.REPORT_DESCRIPTION_PARAM, reportDescription);
+            String reportName = request.getParameter(AnalyzeReportAction.REPORT_NAME_PARAM);
+            request.setAttribute(AnalyzeReportAction.REPORT_NAME_PARAM, reportName);
+            String reportDescription = request.getParameter(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM);
+            request.setAttribute(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM, reportDescription);
             List<ReportParameterDto> parameters = getReportParameters(deployForm);
             request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, parameters);
             if (Strings.isNullOrEmpty(reportName)) {

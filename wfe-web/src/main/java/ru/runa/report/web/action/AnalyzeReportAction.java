@@ -43,14 +43,14 @@ import com.google.common.base.Strings;
 /**
  * Created on 06.10.2004
  *
- * @struts:action path="/analizeReport" name="fileForm" validate="false"
+ * @struts:action path="/analyzeReport" name="fileForm" validate="false"
  * @struts.action-forward name="success" path="/deploy_report.do" redirect =
  *                        "false"
  * @struts.action-forward name="failure" path="/deploy_report.do" redirect =
  *                        "false"
  */
-public class AnalizeReportAction extends ActionBase {
-    public static final String ACTION_PATH = "/analizeReport";
+public class AnalyzeReportAction extends ActionBase {
+    public static final String ACTION_PATH = "/analyzeReport";
 
     public static final String REPORT_NAME_PARAM = "reportName";
     public static final String REPORT_DESCRIPTION_PARAM = "reportDescription";
@@ -72,7 +72,7 @@ public class AnalizeReportAction extends ActionBase {
             byte[] reportFileContent = uploadedParFiles.values().iterator().next().getContent();
             ReportDto report = new ReportDto();
             report.setName(reportName);
-            List<ReportParameterDto> reportParameters = Delegates.getReportService().analizeReportFile(report, reportFileContent);
+            List<ReportParameterDto> reportParameters = Delegates.getReportService().analyzeReportFile(report, reportFileContent);
             request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, reportParameters);
             return mapping.findForward(Resources.FORWARD_SUCCESS);
         } catch (Exception e) {

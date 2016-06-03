@@ -63,21 +63,6 @@ public class ReportDefinition {
     private ReportConfigurationType configType;
 
     /**
-     * Содержимое JAR файла, требуемого для построения отчета. Используется для
-     * построения отчетов с типом конфигурации
-     * {@link ReportConfigurationType.PARAMETER_BUILDER}.
-     */
-    private byte[] jarFile;
-
-    /**
-     * Название класса, реализующего интерфейс {@link ReportParametersBuilder} и
-     * используемого для заполнения параметров отчета. Используется для
-     * построения отчетов с типом конфигурации
-     * {@link ReportConfigurationType.PARAMETER_BUILDER}.
-     */
-    private String parameterBuilderClassName;
-
-    /**
      * Категория (тип) отчета.
      */
     private String category;
@@ -159,25 +144,6 @@ public class ReportDefinition {
         this.compiledReport = compiledReport;
     }
 
-    @Lob
-    @Column(name = "JAR_FILE", nullable = true, length = 128 * 1024 * 1024)
-    public byte[] getJarFile() {
-        return jarFile;
-    }
-
-    public void setJarFile(byte[] jarFile) {
-        this.jarFile = jarFile;
-    }
-
-    @Column(name = "PARAM_BUILDER_NAME", length = 1024, nullable = true)
-    public String getParameterBuilderClassName() {
-        return parameterBuilderClassName;
-    }
-
-    public void setParameterBuilderClassName(String parameterBuilderClassName) {
-        this.parameterBuilderClassName = parameterBuilderClassName;
-    }
-
     @Column(name = "CONFIG_TYPE", length = 1024, nullable = false)
     @Enumerated(EnumType.STRING)
     public ReportConfigurationType getConfigType() {
@@ -211,9 +177,7 @@ public class ReportDefinition {
         this.compiledReport = reportDefinition.compiledReport;
         this.configType = reportDefinition.configType;
         this.description = reportDefinition.description;
-        this.jarFile = reportDefinition.jarFile;
         this.name = reportDefinition.name;
-        this.parameterBuilderClassName = reportDefinition.parameterBuilderClassName;
         this.parameters.clear();
         this.parameters.addAll(reportDefinition.getParameters());
     }
