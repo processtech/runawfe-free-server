@@ -17,7 +17,7 @@ public class AddBatchPresentationIsSharedPatch extends DBPatch {
 
     @Override
     protected void applyPatch(Session session) throws Exception {
-        session.createSQLQuery("UPDATE BATCH_PRESENTATION SET SHARED = FALSE").executeUpdate();
+        session.createSQLQuery("UPDATE BATCH_PRESENTATION SET SHARED = 0").executeUpdate();
     }
 
     @Override
