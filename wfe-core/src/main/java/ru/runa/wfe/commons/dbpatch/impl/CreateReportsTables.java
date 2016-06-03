@@ -48,9 +48,9 @@ public class CreateReportsTables extends DBPatch {
         id.setPrimaryKey();
         columns.add(id);
         columns.add(new ColumnDef("REPORT_ID", Types.BIGINT, false));
-        columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
-        columns.add(new ColumnDef("TYPE", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
-        columns.add(new ColumnDef("INNER_NAME", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
+        columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
+        columns.add(new ColumnDef("TYPE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
+        columns.add(new ColumnDef("INNER_NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("REQUIRED", dialect.getTypeName(Types.BIT), false));
         sql.add(getDDLCreateTable("REPORT_PARAMETER", columns, null));
         sql.add(getDDLCreateSequence("SEQ_REPORT_PARAMETER"));
@@ -70,12 +70,12 @@ public class CreateReportsTables extends DBPatch {
         id.setPrimaryKey();
         columns.add(id);
         columns.add(new ColumnDef("VERSION", Types.BIGINT, false));
-        columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
+        columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("DESCRIPTION", dialect.getTypeName(Types.VARCHAR, 2048, 2048, 2048), true));
         int fileLength = 128 * 1024 * 1024;
         columns.add(new ColumnDef("COMPILED_REPORT", dialect.getTypeName(Types.VARBINARY, fileLength, fileLength, fileLength), false));
-        columns.add(new ColumnDef("CONFIG_TYPE", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
-        columns.add(new ColumnDef("CATEGORY", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true));
+        columns.add(new ColumnDef("CONFIG_TYPE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
+        columns.add(new ColumnDef("CATEGORY", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true));
         sql.add(getDDLCreateTable("REPORT", columns, null));
         sql.add(getDDLCreateSequence("SEQ_REPORT"));
         sql.add(getDDLCreateUniqueKey("REPORT", "IX_REPORT_NAME", "NAME"));
