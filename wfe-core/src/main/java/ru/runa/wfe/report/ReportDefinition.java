@@ -47,7 +47,8 @@ public class ReportDefinition {
     private String description;
 
     /**
-     * Набор параметров, которые требуется запросить у пользователя для построения отчета.
+     * Набор параметров, которые требуется запросить у пользователя для
+     * построения отчета.
      */
     private List<ReportParameter> parameters;
 
@@ -62,14 +63,17 @@ public class ReportDefinition {
     private ReportConfigurationType configType;
 
     /**
-     * Содержимое JAR файла, требуемого для построения отчета. Используется для построения отчетов с типом конфигурации
+     * Содержимое JAR файла, требуемого для построения отчета. Используется для
+     * построения отчетов с типом конфигурации
      * {@link ReportConfigurationType.PARAMETER_BUILDER}.
      */
     private byte[] jarFile;
 
     /**
-     * Название класса, реализующего интерфейс {@link ReportParametersBuilder} и используемого для заполнения параметров отчета. Используется для
-     * построения отчетов с типом конфигурации {@link ReportConfigurationType.PARAMETER_BUILDER}.
+     * Название класса, реализующего интерфейс {@link ReportParametersBuilder} и
+     * используемого для заполнения параметров отчета. Используется для
+     * построения отчетов с типом конфигурации
+     * {@link ReportConfigurationType.PARAMETER_BUILDER}.
      */
     private String parameterBuilderClassName;
 
@@ -184,7 +188,7 @@ public class ReportDefinition {
         this.configType = reportConfigType;
     }
 
-    @Column(name = "CATEGORY", length = 1024, nullable = false)
+    @Column(name = "CATEGORY", length = 1024)
     public String getCategory() {
         return category;
     }

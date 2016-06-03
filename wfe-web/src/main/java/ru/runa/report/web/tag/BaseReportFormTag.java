@@ -11,7 +11,7 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.HierarchyTypeSelectUtils;
+import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.form.FileForm;
@@ -116,7 +116,7 @@ public abstract class BaseReportFormTag extends TitledFormTag {
         String fileInput = ViewUtil.getFileInput(new StrutsWebHelper(pageContext), FileForm.FILE_INPUT_NAME, false);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_FILE.message(pageContext), new TD(fileInput)));
         ReportTypesIterator iterator = new ReportTypesIterator(getUser());
-        TD hierarchyType = HierarchyTypeSelectUtils.createHierarchyTypeSelectTD(iterator, entityType, pageContext);
+        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, entityType, pageContext);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_TYPE.message(pageContext), hierarchyType));
         tdFormElement.addElement(table);
     }

@@ -28,7 +28,7 @@ import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.HierarchyTypeSelectUtils;
+import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.report.web.MessagesReport;
 import ru.runa.report.web.action.AnalizeReportAction;
@@ -62,7 +62,7 @@ public class ManageReportFormTag extends BaseReportFormTag {
             parameters = report.getParameters();
             request.setAttribute(AnalizeReportAction.REPORT_NAME_PARAM, report.getName());
             request.setAttribute(AnalizeReportAction.REPORT_DESCRIPTION_PARAM, report.getDescription());
-            HierarchyTypeSelectUtils.saveTypeAsAttribute(request, "", report.getCategory());
+            CategoriesSelectUtils.saveAsAttribute(request, "", report.getCategory());
             request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, parameters);
         }
 

@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web;
@@ -24,17 +24,17 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class HierarchyTypesIterator implements Iterator<String[]> {
+public class CategoriesIterator implements Iterator<String[]> {
 
-    private final List<String[]> processTypes = new ArrayList<String[]>();
+    private final List<String[]> categories = new ArrayList<String[]>();
 
     private int curIdx = 0;
 
-    public HierarchyTypesIterator(List<String[]> types) {
-        SortedSet<String[]> processTypesSet = new TreeSet<String[]>(new Comparator<String[]>() {
+    public CategoriesIterator(List<String[]> types) {
+        SortedSet<String[]> categoriesSet = new TreeSet<String[]>(new Comparator<String[]>() {
             @Override
             public int compare(String[] o1, String[] o2) {
-                int length = (o1.length > o2.length ? o2.length : o1.length);
+                int length = o1.length > o2.length ? o2.length : o1.length;
                 for (int i = 0; i < length; ++i) {
                     int compareResult = o1[i].compareTo(o2[i]);
                     if (compareResult == 0) {
@@ -68,24 +68,24 @@ public class HierarchyTypesIterator implements Iterator<String[]> {
                 for (int st = 0; st <= i; ++st) {
                     subType[st] = type[st];
                 }
-                processTypesSet.add(subType);
+                categoriesSet.add(subType);
             }
         }
-        processTypes.addAll(processTypesSet);
+        categories.addAll(categoriesSet);
     }
 
     @Override
     public boolean hasNext() {
-        return curIdx < processTypes.size();
+        return curIdx < categories.size();
     }
 
     @Override
     public String[] next() {
-        return processTypes.get(curIdx++);
+        return categories.get(curIdx++);
     }
 
     public String[] getItem(int idx) {
-        return processTypes.get(idx);
+        return categories.get(idx);
     }
 
     @Override

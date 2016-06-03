@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web;
@@ -27,7 +27,6 @@ import org.apache.struts.action.ActionMessages;
 
 import ru.runa.wf.web.VariablesFormatException;
 import ru.runa.wf.web.action.DataFileNotPresentException;
-import ru.runa.wf.web.action.ProcessDefinitionTypeNotPresentException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.LocalizableException;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
@@ -59,7 +58,7 @@ import com.google.common.base.Throwables;
 
 /**
  * Created 27.05.2005
- * 
+ *
  */
 public class ActionExceptionHelper {
     private static final Log log = LogFactory.getLog(ActionExceptionHelper.class);
@@ -107,8 +106,8 @@ public class ActionExceptionHelper {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_EXECUTOR_ALREADY_EXISTS.getKey(), exception.getExecutorName());
         } else if (e instanceof ExecutorParticipatesInProcessesException) {
             ExecutorParticipatesInProcessesException exception = (ExecutorParticipatesInProcessesException) e;
-            actionMessage = new ActionMessage(MessagesException.EXCEPTION_EXECUTOR_PARTICIPATES_IN_PROCESSES.getKey(),
-                    exception.getExecutorName(), exception.getIdsInfo());
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_EXECUTOR_PARTICIPATES_IN_PROCESSES.getKey(), exception.getExecutorName(),
+                    exception.getIdsInfo());
         } else if (e instanceof ProcessDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.ERROR_PROCESS_DOES_NOT_EXIST.getKey(), e.getMessage());
         } else if (e instanceof DefinitionAlreadyExistException) {
@@ -136,8 +135,6 @@ public class ActionExceptionHelper {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_SESSION_INVALID.getKey());
         } else if (e instanceof FilterFormatException) {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_TABLE_VIEW_SETUP_FORMAT_INCORRECT.getKey());
-        } else if (e instanceof ProcessDefinitionTypeNotPresentException) {
-            actionMessage = new ActionMessage(MessagesException.EXCEPTION_DEFINITION_TYPE_NOT_PRESENT.getKey());
         } else if (e instanceof TaskAlreadyAcceptedException) {
             actionMessage = new ActionMessage(MessagesException.TASK_WAS_ALREADY_ACCEPTED.getKey(), e.getMessage());
         } else if (e instanceof ParentProcessExistsException) {

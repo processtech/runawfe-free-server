@@ -39,7 +39,7 @@ public class CreateReportsTables extends DBPatch {
 
     /**
      * Creates table, indexes e.t.c for {@link ReportParameter}.
-     * 
+     *
      * @return Returns list of sql commands for table creation.
      */
     private List<String> createReportParametersTable() {
@@ -63,7 +63,7 @@ public class CreateReportsTables extends DBPatch {
 
     /**
      * Creates table, indexes e.t.c for {@link ReportDefinition}.
-     * 
+     *
      * @return Returns list of sql commands for table creation.
      */
     private List<String> createReportsTable() {
@@ -80,7 +80,7 @@ public class CreateReportsTables extends DBPatch {
         columns.add(new ColumnDef("JAR_FILE", dialect.getTypeName(Types.VARBINARY, fileLength, fileLength, fileLength), true));
         columns.add(new ColumnDef("PARAM_BUILDER_NAME", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true));
         columns.add(new ColumnDef("CONFIG_TYPE", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
-        columns.add(new ColumnDef("CATEGORY", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
+        columns.add(new ColumnDef("CATEGORY", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), true));
         sql.add(getDDLCreateTable("REPORT", columns, null));
 
         sql.add(getDDLCreateSequence("SEQ_REPORT"));

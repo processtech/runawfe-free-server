@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.report.web.action;
@@ -30,16 +30,16 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
-import ru.runa.common.web.HierarchyTypeSelectUtils;
+import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.report.web.form.DeployReportForm;
 import ru.runa.report.web.tag.DeployReportFormTag;
 import ru.runa.wf.web.servlet.BulkUploadServlet;
 import ru.runa.wf.web.servlet.UploadedFile;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.report.ReportNameMissingException;
 import ru.runa.wfe.report.ReportParameterType;
 import ru.runa.wfe.report.ReportParameterUserNameMissingException;
-import ru.runa.wfe.report.ReportTypeMissing;
 import ru.runa.wfe.report.dto.ReportDto;
 import ru.runa.wfe.report.dto.ReportParameterDto;
 import ru.runa.wfe.user.User;
@@ -64,12 +64,8 @@ public abstract class BaseDeployReportAction extends ActionBase {
             request.setAttribute(AnalizeReportAction.REPORT_DESCRIPTION_PARAM, reportDescription);
             List<ReportParameterDto> parameters = getReportParameters(deployForm);
             request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, parameters);
-            List<String> fullType = HierarchyTypeSelectUtils.extractSelectedType(request);
             if (Strings.isNullOrEmpty(reportName)) {
                 throw new ReportNameMissingException();
-            }
-            if (HierarchyTypeSelectUtils.isEmptyType(fullType)) {
-                throw new ReportTypeMissing();
             }
             for (ReportParameterDto reportParameterDto : parameters) {
                 if (Strings.isNullOrEmpty(reportParameterDto.getUserName())) {
@@ -78,10 +74,10 @@ public abstract class BaseDeployReportAction extends ActionBase {
             }
             Map<String, UploadedFile> uploadedJasperFiles = BulkUploadServlet.getUploadedFilesMap(request);
             byte[] file = getReportFileContent(uploadedJasperFiles);
-            ReportDto report = new ReportDto(deployForm.getId(), reportName, reportDescription, Joiner.on('/').join(fullType), parameters);
+            String category = Joiner.on(Utils.CATEGORY_DELIMITER).join(CategoriesSelectUtils.extract(request));
+            ReportDto report = new ReportDto(deployForm.getId(), reportName, reportDescription, category, parameters);
             doAction(getLoggedUser(request), report, file);
             uploadedJasperFiles.clear();
-
         } catch (Exception e) {
             addError(request, e);
             return getErrorForward(mapping);
