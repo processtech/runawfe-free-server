@@ -82,7 +82,7 @@ public class SystemLogClassPresentation extends ClassPresentation {
         super(SystemLog.class, "", true, new FieldDescriptor[] {
                 new FieldDescriptor(LOG_ID, Integer.class.getName(), new DefaultDBSource(SystemLog.class, "id"), true, 
                 		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "id", true }),
-                new FieldDescriptor(TIME, Date.class.getName(), new DefaultDBSource(SystemLog.class, "createDate"), true, 1, BatchPresentationConsts.DSC,
+                new FieldDescriptor(TIME, Date.class.getName(), new DefaultDBSource(SystemLog.class, "createDate"), true, 1, BatchPresentationConsts.DESC,
                 		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "createDate", true }),
                 new FieldDescriptor(ACTOR, String.class.getName(), new DBSource[] { new ActorDBSource() }, true, 
                 		FieldFilterMode.DATABASE, "ru.runa.wf.web.html.SystemLogActorTDBuilder", new Object[] {}, true),

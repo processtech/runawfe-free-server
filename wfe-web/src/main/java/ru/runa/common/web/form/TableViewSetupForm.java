@@ -183,7 +183,7 @@ public class TableViewSetupForm extends IdsForm {
             if (sortingModeNames[index].equals(ASC_SORTING_MODE)) {
                 sortingModeIds[i] = BatchPresentationConsts.ASC;
             } else if (sortingModeNames[index].equals(DSC_SORTING_MODE)) {
-                sortingModeIds[i] = BatchPresentationConsts.DSC;
+                sortingModeIds[i] = BatchPresentationConsts.DESC;
             }
         }
         return sortingModeIds;

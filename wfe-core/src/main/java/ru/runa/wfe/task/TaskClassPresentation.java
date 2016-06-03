@@ -76,7 +76,7 @@ public class TaskClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskVariableTDBuilder", new Object[] {}, true),
-                new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDBSource(Task.class, "deadlineDate"), true, 1, BatchPresentationConsts.DSC,
+                new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDBSource(Task.class, "deadlineDate"), true, 1, BatchPresentationConsts.DESC,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDeadlineTDBuilder", new Object[] {}) });
     }
 
