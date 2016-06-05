@@ -34,6 +34,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.graph.view.GraphElementPresentation;
@@ -108,4 +109,10 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
         return auditLogic.getSystemLogsCount(user, batchPresentation);
     }
 
+    @Override
+    @WebResult(name = "result")
+    public TaskAggregatedLog getTaskLog(@WebParam(name = "user") User user, @WebParam(name = "taskId") Long taskId) {
+    	Preconditions.checkArgument(user != null);
+    	return auditLogic.getTaskLog(user, taskId);
+    }
 }

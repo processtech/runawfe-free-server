@@ -22,6 +22,7 @@ import java.util.List;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.graph.view.GraphElementPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.AuditService;
@@ -89,6 +90,15 @@ public class AuditServiceDelegate extends EJB3Delegate implements AuditService {
     public Object getProcessLogValue(User user, Long logId) {
         try {
             return getAuditService().getProcessLogValue(user, logId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+    
+    @Override
+    public TaskAggregatedLog getTaskLog(User user, Long taskId) {
+        try {
+            return getAuditService().getTaskLog(user, taskId);
         } catch (Exception e) {
             throw handleException(e);
         }

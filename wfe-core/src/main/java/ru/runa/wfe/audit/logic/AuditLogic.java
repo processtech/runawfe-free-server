@@ -25,7 +25,9 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.TaskAggregatedLogDAO;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
@@ -52,6 +54,8 @@ public class AuditLogic extends CommonLogic {
     private ProcessLogDAO processLogDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
+    @Autowired
+    private TaskAggregatedLogDAO taskAggregatedLogDAO;
 
     public void login(User user, ASystem system) {
         checkLoginAllowed(user, system);
@@ -115,5 +119,19 @@ public class AuditLogic extends CommonLogic {
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getCount();
     }
-
+    
+    /**
+     * Gets task log entity by the given task id
+     * 
+     * @param user
+     *            authorized user
+     * @param taskId
+     * 			  task ID
+     * @return task log entity
+     */
+    public TaskAggregatedLog getTaskLog(User user, long taskId) {
+    	Preconditions.checkNotNull(taskId, "taskId");
+    	checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.READ);
+    	return taskAggregatedLogDAO.getTaskLog(taskId);
+    }
 }

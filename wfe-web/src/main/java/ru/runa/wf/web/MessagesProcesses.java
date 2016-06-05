@@ -41,6 +41,11 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SWIMLANE = new StrutsMessage("label.swimlane");
     public static final StrutsMessage LABEL_SWIMLANE_NAME = new StrutsMessage("label.swimlane_name");
     public static final StrutsMessage LABEL_SWIMLANE_ASSIGNMENT = new StrutsMessage("label.swimlane_assigned_to");
+    public static final StrutsMessage LABEL_START_TIME = new StrutsMessage("label.start_time");
+    public static final StrutsMessage LABEL_END_TIME = new StrutsMessage("label.end_time");
+    public static final StrutsMessage LABEL_CURRENT_DURATION = new StrutsMessage("label.current_duration");
+    public static final StrutsMessage LABEL_REMAINING_TIME = new StrutsMessage("label.remaining_time");
+    public static final StrutsMessage LABEL_ASSINGMENT_TIME = new StrutsMessage("label.assingment_time");
     public static final StrutsMessage LINK_UPDATE_VARIABLE = new StrutsMessage("link.update_variable");
     public static final StrutsMessage BUTTON_UPDATE_VARIABLE = new StrutsMessage("button.update_variable");
     public static final StrutsMessage BUTTON_FORM = new StrutsMessage("button.form");

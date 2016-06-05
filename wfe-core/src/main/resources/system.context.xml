@@ -284,6 +284,9 @@
 	<bean id="reportDAO" class="ru.runa.wfe.report.dao.ReportDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
+	<bean id="taskAggregatedLogDAO" class="ru.runa.wfe.audit.dao.TaskAggregatedLogDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
 
 	<bean id="executorCache" class="ru.runa.wfe.user.cache.CacheFactory" factory-method="getInstance"/>
 	<bean id="substitutionCache" class="ru.runa.wfe.ss.cache.CacheFactory" factory-method="getInstance"/>
