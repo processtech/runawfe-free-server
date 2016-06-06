@@ -9,6 +9,7 @@ import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.web.JsonAjaxCommand;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -21,8 +22,43 @@ import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 
 public class AjaxActorsList extends JsonAjaxCommand {
-    private User user;
-    private Boolean excludeSelf;
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
+        try {
+            JSONParser jsonParser = new JSONParser();
+            JSONObject options = (JSONObject) jsonParser.parse(request.getReader());
+            Long page = (Long) options.get("page");
+            Long perPage = (Long) options.get("perPage");
+            String hint = (String) options.get("hint");
+            String target = (String) options.get("target");
+            boolean excludeSelf = (Boolean) options.get("excludeme");
+            JSONObject root = new JSONObject();
+            JSONArray data = new JSONArray();
+            BatchPresentation batchPresentation = getPresentation(target, page.intValue() + 1, perPage.intValue(), hint);
+            Integer count = Delegates.getExecutorService().getExecutorsCount(user, batchPresentation);
+            Long totalPages = (count + perPage - 1) / perPage;
+            root.put("count", count);
+            root.put("totalPages", totalPages);
+            root.put("page", page);
+            List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user, batchPresentation);
+            for (Executor executor : executors) {
+                if (isExcluded(user, executor, excludeSelf)) {
+                    continue;
+                }
+                Object obj = executorToJson(executor);
+                if (obj != null) {
+                    data.add(obj);
+                }
+            }
+            root.put("data", data);
+            return root;
+        } catch (Exception e) {
+            log.error("Bad request", e);
+            throw new InternalApplicationException(e);
+        }
+    }
 
     private BatchPresentation getPresentation(String target, Integer page, Integer perPage, String hint) {
         BatchPresentationFactory factory;
@@ -45,89 +81,21 @@ public class AjaxActorsList extends JsonAjaxCommand {
         return batchPresentation;
     }
 
-    private List<? extends Executor> getExecutors(BatchPresentation batchPresentation) {
-        return Delegates.getExecutorService().getExecutors(user, batchPresentation);
-    }
-
-    private Integer getExecutorsCount(BatchPresentation batchPresentation) {
-        return Delegates.getExecutorService().getExecutorsCount(user, batchPresentation);
-    }
-
     @SuppressWarnings("unchecked")
     private JSONObject executorToJson(Executor executor) {
         JSONObject r = new JSONObject();
-
         r.put("id", executor.getId());
         if (executor instanceof Actor) {
             r.put("type", "actor");
-            r.put("fullname", executor.getFullName());
+            r.put("fullname", executor.getLabel());
         } else if (executor instanceof Group) {
             r.put("type", "group");
-            r.put("name", executor.getName());
+            r.put("name", executor.getLabel());
         }
         return r;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected JSONAware execute(User user, HttpServletRequest request) throws Exception {
-        this.user = user;
-
-        JSONObject options;
-        try {
-            JSONParser jsonParser = new JSONParser();
-            options = (JSONObject) jsonParser.parse(request.getReader());
-        } catch (Exception e) {
-            options = new JSONObject();
-        }
-
-        Long page = (Long) options.get("page");
-        Long perPage = (Long) options.get("perPage");
-        String hint = (String) options.get("hint");
-        String target = (String) options.get("target");
-        excludeSelf = (Boolean) options.get("excludeme");
-
-        if (page == null) {
-            page = Long.valueOf(0);
-        }
-        if (perPage == null) {
-            perPage = Long.valueOf(20);
-        }
-        if (hint == null) {
-            hint = "";
-        }
-        if (target == null) {
-            target = "actor";
-        }
-        if (excludeSelf == null) {
-            excludeSelf = false;
-        }
-
-        JSONObject root = new JSONObject();
-        JSONArray data = new JSONArray();
-        BatchPresentation presentation = getPresentation(target, page.intValue() + 1, perPage.intValue(), hint);
-
-        Integer count = getExecutorsCount(presentation);
-        Long totalPages = (count + perPage - 1) / perPage;
-
-        root.put("count", count);
-        root.put("totalPages", totalPages);
-        root.put("page", page);
-        for (Executor executor : getExecutors(presentation)) {
-            if (isExcluded(executor)) {
-                continue;
-            }
-            Object obj = executorToJson(executor);
-            if (obj != null) {
-                data.add(obj);
-            }
-        }
-        root.put("data", data);
-
-        return root;
-    }
-
-    private boolean isExcluded(Executor executor) {
+    private boolean isExcluded(User user, Executor executor, boolean excludeSelf) {
         if (executor.getName().startsWith(ru.runa.wfe.user.SystemExecutors.SYSTEM_EXECUTORS_PREFIX)) {
             return true;
         }
