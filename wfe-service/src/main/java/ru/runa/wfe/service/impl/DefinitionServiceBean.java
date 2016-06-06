@@ -66,20 +66,20 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition deployProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "processArchive") byte[] processArchive,
+    public WfDefinition deployProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "par") byte[] par,
             @WebParam(name = "categories") List<String> categories) {
         Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(processArchive != null);
+        Preconditions.checkArgument(par != null);
         Preconditions.checkArgument(categories != null);
-        return definitionLogic.deployProcessDefinition(user, processArchive, categories);
+        return definitionLogic.deployProcessDefinition(user, par, categories);
     }
 
     @Override
     @WebResult(name = "result")
     public WfDefinition redeployProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "processArchive") byte[] processArchive, @WebParam(name = "categories") List<String> categories) {
+            @WebParam(name = "par") byte[] par, @WebParam(name = "categories") List<String> categories) {
         Preconditions.checkArgument(user != null);
-        return definitionLogic.redeployProcessDefinition(user, processId, processArchive, categories);
+        return definitionLogic.redeployProcessDefinition(user, processId, par, categories);
     }
 
     @Override
