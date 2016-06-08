@@ -21,6 +21,8 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 
+import com.google.common.base.Strings;
+
 public class AjaxActorsList extends JsonAjaxCommand {
 
     @SuppressWarnings("unchecked")
@@ -73,9 +75,8 @@ public class AjaxActorsList extends JsonAjaxCommand {
         BatchPresentation batchPresentation = factory.createDefault();
         batchPresentation.setRangeSize(perPage);
         batchPresentation.setFieldsToSort(new int[] { 1 }, new boolean[] { true });
-        if (hint.length() > 0) {
-            batchPresentation.getFilteredFields().put(filterIndex,
-                    new StringFilterCriteria(StringFilterCriteria.ANY_SYMBOLS + hint + StringFilterCriteria.ANY_SYMBOLS));
+        if (!Strings.isNullOrEmpty(hint)) {
+            batchPresentation.getFilteredFields().put(filterIndex, new StringFilterCriteria(hint + StringFilterCriteria.ANY_SYMBOLS, true));
         }
         batchPresentation.setPageNumber(page);
         return batchPresentation;
