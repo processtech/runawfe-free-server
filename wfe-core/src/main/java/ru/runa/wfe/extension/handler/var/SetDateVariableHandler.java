@@ -37,12 +37,14 @@ public class SetDateVariableHandler extends CommonHandler {
     }
 
     protected Map<String, Object> executeAction(IVariableProvider variableProvider, boolean pre430CompatibilityMode) throws Exception {
-        Calendar calendar = Calendar.getInstance();
+        config.applySubstitutions(variableProvider);
+        Calendar calendar;
         if (config.getBaseVariableName() != null) {
             Date baseDate = variableProvider.getValueNotNull(Date.class, config.getBaseVariableName());
-            calendar.setTime(baseDate);
+            calendar = CalendarUtil.dateToCalendar(baseDate);
+        } else {
+            calendar = Calendar.getInstance();
         }
-        config.applySubstitutions(variableProvider);
         for (CalendarOperation operation : config.getOperations()) {
             log.debug("Executing " + operation + " on " + CalendarUtil.formatDateTime(calendar));
             Integer amount = Integer.parseInt(operation.getExpression());
