@@ -93,9 +93,10 @@ public class TaskListBuilder implements ITaskListBuilder {
 
     /**
      * Return task (in Dto form) convenient for actor and current batchPresentation filtering conditions.
+     * For Administrators - return all tasks, restricted only to filtering conditions.
      * @param actor - current actor
      * @param batchPresentation - list presentation conditions
-     * @return Tasks (in Dto form) assigned to actor, or acceptable by him. For For Administrators - return all tasks! 
+     * @return Tasks (in Dto form) assigned to actor, or acceptable by him. For For Administrators - all [maybe filtered] tasks. 
      */
     @Override
     public List<WfTask> getTasks(Actor actor, BatchPresentation batchPresentation) {
@@ -111,7 +112,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         @SuppressWarnings("unchecked")
     	List<Task> tasks = null;
         // For Administrators - load all tasks, for others - filtered for them only.
-        if (!containAdmins(executorsToGetTasksByMembership) || actor.getName().equals("StopBot")){
+        if (!containActor(executorsToGetTasksByMembership,"Administrators") || actor.getName().equals("StopBot")){
             tasks = LoadTasks(batchPresentation, executorsToGetTasks);
         } else {
         	// Loading all tasks
@@ -229,7 +230,7 @@ public class TaskListBuilder implements ITaskListBuilder {
             return null;
         }
         // For Administrators - return all tasks here. (Filtered on BatchPresentation level if needed).
-        if (executorsToGetTasksByMembership.contains(taskExecutor) || containAdmins(executorsToGetTasksByMembership)) { 
+        if (executorsToGetTasksByMembership.contains(taskExecutor) || containActor(executorsToGetTasksByMembership, "Administrators")) { 
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return taskObjectFactory.create(task, actor, false, batchPresentation.getDynamicFieldsToDisplay(true));
         }
@@ -405,9 +406,9 @@ public class TaskListBuilder implements ITaskListBuilder {
         return false;
     }
     
-    private boolean containAdmins(Set<Executor> executors){
+    private boolean containActor(Set<Executor> executors, String name){
     	for (Executor executor : executors){
-    		if(executor.getName().equals("Administrators")) {
+    		if(executor.getName().equals(name)) {
     			return true;
     		}
     	}

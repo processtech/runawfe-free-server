@@ -11,6 +11,7 @@
 <%
 	String returnAction = "/manage_tasks.do";
 %>
+
 <wf:listTasksForm batchPresentationId="listTasksForm" buttonAlignment="right" returnAction="<%= returnAction %>" >
 	<script>
 	var helpVisible = false;
@@ -64,9 +65,18 @@
 	</div>
 </wf:listTasksForm>
 
+	<% if (WebResources.isTaskDelegationEnabled()) { %>
+	<% Long taskId = 0L; %>
+	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
+	<% } %>
+
+
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 <tiles:put name="head" type="string">
+	<script type="text/javascript" src="<html:rewrite page="/js/taskformutils.js" />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page="/js/delegate.dialog.js" />">c=0;</script>
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/delegate.dialog.css" />">
 	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/manage_tasks.do?tabForwardName=manage_tasks"/>'">
 </tiles:put>
 </tiles:insert>
