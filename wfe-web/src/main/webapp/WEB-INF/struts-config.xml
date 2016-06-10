@@ -640,8 +640,8 @@
 			<forward name="failure" path="/deploy_report.do"
 				redirect="false" />
 		</action>
-		<action path="/analizeReport"
-			type="ru.runa.report.web.action.AnalizeReportAction" name="fileForm"
+		<action path="/analyzeReport"
+			type="ru.runa.report.web.action.AnalyzeReportAction" name="fileForm"
 			scope="request" unknown="false" validate="false">
 			<forward name="success" path="/deploy_report.do"
 				redirect="false" />

@@ -41,7 +41,9 @@ import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.validation.ValidationException;
@@ -149,7 +151,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -242,7 +244,7 @@ public class TaskLogic extends WFCommonLogic {
         AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
     }
 
-    public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> executors) throws TaskAlreadyAcceptedException {
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors) {
         Task task = taskDAO.getNotNull(taskId);
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
@@ -250,6 +252,13 @@ public class TaskLogic extends WFCommonLogic {
         }
         if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
             checkCanParticipate(user.getActor(), task);
+        }
+        if (keepCurrentOwners) {
+            if (currentOwner instanceof TemporaryGroup) {
+                ((List<Executor>) executors).addAll(executorDAO.getGroupChildren((Group) currentOwner));
+            } else {
+                ((List<Executor>) executors).add(executorDAO.getExecutor(currentOwner.getId()));
+            }
         }
         DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), taskId);
         List<Permission> selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);

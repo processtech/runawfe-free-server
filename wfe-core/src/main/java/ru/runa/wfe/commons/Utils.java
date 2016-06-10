@@ -36,6 +36,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 public class Utils {
+    public static final String CATEGORY_DELIMITER = "/";
     private static Log log = LogFactory.getLog(Utils.class);
     private static InitialContext initialContext;
     private static TransactionManager transactionManager;

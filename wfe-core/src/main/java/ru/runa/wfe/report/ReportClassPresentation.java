@@ -44,7 +44,7 @@ public class ReportClassPresentation extends ClassPresentation {
                 new FieldDescriptor(DESCRIPTION, AnywhereStringFilterCriteria.class.getName(), new SubstringDBSource(ReportDefinition.class,
                         "description"), true, FieldFilterMode.DATABASE, PropertyTdBuilder, new Object[] { ReportPermission.READ, "description" }),
                 new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ReportDefinition.class, "category"),
-                        true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TypeTDBuilder", new Object[] {}, true) });
+                        true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}, true) });
     }
 
     public static final ClassPresentation getInstance() {

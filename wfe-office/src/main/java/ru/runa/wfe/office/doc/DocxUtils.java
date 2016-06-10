@@ -230,7 +230,7 @@ public class DocxUtils {
             }
         }
         if (value instanceof String) {
-            value = ((String) value).replaceAll(Pattern.quote("</p>"), "\n");
+            value = ((String) value).replaceAll(Pattern.quote("</p>"), "\n").replaceAll("&nbsp;", " ");
             Matcher m = STRIP_HTML_TAGS_PATTERN.matcher((String) value);
             return m.replaceAll("");
         }

@@ -57,7 +57,7 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                         new FieldDescriptor(DESCRIPTION, String.class.getName(), new SubstringDBSource(Deployment.class, "description"), true,
                                 FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
                         new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(Deployment.class, "category"),
-                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TypeTDBuilder", new Object[] {}, true),
+                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}, true),
                         new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "createDate"), true,
                                 FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTDBuilder", new Object[] {}),
                         new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "createActor"), false,

@@ -132,9 +132,9 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
 
     @WebMethod(exclude = true)
     @Override
-    public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> newOwners) {
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners) {
         Preconditions.checkArgument(user != null);
-        taskLogic.delegateTask(user, taskId, currentOwner, newOwners);
+        taskLogic.delegateTask(user, taskId, currentOwner, keepCurrentOwners, newOwners);
     }
 
 }

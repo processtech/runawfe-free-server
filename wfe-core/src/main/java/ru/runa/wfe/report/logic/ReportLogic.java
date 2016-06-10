@@ -49,7 +49,7 @@ public class ReportLogic extends WFCommonLogic {
         return reportDefinition;
     }
 
-    public List<ReportParameterDto> analizeReportFile(ReportDto report, byte[] reportFileContent) {
+    public List<ReportParameterDto> analyzeReportFile(ReportDto report, byte[] reportFileContent) {
         Map<String, String> reportParameters = new GetCompiledReportParametersDescription(reportFileContent).onRawSqlReport();
         List<ReportParameterDto> result = new ArrayList<ReportParameterDto>();
         for (String parameterName : reportParameters.keySet()) {

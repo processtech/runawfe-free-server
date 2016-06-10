@@ -26,7 +26,7 @@ public class TargetProcessSetDateVariableHandler extends SetDateVariableHandler 
         Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
         ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
         ExecutionContext context = new ExecutionContext(processDefinition, process);
-        Map<String, Object> map = super.executeAction(variableProvider);
+        Map<String, Object> map = super.executeAction(context.getVariableProvider());
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             context.setVariableValue(entry.getKey(), entry.getValue());
         }
@@ -49,11 +49,20 @@ public class TargetProcessSetDateVariableHandler extends SetDateVariableHandler 
         @Override
         public void applySubstitutions(IVariableProvider variableProvider) {
             super.applySubstitutions(variableProvider);
-            String substitutedValue = (String) ExpressionEvaluator.evaluateVariableNotNull(variableProvider, outVariableName);
-            if (!Objects.equal(substitutedValue, outVariableName)) {
-                log.debug("Substituted " + outVariableName + " -> " + substitutedValue);
+            {
+                String substitutedValue = (String) ExpressionEvaluator.evaluateVariableNotNull(variableProvider, baseVariableName);
+                if (!Objects.equal(substitutedValue, baseVariableName)) {
+                    log.debug("Substituted " + baseVariableName + " -> " + substitutedValue);
+                }
+                baseVariableName = substitutedValue;
             }
-            outVariableName = substitutedValue;
+            {
+                String substitutedValue = (String) ExpressionEvaluator.evaluateVariableNotNull(variableProvider, outVariableName);
+                if (!Objects.equal(substitutedValue, outVariableName)) {
+                    log.debug("Substituted " + outVariableName + " -> " + substitutedValue);
+                }
+                outVariableName = substitutedValue;
+            }
         }
 
     }
