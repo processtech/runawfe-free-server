@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
+import org.hibernate.util.StringHelper;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -77,7 +79,23 @@ public class HibernateCompilerQueryBuilder {
         if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad()) {
             return session.createSQLQuery(sqlRequest).setResultTransformer(CountIdResultTransformer.INSTANCE);
         } else {
-            return session.createSQLQuery(sqlRequest).addEntity(batchPresentation.getClassPresentation().getPresentationClass());
+            if (!hqlBuilder.getJoinedClasses().isEmpty()) {
+                // Dirty hack - force hibernate to map many entities.
+                StringBuilder sb = new StringBuilder();
+                sb.append("/*{").append(StringHelper.unqualify(batchPresentation.getClassPresentation().getPresentationClass().getName()))
+                        .append("}");
+                for (Class<?> entity : hqlBuilder.getJoinedClasses()) {
+                    sb.append(",{").append(StringHelper.unqualify(entity.getName())).append("}");
+                }
+                sb.append("*/ ").append(sqlRequest);
+                sqlRequest = sb.toString();
+            }
+            SQLQuery query = session.createSQLQuery(sqlRequest);
+            query.addEntity(batchPresentation.getClassPresentation().getPresentationClass());
+            for (Class<?> entity : hqlBuilder.getJoinedClasses()) {
+                query.addEntity(entity);
+            }
+            return query;
         }
     }
 
@@ -108,15 +126,17 @@ public class HibernateCompilerQueryBuilder {
     }
 
     /**
-     * Removes from SQL select clause all column names and 'as' statements. So it's converts SQL like 'select TABLE.ID as T_ID, TABLE.NAME as T_N' to
-     * 'select TABLE.*'. Actually only 'as' statements removing is required, but removing all columns is much simple and resulting request is much
-     * clever.
+     * Removes from SQL select clause all column names and 'as' statements. So it's converts SQL like 'select TABLE.ID as T_ID, TABLE.NAME as T_N'
+     * to 'select TABLE.*'. Actually only 'as' statements removing is required, but removing all columns is much simple and resulting request is
+     * much clever.
+     * 
+     * But for joined table generate new aliases.
      * 
      * @param sqlRequest
      *            SQL request to tune select clause.
      */
     private StringBuilder tuneSelectClause(StringBuilder sqlRequest) {
-        if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad()) {
+        if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad() || !hqlBuilder.getJoinedClasses().isEmpty()) {
             return sqlRequest;
         }
         int posDot = sqlRequest.indexOf(".");

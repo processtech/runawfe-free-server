@@ -43,6 +43,16 @@ public class HibernateCompilerAliasMapping {
     private final Map<String, FieldDescriptor> aliasToField = new HashMap<String, FieldDescriptor>();
 
     /**
+     * Map Class to query alias.
+     */
+    private final Map<Class<?>, String> joinedClassToAlias = new HashMap<Class<?>, String>();
+
+    /**
+     * Map HQL query alias to class.
+     */
+    private final Map<String, Class<?>> joinedAliasToClass = new HashMap<String, Class<?>>();
+
+    /**
      * Creates mapping from {@link FieldDescriptor} to alias for specified
      * {@link BatchPresentation}.
      * 
@@ -51,20 +61,24 @@ public class HibernateCompilerAliasMapping {
      */
     public HibernateCompilerAliasMapping(BatchPresentation batchPresentation) {
         FieldDescriptor[] fields = batchPresentation.getAllFields();
+        int tableIndex = 0;
         for (int idx = 0; idx < fields.length; ++idx) {
             FieldDescriptor field = fields[idx];
             if (field.dbSources == null) {
                 throw new InternalApplicationException("Field dbSource is null. Something wrong with " + batchPresentation);
             }
-            if (field.dbSources[0].getSourceObject().equals(batchPresentation.getClassPresentation().getPresentationClass())) {
+            final Class<?> entity = field.dbSources[0].getSourceObject();
+            if (entity.equals(batchPresentation.getClassPresentation().getPresentationClass())) {
                 addAliasMapping(field, ClassPresentation.classNameSQL);
             } else if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
                 addAliasMapping(field, "editedField" + idx);
             } else if (field.displayName.startsWith(ClassPresentation.editable_prefix)) {
                 ;
             } else {
-                // Field value getter from class, unrelated with main class
-                addAliasMapping(field, "field" + idx);
+                if (!joinedClassToAlias.containsKey(entity)) {
+                    addJoinedAliasMapping(entity, "tbl" + ++tableIndex);
+                }
+                addAliasMapping(field, joinedClassToAlias.get(entity));
             }
         }
     }
@@ -110,6 +124,24 @@ public class HibernateCompilerAliasMapping {
     }
 
     /**
+     * Returns joined entities in {@link BatchPresentation}.
+     * 
+     * @return All {@link BatchPresentation} entities.
+     */
+    public Set<Class<?>> getJoinedClasses() {
+        return joinedClassToAlias.keySet();
+    }
+
+    /**
+     * Returns joined aliases in {@link BatchPresentation}.
+     * 
+     * @return All {@link BatchPresentation} entities.
+     */
+    public Set<String> getJoinedAliases() {
+        return joinedAliasToClass.keySet();
+    }
+
+    /**
      * Add field and alias to corresponding map's
      * 
      * @param field
@@ -120,5 +152,18 @@ public class HibernateCompilerAliasMapping {
     private void addAliasMapping(FieldDescriptor field, String alias) {
         fieldToAlias.put(field, alias);
         aliasToField.put(alias, field);
+    }
+
+    /**
+     * Add entity and alias to corresponding map's
+     * 
+     * @param entity
+     *            Entity, to add.
+     * @param alias
+     *            Alias for field.
+     */
+    private void addJoinedAliasMapping(Class<?> entity, String alias) {
+        joinedClassToAlias.put(entity, alias);
+        joinedAliasToClass.put(alias, entity);
     }
 }

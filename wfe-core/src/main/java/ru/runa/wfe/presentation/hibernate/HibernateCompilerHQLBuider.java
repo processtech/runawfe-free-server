@@ -24,14 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-
-import com.google.common.base.Strings;
 
 /**
  * Builds HQL query for {@link BatchPresentation}.
@@ -163,6 +163,10 @@ public class HibernateCompilerHQLBuider {
             query.append("select ").append(ClassPresentation.classNameSQL);
             if (parameters.isOnlyIdentityLoad()) {
                 query.append(".id");
+            } else {
+                for (String alias : aliasMapping.getJoinedAliases()) {
+                    query.append(", ").append(alias);
+                }
             }
         }
         query.append(" from ");
@@ -255,10 +259,8 @@ public class HibernateCompilerHQLBuider {
                         field.displayName.indexOf(':', ClassPresentation.removable_prefix.length()));
                 joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:")
                         .append("removableUserValue" + field.fieldIdx).append(")");
-                placeholders
-                        .put("removableUserValue" + field.fieldIdx,
-                                new QueryParameter("removableUserValue" + field.fieldIdx, field.displayName.substring(field.displayName
-                                        .lastIndexOf(':') + 1)));
+                placeholders.put("removableUserValue" + field.fieldIdx, new QueryParameter("removableUserValue" + field.fieldIdx,
+                        field.displayName.substring(field.displayName.lastIndexOf(':') + 1)));
             }
             joinRestriction.append(")");
             result.add(joinRestriction.toString());
@@ -319,7 +321,8 @@ public class HibernateCompilerHQLBuider {
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<String>();
         if (parameters.getExecutorIdsToCheckPermission() != null) {
-            result.add("(instance.id in (select pm.identifiableId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.type in (:securedTypes) and pm.mask=:securedPermission))");
+            result.add(
+                    "(instance.id in (select pm.identifiableId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.type in (:securedTypes) and pm.mask=:securedPermission))");
             placeholders.put("securedOwnersIds", null);
             placeholders.put("securedPermission", null);
             placeholders.put("securedTypes", null);
@@ -373,5 +376,14 @@ public class HibernateCompilerHQLBuider {
                     .append(fieldsToSortModes[i] ? " asc" : " desc");
             needComma = true;
         }
+    }
+
+    /**
+     * Returns all entities in {@link BatchPresentation}.
+     * 
+     * @return All {@link BatchPresentation} entities.
+     */
+    public Set<Class<?>> getJoinedClasses() {
+        return aliasMapping.getJoinedClasses();
     }
 }

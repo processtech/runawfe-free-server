@@ -22,6 +22,11 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessLog;
@@ -66,11 +71,6 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Process execution logic.
@@ -183,7 +183,14 @@ public class ExecutionLogic extends WFCommonLogic {
 
     private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
-        for (Process process : processes) {
+        for (Object wideProcess : processes) {
+            final Process process;
+            if (wideProcess instanceof Process) {
+                process = (Process) wideProcess;
+            } else {
+                final Object[] entities = (Object[]) wideProcess;
+                process = (Process) entities[0];
+            }
             WfProcess wfProcess = new WfProcess(process);
             if (variableNamesToInclude != null) {
                 try {

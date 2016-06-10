@@ -20,11 +20,6 @@ package ru.runa.wfe.presentation.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.metadata.ClassMetadata;
-import org.hibernate.persister.entity.SingleTableEntityPersister;
-
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -89,16 +84,11 @@ public class HibernateCompilerLeftJoinBuilder {
      * @return Left join, applied to query.
      */
     private LeftJoinDescription applyLeftJoin(StringBuilder sqlRequest, FieldDescriptor field) {
-        ClassMetadata meta = ApplicationContextFactory.getSessionFactory().getClassMetadata(field.dbSources[0].getSourceObject());
-        if (!(meta instanceof SingleTableEntityPersister)) {
-            throw new InternalApplicationException("ClassMetadate for " + field.dbSources[0].getSourceObject().getName()
-                    + " is not SingleTableEntityPersister. Please call to developer.");
-        }
-        String tableName = ((SingleTableEntityPersister) meta).getTableName();
+        final String tableName = HibernateCompilerHelper.getTableName(field.dbSources[0].getSourceObject());
         if (sqlRequest.indexOf(tableName) < 0) {
             return null;
         }
-        String joinedTableAlias = getIdentifier(sqlRequest, sqlRequest.indexOf(" ", sqlRequest.indexOf(tableName)), true);
+        final String joinedTableAlias = HibernateCompilerHelper.getIdentifier(sqlRequest, tableName, true);
         removeJoinedTable(sqlRequest, tableName);
         String restriction = getJoinRestriction(sqlRequest, joinedTableAlias);
         String rootJoinTable = getRootJoinTable(joinedTableAlias, restriction);
@@ -139,7 +129,8 @@ public class HibernateCompilerLeftJoinBuilder {
     }
 
     /**
-     * Get root join table alias from join restriction statement. Root join table is a table, we joining to (it must be placed right before 'left join' statement).
+     * Get root join table alias from join restriction statement. Root join table is a table, we joining to (it must be placed right before 'left
+     * join' statement).
      * 
      * @param joinedTableAlias
      *            SQL alias name, assigned to joining table.
@@ -149,12 +140,12 @@ public class HibernateCompilerLeftJoinBuilder {
      */
     private String getRootJoinTable(String joinedTableAlias, String restriction) {
         int idx = restriction.indexOf('.');
-        String identifier = getIdentifier(restriction, idx - 1, false);
+        String identifier = HibernateCompilerHelper.getIdentifier(restriction, idx - 1, false);
         if (!identifier.equals(joinedTableAlias)) {
             return identifier;
         }
         idx = restriction.indexOf('.', idx + 1); // Next '.' in restriction. If first with joined table, when second is for root join table.
-        return getIdentifier(restriction, idx - 1, false);
+        return HibernateCompilerHelper.getIdentifier(restriction, idx - 1, false);
     }
 
     /**
@@ -169,8 +160,20 @@ public class HibernateCompilerLeftJoinBuilder {
     private String getJoinRestriction(StringBuilder sqlRequest, String joinedTableAlias) {
         String restriction;
         // Join Restriction conditions must be in result query first
-        int restrictionIndex = sqlRequest.indexOf(joinedTableAlias);
-        int restrFrom = sqlRequest.lastIndexOf("(", restrictionIndex);
+        int fromIndex = sqlRequest.indexOf(" from ");
+        if (-1 == fromIndex) {
+            fromIndex = sqlRequest.indexOf(" FROM ");
+        }
+        int restrFrom = -1;
+        int restrictionIndex = fromIndex;
+        while (-1 == restrFrom) {
+            restrictionIndex = sqlRequest.indexOf(joinedTableAlias, restrictionIndex);
+            if (-1 == restrictionIndex) {
+                break;
+            }
+            restrFrom = sqlRequest.lastIndexOf("(", restrictionIndex);
+            restrictionIndex += joinedTableAlias.length();
+        }
         restrFrom = sqlRequest.lastIndexOf("(", restrFrom - 1);
         int restrTo = restrFrom + 1;
         boolean inQuot = false;
@@ -236,31 +239,5 @@ public class HibernateCompilerLeftJoinBuilder {
             }
         }
         sqlRequest.replace(fromPosition, toPosition, " ");
-    }
-
-    /**
-     * Parse identifier from string.
-     * 
-     * @param string
-     *            String to parse identifier from.
-     * @param idx
-     *            Start index, to search identifier.
-     * @param forwardSearch
-     *            true, to search forward and false otherwise.
-     * @return Parsed identifier.
-     */
-    private String getIdentifier(CharSequence string, int idx, boolean forwardSearch) {
-        while (Character.isWhitespace(string.charAt(idx))) {
-            idx = forwardSearch ? idx + 1 : idx - 1;
-        }
-        int idx1 = idx;
-        while (true) {
-            char character = string.charAt(idx);
-            if (!(Character.isLetter(character) || character == '_' || Character.isDigit(character))) {
-                break;
-            }
-            idx = forwardSearch ? idx + 1 : idx - 1;
-        }
-        return forwardSearch ? string.subSequence(idx1, idx).toString() : string.subSequence(idx + 1, idx1 + 1).toString();
     }
 }
