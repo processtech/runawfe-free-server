@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.logic.bot;
@@ -36,11 +36,11 @@ import com.google.common.collect.Maps;
 
 /**
  * Execute task handlers for particular bot.
- * 
+ *
  * Configures and executes task handler in same method.
- * 
+ *
  * This class is not thread safe.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -48,11 +48,10 @@ public class WorkflowBotExecutor {
     private final User user;
     private Bot bot;
     private final Map<String, BotTask> botTasks = Maps.newHashMap();
-    private final Set<WorkflowBotTaskExecutor> botTaskExecutors;
+    private final Set<WorkflowBotTaskExecutor> botTaskExecutors = new HashSet<WorkflowBotTaskExecutor>();
 
     public WorkflowBotExecutor(User user, Bot bot, List<BotTask> tasks) {
         this.user = user;
-        botTaskExecutors = new HashSet<WorkflowBotTaskExecutor>();
         reinitialize(bot, tasks);
     }
 
@@ -61,6 +60,12 @@ public class WorkflowBotExecutor {
         botTasks.clear();
         for (BotTask botTask : tasks) {
             botTasks.put(botTask.getName(), botTask);
+        }
+    }
+
+    public void resetFailedDelay() {
+        for (WorkflowBotTaskExecutor botTaskExecutor : botTaskExecutors) {
+            botTaskExecutor.resetFailedDelay();
         }
     }
 

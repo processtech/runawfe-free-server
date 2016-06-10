@@ -371,7 +371,7 @@ public class FormSubmissionUtils {
                 }
                 return new FileVariable(uploadedFile.getName(), uploadedFile.getContent(), uploadedFile.getMimeType());
             } else if (value instanceof String) {
-                String valueToFormat = (String) value;
+                String valueToFormat = ((String) value).trim();
                 try {
                     return format.parse(valueToFormat);
                 } catch (Exception e) {
