@@ -47,6 +47,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.dto.ExtendedWfProcess;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
@@ -185,13 +186,16 @@ public class ExecutionLogic extends WFCommonLogic {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
         for (Object wideProcess : processes) {
             final Process process;
+            final Task task;
             if (wideProcess instanceof Process) {
                 process = (Process) wideProcess;
+                task = null;
             } else {
                 final Object[] entities = (Object[]) wideProcess;
                 process = (Process) entities[0];
+                task = (Task) entities[1];
             }
-            WfProcess wfProcess = new WfProcess(process);
+            WfProcess wfProcess = new ExtendedWfProcess(process, task);
             if (variableNamesToInclude != null) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);

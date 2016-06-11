@@ -70,6 +70,11 @@ public final class PagingNavigationHelper {
     private final boolean onlyCount;
 
     /**
+     * Flag equals true to show download link.
+     */
+    private final boolean showDownload;
+
+    /**
      * Create helper for adding paging navigation and instances count.
      * 
      * @param pageContext
@@ -82,11 +87,31 @@ public final class PagingNavigationHelper {
      *            Return action (current page).
      */
     public PagingNavigationHelper(PageContext pageContext, BatchPresentation batchPresentation, int instanceCount, String returnAction) {
+        this(pageContext, batchPresentation, instanceCount, returnAction, false);
+    }
+
+    /**
+     * Create helper for adding paging navigation and instances count.
+     * 
+     * @param pageContext
+     *            Processing request page context.
+     * @param batchPresentation
+     *            {@linkplain BatchPresentation} used to load objects.
+     * @param instanceCount
+     *            All instances count (not only shown, but all available for {@linkplain BatchPresentation}).
+     * @param returnAction
+     *            Return action (current page).
+     * @param showDownload
+     *            Show download link (current page).
+     */
+    public PagingNavigationHelper(PageContext pageContext, BatchPresentation batchPresentation, int instanceCount, String returnAction,
+            boolean showDownload) {
         super();
         this.pageContext = pageContext;
         this.batchPresentation = batchPresentation;
         this.instanceCount = instanceCount;
         this.returnAction = returnAction;
+        this.showDownload = showDownload;
         onlyCount = false;
     }
 
@@ -105,6 +130,7 @@ public final class PagingNavigationHelper {
         this.instanceCount = instanceCount;
         this.returnAction = null;
         onlyCount = true;
+        showDownload = false;
     }
 
     public void addPagingNavigationTable(TD pagingTableToBeAddedTD) {
@@ -120,9 +146,23 @@ public final class PagingNavigationHelper {
                 pagingTR.addElement(createPagingNavigationTD(pageCount));
             }
         }
+        if (showDownload) {
+            pagingTR.addElement(createDownloadTD());
+        }
         pagingTR.addElement(createElementCountTD());
         pagingTable.addElement(pagingTR);
         pagingTableToBeAddedTD.addElement(pagingTable);
+    }
+
+    private TD createDownloadTD() {
+        final TD downloadTd = new TD();
+        downloadTd.setClass(ru.runa.common.web.Resources.CLASS_PAGING_NAVIGATION_TD);
+        final Map<String, Object> params = Maps.newHashMap();
+        params.put(PagingForm.BATCH_PRESENTATION_ID, batchPresentation.getCategory());
+        final String actionUrl = Commons.getUrl("/download", params, pageContext, PortletUrlType.Resource);
+        final A href = new A(actionUrl, MessagesBatch.DOWNLOAD_AS_EXEL.message(pageContext));
+        downloadTd.addElement(href);
+        return downloadTd;
     }
 
     private static int pageCount(int objectCount, int pageSize) {

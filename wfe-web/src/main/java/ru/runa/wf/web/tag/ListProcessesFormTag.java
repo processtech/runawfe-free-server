@@ -64,7 +64,7 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
         // batchPresentation must be recalculated since the current page
         // number might changed
         batchPresentation = getBatchPresentation();
-        PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, instanceCount, getReturnAction());
+        PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, instanceCount, getReturnAction(), true);
         navigation.addPagingNavigationTable(tdFormElement);
 
         TDBuilder[] builders = getBuilders(new TDBuilder[] {}, batchPresentation, new TDBuilder[] {});
