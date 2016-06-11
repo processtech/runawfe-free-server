@@ -26,6 +26,7 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskClassPresentation;
 import ru.runa.wfe.var.Variable;
 
 /**
@@ -39,6 +40,7 @@ public class ProcessClassPresentation extends ClassPresentation {
     public static final String PROCESS_END_DATE = "batch_presentation.process.ended";
     public static final String DEFINITION_VERSION = "batch_presentation.process.definition_version";
     public static final String TASK_EXECUTOR = "batch_presentation.task.executor.name";
+    public static final String TASK_NAME = "batch_presentation.process.task.name";
     public static final String PROCESS_VARIABLE = editable_prefix + "name:batch_presentation.process.variable";
 
     private static final ClassPresentation INSTANCE = new ProcessClassPresentation();
@@ -92,7 +94,11 @@ public class ProcessClassPresentation extends ClassPresentation {
                 new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDBSource(Process.class, "deployment.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "version" }),
                 new FieldDescriptor(TASK_EXECUTOR, String.class.getName(), new ChildDBSource(Task.class, "executor.name"), 
-                		true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "executor.name" }),
+                        true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "executor" }),
+                new FieldDescriptor(TaskClassPresentation.TASK_SWIMLINE, String.class.getName(), new ChildDBSource(Task.class, "swimlane.name"), 
+                        true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "swimlane" }),
+                new FieldDescriptor(TASK_NAME, String.class.getName(), new ChildDBSource(Task.class, "name"), 
+                        true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "taskName" }),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(),
                         new SubProcessDBSource[] { new SubProcessDBSource(Process.class, "hierarchyIds") }, true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}, true),
