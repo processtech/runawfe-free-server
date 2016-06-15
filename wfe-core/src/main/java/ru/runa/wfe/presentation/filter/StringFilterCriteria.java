@@ -48,16 +48,9 @@ public class StringFilterCriteria extends FilterCriteria {
 
     @Override
     public String buildWhereCondition(String fieldName, String persistentObjectQueryAlias, Map<String, QueryParameter> placeholders) {
-        String searchFilter = getFilterTemplate(0);
-        boolean useLike = false;
-        if (searchFilter.contains(ANY_SYMBOLS)) {
-            searchFilter = searchFilter.replaceAll(QUOTED_ANY_SYMBOLS, DB_ANY_SYMBOLS);
-            useLike = true;
-        }
-        if (searchFilter.contains(ANY_SYMBOL)) {
-            searchFilter = searchFilter.replaceAll(QUOTED_ANY_SYMBOL, DB_ANY_SYMBOL);
-            useLike = true;
-        }
+        final StringLikeFilter likeFilter = calcUseLike(getFilterTemplate(0));
+        String searchFilter = likeFilter.getSearchFilter();
+
         String alias = persistentObjectQueryAlias + fieldName.replaceAll("\\.", "");
         String where = "";
         if (ignoreCase) {
@@ -69,9 +62,23 @@ public class StringFilterCriteria extends FilterCriteria {
             searchFilter = searchFilter.toLowerCase();
         }
         where += " ";
-        where += useLike ? "like" : "=";
+        where += likeFilter.isUseLike() ? "like" : "=";
         where += " :" + alias + " ";
         placeholders.put(alias, new QueryParameter(alias, searchFilter));
         return where;
+    }
+
+    public static StringLikeFilter calcUseLike(String parSearchFilter) {
+        boolean useLike = false;
+        String searchFilter = parSearchFilter;
+        if (searchFilter.contains(ANY_SYMBOLS)) {
+            searchFilter = searchFilter.replaceAll(QUOTED_ANY_SYMBOLS, DB_ANY_SYMBOLS);
+            useLike = true;
+        }
+        if (searchFilter.contains(ANY_SYMBOL)) {
+            searchFilter = searchFilter.replaceAll(QUOTED_ANY_SYMBOL, DB_ANY_SYMBOL);
+            useLike = true;
+        }
+        return new StringLikeFilter(searchFilter, useLike);
     }
 }

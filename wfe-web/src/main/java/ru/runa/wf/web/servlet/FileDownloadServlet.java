@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -19,7 +20,6 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.wf.web.form.PagingForm;
-import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -37,7 +37,6 @@ public class FileDownloadServlet extends HttpServlet {
 
         final String batchPresentationId = request.getParameter(PagingForm.BATCH_PRESENTATION_ID);
         final BatchPresentation batchPresentation = getProfile(request).getActiveBatchPresentation(batchPresentationId);
-        final ExecutionService executionService = Delegates.getExecutionService();
         final File file = new File(batchPresentationId + "_" + request.getRequestedSessionId() + ".csv");
         PrintStream ps = null;
         try {
@@ -46,12 +45,10 @@ public class FileDownloadServlet extends HttpServlet {
             builder.printHerader(getLocale(request));
             ps.flush();
 
-            if ("listProcessesForm".equals(batchPresentationId)) {
-                final List<WfProcess> processes = executionService.getProcesses(getUser(request), batchPresentation);
-                for (final WfProcess process : processes) {
-                    builder.printRow(process);
-                    ps.flush();
-                }
+            final List<?> rows = getRows(getUser(request), batchPresentation);
+            for (final Object row : rows) {
+                builder.printRow(row);
+                ps.flush();
             }
 
         } finally {
@@ -92,6 +89,14 @@ public class FileDownloadServlet extends HttpServlet {
 
     protected User getUser(HttpServletRequest request) {
         return Commons.getUser(request.getSession());
+    }
+
+    private List<?> getRows(User user, BatchPresentation batchPresentation) {
+        final ExecutionService executionService = Delegates.getExecutionService();
+        if ("listProcessesForm".equals(batchPresentation.getCategory())) {
+            return executionService.getProcesses(user, null);
+        }
+        return Collections.EMPTY_LIST;
     }
 
     private class FileBuilder {
