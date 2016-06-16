@@ -90,7 +90,7 @@ public class AuthenticationServiceBean implements AuthenticationServiceLocal, Au
 
     @Override
     @WebResult(name = "result")
-    public User authenticateByTrsustedPrincipal(@WebParam(name = "serviceUser") User serviceUser, @WebParam(name = "login") String login) {
+    public User authenticateByTrustedPrincipal(@WebParam(name = "serviceUser") User serviceUser, @WebParam(name = "login") String login) {
         Preconditions.checkArgument(serviceUser != null);
         Preconditions.checkArgument(login != null);
         log.debug("Authenticating (trusted) " + login);

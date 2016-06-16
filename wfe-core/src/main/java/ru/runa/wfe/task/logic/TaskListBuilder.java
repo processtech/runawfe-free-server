@@ -103,7 +103,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         Set<Executor> executorsToGetTasks = Sets.newHashSet(executorsToGetTasksByMembership);
         getSubstituteExecutorsToGetTasks(actor, executorsToGetTasks);
         @SuppressWarnings("unchecked")
-        List<Task> tasks = LoadTasks(batchPresentation, executorsToGetTasks);
+        List<Task> tasks = loadTasks(batchPresentation, executorsToGetTasks);
         for (Task task : tasks) {
             try {
                 WfTask acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
@@ -135,14 +135,14 @@ public class TaskListBuilder implements ITaskListBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Task> LoadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
+    private List<Task> loadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
         if (executorsToGetTasks.size() < SystemProperties.getDatabaseParametersCount()) {
             CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(executorsToGetTasks, "executor"));
             return (List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters);
         } else {
             List<Task> tasks = Lists.newArrayList();
-            for (List<Executor> ex : Lists.partition(Lists.newArrayList(executorsToGetTasks), SystemProperties.getDatabaseParametersCount())) {
-                CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(ex, "executor"));
+            for (List<Executor> list : Lists.partition(Lists.newArrayList(executorsToGetTasks), SystemProperties.getDatabaseParametersCount())) {
+                CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(list, "executor"));
                 tasks.addAll((List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters));
             }
             return tasks;
