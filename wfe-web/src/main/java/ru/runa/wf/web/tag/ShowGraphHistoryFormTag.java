@@ -31,7 +31,7 @@ import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.ProcessPermission;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -90,7 +90,7 @@ public class ShowGraphHistoryFormTag extends ProcessBaseFormTag {
         params.put(TaskIdForm.TASK_ID_INPUT_NAME, taskId);
         params.put("name", subprocessId);
         String href = Commons.getActionUrl(HistoryGraphImageAction.ACTION_PATH, params, pageContext, PortletUrlType.Resource);
-        List<GraphElementPresentation> elements = Delegates.getAuditService().getProcessHistoryDiagramElements(getUser(), getIdentifiableId(),
+        List<NodeGraphElement> elements = Delegates.getAuditService().getProcessHistoryDiagramElements(getUser(), getIdentifiableId(),
                 taskId, subprocessId);
         GraphHistoryElementPresentationVisitor visitor = new GraphHistoryElementPresentationVisitor(pageContext, formDataTD, subprocessId);
         visitor.visit(elements);

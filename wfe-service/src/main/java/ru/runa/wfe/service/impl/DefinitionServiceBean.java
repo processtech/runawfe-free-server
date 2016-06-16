@@ -32,11 +32,11 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -109,11 +109,21 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public ProcessDefinition getParsedProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
-            throws DefinitionDoesNotExistException {
+    public ProcessDefinition getParsedProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId) {
         Preconditions.checkArgument(user != null);
         Preconditions.checkArgument(definitionId != null);
         return definitionLogic.getParsedProcessDefinition(user, definitionId);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public Node getNode(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+            @WebParam(name = "nodeId") String nodeId) {
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(definitionId != null);
+        Preconditions.checkArgument(nodeId != null);
+        ProcessDefinition processDefinition = definitionLogic.getParsedProcessDefinition(user, definitionId);
+        return processDefinition.getNode(nodeId);
     }
 
     @Override
@@ -251,7 +261,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public List<GraphElementPresentation> getProcessDefinitionGraphElements(@WebParam(name = "user") User user,
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(@WebParam(name = "user") User user,
             @WebParam(name = "definitionId") Long definitionId, @WebParam(name = "subprocessId") String subprocessId) {
         Preconditions.checkArgument(user != null);
         Preconditions.checkArgument(definitionId != null);

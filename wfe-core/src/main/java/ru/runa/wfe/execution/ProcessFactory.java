@@ -15,7 +15,7 @@ import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.StartState;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.security.Permission;
@@ -164,12 +164,12 @@ public class ProcessFactory {
 
     private void startProcessInternal(ExecutionContext executionContext, String transitionName) {
         // execute the start node
-        StartState startState = executionContext.getProcessDefinition().getStartStateNotNull();
-        // startState.enter(executionContext);
+        StartNode startNode = executionContext.getProcessDefinition().getStartStateNotNull();
+        // startNode.enter(executionContext);
         Transition transition = null;
         if (transitionName != null) {
             transition = executionContext.getProcessDefinition().getStartStateNotNull().getLeavingTransitionNotNull(transitionName);
         }
-        startState.leave(executionContext, transition);
+        startNode.leave(executionContext, transition);
     }
 }

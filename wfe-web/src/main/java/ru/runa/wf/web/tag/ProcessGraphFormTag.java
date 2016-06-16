@@ -30,7 +30,7 @@ import ru.runa.wf.web.action.ProcessGraphImageAction;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.ProcessPermission;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -93,8 +93,8 @@ public class ProcessGraphFormTag extends ProcessBaseFormTag {
         img.setID("graph");
         img.setSrc(href);
         img.setBorder(0);
-        List<GraphElementPresentation> elements = Delegates.getExecutionService().getProcessDiagramElements(getUser(), getIdentifiableId(), subprocessId);
-        ProcessGraphElementPresentationVisitor visitor = new ProcessGraphElementPresentationVisitor(getUser(), pageContext, td, subprocessId);
+        List<NodeGraphElement> elements = Delegates.getExecutionService().getProcessDiagramElements(getUser(), getIdentifiableId(), subprocessId);
+        ProcessNodeGraphElementVisitor visitor = new ProcessNodeGraphElementVisitor(getUser(), pageContext, td, subprocessId);
         visitor.visit(elements);
         if (!visitor.getPresentationHelper().getMap().isEmpty()) {
             td.addElement(visitor.getPresentationHelper().getMap());

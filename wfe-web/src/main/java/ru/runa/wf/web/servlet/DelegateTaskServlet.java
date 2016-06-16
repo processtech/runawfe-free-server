@@ -86,7 +86,7 @@ public class DelegateTaskServlet extends HttpServlet {
             Executor newOwner = Delegates.getExecutorService().getExecutor(user, executorId);
             executorList.add(newOwner);
         }
-        Delegates.getTaskService().delegateTask(user, taskId, currentOwner, executorList);
+        Delegates.getTaskService().delegateTask(user, taskId, currentOwner, true, executorList);
     }
 
 }

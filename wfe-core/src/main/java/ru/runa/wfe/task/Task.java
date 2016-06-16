@@ -67,7 +67,7 @@ import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.TaskDefinition;
-import ru.runa.wfe.lang.WaitState;
+import ru.runa.wfe.lang.WaitNode;
 import ru.runa.wfe.task.logic.ITaskNotifier;
 import ru.runa.wfe.user.Executor;
 
@@ -313,7 +313,7 @@ public class Task implements Assignable {
             throw new IllegalArgumentException("Unimplemented for " + completionInfo.getCompletionBy());
         }
         Node node = executionContext.getProcessDefinition().getNodeNotNull(nodeId);
-        if (SystemProperties.isV3CompatibilityMode() && node instanceof WaitState) {
+        if (SystemProperties.isV3CompatibilityMode() && node instanceof WaitNode) {
             delete();
             return;
         }

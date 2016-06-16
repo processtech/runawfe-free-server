@@ -15,10 +15,10 @@ import com.google.common.collect.Maps;
 public class NodeTypeChangePatch extends DBPatch {
     private static final Map<String, String> CHANGES = Maps.newHashMap();
     static {
-        CHANGES.put("StartState", NodeType.START_EVENT.name());
+        CHANGES.put("StartNode", NodeType.START_EVENT.name());
         CHANGES.put("ActionNode", NodeType.ACTION_NODE.name());
         CHANGES.put("End", NodeType.END_PROCESS.name());
-        CHANGES.put("WaitState", NodeType.WAIT_STATE.name());
+        CHANGES.put("WaitNode", NodeType.WAIT_STATE.name());
         CHANGES.put("TAST_STATE", NodeType.TASK_STATE.name());
         CHANGES.put("TaskNode", NodeType.TASK_STATE.name());
         CHANGES.put("Fork", NodeType.FORK.name());
@@ -26,8 +26,8 @@ public class NodeTypeChangePatch extends DBPatch {
         CHANGES.put("Decision", NodeType.DECISION.name());
         CHANGES.put("Subprocess", NodeType.SUBPROCESS.name());
         CHANGES.put("MultiSubprocess", NodeType.MULTI_SUBPROCESS.name());
-        CHANGES.put("SendMessage", NodeType.SEND_MESSAGE.name());
-        CHANGES.put("ReceiveMessage", NodeType.RECEIVE_MESSAGE.name());
+        CHANGES.put("SendMessageNode", NodeType.SEND_MESSAGE.name());
+        CHANGES.put("ReceiveMessageNode", NodeType.RECEIVE_MESSAGE.name());
         CHANGES.put("EndToken", NodeType.END_TOKEN.name());
         CHANGES.put("MultiTaskNode", NodeType.MULTI_TASK_STATE.name());
         CHANGES.put("Merge", NodeType.MERGE.name());
