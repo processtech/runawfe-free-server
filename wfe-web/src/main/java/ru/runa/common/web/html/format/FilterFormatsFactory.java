@@ -24,6 +24,7 @@ import java.util.Map;
 import ru.runa.wfe.presentation.SystemLogTypeFilterCriteria;
 import ru.runa.wfe.presentation.SystemLogTypeHelper;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
+import ru.runa.wfe.presentation.filter.TakeDateFilterCriteria;
 import ru.runa.wfe.presentation.filter.UserOrGroupFilterCriteria;
 
 /**
@@ -41,6 +42,7 @@ public class FilterFormatsFactory {
         formattersMap.put(AnywhereStringFilterCriteria.class.getName(), new StringFilterTDFormatter());
         formattersMap.put(SystemLogTypeFilterCriteria.class.getName(), new StringEnumerationFilterTDFormatter(SystemLogTypeHelper.getValues()));
         formattersMap.put(UserOrGroupFilterCriteria.class.getName(), new UserOrGroupFilterTDFormatter());
+        formattersMap.put(TakeDateFilterCriteria.class.getName(), new DateFilterTDFormatter());
     }
 
     public static FilterTDFormatter getFormatter(String fieldType) {

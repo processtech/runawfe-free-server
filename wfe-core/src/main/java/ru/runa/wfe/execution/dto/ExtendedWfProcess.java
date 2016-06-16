@@ -14,8 +14,8 @@ public class ExtendedWfProcess extends WfProcess {
     private String taskName;
     private Long taskDuration;
     private Long currentTaskDuration;
-    private Date receiptTime;
-    private Date takeTime;
+    private Date taskCreateDate;
+    private Date taskTakeDate;
     private Date deadTime;
 
     public ExtendedWfProcess() {
@@ -27,10 +27,14 @@ public class ExtendedWfProcess extends WfProcess {
         if (null != task) {
             if (null != task.getExecutor()) {
                 this.executor = task.getExecutor().getName();
+                if (null != task.getSwimlane()) {
+                    this.taskTakeDate = task.getSwimlane().getCreateDate();
+                }
             }
             this.swimlane = task.getSwimlaneName();
             this.taskName = task.getName();
             this.deadTime = task.getDeadlineDate();
+            this.taskCreateDate = task.getCreateDate();
         }
     }
 
@@ -74,20 +78,20 @@ public class ExtendedWfProcess extends WfProcess {
         this.currentTaskDuration = currentTaskDuration;
     }
 
-    public Date getReceiptTime() {
-        return receiptTime;
+    public Date getTaskCreateDate() {
+        return taskCreateDate;
     }
 
-    public void setReceiptTime(Date receiptTime) {
-        this.receiptTime = receiptTime;
+    public void setTaskCreateDate(Date createDate) {
+        this.taskCreateDate = createDate;
     }
 
-    public Date getTakeTime() {
-        return takeTime;
+    public Date getTaskTakeDate() {
+        return taskTakeDate;
     }
 
-    public void setTakeTime(Date takeTime) {
-        this.takeTime = takeTime;
+    public void setTaskTakeDate(Date taskTakeDate) {
+        this.taskTakeDate = taskTakeDate;
     }
 
     public Date getDeadTime() {
