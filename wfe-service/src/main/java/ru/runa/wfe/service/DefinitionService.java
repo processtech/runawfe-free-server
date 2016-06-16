@@ -26,7 +26,8 @@ import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -131,6 +132,20 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      */
     public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
+
+    /**
+     * Gets parsed process definition by id.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @param nodeId
+     *            node id
+     * @return node or <code>null</code>
+     * @throws DefinitionDoesNotExistException
+     */
+    public Node getNode(User user, Long definitionId, String nodeId) throws DefinitionDoesNotExistException;
 
     /**
      * Deletes process definition by name. If version is not specified all
@@ -304,7 +319,7 @@ public interface DefinitionService {
      *            embedded subprocess id or <code>null</code>
      * @return not <code>null</code>
      */
-    public List<GraphElementPresentation> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId);
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId);
 
     /**
      * Gets all versions of process definition specified by name.

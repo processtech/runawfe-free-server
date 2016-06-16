@@ -36,9 +36,9 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
-import ru.runa.wfe.graph.view.GraphElementPresentationBuilder;
-import ru.runa.wfe.graph.view.GraphElementPresentationVisitor;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
+import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.AuthorizationException;
@@ -205,8 +205,8 @@ public class WFCommonLogic extends CommonLogic {
      *            null, if nothing to apply.
      * @return List of graph presentation elements.
      */
-    public List<GraphElementPresentation> getDefinitionGraphElements(User user, ProcessDefinition definition, GraphElementPresentationVisitor visitor) {
-        List<GraphElementPresentation> elements = GraphElementPresentationBuilder.createElements(definition);
+    public List<NodeGraphElement> getDefinitionGraphElements(User user, ProcessDefinition definition, NodeGraphElementVisitor visitor) {
+        List<NodeGraphElement> elements = NodeGraphElementBuilder.createElements(definition);
         if (visitor != null) {
             visitor.visit(elements);
         }

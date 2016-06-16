@@ -27,7 +27,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Executor;
@@ -195,7 +195,7 @@ public interface ExecutionService {
 
     /**
      * Gets variable by name from process for specified task.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -268,8 +268,21 @@ public interface ExecutionService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<GraphElementPresentation> getProcessDiagramElements(User user, Long processId, String subprocessId)
-            throws ProcessDoesNotExistException;
+    public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) throws ProcessDoesNotExistException;
+
+    /**
+     * Gets process graph element for diagram.
+     *
+     * @param user
+     *            authorized user
+     * @param processId
+     *            process id
+     * @param nodeId
+     *            node id
+     * @return element or <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) throws ProcessDoesNotExistException;
 
     /**
      * Removes processes by filter criterias.

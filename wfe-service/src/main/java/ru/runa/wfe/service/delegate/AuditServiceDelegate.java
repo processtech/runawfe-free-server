@@ -22,7 +22,7 @@ import java.util.List;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.AuditService;
 import ru.runa.wfe.user.User;
@@ -50,7 +50,7 @@ public class AuditServiceDelegate extends EJB3Delegate implements AuditService {
     }
 
     @Override
-    public List<GraphElementPresentation> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId) {
+    public List<NodeGraphElement> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId) {
         try {
             return getAuditService().getProcessHistoryDiagramElements(user, processId, taskId, subprocessId);
         } catch (Exception e) {

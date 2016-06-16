@@ -22,7 +22,8 @@ import java.util.List;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -120,6 +121,15 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException {
         try {
             return getDefinitionService().getParsedProcessDefinition(user, definitionId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public Node getNode(User user, Long definitionId, String nodeId) throws DefinitionDoesNotExistException {
+        try {
+            return getDefinitionService().getNode(user, definitionId, nodeId);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -234,7 +244,7 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<GraphElementPresentation> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
         try {
             return getDefinitionService().getProcessDefinitionGraphElements(user, definitionId, subprocessId);
         } catch (Exception e) {
