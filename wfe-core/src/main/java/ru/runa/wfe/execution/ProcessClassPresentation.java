@@ -42,6 +42,7 @@ public class ProcessClassPresentation extends ClassPresentation {
     public static final String DEFINITION_VERSION = "batch_presentation.process.definition_version";
     public static final String TASK_EXECUTOR = "batch_presentation.task.executor.name";
     public static final String TASK_NAME = "batch_presentation.process.task.name";
+    public static final String TASK_DEADLINE = "batch_presentation.process.task.dedline";
     public static final String PROCESS_VARIABLE = editable_prefix + "name:batch_presentation.process.variable";
 
     private static final ClassPresentation INSTANCE = new ProcessClassPresentation();
@@ -100,6 +101,8 @@ public class ProcessClassPresentation extends ClassPresentation {
                         true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "swimlane" }),
                 new FieldDescriptor(TASK_NAME, String.class.getName(), new ChildDBSource(Task.class, "name"), 
                         true, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "taskName" }),
+                new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new ChildDBSource(Task.class, "deadlineDate"), 
+                        true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessDeadLineTDBuilder", new Object[] {}),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(),
                         new SubProcessDBSource[] { new SubProcessDBSource(Process.class, "hierarchyIds") }, true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}, true),

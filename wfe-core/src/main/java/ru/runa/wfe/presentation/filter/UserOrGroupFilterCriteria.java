@@ -13,7 +13,10 @@ public class UserOrGroupFilterCriteria extends FilterCriteria {
 
     @Override
     public String buildWhereCondition(String fieldName, String persistentObjectQueryAlias, Map<String, QueryParameter> placeholders) {
-        boolean includeGroup = !getFilterTemplate(1).isEmpty();
+        boolean includeGroup = false;
+        if (!getFilterTemplate(1).isEmpty()) {
+            includeGroup = 1 == Integer.parseInt(getFilterTemplate(1));
+        }
 
         final StringLikeFilter likeFilter = StringFilterCriteria.calcUseLike(getFilterTemplate(0));
         final String alias = persistentObjectQueryAlias + fieldName.replaceAll("\\.", "");

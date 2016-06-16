@@ -30,6 +30,7 @@ public class ExtendedWfProcess extends WfProcess {
             }
             this.swimlane = task.getSwimlaneName();
             this.taskName = task.getName();
+            this.deadTime = task.getDeadlineDate();
         }
     }
 

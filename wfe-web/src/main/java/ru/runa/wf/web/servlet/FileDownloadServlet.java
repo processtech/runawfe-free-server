@@ -45,7 +45,7 @@ public class FileDownloadServlet extends HttpServlet {
             builder.printHerader(getLocale(request));
             ps.flush();
 
-            final List<?> rows = getRows(getUser(request), batchPresentation);
+            final List<?> rows = getRows(getUser(request), batchPresentation.clone());
             for (final Object row : rows) {
                 builder.printRow(row);
                 ps.flush();
@@ -92,9 +92,10 @@ public class FileDownloadServlet extends HttpServlet {
     }
 
     private List<?> getRows(User user, BatchPresentation batchPresentation) {
+        batchPresentation.setRangeSize(10000);
         final ExecutionService executionService = Delegates.getExecutionService();
         if ("listProcessesForm".equals(batchPresentation.getCategory())) {
-            return executionService.getProcesses(user, null);
+            return executionService.getProcesses(user, batchPresentation);
         }
         return Collections.EMPTY_LIST;
     }
