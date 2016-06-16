@@ -38,6 +38,7 @@ public class NodeGraphElementBuilder {
             element = new StartNodeGraphElement();
             break;
         case TASK_STATE:
+        case MULTI_TASK_STATE:
             element = new TaskNodeGraphElement();
             break;
         case SUBPROCESS:
