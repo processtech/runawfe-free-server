@@ -17,6 +17,8 @@
  */
 package ru.runa.wfe.graph.view;
 
+import java.util.List;
+
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.TaskDefinition;
@@ -36,8 +38,11 @@ public class StartNodeGraphElement extends NodeGraphElement {
     @Override
     public void initialize(Node node, int[] graphConstraints) {
         super.initialize(node, graphConstraints);
-        TaskDefinition taskDefinition = ((InteractionNode) node).getFirstTaskNotNull();
-        swimlaneName = taskDefinition.getSwimlane().getName();
+        List<TaskDefinition> taskDefinitions = ((InteractionNode) node).getTasks();
+        if (taskDefinitions.size() > 0) {
+            // none for EmbeddedSubprocessStartNode
+            swimlaneName = taskDefinitions.get(0).getSwimlane().getName();
+        }
     }
 
     /**
