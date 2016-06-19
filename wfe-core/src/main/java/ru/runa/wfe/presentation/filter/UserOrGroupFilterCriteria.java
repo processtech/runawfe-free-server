@@ -12,14 +12,14 @@ public class UserOrGroupFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String fieldName, String persistentObjectQueryAlias, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
         boolean includeGroup = false;
         if (!getFilterTemplate(1).isEmpty()) {
             includeGroup = 1 == Integer.parseInt(getFilterTemplate(1));
         }
 
         final StringLikeFilter likeFilter = StringFilterCriteria.calcUseLike(getFilterTemplate(0));
-        final String alias = persistentObjectQueryAlias + fieldName.replaceAll("\\.", "");
+        final String alias = makePlaceHolderName(aliasedFieldName);
         final StringBuilder paramStringBuilder = new StringBuilder();
         if (likeFilter.isUseLike()) {
             paramStringBuilder.append(" like ");
@@ -30,8 +30,7 @@ public class UserOrGroupFilterCriteria extends FilterCriteria {
         paramStringBuilder.append(alias);
         placeholders.put(alias, new QueryParameter(alias, likeFilter.getSearchFilter()));
 
-        final StringBuilder whereStringBuilder = new StringBuilder(persistentObjectQueryAlias);
-        whereStringBuilder.append(".").append(fieldName);
+        final StringBuilder whereStringBuilder = new StringBuilder(aliasedFieldName);
         if (includeGroup) {
             whereStringBuilder.append(" in ( select distinct egm.executor.name from ru.runa.wfe.user.ExecutorGroupMembership as egm, "
                     + "ru.runa.wfe.user.ExecutorGroupMembership as egm2 where egm.group = egm2.group and (egm2.executor.name");

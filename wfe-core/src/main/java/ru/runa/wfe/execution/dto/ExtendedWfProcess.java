@@ -2,6 +2,8 @@ package ru.runa.wfe.execution.dto;
 
 import java.util.Date;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
+
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.task.Task;
 
@@ -12,8 +14,8 @@ public class ExtendedWfProcess extends WfProcess {
     private String executor;
     private String swimlane;
     private String taskName;
-    private Long taskDuration;
-    private Long currentTaskDuration;
+    private String taskDuration;
+    private String currentTaskDuration;
     private Date taskCreateDate;
     private Date taskTakeDate;
     private Date deadTime;
@@ -35,6 +37,12 @@ public class ExtendedWfProcess extends WfProcess {
             this.taskName = task.getName();
             this.deadTime = task.getDeadlineDate();
             this.taskCreateDate = task.getCreateDate();
+            if (null != task.getDeadlineDate()) {
+                final Long millisecondsDuration = task.getDeadlineDate().getTime() - task.getCreateDate().getTime();
+                this.taskDuration = DurationFormatUtils.formatDurationWords(millisecondsDuration, true, true);
+            }
+            final Long currentMillisecondsDuration = new Date().getTime() - task.getCreateDate().getTime();
+            this.currentTaskDuration = DurationFormatUtils.formatDurationWords(currentMillisecondsDuration, true, true);
         }
     }
 
@@ -62,19 +70,19 @@ public class ExtendedWfProcess extends WfProcess {
         this.taskName = taskName;
     }
 
-    public Long getTaskDuration() {
+    public String getTaskDuration() {
         return taskDuration;
     }
 
-    public void setTaskDuration(Long taskDuration) {
+    public void setTaskDuration(String taskDuration) {
         this.taskDuration = taskDuration;
     }
 
-    public Long getCurrentTaskDuration() {
+    public String getCurrentTaskDuration() {
         return currentTaskDuration;
     }
 
-    public void setCurrentTaskDuration(Long currentTaskDuration) {
+    public void setCurrentTaskDuration(String currentTaskDuration) {
         this.currentTaskDuration = currentTaskDuration;
     }
 

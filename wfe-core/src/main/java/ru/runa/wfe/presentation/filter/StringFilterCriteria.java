@@ -47,16 +47,16 @@ public class StringFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String fieldName, String persistentObjectQueryAlias, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
         final StringLikeFilter likeFilter = calcUseLike(getFilterTemplate(0));
         String searchFilter = likeFilter.getSearchFilter();
 
-        String alias = persistentObjectQueryAlias + fieldName.replaceAll("\\.", "");
+        String alias = makePlaceHolderName(aliasedFieldName);
         String where = "";
         if (ignoreCase) {
             where += "lower(";
         }
-        where += persistentObjectQueryAlias + "." + fieldName;
+        where += aliasedFieldName;
         if (ignoreCase) {
             where += ")";
             searchFilter = searchFilter.toLowerCase();
