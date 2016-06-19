@@ -17,6 +17,7 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +26,8 @@ import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.json.simple.JSONValue;
+import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
@@ -46,6 +49,9 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
+//import org.json.simple.JSONValue;
+
+
 /**
  * Created on 15.10.2004
  * 
@@ -60,6 +66,9 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     private static boolean isButtonEnabled;
 
     private static final String[] NO_PREFIX_HEADER_NAMES = new String[0];
+    
+    @Attribute(required = false, rtexprvalue = true)
+    public static String tasksIds;
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
@@ -70,6 +79,12 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
+        // Build tasks ID-s string (in JSON for common purposes)
+        List<Long> ids = new ArrayList<Long>(tasks.size());
+        for(WfTask tsk : tasks){
+        	ids.add(tsk.getId());
+        }
+        tasksIds = JSONValue.toJSONString(ids);
    }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
@@ -152,4 +167,15 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     public String getConfirmationPopupParameter() {
         return ConfirmationPopupHelper.ACCEPT_TASK_PARAMETER;
     }
+    
+    
+//    public String getTasksIds() {
+//        return tasksIds;
+//    }
+//
+//    @Attribute(required = false, rtexprvalue = true)
+//    public void setTasksIds(String tasks) {
+//        this.tasksIds = tasks;
+//    }
+ 
 }

@@ -4,6 +4,8 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ page import="ru.runa.common.WebResources" %>
+<%@ page import="ru.runa.wf.web.form.ProcessForm" %>
+<%@ page import="ru.runa.wf.web.tag.ListTasksFormTag" %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
@@ -65,9 +67,11 @@
 	</div>
 </wf:listTasksForm>
 
+	<% String actorId =  request.getParameter(ProcessForm.ACTOR_ID_INPUT_NAME); %>
 	<% if (WebResources.isTaskDelegationEnabled()) { %>
-	<% Long taskId = 0L; %>
-	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
+	<% String tasksIds = ListTasksFormTag.tasksIds; %>
+	
+	<wf:taskFormDelegationButton taskId="<%= -1L %>" tasksIds="<%= tasksIds %>"/>
 	<% } %>
 
 

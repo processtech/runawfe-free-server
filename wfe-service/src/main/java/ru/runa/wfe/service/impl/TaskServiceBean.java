@@ -134,7 +134,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @Override
     public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> newOwners) {
         Preconditions.checkArgument(user != null);
-        taskLogic.delegateTask(user, taskId, currentOwner, newOwners);
+       	taskLogic.delegateTask(user, taskId, currentOwner, newOwners);
+        
     }
 
 }

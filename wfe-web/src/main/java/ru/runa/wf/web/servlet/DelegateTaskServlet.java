@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 
 import ru.runa.common.WebResources;
@@ -52,41 +53,54 @@ public class DelegateTaskServlet extends HttpServlet {
         Long taskId;
         Boolean keepCurrent;
         Set<Long> executors = Sets.newHashSet();
+        Set<Long> tasks = Sets.newHashSet();
 
         try {
             JSONArray executorIds = (JSONArray) parameters.get("executors");
             keepCurrent = (Boolean) parameters.get("keepCurrent");
             taskId = (Long) parameters.get("taskId");
+            JSONArray tasksIds = (JSONArray)JSONValue.parse((String)parameters.get("tasksIds"));
 
             for (Object executorId : executorIds) {
                 executors.add((Long) executorId);
+            }
+            for (Object task : tasksIds) {
+            	tasks.add((Long) task);
             }
         } catch (Exception e) {
             log.error("Bad request", e);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-
-        WfTask task = Delegates.getTaskService().getTask(user, taskId);
-        Executor currentOwner = task.getOwner();
-
-        if (keepCurrent) {
-            if (currentOwner instanceof TemporaryGroup) {
-                Group g = (Group) currentOwner;
-                for (Actor actor : Delegates.getExecutorService().getGroupActors(user, g)) {
-                    executors.add(actor.getId());
-                }
-            } else {
-                executors.add(currentOwner.getId());
-            }
+        
+        if (taskId != -1L){
+        	tasks.add(taskId);
         }
+        
+        for (Long nextTaskId : tasks) {
 
-        List<Executor> executorList = Lists.newArrayList();
-        for (Long executorId : executors) {
-            Executor newOwner = Delegates.getExecutorService().getExecutor(user, executorId);
-            executorList.add(newOwner);
+	        WfTask task = Delegates.getTaskService().getTask(user, nextTaskId);
+	        Executor currentOwner = task.getOwner();
+	
+	        if (keepCurrent) {
+	            if (currentOwner instanceof TemporaryGroup) {
+	                Group g = (Group) currentOwner;
+	                for (Actor actor : Delegates.getExecutorService().getGroupActors(user, g)) {
+	                    executors.add(actor.getId());
+	                }
+	            } else {
+	                executors.add(currentOwner.getId());
+	            }
+	        }
+	
+	        List<Executor> executorList = Lists.newArrayList();
+	        for (Long executorId : executors) {
+	            Executor newOwner = Delegates.getExecutorService().getExecutor(user, executorId);
+	            executorList.add(newOwner);
+	        }
+	        
+	        Delegates.getTaskService().delegateTask(user, nextTaskId, currentOwner, executorList);
         }
-        Delegates.getTaskService().delegateTask(user, taskId, currentOwner, executorList);
     }
 
 }

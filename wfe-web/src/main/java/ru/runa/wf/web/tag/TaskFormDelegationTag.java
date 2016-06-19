@@ -22,6 +22,7 @@ public class TaskFormDelegationTag extends VisibleTag {
     private static final long serialVersionUID = 1L;
 
     private Long taskId;
+    private String tasksIds;
 
     @Override
     protected ConcreteElement getEndElement() {
@@ -34,6 +35,7 @@ public class TaskFormDelegationTag extends VisibleTag {
         Button button = new Button();
         button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASK.message(pageContext)));
         button.addAttribute("data-taskid", taskId.intValue());
+        button.addAttribute("data-tasksIds", tasksIds); // Add tasks IDs
         button.setOnClick("delegateTaskDialog(this)");
 
         col.addElement(button);
@@ -57,4 +59,15 @@ public class TaskFormDelegationTag extends VisibleTag {
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
+    
+    public String getTasksIds() {
+        return tasksIds;
+    }
+
+    @Attribute(required = false, rtexprvalue = true)
+    public void setTasksIds(String tasksIds) {
+        this.tasksIds = tasksIds;
+    }
+    
+    
 }

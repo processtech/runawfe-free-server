@@ -248,7 +248,8 @@ public class TaskLogic extends WFCommonLogic {
         if (!Objects.equal(currentOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
         }
-        if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
+        // Check for user permeations, except for Administrators
+        if (SystemProperties.isTaskAssignmentStrictRulesEnabled() && !user.getName().equals("Administrator")) {
             checkCanParticipate(user.getActor(), task);
         }
         DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), taskId);
