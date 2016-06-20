@@ -25,13 +25,14 @@ public class ShowProcessAction extends ForwardAction {
         Long processId = Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME));
         List<ProcessError> errorDetails = ProcessExecutionErrors.getProcessErrors(processId);
         if (errorDetails != null) {
-            String processErrors = "";
+            StringBuilder processErrors = new StringBuilder();
             for (ProcessError detail : errorDetails) {
                 String url = "javascript:showProcessError(" + processId + ", '" + detail.getNodeId() + "')";
-                processErrors += "<a href=\"" + url + "\">" + detail.getTaskName() + " (" + CalendarUtil.formatDateTime(detail.getOccurredDate())
-                        + ")</a><br>";
+                processErrors.append("<a href=\"").append(url).append("\">").append(detail.getTaskName()).append(" (");
+                processErrors.append(CalendarUtil.formatDateTime(detail.getOccurredDate())).append(")</a>");
+                processErrors.append("<br>");
             }
-            request.setAttribute("processErrors", processErrors);
+            request.setAttribute("processErrors", processErrors.toString());
         }
         return forward;
     }

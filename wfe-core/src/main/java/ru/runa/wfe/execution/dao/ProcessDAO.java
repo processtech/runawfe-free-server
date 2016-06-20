@@ -31,6 +31,23 @@ public class ProcessDAO extends GenericDAO<Process> {
         }
     }
 
+    // TODO 785
+    public List<Process> findAllSuspendedProcesses() {
+        return getHibernateTemplate().execute(new HibernateCallback<List<Process>>() {
+            @Override
+            public List<Process> doInHibernate(Session session) {
+                List<Process> out = session.createQuery("from Process p where p.executionStatus='SUSPENDED' order by startDate desc").list();
+                if (out.isEmpty()) {
+                    return out;
+                }
+                for (Process p : out) {
+                    p.getDeployment().getName();
+                }
+                return out;
+            }
+        });
+    }
+
     /**
      * fetches all processes for the given process definition from the database.
      * The returned list of processs is sorted start date, youngest first.

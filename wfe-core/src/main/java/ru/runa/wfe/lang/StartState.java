@@ -32,7 +32,7 @@ public class StartState extends InteractionNode {
     }
     
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
     }
 
 }

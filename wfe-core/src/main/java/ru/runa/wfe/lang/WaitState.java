@@ -11,7 +11,7 @@ public class WaitState extends Node {
     }
 
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
         log.info("Waiting in " + this);
     }
 

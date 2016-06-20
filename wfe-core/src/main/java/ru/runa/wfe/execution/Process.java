@@ -29,6 +29,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -100,6 +102,7 @@ public class Process extends IdentifiableBase {
     private Deployment deployment;
     private Set<Swimlane> swimlanes;
     private Set<Task> tasks;
+    private ProcessExecutionStatus executionStatus = ProcessExecutionStatus.ACTIVE;
 
     public Process() {
     }
@@ -174,6 +177,16 @@ public class Process extends IdentifiableBase {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    @Column(name = "EXECUTION_STATUS")
+    @Enumerated(EnumType.STRING)
+    public ProcessExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ProcessExecutionStatus status) {
+        this.executionStatus = status;
     }
 
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
@@ -282,7 +295,7 @@ public class Process extends IdentifiableBase {
 
     /**
      * Ends this process and all the tokens in it.
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */

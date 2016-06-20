@@ -272,3 +272,8 @@ div.requiredWrapper::after, span.requiredWrapper::after {
 .ui-datepicker-prev, .ui-datepicker-next {
 	background-color: white;
 }
+
+
+tr.suspended td {
+  background-color: #ff9999;
+}

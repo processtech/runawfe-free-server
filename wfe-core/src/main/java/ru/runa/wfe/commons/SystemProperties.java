@@ -131,7 +131,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     *
+     * 
      * @return max string value
      */
     public static int getStringVariableValueLength() {
@@ -276,5 +276,9 @@ public class SystemProperties {
 
     public static List<String> getRequiredValidatorNames() {
         return RESOURCES.getMultipleStringProperty("required.validator.names");
+    }
+
+    public static boolean isProcessExecutionNodeAsyncEnabled() {
+        return RESOURCES.getBooleanProperty("process.execution.node.async", false);
     }
 }

@@ -75,7 +75,6 @@ import com.google.common.collect.Lists;
 public class Token implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Token.class);
-
     private Long id;
     private Long version;
     private String name;
@@ -85,7 +84,6 @@ public class Token implements Serializable {
     private Token parent;
     private Set<Token> children;
     private boolean ableToReactivateParent;
-
     private String nodeId;
     private NodeType nodeType;
     private String transitionId;
@@ -281,7 +279,7 @@ public class Token implements Serializable {
 
     /**
      * ends this token and all of its children (if any).
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */

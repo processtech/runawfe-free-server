@@ -22,24 +22,25 @@ import java.util.List;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
 
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.PagingNavigationHelper;
+import ru.runa.common.web.html.CssClassStrategy;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ProcessRowBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
-import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
+import ru.runa.wfe.execution.ProcessExecutionStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.User;
 
 /**
  * Created on 15.10.2004
@@ -81,9 +82,10 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
             idx++;
         }
 
-        RowBuilder rowBuilder = isFilterable ? new ProcessRowBuilder(processes, batchPresentation, pageContext,
+        ReflectionRowBuilder rowBuilder = isFilterable ? new ProcessRowBuilder(processes, batchPresentation, pageContext,
                 ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders) : new ReflectionRowBuilder(processes,
                 batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders);
+        rowBuilder.setCssClassStrategy(new ProcessCssClassStrategy());
 
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder, isFilterable ? true : false));
 
@@ -104,4 +106,23 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
     protected String getTitle() {
         return MessagesProcesses.TITLE_PROCESSES.message(pageContext);
     }
+
+    class ProcessCssClassStrategy implements CssClassStrategy {
+
+        @Override
+        public String getClassName(Object item, User user) {
+            WfProcess p = (WfProcess) item;
+            if (p.getExecutionStatus() == ProcessExecutionStatus.SUSPENDED) {
+                return "suspended";
+            }
+            return "";
+        }
+
+        @Override
+        public String getCssStyle(Object item) {
+            return null;
+        }
+
+    }
+
 }

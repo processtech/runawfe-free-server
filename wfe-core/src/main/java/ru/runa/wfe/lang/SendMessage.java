@@ -59,7 +59,7 @@ public class SendMessage extends VariableContainerNode {
         variables.put(Variables.CURRENT_NODE_ID, executionContext.getNode().getNodeId());
         MapDelegableVariableProvider variableProvider = new MapDelegableVariableProvider(variables, executionContext.getVariableProvider());
         long ttl = ExpressionEvaluator.evaluateDuration(executionContext.getVariableProvider(), ttlDuration);
-        ObjectMessage message = Utils.sendMessage(variableMappings, variableProvider, ttl);
+        ObjectMessage message = Utils.sendBpmnMessage(variableMappings, variableProvider, ttl);
         String log = Utils.toString(message, true);
         executionContext.addLog(new SendMessageLog(this, log));
         leave(executionContext);
