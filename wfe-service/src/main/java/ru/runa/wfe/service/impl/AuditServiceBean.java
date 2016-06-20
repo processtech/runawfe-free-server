@@ -31,6 +31,7 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
@@ -111,8 +112,8 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
 
     @Override
     @WebResult(name = "result")
-    public TaskAggregatedLog getTaskLog(@WebParam(name = "user") User user, @WebParam(name = "taskId") Long taskId) {
+    public ProcessLog getLatestAssignTaskLog(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId, @WebParam(name = "taskId") Long taskId) {
     	Preconditions.checkArgument(user != null);
-    	return auditLogic.getTaskLog(user, taskId);
+    	return auditLogic.getLatestAssignTaskLog(user, processId, taskId);
     }
 }

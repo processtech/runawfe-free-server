@@ -19,10 +19,10 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.List;
 
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
-import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.graph.view.GraphElementPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.AuditService;
@@ -96,9 +96,9 @@ public class AuditServiceDelegate extends EJB3Delegate implements AuditService {
     }
     
     @Override
-    public TaskAggregatedLog getTaskLog(User user, Long taskId) {
+    public ProcessLog getLatestAssignTaskLog(User user, Long processId, Long taskId) {
         try {
-            return getAuditService().getTaskLog(user, taskId);
+            return getAuditService().getLatestAssignTaskLog(user, processId, taskId);
         } catch (Exception e) {
             throw handleException(e);
         }

@@ -65,6 +65,11 @@ public class WfTask implements Serializable {
     private boolean acquiredBySubstitution;
     private Integer multitaskIndex;
 
+    //fields that not presented in the Task entity  but should be
+    //displayed in the task list for user
+    private Date assignmentDate;
+    private String duration;
+    
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
 
@@ -167,8 +172,24 @@ public class WfTask implements Serializable {
     public Integer getMultitaskIndex() {
         return multitaskIndex;
     }
+    
+    public Date getAssignmentDate() {
+		return assignmentDate;
+	}
 
-    public void addVariable(WfVariable variable) {
+	public void setAssignmentDate(Date assignmentDate) {
+		this.assignmentDate = assignmentDate;
+	}
+
+	public String getDuration() {
+		return duration;
+	}
+
+	public void setDuration(String duration) {
+		this.duration = duration;
+	}
+
+	public void addVariable(WfVariable variable) {
         variables.add(variable);
     }
 

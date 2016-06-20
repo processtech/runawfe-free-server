@@ -19,10 +19,11 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
-import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.graph.view.GraphElementPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -110,13 +111,15 @@ public interface AuditService {
     public int getSystemLogsCount(User user, BatchPresentation batchPresentation);
     
     /**
-     * Gets task log entity by the given task id
+     * Gets the latest task assign log entity by the given task id
      * 
      * @param user
      *            authorized user
+     * @param processId
+     * 			  process ID
      * @param taskId
      * 			  task ID
      * @return task log entity
      */
-    public TaskAggregatedLog getTaskLog(User user, Long taskId);
+    public ProcessLog getLatestAssignTaskLog(User user, Long processId, Long taskId);
 }
