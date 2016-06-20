@@ -16,6 +16,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
 
 import ru.runa.common.WebResources;
+import ru.runa.common.web.Commons;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
@@ -23,11 +24,13 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.BooleanFormat;
+import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.MapFormat;
@@ -53,7 +56,7 @@ public class FormSubmissionUtils {
 
     /**
      * save in request user input with errors
-     *
+     * 
      * @param errors
      *            validation errors
      */
@@ -131,7 +134,7 @@ public class FormSubmissionUtils {
                     if (handler != null) {
                         variables.putAll(handler.extractVariables(interaction, variableDefinition, userInput, errors));
                     } else {
-                        Object variableValue = extractVariable(userInput, variableDefinition, errors);
+                        Object variableValue = extractVariable(request, userInput, variableDefinition, errors);
                         if (!Objects.equal(IGNORED_VALUE, variableValue)) {
                             FormComponentSubmissionPostProcessor postProcessor = (FormComponentSubmissionPostProcessor) request.getSession()
                                     .getAttribute(FormComponentSubmissionPostProcessor.KEY_PREFIX + variableDefinition.getName());
@@ -156,7 +159,7 @@ public class FormSubmissionUtils {
         Map<String, String> formatErrorsForFields = Maps.newHashMap();
         Map<String, Object> inputs = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
         inputs.putAll(getUploadedFilesInputsMap(request));
-        Object variableValue = extractVariable(inputs, variableDefinition, formatErrorsForFields);
+        Object variableValue = extractVariable(request, inputs, variableDefinition, formatErrorsForFields);
         if (formatErrorsForFields.size() > 0) {
             throw new VariablesFormatException(formatErrorsForFields.keySet());
         }
@@ -166,8 +169,8 @@ public class FormSubmissionUtils {
         return variableValue;
     }
 
-    private static Object extractVariable(Map<String, ? extends Object> userInput, VariableDefinition variableDefinition, Map<String, String> errors)
-            throws Exception {
+    private static Object extractVariable(HttpServletRequest request, Map<String, ? extends Object> userInput, VariableDefinition variableDefinition,
+            Map<String, String> errors) throws Exception {
         VariableFormat format = FormatCommons.create(variableDefinition);
         Object variableValue = null;
         boolean forceSetVariableValue = false;
@@ -175,7 +178,6 @@ public class FormSubmissionUtils {
             List<Integer> indexes = null;
             String sizeInputName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
             String indexesInputName = variableDefinition.getName() + INDEXES_SUFFIX;
-            ListFormat listFormat = (ListFormat) format;
             VariableFormat componentFormat = FormatCommons.createComponent(variableDefinition, 0);
             List<Object> list = null;
             String[] stringsIndexes = (String[]) userInput.get(indexesInputName);
@@ -209,7 +211,7 @@ public class FormSubmissionUtils {
                         String scriptingName = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
                                 + VariableFormatContainer.COMPONENT_QUALIFIER_END;
                         VariableDefinition componentDefinition = new VariableDefinition(name, scriptingName, componentFormat);
-                        Object componentValue = extractVariable(userInput, componentDefinition, errors);
+                        Object componentValue = extractVariable(request, userInput, componentDefinition, errors);
                         if (!Objects.equal(IGNORED_VALUE, componentValue)) {
                             list.add(componentValue);
                         }
@@ -223,7 +225,7 @@ public class FormSubmissionUtils {
                     }
                     list = Lists.newArrayListWithExpectedSize(strings.length);
                     for (String componentValue : strings) {
-                        list.add(convertComponent(variableDefinition.getName(), componentFormat, componentValue, errors));
+                        list.add(convertComponent(request, variableDefinition.getName(), componentFormat, componentValue, errors));
                     }
                     variableValue = list;
                 }
@@ -242,7 +244,7 @@ public class FormSubmissionUtils {
                         String scriptingName = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
                                 + VariableFormatContainer.COMPONENT_QUALIFIER_END;
                         VariableDefinition componentDefinition = new VariableDefinition(name, scriptingName, componentFormat);
-                        Object componentValue = extractVariable(userInput, componentDefinition, errors);
+                        Object componentValue = extractVariable(request, userInput, componentDefinition, errors);
                         if (!Objects.equal(IGNORED_VALUE, componentValue)) {
                             list.add(componentValue);
                         }
@@ -255,7 +257,6 @@ public class FormSubmissionUtils {
             Map<Object, Object> map = null;
             String sizeInputName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
             String indexesInputName = variableDefinition.getName() + INDEXES_SUFFIX;
-            MapFormat mapFormat = (MapFormat) format;
             VariableFormat componentKeyFormat = FormatCommons.createComponent(variableDefinition, 0);
             VariableFormat componentValueFormat = FormatCommons.createComponent(variableDefinition, 1);
             String[] stringsIndexes = (String[]) userInput.get(indexesInputName);
@@ -299,14 +300,13 @@ public class FormSubmissionUtils {
                 String scriptingNameKey = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
                         + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".key";
                 VariableDefinition componentKeyDefinition = new VariableDefinition(nameKey, scriptingNameKey, componentKeyFormat);
-                Object componentKeyValue = extractVariable(userInput, componentKeyDefinition, errors);
-
+                Object componentKeyValue = extractVariable(request, userInput, componentKeyDefinition, errors);
                 String nameValue = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
                         + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".value";
                 String scriptingNameValue = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
                         + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".value";
                 VariableDefinition componentValueDefinition = new VariableDefinition(nameValue, scriptingNameValue, componentValueFormat);
-                Object componentValueValue = extractVariable(userInput, componentValueDefinition, errors);
+                Object componentValueValue = extractVariable(request, userInput, componentValueDefinition, errors);
                 if (!Objects.equal(IGNORED_VALUE, componentKeyValue)) {
                     map.put(componentKeyValue, componentValueValue);
                 }
@@ -316,7 +316,7 @@ public class FormSubmissionUtils {
             List<VariableDefinition> expandedDefinitions = variableDefinition.expandUserType(false);
             UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
             for (VariableDefinition expandedDefinition : expandedDefinitions) {
-                Object componentValue = extractVariable(userInput, expandedDefinition, errors);
+                Object componentValue = extractVariable(request, userInput, expandedDefinition, errors);
                 if (!Objects.equal(IGNORED_VALUE, componentValue)) {
                     String attributeName = expandedDefinition.getName().substring(variableDefinition.getName().length() + 1);
                     userTypeMap.put(attributeName, componentValue);
@@ -328,7 +328,7 @@ public class FormSubmissionUtils {
             if (value != null) {
                 forceSetVariableValue = true;
             }
-            variableValue = convertComponent(variableDefinition.getName(), format, value, errors);
+            variableValue = convertComponent(request, variableDefinition.getName(), format, value, errors);
         }
         if (variableValue != null || forceSetVariableValue) {
             return variableValue;
@@ -336,7 +336,8 @@ public class FormSubmissionUtils {
         return IGNORED_VALUE;
     }
 
-    private static Object convertComponent(String inputName, VariableFormat format, Object value, Map<String, String> formatErrorsForFields) {
+    private static Object convertComponent(HttpServletRequest request, String inputName, VariableFormat format, Object value,
+            Map<String, String> errors) {
         try {
             if (format instanceof BooleanFormat) {
                 if (value == null) {
@@ -373,12 +374,15 @@ public class FormSubmissionUtils {
             } else if (value instanceof String) {
                 String valueToFormat = ((String) value).trim();
                 try {
+                    if (format instanceof ExecutorFormat) {
+                        return TypeConversionUtil.convertToExecutor(valueToFormat, new DelegateExecutorLoader(Commons.getUser(request.getSession())));
+                    }
                     return format.parse(valueToFormat);
                 } catch (Exception e) {
                     log.warn(e);
                     if (valueToFormat.length() > 0) {
                         // in other case we put validation in logic
-                        formatErrorsForFields.put(inputName, e.getMessage());
+                        errors.put(inputName, e.getMessage());
                     }
                 }
             } else if (value == null) {

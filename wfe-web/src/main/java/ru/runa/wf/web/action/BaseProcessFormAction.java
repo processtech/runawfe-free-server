@@ -44,7 +44,7 @@ import com.google.common.base.Strings;
 
 /**
  * Created on 15.12.2005
- *
+ * 
  */
 public abstract class BaseProcessFormAction extends ActionBase {
 
