@@ -2,6 +2,7 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -139,5 +140,19 @@ public interface TaskService {
      *            new executor list
      */
     public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> newOwners);
+
+    /**
+     * Delegate tasks to another users or groups.
+     *
+     * @param user
+     *            authorized user
+     * @param taskIds
+     *            tasks identifiers list
+     * @param currentOwner
+     *            current executor
+     * @param newOwners
+     *            new executor list
+     */
+    public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner, Set<Long> newOwners);
 
 }

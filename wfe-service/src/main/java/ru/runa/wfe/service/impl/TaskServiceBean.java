@@ -2,6 +2,7 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -137,5 +138,11 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
        	taskLogic.delegateTask(user, taskId, currentOwner, newOwners);
         
     }
+
+	@Override
+	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner,	Set<Long> newOwners) {
+        Preconditions.checkArgument(user != null);
+       	taskLogic.delegateTasks(user, taskIds, currentOwner, newOwners);
+	}
 
 }

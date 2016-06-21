@@ -77,30 +77,22 @@ public class DelegateTaskServlet extends HttpServlet {
         	tasks.add(taskId);
         }
         
-        for (Long nextTaskId : tasks) {
+        // TODO Code just below works in assumption that all delegated tasks was assigned to the same user. If not - must be refactored. 
+        WfTask task = Delegates.getTaskService().getTask(user, tasks.iterator().next());
+        Executor currentOwner = task.getOwner();
 
-	        WfTask task = Delegates.getTaskService().getTask(user, nextTaskId);
-	        Executor currentOwner = task.getOwner();
-	
-	        if (keepCurrent) {
-	            if (currentOwner instanceof TemporaryGroup) {
-	                Group g = (Group) currentOwner;
-	                for (Actor actor : Delegates.getExecutorService().getGroupActors(user, g)) {
-	                    executors.add(actor.getId());
-	                }
-	            } else {
-	                executors.add(currentOwner.getId());
+        if (keepCurrent) {
+	        if (currentOwner instanceof TemporaryGroup) {
+	            Group g = (Group) currentOwner;
+	            for (Actor actor : Delegates.getExecutorService().getGroupActors(user, g)) {
+	                executors.add(actor.getId());
 	            }
+	        } else {
+	            executors.add(currentOwner.getId());
 	        }
-	
-	        List<Executor> executorList = Lists.newArrayList();
-	        for (Long executorId : executors) {
-	            Executor newOwner = Delegates.getExecutorService().getExecutor(user, executorId);
-	            executorList.add(newOwner);
-	        }
-	        
-	        Delegates.getTaskService().delegateTask(user, nextTaskId, currentOwner, executorList);
         }
+
+        Delegates.getTaskService().delegateTasks(user, tasks, currentOwner, executors);
     }
 
 }

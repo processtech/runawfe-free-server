@@ -272,6 +272,18 @@ public class TaskLogic extends WFCommonLogic {
         executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
         AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
     }
+    
+	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner, Set<Long> newOwners)
+			throws TaskAlreadyAcceptedException {
+		List<Executor> executorList = Lists.newArrayList();
+		for (Long executorId : newOwners) {
+			Executor newOwner = executorDAO.getExecutor(executorId);
+			executorList.add(newOwner);
+		}
+		for (Long taskId : taskIds) {
+			delegateTask(user, taskId, currentOwner, executorList);
+		}
+	}
 
     public int reassignTasks(User user, BatchPresentation batchPresentation) {
         if (!executorLogic.isAdministrator(user)) {
