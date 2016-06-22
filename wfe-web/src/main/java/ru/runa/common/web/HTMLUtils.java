@@ -323,7 +323,12 @@ public class HTMLUtils {
     	String tableStr = table.toString();
     	tableStr = tableStr.replaceAll("</?a[^>]*>", "")
     				.replaceAll("</?img[^>]*>", "")
-    				.replaceAll("</?input[^>]*>", "");
+    				.replaceAll("</?input[^>]*>", "")
+    				.replaceAll("class='deadlineExpired'", "style='background-color: #ff9999;'")
+    				.replaceAll("class='deadlineAlmostExpired'", "style='background-color: #ddbb99;'")
+    				.replaceAll("class='deadlineExists'", "style='background-color: white;'")
+    				.replaceAll("class='escalatedTask'", "style='background-color: #ef8ff8;'")
+    				.replaceAll("class='substitutionTask'", "style='background-color: #ffff9d;'");
 
     	return tableStr;
     }
