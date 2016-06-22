@@ -17,6 +17,7 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
+import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.CssClassStrategy;
@@ -69,6 +71,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
+        Commons.setSessionAttribute(pageContext.getSession(), Commons.TASK_LIST_SESSION_ATTR_NAME, table);
     }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
@@ -103,12 +106,27 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         return MessagesProcesses.TITLE_TASKS.message(pageContext);
     }
 
-    @Override
+    /*@Override
     public String getFormButtonName() {
         return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
-    }
-
+    }*/
+    
     @Override
+	protected boolean isMultipleSubmit() {
+		return true;
+	}
+
+	@Override
+	protected List<String> getFormButtonNames() {
+		
+		List<String> submitButtons = new ArrayList<String>();
+		submitButtons.add(MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext));
+		submitButtons.add(MessagesProcesses.BUTTON_EXPORT_EXCEL.message(pageContext));
+		
+		return submitButtons;
+	}
+
+	@Override
     public String getAction() {
         return ProcessTaskAssignmentAction.ACTION_PATH;
     }

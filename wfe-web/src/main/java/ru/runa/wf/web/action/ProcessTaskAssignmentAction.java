@@ -17,18 +17,28 @@
  */
 package ru.runa.wf.web.action;
 
+import java.io.OutputStream;
+import java.text.MessageFormat;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ecs.html.Table;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import ru.runa.common.web.Commons;
+import ru.runa.common.web.HTMLUtils;
+import ru.runa.common.web.MessagesOther;
+import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.StrIdsForm;
+import ru.runa.common.web.tag.FormTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.user.Executor;
@@ -58,6 +68,37 @@ public class ProcessTaskAssignmentAction extends ActionBase {
         StrIdsForm idsForm = (StrIdsForm) form;
         Map<Long, Executor> newTaskOwners = Maps.newHashMap();
         boolean isOneTaskProcessing = false;
+        
+        //in case the "Export to Excel" button is used
+        String exportButtonLabel = ResourceBundle.getBundle("struts", request.getLocale()).getString(MessagesProcesses.BUTTON_EXPORT_EXCEL.getKey());
+        String clickedButtonLabel = request.getParameter(FormTag.SUBMIT_BUTTON_NAME);
+        if (clickedButtonLabel != null && clickedButtonLabel.equals(exportButtonLabel)) {
+        	
+        	//do export to Excel and exit from this action
+        	Table table = (Table)Commons.getSessionAttribute(request.getSession(), Commons.TASK_LIST_SESSION_ATTR_NAME);
+        	
+        	String tableStr = HTMLUtils.returnHtmlFromTable(table);
+        	String exportedListTitle = ResourceBundle.getBundle("struts", request.getLocale()).getString(MessagesOther.TITLE_EXPORTED_USER_TASK_LIST.getKey());
+        	
+        	tableStr = "<p>" + MessageFormat.format(exportedListTitle, new Object[]{user.getName()}) + "</p>" + tableStr;
+        	
+        	try {
+	        	response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+	            String encodedFileName = HTMLUtils.encodeFileName(request, LOCAL_FORWARD_TASKS_LIST + user.getName() + ".xslx");
+	            response.setHeader("Content-disposition", "attachment; filename=\"" + encodedFileName + "\"");
+	            OutputStream os = response.getOutputStream();
+	            
+	   		 	os.write(tableStr.getBytes());
+	   		 	os.flush();
+
+        	} catch (Exception e) {
+                addError(request, e);
+                return mapping.findForward(Resources.FORWARD_FAILURE);
+            }            
+
+            return null;
+        }
+        
         if (request.getParameter(ru.runa.common.WebResources.HIDDEN_ONE_TASK_INDICATOR) != null) {
             isOneTaskProcessing = true;
         }

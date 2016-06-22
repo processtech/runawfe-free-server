@@ -50,6 +50,8 @@ public class Commons {
     private static final TagUtils tagUtils = TagUtils.getInstance();
     private static final String LOGGED_USER_ATTRIBUTE_NAME = User.class.getName();
 
+    public static final String TASK_LIST_SESSION_ATTR_NAME = "taskList";
+    
     protected Commons() {
     }
 
@@ -237,6 +239,10 @@ public class Commons {
         return retVal;
     }
 
+    public static void setSessionAttribute(HttpSession session, String attributeName, Object value) {
+    	session.setAttribute(attributeName, value);
+    }
+    
     public static void setUser(User user, HttpSession session) {
         session.setAttribute(LOGGED_USER_ATTRIBUTE_NAME, user);
     }

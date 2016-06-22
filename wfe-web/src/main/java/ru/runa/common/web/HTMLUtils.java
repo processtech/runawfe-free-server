@@ -46,6 +46,7 @@ import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
+import org.apache.ecs.html.Table;
 import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -308,5 +309,22 @@ public class HTMLUtils {
             }
         }
         return result;
+    }
+    
+    /**
+     * Converts org.apache.ecs.html.Table object to the HTML string and
+     * removes all links, inputs and images from it.
+     * 
+     * @param table
+     * @return result HTML string
+     */
+    public static String returnHtmlFromTable(Table table) {
+    	
+    	String tableStr = table.toString();
+    	tableStr = tableStr.replaceAll("</?a[^>]*>", "")
+    				.replaceAll("</?img[^>]*>", "")
+    				.replaceAll("</?input[^>]*>", "");
+
+    	return tableStr;
     }
 }
