@@ -26,6 +26,7 @@ import ru.runa.af.web.html.ExecutorTableBuilder;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.ExecutorPermission;
+import ru.runa.wfe.user.SystemExecutors;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateExecutorDetailsForm")
 public class UpdateExecutorDetailsFormTag extends UpdateExecutorBaseFormTag {
@@ -36,6 +37,14 @@ public class UpdateExecutorDetailsFormTag extends UpdateExecutorBaseFormTag {
         boolean isCheckboxInputDisaabled = !isFormButtonEnabled();
         ExecutorTableBuilder builder = new ExecutorTableBuilder(getExecutor(), isCheckboxInputDisaabled, pageContext);
         tdFormElement.addElement(builder.buildTable());
+    }
+
+    @Override
+    protected boolean isFormButtonEnabled() {
+        if (SystemExecutors.PROCESS_STARTER_NAME.equals(getExecutor().getName())) {
+            return false;
+        }
+        return super.isFormButtonEnabled();
     }
 
     @Override
