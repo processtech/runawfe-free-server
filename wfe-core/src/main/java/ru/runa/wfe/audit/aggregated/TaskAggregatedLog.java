@@ -315,7 +315,7 @@ public class TaskAggregatedLog {
         this.swimlaneName = swimlaneName;
     }
 
-    @OneToMany(targetEntity = TaskAssignmentHistory.class, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = TaskAssignmentHistory.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "ASSIGNMENT_OBJECT_ID", nullable = false)
     @IndexColumn(name = "IDX")
     @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
