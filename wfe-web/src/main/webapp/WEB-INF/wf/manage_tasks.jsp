@@ -70,7 +70,7 @@
 	<% String actorId =  request.getParameter(ProcessForm.ACTOR_ID_INPUT_NAME); %>
 	<% if (WebResources.isTaskDelegationEnabled()) { %>
 	<% String tasksIds = ListTasksFormTag.tasksIds; %>
-	
+
 	<wf:taskFormDelegationButton taskId="<%= -1L %>" tasksIds="<%= tasksIds %>"/>
 	<% } %>
 

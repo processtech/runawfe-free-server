@@ -56,6 +56,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Task logic.
@@ -241,8 +242,23 @@ public class TaskLogic extends WFCommonLogic {
         ProcessDefinition processDefinition = getDefinition(task);
         AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
     }
+    
+ 
+    public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> newOwners) throws TaskAlreadyAcceptedException {
+     	Set<Long> taskIds = Sets.newHashSet();
+     	taskIds.add(taskId);
+     	delegateTasks(user,  taskIds, currentOwner, newOwners);
+    }
 
-    public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> executors) throws TaskAlreadyAcceptedException {
+    
+	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner,  List<? extends Executor> newOwners)
+			throws TaskAlreadyAcceptedException {
+		for (Long taskId : taskIds) {
+			delegateTaskInner(user, taskId, currentOwner, newOwners);
+		}
+	}
+
+    public void delegateTaskInner(User user, Long taskId, Executor currentOwner, List<? extends Executor> executors) throws TaskAlreadyAcceptedException {
         Task task = taskDAO.getNotNull(taskId);
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
@@ -272,19 +288,8 @@ public class TaskLogic extends WFCommonLogic {
         executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
         AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
     }
-    
-	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner, Set<Long> newOwners)
-			throws TaskAlreadyAcceptedException {
-		List<Executor> executorList = Lists.newArrayList();
-		for (Long executorId : newOwners) {
-			Executor newOwner = executorDAO.getExecutor(executorId);
-			executorList.add(newOwner);
-		}
-		for (Long taskId : taskIds) {
-			delegateTask(user, taskId, currentOwner, executorList);
-		}
-	}
 
+    
     public int reassignTasks(User user, BatchPresentation batchPresentation) {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");

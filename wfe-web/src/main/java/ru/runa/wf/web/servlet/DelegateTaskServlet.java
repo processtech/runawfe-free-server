@@ -77,7 +77,6 @@ public class DelegateTaskServlet extends HttpServlet {
         	tasks.add(taskId);
         }
         
-        // TODO Code just below works in assumption that all delegated tasks was assigned to the same user. If not - must be refactored. 
         WfTask task = Delegates.getTaskService().getTask(user, tasks.iterator().next());
         Executor currentOwner = task.getOwner();
 
@@ -92,7 +91,13 @@ public class DelegateTaskServlet extends HttpServlet {
 	        }
         }
 
-        Delegates.getTaskService().delegateTasks(user, tasks, currentOwner, executors);
+        List<Executor> executorList = Lists.newArrayList();
+        for (Long executorId : executors) {
+            Executor newOwner = Delegates.getExecutorService().getExecutor(user, executorId);
+            executorList.add(newOwner);
+        }
+
+        Delegates.getTaskService().delegateTasks(user, tasks, currentOwner, executorList);
     }
 
 }

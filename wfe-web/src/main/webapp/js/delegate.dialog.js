@@ -258,7 +258,6 @@ function delegateTaskDialog(btn) {
 		});
 		data.keepCurrent = d.find("input.keepCurrent").is(":checked");
 		data.taskId = taskId;
-		// TODO Investigations... 
 		data.tasksIds = tasksIds;
 		$.ajax({
 			type:"POST",

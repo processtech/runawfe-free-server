@@ -68,7 +68,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     private static final String[] NO_PREFIX_HEADER_NAMES = new String[0];
     
     @Attribute(required = false, rtexprvalue = true)
-    public static String tasksIds;
+    public static String tasksIds; //<<<?MAV Does static field good decision  
 
     @Override
     protected void fillFormElement(TD tdFormElement) {

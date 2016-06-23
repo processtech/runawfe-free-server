@@ -153,6 +153,6 @@ public interface TaskService {
      * @param newOwners
      *            new executor list
      */
-    public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner, Set<Long> newOwners);
+    public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner,  List<? extends Executor> newOwners);
 
 }
