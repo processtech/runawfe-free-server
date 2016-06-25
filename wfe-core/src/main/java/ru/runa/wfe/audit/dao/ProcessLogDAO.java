@@ -13,6 +13,7 @@ import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.Severity;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
@@ -191,5 +192,23 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
         } catch (Throwable e) {
             log.warn("Custom log handler throws exception", e);
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public ProcessLog getLatestAssignTaskLog(Long processId, long taskId) {
+        List<ProcessLog> assignLogList = getHibernateTemplate().find("from TaskAssignLog where processId=? order by id desc", processId);
+        
+    	if (assignLogList == null || assignLogList.size() == 0) {
+    		return null;
+    	}
+    	
+    	for (ProcessLog log : assignLogList) {
+    		if (((TaskAssignLog)log).getTaskId() == taskId) {
+    			return log;
+    		}
+    	}
+    	
+    	return null;
     }
 }

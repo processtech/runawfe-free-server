@@ -1,5 +1,6 @@
 package ru.runa.wfe.task.logic;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
 import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
@@ -35,6 +37,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.logic.ISubstitutionLogic;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskDeadlineUtils;
 import ru.runa.wfe.task.cache.TaskCache;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
@@ -110,6 +113,13 @@ public class TaskListBuilder implements ITaskListBuilder {
                 if (acceptable == null) {
                     continue;
                 }
+                TaskAssignLog log = (TaskAssignLog)processLogDAO.getLatestAssignTaskLog(task.getProcess().getId(), task.getId());
+                if (log != null) {
+                	acceptable.setAssignmentDate(log.getCreateDate());
+                }
+                String taskDuration = TaskDeadlineUtils.calculateTimeDuration(acceptable.getCreationDate(), new Date());
+                acceptable.setDuration(taskDuration);
+
                 result.add(acceptable);
             } catch (Exception e) {
                 if (taskDAO.get(task.getId()) == null) {

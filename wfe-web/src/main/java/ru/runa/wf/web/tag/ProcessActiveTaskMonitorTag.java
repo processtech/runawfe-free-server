@@ -42,7 +42,10 @@ public class ProcessActiveTaskMonitorTag extends ProcessBaseFormTag {
     protected void fillFormData(TD tdFormElement) {
         List<WfTask> activeTasks = Delegates.getTaskService().getProcessTasks(getUser(), getIdentifiableId(), false);
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(new String[] { MessagesProcesses.LABEL_STATE_NAME.message(pageContext),
-                MessagesProcesses.LABEL_SWIMLANE.message(pageContext), MessagesProcesses.LABEL_SWIMLANE_ASSIGNMENT.message(pageContext) });
+                MessagesProcesses.LABEL_SWIMLANE.message(pageContext), MessagesProcesses.LABEL_SWIMLANE_ASSIGNMENT.message(pageContext),
+                MessagesProcesses.LABEL_START_TIME.message(pageContext), MessagesProcesses.LABEL_END_TIME.message(pageContext),
+                MessagesProcesses.LABEL_CURRENT_DURATION.message(pageContext), MessagesProcesses.LABEL_REMAINING_TIME.message(pageContext),
+                MessagesProcesses.LABEL_ASSINGMENT_TIME.message(pageContext)});
         RowBuilder rowBuilder = new ProcessSwimlaneAssignmentRowBuilder(getUser(), activeTasks, pageContext);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
     }

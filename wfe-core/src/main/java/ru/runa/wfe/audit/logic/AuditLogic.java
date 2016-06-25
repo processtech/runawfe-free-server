@@ -25,6 +25,7 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
@@ -115,5 +116,22 @@ public class AuditLogic extends CommonLogic {
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getCount();
     }
-
+    
+    /**
+     * Gets the latest task assign log entity by the given task id
+     * 
+     * @param user
+     *            authorized user
+     * @param processId
+     * 			  process ID
+     * @param taskId
+     * 			  task ID
+     * @return task log entity
+     */
+    public ProcessLog getLatestAssignTaskLog(User user, long processId, long taskId) {
+    	Preconditions.checkNotNull(processId, "processId");
+    	checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.READ);
+    	
+    	return processLogDAO.getLatestAssignTaskLog(processId, taskId);
+    }
 }
