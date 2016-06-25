@@ -17,23 +17,20 @@
  */
 package ru.runa.wfe.commons.ftl;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.base.Objects;
-
+/**
+ * Form component which allows user interaction with server through ajax requests.
+ *
+ * @author dofs
+ *
+ */
 public abstract class AjaxFormComponent extends FormComponent {
     private static final long serialVersionUID = 1L;
     public static final String COMPONENT_SESSION_PREFIX = "ajax_form_component_";
-
-    /**
-     * Used only if multiple components of the same type used in same form.
-     *
-     * @return qualifier, usually variable name
-     */
-    public String getQualifier() {
-        return getParameterAsString(0);
-    }
 
     /**
      * Invoked on ajax request
@@ -42,7 +39,18 @@ public abstract class AjaxFormComponent extends FormComponent {
     }
 
     @Override
-    public String toString() {
-        return Objects.toStringHelper(getClass()).add("qualifier", getQualifier()).toString();
+    protected String exportScript(Map<String, String> substitutions, boolean globalScope) {
+        addJsonUrlSubstitution(substitutions);
+        return super.exportScript(substitutions, globalScope);
+    }
+
+    @Override
+    protected String exportScript(Map<String, String> substitutions, boolean globalScope, String name) {
+        addJsonUrlSubstitution(substitutions);
+        return super.exportScript(substitutions, globalScope, name);
+    }
+
+    private void addJsonUrlSubstitution(Map<String, String> substitutions) {
+        substitutions.put("JSON_URL", webHelper.getUrl("/form.fp?component=" + getName() + "&qualifier=" + getVariableNameForSubmissionProcessing()));
     }
 }

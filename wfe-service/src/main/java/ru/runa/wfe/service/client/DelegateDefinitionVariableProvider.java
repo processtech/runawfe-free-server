@@ -82,4 +82,8 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
         return null;
     }
 
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("definitionId", definitionId).toString();
+    }
 }

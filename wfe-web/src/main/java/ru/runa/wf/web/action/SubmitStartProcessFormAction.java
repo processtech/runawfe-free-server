@@ -35,6 +35,7 @@ import ru.runa.wf.web.form.CommonProcessForm;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.service.client.DelegateDefinitionVariableProvider;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
@@ -55,7 +56,7 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
         User user = getLoggedUser(request);
         Long definitionId = ((CommonProcessForm) actionForm).getId();
         Interaction interaction = Delegates.getDefinitionService().getStartInteraction(user, definitionId);
-        Map<String, Object> variables = getFormVariables(request, actionForm, interaction);
+        Map<String, Object> variables = getFormVariables(request, actionForm, interaction, new DelegateDefinitionVariableProvider(user, definitionId));
         String transitionName = ((CommonProcessForm) actionForm).getSubmitButton();
         variables.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, definitionId);
