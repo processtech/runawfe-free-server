@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.web.html;
@@ -57,28 +57,20 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
     public TR buildNext() {
         WfTask task = iterator.next();
         TR tr = new TR();
-        
+
         ListTasksFormTag.TasksCssClassStrategy cssClassStrategy = new ListTasksFormTag.TasksCssClassStrategy();
         String cssClass = cssClassStrategy.getClassName(task, user);
-        
+
         tr.setClass(cssClass);
         tr.addElement(new TD(task.getName()).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(task.getSwimlaneName()).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(HTMLUtils.createExecutorElement(user, pageContext, task.getOwner())).setClass(Resources.CLASS_LIST_TABLE_TD));
-        
-        String startDateString;
-        Date taskStartDate = task.getCreationDate();
-        if (taskStartDate == null) {
-        	startDateString = "";
-        } else {
-        	startDateString = CalendarUtil.formatDateTime(taskStartDate);
-        }
 
-        tr.addElement(new TD(startDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
-        tr.addElement((new TaskDeadlineTDBuilder()).build(task, null).setClass(Resources.CLASS_LIST_TABLE_TD));
-        
+        tr.addElement(new TD(CalendarUtil.formatDateTime(task.getCreationDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TaskDeadlineTDBuilder().build(task, null).setClass(Resources.CLASS_LIST_TABLE_TD));
+
         Date currentDate = new Date();
-        String period = TaskDeadlineUtils.calculateTimeDuration(taskStartDate, currentDate);
+        String period = TaskDeadlineUtils.calculateTimeDuration(task.getCreationDate(), currentDate);
         tr.addElement(new TD().addElement(period).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         String deadLinePeriod = TaskDeadlineUtils.calculateTimeDuration(currentDate, task.getDeadlineDate());
@@ -86,16 +78,16 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
 
         String startExecutionDateString = " ";
         ProcessLog taskAssignLog = Delegates.getAuditService().getLatestAssignTaskLog(user, task.getProcessId(), task.getId());
-        
+
         if (taskAssignLog != null) {
-       		startExecutionDateString = CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
+            startExecutionDateString = CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
         }
-        
+
         tr.addElement(new TD(startExecutionDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
-        
+
         return tr;
     }
-    
+
     @Override
     public List<TR> buildNextArray() {
         return null;

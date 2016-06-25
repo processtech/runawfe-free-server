@@ -44,7 +44,7 @@ public class TaskClassPresentation extends ClassPresentation {
     public static final String TASK_VARIABLE = editable_prefix + "name:batch_presentation.task.variable";
     public static final String TASK_DEADLINE = "batch_presentation.task.deadline";
     public static final String TASK_CREATE_DATE = "batch_presentation.task.create_date";
-    public static final String TASK_ASSIGN_DATE = "batch_presentation.task.assing_date";
+    public static final String TASK_ASSIGN_DATE = "batch_presentation.task.assign_date";
     public static final String TASK_DURATION = "batch_presentation.task.duration";
 
     private static final ClassPresentation INSTANCE = new TaskClassPresentation();

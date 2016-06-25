@@ -193,22 +193,23 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
             log.warn("Custom log handler throws exception", e);
         }
     }
-    
+
+    // TODO dofs delete
     @SuppressWarnings("unchecked")
     @Override
     public ProcessLog getLatestAssignTaskLog(Long processId, long taskId) {
         List<ProcessLog> assignLogList = getHibernateTemplate().find("from TaskAssignLog where processId=? order by id desc", processId);
-        
-    	if (assignLogList == null || assignLogList.size() == 0) {
-    		return null;
-    	}
-    	
-    	for (ProcessLog log : assignLogList) {
-    		if (((TaskAssignLog)log).getTaskId() == taskId) {
-    			return log;
-    		}
-    	}
-    	
-    	return null;
+
+        if (assignLogList == null || assignLogList.size() == 0) {
+            return null;
+        }
+
+        for (ProcessLog log : assignLogList) {
+            if (((TaskAssignLog) log).getTaskId() == taskId) {
+                return log;
+            }
+        }
+
+        return null;
     }
 }
