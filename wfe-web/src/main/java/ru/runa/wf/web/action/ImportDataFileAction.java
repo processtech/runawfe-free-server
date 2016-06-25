@@ -36,11 +36,12 @@ import ru.runa.wfe.relation.RelationPair;
 import ru.runa.wfe.script.common.WorkflowScriptDto;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.SystemExecutors;
 
 import com.google.common.io.ByteStreams;
 
 /**
- * 
+ *
  * @author riven
  * @struts:action path="/importDataFileAction" name="fileForm" validate="false"
  * @struts.action-forward name="success" path="/manage_system.do"
@@ -98,7 +99,7 @@ public class ImportDataFileAction extends ActionBase {
 
             if (clearBeforeUpload) {
                 List<WfProcess> wfProcesses = Delegates.getExecutionService().getProcesses(getLoggedUser(request),
-                    BatchPresentationFactory.PROCESSES.createDefault());
+                        BatchPresentationFactory.PROCESSES.createDefault());
                 ProcessFilter processFilter = new ProcessFilter();
                 for (WfProcess wfProcess : wfProcesses) {
                     processFilter.setId(wfProcess.getId());
@@ -106,7 +107,7 @@ public class ImportDataFileAction extends ActionBase {
                 }
 
                 List<WfDefinition> definitions = Delegates.getDefinitionService().getProcessDefinitions(getLoggedUser(request),
-                    BatchPresentationFactory.DEFINITIONS.createDefault(), false);
+                        BatchPresentationFactory.DEFINITIONS.createDefault(), false);
                 for (WfDefinition definition : definitions) {
                     Delegates.getDefinitionService().undeployProcessDefinition(getLoggedUser(request), definition.getName(), null);
                 }
@@ -125,10 +126,10 @@ public class ImportDataFileAction extends ActionBase {
                 }
 
                 List<Relation> relations = Delegates.getRelationService().getRelations(getLoggedUser(request),
-                    BatchPresentationFactory.RELATIONS.createDefault());
+                        BatchPresentationFactory.RELATIONS.createDefault());
                 for (Relation relation : relations) {
                     List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(getLoggedUser(request), relation.getName(),
-                        BatchPresentationFactory.RELATION_PAIRS.createDefault());
+                            BatchPresentationFactory.RELATION_PAIRS.createDefault());
                     for (RelationPair relationPair : relationPairs) {
                         Delegates.getRelationService().removeRelationPair(getLoggedUser(request), relationPair.getId());
                     }
@@ -136,18 +137,22 @@ public class ImportDataFileAction extends ActionBase {
                 }
 
                 List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(getLoggedUser(request),
-                    BatchPresentationFactory.EXECUTORS.createDefault());
+                        BatchPresentationFactory.EXECUTORS.createDefault());
                 List<Long> ids = new ArrayList<Long>();
                 for (Executor executor : executors) {
-                    if (!ApplicationContextFactory.getPermissionDAO().isPrivilegedExecutor(executor)) {
-                        ids.add(executor.getId());
+                    if (ApplicationContextFactory.getPermissionDAO().isPrivilegedExecutor(executor)) {
+                        continue;
                     }
+                    if (SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
+                        continue;
+                    }
+                    ids.add(executor.getId());
                 }
                 Delegates.getExecutorService().remove(getLoggedUser(request), ids);
             }
 
             List<String> errors = Delegates.getScriptingService().executeAdminScriptSkipError(getLoggedUser(request), scriptXml, externalResources,
-                defaultPasswordValue);
+                    defaultPasswordValue);
             if (errors != null && errors.size() > 0) {
                 for (String error : errors) {
                     addError(request, new Exception(error));
