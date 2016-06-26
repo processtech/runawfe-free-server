@@ -56,8 +56,7 @@ public abstract class TaskFormBuilder {
     public final String build(Long definitionId) {
         this.definitionId = definitionId;
         if (interaction.hasForm()) {
-            IVariableProvider variableProvider = new MapDelegableVariableProvider(interaction.getDefaultVariableValues(),
-                    new DelegateDefinitionVariableProvider(user, definitionId));
+            IVariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionId);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables(request, interaction, variableProvider);
             if (map != null) {
