@@ -104,7 +104,7 @@ public class BotTask implements Serializable {
         this.bot = bot;
     }
 
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 1024)
     public String getName() {
         return name;
     }
@@ -113,7 +113,7 @@ public class BotTask implements Serializable {
         this.name = name;
     }
 
-    @Column(name = "TASK_HANDLER")
+    @Column(name = "TASK_HANDLER", length = 1024)
     public String getTaskHandlerClassName() {
         return taskHandlerClassName;
     }

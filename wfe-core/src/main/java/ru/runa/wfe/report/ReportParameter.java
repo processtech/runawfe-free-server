@@ -66,7 +66,7 @@ public class ReportParameter {
         this.id = id;
     }
 
-    @Column(name = "NAME", length = 255, nullable = false)
+    @Column(name = "NAME", length = 1024, nullable = false)
     public String getName() {
         return name;
     }
@@ -75,7 +75,7 @@ public class ReportParameter {
         this.name = name;
     }
 
-    @Column(name = "TYPE", length = 255, nullable = false)
+    @Column(name = "TYPE", length = 1024, nullable = false)
     @Enumerated(EnumType.STRING)
     public ReportParameterType getType() {
         return type;
@@ -85,7 +85,7 @@ public class ReportParameter {
         this.type = type;
     }
 
-    @Column(name = "INNER_NAME", length = 255, nullable = false)
+    @Column(name = "INNER_NAME", length = 1024, nullable = false)
     public String getInnerName() {
         return innerName;
     }

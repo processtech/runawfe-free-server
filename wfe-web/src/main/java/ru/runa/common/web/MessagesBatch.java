@@ -29,4 +29,10 @@ public final class MessagesBatch {
     public static final StrutsMessage PAGING_NEXT_PAGE = new StrutsMessage("label.paging_next_page");
     public static final StrutsMessage PAGING_PREV_PAGE = new StrutsMessage("label.paging_prev_page");
     public static final StrutsMessage PAGING_PREV_RANGE = new StrutsMessage("label.paging_prev_range");
+
+    // Labels for batch presentation shared type select
+
+    public static final StrutsMessage SHARED_SELECT_LABEL = new StrutsMessage("label.shared_type");
+    public static final StrutsMessage SHARED_OPTION_NO = new StrutsMessage("option.shared_no");
+    public static final StrutsMessage SHARED_OPTION_YES = new StrutsMessage("option.shared_yes");
 }

@@ -67,7 +67,7 @@ import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.TaskDefinition;
-import ru.runa.wfe.lang.WaitState;
+import ru.runa.wfe.lang.WaitNode;
 import ru.runa.wfe.task.logic.ITaskNotifier;
 import ru.runa.wfe.user.Executor;
 
@@ -94,6 +94,7 @@ public class Task implements Assignable {
     private Executor executor;
     private Date createDate;
     private Date deadlineDate;
+    private String deadlineDateExpression;
     private Token token;
     private Swimlane swimlane;
     private Process process;
@@ -133,7 +134,7 @@ public class Task implements Assignable {
         this.version = version;
     }
 
-    @Column(name = "NODE_ID")
+    @Column(name = "NODE_ID", length = 1024)
     public String getNodeId() {
         return nodeId;
     }
@@ -143,7 +144,7 @@ public class Task implements Assignable {
     }
 
     @Override
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 1024)
     public String getName() {
         return name;
     }
@@ -177,6 +178,15 @@ public class Task implements Assignable {
 
     public void setDeadlineDate(Date deadlineDate) {
         this.deadlineDate = deadlineDate;
+    }
+
+    @Column(name = "DEADLINE_DATE_EXPRESSION")
+    public String getDeadlineDateExpression() {
+        return deadlineDateExpression;
+    }
+
+    public void setDeadlineDateExpression(String deadlineDateExpression) {
+        this.deadlineDateExpression = deadlineDateExpression;
     }
 
     @CollectionOfElements
@@ -313,7 +323,7 @@ public class Task implements Assignable {
             throw new IllegalArgumentException("Unimplemented for " + completionInfo.getCompletionBy());
         }
         Node node = executionContext.getProcessDefinition().getNodeNotNull(nodeId);
-        if (SystemProperties.isV3CompatibilityMode() && node instanceof WaitState) {
+        if (SystemProperties.isV3CompatibilityMode() && node instanceof WaitNode) {
             delete();
             return;
         }

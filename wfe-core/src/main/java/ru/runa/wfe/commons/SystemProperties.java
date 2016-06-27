@@ -110,10 +110,6 @@ public class SystemProperties {
         return RESOURCES.getIntegerProperty("file.variable.local.storage.enableforfilesgreaterthan", 100000);
     }
 
-    public static boolean isUpdateVariablesEnabled() {
-        return RESOURCES.getBooleanProperty("executionServiceAPI.updateVariables.enabled", false);
-    }
-
     public static String getStrongPasswordsRegexp() {
         return RESOURCES.getStringProperty("strong.passwords.regexp");
     }

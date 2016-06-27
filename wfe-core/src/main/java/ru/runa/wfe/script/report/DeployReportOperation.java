@@ -50,7 +50,7 @@ public class DeployReportOperation extends ScriptOperation {
         String category = Strings.isNullOrEmpty(reportType) ? "Script" : reportType;
         ReportDto reportDto = new ReportDto(null, reportName, reportDescription, category, null);
         final Map<String, ReportParameterDto> reportFileParameters = Maps.newHashMap();
-        for (ReportParameterDto p : context.getReportLogic().analizeReportFile(reportDto, context.getExternalResource(reportFile))) {
+        for (ReportParameterDto p : context.getReportLogic().analyzeReportFile(reportDto, context.getExternalResource(reportFile))) {
             reportFileParameters.put(p.getInternalName(), p);
         }
 

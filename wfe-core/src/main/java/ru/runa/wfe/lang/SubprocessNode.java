@@ -19,7 +19,7 @@ import ru.runa.wfe.var.dto.Variables;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-public class SubProcessState extends VariableContainerNode implements Synchronizable {
+public class SubprocessNode extends VariableContainerNode implements Synchronizable {
     private static final long serialVersionUID = 1L;
 
     private String subProcessName;
@@ -131,7 +131,7 @@ public class SubProcessState extends VariableContainerNode implements Synchroniz
             return;
         }
 
-        if (getClass() == SubProcessState.class) {
+        if (getClass() == SubprocessNode.class) {
             Process subProcess = subExecutionContext.getProcess();
             ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
             for (VariableMapping variableMapping : variableMappings) {

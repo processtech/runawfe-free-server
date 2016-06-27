@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.web.html;
@@ -28,10 +28,10 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.graph.DrawProperties;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
-import ru.runa.wfe.graph.view.MultiinstanceGraphElementPresentation;
-import ru.runa.wfe.graph.view.SubprocessGraphElementPresentation;
-import ru.runa.wfe.graph.view.TaskGraphElementPresentation;
+import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.graph.view.SubprocessNodeGraphElement;
+import ru.runa.wfe.graph.view.TaskNodeGraphElement;
 
 import com.google.common.collect.Maps;
 
@@ -54,7 +54,7 @@ public class GraphElementPresentationHelper {
     /**
      * Creates instance of helper class to create links to subprocesses in graph
      * elements.
-     * 
+     *
      * @param taskId
      *            Current task identity. May be <= 0 if not applicable.
      * @param pageContext
@@ -83,17 +83,17 @@ public class GraphElementPresentationHelper {
     /**
      * Creates links to subprocesses, forked in given multiple instance graph
      * element.
-     * 
+     *
      * @param element
      *            Multiple instance graph element to create links.
      */
-    public String createMultiSubprocessLinks(MultiinstanceGraphElementPresentation element, String action) {
+    public String createMultiSubprocessLinks(MultiSubprocessNodeGraphElement element, String action) {
         int mlSize = 17;
         int maxItemsPerLine = 10;
         int additionalHeight = 0;
         int mainDivSize = mlSize * element.getSubprocessIds().size();
         if (mainDivSize > maxItemsPerLine * mlSize) {
-            additionalHeight = (int) Math.ceil(((double) mainDivSize / (maxItemsPerLine * mlSize))) * mlSize;
+            additionalHeight = (int) Math.ceil((double) mainDivSize / (maxItemsPerLine * mlSize)) * mlSize;
             mainDivSize = maxItemsPerLine * mlSize;
         }
         int[] ltCoords = new int[] { element.getGraphConstraints()[2] - mainDivSize / 2,
@@ -106,11 +106,11 @@ public class GraphElementPresentationHelper {
         for (int i = 0; i < element.getSubprocessIds().size(); i++) {
             Long subprocessId = element.getSubprocessIds().get(i);
             buf.append("<div class=\"multiInstanceBox\" style=\"");
-            if (element.isSubprocessFinished(i)) {
+            if (element.getCompletedSubprocessIds().contains(subprocessId)) {
                 buf.append("background-color: ").append(DrawProperties.getHighlightColorString()).append("; ");
             }
             buf.append("width: ").append(mlSize).append("px; height: ").append(mlSize).append("px;\"");
-            if (element.isSubprocessAccessible(i)) {
+            if (element.getAccessibleSubprocessIds().contains(subprocessId)) {
                 buf.append(" onclick=\"window.location='").append(getSubprocessUrl(action, subprocessId)).append("';\"");
             }
             buf.append(">&nbsp;").append(i + 1).append("&nbsp;</div>");
@@ -124,12 +124,12 @@ public class GraphElementPresentationHelper {
 
     /**
      * Create link to subprocess, forked in given subprocess graph element.
-     * 
+     *
      * @param element
      *            Subprocess graph element to create link.
      * @return
      */
-    public Area createSubprocessLink(SubprocessGraphElementPresentation element, String action, String jsFunction) {
+    public Area createSubprocessLink(SubprocessNodeGraphElement element, String action, String jsFunction) {
         if (!element.isSubprocessAccessible()) {
             return null;
         }
@@ -149,7 +149,7 @@ public class GraphElementPresentationHelper {
 
     /**
      * Creates URL to subprocess with given identity.
-     * 
+     *
      * @param id
      *            Identity of subprocess.
      * @return URL to subprocess.
@@ -160,7 +160,7 @@ public class GraphElementPresentationHelper {
         return Commons.getActionUrl(action, params, pageContext, PortletUrlType.Render);
     }
 
-    public Area createSubprocessDefinitionLink(SubprocessGraphElementPresentation element) {
+    public Area createSubprocessDefinitionLink(SubprocessNodeGraphElement element) {
         if (!element.isSubprocessAccessible()) {
             return null;
         }
@@ -180,13 +180,13 @@ public class GraphElementPresentationHelper {
 
     /**
      * Creates tool tip for given task graph element.
-     * 
+     *
      * @param element
      *            Graph element, to create tool tip.
      * @return {@link Area} instance with tool tip or null, if {@link Area} not
      *         created.
      */
-    public Area createTaskTooltip(TaskGraphElementPresentation element) {
+    public Area createTaskTooltip(TaskNodeGraphElement element) {
         if (!element.isMinimized()) {
             return null;
         }
@@ -201,11 +201,11 @@ public class GraphElementPresentationHelper {
         return area;
     }
 
-    public Area addTooltip(GraphElementPresentation element, Area area) {
+    public Area addTooltip(NodeGraphElement element, Area area) {
         return addTooltip(element, area, String.valueOf(element.getData()));
     }
 
-    public Area addTooltip(GraphElementPresentation element, Area area, String html) {
+    public Area addTooltip(NodeGraphElement element, Area area, String html) {
         if (area == null) {
             area = new Area("RECT", element.getGraphConstraints());
             map.addElement(area);

@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web.tag;
@@ -50,7 +50,9 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Profile;
+import ru.runa.wfe.user.User;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "tableViewSetupForm")
 public class TableViewSetupFormTag extends AbstractReturningTag implements BatchedTag {
@@ -143,6 +145,9 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
     }
 
     private void addSaveSection(Table table, BatchPresentation activeBatchPresentation) {
+        User user = Commons.getUser(pageContext.getSession());
+        boolean isAdmin = Delegates.getExecutorService().isAdministrator(user);
+
         TR tr = new TR();
         table.addElement(tr);
         TD td = new TD();
@@ -150,11 +155,14 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         tr.addElement(td);
         td.setClass(Resources.CLASS_VIEW_SETUP_TD);
 
-        if (!activeBatchPresentation.isDefault()) {
-            Input saveInput = new Input(Input.SUBMIT, TableViewSetupFormAction.PARAMETER_NAME, getSaveButtonName());
-            saveInput.setClass(Resources.CLASS_BUTTON);
-            td.addElement(saveInput);
-            td.addElement(Entities.NBSP);
+        if (isAdmin || !activeBatchPresentation.isShared()) {
+            // user cannot update shared batch presentation
+            if (!activeBatchPresentation.isDefault()) {
+                Input saveInput = new Input(Input.SUBMIT, TableViewSetupFormAction.PARAMETER_NAME, getSaveButtonName());
+                saveInput.setClass(Resources.CLASS_BUTTON);
+                td.addElement(saveInput);
+                td.addElement(Entities.NBSP);
+            }
         }
 
         Input saveAsInput = new Input(Input.SUBMIT, TableViewSetupFormAction.PARAMETER_NAME, getCreateNewButtonName());
@@ -164,11 +172,39 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         td.addElement(Entities.NBSP);
         td.addElement(new Input(Input.TEXT, TableViewSetupForm.SAVE_AS_NAME, "").setClass(Resources.CLASS_BUTTON));
 
-        if (!activeBatchPresentation.isDefault()) {
+        if (isAdmin || !activeBatchPresentation.isShared()) {
+            // user cannot remove shared batch presentation
+            if (!activeBatchPresentation.isDefault()) {
+                td.addElement(Entities.NBSP);
+                Input deleteInput = new Input(Input.SUBMIT, TableViewSetupFormAction.PARAMETER_NAME, getRemoveButtonName());
+                deleteInput.setClass(Resources.CLASS_BUTTON);
+                td.addElement(deleteInput);
+            }
+        }
+
+        if (isAdmin) {
+            // admin can set shared type for batch presentation
             td.addElement(Entities.NBSP);
-            Input deleteInput = new Input(Input.SUBMIT, TableViewSetupFormAction.PARAMETER_NAME, getRemoveButtonName());
-            deleteInput.setClass(Resources.CLASS_BUTTON);
-            td.addElement(deleteInput);
+            td.addElement(MessagesBatch.SHARED_SELECT_LABEL.message(pageContext));
+            td.addElement(Entities.NBSP);
+            Select selectShared = new Select(TableViewSetupForm.SHARED_TYPE_NAME);
+            Option optionNo = new Option();
+            optionNo.setValue(TableViewSetupForm.SHARED_TYPE_NO);
+            optionNo.addElement(MessagesBatch.SHARED_OPTION_NO.message(pageContext));
+            Option optionShared = new Option();
+            optionShared.setValue(TableViewSetupForm.SHARED_TYPE_SHARED);
+            optionShared.addElement(MessagesBatch.SHARED_OPTION_YES.message(pageContext));
+            if (!activeBatchPresentation.isShared()) {
+                optionNo.setSelected(true);
+            } else {
+                optionShared.setSelected(true);
+            }
+            selectShared.addElement(optionNo);
+            selectShared.addElement(optionShared);
+            td.addElement(selectShared);
+        } else {
+            // user can only "save as" shared batch presentation as private
+            td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.SHARED_TYPE_NAME, TableViewSetupForm.SHARED_TYPE_NO));
         }
     }
 
@@ -198,8 +234,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             }
             FieldDescriptor[] allFields = batchPresentation.getAllFields();
             for (int i = 0; i < allFields.length; ++i) {
-                if ((allFields[i].displayName.startsWith(ClassPresentation.editable_prefix) && allFields[i].fieldState == FieldState.ENABLED)
-                        || (allFields[i].displayName.startsWith(ClassPresentation.filterable_prefix) && groupBySubprocessEnabled)) {
+                if (allFields[i].displayName.startsWith(ClassPresentation.editable_prefix) && allFields[i].fieldState == FieldState.ENABLED
+                        || allFields[i].displayName.startsWith(ClassPresentation.filterable_prefix) && groupBySubprocessEnabled) {
                     table.addElement(buildViewRow(batchPresentation, allFields[i].fieldIdx, -1));
                 }
             }
@@ -243,7 +279,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.IDS_INPUT_NAME, String.valueOf(fieldIdx)));
             tr.addElement(td);
         }
-        if (isEditable || isFilterable) { // Editable fields havn't fields for sorting/filtering e t.c.
+        if (isEditable || isFilterable) { // Editable fields havn't fields for
+            // sorting/filtering e t.c.
             for (int idx = 0; idx < 5; ++idx) {
                 tr.addElement(new TD().setClass(Resources.CLASS_VIEW_SETUP_TD));
             }

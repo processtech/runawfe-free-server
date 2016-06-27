@@ -21,6 +21,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
@@ -66,7 +67,7 @@ public class Deployment extends Identifiable {
         this.version = version;
     }
 
-    @Column(name = "LANGUAGE", nullable = false)
+    @Column(name = "LANGUAGE", nullable = false, length = 1024)
     @Enumerated(value = EnumType.STRING)
     public Language getLanguage() {
         return language;
@@ -76,7 +77,7 @@ public class Deployment extends Identifiable {
         this.language = language;
     }
 
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "NAME", nullable = false, length = 1024)
     public String getName() {
         return name;
     }
@@ -94,7 +95,7 @@ public class Deployment extends Identifiable {
         this.description = description;
     }
 
-    @Column(name = "CATEGORY", nullable = false)
+    @Column(name = "CATEGORY", nullable = false, length = 1024)
     public String getCategory() {
         return category;
     }
@@ -168,13 +169,13 @@ public class Deployment extends Identifiable {
     @Transient
     public String[] getCategories() {
         if (category != null) {
-            return category.split("/");
+            return category.split(Utils.CATEGORY_DELIMITER);
         }
         return new String[] {};
     }
 
     public void setCategories(List<String> categories) {
-        category = Joiner.on("/").join(categories);
+        category = Joiner.on(Utils.CATEGORY_DELIMITER).join(categories);
     }
 
     @Override

@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.commons.logic;
@@ -113,19 +113,24 @@ public class CommonLogic {
     }
 
     /**
-     * Load objects list according to {@linkplain BatchPresentation} with permission check for subject.
-     * 
+     * Load objects list according to {@linkplain BatchPresentation} with
+     * permission check for subject.
+     *
      * @param subject
      *            Current actor {@linkplain Subject}.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load objects.
      * @param permission
-     *            {@linkplain Permission}, which current actor must have on loaded objects.
+     *            {@linkplain Permission}, which current actor must have on
+     *            loaded objects.
      * @param securedObjectClasses
-     *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
-     *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
+     *            Classes, loaded by query. Must be subset of classes, loaded by
+     *            {@linkplain BatchPresentation}. For example {@linkplain Actor}
+     *            for {@linkplain BatchPresentation}, which loads
+     *            {@linkplain Executor}.
      * @param enablePaging
-     *            Flag, equals true, if paging must be enabled; false to load all objects.
+     *            Flag, equals true, if paging must be enabled; false to load
+     *            all objects.
      * @return Loaded according to {@linkplain BatchPresentation} objects list.
      */
     @SuppressWarnings("unchecked")
@@ -135,18 +140,23 @@ public class CommonLogic {
     }
 
     /**
-     * Load objects count according to {@linkplain BatchPresentation} with permission check for subject.
-     * 
+     * Load objects count according to {@linkplain BatchPresentation} with
+     * permission check for subject.
+     *
      * @param subject
      *            Current actor {@linkplain Subject}.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load objects count.
      * @param permission
-     *            {@linkplain Permission}, which current actor must have on loaded objects.
+     *            {@linkplain Permission}, which current actor must have on
+     *            loaded objects.
      * @param securedObjectClasses
-     *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
-     *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
-     * @return Objects count, which will be loaded according to {@linkplain BatchPresentation}.
+     *            Classes, loaded by query. Must be subset of classes, loaded by
+     *            {@linkplain BatchPresentation}. For example {@linkplain Actor}
+     *            for {@linkplain BatchPresentation}, which loads
+     *            {@linkplain Executor}.
+     * @return Objects count, which will be loaded according to
+     *         {@linkplain BatchPresentation}.
      */
     public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission, SecuredObjectType[] securedObjectTypes) {
         return permissionDAO.getPersistentObjectCount(user, batchPresentation, permission, securedObjectTypes);

@@ -21,6 +21,7 @@
  */
 package ru.runa.wfe.execution;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,13 +39,17 @@ import ru.runa.wfe.commons.DBType;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.UserType;
@@ -79,6 +84,10 @@ public class ExecutionContext {
     private ProcessLogDAO processLogDAO;
     @Autowired
     private VariableDAO variableDAO;
+    @Autowired
+    protected TaskDAO taskDAO;
+    @Autowired
+    protected JobDAO jobDAO;
 
     protected ExecutionContext(ApplicationContext appContext, ProcessDefinition processDefinition, Token token) {
         this.processDefinition = processDefinition;
@@ -159,7 +168,7 @@ public class ExecutionContext {
             SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
                 Swimlane swimlane = getProcess().getSwimlane(swimlaneDefinition.getName());
-                return new WfVariable(name, swimlane != null ? swimlane.getExecutor() : null);
+                return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
         }
         WfVariable variable = variableDAO.getVariable(getProcessDefinition(), getProcess(), name);
@@ -216,7 +225,7 @@ public class ExecutionContext {
 
     /**
      * TODO old
-     * 
+     *
      * @return the variable value with the given name.
      */
     public Object getVariableValue(String name) {
@@ -343,10 +352,29 @@ public class ExecutionContext {
                     + (value != null ? " of " + value.getClass() : ""));
             variable.setValue(this, value, variableDefinition.getFormatNotNull());
         }
+        if (value instanceof Date) {
+            updateRelatedObjectsDueToDateVariableChange(variableDefinition.getName());
+        }
+    }
+
+    private void updateRelatedObjectsDueToDateVariableChange(String variableName) {
+        List<Task> tasks = taskDAO.findTasksByProcessAndDeadlineExpressionContaining(getProcess(), variableName);
+        for (Task task : tasks) {
+            Date oldDate = task.getDeadlineDate();
+            task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
+            log.info(String.format("Changed deadlineDate for %s from %s to %s", task, oldDate, task.getDeadlineDate()));
+        }
+        List<Job> jobs = jobDAO.findByProcessAndDeadlineExpressionContaining(getProcess(), variableName);
+        for (Job job : jobs) {
+            Date oldDate = job.getDueDate();
+            job.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), job.getDueDateExpression()));
+            log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
+        }
     }
 
     /**
-     * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
+     * Adds all the given variables. It doesn't remove any existing variables
+     * unless they are overwritten by the given variables.
      */
     public void setVariableValues(Map<String, Object> variables) {
         for (Map.Entry<String, Object> entry : variables.entrySet()) {

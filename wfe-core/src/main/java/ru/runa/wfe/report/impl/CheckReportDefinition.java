@@ -19,9 +19,9 @@ public class CheckReportDefinition implements ReportConfigurationTypeVisitor<Boo
     private final ReportAdminEditModel report;
     private final ReportAnalyzeResult analyzeResult;
 
-    public CheckReportDefinition(ReportAdminEditModel report, ReportAnalyzeResult analizeResult) {
+    public CheckReportDefinition(ReportAdminEditModel report, ReportAnalyzeResult analyzeResult) {
         this.report = report;
-        this.analyzeResult = analizeResult;
+        this.analyzeResult = analyzeResult;
     }
 
     @Override
@@ -31,12 +31,6 @@ public class CheckReportDefinition implements ReportConfigurationTypeVisitor<Boo
         }
         if (!report.hasCompiledReport()) {
             analyzeResult.appendMessage("Не задан файл отчёта");
-        }
-        if (!report.hasJarFile()) {
-            analyzeResult.appendMessage("Не задан jar файл");
-        }
-        if (Strings.isNullOrEmpty(report.getParameterBuilderClassName())) {
-            analyzeResult.appendMessage("Не задано название класса для предвычисления данных отчёта");
         }
         return Strings.isNullOrEmpty(analyzeResult.getMessage());
     }

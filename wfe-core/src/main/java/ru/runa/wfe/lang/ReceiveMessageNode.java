@@ -15,12 +15,21 @@
  * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.wf.web.action;
+package ru.runa.wfe.lang;
 
-public class ProcessDefinitionTypeNotPresentException extends Exception {
+import ru.runa.wfe.execution.ExecutionContext;
 
-    private static final long serialVersionUID = -179052148994292385L;
+public class ReceiveMessageNode extends VariableContainerNode {
+    private static final long serialVersionUID = 1L;
 
-    public ProcessDefinitionTypeNotPresentException() {
+    @Override
+    public NodeType getNodeType() {
+        return NodeType.RECEIVE_MESSAGE;
     }
+
+    @Override
+    public void execute(ExecutionContext executionContext) {
+        log.info("Waiting for message in " + this);
+    }
+
 }

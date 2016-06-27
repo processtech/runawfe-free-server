@@ -15,7 +15,7 @@ import ru.runa.wfe.user.User;
 /**
  * Operation to set starting process readable flag.
  */
-public class ProcessDefinitionInfoVisitor extends GraphElementPresentationVisitor {
+public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
     private static final Log log = LogFactory.getLog(ProcessDefinitionInfoVisitor.class);
 
     /**
@@ -46,7 +46,7 @@ public class ProcessDefinitionInfoVisitor extends GraphElementPresentationVisito
     }
 
     @Override
-    protected void onMultiSubprocess(MultiinstanceGraphElementPresentation element) {
+    protected void onMultiSubprocessNode(MultiSubprocessNodeGraphElement element) {
         try {
             ProcessDefinition processDefinition = loader.getLatestDefinition(element.getSubprocessName());
             element.setSubprocessAccessible(hasReadPermission(processDefinition));
@@ -57,7 +57,7 @@ public class ProcessDefinitionInfoVisitor extends GraphElementPresentationVisito
     }
 
     @Override
-    protected void onSubprocess(SubprocessGraphElementPresentation element) {
+    protected void onSubprocessNode(SubprocessNodeGraphElement element) {
         if (element.isEmbedded()) {
             element.setSubprocessAccessible(true);
             element.setSubprocessId(definition.getId());

@@ -3,7 +3,7 @@ package ru.runa.wfe.service.impl;
 import ru.runa.wfe.InternalApplicationException;
 
 /**
- * Means that there is no 'ReceiveMessage' node handler yet, send JMS message
+ * Means that there is no 'ReceiveMessageNode' node handler yet, send JMS message
  * back to the queue.
  * 
  * @author dofs

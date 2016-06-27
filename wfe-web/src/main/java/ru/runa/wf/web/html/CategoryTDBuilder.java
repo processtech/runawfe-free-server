@@ -27,9 +27,9 @@ import ru.runa.wfe.commons.EntityWithType;
  * 
  * @author kana
  */
-public class TypeTDBuilder implements TDBuilder {
+public class CategoryTDBuilder implements TDBuilder {
 
-    public TypeTDBuilder() {
+    public CategoryTDBuilder() {
     }
 
     @Override

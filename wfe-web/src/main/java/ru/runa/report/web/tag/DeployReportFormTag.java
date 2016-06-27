@@ -26,7 +26,7 @@ import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.report.web.MessagesReport;
-import ru.runa.report.web.action.AnalizeReportAction;
+import ru.runa.report.web.action.AnalyzeReportAction;
 import ru.runa.report.web.action.DeployReportAction;
 import ru.runa.wf.web.servlet.BulkUploadServlet;
 import ru.runa.wf.web.servlet.UploadedFile;
@@ -64,7 +64,7 @@ public class DeployReportFormTag extends BaseReportFormTag {
         if (isReportSelected()) {
             return DeployReportAction.ACTION_PATH;
         } else {
-            return AnalizeReportAction.ACTION_PATH;
+            return AnalyzeReportAction.ACTION_PATH;
         }
     }
 
@@ -73,7 +73,7 @@ public class DeployReportFormTag extends BaseReportFormTag {
         if (isReportSelected()) {
             return MessagesReport.BUTTON_DEPLOY_REPORT.message(pageContext);
         } else {
-            return MessagesReport.BUTTON_ANALIZE_REPORT.message(pageContext);
+            return MessagesReport.BUTTON_ANALYZE_REPORT.message(pageContext);
         }
     }
 

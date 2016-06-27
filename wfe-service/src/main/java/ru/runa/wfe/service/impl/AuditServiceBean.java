@@ -37,7 +37,7 @@ import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.AuditServiceLocal;
@@ -70,7 +70,7 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
 
     @Override
     @WebResult(name = "result")
-    public List<GraphElementPresentation> getProcessHistoryDiagramElements(@WebParam(name = "user") User user,
+    public List<NodeGraphElement> getProcessHistoryDiagramElements(@WebParam(name = "user") User user,
             @WebParam(name = "processId") Long processId, @WebParam(name = "taskId") Long taskId, @WebParam(name = "subprocessId") String subprocessId) {
         Preconditions.checkArgument(user != null);
         return executionLogic.getProcessHistoryDiagramElements(user, processId, taskId, subprocessId);

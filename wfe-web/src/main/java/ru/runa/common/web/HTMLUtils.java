@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web;
@@ -93,7 +93,9 @@ public class HTMLUtils {
             transformer.transform(new DOMSource(document), new StreamResult(outputStream));
             String string = new String(outputStream.toByteArray(), Charsets.UTF_8);
             // crunch to fix issue #646
-            // setting xalan property "{http://xml.apache.org/xalan}line-separator" to "\n" did not work
+            // setting xalan property
+            // "{http://xml.apache.org/xalan}line-separator" to "\n" did not
+            // work
             string = string.replaceAll("&#13;\r\n", "\n");
             return string;
         } catch (Exception e) {
@@ -117,7 +119,7 @@ public class HTMLUtils {
         try {
             String userAgent = request.getHeader("User-Agent");
             if (userAgent != null) {
-                if (userAgent.indexOf("MSIE") != -1 || userAgent.indexOf("Trident") != -1) {
+                if (userAgent.indexOf("MSIE") != -1 || userAgent.indexOf("Trident") != -1 || userAgent.indexOf("Edge") != -1) {
                     // IE
                     fileName = URLEncoder.encode(fileName, Charsets.UTF_8.name());
                     fileName = fileName.replaceAll("\\+", " ");
@@ -233,7 +235,7 @@ public class HTMLUtils {
 
     /**
      * Substitutes arguments for process history logs
-     * 
+     *
      * @param user
      * @param pageContext
      *            can be <code>null</code>

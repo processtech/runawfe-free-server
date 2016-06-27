@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.relation;
 
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -33,8 +34,8 @@ public class RelationClassPresentation extends ClassPresentation {
         super(Relation.class, "", false, new FieldDescriptor[] {
                 // display name field type DB source isSort filter mode get
                 // value/show in web getter parameters
-                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Relation.class, "name"), true, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Relation.class, "name"), true, 1, BatchPresentationConsts.ASC,
+                		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Relation.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "description" }) });
     }

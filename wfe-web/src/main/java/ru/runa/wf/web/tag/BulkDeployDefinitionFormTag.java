@@ -14,13 +14,13 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.HierarchyTypeSelectUtils;
+import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.wf.web.MessagesProcesses;
-import ru.runa.wf.web.ProcessTypesIterator;
+import ru.runa.wf.web.DefinitionCategoriesIterator;
 import ru.runa.wf.web.action.RedeployProcessDefinitionAction;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.web.WebHelper;
@@ -47,8 +47,8 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         table.setClass(Resources.CLASS_LIST_TABLE);
         table.addElement(createFileInputRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), FileForm.FILE_INPUT_NAME, "", true,
                 true, Input.FILE, strutsWebHelper));
-        ProcessTypesIterator iterator = new ProcessTypesIterator(user);
-        TD hierarchyType = HierarchyTypeSelectUtils.createHierarchyTypeSelectTD(iterator, definitionTypes, pageContext);
+        DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
+        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, definitionTypes, pageContext);
         table.addElement(HTMLUtils.createRow(Messages.getMessage(DefinitionClassPresentation.TYPE, pageContext), hierarchyType));
         tdFormElement.addElement(table);
 
