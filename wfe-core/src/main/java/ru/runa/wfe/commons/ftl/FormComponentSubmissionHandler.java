@@ -23,23 +23,24 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.var.VariableDefinition;
 
 /**
- * Interface allowed freemarker tags make custom parsing user input value in
- * task form.
+ * Interface allows form components make custom parsing of user input.
  *
  * @author dofs
  * @since 4.2.0
  */
 public interface FormComponentSubmissionHandler {
-    public static final String KEY_PREFIX = "var_handler_";
 
     /**
      * Processing method
+     *
      * @param interaction
      *            task form interaction
      * @param variableDefinition
      *            variable definition
      * @param userInput
      *            raw user input
+     * @param errors
+     *            map containing field errors (messages will be displayed to user)
      *
      * @return parsed values
      * @throws Exception

@@ -16,22 +16,14 @@ import org.apache.struts.util.MessageResources;
 import org.apache.struts.util.ModuleUtils;
 import org.apache.struts.util.RequestUtils;
 
-import ru.runa.wfe.commons.web.WebHelper;
-import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.User;
-
 import com.google.common.collect.Maps;
 
-public class AjaxWebHelper implements WebHelper {
+public class AjaxWebHelper extends RequestWebHelper {
     private final Log log = LogFactory.getLog(AjaxWebHelper.class);
     private final TagUtils tagUtils = TagUtils.getInstance();
-    private final HttpServletRequest request;
 
     public AjaxWebHelper(HttpServletRequest request) {
-        this.request = request;
+        super(request);
     }
 
     @Override
@@ -46,11 +38,6 @@ public class AjaxWebHelper implements WebHelper {
             }
         }
         return message;
-    }
-
-    @Override
-    public HttpServletRequest getRequest() {
-        return request;
     }
 
     @Override
@@ -221,16 +208,6 @@ public class AjaxWebHelper implements WebHelper {
             value.append(url);
         }
         return value.toString();
-    }
-
-    @Override
-    public boolean useLinkForExecutor(User user, Executor executor) {
-        return Delegates.getAuthorizationService().isAllowed(user, Permission.READ, executor);
-    }
-
-    @Override
-    public WfProcess getProcess(User user, Long processId) {
-        return Delegates.getExecutionService().getProcess(user, processId);
     }
 
 }

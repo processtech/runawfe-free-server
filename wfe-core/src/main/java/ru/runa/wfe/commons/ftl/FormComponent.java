@@ -17,7 +17,6 @@ import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
 import freemarker.ext.beans.BeansWrapper;
@@ -26,10 +25,10 @@ import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 
 public abstract class FormComponent implements TemplateMethodModelEx, Serializable {
-    private static final String RICH_COMBO_VALUE_PREFIX = "value@";
-    private static final long serialVersionUID = 1L;
-    protected Log log = LogFactory.getLog(getClass());
     public static final String TARGET_PROCESS_PREFIX = "TargetProcess";
+    private static final long serialVersionUID = 1L;
+    private static final String RICH_COMBO_VALUE_PREFIX = "value@";
+    protected Log log = LogFactory.getLog(getClass());
     protected User user;
     protected IVariableProvider variableProvider;
     protected WebHelper webHelper;
@@ -48,15 +47,19 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
         arguments = parent.arguments;
     }
 
+    public void setArguments(List arguments) {
+        this.arguments = arguments;
+        if (targetProcess) {
+            Long targetProcessId = getParameterVariableValueNotNull(Long.class, 0);
+            this.arguments.remove(0);
+            this.variableProvider = ((AbstractVariableProvider) variableProvider).getSameProvider(targetProcessId);
+        }
+    }
+
     @Override
     public final Object exec(List arguments) {
         try {
-            this.arguments = arguments;
-            if (targetProcess) {
-                Long targetProcessId = getParameterVariableValueNotNull(Long.class, 0);
-                this.arguments.remove(0);
-                this.variableProvider = ((AbstractVariableProvider) variableProvider).getSameProvider(targetProcessId);
-            }
+            setArguments(arguments);
             return renderRequest();
         } catch (Throwable th) {
             LogFactory.getLog(getClass()).error(
@@ -66,14 +69,18 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
         }
     }
 
-    protected void registerVariablePostProcessor(String variableName) {
-        Preconditions.checkArgument(this instanceof FormComponentSubmissionPostProcessor, "not a FormComponentSubmissionPostProcessor instance");
-        webHelper.getRequest().getSession().setAttribute(FormComponentSubmissionPostProcessor.KEY_PREFIX + variableName, this);
+    /**
+     * @return название компонента
+     */
+    public String getName() {
+        return getClass().getSimpleName();
     }
 
-    protected void registerVariableHandler(String variableName) {
-        Preconditions.checkArgument(this instanceof FormComponentSubmissionHandler, "not a FormComponentSubmissionHandler instance");
-        webHelper.getRequest().getSession().setAttribute(FormComponentSubmissionHandler.KEY_PREFIX + variableName, this);
+    /**
+     * Optionally used in {@link FormComponentSubmissionHandler}, {@link FormComponentSubmissionPostProcessor} and ajax processing.
+     */
+    public String getVariableNameForSubmissionProcessing() {
+        return getParameterAsString(0);
     }
 
     /**
@@ -154,7 +161,7 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
                 webHelper.getRequest().setAttribute(path, Boolean.TRUE);
             }
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull(path, getClass());
-            return WebUtils.getFormComponentScript(webHelper, javascriptStream, substitutions);
+            return WebUtils.getFormComponentScript(javascriptStream, substitutions);
         } catch (Exception e) {
             LogFactory.getLog(getClass()).error("Tag execution error", e);
             return "<p style='color: red;'>Unable to export script <b>" + path + "</b> to page</p>";
