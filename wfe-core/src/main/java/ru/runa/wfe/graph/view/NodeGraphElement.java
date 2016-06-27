@@ -29,7 +29,7 @@ import ru.runa.wfe.lang.NodeType;
  * Interface for process definition graph elements presentation components.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class GraphElementPresentation implements Serializable {
+public class NodeGraphElement implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String nodeId;

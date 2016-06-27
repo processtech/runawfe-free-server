@@ -2,6 +2,7 @@ package ru.runa.wf.web.ftl.component;
 
 import java.util.List;
 
+import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.user.Executor;
@@ -25,9 +26,6 @@ public class MultipleSelectFromList extends FormComponent implements FormCompone
         if (list == null) {
             list = Lists.newArrayList();
         }
-        if (list.size() > 0 && list.get(0) instanceof ISelectable) {
-            registerVariablePostProcessor(variableName);
-        }
         List<Object> selectedValues = variableProvider.getValue(List.class, variableName);
         StringBuffer html = new StringBuffer();
         html.append("<span class=\"multipleSelectFromList\">");
@@ -50,8 +48,8 @@ public class MultipleSelectFromList extends FormComponent implements FormCompone
                 WfVariable variable = ViewUtil.createVariable(variableName, userTypeMap.getUserType().getName(), userTypeFormat, userTypeMap);
                 String hid = userTypeMap.getUserType().getAttributes().get(0) != null ? userTypeMap.getUserType().getAttributes().get(0).getName()
                         + " " + userTypeMap.get(userTypeMap.getUserType().getAttributes().get(0).getName()) : userTypeMap.getUserType().getName();
-                        optionLabel = variableName + " " + hid + "<br>"
-                                + ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), variable);
+                optionLabel = variableName + " " + hid + "<br>"
+                        + ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), variable);
             } else if (option instanceof IFileVariable) {
                 FileFormat fileFormat = new FileFormat();
                 IFileVariable file = (IFileVariable) option;
@@ -84,17 +82,19 @@ public class MultipleSelectFromList extends FormComponent implements FormCompone
     public Object postProcessValue(Object source) {
         if (source instanceof List) {
             List<String> valuesList = (List<String>) source;
-            List<ISelectable> list = getParameterVariableValueNotNull(List.class, 1);
-            List<ISelectable> selectedOptions = Lists.newArrayListWithExpectedSize(valuesList.size());
-            for (String selectedValue : valuesList) {
-                for (ISelectable option : list) {
-                    if (selectedValue.equals(option.getValue())) {
-                        selectedOptions.add(option);
-                        break;
+            List<?> list = getParameterVariableValue(List.class, 1, null);
+            if (TypeConversionUtil.getListFirstValueOrNull(list) instanceof ISelectable) {
+                List<ISelectable> selectedOptions = Lists.newArrayListWithExpectedSize(valuesList.size());
+                for (String selectedValue : valuesList) {
+                    for (ISelectable option : (List<ISelectable>) list) {
+                        if (selectedValue.equals(option.getValue())) {
+                            selectedOptions.add(option);
+                            break;
+                        }
                     }
                 }
+                return selectedOptions;
             }
-            return selectedOptions;
         }
         return source;
     }

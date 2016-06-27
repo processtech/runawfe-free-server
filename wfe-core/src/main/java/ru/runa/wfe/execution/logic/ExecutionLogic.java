@@ -54,10 +54,12 @@ import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.history.GraphHistoryBuilder;
 import ru.runa.wfe.graph.image.GraphImageBuilder;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dto.WfJob;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -273,7 +275,7 @@ public class ExecutionLogic extends WFCommonLogic {
         }
     }
 
-    public List<GraphElementPresentation> getProcessDiagramElements(User user, Long processId, String subprocessId) {
+    public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) {
         Process process = processDAO.getNotNull(processId);
         ProcessDefinition definition = getDefinition(process.getDeployment().getId());
         if (subprocessId != null) {
@@ -291,6 +293,29 @@ public class ExecutionLogic extends WFCommonLogic {
         return getDefinitionGraphElements(user, definition, visitor);
     }
 
+    public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) {
+        Process process = processDAO.getNotNull(processId);
+        ProcessDefinition definition = getDefinition(process.getDeployment().getId());
+        List<NodeProcess> nodeProcesses = nodeProcessDAO.getNodeProcesses(process, null, nodeId, null);
+        ProcessLogs processLogs = null;
+        if (DrawProperties.isLogsInGraphEnabled()) {
+            processLogs = new ProcessLogs(process.getId());
+            ProcessLogFilter filter = new ProcessLogFilter(processId);
+            filter.setSeverities(DrawProperties.getLogsInGraphSeverities());
+            filter.setNodeId(nodeId);
+            processLogs.addLogs(processLogDAO.getAll(filter), false);
+        }
+        ProcessGraphInfoVisitor visitor = new ProcessGraphInfoVisitor(user, definition, process, processLogs, nodeProcesses);
+        Node node = definition.getNode(nodeId);
+        if (node == null) {
+            log.warn("No node found by '" + nodeId + "' in " + definition);
+            return null;
+        }
+        NodeGraphElement element = NodeGraphElementBuilder.createElement(node);
+        visitor.visit(element);
+        return element;
+    }
+
     public byte[] getProcessHistoryDiagram(User user, Long processId, Long taskId, String subprocessId) throws ProcessDoesNotExistException {
         try {
             Process process = processDAO.getNotNull(processId);
@@ -304,7 +329,7 @@ public class ExecutionLogic extends WFCommonLogic {
         }
     }
 
-    public List<GraphElementPresentation> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId)
+    public List<NodeGraphElement> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId)
             throws ProcessDoesNotExistException {
         try {
             Process process = processDAO.getNotNull(processId);
@@ -312,7 +337,7 @@ public class ExecutionLogic extends WFCommonLogic {
             ProcessDefinition processDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDAO.getAll(processId);
             List<Executor> executors = executorDAO.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
-            return new GraphHistoryBuilder(executors, process, processDefinition, logs, subprocessId).getPresentations();
+            return new GraphHistoryBuilder(executors, process, processDefinition, logs, subprocessId).getElements();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }

@@ -56,7 +56,7 @@ public class SendEmailActionHandler extends ActionHandlerBase {
             map.put("process", executionContext.getProcess());
             ScriptingVariableProvider scriptingVariableProvider = new ScriptingVariableProvider(executionContext.getVariableProvider());
             IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, scriptingVariableProvider);
-            EmailUtils.prepareTaskMessage(UserHolder.get(), config, interaction, emailVariableProvider);
+            EmailUtils.prepareMessage(UserHolder.get(), config, interaction, emailVariableProvider);
             EmailUtils.sendMessageRequest(config);
         } catch (Exception e) {
             if (config.isThrowErrorOnFailure()) {

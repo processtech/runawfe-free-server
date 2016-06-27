@@ -28,24 +28,24 @@ import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
-import ru.runa.wfe.lang.MultiProcessState;
+import ru.runa.wfe.lang.MultiSubprocessNode;
 import ru.runa.wfe.lang.MultiTaskCreationMode;
 import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.MultiTaskSynchronizationMode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.ReceiveMessage;
-import ru.runa.wfe.lang.ScriptTask;
-import ru.runa.wfe.lang.SendMessage;
-import ru.runa.wfe.lang.StartState;
-import ru.runa.wfe.lang.SubProcessState;
+import ru.runa.wfe.lang.ReceiveMessageNode;
+import ru.runa.wfe.lang.ScriptNode;
+import ru.runa.wfe.lang.SendMessageNode;
+import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.VariableContainerNode;
-import ru.runa.wfe.lang.WaitState;
+import ru.runa.wfe.lang.WaitNode;
 import ru.runa.wfe.lang.bpmn2.EndToken;
 import ru.runa.wfe.lang.bpmn2.ExclusiveGateway;
 import ru.runa.wfe.lang.bpmn2.ParallelGateway;
@@ -126,12 +126,12 @@ public class BpmnXmlReader {
     static {
         nodeTypes.put(USER_TASK, TaskNode.class);
         nodeTypes.put(MULTI_TASK, MultiTaskNode.class);
-        nodeTypes.put(INTERMEDIATE_CATCH_EVENT, WaitState.class);
-        nodeTypes.put(SEND_TASK, SendMessage.class);
-        nodeTypes.put(RECEIVE_TASK, ReceiveMessage.class);
+        nodeTypes.put(INTERMEDIATE_CATCH_EVENT, WaitNode.class);
+        nodeTypes.put(SEND_TASK, SendMessageNode.class);
+        nodeTypes.put(RECEIVE_TASK, ReceiveMessageNode.class);
         // back compatibility v < 4.0.4
-        nodeTypes.put(SERVICE_TASK, ScriptTask.class);
-        nodeTypes.put(SCRIPT_TASK, ScriptTask.class);
+        nodeTypes.put(SERVICE_TASK, ScriptNode.class);
+        nodeTypes.put(SCRIPT_TASK, ScriptNode.class);
         nodeTypes.put(EXCLUSIVE_GATEWAY, ExclusiveGateway.class);
         nodeTypes.put(PARALLEL_GATEWAY, ParallelGateway.class);
         nodeTypes.put(TEXT_ANNOTATION, TextAnnotation.class);
@@ -214,7 +214,7 @@ public class BpmnXmlReader {
                 if (processDefinition instanceof SubprocessDefinition) {
                     node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessStartNode.class);
                 } else {
-                    node = ApplicationContextFactory.createAutowiredBean(StartState.class);
+                    node = ApplicationContextFactory.createAutowiredBean(StartNode.class);
                 }
             } else if (END_EVENT.equals(nodeName)) {
                 Map<String, String> properties = parseExtensionProperties(element);
@@ -230,9 +230,9 @@ public class BpmnXmlReader {
             } else if (SUBPROCESS.equals(nodeName)) {
                 Map<String, String> properties = parseExtensionProperties(element);
                 if (properties.containsKey(MULTI_INSTANCE)) {
-                    node = ApplicationContextFactory.createAutowiredBean(MultiProcessState.class);
+                    node = ApplicationContextFactory.createAutowiredBean(MultiSubprocessNode.class);
                 } else {
-                    node = ApplicationContextFactory.createAutowiredBean(SubProcessState.class);
+                    node = ApplicationContextFactory.createAutowiredBean(SubprocessNode.class);
                 }
             }
             if (node != null) {
@@ -248,9 +248,9 @@ public class BpmnXmlReader {
         node.setDescription(element.elementTextTrim(DOCUMENTATION));
         processDefinition.addNode(node);
 
-        if (node instanceof StartState) {
-            StartState startState = (StartState) node;
-            readTask(processDefinition, element, startState);
+        if (node instanceof StartNode) {
+            StartNode startNode = (StartNode) node;
+            readTask(processDefinition, element, startNode);
         }
         if (node instanceof TaskNode) {
             TaskNode taskNode = (TaskNode) node;
@@ -276,39 +276,39 @@ public class BpmnXmlReader {
             VariableContainerNode variableContainerNode = (VariableContainerNode) node;
             variableContainerNode.setVariableMappings(readVariableMappings(element));
         }
-        if (node instanceof SubProcessState) {
-            SubProcessState subProcessState = (SubProcessState) node;
-            subProcessState.setSubProcessName(element.attributeValue(QName.get(PROCESS, RUNA_NAMESPACE)));
+        if (node instanceof SubprocessNode) {
+            SubprocessNode subprocessNode = (SubprocessNode) node;
+            subprocessNode.setSubProcessName(element.attributeValue(QName.get(PROCESS, RUNA_NAMESPACE)));
             Map<String, String> properties = parseExtensionProperties(element);
             if (properties.containsKey(EMBEDDED)) {
-                subProcessState.setEmbedded(Boolean.parseBoolean(properties.get(EMBEDDED)));
+                subprocessNode.setEmbedded(Boolean.parseBoolean(properties.get(EMBEDDED)));
             }
             if (properties.containsKey(ASYNC)) {
-                subProcessState.setAsync(Boolean.valueOf(properties.get(ASYNC)));
+                subprocessNode.setAsync(Boolean.valueOf(properties.get(ASYNC)));
             }
             if (properties.containsKey(ASYNC_COMPLETION_MODE)) {
-                subProcessState.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
+                subprocessNode.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
             }
         }
         if (node instanceof ExclusiveGateway) {
             ExclusiveGateway gateway = (ExclusiveGateway) node;
             gateway.setDelegation(readDelegation(element, false));
         }
-        if (node instanceof WaitState) {
-            WaitState waitState = (WaitState) node;
-            readTimer(processDefinition, element, waitState);
+        if (node instanceof WaitNode) {
+            WaitNode waitNode = (WaitNode) node;
+            readTimer(processDefinition, element, waitNode);
         }
-        if (node instanceof ScriptTask) {
-            ScriptTask serviceTask = (ScriptTask) node;
+        if (node instanceof ScriptNode) {
+            ScriptNode serviceTask = (ScriptNode) node;
             serviceTask.setDelegation(readDelegation(element, true));
         }
-        if (node instanceof SendMessage) {
-            SendMessage sendMessage = (SendMessage) node;
-            sendMessage.setTtlDuration(element.attributeValue(QName.get(TIME_DURATION, RUNA_NAMESPACE), "1 days"));
+        if (node instanceof SendMessageNode) {
+            SendMessageNode sendMessageNode = (SendMessageNode) node;
+            sendMessageNode.setTtlDuration(element.attributeValue(QName.get(TIME_DURATION, RUNA_NAMESPACE), "1 days"));
         }
-        if (node instanceof ReceiveMessage) {
-            ReceiveMessage receiveMessage = (ReceiveMessage) node;
-            readBoundaryEvent(processDefinition, element, receiveMessage);
+        if (node instanceof ReceiveMessageNode) {
+            ReceiveMessageNode receiveMessageNode = (ReceiveMessageNode) node;
+            readBoundaryEvent(processDefinition, element, receiveMessageNode);
         }
         if (node instanceof TextAnnotation) {
             node.setName("TextAnnotation_" + node.getNodeId());
@@ -426,7 +426,7 @@ public class BpmnXmlReader {
             Node source;
             if (sourceElement instanceof Node) {
                 source = (Node) sourceElement;
-                if (source instanceof WaitState) {
+                if (source instanceof WaitNode) {
                     source.getTimerActions(false).get(0).setTransitionName(name);
                     transition.setTimerTransition(true);
                 }

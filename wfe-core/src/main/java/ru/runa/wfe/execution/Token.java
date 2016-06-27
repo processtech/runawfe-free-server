@@ -57,7 +57,7 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.StartState;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
@@ -99,11 +99,11 @@ public class Token implements Serializable {
     public Token(ProcessDefinition processDefinition, Process process) {
         setStartDate(new Date());
         setProcess(process);
-        StartState startState = processDefinition.getStartStateNotNull();
-        setNodeId(startState.getNodeId());
-        setNodeType(startState.getNodeType());
+        StartNode startNode = processDefinition.getStartStateNotNull();
+        setNodeId(startNode.getNodeId());
+        setNodeType(startNode.getNodeType());
         setAbleToReactivateParent(true);
-        setName(startState.getNodeId());
+        setName(startNode.getNodeId());
         setChildren(new HashSet<Token>());
     }
 

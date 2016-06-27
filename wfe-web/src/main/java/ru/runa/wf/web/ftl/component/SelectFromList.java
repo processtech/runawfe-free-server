@@ -2,6 +2,7 @@ package ru.runa.wf.web.ftl.component;
 
 import java.util.List;
 
+import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.user.Executor;
@@ -20,9 +21,6 @@ public class SelectFromList extends FormComponent implements FormComponentSubmis
         List<Object> list = getParameterVariableValue(List.class, 1, null);
         if (list == null) {
             list = Lists.newArrayList();
-        }
-        if (list.size() > 0 && list.get(0) instanceof ISelectable) {
-            registerVariablePostProcessor(variableName);
         }
         Object selectedValue = variableProvider.getValue(Object.class, variableName);
         StringBuffer html = new StringBuffer();
@@ -57,10 +55,12 @@ public class SelectFromList extends FormComponent implements FormComponentSubmis
     public Object postProcessValue(Object source) {
         if (source instanceof String) {
             String value = (String) source;
-            List<ISelectable> list = getParameterVariableValueNotNull(List.class, 1);
-            for (ISelectable option : list) {
-                if (Objects.equal(value, option.getValue())) {
-                    return option;
+            List<?> list = getParameterVariableValue(List.class, 1, null);
+            if (TypeConversionUtil.getListFirstValueOrNull(list) instanceof ISelectable) {
+                for (ISelectable option : (List<ISelectable>) list) {
+                    if (Objects.equal(value, option.getValue())) {
+                        return option;
+                    }
                 }
             }
         }

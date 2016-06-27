@@ -21,7 +21,7 @@ import java.util.List;
 
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.history.graph.HistoryGraphBuilder;
 import ru.runa.wfe.history.graph.HistoryGraphNode;
 import ru.runa.wfe.history.layout.CalculateGraphLayout;
@@ -69,11 +69,11 @@ public class GraphHistoryBuilder {
      * 
      * @return Returns list of tooltips for history graph.
      */
-    public List<GraphElementPresentation> getPresentations() throws Exception {
+    public List<NodeGraphElement> getElements() throws Exception {
         HistoryGraphNode historyGraph = buildHistoryGraph();
         CreateGraphElementPresentation createPresentationOperation = new CreateGraphElementPresentation(data);
         historyGraph.processBy(createPresentationOperation, new CreateGraphElementPresentationContext());
-        return createPresentationOperation.getPresentationElements();
+        return createPresentationOperation.getElements();
     }
 
     /**

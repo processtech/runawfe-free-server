@@ -64,6 +64,10 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public Object getValue(String variableName) {
+        WfVariable variable = getVariable(variableName);
+        if (variable != null) {
+            return variable.getValue();
+        }
         return null;
     }
 
@@ -82,4 +86,8 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
         return null;
     }
 
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("definitionId", definitionId).toString();
+    }
 }

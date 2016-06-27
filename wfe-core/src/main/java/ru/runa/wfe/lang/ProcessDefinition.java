@@ -48,7 +48,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
 
     protected Deployment deployment;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
-    protected StartState startState;
+    protected StartNode startNode;
     protected final List<Node> nodes = Lists.newArrayList();
     protected final List<SwimlaneDefinition> swimlaneDefinitions = Lists.newArrayList();
     protected final Map<String, SwimlaneDefinition> swimlaneDefinitionsMap = Maps.newHashMap();
@@ -272,9 +272,9 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         return result;
     }
 
-    public StartState getStartStateNotNull() {
-        Preconditions.checkNotNull(startState, "startState");
-        return startState;
+    public StartNode getStartStateNotNull() {
+        Preconditions.checkNotNull(startNode, "startNode");
+        return startNode;
     }
 
     public List<Node> getNodes(boolean withEmbeddedSubprocesses) {
@@ -291,11 +291,11 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         Preconditions.checkArgument(node != null, "can't add a null node to a processdefinition");
         nodes.add(node);
         node.processDefinition = this;
-        if (node instanceof StartState) {
-            if (startState != null) {
+        if (node instanceof StartNode) {
+            if (startNode != null) {
                 throw new InvalidDefinitionException(getName(), "only one start-state allowed in a process");
             }
-            startState = (StartState) node;
+            startNode = (StartNode) node;
         }
         return node;
     }
@@ -413,7 +413,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     public List<String> getEmbeddedSubprocessNodeIds() {
         List<String> result = Lists.newArrayList();
         for (Node node : nodes) {
-            if (node instanceof SubProcessState && ((SubProcessState) node).isEmbedded()) {
+            if (node instanceof SubprocessNode && ((SubprocessNode) node).isEmbedded()) {
                 result.add(node.getNodeId());
             }
         }
@@ -422,9 +422,9 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
 
     public String getEmbeddedSubprocessNodeId(String subprocessName) {
         for (Node node : nodes) {
-            if (node instanceof SubProcessState) {
-                SubProcessState subProcessState = (SubProcessState) node;
-                if (subProcessState.isEmbedded() && Objects.equal(subprocessName, subProcessState.getSubProcessName())) {
+            if (node instanceof SubprocessNode) {
+                SubprocessNode subprocessNode = (SubprocessNode) node;
+                if (subprocessNode.isEmbedded() && Objects.equal(subprocessName, subprocessNode.getSubProcessName())) {
                     return node.getNodeId();
                 }
             }
@@ -471,18 +471,18 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
 
     public void mergeWithEmbeddedSubprocesses() {
         for (Node node : Lists.newArrayList(nodes)) {
-            if (node instanceof SubProcessState) {
-                SubProcessState subProcessState = (SubProcessState) node;
-                if (subProcessState.isEmbedded()) {
-                    SubprocessDefinition subprocessDefinition = getEmbeddedSubprocessByNameNotNull(subProcessState.getSubProcessName());
+            if (node instanceof SubprocessNode) {
+                SubprocessNode subprocessNode = (SubprocessNode) node;
+                if (subprocessNode.isEmbedded()) {
+                    SubprocessDefinition subprocessDefinition = getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName());
                     EmbeddedSubprocessStartNode startNode = subprocessDefinition.getStartStateNotNull();
-                    for (Transition transition : subProcessState.getArrivingTransitions()) {
+                    for (Transition transition : subprocessNode.getArrivingTransitions()) {
                         startNode.addArrivingTransition(transition);
                     }
-                    startNode.setSubProcessState(subProcessState);
+                    startNode.setSubProcessState(subprocessNode);
                     for (EmbeddedSubprocessEndNode endNode : subprocessDefinition.getEndNodes()) {
-                        endNode.addLeavingTransition(subProcessState.getLeavingTransitions().get(0));
-                        endNode.setSubProcessState(subProcessState);
+                        endNode.addLeavingTransition(subprocessNode.getLeavingTransitions().get(0));
+                        endNode.setSubProcessState(subprocessNode);
                     }
                     subprocessDefinition.mergeWithEmbeddedSubprocesses();
                 }

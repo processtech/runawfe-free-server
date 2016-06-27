@@ -25,7 +25,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.ExecutionService;
@@ -174,9 +174,18 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public List<GraphElementPresentation> getProcessDiagramElements(User user, Long processId, String subprocessId) {
+    public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) {
         try {
             return getExecutionService().getProcessDiagramElements(user, processId, subprocessId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) {
+        try {
+            return getExecutionService().getProcessDiagramElement(user, processId, nodeId);
         } catch (Exception e) {
             throw handleException(e);
         }

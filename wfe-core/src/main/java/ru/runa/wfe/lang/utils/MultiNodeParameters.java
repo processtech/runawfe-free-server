@@ -25,15 +25,15 @@ import ru.runa.wfe.var.VariableMapping;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-public class MultiInstanceParameters {
-    private static final Log log = LogFactory.getLog(MultiInstanceParameters.class);
+public class MultiNodeParameters {
+    private static final Log log = LogFactory.getLog(MultiNodeParameters.class);
     // back compatibility with processes before version 4.1.1
     private static final String USAGE_MULTIINSTANCE_VARS = "multiinstance-vars";
     private String discriminatorVariableName;
     private String iteratorVariableName;
     private Object discriminatorValue;
 
-    public MultiInstanceParameters(ExecutionContext executionContext, VariableContainerNode node) {
+    public MultiNodeParameters(ExecutionContext executionContext, VariableContainerNode node) {
         boolean fallbackToV410CompatibleMode = false;
         boolean canBeParsedInV3CompatibleMode = false;
         boolean modernMode = false;
@@ -61,7 +61,7 @@ public class MultiInstanceParameters {
         check(node);
     }
 
-    public MultiInstanceParameters(ExecutionContext executionContext, MultiTaskNode node) {
+    public MultiNodeParameters(ExecutionContext executionContext, MultiTaskNode node) {
         discriminatorVariableName = node.getDiscriminatorVariableName();
         VariableMapping mapping = new VariableMapping(discriminatorVariableName, null, node.getDiscriminatorUsage());
         if (Strings.isNullOrEmpty(mapping.getUsage()) || mapping.isMultiinstanceLinkByVariable()) {
