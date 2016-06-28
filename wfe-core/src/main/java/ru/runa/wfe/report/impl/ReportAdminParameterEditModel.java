@@ -6,35 +6,35 @@ import ru.runa.wfe.report.ReportParameterType;
 import com.google.common.base.Strings;
 
 /**
- * Модель для редактирования параметра отчета в административном интерфейсе отчетов.
+ * A model to edit report parameters in reports administrative interface.
  */
 public class ReportAdminParameterEditModel {
     /**
-     * Идентификатор параметра, под которым он сохранён в базе данных.
+     * Parameter identifier for DB.
      */
     private Long id;
     /**
-     * Название параметра, отображаемого пользователю.
+     * Parameter name that is shown to user.
      */
     private String name;
 
     /**
-     * Тип параметра.
+     * Parameter type.
      */
     private ReportParameterType type;
 
     /**
-     * Название, под которым параметр должен быть передан в отчет.
+     * Parameter name for report.
      */
     private String innerName;
 
     /**
-     * Флаг, равный true, если параметр обязателен для заполнения и false иначе.
+     * true if parameter is required and false if it's optional.
      */
     private boolean required;
 
     /**
-     * Описание параметра, которое будет показано пользователю при наведении на значок информации.
+     * Parameter description that is shown to user when pointed to information icon.
      */
     private String description;
 
@@ -57,9 +57,9 @@ public class ReportAdminParameterEditModel {
     }
 
     /**
-     * Создаёт DTO параметра на основе введенных пользователем данных.
+     * Creates parameter DTO from user defined data.
      * 
-     * @return Возвращает DTO базы данных, настроенное в соответствии с введенными пользователем параметрами.
+     * @return DB DTO set up with user defined parameters data.
      */
     public ReportParameter getDatabaseDto() {
         ReportParameter databaseDto = new ReportParameter();

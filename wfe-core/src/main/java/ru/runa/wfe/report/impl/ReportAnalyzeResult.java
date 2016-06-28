@@ -10,7 +10,7 @@ public class ReportAnalyzeResult {
     private String message;
 
     /**
-     * Дополнительные параметры, которые должны быть определены для построения отчёта.
+     * Additional parameters that must be defined in order to build report.
      */
     private List<ReportAdminParameterEditModel> requiredParameters;
 

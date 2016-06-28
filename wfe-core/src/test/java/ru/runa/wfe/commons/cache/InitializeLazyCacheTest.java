@@ -69,7 +69,7 @@ public class InitializeLazyCacheTest {
 
             @Override
             protected void _afterCommit(TestCacheIface cache) {
-                // Состоние кеша не изменилось - только после успешной смены состояния будет возвращаться инициализированный кеш.
+                // Cache stated has not changed. Only after successful change an initialized cached is returned.
                 Assert.assertTrue(ctrl.isCacheInstanceExists());
                 Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
             }
@@ -83,14 +83,14 @@ public class InitializeLazyCacheTest {
         };
         ctrl.getAudit().set_commitCacheAudit(_commitCacheAudit);
 
-        // Нет кеша изначально.
+        // No cache initially.
         Assert.assertFalse(ctrl.isCacheInstanceExists());
-        // Создание прокси объекта. Инициализация выполняется и ожидает сигнала.
+        // Creation of object proxy. Initialization is running and waits for signal.
         Assert.assertEquals(ctrl.getCacheWithChoise(false, getCacheIfNoLocked).getClass(), proxyClass);
-        // Позволяем продолжится процессу инициализации кеша и ожидаем его завершения.
+        // Allow initialization to go on waiting for its completion.
         createCacheEvt.setEvent();
         commitCacheEvt.tryWaitEvent();
-        // Кеш полностью инициализирован.
+        // Cache initialization is completed.
         Assert.assertTrue(ctrl.isCacheInstanceExists());
 
         ctrl.getAudit().set_getCacheAudit(new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
@@ -152,7 +152,7 @@ public class InitializeLazyCacheTest {
 
             @Override
             protected void _afterCommit(TestCacheIface cache) {
-                // Состояние кеша не изменилось - только после успешной смены состояния будет возвращаться инициализированный кеш.
+                // Cache stated has not changed. Only after successful change an initialized cached is returned.
                 Assert.assertTrue(ctrl.isCacheInstanceExists());
                 Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
             }
@@ -172,15 +172,15 @@ public class InitializeLazyCacheTest {
 
             @Override
             public void run() {
-                // Создание прокси объекта.
+            	 // Creation of object proxy.
                 Assert.assertEquals(ctrl.getCacheWithChoise(false, getCacheIfNoLocked).getClass(), proxyClass);
                 threadWaitSemaphore.release();
                 TestUtils.tryAcquireSemaphore(threadWaitSemaphore);
                 threadWaitSemaphore.release(1000);
-                // Позволяем продолжится процессу инициализации кеша и ожидаем его завершения.
+                // Allow initialization to go on waiting for its completion.
                 createCacheEvt.setEvent();
                 commitCacheEvt.tryWaitEvent();
-                // Кеш полностью инициализирован.
+                // Cache initialization is completed.
                 Assert.assertTrue(ctrl.isCacheInstanceExists());
 
                 ctrl.getAudit().set_getCacheAudit(new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
@@ -268,13 +268,13 @@ public class InitializeLazyCacheTest {
 
         readThreadBlockedEvt.tryWaitEvent();
         ctrl.getAudit().set_getCacheAudit(new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>());
-        // В потоке с пишушей транзакцией кеш должен быть построен несмотря на блокировку читающего потока.
+        // In the thread of writing transaction cache must be initialized despite the reading transaction thread being blocked.
         Assert.assertEquals(ctrl.getCacheWithChoise(true, getCacheIfNoLocked).getClass(), proxyClass);
         readThreadAllowUnblockEvt.setEvent();
         readThreadGetCacheCompleted.tryWaitEvent();
-        // Оба потока получили экземпляр прокси класса.
+        //  Both threads got instance of proxy class
         Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
-        // Позволяем завершится инициализации кеша.
+        // Allow cache initialization to complete.
         commitAllowEvt.setEvent();
         commitedEvt.tryWaitEvent();
         Assert.assertEquals(ctrl.getCacheWithChoise(true, getCacheIfNoLocked).getClass(), cacheClass);
@@ -411,10 +411,10 @@ public class InitializeLazyCacheTest {
         Assert.assertEquals(ctrl.getCache(false).getClass(), proxyClass);
         commitedEvt.tryWaitEvent();
         Assert.assertEquals(ctrl.getCache(false).getClass(), cacheClass);
-        // Следующий вызов не сбрасывает кеш - он остаётся в урезанном состоянии.
+        // Next call not clears cache. Cache remains in cut state.
         ctrl.onChanged(new ChangedObjectParameter(1L, Change.DELETE, null, null, null, null));
         Assert.assertEquals(ctrl.getCache(false).getClass(), cacheClass);
-        // Следующий вызов сбрасывает кеш.
+        // Next call clears cache.
         ctrl.onChanged(new ChangedObjectParameter(11L, Change.DELETE, null, null, null, null));
         Assert.assertEquals(ctrl.getCache(false).getClass(), proxyClass);
     }

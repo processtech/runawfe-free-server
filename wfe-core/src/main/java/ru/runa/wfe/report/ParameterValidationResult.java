@@ -1,26 +1,26 @@
 package ru.runa.wfe.report;
 
 /**
- * Результат валидации параметра, полученного от пользователя.
+ * User defined parameter validation result.
  */
 public class ParameterValidationResult {
     /**
-     * Название, под которым параметр должен быть передан в отчет.
+     * Parameter name for report.
      */
     private String innerReportParameterName;
 
     /**
-     * Название, отображаемое пользователю.
+     * Parameter name that is shown to user.
      */
     private String reportParameterName;
 
     /**
-     * Флаг, равный true, если параметр корректен и False иначе.
+     * true if parameter is required and false if it's optional.
      */
     private boolean isCorrect;
 
     /**
-     * Описание ошибки в случае некорректного параметра.
+     * Error description in case of invalid parameter.
      */
     private String errorMessage;
 
@@ -29,9 +29,9 @@ public class ParameterValidationResult {
     }
 
     /**
-     * Создаёт результат с корректной валидацией параметра.
+     * Creates result with correct parameter validation.
      * 
-     * @return Возвращает результат с корректной валидацией параметра.
+     * @return result with correct parameter validation.
      */
     public static ParameterValidationResult correctValidationResult() {
         ParameterValidationResult result = new ParameterValidationResult();
@@ -40,9 +40,9 @@ public class ParameterValidationResult {
     }
 
     /**
-     * Создаёт результат с некорректной валидацией параметра.
+     * Creates result with invalid parameter validation..
      * 
-     * @return Возвращает результат с некорректной валидацией параметра.
+     * @return result with invalid parameter validation..
      */
     public static ParameterValidationResult errorValidationResult(String reportParameterName, String message) {
         ParameterValidationResult result = new ParameterValidationResult();
@@ -53,56 +53,56 @@ public class ParameterValidationResult {
     }
 
     /**
-     * Название, под которым параметр должен быть передан в отчет.
+     * Gets report parameter name.
      */
     public String getInnerReportParameterName() {
         return innerReportParameterName;
     }
 
     /**
-     * Название, под которым параметр должен быть передан в отчет.
+     * Sets report parameter name.
      */
     public void setInnerReportParameterName(String innerReportParameterName) {
         this.innerReportParameterName = innerReportParameterName;
     }
 
     /**
-     * Флаг, равный true, если параметр корректен и False иначе.
+     * True is parameter is correct, false if it's invalid
      */
     public boolean isCorrect() {
         return isCorrect;
     }
 
     /**
-     * Флаг, равный true, если параметр корректен и False иначе.
+     * True is parameter is correct, false if it's invalid
      */
     public void setCorrect(boolean isCorrect) {
         this.isCorrect = isCorrect;
     }
 
     /**
-     * Описание ошибки в случае некорректного параметра.
+     *  Gets error description in case of invalid parameter.
      */
     public String getErrorMessage() {
         return errorMessage;
     }
 
     /**
-     * Описание ошибки в случае некорректного параметра.
+     *  Sets error description in case of invalid parameter.
      */
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
     /**
-     * Название, отображаемое пользователю.
+     * Gets name that is shown to user.
      */
     public String getReportParameterName() {
         return reportParameterName;
     }
 
     /**
-     * Название, отображаемое пользователю.
+     * Sets name that is shown to user.
      */
     public void setReportParameterName(String reportParameterName) {
         this.reportParameterName = reportParameterName;
