@@ -27,7 +27,7 @@ public class ReportAnalyzeResult {
             requiredParameters = new ArrayList<ReportAdminParameterEditModel>();
         }
         requiredParameters.add(parameter);
-        appendMessage("Не задан параметр " + parameter.getInnerName() + " необходимый для построения отчёта");
+        appendMessage("Parameter " + parameter.getInnerName() + " is not set but required for report construction");
     }
 
     public String getMessage() {
@@ -43,6 +43,6 @@ public class ReportAnalyzeResult {
     }
 
     public void appendMessage(String parameterName, String message) {
-        appendMessage("Параметр '" + parameterName + "': " + message);
+        appendMessage("Parameter '" + parameterName + "': " + message);
     }
 }

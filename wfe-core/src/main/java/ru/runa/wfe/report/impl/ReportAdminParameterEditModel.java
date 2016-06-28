@@ -44,7 +44,7 @@ public class ReportAdminParameterEditModel {
     public ReportAdminParameterEditModel(ReportParameterType type, String innerName, String description) {
         this.type = type;
         this.innerName = innerName;
-        this.description = Strings.isNullOrEmpty(description) ? "Описание параметра не задано" : description;
+        this.description = Strings.isNullOrEmpty(description) ? "Parameter description is not set" : description;
     }
 
     public ReportAdminParameterEditModel(ReportParameter databaseDto, String description) {
@@ -53,7 +53,7 @@ public class ReportAdminParameterEditModel {
         this.type = databaseDto.getType();
         this.innerName = databaseDto.getInnerName();
         this.required = databaseDto.isRequired();
-        this.description = Strings.isNullOrEmpty(description) ? "Описание параметра не задано" : description;
+        this.description = Strings.isNullOrEmpty(description) ? "Parameter description is not set" : description;
     }
 
     /**

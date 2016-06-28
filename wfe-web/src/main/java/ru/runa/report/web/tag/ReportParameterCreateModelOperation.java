@@ -62,7 +62,7 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
             definitions = new ArrayList<WfDefinition>();
         }
         List<ReportParameterModel.ListValuesData> listData = new ArrayList<ReportParameterModel.ListValuesData>();
-        listData.add(new ListValuesData("Все бизнес-процессы", null));
+        listData.add(new ListValuesData("All BPs", null));
         for (WfDefinition definition : definitions) {
             listData.add(new ReportParameterModel.ListValuesData(definition.getName(), definition.getName()));
         }
@@ -91,7 +91,7 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
         }
 
         List<ReportParameterModel.ListValuesData> listData = new ArrayList<ReportParameterModel.ListValuesData>();
-        listData.add(new ListValuesData("Все роли", null));
+        listData.add(new ListValuesData("All swimlanes", null));
         for (String swimlane : swimlanes) {
             listData.add(new ListValuesData(swimlane, swimlane));
         }
