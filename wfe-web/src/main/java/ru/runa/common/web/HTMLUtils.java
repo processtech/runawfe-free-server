@@ -51,6 +51,11 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.form.IdForm;
@@ -72,11 +77,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 
 public class HTMLUtils {
     private static final Log log = LogFactory.getLog(HTMLUtils.class);
@@ -312,26 +312,23 @@ public class HTMLUtils {
         }
         return result;
     }
-    
+
     /**
-     * Converts org.apache.ecs.html.Table object to the HTML string and
-     * removes all links, inputs and images from it.
+     * Converts org.apache.ecs.html.Table object to the HTML string and removes all links, inputs and images from it.
      * 
      * @param table
      * @return result HTML string
      */
     public static String returnHtmlFromTable(Table table) {
-    	
-    	String tableStr = table.toString();
-    	tableStr = tableStr.replaceAll("</?a[^>]*>", "")
-    				.replaceAll("</?img[^>]*>", "")
-    				.replaceAll("</?input[^>]*>", "")
-    				.replaceAll("class='deadlineExpired'", "style='background-color: #ff9999;'")
-    				.replaceAll("class='deadlineAlmostExpired'", "style='background-color: #ddbb99;'")
-    				.replaceAll("class='deadlineExists'", "style='background-color: white;'")
-    				.replaceAll("class='escalatedTask'", "style='background-color: #ef8ff8;'")
-    				.replaceAll("class='substitutionTask'", "style='background-color: #ffff9d;'");
 
-    	return tableStr;
+        String tableStr = table.toString();
+        tableStr = tableStr.replaceAll("</?a[^>]*>", "").replaceAll("</?img[^>]*>", "").replaceAll("</?input[^>]*>", "")
+                .replaceAll("class='deadlineExpired'", "style='background-color: #ff9999;'")
+                .replaceAll("class='deadlineAlmostExpired'", "style='background-color: #ddbb99;'")
+                .replaceAll("class='deadlineExists'", "style='background-color: white;'")
+                .replaceAll("class='escalatedTask'", "style='background-color: #ef8ff8;'")
+                .replaceAll("class='substitutionTask'", "style='background-color: #ffff9d;'");
+
+        return tableStr;
     }
 }

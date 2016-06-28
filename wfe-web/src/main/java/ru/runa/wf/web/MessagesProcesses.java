@@ -41,6 +41,11 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SWIMLANE = new StrutsMessage("label.swimlane");
     public static final StrutsMessage LABEL_SWIMLANE_NAME = new StrutsMessage("label.swimlane_name");
     public static final StrutsMessage LABEL_SWIMLANE_ASSIGNMENT = new StrutsMessage("label.swimlane_assigned_to");
+    public static final StrutsMessage LABEL_START_TIME = new StrutsMessage("label.start_time");
+    public static final StrutsMessage LABEL_END_TIME = new StrutsMessage("label.end_time");
+    public static final StrutsMessage LABEL_CURRENT_DURATION = new StrutsMessage("label.current_duration");
+    public static final StrutsMessage LABEL_REMAINING_TIME = new StrutsMessage("label.remaining_time");
+    public static final StrutsMessage LABEL_ASSIGNMENT_TIME = new StrutsMessage("label.assignment_time");
     public static final StrutsMessage LINK_UPDATE_SWIMLANE = new StrutsMessage("link.update_swimlane");
     public static final StrutsMessage BUTTON_UPDATE_SWIMLANE = new StrutsMessage("button.update_swimlane");
     public static final StrutsMessage LABEL_SWIMLANE_NEW_EXECUTOR = new StrutsMessage("label.swimlane_new_executor");
@@ -51,6 +56,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
     public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
     public static final StrutsMessage BUTTON_DELEGATE_TASK = new StrutsMessage("button.delegate_task");
+    public static final StrutsMessage BUTTON_EXPORT_EXCEL = new StrutsMessage("button.export_excel");
     public static final StrutsMessage TITLE_UPDATE_VARIABLE = new StrutsMessage("title.update_variable");
     public static final StrutsMessage LABEL_VARIABLE_NAME = new StrutsMessage("label.variable_name");
     public static final StrutsMessage LABEL_VARIABLE_VALUE = new StrutsMessage("label.variable_value");
@@ -69,7 +75,8 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_START_DATE = new StrutsMessage("label.task_history_table_start_date");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_END_DATE = new StrutsMessage("label.task_history_table_end_date");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_DURATION = new StrutsMessage("label.task_history_table_duration");
-    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage("batch_presentation.process_definition.update_current_version");
+    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage(
+            "batch_presentation.process_definition.update_current_version");
     public static final StrutsMessage TITLE_SUBPROCESSES_LIST = new StrutsMessage("title.process_subprocess_list");
 
 }

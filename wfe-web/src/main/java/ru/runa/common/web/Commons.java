@@ -35,12 +35,12 @@ import org.apache.struts.Globals;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.taglib.TagUtils;
 
-import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.user.User;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
+
+import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.user.User;
 
 /**
  * Created on 20.08.2004
@@ -51,7 +51,7 @@ public class Commons {
     private static final String LOGGED_USER_ATTRIBUTE_NAME = User.class.getName();
 
     public static final String TASK_LIST_SESSION_ATTR_NAME = "taskList";
-    
+
     protected Commons() {
     }
 
@@ -240,9 +240,9 @@ public class Commons {
     }
 
     public static void setSessionAttribute(HttpSession session, String attributeName, Object value) {
-    	session.setAttribute(attributeName, value);
+        session.setAttribute(attributeName, value);
     }
-    
+
     public static void setUser(User user, HttpSession session) {
         session.setAttribute(LOGGED_USER_ATTRIBUTE_NAME, user);
     }

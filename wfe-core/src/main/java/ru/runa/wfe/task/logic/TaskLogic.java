@@ -8,6 +8,12 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
 import ru.runa.wfe.commons.SystemProperties;
@@ -52,12 +58,6 @@ import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Task logic.
@@ -113,7 +113,8 @@ public class TaskLogic extends WFCommonLogic {
                     extraVariablesMap.put(mapping.getMappedName(), value);
                 }
             }
-            IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
+            IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap,
+                    executionContext.getVariableProvider());
             validateVariables(user, processDefinition, task.getNodeId(), variables, validationVariableProvider);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
@@ -148,10 +149,8 @@ public class TaskLogic extends WFCommonLogic {
             Set<Map.Entry<String, Object>> entries = new HashSet<Map.Entry<String, Object>>(variables.entrySet());
             for (Map.Entry<String, Object> entry : entries) {
                 if (Objects.equal(mapping.getMappedName(), entry.getKey()) || entry.getKey().startsWith(mapping.getMappedName() + UserType.DELIM)) {
-                    String mappedVariableName = entry.getKey().replaceFirst(
-                            mapping.getMappedName(),
-                            mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                    String mappedVariableName = entry.getKey().replaceFirst(mapping.getMappedName(), mapping.getName()
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex() + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -191,7 +190,7 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public List<WfTask> getMyTasks(User user, BatchPresentation batchPresentation) {
-        return taskListBuilder.getTasks(user.getActor(), batchPresentation);
+        return taskListBuilder.getTasks(user, batchPresentation);
     }
 
     public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {

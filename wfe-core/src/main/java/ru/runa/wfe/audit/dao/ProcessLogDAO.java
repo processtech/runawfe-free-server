@@ -8,20 +8,19 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.Severity;
-import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * DAO for {@link ProcessLog}.
@@ -52,8 +51,8 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
             // pre 01.02.2014, remove as it will be obsolete
             if (definition instanceof SubprocessDefinition) {
                 SubprocessDefinition subprocessDefinition = (SubprocessDefinition) definition;
-                String subprocessNodeId = subprocessDefinition.getParentProcessDefinition().getEmbeddedSubprocessNodeIdNotNull(
-                        subprocessDefinition.getName());
+                String subprocessNodeId = subprocessDefinition.getParentProcessDefinition()
+                        .getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
                 boolean embeddedSubprocessLogs = false;
                 boolean childSubprocessLogs = false;
                 List<String> childSubprocessNodeIds = subprocessDefinition.getEmbeddedSubprocessNodeIds();
@@ -192,23 +191,5 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
         } catch (Throwable e) {
             log.warn("Custom log handler throws exception", e);
         }
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Override
-    public ProcessLog getLatestAssignTaskLog(Long processId, long taskId) {
-        List<ProcessLog> assignLogList = getHibernateTemplate().find("from TaskAssignLog where processId=? order by id desc", processId);
-        
-    	if (assignLogList == null || assignLogList.size() == 0) {
-    		return null;
-    	}
-    	
-    	for (ProcessLog log : assignLogList) {
-    		if (((TaskAssignLog)log).getTaskId() == taskId) {
-    			return log;
-    		}
-    	}
-    	
-    	return null;
     }
 }

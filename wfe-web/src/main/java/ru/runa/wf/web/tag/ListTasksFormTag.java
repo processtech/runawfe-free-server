@@ -17,7 +17,6 @@
  */
 package ru.runa.wf.web.tag;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -106,29 +105,29 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         return MessagesProcesses.TITLE_TASKS.message(pageContext);
     }
 
-    /*@Override
-    public String getFormButtonName() {
-        return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
-    }*/
-    
+    /*
+     * @Override public String getFormButtonName() { return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext); }
+     */
+
+    /*
+     * @Override protected boolean isMultipleSubmit() { return true; }
+     * 
+     * @Override protected List<String> getFormButtonNames() {
+     * 
+     * List<String> submitButtons = new ArrayList<String>(); submitButtons.add(MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext));
+     * submitButtons.add(MessagesProcesses.BUTTON_EXPORT_EXCEL.message(pageContext));
+     * 
+     * return submitButtons; }
+     */
+
     @Override
-	protected boolean isMultipleSubmit() {
-		return true;
-	}
-
-	@Override
-	protected List<String> getFormButtonNames() {
-		
-		List<String> submitButtons = new ArrayList<String>();
-		submitButtons.add(MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext));
-		submitButtons.add(MessagesProcesses.BUTTON_EXPORT_EXCEL.message(pageContext));
-		
-		return submitButtons;
-	}
-
-	@Override
     public String getAction() {
         return ProcessTaskAssignmentAction.ACTION_PATH;
+    }
+
+    @Override
+    protected String getFormButtonName() {
+        return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
     }
 
     public static class TasksCssClassStrategy implements CssClassStrategy {

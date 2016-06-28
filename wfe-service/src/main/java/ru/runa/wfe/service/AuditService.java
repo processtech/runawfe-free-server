@@ -19,7 +19,6 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
@@ -108,17 +107,4 @@ public interface AuditService {
      * @return not <code>null</code>
      */
     public int getSystemLogsCount(User user, BatchPresentation batchPresentation);
-    
-    /**
-     * Gets the latest task assign log entity by the given task id
-     * 
-     * @param user
-     *            authorized user
-     * @param processId
-     * 			  process ID
-     * @param taskId
-     * 			  task ID
-     * @return task log entity
-     */
-    public ProcessLog getLatestAssignTaskLog(User user, Long processId, Long taskId);
 }

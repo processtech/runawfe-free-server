@@ -25,15 +25,15 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDeadlineUtils;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Process task.
@@ -65,11 +65,11 @@ public class WfTask implements Serializable {
     private boolean acquiredBySubstitution;
     private Integer multitaskIndex;
 
-    //fields that not presented in the Task entity  but should be
-    //displayed in the task list for user
+    // fields that not presented in the Task entity but should be
+    // displayed in the task list for user
     private Date assignmentDate;
     private String duration;
-    
+
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
 
@@ -172,24 +172,24 @@ public class WfTask implements Serializable {
     public Integer getMultitaskIndex() {
         return multitaskIndex;
     }
-    
+
     public Date getAssignmentDate() {
-		return assignmentDate;
-	}
+        return assignmentDate;
+    }
 
-	public void setAssignmentDate(Date assignmentDate) {
-		this.assignmentDate = assignmentDate;
-	}
+    public void setAssignmentDate(Date assignmentDate) {
+        this.assignmentDate = assignmentDate;
+    }
 
-	public String getDuration() {
-		return duration;
-	}
+    public String getDuration() {
+        return duration;
+    }
 
-	public void setDuration(String duration) {
-		this.duration = duration;
-	}
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
 
-	public void addVariable(WfVariable variable) {
+    public void addVariable(WfVariable variable) {
         variables.add(variable);
     }
 

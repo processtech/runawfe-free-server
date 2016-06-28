@@ -19,7 +19,6 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.List;
 
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
@@ -90,15 +89,6 @@ public class AuditServiceDelegate extends EJB3Delegate implements AuditService {
     public Object getProcessLogValue(User user, Long logId) {
         try {
             return getAuditService().getProcessLogValue(user, logId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-    
-    @Override
-    public ProcessLog getLatestAssignTaskLog(User user, Long processId, Long taskId) {
-        try {
-            return getAuditService().getLatestAssignTaskLog(user, processId, taskId);
         } catch (Exception e) {
             throw handleException(e);
         }

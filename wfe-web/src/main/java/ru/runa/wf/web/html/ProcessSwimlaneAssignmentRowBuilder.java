@@ -31,6 +31,9 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wf.web.tag.ListTasksFormTag;
 import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDeadlineUtils;
@@ -57,26 +60,26 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
     public TR buildNext() {
         WfTask task = iterator.next();
         TR tr = new TR();
-        
+
         ListTasksFormTag.TasksCssClassStrategy cssClassStrategy = new ListTasksFormTag.TasksCssClassStrategy();
         String cssClass = cssClassStrategy.getClassName(task, user);
-        
+
         tr.setClass(cssClass);
         tr.addElement(new TD(task.getName()).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(task.getSwimlaneName()).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(HTMLUtils.createExecutorElement(user, pageContext, task.getOwner())).setClass(Resources.CLASS_LIST_TABLE_TD));
-        
+
         String startDateString;
         Date taskStartDate = task.getCreationDate();
         if (taskStartDate == null) {
-        	startDateString = "";
+            startDateString = "";
         } else {
-        	startDateString = CalendarUtil.formatDateTime(taskStartDate);
+            startDateString = CalendarUtil.formatDateTime(taskStartDate);
         }
 
         tr.addElement(new TD(startDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement((new TaskDeadlineTDBuilder()).build(task, null).setClass(Resources.CLASS_LIST_TABLE_TD));
-        
+
         Date currentDate = new Date();
         String period = TaskDeadlineUtils.calculateTimeDuration(taskStartDate, currentDate);
         tr.addElement(new TD().addElement(period).setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -85,17 +88,26 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
         tr.addElement(new TD().addElement(deadLinePeriod).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         String startExecutionDateString = " ";
-        ProcessLog taskAssignLog = Delegates.getAuditService().getLatestAssignTaskLog(user, task.getProcessId(), task.getId());
-        
-        if (taskAssignLog != null) {
-       		startExecutionDateString = CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
+        ProcessLogFilter filter = new ProcessLogFilter(task.getProcessId());
+        filter.setNodeId(task.getNodeId());
+        ProcessLogs logs = Delegates.getAuditService().getProcessLogs(user, filter);
+
+        TaskAssignLog taskAssignLog = null;
+        for (ProcessLog processLog : logs.getLogs()) {
+            if (processLog instanceof TaskAssignLog && (taskAssignLog == null || processLog.getCreateDate().after(taskAssignLog.getCreateDate()))) {
+                taskAssignLog = (TaskAssignLog) processLog;
+            }
         }
-        
+
+        if (taskAssignLog != null) {
+            startExecutionDateString = CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
+        }
+
         tr.addElement(new TD(startExecutionDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
-        
+
         return tr;
     }
-    
+
     @Override
     public List<TR> buildNextArray() {
         return null;
