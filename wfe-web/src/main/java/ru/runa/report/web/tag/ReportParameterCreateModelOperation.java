@@ -16,7 +16,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 /**
- * Операция создания модели параметра.
+ * Operation of parameter model creation.
  */
 public class ReportParameterCreateModelOperation implements ReportParameterTypeVisitor<ReportParameterModel, ReportParameterDto> {
 
