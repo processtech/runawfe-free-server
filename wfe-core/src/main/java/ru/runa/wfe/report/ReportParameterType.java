@@ -5,16 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Описывает тип параметра, требуемого для построения отчета.
+ * Describes the type of parameter required for report construction.
  */
 public enum ReportParameterType {
     /**
-     * Строковый параметр.
+     * String parameter.
      */
     STRING(String.class) {
         @Override
         public String getDescription() {
-            return "Строка";
+            return "String";
         }
 
         @Override
@@ -24,12 +24,12 @@ public enum ReportParameterType {
     },
 
     /**
-     * Числовой параметр.
+     * Number parameter.
      */
     NUMBER(Long.class) {
         @Override
         public String getDescription() {
-            return "Целое число";
+            return "Integer";
         }
 
         @Override
@@ -39,12 +39,12 @@ public enum ReportParameterType {
     },
 
     /**
-     * Дата.
+     * Date parameter.
      */
     DATE(Date.class) {
         @Override
         public String getDescription() {
-            return "Дата";
+            return "Date";
         }
 
         @Override
@@ -54,12 +54,12 @@ public enum ReportParameterType {
     },
 
     /**
-     * Выбор названия бизнесс процесса или null, если пользователя выбирает все процессы (нет фильтра по процессу).
+     * BP name selection or null, if user chooses all processes (not process filter is set).
      */
     PROCESS_NAME_OR_NULL(String.class) {
         @Override
         public String getDescription() {
-            return "Выбор типа процесса";
+            return "BP type selection";
         }
 
         @Override
@@ -69,12 +69,12 @@ public enum ReportParameterType {
     },
 
     /**
-     * Выбор роли бизнес процесса.
+     * BP swimlate selection.
      */
     SWIMLANE(String.class) {
         @Override
         public String getDescription() {
-            return "Выбор роли бизнес процесса";
+            return "BP swimlane selection";
         }
 
         @Override
@@ -84,12 +84,12 @@ public enum ReportParameterType {
     },
 
     /**
-     * Флажок (по умолчанию не проставлен).
+     * Flag (is not set (false) by default).
      */
     BOOLEAN_UNCHECKED(Boolean.class) {
         @Override
         public String getDescription() {
-            return "Флаг (по умолчанию снят)";
+            return "Flag (unchecked by default)";
         }
 
         @Override
@@ -99,12 +99,12 @@ public enum ReportParameterType {
     },
 
     /**
-     * Выбор роли бизнес процесса.
+     * Flag (is set (true) by default)
      */
     BOOLEAN_CHECKED(Boolean.class) {
         @Override
         public String getDescription() {
-            return "Флаг (по умолчанию проставлен)";
+            return "Flag (checked by default)";
         }
 
         @Override
@@ -114,12 +114,12 @@ public enum ReportParameterType {
     };
 
     /**
-     * Java тип, в который преобразуется параметр.
+     * Java type that is used for processed parameter.
      */
     private final Class<?> javaType;
 
     /**
-     * Отображение из типа java, в тип параметра.
+     * Map of java type to parameter type.
      */
     private static Map<Class<?>, ReportParameterType> classRegistry = new HashMap<Class<?>, ReportParameterType>();
 
@@ -136,20 +136,20 @@ public enum ReportParameterType {
     }
 
     /**
-     * Возвращает Java тип, в который преобразуется параметр.
+     * Returns java type that corresponds to parameter type.
      * 
-     * @return Возвращает Java тип, в который преобразуется параметр.
+     * @return java type that corresponds to parameter type.
      */
     public final Class<?> getJavaType() {
         return javaType;
     }
 
     /**
-     * Преобразует java тип, в тип параметра.
+     * Converts java type to correspondent parameter type.
      * 
      * @param javaType
-     *            java тип, для которого создаётся параметр.
-     * @return Возвращает тип параметра.
+     *            java type of the parameter.
+     * @return parameter type.
      */
     public static ReportParameterType getForClass(Class<?> javaType) {
         ReportParameterType type = classRegistry.get(javaType);
@@ -157,99 +157,99 @@ public enum ReportParameterType {
     }
 
     /**
-     * Возвращает описание типа параметра, которое может быть показано пользователю.
+     * Returns parameters description that can be shown to user.
      * 
-     * @return Возвращает описание типа параметра, которое может быть показано пользователю.
+     * @return parameters description that can be shown to user..
      */
     public abstract String getDescription();
 
     /**
-     * Применяет операцию к типу параметра.
+     * Applies operation to parameter type.
      * 
      * @param visitor
-     *            Операция, применяемая в зависимости от типа параметра.
+     *            Operation that can be applied depending on parameter type.
      * @param data
-     *            Данные, передаваемые в операцию.
-     * @return Возвращает результат применения операции.
+     *            Data that is supplied to operation.
+     * @return result of operation being applied.
      * @throws Exception
      */
     public abstract <TResult, TData> TResult processBy(ReportParameterTypeVisitor<TResult, TData> visitor, TData data);
 
     /**
-     * Интерфейс операции, которая может быть применена к типу параметра.
+     * Interface of the operation that can be applied to parameter type.
      * 
      * @param <TResult>
-     *            Тип результата применения операции.
+     *            Result type of operation being applied.
      * @param <TData>
-     *            Тип данных, передаваемых в операцию.
+     *            Data type that is supplied to operation.
      */
     public interface ReportParameterTypeVisitor<TResult, TData> {
         /**
-         * Вызывается для строкового параметра.
+         * Called for string parameter.
          * 
          * @param data
-         *            Данные, передаваемые в операцию.
-         * @return Возвращает результат применения операции.
+         *            Data supplied to operation.
+         * @return result of operation being applied.
          */
         TResult onString(TData data);
 
         /**
-         * Вызывается для числового параметра.
+         * Called for number parameter
          * 
          * @param data
-         *            Данные, передаваемые в операцию.
+         *            Data supplied to operation.
          * 
-         * @return Возвращает результат применения операции.
+         * @return result of operation being applied.
          */
         TResult onNumber(TData data);
 
         /**
-         * Вызывается для параметра типа дата.
+         * Called for date parameter
          * 
          * @param data
-         *            Данные, передаваемые в операцию.
+         *            Data supplied to operation.
          * 
-         * @return Возвращает результат применения операции.
+         * @return result of operation being applied.
          */
         TResult onDate(TData data);
 
         /**
-         * Вызывается для параметра типа флажок (по умолчанию снят).
+         * Called for flag (boolean) parameter (unchecked by default).
          * 
          * @param data
-         *            Данные, передаваемые в операцию.
+         *            Data supplied to operation.
          * 
-         * @return Возвращает результат применения операции.
+         * @return result of operation being applied.
          */
         TResult onUncheckedBoolean(TData data);
 
         /**
-         * Вызывается для параметра типа флажок (по умолчанию проставлен).
+         * Called for flag (boolean) parameter (checked by default).
          * 
          * @param data
-         *            Данные, передаваемые в операцию.
+         *            Data supplied to operation.
          * 
-         * @return Возвращает результат применения операции.
+         * @return result of operation being applied.
          */
         TResult onCheckedBoolean(TData data);
 
         /**
-         * Вызывается для параметра с выбором типа процесса или null для всех процессов.
+         * Called for parameter with BP type selection or null for all types.
          * 
          * @param data
-         *            Данные, передаваемые в операцию.
+         *            Data supplied to operation.
          * 
-         * @return Возвращает результат применения операции.
+         * @return result of operation being applied.
          */
         TResult onProcessNameOrNull(TData data);
 
         /**
-         * Вызывается для параметра с выбором роли бизнес процесса.
+         * Called for parameter with BP swimlane selection.
          * 
          * @param data
-         *            Данные, передаваемые в операцию.
+         *            Data supplied to operation.
          * 
-         * @return Возвращает результат применения операции.
+         * @return result of operation being applied.
          */
         TResult onSwimlane(TData data);
     }
