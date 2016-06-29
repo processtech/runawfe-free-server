@@ -25,9 +25,6 @@ public class MultipleSelectFromList extends FormComponent implements FormCompone
         if (list == null) {
             list = Lists.newArrayList();
         }
-        if (list.size() > 0 && list.get(0) instanceof ISelectable) {
-            registerVariablePostProcessor(variableName);
-        }
         List<Object> selectedValues = variableProvider.getValue(List.class, variableName);
         StringBuffer html = new StringBuffer();
         html.append("<span class=\"multipleSelectFromList\">");
@@ -50,8 +47,8 @@ public class MultipleSelectFromList extends FormComponent implements FormCompone
                 WfVariable variable = ViewUtil.createVariable(variableName, userTypeMap.getUserType().getName(), userTypeFormat, userTypeMap);
                 String hid = userTypeMap.getUserType().getAttributes().get(0) != null ? userTypeMap.getUserType().getAttributes().get(0).getName()
                         + " " + userTypeMap.get(userTypeMap.getUserType().getAttributes().get(0).getName()) : userTypeMap.getUserType().getName();
-                        optionLabel = variableName + " " + hid + "<br>"
-                                + ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), variable);
+                optionLabel = variableName + " " + hid + "<br>"
+                        + ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), variable);
             } else if (option instanceof IFileVariable) {
                 FileFormat fileFormat = new FileFormat();
                 IFileVariable file = (IFileVariable) option;

@@ -39,12 +39,6 @@ public class FormHashModel extends SimpleHash {
             if (attributeName.startsWith(AjaxFormComponent.COMPONENT_SESSION_PREFIX)) {
                 session.removeAttribute(attributeName);
             }
-            if (attributeName.startsWith(FormComponentSubmissionHandler.KEY_PREFIX)) {
-                session.removeAttribute(attributeName);
-            }
-            if (attributeName.startsWith(FormComponentSubmissionPostProcessor.KEY_PREFIX)) {
-                session.removeAttribute(attributeName);
-            }
         }
     }
 

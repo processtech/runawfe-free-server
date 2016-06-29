@@ -16,14 +16,18 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
 
 import ru.runa.common.WebResources;
+import ru.runa.common.web.Commons;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.commons.ftl.FormComponentExtractionModel;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
+import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.FileVariableProxy;
+import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.file.FileVariable;
@@ -35,6 +39,7 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -64,16 +69,14 @@ public class FormSubmissionUtils {
     }
 
     /**
-     * @return saved in request values from previous form submit (used to
-     *         re-open form in case of validation errors)
+     * @return saved in request values from previous form submit (used to re-open form in case of validation errors)
      */
     public static Map<String, String[]> getUserFormInput(ServletRequest request) {
         return (Map<String, String[]>) request.getAttribute(USER_DEFINED_VARIABLES);
     }
 
     /**
-     * @return saved in request values from previous form submit (used to
-     *         re-open form in case of validation errors)
+     * @return saved in request values from previous form submit (used to re-open form in case of validation errors)
      */
     public static Map<String, Object> getUserFormInputVariables(HttpServletRequest request, Interaction interaction) {
         Map<String, String[]> userInput = getUserFormInput(request);
@@ -124,17 +127,21 @@ public class FormSubmissionUtils {
             Map<String, String> errors) {
         try {
             HashMap<String, Object> variables = Maps.newHashMap();
+            User user = Commons.getUser(request.getSession());
+            // unsupported in this branch, ported from master
+            FormComponentExtractionModel model = new FormComponentExtractionModel(null, user, null);
+            String template = new String(interaction.getFormData(), Charsets.UTF_8);
+            FreemarkerProcessor.process(template, model);
             for (VariableDefinition variableDefinition : interaction.getVariables().values()) {
                 try {
-                    FormComponentSubmissionHandler handler = (FormComponentSubmissionHandler) request.getSession().getAttribute(
-                            FormComponentSubmissionHandler.KEY_PREFIX + variableDefinition.getName());
+                    FormComponentSubmissionHandler handler = model.getSubmissionHandlers().get(variableDefinition.getName());
                     if (handler != null) {
                         variables.putAll(handler.extractVariables(interaction, variableDefinition, userInput, errors));
                     } else {
                         Object variableValue = extractVariable(userInput, variableDefinition, errors);
                         if (!Objects.equal(IGNORED_VALUE, variableValue)) {
-                            FormComponentSubmissionPostProcessor postProcessor = (FormComponentSubmissionPostProcessor) request.getSession()
-                                    .getAttribute(FormComponentSubmissionPostProcessor.KEY_PREFIX + variableDefinition.getName());
+                            FormComponentSubmissionPostProcessor postProcessor = model.getSubmissionPostProcessors()
+                                    .get(variableDefinition.getName());
                             if (postProcessor != null) {
                                 variableValue = postProcessor.postProcessValue(variableValue);
                             }

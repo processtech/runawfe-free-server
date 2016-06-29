@@ -21,9 +21,6 @@ public class SelectFromList extends FormComponent implements FormComponentSubmis
         if (list == null) {
             list = Lists.newArrayList();
         }
-        if (list.size() > 0 && list.get(0) instanceof ISelectable) {
-            registerVariablePostProcessor(variableName);
-        }
         Object selectedValue = variableProvider.getValue(Object.class, variableName);
         StringBuffer html = new StringBuffer();
         html.append("<select name=\"").append(variableName).append("\">");

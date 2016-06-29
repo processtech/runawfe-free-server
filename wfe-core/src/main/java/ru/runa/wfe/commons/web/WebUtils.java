@@ -18,14 +18,10 @@ public class WebUtils {
         return "<script type=\"text/javascript\">" + javascript + "</script>";
     }
 
-    public static String getFormComponentScript(WebHelper webHelper, String javascript, Map<String, String> substitutions) {
-        if (webHelper == null) {
-            return "";
-        }
+    public static String getFormComponentScript(String javascript, Map<String, String> substitutions) {
         if (substitutions == null) {
             substitutions = Maps.newHashMap();
         }
-        substitutions.put("jsonUrl", webHelper.getUrl("/form.fp?json=true"));
         for (String sKey : substitutions.keySet()) {
             String v = substitutions.get(sKey);
             javascript = javascript.replaceAll(Pattern.quote(sKey), Matcher.quoteReplacement(v));
@@ -33,11 +29,11 @@ public class WebUtils {
         return getScript(javascript);
     }
 
-    public static String getFormComponentScript(WebHelper webHelper, InputStream javascriptStream, Map<String, String> substitutions) {
+    public static String getFormComponentScript(InputStream javascriptStream, Map<String, String> substitutions) {
         Preconditions.checkNotNull(javascriptStream);
         try {
             String javascript = new String(ByteStreams.toByteArray(javascriptStream), Charsets.UTF_8);
-            return getFormComponentScript(webHelper, javascript, substitutions);
+            return getFormComponentScript(javascript, substitutions);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }

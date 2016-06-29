@@ -264,7 +264,7 @@ public class ViewUtil {
         } else {
             substitutions.put("DECTSELECTNAME", "");
         }
-        result += WebUtils.getFormComponentScript(webHelper, javascriptStream, substitutions);
+        result += WebUtils.getFormComponentScript(javascriptStream, substitutions);
         result += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/wfe/css/tidy-table.css\">\n";
         result += String.format("<div id=\"container%s\"></div>", uniquename);
         return result;
@@ -381,7 +381,7 @@ public class ViewUtil {
             substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(variable));
             StringBuffer html = new StringBuffer();
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
-            html.append(WebUtils.getFormComponentScript(webHelper, javascriptStream, substitutions));
+            html.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
             List<Object> list = TypeConversionUtil.convertTo(List.class, variable.getValue());
             if (list == null) {
                 list = new ArrayList<Object>();
@@ -422,7 +422,7 @@ public class ViewUtil {
                     ViewUtil.getComponentJSFunction(keyFormat) + "\n" + ViewUtil.getComponentJSFunction(valueFormat));
             StringBuffer html = new StringBuffer();
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditMap.js", ViewUtil.class);
-            html.append(WebUtils.getFormComponentScript(webHelper, javascriptStream, substitutions));
+            html.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
             Map<Object, Object> map = TypeConversionUtil.convertTo(Map.class, variable.getValue());
             if (map == null) {
                 map = new HashMap<Object, Object>();
