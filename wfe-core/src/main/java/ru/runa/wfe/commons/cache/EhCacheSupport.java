@@ -26,6 +26,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 
+import org.apache.commons.lang.SerializationUtils;
+
 /**
  * Cache component, which support ehcache or local cache storage.
  * 
@@ -115,6 +117,18 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
     @Override
     @SuppressWarnings("unchecked")
     public V get(K key) {
+        V value = getImpl(key);
+        return value == null ? null : (V) SerializationUtils.clone(value);
+    }
+
+    /**
+     * Try to get element from cache.
+     * 
+     * @param key
+     *            Key to load cached object.
+     * @return Cached element or null, if not found.
+     */
+    private V getImpl(K key) {
         Cache cache = ehcache;
         if (cache == null) {
             return localStorage.get(key);
@@ -229,6 +243,9 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
      * @return {@linkplain Element} to put into {@linkplain CacheControl}.
      */
     private Element createElement(K key, V value) {
+        if (value != null) {
+            value = (V) SerializationUtils.clone(value);
+        }
         return infiniteLifeTime ? new Element(key, value, true, 0, 0) : new Element(key, value);
     }
 }
