@@ -201,36 +201,36 @@ public enum ReportGenerationType {
     };
 
     /**
-     * Устанавливает специфические параметры, требуемые для экспорта отчета.
+     * Sets parameters that are specific for report export.
      * 
      * @param parameters
-     *            Параметры отчета.
+     *            Report parameters.
      */
     public abstract void setParameters(Map<String, Object> parameters);
 
     /**
-     * Экспортрует отчёт в соответствующем формате.
+     * Exports report in the specified format.
      * 
      * @param reportName
-     *            Название отчета.
+     *            Report name.
      * @param request
-     *            HTTP запрос, для обработки которого выполняется построение отчета.
+     *            HTTP request, it's necessary to build report in order to process this request.
      * @param response
-     *            HTTP ответ на запрос.
+     *            HTTP response.
      * @param report
-     *            Документ с отчетом, который должен быть экспортирован.
-     * @return Возращает результат экспорта отчета.
+     *            Report document that should be exported.
+     * @return result of report export.
      * @throws JRException
      */
     public abstract ReportBuildResult exportReport(String reportName, HttpServletRequest request, HttpServletResponse response, JasperPrint report)
             throws JRException;
 
     /**
-     * Применяет операцию в зависимости от типа создаваемого отчета.
+     * Applies operation that is chosen on the basis of created report type.
      * 
      * @param visitor
-     *            Применяемая опреация.
-     * @return Результат применения операции (зависит от операции).
+     *            Applied operation.
+     * @return Result of operation being applied (depends on the operation).
      */
     public abstract <TResult> TResult processBy(ReportGenerationTypeVisitor<TResult> visitor);
 

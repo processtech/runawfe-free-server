@@ -71,7 +71,7 @@ public class ScriptingUserTypeMap extends UserTypeMap {
         }
         attributeName = getUserType().getAttributeNotNull(attributeName).getName();
         changedAttributeNames.add(attributeName);
-        // in case of copy complex variable: create new instance
+        // in case of copy user type variable: create new instance
         if (value instanceof UserTypeMap) {
             value = new ScriptingUserTypeMap((UserTypeMap) value);
         }

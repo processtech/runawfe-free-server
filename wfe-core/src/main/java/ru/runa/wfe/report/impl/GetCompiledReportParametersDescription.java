@@ -11,7 +11,7 @@ import ru.runa.wfe.report.ReportConfigurationType.ReportConfigurationTypeVisitor
 import ru.runa.wfe.report.ReportFileIncorrectException;
 
 /**
- * Вычитывает из скомпилированного отчета параметры и формирует отображение из названия параметра в его описание.
+ * Gets parameters names from compiled report and puts them to parameters description.
  */
 public class GetCompiledReportParametersDescription implements ReportConfigurationTypeVisitor<Map<String, String>> {
 

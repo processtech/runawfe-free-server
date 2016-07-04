@@ -67,6 +67,6 @@ public class ReportBuildResult {
     }
 
     public void appendMessage(String parameterName, String message) {
-        appendMessage("Параметр '" + parameterName + "': " + message);
+        appendMessage("Parameter '" + parameterName + "': " + message);
     }
 }

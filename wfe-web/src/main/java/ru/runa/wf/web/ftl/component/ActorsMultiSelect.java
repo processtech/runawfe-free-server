@@ -17,6 +17,7 @@ import ru.runa.wfe.commons.ftl.AjaxJsonFormComponent;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
+import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Group;
@@ -75,7 +76,8 @@ public class ActorsMultiSelect extends AjaxJsonFormComponent {
     protected JSONAware processAjaxRequest(HttpServletRequest request) throws Exception {
         JSONArray jsonArray = new JSONArray();
         String displayFormat = getParameterAsString(1);
-        Group group = getRichComboParameterAs(Group.class, 2);
+        Object groupIdentity = getRichComboParameterAs(Object.class, 2);
+        Group group = TypeConversionUtil.convertToExecutor(groupIdentity, new DelegateExecutorLoader(user));
         boolean byLogin = "login".equals(displayFormat);
         String hint = request.getParameter("hint");
         List<Actor> actors = getActors(group, byLogin, hint);

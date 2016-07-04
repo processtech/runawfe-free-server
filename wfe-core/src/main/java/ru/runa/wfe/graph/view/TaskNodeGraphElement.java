@@ -24,7 +24,7 @@ import ru.runa.wfe.lang.TaskDefinition;
 /**
  * Represents an task state graph element.
  */
-public class TaskGraphElementPresentation extends GraphElementPresentation {
+public class TaskNodeGraphElement extends NodeGraphElement {
 
     private static final long serialVersionUID = 1L;
 

@@ -10,7 +10,7 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubProcessState;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
 import com.google.common.collect.Maps;
@@ -51,8 +51,8 @@ public class ProcessInstanceData {
             if (node.getNodeType() == NodeType.FORK || node.getNodeType() == NodeType.PARALLEL_GATEWAY) {
                 getCreateTokenNodes().add(node.getNodeId());
             }
-            if (node.getNodeType() == NodeType.SUBPROCESS && ((SubProcessState) node).isEmbedded()) {
-                getSubProcesses().add(getEmbeddedSubprocess(((SubProcessState) node).getSubProcessName()).getNodeId());
+            if (node.getNodeType() == NodeType.SUBPROCESS && ((SubprocessNode) node).isEmbedded()) {
+                getSubProcesses().add(getEmbeddedSubprocess(((SubprocessNode) node).getSubProcessName()).getNodeId());
             }
         }
     }

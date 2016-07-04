@@ -15,7 +15,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * DTO для хранения данных по параметрам, которые должны быть запрошены у пользователя для построения отчета.
+ * DTO for parameters data storage. These parameters must be input by the user in order to build report.
  */
 
 @Entity
@@ -25,22 +25,22 @@ public class ReportParameter {
     private Long id;
 
     /**
-     * Название параметра, отображаемого пользователю.
+     * Parameter name that is shown to user.
      */
     private String name;
 
     /**
-     * Тип параметра.
+     * Parameter type.
      */
     private ReportParameterType type;
 
     /**
-     * Название, под которым параметр должен быть передан в отчет.
+     * Report parameter name.
      */
     private String innerName;
 
     /**
-     * Флаг, равный true, если параметр обязателен для заполнения и false иначе.
+     * True if parameter is required and false if it's optional.
      */
     private boolean required;
 

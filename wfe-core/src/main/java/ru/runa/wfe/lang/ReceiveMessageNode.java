@@ -19,7 +19,7 @@ package ru.runa.wfe.lang;
 
 import ru.runa.wfe.execution.ExecutionContext;
 
-public class ReceiveMessage extends VariableContainerNode {
+public class ReceiveMessageNode extends VariableContainerNode {
     private static final long serialVersionUID = 1L;
 
     @Override

@@ -16,7 +16,7 @@ import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.lang.utils.MultiInstanceParameters;
+import ru.runa.wfe.lang.utils.MultiNodeParameters;
 import ru.runa.wfe.var.ISelectable;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
@@ -29,7 +29,7 @@ import ru.runa.wfe.var.format.ListFormat;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class MultiProcessState extends SubProcessState {
+public class MultiSubprocessNode extends SubprocessNode {
     private static final long serialVersionUID = 1L;
 
     @Autowired
@@ -44,7 +44,7 @@ public class MultiProcessState extends SubProcessState {
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        MultiInstanceParameters parameters = new MultiInstanceParameters(executionContext, this);
+        MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
         List<Process> subProcesses = Lists.newArrayList();
         ProcessDefinition subProcessDefinition = getSubProcessDefinition();

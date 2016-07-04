@@ -71,7 +71,7 @@ public class UserTypeMap extends HashMap<String, Object> {
             String attributeName = name.substring(0, firstDotIndex);
             VariableDefinition attributeDefinition = userType.getAttributeNotNull(attributeName);
             if (attributeDefinition.getUserType() == null) {
-                throw new InternalApplicationException("Trying to set complex value to non-complex attribute: " + name);
+                throw new InternalApplicationException("Trying to set attribute to non user type variable: " + name);
             }
             String nameRemainder = name.substring(firstDotIndex + 1);
             UserTypeMap existingUserTypeMap = (UserTypeMap) get(attributeName);

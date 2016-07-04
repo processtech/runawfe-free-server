@@ -36,8 +36,7 @@ public class DocxFileChangerTest extends Assert {
     // data.put("contractNumber", "2");
     // data.put("listIndex", 2L);
     // data.put("actorList", Lists.newArrayList(new Actor("name", "address"),
-    // new Actor("Ivanov", "Pervomayskaya str 30a"), new Actor("Иванов",
-    // "улица Первомайская 30А")));
+    // new Actor("Ivanov", "Pervomayskaya str 30a")));
     // data.put("stringList", Lists.newArrayList("Ivanov", "Petrov",
     // "Sidorov"));
     // data.put("addresses", Lists.newArrayList("address1",
@@ -46,9 +45,9 @@ public class DocxFileChangerTest extends Assert {
     // ByteStreams.toByteArray(ClassLoaderUtil.getAsStreamNotNull("7822.png",
     // getClass())), null));
     // Map<String, Actor> actors = Maps.newHashMap();
-    // actors.put("1", new Actor("adamov_a", "", "Адамов А.А.", 444L));
-    // actors.put("2", new Actor("borisov", "", "Борисов Б.А.", 333L));
-    // actors.put("3", new Actor("denisov", "", "Денисов Алексей", 555L));
+    // actors.put("1", new Actor("adamov_a", "", "Adamov A.A.", 444L));
+    // actors.put("2", new Actor("borisov", "", "Borisov B.B", 333L));
+    // actors.put("3", new Actor("denisov", "", "Denisov Alexey", 555L));
     // data.put("actorMap", actors);
     // data.put("currentDate", createDateVariable("currentDate",
     // DateFormat.class.getName()));
@@ -70,9 +69,9 @@ public class DocxFileChangerTest extends Assert {
                 createVariable("actorList", ListFormat.class.getName() + "(" + ActorFormat.class.getName() + ")",
                         Lists.newArrayList(new Actor("ACTOR1", "address"), new Actor("Ivanov", "Pervomayskaya str 30a"))));
         Map<Object, Actor> actors = Maps.newHashMap();
-        actors.put("2", new Actor("adamov_a", "", "Адамов А.А.", 444L));
-        actors.put("borisov", new Actor("borisov", "", "Борисов Б.А.", 333L));
-        actors.put(2L, new Actor("denisov", "", "Денисов Алексей", 555L));
+        actors.put("2", new Actor("adamov_a", "", "Adamov A.A.", 444L));
+        actors.put("borisov", new Actor("borisov", "", "Borisov B.B", 333L));
+        actors.put(2L, new Actor("denisov", "", "Denisov Alexey", 555L));
         data.put(
                 "actorMap",
                 createVariable("actorMap", MapFormat.class.getName() + "(" + StringFormat.class.getName() + ", " + ActorFormat.class.getName() + ")",
@@ -99,9 +98,9 @@ public class DocxFileChangerTest extends Assert {
                         Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT),
                                 CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT))));
         Map<String, Actor> actors = Maps.newHashMap();
-        actors.put("1", new Actor("adamov_a", "", "Адамов А.А.", 444L));
-        actors.put("2", new Actor("borisov", "", "Борисов Б.А.", 333L));
-        actors.put("3", new Actor("denisov", "", "Денисов Алексей", 555L));
+        actors.put("1", new Actor("adamov_a", "", "Adamov A.A.", 444L));
+        actors.put("2", new Actor("borisov", "", "Borisov B.B", 333L));
+        actors.put("3", new Actor("denisov", "", "Denisov Alexey", 555L));
         data.put(
                 "actorMap",
                 createVariable("actorMap", MapFormat.class.getName() + "(" + StringFormat.class.getName() + ", " + ActorFormat.class.getName() + ")",
@@ -148,9 +147,9 @@ public class DocxFileChangerTest extends Assert {
                         Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT),
                                 CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT))));
         Map<String, Actor> actors = Maps.newHashMap();
-        actors.put("1", new Actor("adamov_a", "", "Адамов А.А.", 444L));
-        actors.put("2", new Actor("borisov", "", "Борисов Б.А.", 333L));
-        actors.put("3", new Actor("denisov", "", "Денисов Алексей", 555L));
+        actors.put("1", new Actor("adamov_a", "", "Adamov A.A.", 444L));
+        actors.put("2", new Actor("borisov", "", "Borisov B.B", 333L));
+        actors.put("3", new Actor("denisov", "", "Denisov Alexey", 555L));
         data.put(
                 "actorMap",
                 createVariable("actorMap", MapFormat.class.getName() + "(" + StringFormat.class.getName() + ", " + ActorFormat.class.getName() + ")",

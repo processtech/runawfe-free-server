@@ -18,7 +18,7 @@ import com.google.common.base.Objects;
 /**
  * Operation to add identities of started subprocesses to graph elements.
  */
-public class ProcessGraphInfoVisitor extends GraphElementPresentationVisitor {
+public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
 
     /**
      * Current subject.
@@ -35,7 +35,7 @@ public class ProcessGraphInfoVisitor extends GraphElementPresentationVisitor {
 
     /**
      * Create instance of operation to set starting process readable flag.
-     * 
+     *
      * @param subprocessesInstanstances
      *            Instances of subprocesses, which must be added to graph
      *            elements.
@@ -51,7 +51,7 @@ public class ProcessGraphInfoVisitor extends GraphElementPresentationVisitor {
     }
 
     @Override
-    protected void visit(GraphElementPresentation element) {
+    public void visit(NodeGraphElement element) {
         super.visit(element);
         if (processLogs != null) {
             List<ProcessLog> logs = processLogs.getLogs(element.getNodeId());
@@ -62,7 +62,7 @@ public class ProcessGraphInfoVisitor extends GraphElementPresentationVisitor {
     }
 
     @Override
-    protected void onMultiSubprocess(MultiinstanceGraphElementPresentation element) {
+    protected void onMultiSubprocessNode(MultiSubprocessNodeGraphElement element) {
         for (NodeProcess nodeProcess : nodeProcesses) {
             if (Objects.equal(nodeProcess.getNodeId(), element.getNodeId())) {
                 element.addSubprocessInfo(nodeProcess.getSubProcess().getId(), hasReadPermission(nodeProcess.getSubProcess()), nodeProcess
@@ -72,7 +72,7 @@ public class ProcessGraphInfoVisitor extends GraphElementPresentationVisitor {
     }
 
     @Override
-    protected void onSubprocess(SubprocessGraphElementPresentation element) {
+    protected void onSubprocessNode(SubprocessNodeGraphElement element) {
         if (element.isEmbedded()) {
             boolean b = ApplicationContextFactory.getProcessLogDAO().isNodeEntered(process, element.getNodeId());
             element.setSubprocessAccessible(b);
@@ -94,7 +94,7 @@ public class ProcessGraphInfoVisitor extends GraphElementPresentationVisitor {
 
     /**
      * Check READ permission on process instance for current subject.
-     * 
+     *
      * @param process
      *            Process instance to check READ permission.
      * @return true, if current actor can read process definition and false

@@ -18,12 +18,12 @@
 package ru.runa.wfe.graph.view;
 
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.SubProcessState;
+import ru.runa.wfe.lang.SubprocessNode;
 
 /**
  * Represents Subprocess element on process graph.
  */
-public class SubprocessGraphElementPresentation extends GraphElementPresentation {
+public class SubprocessNodeGraphElement extends NodeGraphElement {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,9 +50,9 @@ public class SubprocessGraphElementPresentation extends GraphElementPresentation
     @Override
     public void initialize(Node node, int[] graphConstraints) {
         super.initialize(node, graphConstraints);
-        SubProcessState subProcessState = (SubProcessState) node;
-        this.subprocessName = subProcessState.getSubProcessName();
-        this.embedded = subProcessState.isEmbedded();
+        SubprocessNode subprocessNode = (SubprocessNode) node;
+        this.subprocessName = subprocessNode.getSubProcessName();
+        this.embedded = subprocessNode.isEmbedded();
     }
 
     /**

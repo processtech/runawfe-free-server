@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.web.tag;
@@ -36,11 +36,11 @@ import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
-import ru.runa.wfe.graph.view.GraphElementPresentationVisitor;
-import ru.runa.wfe.graph.view.MultiinstanceGraphElementPresentation;
-import ru.runa.wfe.graph.view.SubprocessGraphElementPresentation;
-import ru.runa.wfe.graph.view.TaskGraphElementPresentation;
+import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
+import ru.runa.wfe.graph.view.SubprocessNodeGraphElement;
+import ru.runa.wfe.graph.view.TaskNodeGraphElement;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -49,7 +49,7 @@ import ru.runa.wfe.user.User;
  * Operation to create links to subprocesses and tool tips to minimized
  * elements.
  */
-public class ProcessGraphElementPresentationVisitor extends GraphElementPresentationVisitor {
+public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     private static final Pattern ACTION_LOG_PATTERN = Pattern.compile(".*?class=(.*?), configuration.*?", Pattern.DOTALL);
     /**
      * Helper to create links to subprocesses.
@@ -65,7 +65,7 @@ public class ProcessGraphElementPresentationVisitor extends GraphElementPresenta
     /**
      * Creates operation to create links to subprocesses and tool tips to
      * minimized elements.
-     * 
+     *
      * @param taskId
      *            Current task identity.
      * @param pageContext
@@ -73,7 +73,7 @@ public class ProcessGraphElementPresentationVisitor extends GraphElementPresenta
      * @param td
      *            Root form element.
      */
-    public ProcessGraphElementPresentationVisitor(User user, PageContext pageContext, TD td, String subprocessId) {
+    public ProcessNodeGraphElementVisitor(User user, PageContext pageContext, TD td, String subprocessId) {
         this.user = user;
         this.pageContext = pageContext;
         this.td = td;
@@ -81,18 +81,18 @@ public class ProcessGraphElementPresentationVisitor extends GraphElementPresenta
     }
 
     @Override
-    protected void visit(GraphElementPresentation element) {
+    public void visit(NodeGraphElement element) {
         Area area = null;
         if (element.getNodeType() == NodeType.SUBPROCESS) {
-            area = presentationHelper.createSubprocessLink((SubprocessGraphElementPresentation) element,
-                    ShowGraphModeHelper.getManageProcessAction(), "javascript:showEmbeddedSubprocess");
+            area = presentationHelper.createSubprocessLink((SubprocessNodeGraphElement) element, ShowGraphModeHelper.getManageProcessAction(),
+                    "javascript:showEmbeddedSubprocess");
         }
         if (element.getNodeType() == NodeType.MULTI_SUBPROCESS) {
-            td.addElement(presentationHelper.createMultiSubprocessLinks((MultiinstanceGraphElementPresentation) element,
+            td.addElement(presentationHelper.createMultiSubprocessLinks((MultiSubprocessNodeGraphElement) element,
                     ShowGraphModeHelper.getManageProcessAction()));
         }
         if (element.getNodeType() == NodeType.TASK_STATE) {
-            area = presentationHelper.createTaskTooltip((TaskGraphElementPresentation) element);
+            area = presentationHelper.createTaskTooltip((TaskNodeGraphElement) element);
         }
         if (element.getData() != null) {
             Table table = new Table();

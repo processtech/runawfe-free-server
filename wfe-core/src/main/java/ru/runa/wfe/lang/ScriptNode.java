@@ -7,7 +7,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
-public class ScriptTask extends Node {
+public class ScriptNode extends Node {
     private static final long serialVersionUID = 1L;
     private Delegation delegation;
 

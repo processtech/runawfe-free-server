@@ -9,27 +9,27 @@ import com.google.common.base.Preconditions;
  * @since 4.1.0
  * @author dofs
  */
-public class EmbeddedSubprocessStartNode extends StartState {
+public class EmbeddedSubprocessStartNode extends StartNode {
     private static final long serialVersionUID = 1L;
-    private SubProcessState subProcessState;
+    private SubprocessNode subprocessNode;
 
-    public void setSubProcessState(SubProcessState subProcessState) {
-        this.subProcessState = subProcessState;
+    public void setSubProcessState(SubprocessNode subprocessNode) {
+        this.subprocessNode = subprocessNode;
     }
 
     @Override
     public String getTransitionNodeId(boolean arriving) {
         if (arriving) {
-            return subProcessState.getNodeId();
+            return subprocessNode.getNodeId();
         }
         return super.getTransitionNodeId(arriving);
     }
 
     @Override
     public void enter(ExecutionContext executionContext) {
-        Preconditions.checkNotNull(subProcessState, "subProcessState");
-        executionContext.getToken().setNodeId(subProcessState.getNodeId());
-        executionContext.addLog(new NodeEnterLog(subProcessState));
+        Preconditions.checkNotNull(subprocessNode, "subprocessNode");
+        executionContext.getToken().setNodeId(subprocessNode.getNodeId());
+        executionContext.addLog(new NodeEnterLog(subprocessNode));
         super.enter(executionContext);
     }
 

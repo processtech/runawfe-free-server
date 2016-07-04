@@ -42,7 +42,7 @@ import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.ProcessDefinitionInfoVisitor;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
@@ -189,7 +189,7 @@ public class DefinitionLogic extends WFCommonLogic {
         return processDefinition;
     }
 
-    public List<GraphElementPresentation> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
         ProcessDefinition definition = getDefinition(definitionId);
         checkPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.READ);
         if (subprocessId != null) {
