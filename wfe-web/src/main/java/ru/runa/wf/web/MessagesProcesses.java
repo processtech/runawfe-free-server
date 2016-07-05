@@ -24,6 +24,10 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.show_deploy_definition_controls");
     public static final StrutsMessage LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.hide_deploy_definition_controls");
     public static final StrutsMessage PROCESS_STARTED = new StrutsMessage("process.started");
+    public static final StrutsMessage PROCESS_ACTIVATE = new StrutsMessage("process.activate");
+    public static final StrutsMessage PROCESS_ACTIVATED = new StrutsMessage("process.activated");
+    public static final StrutsMessage PROCESS_SUSPEND = new StrutsMessage("process.suspend");
+    public static final StrutsMessage PROCESS_SUSPENDED = new StrutsMessage("process.suspended");
     public static final StrutsMessage PROCESS_CANCELED = new StrutsMessage("process.canceled");
     public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");

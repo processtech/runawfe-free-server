@@ -23,10 +23,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.ConfigurationException;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
@@ -34,6 +37,7 @@ import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -42,6 +46,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
@@ -65,6 +70,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -83,6 +89,10 @@ import com.google.common.collect.Maps;
 public class ExecutionLogic extends WFCommonLogic {
     @Autowired
     private ProcessFactory processFactory;
+    @Autowired
+    private ExecutorLogic executorLogic;
+    @Autowired
+    private INodeAsyncExecutor nodeAsyncExecutor;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -382,4 +392,33 @@ public class ExecutionLogic extends WFCommonLogic {
         AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, Lists.newArrayList(executor));
     }
 
+    public void activateProcess(User user, Long processId) {
+        if (!executorLogic.isAdministrator(user)) {
+            throw new InternalApplicationException("Only administrator can activate process");
+        }
+        // TODO 785 activate subprocesses hierarchy?
+        Process process = processDAO.getNotNull(processId);
+        List<Token> tokens = tokenDAO.findSuspendedTokens(process);
+        for (Token token : tokens) {
+            nodeAsyncExecutor.execute(process.getId(), token.getId());
+            token.setExecutionStatus(ExecutionStatus.ACTIVE);
+        }
+        process.setExecutionStatus(ExecutionStatus.ACTIVE);
+        processLogDAO.addLog(new ProcessActivateLog(user.getActor()), process, null);
+        log.info(process + " activated");
+    }
+
+    public void suspendProcess(User user, Long processId) {
+        if (!SystemProperties.isProcessSuspensionEnabled()) {
+            throw new InternalApplicationException("process suspension disabled in settings");
+        }
+        if (!executorLogic.isAdministrator(user)) {
+            throw new InternalApplicationException("Only administrator can suspend process");
+        }
+        // TODO 785 suspend subprocesses hierarchy?
+        Process process = processDAO.getNotNull(processId);
+        process.setExecutionStatus(ExecutionStatus.SUSPENDED);
+        processLogDAO.addLog(new ProcessSuspendLog(user.getActor()), process, null);
+        log.info(process + " suspended");
+    }
 }

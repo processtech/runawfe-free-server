@@ -19,11 +19,13 @@ package ru.runa.wf.web.tag;
 
 import java.util.Map;
 
+import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Element;
 import org.apache.ecs.Entities;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Div;
+import org.apache.ecs.html.Span;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
@@ -38,11 +40,14 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wf.web.action.ActivateProcessExecutionAction;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wf.web.action.RemoveProcessAction;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
+import ru.runa.wf.web.action.SuspendProcessExecutionAction;
 import ru.runa.wf.web.action.UpgradeProcessToDefinitionVersionAction;
 import ru.runa.wf.web.form.TaskIdForm;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -163,13 +168,44 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         startedTR.addElement(new TD(startedName).setClass(Resources.CLASS_LIST_TABLE_TD));
         startedTR.addElement(new TD(CalendarUtil.formatDateTime(process.getStartDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
-        if (process.isEnded()) {
-            TR endedTR = new TR();
-            table.addElement(endedTR);
-            String endedName = Messages.getMessage(ProcessClassPresentation.PROCESS_END_DATE, pageContext);
-            endedTR.addElement(new TD(endedName).setClass(Resources.CLASS_LIST_TABLE_TD));
-            endedTR.addElement(new TD(CalendarUtil.formatDateTime(process.getEndDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
+        ConcreteElement statusElement = new Span(Messages.getMessage(process.getExecutionStatus().getLabelKey(), pageContext));
+        switch (process.getExecutionStatus()) {
+        case ACTIVE:
+            if (SystemProperties.isProcessSuspensionEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
+                Div div = new Div();
+                div.addElement(statusElement);
+                div.addElement(Entities.NBSP);
+                div.addElement(new A(Commons.getActionUrl(SuspendProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
+                        pageContext, PortletUrlType.Render), MessagesProcesses.PROCESS_SUSPEND.message(pageContext)));
+                statusElement = div;
+            }
+            break;
+        case SUSPENDED:
+            statusElement.setClass(Resources.CLASS_SUSPENDED);
+            if (Delegates.getExecutorService().isAdministrator(getUser())) {
+                Div div = new Div();
+                div.addElement(statusElement);
+                div.addElement(Entities.NBSP);
+                div.addElement(new A(Commons.getActionUrl(ActivateProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
+                        pageContext, PortletUrlType.Render), MessagesProcesses.PROCESS_ACTIVATE.message(pageContext)));
+                statusElement = div;
+            }
+            break;
+        case ENDED:
+            Div div = new Div();
+            div.addElement(statusElement);
+            div.addElement(Entities.NBSP);
+            div.addElement(CalendarUtil.formatDateTime(process.getEndDate()));
+            statusElement = div;
+            break;
+        default:
+            throw new InternalApplicationException(String.valueOf(process.getExecutionStatus()));
         }
+        TR statusTR = new TR();
+        String statusLabel = Messages.getMessage(ProcessClassPresentation.PROCESS_EXECUTION_STATUS, pageContext);
+        statusTR.addElement(new TD(statusLabel).setClass(Resources.CLASS_LIST_TABLE_TD));
+        statusTR.addElement(new TD(statusElement).setClass(Resources.CLASS_LIST_TABLE_TD));
+        table.addElement(statusTR);
 
         WfProcess parentProcess = Delegates.getExecutionService().getParentProcess(getUser(), getIdentifiableId());
         if (parentProcess != null) {

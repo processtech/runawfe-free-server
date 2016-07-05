@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.lang.Node;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -131,7 +132,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     * 
+     *
      * @return max string value
      */
     public static int getStringVariableValueLength() {
@@ -139,8 +140,7 @@ public class SystemProperties {
     }
 
     /**
-     * ORA-24816: Expanded non LONG bind data supplied after actual LONG or LOB
-     * column (if string length > 1000)
+     * ORA-24816: Expanded non LONG bind data supplied after actual LONG or LOB column (if string length > 1000)
      */
     public static int getLogMaxAttributeValueLength() {
         return RESOURCES.getIntegerProperty("log.attribute.max.length", 512);
@@ -278,7 +278,20 @@ public class SystemProperties {
         return RESOURCES.getMultipleStringProperty("required.validator.names");
     }
 
-    public static boolean isProcessExecutionNodeAsyncEnabled() {
-        return RESOURCES.getBooleanProperty("process.execution.node.async", false);
+    public static boolean isProcessExecutionNodeAsyncEnabled(Class<? extends Node> nodeClass) {
+        String propertyValue = RESOURCES.getStringProperty("process.execution.node.async." + nodeClass.getSimpleName());
+        if (propertyValue != null) {
+            return Boolean.parseBoolean(propertyValue);
+        }
+        return RESOURCES.getBooleanProperty("process.execution.node.async.default", false);
     }
+
+    public static boolean isProcessSuspensionBlocksProcessExecution() {
+        return RESOURCES.getBooleanProperty("process.suspension.block.process.execution", false);
+    }
+
+    public static boolean isProcessSuspensionEnabled() {
+        return RESOURCES.getBooleanProperty("process.suspension.enabled", false);
+    }
+
 }

@@ -24,8 +24,8 @@ public class NodeProcessDAO extends GenericDAO<NodeProcess> {
         return findFirstOrNull("from NodeProcess where subProcess.id = ?", processId);
     }
 
-    public List<NodeProcess> getNodeProcesses(final Process process, final Token parentToken, final String nodeId, final Boolean active) {
-        return (List<NodeProcess>) getHibernateTemplate().executeFind(new HibernateCallback<List<Process>>() {
+    public List<NodeProcess> getNodeProcesses(final Process process, final Token parentToken, final String nodeId, final Boolean finished) {
+        return getHibernateTemplate().executeFind(new HibernateCallback<List<Process>>() {
 
             @Override
             public List<Process> doInHibernate(Session session) {
@@ -43,11 +43,11 @@ public class NodeProcessDAO extends GenericDAO<NodeProcess> {
                     conditions.add("nodeId=:nodeId");
                     parameters.put("nodeId", nodeId);
                 }
-                if (active != null) {
-                    if (active) {
-                        conditions.add("subProcess.endDate is null");
-                    } else {
+                if (finished != null) {
+                    if (finished) {
                         conditions.add("subProcess.endDate is not null");
+                    } else {
+                        conditions.add("subProcess.endDate is null");
                     }
                 }
                 if (conditions.size() == 0) {
@@ -86,8 +86,8 @@ public class NodeProcessDAO extends GenericDAO<NodeProcess> {
         return result;
     }
 
-    public List<Process> getSubprocesses(Process process, String nodeId, Token parentToken, Boolean active) {
-        List<NodeProcess> nodeProcesses = getNodeProcesses(process, parentToken, nodeId, active);
+    public List<Process> getSubprocesses(Process process, String nodeId, Token parentToken, Boolean finished) {
+        List<NodeProcess> nodeProcesses = getNodeProcesses(process, parentToken, nodeId, finished);
         List<Process> result = Lists.newArrayListWithExpectedSize(nodeProcesses.size());
         for (NodeProcess nodeProcess : nodeProcesses) {
             result.add(nodeProcess.getSubProcess());

@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.ProcessExecutionStatus;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.security.IdentifiableBase;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -51,7 +51,7 @@ public class WfProcess extends IdentifiableBase {
     private String hierarchyIds;
     // map is not usable in web services
     private List<WfVariable> variables = Lists.newArrayList();
-    private ProcessExecutionStatus executionStatus;
+    private ExecutionStatus executionStatus;
 
     public WfProcess() {
     }
@@ -129,7 +129,7 @@ public class WfProcess extends IdentifiableBase {
         return null;
     }
 
-    public ProcessExecutionStatus getExecutionStatus() {
+    public ExecutionStatus getExecutionStatus() {
         return executionStatus;
     }
 

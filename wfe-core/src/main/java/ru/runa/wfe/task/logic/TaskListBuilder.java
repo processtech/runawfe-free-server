@@ -21,6 +21,7 @@ import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.IExecutionContextFactory;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
@@ -55,7 +56,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Task list builder component.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -194,6 +195,10 @@ public class TaskListBuilder implements ITaskListBuilder {
     }
 
     protected WfTask getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, Set<Executor> executorsToGetTasksByMembership) {
+        if (SystemProperties.isProcessSuspensionBlocksProcessExecution() && task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            log.debug(task + " is ignored due to process suspended state");
+            return null;
+        }
         Executor taskExecutor = task.getExecutor();
         ProcessDefinition processDefinition = null;
         try {

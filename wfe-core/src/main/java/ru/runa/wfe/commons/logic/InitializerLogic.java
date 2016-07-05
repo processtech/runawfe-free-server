@@ -53,7 +53,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddHierarchyProcess;
 import ru.runa.wfe.commons.dbpatch.impl.AddMultiTaskIndexToTaskPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddNodeIdToProcessLogPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddParentProcessIdPatch;
-import ru.runa.wfe.commons.dbpatch.impl.AddProcessExecutionStatusPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
@@ -83,7 +83,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
- * 
+ *
  * @author Dofs
  */
 public class InitializerLogic {
@@ -151,7 +151,7 @@ public class InitializerLogic {
         dbPatches.add(AddDueDateExpressionToJobAndTask.class);
         dbPatches.add(AddBatchPresentationIsSharedPatch.class);
         dbPatches.add(ExpandVarcharPatch.class);
-        dbPatches.add(AddProcessExecutionStatusPatch.class);
+        dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
     };
 
     @Autowired
@@ -222,7 +222,7 @@ public class InitializerLogic {
 
     /**
      * Initialize database.
-     * 
+     *
      * @param daoHolder
      *            Helper object for getting DAO's.
      */

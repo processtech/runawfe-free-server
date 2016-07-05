@@ -19,11 +19,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.audit.ProcessSuspendLog;
+import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.ProcessExecutionStatus;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
@@ -54,6 +56,8 @@ public class NodeAsyncExecutionBean implements MessageListener {
     private IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private ProcessDAO processDAO;
+    @Autowired
+    private ProcessLogDAO processLogDAO;
     @Resource
     private MessageDrivenContext context;
 
@@ -99,9 +103,11 @@ public class NodeAsyncExecutionBean implements MessageListener {
 
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
+                    Token token = tokenDAO.getNotNull(tokenId);
+                    token.setExecutionStatus(ExecutionStatus.SUSPENDED);
                     ru.runa.wfe.execution.Process process = processDAO.getNotNull(processId);
-                    process.setExecutionStatus(ProcessExecutionStatus.SUSPENDED);
-                    processDAO.update(process);
+                    process.setExecutionStatus(ExecutionStatus.SUSPENDED);
+                    processLogDAO.addLog(new ProcessSuspendLog(null), process, null);
                 }
             }.executeInTransaction(true);
         } finally {

@@ -37,6 +37,7 @@ public class ProcessClassPresentation extends ClassPresentation {
     public static final String PROCESS_START_DATE = "batch_presentation.process.started";
     public static final String PROCESS_END_DATE = "batch_presentation.process.ended";
     public static final String DEFINITION_VERSION = "batch_presentation.process.definition_version";
+    public static final String PROCESS_EXECUTION_STATUS = "batch_presentation.process.execution_status";
     public static final String PROCESS_VARIABLE = editable_prefix + "name:batch_presentation.process.variable";
 
     private static final ClassPresentation INSTANCE = new ProcessClassPresentation();
@@ -65,8 +66,6 @@ public class ProcessClassPresentation extends ClassPresentation {
 
     private ProcessClassPresentation() {
         super(Process.class, "", true, new FieldDescriptor[] {
-                // display name field type DB source isSort filter mode get
-                // value/show in web getter param
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDBSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
                     "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "id" }),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDBSource(Process.class, "deployment.name"), true,
@@ -77,6 +76,8 @@ public class ProcessClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessEndDateTDBuilder", new Object[] {}),
                 new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDBSource(Process.class, "deployment.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "version" }),
+                new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDBSource(Process.class, "executionStatus"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTDBuilder", new Object[] {}),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(),
                         new SubProcessDBSource[] { new SubProcessDBSource(Process.class, "hierarchyIds") }, true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}, true),

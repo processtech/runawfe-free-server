@@ -102,7 +102,7 @@ public class Process extends IdentifiableBase {
     private Deployment deployment;
     private Set<Swimlane> swimlanes;
     private Set<Task> tasks;
-    private ProcessExecutionStatus executionStatus = ProcessExecutionStatus.ACTIVE;
+    private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Process() {
     }
@@ -181,12 +181,12 @@ public class Process extends IdentifiableBase {
 
     @Column(name = "EXECUTION_STATUS")
     @Enumerated(EnumType.STRING)
-    public ProcessExecutionStatus getExecutionStatus() {
+    public ExecutionStatus getExecutionStatus() {
         return executionStatus;
     }
 
-    public void setExecutionStatus(ProcessExecutionStatus status) {
-        this.executionStatus = status;
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
     }
 
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
@@ -295,7 +295,7 @@ public class Process extends IdentifiableBase {
 
     /**
      * Ends this process and all the tokens in it.
-     * 
+     *
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
@@ -310,6 +310,7 @@ public class Process extends IdentifiableBase {
         rootToken.end(executionContext, canceller);
         // mark this process as ended
         setEndDate(new Date());
+        setExecutionStatus(ExecutionStatus.ENDED);
         // check if this process was started as a subprocess of a super
         // process
         NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();

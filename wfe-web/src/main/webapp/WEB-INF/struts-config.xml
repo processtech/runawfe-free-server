@@ -271,6 +271,16 @@
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
+		<action path="/activateProcessExecution" type="ru.runa.wf.web.action.ActivateProcessExecutionAction" 
+			name="idForm" scope="request">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
+			name="idForm" scope="request">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
 		<action path="/removeProcess" type="ru.runa.wf.web.action.RemoveProcessAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
 			unknown="false" validate="true">
@@ -932,9 +942,6 @@
 		<action path="/update_process_swimlanes" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/update_process_swimlanes.jsp" />
 
-		<action path="/continueTokenExecution" type="ru.runa.af.web.action.ContinueTokenExecutionAction" name="idNameForm" scope="request">
-			<forward name="success" path="/manage_processes.do" redirect="true" />
-		</action>
 	</action-mappings>
 
 	<controller contentType="text/html; charset=UTF-8" nocache="true"
@@ -942,8 +949,5 @@
 
 	<message-resources parameter="struts" />
 	<message-resources parameter="settingsDescriptions" key="settingsDescriptions" />
-
-	<!-- Define your Struts plugins in a file called struts-plugins.xml and 
-		place it in your merge directory. -->
 
 </struts-config>

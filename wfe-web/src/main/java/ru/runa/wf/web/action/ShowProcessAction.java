@@ -20,7 +20,6 @@ public class ShowProcessAction extends ForwardAction {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        // TODO report sending by email
         ActionForward forward = super.execute(mapping, actionForm, request, response);
         Long processId = Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME));
         List<ProcessError> errorDetails = ProcessExecutionErrors.getProcessErrors(processId);

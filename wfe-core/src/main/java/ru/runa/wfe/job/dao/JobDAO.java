@@ -3,7 +3,9 @@ package ru.runa.wfe.job.dao;
 import java.util.Date;
 import java.util.List;
 
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.job.Job;
@@ -18,6 +20,10 @@ import ru.runa.wfe.job.Timer;
 public class JobDAO extends GenericDAO<Job> {
 
     public List<Job> getExpiredJobs() {
+        if (SystemProperties.isProcessSuspensionBlocksProcessExecution()) {
+            return getHibernateTemplate().find("from Job where dueDate<=? and process.executionStatus=? order by dueDate", new Date(),
+                    ExecutionStatus.ACTIVE);
+        }
         return getHibernateTemplate().find("from Job where dueDate<=? order by dueDate", new Date());
     }
 

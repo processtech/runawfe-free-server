@@ -66,8 +66,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 /**
- * represents one path of execution and maintains a pointer to a node in the
- * {@link ru.runa.wfe.lang.ProcessDefinition}.
+ * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.lang.ProcessDefinition}.
  */
 @Entity
 @Table(name = "BPM_TOKEN")
@@ -87,6 +86,7 @@ public class Token implements Serializable {
     private String nodeId;
     private NodeType nodeType;
     private String transitionId;
+    private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Token() {
     }
@@ -185,8 +185,8 @@ public class Token implements Serializable {
         return startDate;
     }
 
-    public void setStartDate(Date start) {
-        startDate = start;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
     @Column(name = "END_DATE")
@@ -194,8 +194,8 @@ public class Token implements Serializable {
         return endDate;
     }
 
-    public void setEndDate(Date end) {
-        endDate = end;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
@@ -242,6 +242,16 @@ public class Token implements Serializable {
         this.ableToReactivateParent = ableToReactivateParent;
     }
 
+    @Column(name = "EXECUTION_STATUS")
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
+    }
+
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
         return processDefinition.getNodeNotNull(nodeId);
     }
@@ -279,7 +289,7 @@ public class Token implements Serializable {
 
     /**
      * ends this token and all of its children (if any).
-     * 
+     *
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
@@ -288,8 +298,9 @@ public class Token implements Serializable {
             log.debug(this + " already ended");
         } else {
             log.info("Ending " + this + " by " + canceller);
-            endDate = new Date();
-            for (Process subProcess : executionContext.getActiveSubprocesses()) {
+            setEndDate(new Date());
+            setExecutionStatus(ExecutionStatus.ENDED);
+            for (Process subProcess : executionContext.getNotEndedSubprocesses()) {
                 ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
                 subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
             }

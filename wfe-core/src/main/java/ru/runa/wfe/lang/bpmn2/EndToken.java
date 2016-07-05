@@ -52,7 +52,7 @@ public class EndToken extends Node {
             // if (!activeTokensFound) {
             // executionContext.getProcess().end(executionContext, null);
             // }
-            int count = ApplicationContextFactory.getTokenDAO().findActiveTokens(executionContext.getProcess()).size();
+            int count = ApplicationContextFactory.getTokenDAO().findNotEndedTokens(executionContext.getProcess()).size();
             if (count == 0) {
                 executionContext.getProcess().end(executionContext, null);
             }

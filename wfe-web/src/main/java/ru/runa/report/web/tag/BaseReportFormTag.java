@@ -10,8 +10,8 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 
-import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.CategoriesSelectUtils;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.form.FileForm;
@@ -87,20 +87,19 @@ public abstract class BaseReportFormTag extends TitledFormTag {
 
     private TR getHeaderRow() {
         TR tr = new TR();
-        String[] headerNames =
-                { MessagesReport.LABEL_REPORT_VAR_POSITION.message(pageContext), MessagesReport.LABEL_REPORT_VAR_USER_NAME.message(pageContext),
-                        MessagesReport.LABEL_REPORT_VAR_INTERNAL_NAME.message(pageContext),
-                        MessagesReport.LABEL_REPORT_VAR_DESCRIPTION.message(pageContext), MessagesReport.LABEL_REPORT_VAR_TYPE.message(pageContext),
-                        MessagesReport.LABEL_REPORT_VAR_REQUIRED.message(pageContext) };
+        String[] headerNames = { MessagesReport.LABEL_REPORT_VAR_POSITION.message(pageContext),
+                MessagesReport.LABEL_REPORT_VAR_USER_NAME.message(pageContext), MessagesReport.LABEL_REPORT_VAR_INTERNAL_NAME.message(pageContext),
+                MessagesReport.LABEL_REPORT_VAR_DESCRIPTION.message(pageContext), MessagesReport.LABEL_REPORT_VAR_TYPE.message(pageContext),
+                MessagesReport.LABEL_REPORT_VAR_REQUIRED.message(pageContext) };
         for (int i = 0; i < headerNames.length; i++) {
-            tr.addElement(new TH(headerNames[i]).setClass(Resources.CLASS_VIEW_SETUP_TH));
+            tr.addElement(new TH(headerNames[i]));
         }
         return tr;
     }
 
     /**
      * Create table for choosing jasper report file.
-     * 
+     *
      * @param tdFormElement
      * @param entityType
      */

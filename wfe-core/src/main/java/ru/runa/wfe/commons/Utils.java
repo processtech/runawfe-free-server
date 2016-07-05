@@ -214,7 +214,7 @@ public class Utils {
             buffer.append(html ? "<br>" : "\n");
             if (message.getObject() instanceof Map) {
                 buffer.append(TypeConversionUtil.toStringMap((Map<? extends Object, ? extends Object>) message.getObject()));
-            } else {
+            } else if (message.getObject() != null) {
                 buffer.append(message.getObject());
             }
             return buffer.toString();
