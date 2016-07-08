@@ -17,9 +17,12 @@
  */
 package ru.runa.wf.web.html;
 
+import java.util.Date;
+
 import org.apache.ecs.html.TD;
 
 import ru.runa.common.web.html.TDBuilder;
+import ru.runa.wfe.task.TaskDeadlineUtils;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
@@ -41,7 +44,7 @@ public class TaskDurationTDBuilder implements TDBuilder {
     @Override
     public String getValue(Object object, Env env) {
         WfTask task = (WfTask) object;
-        return task.getDuration();
+        return TaskDeadlineUtils.calculateTimeDuration(task.getCreationDate(), new Date());
     }
 
     @Override

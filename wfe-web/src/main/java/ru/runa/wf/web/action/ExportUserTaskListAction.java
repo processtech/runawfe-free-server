@@ -60,8 +60,8 @@ public class ExportUserTaskListAction extends ActionBase {
         tableStr = "<p>" + MessageFormat.format(exportedListTitle, new Object[] { user.getName() }) + "</p>" + tableStr;
 
         try {
-            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            String encodedFileName = HTMLUtils.encodeFileName(request, FILE_NAME_TASKS_LIST + user.getName() + ".xslx");
+            response.setContentType("application/vnd.ms-excel");
+            String encodedFileName = HTMLUtils.encodeFileName(request, FILE_NAME_TASKS_LIST + user.getName() + ".xls");
             response.setHeader("Content-disposition", "attachment; filename=\"" + encodedFileName + "\"");
             OutputStream os = response.getOutputStream();
 

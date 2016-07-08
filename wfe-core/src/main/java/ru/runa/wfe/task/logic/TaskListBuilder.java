@@ -1,6 +1,5 @@
 package ru.runa.wfe.task.logic;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +19,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
-import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
@@ -39,8 +34,6 @@ import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.FieldDescriptor;
-import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.IBatchPresentationCompilerFactory;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
@@ -49,8 +42,6 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.logic.ISubstitutionLogic;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskClassPresentation;
-import ru.runa.wfe.task.TaskDeadlineUtils;
 import ru.runa.wfe.task.cache.TaskCache;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
@@ -96,8 +87,6 @@ public class TaskListBuilder implements ITaskListBuilder {
     private ProcessDAO processDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
-    @Autowired
-    private AuditLogic auditLogic;
 
     public TaskListBuilder(TaskCache cache) {
         taskCache = cache;
@@ -122,32 +111,6 @@ public class TaskListBuilder implements ITaskListBuilder {
                 WfTask acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
                 if (acceptable == null) {
                     continue;
-                }
-
-                // calculated fields: task assignment date, task duration
-                for (FieldDescriptor field : batchPresentation.getDisplayFields()) {
-                    if (TaskClassPresentation.TASK_ASSIGN_DATE.equals(field.displayName) && field.fieldState == FieldState.ENABLED) {
-                        // TaskAssignLog log = (TaskAssignLog) processLogDAO.getLatestAssignTaskLog(task.getProcess().getId(), task.getId());
-
-                        ProcessLogFilter filter = new ProcessLogFilter(task.getProcess().getId());
-                        filter.setNodeId(task.getNodeId());
-                        ProcessLogs logs = auditLogic.getProcessLogs(user, filter);
-
-                        TaskAssignLog taskAssignLog = null;
-                        for (ProcessLog processLog : logs.getLogs()) {
-                            if (processLog instanceof TaskAssignLog
-                                    && (taskAssignLog == null || processLog.getCreateDate().after(taskAssignLog.getCreateDate()))) {
-                                taskAssignLog = (TaskAssignLog) processLog;
-                            }
-                        }
-                        if (taskAssignLog != null) {
-                            acceptable.setAssignmentDate(taskAssignLog.getCreateDate());
-                        }
-                    }
-                    if (TaskClassPresentation.TASK_DURATION.equals(field.displayName) && field.fieldState == FieldState.ENABLED) {
-                        String taskDuration = TaskDeadlineUtils.calculateTimeDuration(acceptable.getCreationDate(), new Date());
-                        acceptable.setDuration(taskDuration);
-                    }
                 }
 
                 result.add(acceptable);
