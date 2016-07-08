@@ -10,35 +10,34 @@ import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
 
 /**
- * Модель для редактирования параметров отчета при деплое.
+ * A model to edit parameters during deployment.
  */
 public class ReportAdminEditModel {
 
     private Long id;
 
     /**
-     * Название отчета, отображаемое пользователю.
+     * Report name that is shown to user.
      */
     private String name;
 
     /**
-     * Набор параметров, которые требуется запросить у пользователя для
-     * построения отчета.
+     * A set of parameters that user must define for report build.
      */
     private List<ReportAdminParameterEditModel> parameters;
 
     /**
-     * Скомпилированный (.jasper) отчет jasper reports.
+     * Compiled jasper reports.
      */
     private byte[] compiledReport;
 
     /**
-     * Тип конфигурации и построения отчета.
+     * Report configuration type and report build type.
      */
     private ReportConfigurationType configType;
 
     /**
-     * Удаляет пустые записи о параметрах.
+     * Removes empty parameters entries.
      */
     public void removeEntriesWithoutType() {
         Iterator<ReportAdminParameterEditModel> paramIter = parameters.iterator();
@@ -69,12 +68,10 @@ public class ReportAdminEditModel {
     }
 
     /**
-     * Обновляет DTO базы данных в соответствии с параметрами, полученными от
-     * пользователя.
+     * Updates DB DTO to match user parameters defined by user.
      *
      * @param databaseDto
-     *            DTO базы данных, в которое копируются данные, введенные
-     *            пользователем.
+     *            DB DTO, that contain copy of user defined data.
      */
     public void copyToDatabaseDto(ReportDefinition databaseDto) {
         databaseDto.setName(name);

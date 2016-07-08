@@ -74,7 +74,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
                 pageContext);
-        RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_MANAGE_DEFINITION,
+        RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_START_PROCESS,
                 getReturnAction(), new DefinitionUrlStrategy(pageContext), builders);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
         navigation.addPagingNavigationTable(tdFormElement);

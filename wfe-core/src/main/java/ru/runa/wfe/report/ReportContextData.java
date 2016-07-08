@@ -1,7 +1,7 @@
 package ru.runa.wfe.report;
 
 /**
- * Данные неободимые для построения отчета через контекстное меню.
+ * Data that is required to build report via context menu.
  */
 public class ReportContextData {
     private Long reportId;
