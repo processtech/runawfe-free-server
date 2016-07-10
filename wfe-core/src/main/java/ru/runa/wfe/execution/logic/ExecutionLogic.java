@@ -345,7 +345,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version) {
-        if (!SystemProperties.isUpgradeProcessToNextDefinitionVersionEnabled()) {
+        if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }

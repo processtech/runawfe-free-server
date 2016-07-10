@@ -198,8 +198,8 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("scriptingServiceAPI.executeGroovyScript.enabled", false);
     }
 
-    public static boolean isUpgradeProcessToNextDefinitionVersionEnabled() {
-        return RESOURCES.getBooleanProperty("upgrade.process.to.definition.version.enabled", false);
+    public static boolean isUpgradeProcessToDefinitionVersionEnabled() {
+        return RESOURCES.getBooleanProperty("upgrade.process.to.definition.version.enabled", true);
     }
 
     public static boolean isErrorEmailNotificationEnabled() {
@@ -247,7 +247,7 @@ public class SystemProperties {
     }
 
     public static boolean setPermissionsToTemporaryGroups() {
-        return RESOURCES.getBooleanProperty("temporary.groups.set.permissions", true);
+        return RESOURCES.getBooleanProperty("temporary.groups.set.permissions", false);
     }
 
     public static boolean deleteTemporaryGroupsOnProcessEnd() {
