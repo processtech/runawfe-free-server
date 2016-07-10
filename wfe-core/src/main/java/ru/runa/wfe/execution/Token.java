@@ -242,7 +242,7 @@ public class Token implements Serializable {
         this.ableToReactivateParent = ableToReactivateParent;
     }
 
-    @Column(name = "EXECUTION_STATUS")
+    @Column(name = "EXECUTION_STATUS", nullable = false)
     @Enumerated(EnumType.STRING)
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;

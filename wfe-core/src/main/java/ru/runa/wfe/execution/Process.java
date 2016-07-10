@@ -179,7 +179,7 @@ public class Process extends IdentifiableBase {
         this.endDate = endDate;
     }
 
-    @Column(name = "EXECUTION_STATUS")
+    @Column(name = "EXECUTION_STATUS", nullable = false)
     @Enumerated(EnumType.STRING)
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;

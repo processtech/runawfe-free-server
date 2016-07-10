@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
-import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.NodeType;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -278,8 +278,8 @@ public class SystemProperties {
         return RESOURCES.getMultipleStringProperty("required.validator.names");
     }
 
-    public static boolean isProcessExecutionNodeAsyncEnabled(Node node) {
-        String propertyValue = RESOURCES.getStringProperty("process.execution.node.async." + node.getNodeType());
+    public static boolean isProcessExecutionNodeAsyncEnabled(NodeType nodeType) {
+        String propertyValue = RESOURCES.getStringProperty("process.execution.node.async." + nodeType);
         if (propertyValue != null) {
             return Boolean.parseBoolean(propertyValue);
         }
@@ -287,7 +287,7 @@ public class SystemProperties {
     }
 
     public static boolean isProcessSuspensionEnabled() {
-        return RESOURCES.getBooleanProperty("process.suspension.enabled", false);
+        return RESOURCES.getBooleanProperty("process.suspension.enabled", true);
     }
 
 }

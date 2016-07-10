@@ -199,7 +199,7 @@ public abstract class Node extends GraphElement {
         if (executionContext.getProcessDefinition().getNodeAsyncExecution() != null) {
             return executionContext.getProcessDefinition().getNodeAsyncExecution();
         }
-        return SystemProperties.isProcessExecutionNodeAsyncEnabled(this);
+        return SystemProperties.isProcessExecutionNodeAsyncEnabled(getNodeType());
     }
 
     /**

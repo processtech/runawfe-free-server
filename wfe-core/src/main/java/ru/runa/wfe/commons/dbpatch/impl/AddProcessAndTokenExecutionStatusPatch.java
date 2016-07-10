@@ -27,4 +27,12 @@ public class AddProcessAndTokenExecutionStatusPatch extends DBPatch {
         session.createSQLQuery("UPDATE BPM_TOKEN SET EXECUTION_STATUS='ENDED' WHERE END_DATE IS NOT NULL").executeUpdate();
         session.createSQLQuery("UPDATE BPM_TOKEN SET EXECUTION_STATUS='ACTIVE' WHERE END_DATE IS NULL").executeUpdate();
     }
+
+    @Override
+    protected List<String> getDDLQueriesAfter() {
+        List<String> sql = super.getDDLQueriesAfter();
+        sql.add(getDDLModifyColumnNullability("BPM_PROCESS", "EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
+        sql.add(getDDLModifyColumnNullability("BPM_TOKEN", "EXECUTION_STATUS", dialect.getTypeName(Types.VARCHAR, 255, 255, 255), false));
+        return sql;
+    }
 }
