@@ -339,6 +339,7 @@ public class CachingLogic {
         for (ChangeListener listener : allListeners) {
             listener.uninitialize(CachingLogic.class, Change.REFRESH);
         }
+        ru.runa.wfe.commons.cache.sm.CachingLogic.resetAllCaches();
     }
 
     /**
