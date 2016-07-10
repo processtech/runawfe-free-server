@@ -53,6 +53,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddHierarchyProcess;
 import ru.runa.wfe.commons.dbpatch.impl.AddMultiTaskIndexToTaskPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddNodeIdToProcessLogPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddParentProcessIdPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
@@ -150,6 +151,7 @@ public class InitializerLogic {
         dbPatches.add(AddDueDateExpressionToJobAndTask.class);
         dbPatches.add(AddBatchPresentationIsSharedPatch.class);
         dbPatches.add(ExpandVarcharPatch.class);
+        dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
     };
 
     @Autowired

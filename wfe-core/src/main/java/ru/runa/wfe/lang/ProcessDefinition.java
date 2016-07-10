@@ -58,7 +58,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     protected final Map<String, VariableDefinition> variablesMap = Maps.newHashMap();
     protected ProcessDefinitionAccessType accessType = ProcessDefinitionAccessType.Process;
     protected Map<String, SubprocessDefinition> embeddedSubprocesses = Maps.newHashMap();
-
+    private Boolean nodeAsyncExecution;
     private boolean graphActionsEnabled;
 
     protected ProcessDefinition() {
@@ -396,6 +396,14 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     public boolean ignoreSubsitutionRulesForTask(Task task) {
         InteractionNode interactionNode = (InteractionNode) getNodeNotNull(task.getNodeId());
         return interactionNode.getFirstTaskNotNull().isIgnoreSubsitutionRules();
+    }
+
+    public Boolean getNodeAsyncExecution() {
+        return nodeAsyncExecution;
+    }
+
+    public void setNodeAsyncExecution(Boolean nodeAsyncExecution) {
+        this.nodeAsyncExecution = nodeAsyncExecution;
     }
 
     public boolean isGraphActionsEnabled() {

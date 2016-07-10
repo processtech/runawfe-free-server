@@ -67,7 +67,7 @@ table.invisible-list {
 	border-style: none;
 }
 
-th.permissions, th.list, th.view-setup {
+th.permissions, th.list, table.view-setup th {
 	text-align: left;
 	border-width: 1pt;
 	border-style: solid;
@@ -76,7 +76,7 @@ th.permissions, th.list, th.view-setup {
 	padding: 2px 5px 2px 5px;
 }
 
-td.permissions, td.list, td.view-setup {
+td.permissions, td.list, table.view-setup td {
 	border-width: 1pt;
 	border-style: solid;
 	border-color: #aaaaaa;
@@ -271,4 +271,8 @@ div.requiredWrapper::after {
 }
 .ui-datepicker-prev, .ui-datepicker-next {
 	background-color: white;
+}
+
+tr.suspended td, span.suspended {
+  background-color: #ff9999;
 }

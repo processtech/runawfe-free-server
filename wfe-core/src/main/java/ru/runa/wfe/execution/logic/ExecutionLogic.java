@@ -23,17 +23,23 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.ConfigurationException;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -42,6 +48,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
@@ -65,6 +72,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -83,6 +91,10 @@ import com.google.common.collect.Maps;
 public class ExecutionLogic extends WFCommonLogic {
     @Autowired
     private ProcessFactory processFactory;
+    @Autowired
+    private ExecutorLogic executorLogic;
+    @Autowired
+    private INodeAsyncExecutor nodeAsyncExecutor;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -382,4 +394,62 @@ public class ExecutionLogic extends WFCommonLogic {
         AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, Lists.newArrayList(executor));
     }
 
+    public void activateProcess(User user, Long processId) {
+        if (!executorLogic.isAdministrator(user)) {
+            throw new InternalApplicationException("Only administrator can activate process");
+        }
+        activateProcessWithSubprocesses(user, processDAO.getNotNull(processId));
+        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        log.info("Process " + processId + " activated");
+    }
+
+    private void activateProcessWithSubprocesses(User user, Process process) {
+        if (process.getExecutionStatus() == ExecutionStatus.ACTIVE) {
+            throw new InternalApplicationException(process + " already activated");
+        }
+        for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
+            nodeAsyncExecutor.execute(process.getId(), token.getId());
+            token.setExecutionStatus(ExecutionStatus.ACTIVE);
+        }
+        for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
+            token.setExecutionStatus(ExecutionStatus.ACTIVE);
+        }
+        process.setExecutionStatus(ExecutionStatus.ACTIVE);
+        processLogDAO.addLog(new ProcessActivateLog(user.getActor()), process, null);
+        List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
+        for (Process subprocess : subprocesses) {
+            if (subprocess.getExecutionStatus() != ExecutionStatus.ACTIVE) {
+                activateProcessWithSubprocesses(user, subprocess);
+            }
+        }
+    }
+
+    public void suspendProcess(User user, Long processId) {
+        if (!SystemProperties.isProcessSuspensionEnabled()) {
+            throw new InternalApplicationException("process suspension disabled in settings");
+        }
+        if (!executorLogic.isAdministrator(user)) {
+            throw new InternalApplicationException("Only administrator can suspend process");
+        }
+        suspendProcessWithSubprocesses(user, processDAO.getNotNull(processId));
+        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        log.info("Process " + processId + " suspended");
+    }
+
+    private void suspendProcessWithSubprocesses(User user, Process process) {
+        if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            throw new InternalApplicationException(process + " already suspended");
+        }
+        process.setExecutionStatus(ExecutionStatus.SUSPENDED);
+        for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.ACTIVE)) {
+            token.setExecutionStatus(ExecutionStatus.SUSPENDED);
+        }
+        processLogDAO.addLog(new ProcessSuspendLog(user.getActor()), process, null);
+        List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
+        for (Process subprocess : subprocesses) {
+            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED) {
+                suspendProcessWithSubprocesses(user, subprocess);
+            }
+        }
+    }
 }

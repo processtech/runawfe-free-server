@@ -134,8 +134,10 @@ public class FormSubmissionUtils {
         try {
             User user = Commons.getUser(request.getSession());
             FormComponentExtractionModel model = new FormComponentExtractionModel(variableProvider, user, new RequestWebHelper(request));
-            String template = new String(interaction.getFormData(), Charsets.UTF_8);
-            FreemarkerProcessor.process(template, model);
+            if (interaction.getFormData() != null) {
+                String template = new String(interaction.getFormData(), Charsets.UTF_8);
+                FreemarkerProcessor.process(template, model);
+            }
             HashMap<String, Object> variables = Maps.newHashMap();
             for (VariableDefinition variableDefinition : interaction.getVariables().values()) {
                 try {
