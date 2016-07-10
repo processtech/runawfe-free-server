@@ -34,7 +34,7 @@ public abstract class AbstractSelectFromList extends FormComponent implements Fo
             list = Lists.newArrayList();
         }
         StringBuffer html = new StringBuffer();
-        html.append("<span class=\"selectFromList\">");
+        html.append("<div class=\"selectFromList\">");
         for (int i = 0; i < list.size(); i++) {
             Object option = list.get(i);
             String value = String.valueOf(i);
@@ -58,7 +58,7 @@ public abstract class AbstractSelectFromList extends FormComponent implements Fo
             html.append(label);
             html.append("</label><br>");
         }
-        html.append("</span>");
+        html.append("</div>");
         return html;
     }
 

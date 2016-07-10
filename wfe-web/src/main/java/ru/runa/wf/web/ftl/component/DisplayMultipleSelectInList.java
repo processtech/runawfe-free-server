@@ -21,7 +21,7 @@ public class DisplayMultipleSelectInList extends FormComponent {
         }
         List<Object> selectedValues = variableProvider.getValue(List.class, variableName);
         StringBuffer html = new StringBuffer();
-        html.append("<span class=\"multipleSelectFromList\">");
+        html.append("<div class=\"multipleSelectFromList\">");
         for (Object option : list) {
             String optionValue;
             String optionLabel;
@@ -49,7 +49,7 @@ public class DisplayMultipleSelectInList extends FormComponent {
             html.append(optionLabel);
             html.append("</label><br>");
         }
-        html.append("</span>");
+        html.append("</div>");
         return html;
     }
 
