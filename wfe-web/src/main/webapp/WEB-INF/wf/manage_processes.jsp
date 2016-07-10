@@ -8,6 +8,7 @@
 
 	<script type="text/javascript">
 	var activeLabel = "<bean:message key="process.execution.status.active" />";
+	var failedLabel = "<bean:message key="process.execution.status.failed" />";
 	var suspendedLabel = "<bean:message key="process.execution.status.suspended" />";
 	var endedLabel = "<bean:message key="process.execution.status.ended" />";
 	$(document).ready(function() {
@@ -15,6 +16,7 @@
 		var select = $("<select />", { name: input.attr("name") });
 		$("<option />", {val: "", text: ""}).appendTo(select);
 		$("<option />", {val: "ACTIVE", text: activeLabel}).appendTo(select);
+		$("<option />", {val: "FAILED", text: failedLabel}).appendTo(select);
 		$("<option />", {val: "SUSPENDED", text: suspendedLabel}).appendTo(select);
 		$("<option />", {val: "ENDED", text: endedLabel}).appendTo(select);
 		select.val(input.val());

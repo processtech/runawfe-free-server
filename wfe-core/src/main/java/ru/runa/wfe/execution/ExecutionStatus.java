@@ -8,6 +8,7 @@ package ru.runa.wfe.execution;
 public enum ExecutionStatus {
     ACTIVE,
     SUSPENDED,
+    FAILED,
     ENDED;
 
     public String getLabelKey() {

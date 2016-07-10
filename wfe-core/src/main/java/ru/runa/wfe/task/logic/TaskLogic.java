@@ -79,7 +79,7 @@ public class TaskLogic extends WFCommonLogic {
 
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException {
         Task task = taskDAO.getNotNull(taskId);
-        if (SystemProperties.isProcessSuspensionBlocksProcessExecution() && task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+        if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new ProcessSuspendedException(task.getProcess().getId());
         }
         try {
@@ -156,7 +156,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }

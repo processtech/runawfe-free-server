@@ -104,9 +104,9 @@ public class NodeAsyncExecutionBean implements MessageListener {
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
                     Token token = tokenDAO.getNotNull(tokenId);
-                    token.setExecutionStatus(ExecutionStatus.SUSPENDED);
+                    token.setExecutionStatus(ExecutionStatus.FAILED);
                     ru.runa.wfe.execution.Process process = processDAO.getNotNull(processId);
-                    process.setExecutionStatus(ExecutionStatus.SUSPENDED);
+                    process.setExecutionStatus(ExecutionStatus.FAILED);
                     processLogDAO.addLog(new ProcessSuspendLog(null), process, null);
                 }
             }.executeInTransaction(true);

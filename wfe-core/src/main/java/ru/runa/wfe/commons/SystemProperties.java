@@ -278,16 +278,12 @@ public class SystemProperties {
         return RESOURCES.getMultipleStringProperty("required.validator.names");
     }
 
-    public static boolean isProcessExecutionNodeAsyncEnabled(Class<? extends Node> nodeClass) {
-        String propertyValue = RESOURCES.getStringProperty("process.execution.node.async." + nodeClass.getSimpleName());
+    public static boolean isProcessExecutionNodeAsyncEnabled(Node node) {
+        String propertyValue = RESOURCES.getStringProperty("process.execution.node.async." + node.getNodeType());
         if (propertyValue != null) {
             return Boolean.parseBoolean(propertyValue);
         }
         return RESOURCES.getBooleanProperty("process.execution.node.async.default", false);
-    }
-
-    public static boolean isProcessSuspensionBlocksProcessExecution() {
-        return RESOURCES.getBooleanProperty("process.suspension.block.process.execution", false);
     }
 
     public static boolean isProcessSuspensionEnabled() {

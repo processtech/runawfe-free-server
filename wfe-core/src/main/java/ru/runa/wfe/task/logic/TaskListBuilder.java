@@ -195,7 +195,7 @@ public class TaskListBuilder implements ITaskListBuilder {
     }
 
     protected WfTask getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, Set<Executor> executorsToGetTasksByMembership) {
-        if (SystemProperties.isProcessSuspensionBlocksProcessExecution() && task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+        if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             log.debug(task + " is ignored due to process suspended state");
             return null;
         }

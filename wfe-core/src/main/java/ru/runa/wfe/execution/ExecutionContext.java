@@ -89,11 +89,11 @@ public class ExecutionContext {
     @Autowired
     protected JobDAO jobDAO;
 
-    protected ExecutionContext(ApplicationContext appContext, ProcessDefinition processDefinition, Token token) {
+    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
-        appContext.getAutowireCapableBeanFactory().autowireBean(this);
+        applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {

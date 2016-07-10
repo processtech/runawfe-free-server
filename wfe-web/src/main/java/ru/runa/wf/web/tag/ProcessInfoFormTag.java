@@ -180,6 +180,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                 statusElement = div;
             }
             break;
+        case FAILED:
         case SUSPENDED:
             statusElement.setClass(Resources.CLASS_SUSPENDED);
             if (Delegates.getExecutorService().isAdministrator(getUser())) {

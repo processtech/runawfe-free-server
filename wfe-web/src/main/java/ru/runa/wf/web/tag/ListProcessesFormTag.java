@@ -85,7 +85,7 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
 
         ReflectionRowBuilder rowBuilder = isFilterable ? new ProcessRowBuilder(processes, batchPresentation, pageContext,
                 ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders) : new ReflectionRowBuilder(processes,
-                        batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders);
+                batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders);
         rowBuilder.setCssClassStrategy(new ProcessCssClassStrategy());
 
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder, isFilterable ? true : false));
@@ -113,7 +113,7 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
         @Override
         public String getClassName(Object item, User user) {
             WfProcess p = (WfProcess) item;
-            if (p.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            if (p.getExecutionStatus() == ExecutionStatus.SUSPENDED || p.getExecutionStatus() == ExecutionStatus.FAILED) {
                 return Resources.CLASS_SUSPENDED;
             }
             return "";

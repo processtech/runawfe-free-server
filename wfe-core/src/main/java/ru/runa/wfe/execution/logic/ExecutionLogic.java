@@ -31,7 +31,9 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
@@ -396,16 +398,30 @@ public class ExecutionLogic extends WFCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new InternalApplicationException("Only administrator can activate process");
         }
-        // TODO 785 activate subprocesses hierarchy?
-        Process process = processDAO.getNotNull(processId);
-        List<Token> tokens = tokenDAO.findSuspendedTokens(process);
-        for (Token token : tokens) {
+        activateProcessWithSubprocesses(user, processDAO.getNotNull(processId));
+        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        log.info("Process " + processId + " activated");
+    }
+
+    private void activateProcessWithSubprocesses(User user, Process process) {
+        if (process.getExecutionStatus() == ExecutionStatus.ACTIVE) {
+            throw new InternalApplicationException(process + " already activated");
+        }
+        for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
             nodeAsyncExecutor.execute(process.getId(), token.getId());
+            token.setExecutionStatus(ExecutionStatus.ACTIVE);
+        }
+        for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
         }
         process.setExecutionStatus(ExecutionStatus.ACTIVE);
         processLogDAO.addLog(new ProcessActivateLog(user.getActor()), process, null);
-        log.info(process + " activated");
+        List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
+        for (Process subprocess : subprocesses) {
+            if (subprocess.getExecutionStatus() != ExecutionStatus.ACTIVE) {
+                activateProcessWithSubprocesses(user, subprocess);
+            }
+        }
     }
 
     public void suspendProcess(User user, Long processId) {
@@ -415,10 +431,25 @@ public class ExecutionLogic extends WFCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new InternalApplicationException("Only administrator can suspend process");
         }
-        // TODO 785 suspend subprocesses hierarchy?
-        Process process = processDAO.getNotNull(processId);
+        suspendProcessWithSubprocesses(user, processDAO.getNotNull(processId));
+        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        log.info("Process " + processId + " suspended");
+    }
+
+    private void suspendProcessWithSubprocesses(User user, Process process) {
+        if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            throw new InternalApplicationException(process + " already suspended");
+        }
         process.setExecutionStatus(ExecutionStatus.SUSPENDED);
+        for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.ACTIVE)) {
+            token.setExecutionStatus(ExecutionStatus.SUSPENDED);
+        }
         processLogDAO.addLog(new ProcessSuspendLog(user.getActor()), process, null);
-        log.info(process + " suspended");
+        List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
+        for (Process subprocess : subprocesses) {
+            if (subprocess.getExecutionStatus() != ExecutionStatus.SUSPENDED) {
+                suspendProcessWithSubprocesses(user, subprocess);
+            }
+        }
     }
 }
