@@ -197,7 +197,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     private Element addUpgradeLinkIfRequired(WfProcess process, Element versionElement) {
-        if (!SystemProperties.isUpgradeProcessToNextDefinitionVersionEnabled()) {
+        if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             return versionElement;
         }
         Div div = new Div();
