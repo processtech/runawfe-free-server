@@ -21,6 +21,8 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.commons.ITransactionListener;
+import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
@@ -98,6 +100,14 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     }
                 }
             }.executeInTransaction(true);
+            for (ITransactionListener listener : TransactionListeners.get()) {
+                try {
+                    listener.onTransactionComplete();
+                } catch (Throwable th) {
+                    log.error(th);
+                }
+            }
+            TransactionListeners.reset();
         } catch (Throwable th) {
             new TransactionalExecutor(context.getUserTransaction()) {
 
