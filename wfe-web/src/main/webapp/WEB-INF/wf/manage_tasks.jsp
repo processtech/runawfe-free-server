@@ -1,3 +1,4 @@
+<%@page import="ru.runa.wfe.user.logic.ExecutorLogic"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -64,15 +65,19 @@
 				</tr>
 			</table>
 		</div>
-	</div>
+	</div> 
 </wf:listTasksForm>
 
-	<% String actorId =  request.getParameter(ProcessForm.ACTOR_ID_INPUT_NAME); %>
-	<% if (WebResources.isTaskDelegationEnabled()) { %>
-	<% String tasksIds = ListTasksFormTag.tasksIds; %>
-
-	<wf:taskFormDelegationButton taskId="<%= -1L %>" tasksIds="<%= tasksIds %>"/>
-	<% } %>
+<% Long actorId = ru.runa.common.web.Commons.getUser(session).getActor().getId();
+/*ExecutorLogic el = new ExecutorLogic(); 
+Boolean isAdmin = el.isAdministrator(ru.runa.common.web.Commons.getUser(session));
+//out.println(isAdmin.toString() + "!!! "); */
+%>
+ 
+<% if (WebResources.isTaskDelegationEnabled() && actorId==1L) { 
+	String tasksIds = ListTasksFormTag.tasksIds; %>
+		<wf:taskFormDelegationButton taskId="<%= -1L %>" tasksIds="<%= tasksIds %>"/>
+<% } %>
 
 
 </tiles:put>

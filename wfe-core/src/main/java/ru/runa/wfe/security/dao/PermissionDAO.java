@@ -252,7 +252,7 @@ public class PermissionDAO extends CommonDAO {
     }
 
     private Set<Executor> getExecutorWithAllHisGroups(Executor executor) {
-        Set<Executor> set = new HashSet<Executor>(executorDAO.getExecutorParentsAll(executor, false));
+        Set<Executor> set = new HashSet<Executor>(executorDAO.getExecutorParentsAll(executor, true));
         set.add(executor);
         return set;
     }
@@ -299,7 +299,7 @@ public class PermissionDAO extends CommonDAO {
      * Return array of privileged {@linkplain Executor}s for given (@linkplain SecuredObject) type (i.e. executors whose permissions on SecuredObject
      * type can not be changed).
      * 
-     * @param identifiable
+     * @param securedObjectType
      *            {@linkplain Identifiable} for which you want to get privileged executors.
      * @return Privileged {@linkplain Executor}'s array.
      */
@@ -359,7 +359,7 @@ public class PermissionDAO extends CommonDAO {
      * 
      * @param type
      *            Type of SecuredObject.
-     * @param privelegedExecutors
+     * @param executors
      *            Privileged executors for target class.
      */
     public void addType(SecuredObjectType type, List<? extends Executor> executors) {

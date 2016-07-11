@@ -52,6 +52,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import ru.runa.wfe.user.logic.ExecutorLogic;
+import ru.runa.wfe.util.ArraySet;
 
 /**
  * Task list builder component.
@@ -86,6 +88,8 @@ public class TaskListBuilder implements ITaskListBuilder {
     private ProcessDAO processDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
+    @Autowired
+    private ExecutorLogic executorLogic;
 
     public TaskListBuilder(TaskCache cache) {
         taskCache = cache;
@@ -112,7 +116,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         @SuppressWarnings("unchecked")
     	List<Task> tasks = null;
         // For Administrators - load all tasks, for others - filtered for them only.
-        if (!containActor(executorsToGetTasksByMembership,"Administrators") || actor.getName().equals("StopBot")){
+        if (!executorLogic.anyoneOfAnyName(executorsToGetTasksByMembership, new String[] {"Administrators"}) || actor.getName().equals("StopBot")){
             tasks = LoadTasks(batchPresentation, executorsToGetTasks);
         } else {
         	// Loading all tasks
@@ -230,7 +234,8 @@ public class TaskListBuilder implements ITaskListBuilder {
             return null;
         }
         // For Administrators - return all tasks here. (Filtered on BatchPresentation level if needed).
-        if (executorsToGetTasksByMembership.contains(taskExecutor) || containActor(executorsToGetTasksByMembership, "Administrators")) { 
+        if (executorsToGetTasksByMembership.contains(taskExecutor)
+                || executorLogic.anyoneOfAnyName(executorsToGetTasksByMembership, new String[] {"Administrators"})) {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return taskObjectFactory.create(task, actor, false, batchPresentation.getDynamicFieldsToDisplay(true));
         }
@@ -405,14 +410,6 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
         return false;
     }
-    
-    private boolean containActor(Set<Executor> executors, String name){
-    	for (Executor executor : executors){
-    		if(executor.getName().equals(name)) {
-    			return true;
-    		}
-    	}
-    	return false;
-    }
+
 
 }

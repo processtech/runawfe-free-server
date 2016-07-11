@@ -243,23 +243,42 @@ public class TaskLogic extends WFCommonLogic {
         AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
     }
     
- 
+    /**
+    * Delegates the Task (by taskId) to new owners.
+    * 	(Rely on multiply tasks delegation function delegateTasks(), though usually are done conversely.
+    * 	So done because SET is more common case than single ELEMENT,
+    * 	and it's right way to build more special cases on top of commons, not versa.)
+    * @param user 			- Current user
+    * @param taskId 		- Delegated Task (by taskId)
+    * @param currentOwner	- Current tasks Owner
+    * @param newOwners		- new Owners for tasks
+    * @throws TaskAlreadyAcceptedException
+    */
     public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> newOwners) throws TaskAlreadyAcceptedException {
      	Set<Long> taskIds = Sets.newHashSet();
      	taskIds.add(taskId);
      	delegateTasks(user,  taskIds, currentOwner, newOwners);
     }
 
-    
+    /**
+    * Delegates the Tasks (by taskIds) to new owners.
+     * @param user 			- Current user
+     * @param taskIds 		- Delegated Tasks (by taskIds)
+     * @param currentOwner 	- Current tasks Owner (assumed the same for all tasks - according to Delegation logic)
+     * @param newOwners 	- new Owners for tasks
+     * @throws TaskAlreadyAcceptedException
+     */
 	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner,  List<? extends Executor> newOwners)
 			throws TaskAlreadyAcceptedException {
 		for (Long taskId : taskIds) {
-			delegateTaskInner(user, taskId, currentOwner, newOwners);
+	        Task task = taskDAO.getNotNull(taskId);
+	        // TODO: Maybe refactored to single Delegation Group (before cycle). Now impossible due to Process link in temporary delegation group.
+	        DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task); 
+			delegateTaskInner(user, task, currentOwner, newOwners, delegationGroup);
 		}
 	}
 
-    public void delegateTaskInner(User user, Long taskId, Executor currentOwner, List<? extends Executor> executors) throws TaskAlreadyAcceptedException {
-        Task task = taskDAO.getNotNull(taskId);
+    private void delegateTaskInner(User user, Task task, Executor currentOwner, List<? extends Executor> executors, DelegationGroup delegationGroup) throws TaskAlreadyAcceptedException {
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
@@ -268,7 +287,17 @@ public class TaskLogic extends WFCommonLogic {
         if (SystemProperties.isTaskAssignmentStrictRulesEnabled() && !user.getName().equals("Administrator")) {
             checkCanParticipate(user.getActor(), task);
         }
-        DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), taskId);
+        
+        executorDAO.addExecutorsToGroup(executors, delegationGroup);
+        ProcessDefinition processDefinition = getDefinition(task);
+        final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
+        executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
+        AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
+    }
+
+    
+    private DelegationGroup createTemporaryDelegationGroup(User user, Task task){
+        DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), task.getId());
         List<Permission> selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
         if (executorDAO.isExecutorExist(delegationGroup.getName())) {
             delegationGroup = (DelegationGroup) executorDAO.getExecutor(delegationGroup.getName());
@@ -282,13 +311,9 @@ public class TaskLogic extends WFCommonLogic {
             permissionDAO.setPermissions(user.getActor(), p, delegationGroup);
             permissionDAO.setPermissions(delegationGroup, selfPermissions, delegationGroup);
         }
-        executorDAO.addExecutorsToGroup(executors, delegationGroup);
-        ProcessDefinition processDefinition = getDefinition(task);
-        final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
-        executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
-        AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
+        return delegationGroup;
     }
-
+    
     
     public int reassignTasks(User user, BatchPresentation batchPresentation) {
         if (!executorLogic.isAdministrator(user)) {
