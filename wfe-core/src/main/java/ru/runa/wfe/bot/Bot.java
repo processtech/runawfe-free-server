@@ -103,7 +103,7 @@ public class Bot implements Serializable {
     /**
      * Username for authentification on WFE server.
      */
-    @Column(name = "USERNAME")
+    @Column(name = "USERNAME", length = 1024)
     public String getUsername() {
         return username;
     }
@@ -112,7 +112,7 @@ public class Bot implements Serializable {
         this.username = username;
     }
 
-    @Column(name = "PASSWORD")
+    @Column(name = "PASSWORD", length = 1024)
     public String getPassword() {
         return password;
     }

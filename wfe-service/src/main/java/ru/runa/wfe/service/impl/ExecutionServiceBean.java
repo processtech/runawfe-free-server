@@ -37,13 +37,14 @@ import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
+import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -235,10 +236,18 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public List<GraphElementPresentation> getProcessDiagramElements(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
+    public List<NodeGraphElement> getProcessDiagramElements(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "subprocessId") String subprocessId) {
         Preconditions.checkArgument(user != null);
         return executionLogic.getProcessDiagramElements(user, processId, subprocessId);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public NodeGraphElement getProcessDiagramElement(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
+            @WebParam(name = "nodeId") String nodeId) throws ProcessDoesNotExistException {
+        Preconditions.checkArgument(user != null);
+        return executionLogic.getProcessDiagramElement(user, processId, nodeId);
     }
 
     @Override
@@ -309,4 +318,19 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(processId != null);
         return executionLogic.getJobs(user, processId, recursive);
     }
+
+    @Override
+    public void activateProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(processId != null);
+        executionLogic.activateProcess(user, processId);
+    }
+
+    @Override
+    public void suspendProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(processId != null);
+        executionLogic.suspendProcess(user, processId);
+    }
+
 }

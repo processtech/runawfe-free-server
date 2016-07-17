@@ -8,49 +8,36 @@ import java.util.Map;
 import ru.runa.wfe.report.ReportConfigurationType;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
-import ru.runa.wfe.report.ReportParametersBuilder;
 
 /**
- * Модель для редактирования параметров отчета при деплое.
+ * A model to edit parameters during deployment.
  */
 public class ReportAdminEditModel {
 
     private Long id;
 
     /**
-     * Название отчета, отображаемое пользователю.
+     * Report name that is shown to user.
      */
     private String name;
 
     /**
-     * Набор параметров, которые требуется запросить у пользователя для построения отчета.
+     * A set of parameters that user must define for report build.
      */
     private List<ReportAdminParameterEditModel> parameters;
 
     /**
-     * Скомпилированный (.jasper) отчет jasper reports.
+     * Compiled jasper reports.
      */
     private byte[] compiledReport;
 
     /**
-     * Тип конфигурации и построения отчета.
+     * Report configuration type and report build type.
      */
     private ReportConfigurationType configType;
 
     /**
-     * Содержимое JAR файла, требуемого для построения отчета. Используется для построения отчетов с типом конфигурации
-     * {@link ReportConfigurationType.PARAMETER_BUILDER}.
-     */
-    private byte[] jarFile;
-
-    /**
-     * Название класса, реализующего интерфейс {@link ReportParametersBuilder} и используемого для заполнения параметров отчета. Используется для
-     * построения отчетов с типом конфигурации {@link ReportConfigurationType.PARAMETER_BUILDER}.
-     */
-    private String parameterBuilderClassName;
-
-    /**
-     * Удаляет пустые записи о параметрах.
+     * Removes empty parameters entries.
      */
     public void removeEntriesWithoutType() {
         Iterator<ReportAdminParameterEditModel> paramIter = parameters.iterator();
@@ -77,23 +64,19 @@ public class ReportAdminEditModel {
             }
         }
         compiledReport = databaseDto.getCompiledReport();
-        jarFile = databaseDto.getJarFile();
         configType = databaseDto.getConfigType();
-        parameterBuilderClassName = databaseDto.getParameterBuilderClassName();
     }
 
     /**
-     * Обновляет DTO базы данных в соответствии с параметрами, полученными от пользователя.
-     * 
+     * Updates DB DTO to match user parameters defined by user.
+     *
      * @param databaseDto
-     *            DTO базы данных, в которое копируются данные, введенные пользователем.
+     *            DB DTO, that contain copy of user defined data.
      */
     public void copyToDatabaseDto(ReportDefinition databaseDto) {
         databaseDto.setName(name);
         databaseDto.setConfigType(configType);
-        databaseDto.setParameterBuilderClassName(parameterBuilderClassName);
         databaseDto.setCompiledReport(compiledReport);
-        databaseDto.setJarFile(jarFile);
         if (databaseDto.getParameters() != null) {
             databaseDto.getParameters().clear();
         } else {
@@ -130,14 +113,6 @@ public class ReportAdminEditModel {
         this.parameters = parameters;
     }
 
-    public String getParameterBuilderClassName() {
-        return parameterBuilderClassName;
-    }
-
-    public void setParameterBuilderClassName(String parameterBuilderClassName) {
-        this.parameterBuilderClassName = parameterBuilderClassName;
-    }
-
     public byte[] getCompiledReport() {
         return compiledReport;
     }
@@ -154,19 +129,7 @@ public class ReportAdminEditModel {
         this.configType = configType;
     }
 
-    public byte[] getJarFile() {
-        return jarFile;
-    }
-
-    public void setJarFile(byte[] jarFile) {
-        this.jarFile = jarFile;
-    }
-
     public boolean hasCompiledReport() {
         return compiledReport != null && compiledReport.length > 0;
-    }
-
-    public boolean hasJarFile() {
-        return jarFile != null && jarFile.length > 0;
     }
 }

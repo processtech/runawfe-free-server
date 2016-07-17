@@ -11,9 +11,10 @@ import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.dto.WfVariable;
 
+import com.google.common.base.Objects;
+
 /**
- * Implementation which uses service call for each variable retrieval (through
- * RunaWFE delegates).
+ * Implementation which uses service call for each variable retrieval (through RunaWFE delegates).
  *
  * @author Dofs
  * @since 4.0
@@ -96,4 +97,10 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     public DelegateProcessVariableProvider getSameProvider(Long processId) {
         return new DelegateProcessVariableProvider(executionService, definitionService, user, processId);
     }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("processId", processId).toString();
+    }
+
 }

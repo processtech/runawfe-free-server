@@ -57,7 +57,7 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.StartState;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
@@ -66,8 +66,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 /**
- * represents one path of execution and maintains a pointer to a node in the
- * {@link ru.runa.wfe.lang.ProcessDefinition}.
+ * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.lang.ProcessDefinition}.
  */
 @Entity
 @Table(name = "BPM_TOKEN")
@@ -75,7 +74,6 @@ import com.google.common.collect.Lists;
 public class Token implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Token.class);
-
     private Long id;
     private Long version;
     private String name;
@@ -85,10 +83,10 @@ public class Token implements Serializable {
     private Token parent;
     private Set<Token> children;
     private boolean ableToReactivateParent;
-
     private String nodeId;
     private NodeType nodeType;
     private String transitionId;
+    private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Token() {
     }
@@ -99,11 +97,11 @@ public class Token implements Serializable {
     public Token(ProcessDefinition processDefinition, Process process) {
         setStartDate(new Date());
         setProcess(process);
-        StartState startState = processDefinition.getStartStateNotNull();
-        setNodeId(startState.getNodeId());
-        setNodeType(startState.getNodeType());
+        StartNode startNode = processDefinition.getStartStateNotNull();
+        setNodeId(startNode.getNodeId());
+        setNodeType(startNode.getNodeType());
         setAbleToReactivateParent(true);
-        setName(startState.getNodeId());
+        setName(startNode.getNodeId());
         setChildren(new HashSet<Token>());
     }
 
@@ -145,7 +143,7 @@ public class Token implements Serializable {
         this.version = version;
     }
 
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 1024)
     public String getName() {
         return name;
     }
@@ -154,7 +152,7 @@ public class Token implements Serializable {
         this.name = name;
     }
 
-    @Column(name = "NODE_ID")
+    @Column(name = "NODE_ID", length = 1024)
     public String getNodeId() {
         return nodeId;
     }
@@ -163,7 +161,7 @@ public class Token implements Serializable {
         this.nodeId = nodeId;
     }
 
-    @Column(name = "NODE_TYPE")
+    @Column(name = "NODE_TYPE", length = 1024)
     @Enumerated(EnumType.STRING)
     public NodeType getNodeType() {
         return nodeType;
@@ -173,7 +171,7 @@ public class Token implements Serializable {
         this.nodeType = nodeType;
     }
 
-    @Column(name = "TRANSITION_ID")
+    @Column(name = "TRANSITION_ID", length = 1024)
     public String getTransitionId() {
         return transitionId;
     }
@@ -187,8 +185,8 @@ public class Token implements Serializable {
         return startDate;
     }
 
-    public void setStartDate(Date start) {
-        startDate = start;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
     @Column(name = "END_DATE")
@@ -196,8 +194,8 @@ public class Token implements Serializable {
         return endDate;
     }
 
-    public void setEndDate(Date end) {
-        endDate = end;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
@@ -242,6 +240,16 @@ public class Token implements Serializable {
 
     public void setAbleToReactivateParent(boolean ableToReactivateParent) {
         this.ableToReactivateParent = ableToReactivateParent;
+    }
+
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
     }
 
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
@@ -290,8 +298,9 @@ public class Token implements Serializable {
             log.debug(this + " already ended");
         } else {
             log.info("Ending " + this + " by " + canceller);
-            endDate = new Date();
-            for (Process subProcess : executionContext.getActiveSubprocesses()) {
+            setEndDate(new Date());
+            setExecutionStatus(ExecutionStatus.ENDED);
+            for (Process subProcess : executionContext.getNotEndedSubprocesses()) {
                 ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
                 subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
             }

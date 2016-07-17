@@ -76,7 +76,7 @@ public class AssignmentHistory {
         this.assingnDate = assingnDate;
     }
 
-    @Column(name = "OLD_EXECUTOR_NAME")
+    @Column(name = "OLD_EXECUTOR_NAME", length = 1024)
     public String getOldExecutorName() {
         return oldExecutorName;
     }
@@ -85,7 +85,7 @@ public class AssignmentHistory {
         this.oldExecutorName = oldExecutorName;
     }
 
-    @Column(name = "NEW_EXECUTOR_NAME")
+    @Column(name = "NEW_EXECUTOR_NAME", length = 1024)
     @Index(name = "IX_AGGLOG_ASSIGN_EXECUTOR")
     public String getNewExecutorName() {
         return newExecutorName;

@@ -100,7 +100,7 @@ public class Swimlane implements Serializable, Assignable {
     }
 
     @Override
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 1024)
     public String getName() {
         return name;
     }

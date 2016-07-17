@@ -3,21 +3,23 @@
 #################
 
 *.pydevproject
+bin
+target
+.classpath
 .project
 .metadata
-bin/
 tmp/
 *.tmp
 *.bak
 *.swp
 *~.nib
 local.properties
-.classpath
-.settings/
+.settings
 .loadpath
 [Tt]arget/
 /WEB-INF/
 wfe-web/src/main/webapp/WEB-INF/wf.tld
+wfe-webservice-client/src/main/
 *.class
 
 # External tool builders

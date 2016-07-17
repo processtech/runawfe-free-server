@@ -18,7 +18,7 @@ public final class MessagesReport {
     public static final StrutsMessage LABEL_REPORT_DESCRIPTION = new StrutsMessage("reports.report.description");
     public static final StrutsMessage LABEL_REPORT_TYPE = new StrutsMessage("reports.report.type");
     public static final StrutsMessage LABEL_REPORT_FILE = new StrutsMessage("reports.report.file");
-    public static final StrutsMessage BUTTON_ANALIZE_REPORT = new StrutsMessage("reports.analize.button");
+    public static final StrutsMessage BUTTON_ANALYZE_REPORT = new StrutsMessage("reports.analyze.button");
     public static final StrutsMessage BUTTON_DEPLOY_REPORT = new StrutsMessage("reports.deploy.button");
     public static final StrutsMessage BUTTON_REDEPLOY_REPORT = new StrutsMessage("reports.redeploy.button");
     public static final StrutsMessage BUTTON_BUILD_REPORT = new StrutsMessage("reports.build.button");

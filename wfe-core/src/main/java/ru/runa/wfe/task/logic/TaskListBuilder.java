@@ -21,6 +21,7 @@ import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.IExecutionContextFactory;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
@@ -57,7 +58,7 @@ import ru.runa.wfe.util.ArraySet;
 
 /**
  * Task list builder component.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -98,7 +99,7 @@ public class TaskListBuilder implements ITaskListBuilder {
      * For Administrators - return all tasks, restricted only to filtering conditions.
      * @param actor - current actor
      * @param batchPresentation - list presentation conditions
-     * @return Tasks (in Dto form) assigned to actor, or acceptable by him. For For Administrators - all [maybe filtered] tasks. 
+     * @return Tasks (in Dto form) assigned to actor, or acceptable by him. For For Administrators - all [maybe filtered] tasks.
      */
     @Override
     public List<WfTask> getTasks(Actor actor, BatchPresentation batchPresentation) {
@@ -150,12 +151,11 @@ public class TaskListBuilder implements ITaskListBuilder {
         return result;
     }
 
-    
     @SuppressWarnings("unchecked")
     private List<Task> LoadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
     	// If parameter <executorsToGetTasks> is undefined - load Tasks without filtering by Executor
     	if (executorsToGetTasks == null) {
-    		CompilerParameters parameters = CompilerParameters.createNonPaged();	
+    		CompilerParameters parameters = CompilerParameters.createNonPaged();
             return (List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters);
     	} else if (executorsToGetTasks.size() < SystemProperties.getDatabaseParametersCount()) {
             CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(executorsToGetTasks, "executor"));
@@ -220,9 +220,13 @@ public class TaskListBuilder implements ITaskListBuilder {
      * @param actor - current actor
      * @param batchPresentation - list presentation conditions
      * @param executorsToGetTasksByMembership - possible executors list
-     * @return Tasks (in Dto form) assigned to actor, or acceptable by him. For For Administrators - return all tasks! 
+     * @return Tasks (in Dto form) assigned to actor, or acceptable by him. For For Administrators - return all tasks!
      */
     protected WfTask getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, Set<Executor> executorsToGetTasksByMembership) {
+        if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            log.debug(task + " is ignored due to process suspended state");
+            return null;
+        }
         Executor taskExecutor = task.getExecutor();
         ProcessDefinition processDefinition = null;
         try {

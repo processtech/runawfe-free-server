@@ -47,7 +47,7 @@ public class BatchPresentationConsts { // TODO move constants to
     /**
      * Sort mode: descending.
      */
-    public static final boolean DSC = false;
+    public static final boolean DESC = false;
 
     /**
      * Allowed sizes for paged {@link BatchPresentation}. This sizes will be available in web interface.

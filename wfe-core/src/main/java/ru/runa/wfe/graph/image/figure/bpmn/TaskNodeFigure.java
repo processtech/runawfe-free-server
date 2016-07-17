@@ -23,20 +23,10 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 import ru.runa.wfe.graph.DrawProperties;
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.util.ActionUtils;
-import ru.runa.wfe.lang.Transition;
 
-public class TaskNodeFigure extends AbstractFigure {
+public class TaskNodeFigure extends AbstractBPMNFigure {
     private static final Color BORDER_COLOR = Color.BLUE;
-
-    @Override
-    public Point getTransitionPoint(Transition transition, double x, double y) {
-        if (transition != null && transition.isTimerTransition()) {
-            return new Point(coords[0] + DrawProperties.GRID_SIZE, coords[1] + coords[3] - DrawProperties.GRID_SIZE);
-        }
-        return super.getTransitionPoint(transition, x, y);
-    }
 
     @Override
     public void fill(Graphics2D graphics) {
@@ -52,9 +42,7 @@ public class TaskNodeFigure extends AbstractFigure {
         Rectangle rect = getTextBoundsRectangle();
         graphics.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 20, 20);
         drawTextInfo(graphics, 1 + DrawProperties.GRID_SIZE / 2);
-        if (hasTimer && !minimized) {
-            drawImage(graphics, "image/bpmn/boundary_timer.png", coords[0] + 1, coords[1] + coords[3] - 2 * DrawProperties.GRID_SIZE, true);
-        }
+        drawTimer(graphics);
     }
 
     @Override

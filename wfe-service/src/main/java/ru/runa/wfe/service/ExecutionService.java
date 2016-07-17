@@ -27,7 +27,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Executor;
@@ -195,14 +195,13 @@ public interface ExecutionService {
 
     /**
      * Gets variable by name from process for specified task.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
      *            process id
      * @param processId
-     *            task id. Task may have some additional variables (such as
-     *            descriminator value for multiTask)
+     *            task id. Task may have some additional variables (such as descriminator value for multiTask)
      * @param variableName
      *            variable name
      * @return variable or <code>null</code>
@@ -268,8 +267,21 @@ public interface ExecutionService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<GraphElementPresentation> getProcessDiagramElements(User user, Long processId, String subprocessId)
-            throws ProcessDoesNotExistException;
+    public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) throws ProcessDoesNotExistException;
+
+    /**
+     * Gets process graph element for diagram.
+     *
+     * @param user
+     *            authorized user
+     * @param processId
+     *            process id
+     * @param nodeId
+     *            node id
+     * @return element or <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) throws ProcessDoesNotExistException;
 
     /**
      * Removes processes by filter criterias.
@@ -282,8 +294,7 @@ public interface ExecutionService {
     public List<ProcessError> getProcessErrors(User user, Long processId);
 
     /**
-     * Upgrades running process to specified version of deployed definition.
-     * This is not safe operation, use it with caution.
+     * Upgrades running process to specified version of deployed definition. This is not safe operation, use it with caution.
      *
      * @return false if version equal to current process definition version
      */
@@ -302,5 +313,25 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public List<WfJob> getProcessJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
+
+    /**
+     * Activates suspended process by id.
+     *
+     * @param user
+     *            authorized user
+     * @param id
+     *            process id
+     */
+    public void activateProcess(User user, Long processId);
+
+    /**
+     * Suspends active process by id.
+     *
+     * @param user
+     *            authorized user
+     * @param id
+     *            process id
+     */
+    public void suspendProcess(User user, Long processId);
 
 }

@@ -6,7 +6,6 @@ import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
@@ -35,7 +34,7 @@ public class ExclusiveGateway extends Node {
     }
 
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
         try {
             if (delegation != null) {
                 log.debug("gateway " + name + " is treated as decision gateway");

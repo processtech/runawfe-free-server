@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.relation.RelationPair;
 import ru.runa.wfe.security.AuthorizationException;
+import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 
@@ -21,7 +23,8 @@ public abstract class ChooseByRelationBase extends FormComponent {
     protected Object renderRequest() {
         String variableName = getParameterAsString(0);
         String relationName = getRichComboParameterAs(String.class, 1);
-        Executor relationParam = getRichComboParameterAs(Executor.class, 2);
+        Object relationParamIdentity = getRichComboParameterAs(Object.class, 2);
+        Executor relationParam = TypeConversionUtil.convertToExecutor(relationParamIdentity, new DelegateExecutorLoader(user));
         if (relationParam == null) {
             // TODO right way?
             relationParam = user.getActor();

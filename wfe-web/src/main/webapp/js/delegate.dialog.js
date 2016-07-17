@@ -91,7 +91,7 @@ function delegateTaskDialog(btn) {
             url:"/wfe/ajaxcmd?command=ajaxActorsList",
             data: JSON.stringify(data),
             dataType:"json",
-            contentType:"application/json",
+            contentType:"application/json; charset=UTF-8",
             processData: false,
             success: function(data){callback(data, rev);}
         });
@@ -264,7 +264,7 @@ function delegateTaskDialog(btn) {
 			url:"/wfe/delegateTask",
 			data: JSON.stringify(data),
 			dataType:"json", 
-			contentType:"json",
+			contentType:"application/json; charset=UTF-8",
 			success: function() {
 					window.location = "/wfe/manage_tasks.do";
 			}

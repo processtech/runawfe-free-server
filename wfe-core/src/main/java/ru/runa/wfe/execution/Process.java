@@ -29,6 +29,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -64,7 +66,7 @@ import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubProcessState;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.lang.TaskDefinition;
@@ -100,6 +102,7 @@ public class Process extends IdentifiableBase {
     private Deployment deployment;
     private Set<Swimlane> swimlanes;
     private Set<Task> tasks;
+    private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Process() {
     }
@@ -149,7 +152,7 @@ public class Process extends IdentifiableBase {
         this.version = version;
     }
 
-    @Column(name = "TREE_PATH")
+    @Column(name = "TREE_PATH", length = 1024)
     public String getHierarchyIds() {
         return hierarchyIds;
     }
@@ -174,6 +177,16 @@ public class Process extends IdentifiableBase {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
     }
 
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
@@ -297,6 +310,7 @@ public class Process extends IdentifiableBase {
         rootToken.end(executionContext, canceller);
         // mark this process as ended
         setEndDate(new Date());
+        setExecutionStatus(ExecutionStatus.ENDED);
         // check if this process was started as a subprocess of a super
         // process
         NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();
@@ -384,11 +398,11 @@ public class Process extends IdentifiableBase {
         if (subprocesses.size() > 0) {
             ProcessDefinition processDefinition = executionContext.getProcessDefinition();
             List<Node> nodes = processDefinition.getNodes(true);
-            HashMap<String, SubProcessState> subProcessesStates = new HashMap<String, SubProcessState>(subprocesses.size());
+            HashMap<String, SubprocessNode> subProcessesStates = new HashMap<String, SubprocessNode>(subprocesses.size());
             for (Node node : nodes) {
-                if (node instanceof SubProcessState) {
-                    SubProcessState subProcessState = (SubProcessState) node;
-                    subProcessesStates.put(subProcessState.getSubProcessName(), subProcessState);
+                if (node instanceof SubprocessNode) {
+                    SubprocessNode subprocessNode = (SubprocessNode) node;
+                    subProcessesStates.put(subprocessNode.getSubProcessName(), subprocessNode);
                 }
             }
             IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
@@ -415,7 +429,7 @@ public class Process extends IdentifiableBase {
                 }
 
                 String subProcessName = subProcessDefinition.getName();
-                SubProcessState subprocessState = subProcessesStates.get(subProcessName);
+                SubprocessNode subprocessState = subProcessesStates.get(subProcessName);
 
                 if (subprocessState.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
                     subProcess.end(subExecutionContext, canceller);

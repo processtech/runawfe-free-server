@@ -42,21 +42,25 @@ import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddBatchPresentationIsSharedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnsToSubstituteEscalatedTasksPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddCreateDateColumns;
 import ru.runa.wfe.commons.dbpatch.impl.AddDeploymentAuditPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddDueDateExpressionToJobAndTask;
 import ru.runa.wfe.commons.dbpatch.impl.AddEmbeddedFileForBotTask;
 import ru.runa.wfe.commons.dbpatch.impl.AddHierarchyProcess;
 import ru.runa.wfe.commons.dbpatch.impl.AddMultiTaskIndexToTaskPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddNodeIdToProcessLogPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddParentProcessIdPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandDescriptionsPatch;
+import ru.runa.wfe.commons.dbpatch.impl.ExpandVarcharPatch;
 import ru.runa.wfe.commons.dbpatch.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbpatch.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbpatch.impl.PerformancePatch401;
@@ -79,7 +83,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
- * 
+ *
  * @author Dofs
  */
 public class InitializerLogic {
@@ -143,8 +147,11 @@ public class InitializerLogic {
         // 4.3.0
         dbPatches.add(AddAggregatedTaskIndexPatch.class);
         dbPatches.add(AddParentProcessIdPatch.class);
-        // 4.4.0
         dbPatches.add(CreateReportsTables.class);
+        dbPatches.add(AddDueDateExpressionToJobAndTask.class);
+        dbPatches.add(AddBatchPresentationIsSharedPatch.class);
+        dbPatches.add(ExpandVarcharPatch.class);
+        dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
     };
 
     @Autowired
@@ -215,7 +222,7 @@ public class InitializerLogic {
 
     /**
      * Initialize database.
-     * 
+     *
      * @param daoHolder
      *            Helper object for getting DAO's.
      */

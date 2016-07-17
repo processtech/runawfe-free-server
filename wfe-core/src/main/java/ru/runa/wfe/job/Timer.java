@@ -42,7 +42,7 @@ public class Timer extends Job {
         super(token);
     }
 
-    @Column(name = "REPEAT_DURATION")
+    @Column(name = "REPEAT_DURATION", length = 1024)
     public String getRepeatDurationString() {
         return repeatDurationString;
     }
@@ -51,7 +51,7 @@ public class Timer extends Job {
         this.repeatDurationString = repeatDurationString;
     }
 
-    @Column(name = "TRANSITION_NAME")
+    @Column(name = "TRANSITION_NAME", length = 1024)
     public String getOutTransitionName() {
         return outTransitionName;
     }
@@ -95,6 +95,9 @@ public class Timer extends Job {
                 BusinessDuration repeatDuration = BusinessDurationParser.parse(repeatDurationString);
                 if (repeatDuration.getAmount() > 0) {
                     BusinessCalendar businessCalendar = ApplicationContextFactory.getBusinessCalendar();
+                    // clear expression for ignorance from
+                    // ExecutionContext.updateRelatedObjectsDueToDateVariableChange
+                    setDueDateExpression(null);
                     setDueDate(businessCalendar.apply(getDueDate(), repeatDurationString));
                     log.info("Restarting " + this + " for repeat execution at " + CalendarUtil.formatDateTime(getDueDate()));
                 }

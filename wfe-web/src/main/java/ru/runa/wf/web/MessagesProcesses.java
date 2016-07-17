@@ -24,6 +24,10 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.show_deploy_definition_controls");
     public static final StrutsMessage LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.hide_deploy_definition_controls");
     public static final StrutsMessage PROCESS_STARTED = new StrutsMessage("process.started");
+    public static final StrutsMessage PROCESS_ACTIVATE = new StrutsMessage("process.activate");
+    public static final StrutsMessage PROCESS_ACTIVATED = new StrutsMessage("process.activated");
+    public static final StrutsMessage PROCESS_SUSPEND = new StrutsMessage("process.suspend");
+    public static final StrutsMessage PROCESS_SUSPENDED = new StrutsMessage("process.suspended");
     public static final StrutsMessage PROCESS_CANCELED = new StrutsMessage("process.canceled");
     public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");
@@ -41,6 +45,10 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SWIMLANE = new StrutsMessage("label.swimlane");
     public static final StrutsMessage LABEL_SWIMLANE_NAME = new StrutsMessage("label.swimlane_name");
     public static final StrutsMessage LABEL_SWIMLANE_ASSIGNMENT = new StrutsMessage("label.swimlane_assigned_to");
+    public static final StrutsMessage LINK_UPDATE_SWIMLANE = new StrutsMessage("link.update_swimlane");
+    public static final StrutsMessage BUTTON_UPDATE_SWIMLANE = new StrutsMessage("button.update_swimlane");
+    public static final StrutsMessage LABEL_SWIMLANE_NEW_EXECUTOR = new StrutsMessage("label.swimlane_new_executor");
+    public static final StrutsMessage LABEL_NO_SWIMLANES = new StrutsMessage("label.no_swimlanes");
     public static final StrutsMessage LINK_UPDATE_VARIABLE = new StrutsMessage("link.update_variable");
     public static final StrutsMessage BUTTON_UPDATE_VARIABLE = new StrutsMessage("button.update_variable");
     public static final StrutsMessage BUTTON_FORM = new StrutsMessage("button.form");

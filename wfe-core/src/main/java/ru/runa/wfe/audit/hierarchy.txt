@@ -15,8 +15,8 @@
     <!-- R : ru.runa.bpm.log.VariableCreateLog -->
     <!-- S : ru.runa.bpm.log.TaskEndBySubstitutorLog -->
     <!-- T : ru.runa.bpm.log.TransitionLog -->
-    <!-- U :  -->
-    <!-- V :  -->
+    <!-- U : ru.runa.wfe.audit.ProcessActivateLog -->
+    <!-- V : ru.runa.wfe.audit.ProcessSuspendLog -->
     <!-- W : ru.runa.bpm.log.VariableUpdateLog -->
     <!-- X : ru.runa.bpm.log.ProcessEndLog -->
     <!-- Y : ru.runa.bpm.log.ProcessCancelLog -->

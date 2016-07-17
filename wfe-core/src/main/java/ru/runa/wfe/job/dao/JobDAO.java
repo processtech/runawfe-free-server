@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.job.Job;
@@ -18,11 +19,16 @@ import ru.runa.wfe.job.Timer;
 public class JobDAO extends GenericDAO<Job> {
 
     public List<Job> getExpiredJobs() {
-        return getHibernateTemplate().find("from Job where dueDate<=? order by dueDate", new Date());
+        return getHibernateTemplate().find("from Job where dueDate<=? and token.executionStatus=? order by dueDate", new Date(),
+                ExecutionStatus.ACTIVE);
     }
 
     public List<Job> findByProcess(Process process) {
         return getHibernateTemplate().find("from Job where process=? order by dueDate", process);
+    }
+
+    public List<Job> findByProcessAndDeadlineExpressionContaining(Process process, String expression) {
+        return getHibernateTemplate().find("from Job where process=? and dueDateExpression like ?", process, "%" + expression + "%");
     }
 
     public void deleteTimersByName(String name, Token token) {

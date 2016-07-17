@@ -14,9 +14,11 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessPermission;
+import ru.runa.wfe.execution.ProcessSuspendedException;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
@@ -41,7 +43,9 @@ import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.validation.ValidationException;
@@ -76,6 +80,9 @@ public class TaskLogic extends WFCommonLogic {
 
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException {
         Task task = taskDAO.getNotNull(taskId);
+        if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            throw new ProcessSuspendedException(task.getProcess().getId());
+        }
         try {
             if (variables == null) {
                 variables = Maps.newHashMap();
@@ -150,7 +157,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -242,7 +249,7 @@ public class TaskLogic extends WFCommonLogic {
         ProcessDefinition processDefinition = getDefinition(task);
         AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
     }
-    
+
     /**
     * Delegates the Task (by taskId) to new owners.
     * 	(Rely on multiply tasks delegation function delegateTasks(), though usually are done conversely.
@@ -254,10 +261,10 @@ public class TaskLogic extends WFCommonLogic {
     * @param newOwners		- new Owners for tasks
     * @throws TaskAlreadyAcceptedException
     */
-    public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> newOwners) throws TaskAlreadyAcceptedException {
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners) throws TaskAlreadyAcceptedException {
      	Set<Long> taskIds = Sets.newHashSet();
      	taskIds.add(taskId);
-     	delegateTasks(user,  taskIds, currentOwner, newOwners);
+     	delegateTasks(user,  taskIds, currentOwner, keepCurrentOwners, newOwners);
     }
 
     /**
@@ -268,19 +275,19 @@ public class TaskLogic extends WFCommonLogic {
      * @param newOwners 	- new Owners for tasks
      * @throws TaskAlreadyAcceptedException
      */
-	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwnerParam,  List<? extends Executor> newOwners)
+	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwnerParam, boolean keepCurrentOwners, List<? extends Executor> newOwners)
 			throws TaskAlreadyAcceptedException {
 		for (Long taskId : taskIds) {
 	        Task task = taskDAO.getNotNull(taskId);
-	        // We get currentOwner just from task, ignoring currentOwnerParam, that left for compatability with former usage 
+	        // We get currentOwner just from task, ignoring currentOwnerParam, that left for compatability with former usage
 	        Executor currentOwner = task.getExecutor();
 	        // TODO: Good thought - refactor to single Delegation Group (before cycle). Now impossible due to Process link in temporary delegation group.
-	        DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task); 
-			delegateTaskInner(user, task, currentOwner, newOwners, delegationGroup);
+	        DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task);
+			delegateTaskInner(user, task, currentOwner, keepCurrentOwners, newOwners, delegationGroup);
 		}
 	}
 
-    private void delegateTaskInner(User user, Task task, Executor currentOwner, List<? extends Executor> executors, DelegationGroup delegationGroup) throws TaskAlreadyAcceptedException {
+    private void delegateTaskInner(User user, Task task, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors, DelegationGroup delegationGroup) throws TaskAlreadyAcceptedException {
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
@@ -289,7 +296,14 @@ public class TaskLogic extends WFCommonLogic {
         if (SystemProperties.isTaskAssignmentStrictRulesEnabled() && !user.getName().equals("Administrator")) {
             checkCanParticipate(user.getActor(), task);
         }
-        
+        if (keepCurrentOwners) {
+            if (currentOwner instanceof TemporaryGroup) {
+                ((List<Executor>) executors).addAll(executorDAO.getGroupChildren((Group) currentOwner));
+            } else {
+                ((List<Executor>) executors).add(executorDAO.getExecutor(currentOwner.getId()));
+            }
+        }
+
         executorDAO.addExecutorsToGroup(executors, delegationGroup);
         ProcessDefinition processDefinition = getDefinition(task);
         final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
@@ -297,7 +311,7 @@ public class TaskLogic extends WFCommonLogic {
         AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
     }
 
-    
+
     private DelegationGroup createTemporaryDelegationGroup(User user, Task task){
         DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), task.getId());
         List<Permission> selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
@@ -315,8 +329,7 @@ public class TaskLogic extends WFCommonLogic {
         }
         return delegationGroup;
     }
-    
-    
+
     public int reassignTasks(User user, BatchPresentation batchPresentation) {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");

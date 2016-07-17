@@ -12,10 +12,10 @@ import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
-import ru.runa.wfe.graph.view.MultiinstanceGraphElementPresentation;
-import ru.runa.wfe.graph.view.SubprocessGraphElementPresentation;
-import ru.runa.wfe.graph.view.TaskGraphElementPresentation;
+import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.graph.view.SubprocessNodeGraphElement;
+import ru.runa.wfe.graph.view.TaskNodeGraphElement;
 import ru.runa.wfe.history.graph.HistoryGraphForkNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphGenericNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphJoinNodeModel;
@@ -25,8 +25,8 @@ import ru.runa.wfe.history.graph.HistoryGraphParallelNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphTransitionModel;
 import ru.runa.wfe.history.layout.NodeLayoutData;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.SubProcessState;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
@@ -35,7 +35,7 @@ import ru.runa.wfe.user.Executor;
  */
 public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<CreateGraphElementPresentationContext> {
 
-    private final List<GraphElementPresentation> presentationElements = new ArrayList<GraphElementPresentation>();
+    private final List<NodeGraphElement> elements = new ArrayList<NodeGraphElement>();
     private final GraphHistoryBuilderData data;
     private final HashSet<HistoryGraphNode> visited = new HashSet<HistoryGraphNode>();
 
@@ -77,19 +77,19 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
         if (nodeEnterLog == null) {
             return;
         }
-        GraphElementPresentation presentation;
+        NodeGraphElement element;
         NodeType nodeType = historyNode.getNode().getNodeType();
         NodeLayoutData layoutData = NodeLayoutData.get(historyNode);
         switch (nodeType) {
         case SUBPROCESS:
-            presentation = new SubprocessGraphElementPresentation();
-            ((SubprocessGraphElementPresentation) presentation).setSubprocessAccessible(true);
+            element = new SubprocessNodeGraphElement();
+            ((SubprocessNodeGraphElement) element).setSubprocessAccessible(true);
             SubprocessStartLog startSub = historyNode.getNodeLog(SubprocessStartLog.class);
             if (startSub != null) {
-                ((SubprocessGraphElementPresentation) presentation).setSubprocessId(startSub.getSubprocessId());
+                ((SubprocessNodeGraphElement) element).setSubprocessId(startSub.getSubprocessId());
                 break;
             }
-            if (((SubProcessState) historyNode.getNode()).isEmbedded()) {
+            if (((SubprocessNode) historyNode.getNode()).isEmbedded()) {
                 NodeEnterLog subprocessLog = null;
                 for (NodeEnterLog candidate : historyNode.getNodeLogs(NodeEnterLog.class)) {
                     if (candidate.getNodeType() == NodeType.SUBPROCESS) {
@@ -100,42 +100,42 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
                 if (subprocessLog == null) {
                     return;
                 }
-                ((SubprocessGraphElementPresentation) presentation).setSubprocessId(subprocessLog.getProcessId());
-                SubprocessDefinition subprocessDefinition = data.getEmbeddedSubprocess(((SubProcessState) historyNode.getNode()).getSubProcessName());
-                ((SubprocessGraphElementPresentation) presentation).setEmbeddedSubprocessId(subprocessDefinition.getNodeId());
-                ((SubprocessGraphElementPresentation) presentation).setEmbeddedSubprocessGraphWidth(subprocessDefinition.getGraphConstraints()[2]);
-                ((SubprocessGraphElementPresentation) presentation).setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);
+                ((SubprocessNodeGraphElement) element).setSubprocessId(subprocessLog.getProcessId());
+                SubprocessDefinition subprocessDefinition = data.getEmbeddedSubprocess(((SubprocessNode) historyNode.getNode()).getSubProcessName());
+                ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessId(subprocessDefinition.getNodeId());
+                ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessGraphWidth(subprocessDefinition.getGraphConstraints()[2]);
+                ((SubprocessNodeGraphElement) element).setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);
 
                 if (nodeLeaveLog == null) {
-                    presentation.initialize(historyNode.getNode(), layoutData.getConstraints());
-                    presentation.setData("");
-                    presentationElements.add(presentation);
+                    element.initialize(historyNode.getNode(), layoutData.getConstraints());
+                    element.setData("");
+                    elements.add(element);
                     return;
                 }
             }
             break;
         case MULTI_SUBPROCESS:
-            presentation = new MultiinstanceGraphElementPresentation();
+            element = new MultiSubprocessNodeGraphElement();
             for (SubprocessStartLog subprocessStartLog : historyNode.getNodeLogs(SubprocessStartLog.class)) {
-                ((MultiinstanceGraphElementPresentation) presentation).addSubprocessInfo(subprocessStartLog.getSubprocessId(), true, false);
+                ((MultiSubprocessNodeGraphElement) element).addSubprocessInfo(subprocessStartLog.getSubprocessId(), true, false);
             }
             break;
         case TASK_STATE:
-            presentation = new TaskGraphElementPresentation();
+            element = new TaskNodeGraphElement();
             break;
         default:
-            presentation = new GraphElementPresentation();
+            element = new NodeGraphElement();
         }
 
         if (nodeLeaveLog == null) {
             return;
         }
 
-        presentation.initialize(historyNode.getNode(), layoutData.getConstraints());
+        element.initialize(historyNode.getNode(), layoutData.getConstraints());
         String executionPeriodString = getPeriodDateString(nodeEnterLog, nodeLeaveLog);
 
         if (nodeType.equals(NodeType.SUBPROCESS) || nodeType.equals(NodeType.MULTI_SUBPROCESS)) {
-            presentation.setData("Time period is " + executionPeriodString);
+            element.setData("Time period is " + executionPeriodString);
         } else if (nodeType.equals(NodeType.TASK_STATE)) {
             StringBuffer str = new StringBuffer();
             TaskEndLog taskEndLog = historyNode.getNodeLog(TaskEndLog.class);
@@ -158,9 +158,9 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
             }
 
             str.append("Time period is " + executionPeriodString + ".");
-            presentation.setData(str.toString());
+            element.setData(str.toString());
         }
-        presentationElements.add(presentation);
+        elements.add(element);
     }
 
     private String getPeriodDateString(ProcessLog firstLog, ProcessLog secondLog) {
@@ -176,7 +176,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
         StringBuilder result = new StringBuilder();
         long days = period / (24 * 60 * 60 * 1000);
         if (days > 0) {
-            result.append((days == 1) ? "1 day " : (String.valueOf(days) + " days "));
+            result.append(days == 1 ? "1 day " : String.valueOf(days) + " days ");
         }
         result.append(CalendarUtil.formatTime(periodCal.getTime()));
         return result.toString();
@@ -192,7 +192,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
         }
     }
 
-    public List<GraphElementPresentation> getPresentationElements() {
-        return presentationElements;
+    public List<NodeGraphElement> getElements() {
+        return elements;
     }
 }

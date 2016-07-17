@@ -1,18 +1,9 @@
 package ru.runa.wf.web.ftl.component;
 
-import javax.servlet.http.HttpServletRequest;
+import ru.runa.wfe.commons.ftl.FormComponent;
 
-import org.json.simple.JSONAware;
-
-import ru.runa.wfe.commons.ftl.AjaxJsonFormComponent;
-
-public class TreeviewSupport extends AjaxJsonFormComponent {
+public class TreeviewSupport extends FormComponent {
     private static final long serialVersionUID = 1L;
-
-    @Override
-    protected JSONAware processAjaxRequest(HttpServletRequest request) throws Exception {
-        return null;
-    }
 
     @Override
     protected String renderRequest() throws Exception {

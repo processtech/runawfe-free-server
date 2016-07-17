@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.logic.bot;
@@ -67,7 +67,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
      * once per moment.
      */
     @Override
-    public synchronized void invokeBots(BotStation botStation) {
+    public synchronized void invokeBots(BotStation botStation, boolean resetFailedDelay) {
         this.botStation = botStation;
         if (botInvokerInvocation != null && !botInvokerInvocation.isDone()) {
             log.debug("botInvokerInvocation != null && !botInvokerInvocation.isDone()");
@@ -87,6 +87,11 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
         checkStuckBots();
         botInvokerInvocation = executor.schedule(this, 1000, TimeUnit.MILLISECONDS);
         logBotsActivites();
+        if (resetFailedDelay) {
+            for (WorkflowBotExecutor botExecutor : botExecutors.values()) {
+                botExecutor.resetFailedDelay();
+            }
+        }
     }
 
     private void checkStuckBots() {
@@ -178,7 +183,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     /**
      * Schedules all task for bot. Each parallel tasks scheduled as self.
      * Sequential tasks is grouped for sequential execution.
-     * 
+     *
      * @param botExecutor
      *            Bot execution data.
      * @param tasks
@@ -190,9 +195,9 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
             final String botTaskName = BotTaskConfigurationUtils.getBotTaskName(botExecutor.getUser(), task);
             BotTask botTaskConfiguration = botExecutor.getBotTasks().get(botTaskName);
             if (botTaskConfiguration == null) { // in spite of that, the task
-                                                // should be started because it
-                                                // is necessary to show the
-                                                // error message
+                // should be started because it
+                // is necessary to show the
+                // error message
                 log.error("No handler for bot task " + task.getName() + " in " + botExecutor.getBot());
             } else if (botTaskConfiguration.isSequentialExecution()
                     && scheduledTasks.containsKey(new WorkflowSequentialBotTaskExecutor(botExecutor.getBot(), botTaskConfiguration, null))) {
@@ -221,7 +226,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
 
     /**
      * Schedules new tasks for sequential bot.
-     * 
+     *
      * @param botExecutor
      *            Component, used to create new bot task executors.
      */
@@ -259,7 +264,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
 
         BotNamedThreadFactory() {
             SecurityManager s = System.getSecurityManager();
-            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+            group = s != null ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
             // adding custom prefix
             namePrefix = "bot-pool-" + poolNumber.getAndIncrement() + "-thread-";
         }

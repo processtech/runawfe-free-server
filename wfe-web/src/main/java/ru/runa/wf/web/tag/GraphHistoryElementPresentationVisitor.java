@@ -25,15 +25,15 @@ import org.apache.ecs.html.TD;
 
 import ru.runa.common.WebResources;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
-import ru.runa.wfe.graph.view.GraphElementPresentationVisitor;
-import ru.runa.wfe.graph.view.MultiinstanceGraphElementPresentation;
-import ru.runa.wfe.graph.view.SubprocessGraphElementPresentation;
-import ru.runa.wfe.graph.view.TaskGraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
+import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
+import ru.runa.wfe.graph.view.SubprocessNodeGraphElement;
+import ru.runa.wfe.graph.view.TaskNodeGraphElement;
 
 /**
  * Operation to create tool tips on and links on process history graph.
  */
-public class GraphHistoryElementPresentationVisitor extends GraphElementPresentationVisitor {
+public class GraphHistoryElementPresentationVisitor extends NodeGraphElementVisitor {
     /**
      * Helper to create html.
      */
@@ -56,20 +56,20 @@ public class GraphHistoryElementPresentationVisitor extends GraphElementPresenta
     }
 
     @Override
-    protected void onMultiSubprocess(MultiinstanceGraphElementPresentation element) {
+    protected void onMultiSubprocessNode(MultiSubprocessNodeGraphElement element) {
         td.addElement(presentationHelper.createMultiSubprocessLinks(element, WebResources.ACTION_SHOW_GRAPH_HISTORY));
         presentationHelper.addTooltip(element, null);
     }
 
     @Override
-    protected void onSubprocess(SubprocessGraphElementPresentation element) {
+    protected void onSubprocessNode(SubprocessNodeGraphElement element) {
         Area area = presentationHelper.createSubprocessLink(element, WebResources.ACTION_SHOW_GRAPH_HISTORY,
                 "javascript:showEmbeddedSubprocessGraphHistory");
         presentationHelper.addTooltip(element, area);
     }
 
     @Override
-    protected void onTaskState(TaskGraphElementPresentation element) {
+    protected void onTaskNode(TaskNodeGraphElement element) {
         Area area = presentationHelper.createTaskTooltip(element);
         presentationHelper.addTooltip(element, area);
     }

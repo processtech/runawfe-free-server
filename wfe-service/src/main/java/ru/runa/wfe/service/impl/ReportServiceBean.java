@@ -52,11 +52,11 @@ public class ReportServiceBean implements ReportServiceLocal, ReportServiceRemot
     }
 
     @Override
-    public List<ReportParameterDto> analizeReportFile(@WebParam(name = "report") ReportDto report,
+    public List<ReportParameterDto> analyzeReportFile(@WebParam(name = "report") ReportDto report,
             @WebParam(name = "reportFileContent") byte[] reportFileContent) {
         Preconditions.checkArgument(report != null);
         Preconditions.checkArgument(reportFileContent != null);
-        return reportLogic.analizeReportFile(report, reportFileContent);
+        return reportLogic.analyzeReportFile(report, reportFileContent);
     }
 
     @Override

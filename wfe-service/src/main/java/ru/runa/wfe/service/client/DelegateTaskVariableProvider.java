@@ -5,9 +5,10 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 
+import com.google.common.base.Objects;
+
 /**
- * Implementation which uses service call for each variable retrieval (through
- * RunaWFE delegates).
+ * Implementation which uses service call for each variable retrieval (through RunaWFE delegates).
  *
  * @author Dofs
  * @since 4.2.1
@@ -34,4 +35,10 @@ public class DelegateTaskVariableProvider extends DelegateProcessVariableProvide
     public DelegateTaskVariableProvider getSameProvider(Long processId) {
         return new DelegateTaskVariableProvider(executionService, definitionService, user, processId, taskId);
     }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("processId", processId).add("taskId", taskId).toString();
+    }
+
 }

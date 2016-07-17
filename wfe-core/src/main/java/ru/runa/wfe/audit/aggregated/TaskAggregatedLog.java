@@ -214,7 +214,7 @@ public class TaskAggregatedLog {
         this.processId = processId;
     }
 
-    @Column(name = "INITIAL_ACTOR_NAME")
+    @Column(name = "INITIAL_ACTOR_NAME", length = 1024)
     public String getInitialActorName() {
         return initialActorName;
     }
@@ -223,7 +223,7 @@ public class TaskAggregatedLog {
         this.initialActorName = initialActorName;
     }
 
-    @Column(name = "COMPLETE_ACTOR_NAME")
+    @Column(name = "COMPLETE_ACTOR_NAME", length = 1024)
     public String getCompleteActorName() {
         return completeActorName;
     }
@@ -279,7 +279,7 @@ public class TaskAggregatedLog {
         this.tokenId = tokenId;
     }
 
-    @Column(name = "NODE_ID", nullable = false)
+    @Column(name = "NODE_ID", nullable = false, length = 1024)
     public String getNodeId() {
         return nodeId;
     }
@@ -288,7 +288,7 @@ public class TaskAggregatedLog {
         this.nodeId = nodeId;
     }
 
-    @Column(name = "TASK_NAME", nullable = false)
+    @Column(name = "TASK_NAME", nullable = false, length = 1024)
     public String getTaskName() {
         return taskName;
     }
@@ -306,7 +306,7 @@ public class TaskAggregatedLog {
         this.taskIndex = taskIndex;
     }
 
-    @Column(name = "SWIMLANE_NAME")
+    @Column(name = "SWIMLANE_NAME", length = 1024)
     public String getSwimlaneName() {
         return swimlaneName;
     }

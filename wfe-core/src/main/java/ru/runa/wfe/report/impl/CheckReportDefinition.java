@@ -13,30 +13,24 @@ import ru.runa.wfe.report.ReportParameterType;
 import com.google.common.base.Strings;
 
 /**
- * Выполняет проверку корректности конфигурации отчета.
+ * Checks report configuration definition
  */
 public class CheckReportDefinition implements ReportConfigurationTypeVisitor<Boolean> {
     private final ReportAdminEditModel report;
     private final ReportAnalyzeResult analyzeResult;
 
-    public CheckReportDefinition(ReportAdminEditModel report, ReportAnalyzeResult analizeResult) {
+    public CheckReportDefinition(ReportAdminEditModel report, ReportAnalyzeResult analyzeResult) {
         this.report = report;
-        this.analyzeResult = analizeResult;
+        this.analyzeResult = analyzeResult;
     }
 
     @Override
     public Boolean onParameterBuilder() {
         if (Strings.isNullOrEmpty(report.getName())) {
-            analyzeResult.appendMessage("Не задано название отчета");
+            analyzeResult.appendMessage("Report name is not set");
         }
         if (!report.hasCompiledReport()) {
-            analyzeResult.appendMessage("Не задан файл отчёта");
-        }
-        if (!report.hasJarFile()) {
-            analyzeResult.appendMessage("Не задан jar файл");
-        }
-        if (Strings.isNullOrEmpty(report.getParameterBuilderClassName())) {
-            analyzeResult.appendMessage("Не задано название класса для предвычисления данных отчёта");
+            analyzeResult.appendMessage("Report file is not set");
         }
         return Strings.isNullOrEmpty(analyzeResult.getMessage());
     }
@@ -44,10 +38,10 @@ public class CheckReportDefinition implements ReportConfigurationTypeVisitor<Boo
     @Override
     public Boolean onRawSqlReport() {
         if (Strings.isNullOrEmpty(report.getName())) {
-            analyzeResult.appendMessage("Не задано название отчета");
+            analyzeResult.appendMessage("Report name is not set");
         }
         if (!report.hasCompiledReport()) {
-            analyzeResult.appendMessage("Не задан файл отчёта");
+            analyzeResult.appendMessage("Report file is not set");
         }
         JRParameter[] parameters;
         try {
@@ -55,17 +49,17 @@ public class CheckReportDefinition implements ReportConfigurationTypeVisitor<Boo
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(inputStream);
             parameters = jasperReport.getParameters();
         } catch (Exception e) {
-            analyzeResult.appendMessage("Формат файла отчета не распознан");
+            analyzeResult.appendMessage("Report file format is invalid");
             return false;
         }
         Set<String> reportParameters = new HashSet<String>();
         for (ReportAdminParameterEditModel param : report.getParameters()) {
             reportParameters.add(param.getInnerName());
             if (Strings.isNullOrEmpty(param.getName())) {
-                analyzeResult.appendMessage("Не задано название параметра для пользователя");
+                analyzeResult.appendMessage("The name of parameter for user is not set");
             }
             if (Strings.isNullOrEmpty(param.getInnerName())) {
-                analyzeResult.appendMessage("Не задано название параметра в отчёте");
+                analyzeResult.appendMessage("The name of the parameter in report is not set");
             }
         }
         for (JRParameter jrParam : parameters) {

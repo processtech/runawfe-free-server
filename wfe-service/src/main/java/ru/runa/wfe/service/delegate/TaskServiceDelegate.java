@@ -102,9 +102,9 @@ public class TaskServiceDelegate extends EJB3Delegate implements TaskService {
     }
 
     @Override
-    public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> newOwners) {
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners) {
         try {
-            getTaskService().delegateTask(user, taskId, currentOwner, newOwners);
+            getTaskService().delegateTask(user, taskId, currentOwner, keepCurrentOwners, newOwners);
         } catch (Exception e) {
             throw handleException(e);
         }

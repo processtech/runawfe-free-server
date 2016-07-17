@@ -10,14 +10,14 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 
+import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.HierarchyTypeSelectUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.report.web.MessagesReport;
-import ru.runa.report.web.action.AnalizeReportAction;
+import ru.runa.report.web.action.AnalyzeReportAction;
 import ru.runa.report.web.form.DeployReportForm;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.report.ReportParameterType;
@@ -87,36 +87,35 @@ public abstract class BaseReportFormTag extends TitledFormTag {
 
     private TR getHeaderRow() {
         TR tr = new TR();
-        String[] headerNames =
-                { MessagesReport.LABEL_REPORT_VAR_POSITION.message(pageContext), MessagesReport.LABEL_REPORT_VAR_USER_NAME.message(pageContext),
-                        MessagesReport.LABEL_REPORT_VAR_INTERNAL_NAME.message(pageContext),
-                        MessagesReport.LABEL_REPORT_VAR_DESCRIPTION.message(pageContext), MessagesReport.LABEL_REPORT_VAR_TYPE.message(pageContext),
-                        MessagesReport.LABEL_REPORT_VAR_REQUIRED.message(pageContext) };
+        String[] headerNames = { MessagesReport.LABEL_REPORT_VAR_POSITION.message(pageContext),
+                MessagesReport.LABEL_REPORT_VAR_USER_NAME.message(pageContext), MessagesReport.LABEL_REPORT_VAR_INTERNAL_NAME.message(pageContext),
+                MessagesReport.LABEL_REPORT_VAR_DESCRIPTION.message(pageContext), MessagesReport.LABEL_REPORT_VAR_TYPE.message(pageContext),
+                MessagesReport.LABEL_REPORT_VAR_REQUIRED.message(pageContext) };
         for (int i = 0; i < headerNames.length; i++) {
-            tr.addElement(new TH(headerNames[i]).setClass(Resources.CLASS_VIEW_SETUP_TH));
+            tr.addElement(new TH(headerNames[i]));
         }
         return tr;
     }
 
     /**
      * Create table for choosing jasper report file.
-     * 
+     *
      * @param tdFormElement
      * @param entityType
      */
     protected void createSelectJasperFileTable(TD tdFormElement, String[] entityType) {
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
-        String name = (String) pageContext.getRequest().getAttribute(AnalizeReportAction.REPORT_NAME_PARAM);
-        Input reportName = HTMLUtils.createInput(AnalizeReportAction.REPORT_NAME_PARAM, name == null ? "" : name);
+        String name = (String) pageContext.getRequest().getAttribute(AnalyzeReportAction.REPORT_NAME_PARAM);
+        Input reportName = HTMLUtils.createInput(AnalyzeReportAction.REPORT_NAME_PARAM, name == null ? "" : name);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_NAME.message(pageContext), reportName));
-        String description = (String) pageContext.getRequest().getAttribute(AnalizeReportAction.REPORT_DESCRIPTION_PARAM);
-        Input reportDescription = HTMLUtils.createInput(AnalizeReportAction.REPORT_DESCRIPTION_PARAM, description == null ? "" : description);
+        String description = (String) pageContext.getRequest().getAttribute(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM);
+        Input reportDescription = HTMLUtils.createInput(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM, description == null ? "" : description);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_DESCRIPTION.message(pageContext), reportDescription));
         String fileInput = ViewUtil.getFileInput(new StrutsWebHelper(pageContext), FileForm.FILE_INPUT_NAME, false);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_FILE.message(pageContext), new TD(fileInput)));
         ReportTypesIterator iterator = new ReportTypesIterator(getUser());
-        TD hierarchyType = HierarchyTypeSelectUtils.createHierarchyTypeSelectTD(iterator, entityType, pageContext);
+        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, entityType, pageContext);
         table.addElement(HTMLUtils.createRow(MessagesReport.LABEL_REPORT_TYPE.message(pageContext), hierarchyType));
         tdFormElement.addElement(table);
     }

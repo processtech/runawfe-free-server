@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.service.impl;
@@ -22,6 +22,7 @@ import groovy.lang.GroovyShell;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -38,7 +39,6 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.script.AdminScriptException;
 import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
 import ru.runa.wfe.script.AdminScriptRunner;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
@@ -48,19 +48,28 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
+import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, CacheReloader.class, PerformanceObserver.class, EjbTransactionSupport.class,
-        SpringBeanAutowiringInterceptor.class })
+    SpringBeanAutowiringInterceptor.class })
 @WebService(name = "ScriptingAPI", serviceName = "ScriptingWebService")
 @SOAPBinding
 public class ScriptingServiceBean implements ScriptingService {
     @Autowired
     private AdminScriptRunner runner;
+    private static final Set<String> SYSTEM_EXECUTOR_NAMES = Sets.newHashSet();
+    static {
+        SYSTEM_EXECUTOR_NAMES.add(SystemProperties.getAdministratorName());
+        SYSTEM_EXECUTOR_NAMES.add(SystemProperties.getAdministratorsGroupName());
+        SYSTEM_EXECUTOR_NAMES.add(SystemProperties.getBotsGroupName());
+        SYSTEM_EXECUTOR_NAMES.add(SystemExecutors.PROCESS_STARTER_NAME);
+    }
 
     @Override
     @WebMethod(exclude = true)
@@ -69,6 +78,11 @@ public class ScriptingServiceBean implements ScriptingService {
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
             @Override
             public void handle(Throwable th) {
+                if (th instanceof ExecutorAlreadyExistsException) {
+                    if (SYSTEM_EXECUTOR_NAMES.contains(((ExecutorAlreadyExistsException) th).getExecutorName())) {
+                        return;
+                    }
+                }
                 Throwables.propagate(th);
             }
         });
@@ -82,13 +96,12 @@ public class ScriptingServiceBean implements ScriptingService {
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
             @Override
             public void handle(Throwable th) {
-                if (!(th instanceof AdminScriptException)) {
-                    Throwables.propagate(th);
+                if (th instanceof ExecutorAlreadyExistsException) {
+                    if (SYSTEM_EXECUTOR_NAMES.contains(((ExecutorAlreadyExistsException) th).getExecutorName())) {
+                        return;
+                    }
                 }
-
-                if (!(th.getCause() instanceof ExecutorAlreadyExistsException)) {
-                    errors.add(th.getMessage());
-                }
+                errors.add(th.getMessage());
             }
         });
         return errors;

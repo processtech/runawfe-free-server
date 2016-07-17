@@ -9,10 +9,12 @@ import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.CreateTimerActionLog;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessLogVisitor;
 import ru.runa.wfe.audit.ProcessStartLog;
+import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.audit.ReceiveMessageLog;
 import ru.runa.wfe.audit.SendMessageLog;
 import ru.runa.wfe.audit.SubprocessEndLog;
@@ -60,6 +62,14 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
             return;
         }
         hibernateTemplate.save(new ProcessInstanceAggregatedLog(processStartLog, process, token));
+    }
+
+    @Override
+    public void onProcessActivateLog(ProcessActivateLog processActivateLog) {
+    }
+
+    @Override
+    public void onProcessSuspendLog(ProcessSuspendLog processSuspendLog) {
     }
 
     @Override
