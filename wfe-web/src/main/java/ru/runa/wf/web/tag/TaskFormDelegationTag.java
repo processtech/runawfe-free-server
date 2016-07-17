@@ -1,5 +1,7 @@
 package ru.runa.wf.web.tag;
 
+import javax.servlet.jsp.PageContext;
+
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.Button;
@@ -9,8 +11,10 @@ import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.common.web.Commons;
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wfe.user.logic.ExecutorLogic;
 
 /**
  * Created on 27.03.2015
@@ -22,7 +26,6 @@ public class TaskFormDelegationTag extends VisibleTag {
     private static final long serialVersionUID = 1L;
 
     private Long taskId;
-    private String tasksIds;
 
     @Override
     protected ConcreteElement getEndElement() {
@@ -33,13 +36,22 @@ public class TaskFormDelegationTag extends VisibleTag {
         col.setAlign("right");
 
         Button button = new Button();
-        button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASK.message(pageContext)));
         button.addAttribute("data-taskid", taskId.intValue());
-        button.addAttribute("data-tasksIds", tasksIds); // Add tasks IDs
         button.setOnClick("delegateTaskDialog(this)");
+        
+        String tasksIds = (String)pageContext.getAttribute("tasksIds", PageContext.REQUEST_SCOPE);
+        String user = (String)Commons.getUser(pageContext.getSession()).getName();
+        // TODO provide multiple delegation ability to all members of Administrators group
+        if (tasksIds != null && taskId == -1L && user.equals("Administrator")) {
+        	button.addAttribute("data-tasksIds", tasksIds);
+        	button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASKS.message(pageContext)));
+        } else if (taskId != -1L) {
+            button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASK.message(pageContext)));
+        } else {
+        	return table; // Empty Table in this case
+        }
 
         col.addElement(button);
-
         row.addElement(col);
         table.addElement(row);
 
@@ -59,15 +71,6 @@ public class TaskFormDelegationTag extends VisibleTag {
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
-    
-    public String getTasksIds() {
-        return tasksIds;
-    }
-
-    @Attribute(required = false, rtexprvalue = true)
-    public void setTasksIds(String tasksIds) {
-        this.tasksIds = tasksIds;
-    }
-    
+     
     
 }

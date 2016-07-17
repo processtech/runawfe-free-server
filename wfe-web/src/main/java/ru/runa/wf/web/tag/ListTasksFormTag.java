@@ -66,9 +66,6 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     private static boolean isButtonEnabled;
 
     private static final String[] NO_PREFIX_HEADER_NAMES = new String[0];
-    
-    @Attribute(required = false, rtexprvalue = true)
-    public static String tasksIds; //<<<?MAV Does static field good decision?  
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
@@ -79,12 +76,17 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
-        // Build tasks ID-s string (in JSON for common purposes)
-        List<Long> ids = new ArrayList<Long>(tasks.size());
-        for(WfTask tsk : tasks){
-        	ids.add(tsk.getId());
+        
+        // Build current tasks ID-s string (in JSON format for common purposes)
+        String batchName = batchPresentation.getName();
+        if (!batchName.equals("label.batch_presentation_default_name")) {
+	        List<Long> ids = new ArrayList<Long>(tasks.size());
+	        for(WfTask tsk : tasks){
+	        	ids.add(tsk.getId());
+	        }
+	        String tasksIds = JSONValue.toJSONString(ids);
+	        pageContext.setAttribute("tasksIds", tasksIds, PageContext.REQUEST_SCOPE);
         }
-        tasksIds = JSONValue.toJSONString(ids);
    }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
@@ -168,14 +170,4 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         return ConfirmationPopupHelper.ACCEPT_TASK_PARAMETER;
     }
     
-    
-//    public String getTasksIds() {
-//        return tasksIds;
-//    }
-//
-//    @Attribute(required = false, rtexprvalue = true)
-//    public void setTasksIds(String tasks) {
-//        this.tasksIds = tasks;
-//    }
- 
 }

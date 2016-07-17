@@ -42,7 +42,9 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
@@ -67,6 +69,11 @@ public class CommonLogic {
     protected <T extends Executor> T checkPermissionsOnExecutor(User user, T executor, Permission permission) {
         if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.READ)) {
             return executor;
+        }
+        if (executor instanceof TemporaryGroup && permission.equals(Permission.READ)) {
+            if (executorDAO.isExecutorInGroup(user.getActor(), (Group) executor)) {
+                return executor;
+            }
         }
         checkPermissionAllowed(user, executor, permission);
         return executor;
@@ -115,13 +122,13 @@ public class CommonLogic {
     /**
      * Load objects list according to {@linkplain BatchPresentation} with permission check for subject.
      * 
-     * @param subject
-     *            Current actor {@linkplain Subject}.
+     * @param user
+     *            Current actor {@linkplain User}.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load objects.
      * @param permission
      *            {@linkplain Permission}, which current actor must have on loaded objects.
-     * @param securedObjectClasses
+     * @param securedObjectTypes
      *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
      *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
      * @param enablePaging
@@ -137,13 +144,13 @@ public class CommonLogic {
     /**
      * Load objects count according to {@linkplain BatchPresentation} with permission check for subject.
      * 
-     * @param subject
-     *            Current actor {@linkplain Subject}.
+     * @param user
+     *            Current actor {@linkplain User}.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load objects count.
      * @param permission
      *            {@linkplain Permission}, which current actor must have on loaded objects.
-     * @param securedObjectClasses
+     * @param securedObjectTypes
      *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
      *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
      * @return Objects count, which will be loaded according to {@linkplain BatchPresentation}.

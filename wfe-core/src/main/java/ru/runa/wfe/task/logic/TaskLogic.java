@@ -264,15 +264,17 @@ public class TaskLogic extends WFCommonLogic {
     * Delegates the Tasks (by taskIds) to new owners.
      * @param user 			- Current user
      * @param taskIds 		- Delegated Tasks (by taskIds)
-     * @param currentOwner 	- Current tasks Owner (assumed the same for all tasks - according to Delegation logic)
+     * @param currentOwnerParam 	- Current tasks Owner (assumed the same for all tasks - according to Delegation logic)
      * @param newOwners 	- new Owners for tasks
      * @throws TaskAlreadyAcceptedException
      */
-	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwner,  List<? extends Executor> newOwners)
+	public void delegateTasks(User user, Set<Long> taskIds, Executor currentOwnerParam,  List<? extends Executor> newOwners)
 			throws TaskAlreadyAcceptedException {
 		for (Long taskId : taskIds) {
 	        Task task = taskDAO.getNotNull(taskId);
-	        // TODO: Maybe refactored to single Delegation Group (before cycle). Now impossible due to Process link in temporary delegation group.
+	        // We get currentOwner just from task, ignoring currentOwnerParam, that left for compatability with former usage 
+	        Executor currentOwner = task.getExecutor();
+	        // TODO: Good thought - refactor to single Delegation Group (before cycle). Now impossible due to Process link in temporary delegation group.
 	        DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task); 
 			delegateTaskInner(user, task, currentOwner, newOwners, delegationGroup);
 		}

@@ -125,7 +125,6 @@ public class ExecutorLogic extends CommonLogic {
         }
     }
 
-
     public void remove(User user, List<Long> ids) {
         List<Executor> executors = getExecutors(user, ids);
         checkPermissionsOnExecutors(user, executors, ExecutorPermission.UPDATE);
@@ -370,25 +369,5 @@ public class ExecutorLogic extends CommonLogic {
             }
         }
     }
-
-    /**
-     * Checks if any of executors has name that is one of the names
-     * @param executors
-     *              Set of Executors to test if any has one of the names
-     * @param names
-     *              Array of tested names
-     * @return true if any of Executors are one of the Names
-     */
-    public boolean anyoneOfAnyName(Set<Executor> executors, String[] names){
-        for (Executor executor : executors){
-            for(String name : names) {
-                if (executor.getName().equals(name)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
 
 }

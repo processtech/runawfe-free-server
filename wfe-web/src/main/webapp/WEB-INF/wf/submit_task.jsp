@@ -32,13 +32,12 @@
 <tiles:put name="body" type="string" >
 <%
 	long taskId = Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME));
-	String tasksIds = "[" + request.getParameter(IdForm.ID_INPUT_NAME) + "]";
 	long actorId =  Long.parseLong(request.getParameter(ProcessForm.ACTOR_ID_INPUT_NAME));
 	String title = ru.runa.common.web.Commons.getMessage("title.task_form", pageContext);
 %>
 <wf:taskDetails batchPresentationId="listTasksForm" title="<%= title %>" taskId="<%= taskId %>" actorId="<%= actorId %>" buttonAlignment="right" action="/processTaskAssignment" returnAction="/submitTaskDispatcher.do"/>
 <% if (WebResources.isTaskDelegationEnabled()) { %>
-	<wf:taskFormDelegationButton taskId="<%= taskId %>" tasksIds="<%= tasksIds %>"/>
+	<wf:taskFormDelegationButton taskId="<%= taskId %>" />
 <% } %>
 <wf:taskForm title="<%= title %>" taskId="<%= taskId %>" actorId="<%= actorId %>" action="/submitTaskForm" />
 

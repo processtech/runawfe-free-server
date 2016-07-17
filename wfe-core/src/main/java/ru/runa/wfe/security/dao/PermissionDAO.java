@@ -252,7 +252,7 @@ public class PermissionDAO extends CommonDAO {
     }
 
     private Set<Executor> getExecutorWithAllHisGroups(Executor executor) {
-        Set<Executor> set = new HashSet<Executor>(executorDAO.getExecutorParentsAll(executor, true));
+        Set<Executor> set = new HashSet<Executor>(executorDAO.getExecutorParentsAll(executor, false));
         set.add(executor);
         return set;
     }

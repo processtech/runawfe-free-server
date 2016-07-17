@@ -88,8 +88,6 @@ public class TaskListBuilder implements ITaskListBuilder {
     private ProcessDAO processDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
-    @Autowired
-    private ExecutorLogic executorLogic;
 
     public TaskListBuilder(TaskCache cache) {
         taskCache = cache;
@@ -116,7 +114,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         @SuppressWarnings("unchecked")
     	List<Task> tasks = null;
         // For Administrators - load all tasks, for others - filtered for them only.
-        if (!executorLogic.anyoneOfAnyName(executorsToGetTasksByMembership, new String[] {"Administrators"}) || actor.getName().equals("StopBot")){
+        if (!anyoneOfTheName(executorsToGetTasksByMembership, "Administrators") || actor.getName().equals("StopBot")){
             tasks = LoadTasks(batchPresentation, executorsToGetTasks);
         } else {
         	// Loading all tasks
@@ -235,7 +233,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
         // For Administrators - return all tasks here. (Filtered on BatchPresentation level if needed).
         if (executorsToGetTasksByMembership.contains(taskExecutor)
-                || executorLogic.anyoneOfAnyName(executorsToGetTasksByMembership, new String[] {"Administrators"})) {
+                || anyoneOfTheName(executorsToGetTasksByMembership, "Administrators")) {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return taskObjectFactory.create(task, actor, false, batchPresentation.getDynamicFieldsToDisplay(true));
         }
@@ -411,5 +409,21 @@ public class TaskListBuilder implements ITaskListBuilder {
         return false;
     }
 
+    /**
+     * Checks if any of executors has the name
+     * @param executors
+     *              Set of Executors to test if any has one of the names
+     * @param name
+     *              name to test
+     * @return true if any of Executors are one of the Names
+     */
+    public boolean anyoneOfTheName(Set<Executor> executors, String name){
+        for (Executor executor : executors){
+            if (executor.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

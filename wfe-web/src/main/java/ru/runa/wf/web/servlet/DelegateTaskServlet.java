@@ -59,24 +59,29 @@ public class DelegateTaskServlet extends HttpServlet {
             JSONArray executorIds = (JSONArray) parameters.get("executors");
             keepCurrent = (Boolean) parameters.get("keepCurrent");
             taskId = (Long) parameters.get("taskId");
-            JSONArray tasksIds = (JSONArray)JSONValue.parse((String)parameters.get("tasksIds"));
-
             for (Object executorId : executorIds) {
                 executors.add((Long) executorId);
             }
-            for (Object task : tasksIds) {
-            	tasks.add((Long) task);
+            String tasksIdsParam = (String)parameters.get("tasksIds");
+            if (tasksIdsParam != null) {
+            	JSONArray tasksIds = (JSONArray)JSONValue.parse(tasksIdsParam);
+                for (Object task : tasksIds) {
+                	tasks.add((Long) task);
+                }
             }
         } catch (Exception e) {
             log.error("Bad request", e);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        
+
+        // taskId == -1L - means that single delegation are processed. We stick it to one case with multiple delegation
         if (taskId != -1L){
         	tasks.add(taskId);
         }
-        
+
+        // currentOwner are got in assumption that all delegated tasks was assigned to the same executor.
+        // If not - let it go as is, it will be adjusted in TaskLogic.
         WfTask task = Delegates.getTaskService().getTask(user, tasks.iterator().next());
         Executor currentOwner = task.getOwner();
 

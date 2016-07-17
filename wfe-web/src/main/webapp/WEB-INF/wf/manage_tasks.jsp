@@ -68,15 +68,9 @@
 	</div> 
 </wf:listTasksForm>
 
-<% Long actorId = ru.runa.common.web.Commons.getUser(session).getActor().getId();
-/*ExecutorLogic el = new ExecutorLogic(); 
-Boolean isAdmin = el.isAdministrator(ru.runa.common.web.Commons.getUser(session));
-//out.println(isAdmin.toString() + "!!! "); */
-%>
- 
-<% if (WebResources.isTaskDelegationEnabled() && actorId==1L) { 
-	String tasksIds = ListTasksFormTag.tasksIds; %>
-		<wf:taskFormDelegationButton taskId="<%= -1L %>" tasksIds="<%= tasksIds %>"/>
+<% if (WebResources.isTaskDelegationEnabled()) { %>
+	<%-- taskId = -1L - means that multiple delegation are processed --%>
+	<wf:taskFormDelegationButton taskId="<%= -1L %>" />
 <% } %>
 
 
