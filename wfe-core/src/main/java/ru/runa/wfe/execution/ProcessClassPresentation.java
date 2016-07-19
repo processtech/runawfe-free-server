@@ -19,8 +19,6 @@ package ru.runa.wfe.execution;
 
 import java.util.Date;
 
-import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.DBType;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
@@ -50,6 +48,7 @@ public class ProcessClassPresentation extends ClassPresentation {
     public static final String TASK_CREATE_DATE = "batch_presentation.process.task.create_date";
     public static final String TASK_TAKE_DATE = "batch_presentation.process.task.take_date";
     public static final String TASK_DEADLINE = "batch_presentation.process.task.dedline";
+    public static final String PROCESS_EXECUTION_STATUS = "batch_presentation.process.execution_status";
     public static final String PROCESS_VARIABLE = editable_prefix + "name:batch_presentation.process.variable";
 
     private static final ClassPresentation INSTANCE = new ProcessClassPresentation();
@@ -134,8 +133,6 @@ public class ProcessClassPresentation extends ClassPresentation {
 
     private ProcessClassPresentation() {
         super(Process.class, "", true, new FieldDescriptor[] {
-                // display name field type DB source isSort filter mode get
-                // value/show in web getter param
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDBSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "id" }),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDBSource(Process.class, "deployment.name"), true,
@@ -164,6 +161,8 @@ public class ProcessClassPresentation extends ClassPresentation {
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessTaskTakeDateTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new ChildDBSource(Task.class, "deadlineDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessDeadLineTDBuilder", new Object[] {}),
+                new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDBSource(Process.class, "executionStatus"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTDBuilder", new Object[] {}),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(),
                         new SubProcessDBSource[] { new SubProcessDBSource(Process.class, "hierarchyIds") }, true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}, true),

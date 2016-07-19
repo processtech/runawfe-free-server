@@ -115,6 +115,18 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
     @Override
     @SuppressWarnings("unchecked")
     public V get(K key) {
+        V value = getImpl(key);
+        return value;
+    }
+
+    /**
+     * Try to get element from cache.
+     * 
+     * @param key
+     *            Key to load cached object.
+     * @return Cached element or null, if not found.
+     */
+    private V getImpl(K key) {
         Cache cache = ehcache;
         if (cache == null) {
             return localStorage.get(key);

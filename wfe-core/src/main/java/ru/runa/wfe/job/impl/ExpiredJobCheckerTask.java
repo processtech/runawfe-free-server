@@ -15,12 +15,10 @@ public class ExpiredJobCheckerTask extends JobTask<JobTransactionalExecutor> {
     protected void execute() throws Exception {
         List<Job> jobs = jobDAO.getExpiredJobs();
         log.debug("Expired jobs: " + jobs.size());
-        if (jobs.size() > 0) {
-            for (Job job : jobDAO.getExpiredJobs()) {
-                JobTransactionalExecutor transactionalExecutor = getTransactionalExecutor();
-                transactionalExecutor.setJobId(job.getId());
-                transactionalExecutor.executeInTransaction(false);
-            }
+        for (Job job : jobs) {
+            JobTransactionalExecutor transactionalExecutor = getTransactionalExecutor();
+            transactionalExecutor.setJobId(job.getId());
+            transactionalExecutor.executeInTransaction(false);
         }
     }
 

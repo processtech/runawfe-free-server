@@ -54,9 +54,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- * 
+ *
  * Created on 21.02.2007
- * 
+ *
  */
 public class FormPresentationUtils {
     private static final Log log = LogFactory.getLog(FormPresentationUtils.class);
@@ -79,7 +79,7 @@ public class FormPresentationUtils {
     private static final String CHECKED_ATTR = "checked";
     private static final String SELECTED_ATTR = "selected";
     private static final String CSS_CLASS_ATTR = "class";
-    private static final String ERROR_CONTAINER = "span";
+    private static final String ERROR_CONTAINER = "div";
 
     public static String adjustUrls(PageContext pageContext, Long definitionId, String htmlHref, byte[] originalBytes) {
         Document document = HTMLUtils.readHtml(originalBytes);
@@ -314,14 +314,14 @@ public class FormPresentationUtils {
 
     /**
      * Rules:
-     * 
+     *
      * 1) don't handling multiple input (we cannot do this properly; they are handled in according tags.
-     * 
+     *
      * 2) Don't fill long strings due to java.lang.ArrayIndexOutOfBoundsException at java.lang.String.getChars(String.java:854) at
      * org.apache.xml.serializer.WriterToUTF8Buffered .write(WriterToUTF8Buffered.java:347)
-     * 
+     *
      * 3) User input has precedence on variables
-     * 
+     *
      * @param valueArray
      *            http values
      * @return <code>null</code> or replacement value
@@ -343,8 +343,7 @@ public class FormPresentationUtils {
     private static String getErrorText(PageContext pageContext, Map<String, String> errors, String inputName) {
         String errorText = errors.get(inputName);
         if (errorText == null) {
-            errorText = Commons
-                    .getMessage(MessagesException.MESSAGE_VARIABLE_FORMAT_ERROR.getKey(), pageContext, new Object[] { inputName });
+            errorText = Commons.getMessage(MessagesException.MESSAGE_VARIABLE_FORMAT_ERROR.getKey(), pageContext, new Object[] { inputName });
         }
         if (errorText.trim().length() == 0) {
             errorText = Commons.getMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey(), pageContext);

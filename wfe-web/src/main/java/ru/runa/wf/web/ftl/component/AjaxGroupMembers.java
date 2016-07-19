@@ -52,8 +52,8 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
         substitutions.put("userSelectorId", userScriptingVariableName);
         StringBuffer html = new StringBuffer();
         html.append(exportScript(substitutions, true));
-        html.append("<span class=\"ajaxGroupMembers\">");
-        html.append("<span id=\"ajaxGroupMembers_").append(groupScriptingVariableName).append("\">");
+        html.append("<div class=\"ajaxGroupMembers\">");
+        html.append("<div id=\"ajaxGroupMembers_").append(groupScriptingVariableName).append("\">");
         html.append("<select id=\"").append(groupScriptingVariableName).append("\" name=\"").append(groupVariableName);
         html.append("\" style=\"width: auto;\">");
         List<Group> groups = (List<Group>) Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.GROUPS.createNonPaged());
@@ -71,10 +71,10 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
             }
             html.append(">").append(group.getName()).append("</option>");
         }
-        html.append("</select></span>");
-        html.append("<span id=\"ajaxGroupMembers_").append(userScriptingVariableName).append("\">");
+        html.append("</select></div>");
+        html.append("<div id=\"ajaxGroupMembers_").append(userScriptingVariableName).append("\">");
         html.append("<select id=\"").append(userScriptingVariableName).append("\" name=\"").append(userVariableName)
-                .append("\" style=\"width: auto;\">");
+        .append("\" style=\"width: auto;\">");
         if (defaultGroup != null) {
             List<Actor> actors = Delegates.getExecutorService().getGroupActors(user, defaultGroup);
             Actor defaultActor = variableProvider.getValue(Actor.class, userVariableName);
@@ -96,8 +96,8 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
         } else {
             html.append("<option value=\"\"></option>");
         }
-        html.append("</select></span>");
-        html.append("</span>");
+        html.append("</select></div>");
+        html.append("</div>");
         return html.toString();
     }
 

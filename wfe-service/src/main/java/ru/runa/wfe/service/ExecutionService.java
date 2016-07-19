@@ -201,8 +201,7 @@ public interface ExecutionService {
      * @param processId
      *            process id
      * @param processId
-     *            task id. Task may have some additional variables (such as
-     *            descriminator value for multiTask)
+     *            task id. Task may have some additional variables (such as descriminator value for multiTask)
      * @param variableName
      *            variable name
      * @return variable or <code>null</code>
@@ -295,8 +294,7 @@ public interface ExecutionService {
     public List<ProcessError> getProcessErrors(User user, Long processId);
 
     /**
-     * Upgrades running process to specified version of deployed definition.
-     * This is not safe operation, use it with caution.
+     * Upgrades running process to specified version of deployed definition. This is not safe operation, use it with caution.
      *
      * @return false if version equal to current process definition version
      */
@@ -315,5 +313,25 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public List<WfJob> getProcessJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
+
+    /**
+     * Activates suspended process by id.
+     *
+     * @param user
+     *            authorized user
+     * @param id
+     *            process id
+     */
+    public void activateProcess(User user, Long processId);
+
+    /**
+     * Suspends active process by id.
+     *
+     * @param user
+     *            authorized user
+     * @param id
+     *            process id
+     */
+    public void suspendProcess(User user, Long processId);
 
 }

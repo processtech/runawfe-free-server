@@ -423,11 +423,12 @@
 		</property>
 	</bean>
 
-
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 	
 	<bean id="executionContextFactory" class="ru.runa.wfe.execution.DefaultExecutionContextFactory" />
 	
 	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
+	
+	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JMSNodeAsyncExecutor" />
 	
 </beans>

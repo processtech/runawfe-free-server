@@ -21,6 +21,7 @@ import ru.runa.wfe.commons.dao.SettingDAO;
 import ru.runa.wfe.commons.hibernate.Converters;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.dao.JobDAO;
@@ -91,6 +92,10 @@ public class ApplicationContextFactory {
 
     public static IProcessDefinitionLoader getProcessDefinitionLoader() {
         return getContext().getBean(IProcessDefinitionLoader.class);
+    }
+
+    public static INodeAsyncExecutor getNodeAsyncExecutor() {
+        return getContext().getBean(INodeAsyncExecutor.class);
     }
 
     // TODO avoid static methods, inject

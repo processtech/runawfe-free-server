@@ -26,6 +26,7 @@ import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
@@ -38,7 +39,7 @@ import com.google.common.collect.Lists;
 
 public abstract class Node extends GraphElement {
     private static final long serialVersionUID = 1L;
-
+    private Boolean asyncExecution;
     private final List<Transition> leavingTransitions = Lists.newArrayList();
     private final List<Transition> arrivingTransitions = Lists.newArrayList();
     private boolean graphMinimazedView;
@@ -57,6 +58,14 @@ public abstract class Node extends GraphElement {
         }
     }
 
+    public Boolean getAsyncExecution() {
+        return asyncExecution;
+    }
+
+    public void setAsyncExecution(Boolean asyncExecution) {
+        this.asyncExecution = asyncExecution;
+    }
+
     public List<Transition> getLeavingTransitions() {
         return leavingTransitions;
     }
@@ -73,8 +82,7 @@ public abstract class Node extends GraphElement {
     }
 
     /**
-     * creates a bidirection relation between this node and the given leaving
-     * transition.
+     * creates a bidirection relation between this node and the given leaving transition.
      *
      * @throws IllegalArgumentException
      *             if leavingTransition is null.
@@ -93,16 +101,14 @@ public abstract class Node extends GraphElement {
     /**
      * checks for the presence of a leaving transition with the given name.
      *
-     * @return true if this node has a leaving transition with the given name,
-     *         false otherwise.
+     * @return true if this node has a leaving transition with the given name, false otherwise.
      */
     public boolean hasLeavingTransition(String transitionName) {
         return getLeavingTransition(transitionName) != null;
     }
 
     /**
-     * retrieves a leaving transition by name. note that also the leaving
-     * transitions of the supernode are taken into account.
+     * retrieves a leaving transition by name. note that also the leaving transitions of the supernode are taken into account.
      */
     public Transition getLeavingTransition(String transitionName) {
         Preconditions.checkNotNull(transitionName, "transitionName");
@@ -138,8 +144,7 @@ public abstract class Node extends GraphElement {
     }
 
     /**
-     * add a bidirection relation between this node and the given arriving
-     * transition.
+     * add a bidirection relation between this node and the given arriving transition.
      *
      * @throws IllegalArgumentException
      *             if t is null.
@@ -179,25 +184,38 @@ public abstract class Node extends GraphElement {
         // fire the leave-node event for this node
         fireEvent(executionContext, Event.NODE_ENTER);
         executionContext.addLog(new NodeEnterLog(this));
-        execute(executionContext);
+        boolean async = getAsyncExecution(executionContext);
+        if (async) {
+            ApplicationContextFactory.getNodeAsyncExecutor().execute(token.getProcess().getId(), token.getId());
+        } else {
+            execute(executionContext);
+        }
+    }
+
+    private boolean getAsyncExecution(ExecutionContext executionContext) {
+        if (asyncExecution != null) {
+            return asyncExecution;
+        }
+        if (executionContext.getProcessDefinition().getNodeAsyncExecution() != null) {
+            return executionContext.getProcessDefinition().getNodeAsyncExecution();
+        }
+        return SystemProperties.isProcessExecutionNodeAsyncEnabled(getNodeType());
     }
 
     /**
-     * override this method to customize the node behaviour.
+     * override this method to customize the node behavior.
      */
-    protected abstract void execute(ExecutionContext executionContext);
+    public abstract void execute(ExecutionContext executionContext);
 
     /**
-     * called by the implementation of this node to continue execution over the
-     * default transition.
+     * called by the implementation of this node to continue execution over the default transition.
      */
     public final void leave(ExecutionContext executionContext) {
         leave(executionContext, null);
     }
 
     /**
-     * called by the implementation of this node to continue execution over the
-     * given transition.
+     * called by the implementation of this node to continue execution over the given transition.
      */
     public void leave(ExecutionContext executionContext, Transition transition) {
         Token token = executionContext.getToken();
