@@ -17,8 +17,8 @@ public class ReportParameterValidateOperation implements ReportParameterTypeVisi
             Long.parseLong(parameterModel.getValue());
             return ParameterValidationResult.correctValidationResult();
         } catch (Exception e) {
-            return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Значение " + parameterModel.getValue()
-                    + " не является числовым");
+            return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Value " + parameterModel.getValue()
+                    + " is not all digits");
         }
     }
 
@@ -28,8 +28,8 @@ public class ReportParameterValidateOperation implements ReportParameterTypeVisi
             CalendarUtil.convertToDate(parameterModel.getValue(), CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
             return ParameterValidationResult.correctValidationResult();
         } catch (Exception e) {
-            return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Значение " + parameterModel.getValue()
-                    + " не является корректной датой");
+            return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Value " + parameterModel.getValue()
+                    + " is not correct date");
         }
     }
 
@@ -43,7 +43,7 @@ public class ReportParameterValidateOperation implements ReportParameterTypeVisi
             Boolean.parseBoolean(value);
             return ParameterValidationResult.correctValidationResult();
         } catch (Exception e) {
-            return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Значение " + value + " не является boolean");
+            return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Value " + value + " is not boolean");
         }
     }
 

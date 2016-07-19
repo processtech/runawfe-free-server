@@ -27,7 +27,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import com.google.common.base.Joiner;
 
 /**
- * DTO для описания отчета.
+ * DTO for report description.
  */
 
 @Entity
@@ -37,33 +37,32 @@ public class ReportDefinition {
     private Long id;
     private Long version;
     /**
-     * Название отчета, отображаемое пользователю.
+     * Report name that is shown to user.
      */
     private String name;
 
     /**
-     * Описание отчета, отображаемое пользователю.
+     * Report description that is shown to user.
      */
     private String description;
 
     /**
-     * Набор параметров, которые требуется запросить у пользователя для
-     * построения отчета.
+     * Parameters set that is required for user to input in order to build report.
      */
     private List<ReportParameter> parameters;
 
     /**
-     * Скомпилированный (.jasper) отчет jasper reports.
+     * Compiled (.jasper) jasper reports.
      */
     private byte[] compiledReport;
 
     /**
-     * Тип конфигурации и построения отчета.
+     * Configuration and report construction type.
      */
     private ReportConfigurationType configType;
 
     /**
-     * Категория (тип) отчета.
+     * Report category (type).
      */
     private String category;
 

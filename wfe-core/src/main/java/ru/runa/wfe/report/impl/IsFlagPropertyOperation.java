@@ -3,7 +3,7 @@ package ru.runa.wfe.report.impl;
 import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
 
 /**
- * Операция, проверяющая что параметр указанного типа должен выбираться через выпадающий список.
+ * Check that parameter of defined type is selected from dropdown list.
  */
 public class IsFlagPropertyOperation implements ReportParameterTypeVisitor<Boolean, Object> {
 

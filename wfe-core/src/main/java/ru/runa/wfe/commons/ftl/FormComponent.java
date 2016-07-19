@@ -70,7 +70,7 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
     }
 
     /**
-     * @return название компонента
+     * @return component name
      */
     public String getName() {
         return getClass().getSimpleName();

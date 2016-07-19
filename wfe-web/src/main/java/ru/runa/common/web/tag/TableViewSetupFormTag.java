@@ -115,8 +115,6 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             TD td = new TD();
             td.setColSpan(6);
             tr.addElement(td);
-            td.setClass(Resources.CLASS_VIEW_SETUP_TD);
-            // td.addElement(Entities.NBSP);
             td.addElement(MessagesBatch.VIEW_SIZE.message(pageContext));
             td.addElement(Entities.NBSP);
             Select selectSize = new Select(TableViewSetupForm.VIEW_SIZE_NAME);
@@ -153,7 +151,6 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         TD td = new TD();
         td.setColSpan(6);
         tr.addElement(td);
-        td.setClass(Resources.CLASS_VIEW_SETUP_TD);
 
         if (isAdmin || !activeBatchPresentation.isShared()) {
             // user cannot update shared batch presentation
@@ -253,6 +250,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         boolean isEditable = field.displayName.startsWith(ClassPresentation.editable_prefix);
         boolean isDynamic = field.displayName.startsWith(ClassPresentation.removable_prefix);
         boolean isFilterable = field.displayName.startsWith(ClassPresentation.filterable_prefix);
+        tr.addAttribute("field", field.displayName);
 
         { // field name section
             TD td = null;
@@ -275,20 +273,19 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             } else {
                 td = new TD(Messages.getMessage(field.displayName, pageContext));
             }
-            td.setClass(Resources.CLASS_VIEW_SETUP_TD);
             td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.IDS_INPUT_NAME, String.valueOf(fieldIdx)));
             tr.addElement(td);
         }
         if (isEditable || isFilterable) { // Editable fields havn't fields for
             // sorting/filtering e t.c.
             for (int idx = 0; idx < 5; ++idx) {
-                tr.addElement(new TD().setClass(Resources.CLASS_VIEW_SETUP_TD));
+                tr.addElement(new TD());
             }
             return tr;
         }
         { // field display position section
             Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS, createPositionOptions(batchPresentation, fieldIdx));
-            tr.addElement(new TD(displayFieldPositionSelect).setClass(Resources.CLASS_VIEW_SETUP_TD));
+            tr.addElement(new TD(displayFieldPositionSelect));
             if (fieldDisplayPosition >= 0 && !isEditable) {
                 displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
             } else {
@@ -298,22 +295,20 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         {// field sorting/groupping section
             if (field.isSortable) {
                 Select sortingModeSelect = new Select(TableViewSetupForm.SORTING_MODE_NAMES, createSortModeOptions());
-                tr.addElement(new TD(sortingModeSelect).setClass(Resources.CLASS_VIEW_SETUP_TD));
+                tr.addElement(new TD(sortingModeSelect));
                 Select sortingFieldPositoinSelect = new Select(TableViewSetupForm.SORTING_POSITIONS, createPositionOptions(batchPresentation,
                         fieldIdx));
-                tr.addElement(new TD(sortingFieldPositoinSelect).setClass(Resources.CLASS_VIEW_SETUP_TD));
+                tr.addElement(new TD(sortingFieldPositoinSelect));
                 selectSortingMode(batchPresentation, fieldIdx, sortingModeSelect, sortingFieldPositoinSelect);
 
                 Input groupingInput = new Input(Input.CHECKBOX, TableViewSetupForm.GROUPING_POSITIONS, fieldIdx);
                 if (batchPresentation.isFieldGroupped(fieldIdx)) {
                     groupingInput.setChecked(true);
                 }
-                tr.addElement(new TD(groupingInput).addElement(
-                        new Input(Input.HIDDEN, TableViewSetupForm.SORTING_FIELD_IDS, String.valueOf(fieldIdx))).setClass(
-                        Resources.CLASS_VIEW_SETUP_TD));
+                tr.addElement(new TD(groupingInput).addElement(new Input(Input.HIDDEN, TableViewSetupForm.SORTING_FIELD_IDS, String.valueOf(fieldIdx))));
             } else {
                 for (int idx = 0; idx < 3; ++idx) {
-                    tr.addElement(new TD().setClass(Resources.CLASS_VIEW_SETUP_TD));
+                    tr.addElement(new TD());
                 }
             }
         }
@@ -325,7 +320,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                     batchPresentation.isFieldFiltered(fieldIdx)).addElement(
                     new Input(Input.HIDDEN, TableViewSetupForm.FILTERING_FIELD_IDS, String.valueOf(fieldIdx))));
         } else {
-            tr.addElement(new TD().setClass(Resources.CLASS_VIEW_SETUP_TD));
+            tr.addElement(new TD());
         }
 
         return tr;
@@ -385,7 +380,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 MessagesBatch.FILTER_CRITERIA.message(pageContext)
                         + " <a href='javascript:showFiltersHelp();' style='color: red; text-decoration: none;'>*</a>" };
         for (int i = 0; i < headerNames.length; i++) {
-            tr.addElement(new TH(headerNames[i]).setClass(Resources.CLASS_VIEW_SETUP_TH));
+            tr.addElement(new TH(headerNames[i]));
         }
         return tr;
     }

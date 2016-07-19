@@ -43,6 +43,7 @@ public class Utils {
     private static ConnectionFactory connectionFactory;
     private static Queue bpmMessageQueue;
     private static Queue emailQueue;
+    private static Queue nodeAsyncExecutionQueue;
 
     private static InitialContext getInitialContext() throws NamingException {
         if (initialContext == null) {
@@ -91,6 +92,7 @@ public class Utils {
             }
             bpmMessageQueue = (Queue) getInitialContext().lookup("queue/bpmMessages");
             emailQueue = (Queue) getInitialContext().lookup("queue/email");
+            nodeAsyncExecutionQueue = (Queue) getInitialContext().lookup("queue/nodeAsyncExecution");
         }
     }
 
@@ -115,7 +117,7 @@ public class Utils {
         }
     }
 
-    public static ObjectMessage sendMessage(List<VariableMapping> data, IVariableProvider variableProvider, long ttl) {
+    public static ObjectMessage sendBpmnMessage(List<VariableMapping> data, IVariableProvider variableProvider, long ttl) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -142,6 +144,27 @@ public class Utils {
             sender.close();
             log.info("message sent: " + toString(message, false));
             return message;
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        } finally {
+            releaseJmsSession(connection, session, sender);
+        }
+    }
+
+    public static void sendNodeAsyncExecutionMessage(Long processId, Long tokenId) {
+        Connection connection = null;
+        Session session = null;
+        MessageProducer sender = null;
+        try {
+            init();
+            connection = connectionFactory.createConnection();
+            session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            sender = session.createProducer(nodeAsyncExecutionQueue);
+            ObjectMessage message = session.createObjectMessage();
+            message.setLongProperty("processId", processId);
+            message.setLongProperty("tokenId", tokenId);
+            sender.send(message);
+            log.debug("node async execution request sent: " + message);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         } finally {
@@ -191,7 +214,7 @@ public class Utils {
             buffer.append(html ? "<br>" : "\n");
             if (message.getObject() instanceof Map) {
                 buffer.append(TypeConversionUtil.toStringMap((Map<? extends Object, ? extends Object>) message.getObject()));
-            } else {
+            } else if (message.getObject() != null) {
                 buffer.append(message.getObject());
             }
             return buffer.toString();
