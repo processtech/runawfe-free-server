@@ -2,7 +2,6 @@ package ru.runa.wfe.lang;
 
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.execution.ExecutionContext;
-
 import com.google.common.base.Preconditions;
 
 /**
@@ -35,7 +34,7 @@ public class EmbeddedSubprocessStartNode extends StartNode {
     }
 
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
         leave(executionContext);
     }
 

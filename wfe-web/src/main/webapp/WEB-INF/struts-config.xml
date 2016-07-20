@@ -5,20 +5,17 @@
 <struts-config>
 
 	<!-- ========== Data Sources Definitions =================================== -->
-	<!-- Define your Struts data sources in a file called struts-data-sources.xml 
-		and place it in your merge directory. -->
+	<!-- Define your Struts data sources in a file called struts-data-sources.xml and place it in your merge directory. -->
 
 	<!-- ========== Form Bean Definitions =================================== -->
 	<form-beans>
 
 		<form-bean name="createExecutorForm" type="ru.runa.af.web.form.CreateExecutorForm" />
-		<form-bean name="updatePermissionsOnIdentifiableForm"
-			type="ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm" />
+		<form-bean name="updatePermissionsOnIdentifiableForm" type="ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm" />
 		<form-bean name="groupForm" type="ru.runa.common.web.form.GroupForm" />
 		<form-bean name="processForm" type="ru.runa.wf.web.form.ProcessForm" />
 		<form-bean name="loginForm" type="ru.runa.af.web.form.LoginForm" />
-		<form-bean name="substitutionCriteriasForm"
-			type="ru.runa.common.web.form.SubstitutionCriteriasForm" />
+		<form-bean name="substitutionCriteriasForm" type="ru.runa.common.web.form.SubstitutionCriteriasForm" />
 		<form-bean name="strIdsForm" type="ru.runa.common.web.form.StrIdsForm" />
 		<form-bean name="deployBotForm" type="ru.runa.af.web.form.DeployBotForm" />
 		<form-bean name="tableViewSetupForm" type="ru.runa.common.web.form.TableViewSetupForm" />
@@ -28,8 +25,7 @@
 		<form-bean name="updatePasswordForm" type="ru.runa.af.web.form.UpdatePasswordForm" />
 		<form-bean name="setSortingForm" type="ru.runa.common.web.form.SetSortingForm" />
 		<form-bean name="botForm" type="ru.runa.af.web.form.BotForm" />
-		<form-bean name="substitutionCriteriaForm"
-			type="ru.runa.af.web.form.SubstitutionCriteriaForm" />
+		<form-bean name="substitutionCriteriaForm" type="ru.runa.af.web.form.SubstitutionCriteriaForm" />
 		<form-bean name="botTasksForm" type="ru.runa.af.web.form.BotTasksForm" />
 		<form-bean name="taskIdForm" type="ru.runa.wf.web.form.TaskIdForm" />
 		<form-bean name="commonProcessForm" type="ru.runa.wf.web.form.CommonProcessForm" />
@@ -39,14 +35,12 @@
 		<form-bean name="relationPairForm" type="ru.runa.af.web.form.RelationPairForm" />
 		<form-bean name="relationPairsForm" type="ru.runa.af.web.form.RelationPairsForm" />
 		<form-bean name="idsForm" type="ru.runa.common.web.form.IdsForm" />
-		<form-bean name="updateExecutorDetailsForm"
-			type="ru.runa.af.web.form.UpdateExecutorDetailsForm" />
+		<form-bean name="updateExecutorDetailsForm" type="ru.runa.af.web.form.UpdateExecutorDetailsForm" />
 		<form-bean name="botStationForm" type="ru.runa.af.web.form.BotStationForm" />
 		<form-bean name="idUrlForm" type="ru.runa.wf.web.form.DefinitionFileForm" />
 		<form-bean name="variableForm" type="ru.runa.wf.web.form.VariableForm" />
 		<form-bean name="substitutionForm" type="ru.runa.af.web.form.SubstitutionForm" />
-		<form-bean name="batchPresentationForm"
-			type="ru.runa.common.web.form.BatchPresentationForm" />
+		<form-bean name="batchPresentationForm" type="ru.runa.common.web.form.BatchPresentationForm" />
 		<form-bean name="settingsForm" type="ru.runa.wf.web.form.SettingsForm" />
 		<form-bean name="viewLogForm" type="ru.runa.common.web.form.ViewLogForm" />
 		<form-bean name="updateStatusForm" type="ru.runa.af.web.form.UpdateStatusForm" />
@@ -58,8 +52,7 @@
 
 	<!-- ========== Global Exceptions Definitions =================================== -->
 	<global-exceptions>
-		<exception type="ru.runa.wfe.security.AuthenticationException"
-			key="login.failed" path="/start.do" />
+		<exception type="ru.runa.wfe.security.AuthenticationException" key="login.failed" path="/start.do" />
 	</global-exceptions>
 
 	<!-- ========== Global Forward Definitions =================================== -->
@@ -278,6 +271,16 @@
 		<action path="/cancelProcess" type="ru.runa.wf.web.action.CancelProcessAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
 			unknown="false" validate="true">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/activateProcessExecution" type="ru.runa.wf.web.action.ActivateProcessExecutionAction" 
+			name="idForm" scope="request">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
+			name="idForm" scope="request">
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
@@ -941,6 +944,7 @@
 		
 		<action path="/update_process_swimlanes" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/update_process_swimlanes.jsp" />
+
 	</action-mappings>
 
 	<controller contentType="text/html; charset=UTF-8" nocache="true"
@@ -948,8 +952,5 @@
 
 	<message-resources parameter="struts" />
 	<message-resources parameter="settingsDescriptions" key="settingsDescriptions" />
-
-	<!-- Define your Struts plugins in a file called struts-plugins.xml and 
-		place it in your merge directory. -->
 
 </struts-config>

@@ -89,11 +89,11 @@ public class ExecutionContext {
     @Autowired
     protected JobDAO jobDAO;
 
-    protected ExecutionContext(ApplicationContext appContext, ProcessDefinition processDefinition, Token token) {
+    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
-        appContext.getAutowireCapableBeanFactory().autowireBean(this);
+        applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {
@@ -152,8 +152,8 @@ public class ExecutionContext {
         return nodeProcessDAO.getSubprocesses(getProcess());
     }
 
-    public List<Process> getActiveSubprocesses() {
-        return nodeProcessDAO.getSubprocesses(getProcess(), getToken().getNodeId(), getToken(), true);
+    public List<Process> getNotEndedSubprocesses() {
+        return nodeProcessDAO.getSubprocesses(getProcess(), getToken().getNodeId(), getToken(), false);
     }
 
     public List<Process> getSubprocessesRecursively() {
@@ -373,8 +373,7 @@ public class ExecutionContext {
     }
 
     /**
-     * Adds all the given variables. It doesn't remove any existing variables
-     * unless they are overwritten by the given variables.
+     * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
      */
     public void setVariableValues(Map<String, Object> variables) {
         for (Map.Entry<String, Object> entry : variables.entrySet()) {

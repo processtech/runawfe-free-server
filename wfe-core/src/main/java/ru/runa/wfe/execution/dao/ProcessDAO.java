@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-@SuppressWarnings("unchecked")
 public class ProcessDAO extends GenericDAO<Process> {
 
     @Override
@@ -32,8 +31,7 @@ public class ProcessDAO extends GenericDAO<Process> {
     }
 
     /**
-     * fetches all processes for the given process definition from the database.
-     * The returned list of processs is sorted start date, youngest first.
+     * fetches all processes for the given process definition from the database. The returned list of processs is sorted start date, youngest first.
      */
     public List<Process> findAllProcesses(Long definitionId) {
         return getHibernateTemplate().find("from Process where deployment.id=? order by startDate desc", definitionId);

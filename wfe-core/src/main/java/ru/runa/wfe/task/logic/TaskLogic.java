@@ -20,9 +20,11 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessPermission;
+import ru.runa.wfe.execution.ProcessSuspendedException;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
@@ -77,6 +79,9 @@ public class TaskLogic extends WFCommonLogic {
 
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException {
         Task task = taskDAO.getNotNull(taskId);
+        if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            throw new ProcessSuspendedException(task.getProcess().getId());
+        }
         try {
             if (variables == null) {
                 variables = Maps.newHashMap();

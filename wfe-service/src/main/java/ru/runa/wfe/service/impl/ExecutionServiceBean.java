@@ -318,4 +318,19 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(processId != null);
         return executionLogic.getJobs(user, processId, recursive);
     }
+
+    @Override
+    public void activateProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(processId != null);
+        executionLogic.activateProcess(user, processId);
+    }
+
+    @Override
+    public void suspendProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(processId != null);
+        executionLogic.suspendProcess(user, processId);
+    }
+
 }

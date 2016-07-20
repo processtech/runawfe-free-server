@@ -19,20 +19,46 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.lang;
+package ru.runa.wfe.audit;
 
-import ru.runa.wfe.execution.ExecutionContext;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 
-public class StartNode extends InteractionNode {
+import ru.runa.wfe.audit.presentation.ExecutorNameValue;
+import ru.runa.wfe.user.Actor;
+
+/**
+ * Logging process suspension.
+ *
+ * @author Dofs
+ */
+@Entity
+@DiscriminatorValue(value = "V")
+public class ProcessSuspendLog extends ProcessLog {
     private static final long serialVersionUID = 1L;
 
-    @Override
-    public NodeType getNodeType() {
-        return NodeType.START_EVENT;
-    }
-    
-    @Override
-    public void execute(ExecutionContext executionContext) {
+    public ProcessSuspendLog() {
     }
 
+    public ProcessSuspendLog(Actor actor) {
+        addAttribute(ATTR_ACTOR_NAME, actor != null ? actor.getName() : "system");
+        setSeverity(Severity.DEBUG);
+    }
+
+    @Transient
+    public String getActorName() {
+        return getAttributeNotNull(ATTR_ACTOR_NAME);
+    }
+
+    @Override
+    @Transient
+    public Object[] getPatternArguments() {
+        return new Object[] { new ExecutorNameValue(getActorName()) };
+    }
+
+    @Override
+    public void processBy(ProcessLogVisitor visitor) {
+        visitor.onProcessSuspendLog(this);
+    }
 }

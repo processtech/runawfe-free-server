@@ -3,7 +3,6 @@ package ru.runa.wfe.lang;
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -28,7 +27,7 @@ public class ScriptNode extends Node {
     }
 
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
         log.debug("Executing " + this);
         try {
             executionContext.addLog(new ActionLog(this));

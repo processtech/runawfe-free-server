@@ -30,7 +30,7 @@ public class EmbeddedSubprocessEndNode extends Node {
     }
     
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
         leave(executionContext);
     }
 
