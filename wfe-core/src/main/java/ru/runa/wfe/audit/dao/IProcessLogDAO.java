@@ -4,15 +4,13 @@ import java.util.List;
 
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.commons.dao.IGenericDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
 
 public interface IProcessLogDAO<T extends ProcessLog> extends IGenericDAO<T> {
 
     /**
-     * @return process logs for embedded subprocess or for main process without
-     *         embedded subprocesses.
+     * @return process logs for embedded subprocess or for main process without embedded subprocesses.
      */
     public List<T> get(Long processId, ProcessDefinition definition);
 
@@ -25,10 +23,5 @@ public interface IProcessLogDAO<T extends ProcessLog> extends IGenericDAO<T> {
      * @return process logs.
      */
     public List<T> getAll(final ProcessLogFilter filter);
-    
-    /**
-     * @return Latest TaskAssignLog entry of the process with the given id
-     */
-    public T getLatestAssignTaskLog(Long processId, long taskId);
 
 }

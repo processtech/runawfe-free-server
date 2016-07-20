@@ -61,9 +61,9 @@
 				</tr>
 			</table>
 		</div>
-	</div>
+	</div>	
 </wf:listTasksForm>
-
+<wf:exportTaskListLink/>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 <tiles:put name="head" type="string">

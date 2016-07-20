@@ -17,48 +17,68 @@
  */
 package ru.runa.wf.web.html;
 
-import java.util.Date;
-
 import org.apache.ecs.html.TD;
 
 import ru.runa.common.web.html.TDBuilder;
+import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
- * Class for displaying task assignment date (TaskAssignLog.createDate of the appropriate 
- * TaskAssignLog entity) in the task list table
+ * Class for displaying task assignment date (TaskAssignLog.createDate of the appropriate TaskAssignLog entity) in the task list table
  * 
  * @author Vladimir Shevtsov
  *
  */
 public class TaskAssignmentDateTDBuilder implements TDBuilder {
 
-	@Override
-	public TD build(Object object, Env env) {
+    @Override
+    public TD build(Object object, Env env) {
         TD td = new TD();
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         td.addElement(getValue(object, env));
         return td;
-	}
+    }
 
-	@Override
-	public String getValue(Object object, Env env) {
-        Date assignmentDate = ((WfTask) object).getAssignmentDate();
-        if (assignmentDate == null) {
-            return "";
+    @Override
+    public String getValue(Object object, Env env) {
+
+        WfTask task = (WfTask) object;
+
+        ProcessLogFilter filter = new ProcessLogFilter(task.getProcessId());
+        filter.setNodeId(task.getNodeId());
+        ProcessLogs logs = Delegates.getAuditService().getProcessLogs(env.getUser(), filter);
+
+        TaskAssignLog taskAssignLog = null;
+        for (ProcessLog processLog : logs.getLogs()) {
+            if (processLog instanceof TaskAssignLog && (taskAssignLog == null || processLog.getCreateDate().after(taskAssignLog.getCreateDate()))) {
+                taskAssignLog = (TaskAssignLog) processLog;
+            }
         }
-        return CalendarUtil.formatDateTime(assignmentDate);
-	}
+        if (taskAssignLog == null || taskAssignLog.getCreateDate() == null) {
+            return "";
+        } else {
+            return CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
+        }
 
-	@Override
-	public String[] getSeparatedValues(Object object, Env env) {
-		return new String[] { getValue(object, env) };
-	}
+        /*
+         * Date assignmentDate = ((WfTask) object).getAssignmentDate(); if (assignmentDate == null) { return ""; } return
+         * CalendarUtil.formatDateTime(assignmentDate);
+         */
+    }
 
-	@Override
-	public int getSeparatedValuesCount(Object object, Env env) {
-		return 1;
-	}
+    @Override
+    public String[] getSeparatedValues(Object object, Env env) {
+        return new String[] { getValue(object, env) };
+    }
+
+    @Override
+    public int getSeparatedValuesCount(Object object, Env env) {
+        return 1;
+    }
 
 }

@@ -28,9 +28,6 @@ public class MultipleSelectFromListUserVariables extends AbstractListUserVariabl
     @Override
     protected Object renderRequest() throws Exception {
         initFields();
-
-        registerVariableHandler(dectVariableName);
-
         return ViewUtil.getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName),
                 variableProvider.getVariableNotNull(dectVariableName), variableProvider.getProcessId(), sortField,
                 displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE);
@@ -40,10 +37,7 @@ public class MultipleSelectFromListUserVariables extends AbstractListUserVariabl
     public Map<String, ? extends Object> extractVariables(Interaction interaction, VariableDefinition variableDefinition,
             Map<String, ? extends Object> userInput, Map<String, String> formatErrors) throws Exception {
         Map<String, Object> result = Maps.newHashMap();
-        if (!variableDefinition.getName().equals(dectVariableName) || !userInput.containsKey(dectVariableName)) {
-            return result;
-        }
-        Object raw = userInput.get(dectVariableName);
+        Object raw = userInput.get(getVariableNameForSubmissionProcessing());
         String json = null;
         VariableFormat format = FormatCommons.create(variableDefinition);
         if (!(raw instanceof String[])) {

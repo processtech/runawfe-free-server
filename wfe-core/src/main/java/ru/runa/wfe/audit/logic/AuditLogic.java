@@ -21,11 +21,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
-import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
@@ -37,8 +38,6 @@ import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Audit logic.
@@ -115,23 +114,5 @@ public class AuditLogic extends CommonLogic {
         checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.READ);
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getCount();
-    }
-    
-    /**
-     * Gets the latest task assign log entity by the given task id
-     * 
-     * @param user
-     *            authorized user
-     * @param processId
-     * 			  process ID
-     * @param taskId
-     * 			  task ID
-     * @return task log entity
-     */
-    public ProcessLog getLatestAssignTaskLog(User user, long processId, long taskId) {
-    	Preconditions.checkNotNull(processId, "processId");
-    	checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.READ);
-    	
-    	return processLogDAO.getLatestAssignTaskLog(processId, taskId);
     }
 }

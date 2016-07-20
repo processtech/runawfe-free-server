@@ -5,7 +5,7 @@ import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
 import com.google.common.base.Strings;
 
 /**
- * Операция проверки задан ли параметр отчета.
+ * Operation of checking if the report parameter is set.
  */
 public class ReportParameterIsSetOperation implements ReportParameterTypeVisitor<Boolean, String> {
 

@@ -3,27 +3,27 @@ package ru.runa.wfe.report.impl;
 import java.util.ArrayList;
 
 /**
- * Модель для запроса параметров построения отчета.
+ * A model to request report building parameters.
  */
 public class ReportRequestModel {
 
     /**
-     * Идентификатор отчета.
+     * Report identifier.
      */
     private Long reportId;
 
     /**
-     * Название отчёта.
+     * Report name.
      */
     private String reportName;
 
     /**
-     * Параметры, которые требуются для построения отчета.
+     * Parameters that are required to build report.
      */
     private ArrayList<ReportParameterModel> reportParameters;
 
     /**
-     * Тип создаваемого отчёта.
+     * Created report type.
      */
     private ReportGenerationType generationType = ReportGenerationType.HTML_EMBEDDED;
 

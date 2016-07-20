@@ -25,15 +25,15 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDeadlineUtils;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Process task.

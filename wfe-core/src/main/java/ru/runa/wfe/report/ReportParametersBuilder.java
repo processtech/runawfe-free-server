@@ -4,44 +4,43 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Интерфейс компонентов, используемых для генерации данных, требуемых для построения отчетов типа {@link ReportConfigurationType.PARAMETER_BUILDER}.
+ * Interfase for components that are used for data generation required for reports construction of type {@link ReportConfigurationType.PARAMETER_BUILDER}.
  */
 public interface ReportParametersBuilder {
 
     /**
-     * Возвращает параметры, которые необходимо запросить у пользователя для построения отчета.
+     * Return parameters that are required to be set by user in order to build report.
      * 
-     * @return Параметры, которые необходимо запросить у пользователя для построения отчета.
+     * @return required parameters that are input by user to build report.
      */
     public List<ReportParameter> getInputParameters();
 
     /**
-     * Выполняет валидацию параметров, полученных от пользователя на корректность.
+     * Validates if parameters set by user are correct.
      * 
      * @param inputParameters
-     *            Параметры, полученные от пользователя.
-     * @return Возвращает список с результатами валидации параметров. Параметры прошедшие валидацию корректно могут отсутствовать в списке.
+     *            Parameters set by user.
+     * @return list with validation result. If parameter validates as a correct one it can be omitted from the list.
      */
     public List<ParameterValidationResult> validateInputParameters(HashMap<String, Object> inputParameters);
 
     /**
-     * Возвращает детализованное название отчета если применимо.
+     * Returns report name details if it can be applied.
      * 
      * @param inputParameters
-     *            Параметры, полученные от пользователя.
+     *            Parameters set by user.
      * @param reportDescription
-     *            DTO с описанием отчета.
-     * @return Возвращает детализованное название отчета если применимо.
+     *            DTO with report description.
+     * @return report name details if it can be applied.
      */
     public String getReportName(HashMap<String, Object> inputParameters, ReportDefinition definition);
 
     /**
-     * Генерирует данные, требующиеся для построения отчета.
+     * Generates data required for report construction.
      * 
      * @param inputParameters
-     *            Параметры, полученные от пользователя.
-     * @return Возвращает параметры, которые должны быть переданы в отчет. Параметры, полученные от пользователя будут добавлены в это множество
-     *         позже.
+     *            Parameters set by user.
+     * @return Parameters that must be supplied to the report. Parameters set by user are added to this map later.
      */
     public HashMap<String, Object> fillReportParameters(HashMap<String, Object> inputParameters);
 }

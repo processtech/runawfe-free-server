@@ -16,7 +16,7 @@ public class ReportParameterParseOperation implements ReportParameterTypeVisitor
         try {
             return Long.parseLong(data);
         } catch (Exception e) {
-            throw new InternalApplicationException("Значение " + data + " не является числовым", e);
+            throw new InternalApplicationException("Value " + data + " is not all digits", e);
         }
     }
 
@@ -25,7 +25,7 @@ public class ReportParameterParseOperation implements ReportParameterTypeVisitor
         try {
             return CalendarUtil.convertToDate(data, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
         } catch (Exception e) {
-            throw new InternalApplicationException("Значение " + data + " не является корректной датой", e);
+            throw new InternalApplicationException("Value " + data + " is not correct date", e);
         }
     }
 
@@ -37,7 +37,7 @@ public class ReportParameterParseOperation implements ReportParameterTypeVisitor
             }
             return Boolean.parseBoolean(data);
         } catch (Exception e) {
-            throw new InternalApplicationException("Значение " + data + " не является boolean", e);
+            throw new InternalApplicationException("Value " + data + " is not bolean", e);
         }
     }
 

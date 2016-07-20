@@ -30,7 +30,9 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wf.web.tag.ListTasksFormTag;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDeadlineUtils;
@@ -76,9 +78,12 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
         String deadLinePeriod = TaskDeadlineUtils.calculateTimeDuration(currentDate, task.getDeadlineDate());
         tr.addElement(new TD().addElement(deadLinePeriod).setClass(Resources.CLASS_LIST_TABLE_TD));
 
-        String startExecutionDateString = " ";
-        ProcessLog taskAssignLog = Delegates.getAuditService().getLatestAssignTaskLog(user, task.getProcessId(), task.getId());
+        String startExecutionDateString = "";
+        ProcessLogFilter filter = new ProcessLogFilter(task.getProcessId());
+        filter.setNodeId(task.getNodeId());
+        ProcessLogs logs = Delegates.getAuditService().getProcessLogs(user, filter);
 
+        TaskAssignLog taskAssignLog = logs.getLastOrNull(TaskAssignLog.class);
         if (taskAssignLog != null) {
             startExecutionDateString = CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
         }

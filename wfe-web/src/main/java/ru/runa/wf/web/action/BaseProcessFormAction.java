@@ -39,12 +39,13 @@ import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
+import ru.runa.wfe.var.IVariableProvider;
 
 import com.google.common.base.Strings;
 
 /**
  * Created on 15.12.2005
- * 
+ *
  */
 public abstract class BaseProcessFormAction extends ActionBase {
 
@@ -99,8 +100,9 @@ public abstract class BaseProcessFormAction extends ActionBase {
         return forward;
     }
 
-    protected Map<String, Object> getFormVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction) {
-        return FormSubmissionUtils.extractVariables(request, actionForm, interaction);
+    protected Map<String, Object> getFormVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction,
+            IVariableProvider variableProvider) {
+        return FormSubmissionUtils.extractVariables(request, actionForm, interaction, variableProvider);
     }
 
     protected abstract ActionMessage getMessage(Long processId);

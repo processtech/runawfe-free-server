@@ -213,6 +213,9 @@
 			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
 			<forward name="submitTask" path="/submit_task.do" redirect="false" />
 		</action>
+		<action path="/exportTaskList"
+			type="ru.runa.wf.web.action.ExportUserTaskListAction" scope="request" unknown="false" validate="false">
+		</action>
 		<action path="/create_bot" type="ru.runa.af.web.action.CreateBotAction"
 			name="botForm" scope="request" input="/WEB-INF/wf/add_bot.jsp"
 			unknown="false" validate="false">
