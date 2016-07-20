@@ -22,11 +22,11 @@ import java.util.List;
 
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Strings;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
+
+import com.google.common.base.Strings;
 
 /**
  * Created on 30.09.2004
@@ -60,8 +60,6 @@ public class WebResources {
 
     public static final String ACTION_MAPPING_MANAGE_REPORT = "/manage_report";
     public static final String ACTION_MAPPING_BUILD_REPORT = "/build_report";
-
-    public static final String ACTION_MAPPING_EXPORT_TASK_LIST = "/exportTaskList";
 
     public static PropertyResources getResources() {
         return RESOURCES;

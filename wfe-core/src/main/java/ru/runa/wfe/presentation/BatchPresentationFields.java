@@ -88,7 +88,7 @@ public class BatchPresentationFields implements Serializable {
 
     public void setFirstFieldToSort(int newSortFieldId, FieldDescriptor[] allFields) {
         int fieldIndex = ArraysCommons.findPosition(sortIds, newSortFieldId);
-        boolean alreadyUsed = (fieldIndex == -1) ? false : true;
+        boolean alreadyUsed = fieldIndex == -1 ? false : true;
         boolean[] newFieldsToSortModes = null;
         int[] newFieldsToSortIds = null;
         // Bug fix
@@ -203,7 +203,7 @@ public class BatchPresentationFields implements Serializable {
         boolean[] newSortingModes = new boolean[newSortingIdList.size()];
         for (int i = 0; i < newSortingIdList.size(); i++) {
             int pos = sortingIdList.indexOf(newSortingIdList.get(i));
-            newSortingModes[i] = (pos < 0) ? BatchPresentationConsts.ASC : sortModes[pos];
+            newSortingModes[i] = pos < 0 ? BatchPresentationConsts.ASC : sortModes[pos];
         }
         // end of calculation of newSortingModes
         sortIds = ArraysCommons.createIntArray(newSortingIdList);
@@ -252,22 +252,21 @@ public class BatchPresentationFields implements Serializable {
     public static BatchPresentationFields createDefaultFields(ClassPresentationType type) {
         ClassPresentation classPresentation = ClassPresentations.getClassPresentation(type);
         BatchPresentationFields fields = new BatchPresentationFields();
-        
         fields.groupIds = new int[0];
         int displayedFieldsCount = classPresentation.getFields().length;
-        for (FieldDescriptor field : classPresentation.getFields()) {
-            if (field.displayName.startsWith(ClassPresentation.editable_prefix)) {
+        for (FieldDescriptor fieldDescriptor : classPresentation.getFields()) {
+            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix) || !fieldDescriptor.isVisible()) {
                 displayedFieldsCount--;
             }
         }
         fields.displayIds = new int[displayedFieldsCount];
         for (int i = classPresentation.getFields().length - 1; i >= 0; i--) {
-            if (classPresentation.getFields()[i].displayName.startsWith(ClassPresentation.editable_prefix)) {
+            FieldDescriptor fieldDescriptor = classPresentation.getFields()[i];
+            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix) || !fieldDescriptor.isVisible()) {
                 continue;
             }
             fields.displayIds[--displayedFieldsCount] = i;
         }
-        
         // Default sorting - creates array of sortIds,
         // which contains indexes of only(!) sorted fields - in order of sorting(!),
         // and synchronized array of sortModes.
@@ -276,27 +275,23 @@ public class BatchPresentationFields implements Serializable {
         int sortedByDefaultFieldsCount = 0;
         for (FieldDescriptor field : classPresentation.getFields()) {
             if (field.defaultSortOrder > 0) {
-            	sortedByDefaultFieldsCount++;
+                sortedByDefaultFieldsCount++;
             }
         }
-	    fields.sortIds = new int[sortedByDefaultFieldsCount];
-	    fields.sortModes = new boolean[sortedByDefaultFieldsCount];
-      for (int i = 0; i < classPresentation.getFields().length; i++) {
-	  	if (classPresentation.getFields()[i].defaultSortOrder > 0) {
-	  		try {
-	  		fields.sortIds[classPresentation.getFields()[i].defaultSortOrder - 1] = i;
-	  		fields.sortModes[classPresentation.getFields()[i].defaultSortOrder - 1] = classPresentation.getFields()[i].defaultSortMode;
-	  		} catch (IndexOutOfBoundsException e){
-	  			throw new InternalApplicationException("Sequence of indexes for default sorted fields in class " + type.name() 
-	  					+ "-ClassPresentation are broken with index " 
-	  					+ classPresentation.getFields()[i].defaultSortOrder + ". "
-	  					+ "Revise noted class please. "
-	  					+ "Sorted fields indexes must start with 1 and be exactly sequential.");	  			
-	  		}
-	  	}
-	  }
-        
-        
+        fields.sortIds = new int[sortedByDefaultFieldsCount];
+        fields.sortModes = new boolean[sortedByDefaultFieldsCount];
+        for (int i = 0; i < classPresentation.getFields().length; i++) {
+            if (classPresentation.getFields()[i].defaultSortOrder > 0) {
+                try {
+                    fields.sortIds[classPresentation.getFields()[i].defaultSortOrder - 1] = i;
+                    fields.sortModes[classPresentation.getFields()[i].defaultSortOrder - 1] = classPresentation.getFields()[i].defaultSortMode;
+                } catch (IndexOutOfBoundsException e) {
+                    throw new InternalApplicationException("Sequence of indexes for default sorted fields in class " + type.name()
+                            + "-ClassPresentation are broken with index " + classPresentation.getFields()[i].defaultSortOrder + ". "
+                            + "Revise noted class please. " + "Sorted fields indexes must start with 1 and be exactly sequential.");
+                }
+            }
+        }
         return fields;
     }
 }

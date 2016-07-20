@@ -83,9 +83,9 @@ public class TaskClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_CREATE_DATE, Date.class.getName(), new DefaultDBSource(Task.class, "createDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskCreationDateTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_ASSIGN_DATE, Date.class.getName(), new DefaultDBSource(Task.class, null), false, FieldFilterMode.NONE,
-                        "ru.runa.wf.web.html.TaskAssignmentDateTDBuilder", new Object[] {}),
+                        "ru.runa.wf.web.html.TaskAssignmentDateTDBuilder", new Object[] {}).setVisible(false),
                 new FieldDescriptor(TASK_DURATION, String.class.getName(), new DefaultDBSource(Task.class, null), false, FieldFilterMode.NONE,
-                        "ru.runa.wf.web.html.TaskDurationTDBuilder", new Object[] {}) });
+                        "ru.runa.wf.web.html.TaskDurationTDBuilder", new Object[] {}).setVisible(false) });
     }
 
     public static final ClassPresentation getInstance() {

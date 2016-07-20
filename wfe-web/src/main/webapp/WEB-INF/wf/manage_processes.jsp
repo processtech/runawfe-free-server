@@ -32,8 +32,8 @@
 
 <wf:listProcessesForm batchPresentationId="listProcessesForm" returnAction="<%= returnAction %>">
 	<div>
-		<wf:viewControlsHideableBlock hideableBlockId="listProcessesForm"  returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listProcessesForm" returnAction="<%= returnAction %>" />
+		<wf:viewControlsHideableBlock hideableBlockId="listProcessesForm"  returnAction="<%= returnAction %>">
+			<wf:tableViewSetupForm batchPresentationId="listProcessesForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelProcesses" />
 		</wf:viewControlsHideableBlock>
 	</div>
 </wf:listProcessesForm>

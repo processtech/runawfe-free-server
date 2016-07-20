@@ -11,13 +11,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
@@ -52,8 +45,14 @@ import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.IExecutorDAO;
+
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Task list builder component.
@@ -94,9 +93,8 @@ public class TaskListBuilder implements ITaskListBuilder {
     }
 
     @Override
-    public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
+    public List<WfTask> getTasks(Actor actor, BatchPresentation batchPresentation) {
         Preconditions.checkNotNull(batchPresentation, "batchPresentation");
-        Actor actor = user.getActor();
         VersionedCacheData<List<WfTask>> cached = taskCache.getTasks(actor.getId(), batchPresentation);
         if (cached != null && cached.getData() != null) {
             return cached.getData();

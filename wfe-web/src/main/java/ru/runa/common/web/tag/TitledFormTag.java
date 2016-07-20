@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web.tag;
@@ -29,15 +29,10 @@ import org.tldgen.annotations.Attribute;
 
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.html.TDBuilder;
-import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.ClassPresentation;
-import ru.runa.wfe.presentation.FieldDescriptor;
-import ru.runa.wfe.presentation.FieldState;
 
 /**
  * Created on 08.09.2004
- * 
+ *
  */
 public abstract class TitledFormTag extends FormTag {
     private static final long serialVersionUID = 1L;
@@ -144,32 +139,6 @@ public abstract class TitledFormTag extends FormTag {
     @Attribute(required = false, rtexprvalue = true)
     public void setWidth(String width) {
         this.width = width;
-    }
-
-    protected static TDBuilder[] getBuilders(TDBuilder[] prefix, BatchPresentation batchPresentation, TDBuilder[] suffix) {
-        int displayed = batchPresentation.getDisplayFields().length;
-        for (FieldDescriptor field : batchPresentation.getDisplayFields()) {
-            if (field.displayName.startsWith(ClassPresentation.editable_prefix) || field.displayName.startsWith(ClassPresentation.filterable_prefix)
-                    || field.fieldState != FieldState.ENABLED) {
-                --displayed;
-            }
-        }
-        TDBuilder[] builders = new TDBuilder[prefix.length + displayed + suffix.length];
-        for (int i = 0; i < prefix.length; ++i) {
-            builders[i] = prefix[i];
-        }
-        int idx = 0;
-        for (int i = 0; i < batchPresentation.getDisplayFields().length; ++i) {
-            if ((!batchPresentation.getDisplayFields()[i].displayName.startsWith(ClassPresentation.editable_prefix) && !batchPresentation
-                    .getDisplayFields()[i].displayName.startsWith(ClassPresentation.filterable_prefix))
-                    && batchPresentation.getDisplayFields()[i].fieldState == FieldState.ENABLED) {
-                builders[(idx++) + prefix.length] = (TDBuilder) batchPresentation.getDisplayFields()[i].getTDBuilder();
-            }
-        }
-        for (int i = 0; i < suffix.length; ++i) {
-            builders[i + prefix.length + displayed] = suffix[i];
-        }
-        return builders;
     }
 
     public String getWidth() {

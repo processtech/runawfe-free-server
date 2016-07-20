@@ -22,7 +22,9 @@ import javax.servlet.jsp.JspWriter;
 
 import org.apache.ecs.Entities;
 import org.apache.ecs.StringElement;
+import org.apache.ecs.html.A;
 import org.apache.ecs.html.Form;
+import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
@@ -43,6 +45,7 @@ import ru.runa.common.web.action.TableViewSetupFormAction;
 import ru.runa.common.web.form.TableViewSetupForm;
 import ru.runa.common.web.html.format.FilterFormatsFactory;
 import ru.runa.common.web.html.format.FilterTDFormatter;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
@@ -57,8 +60,30 @@ import ru.runa.wfe.user.User;
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "tableViewSetupForm")
 public class TableViewSetupFormTag extends AbstractReturningTag implements BatchedTag {
     private static final long serialVersionUID = 6534068425896008626L;
-
     private static boolean groupBySubprocessEnabled = ru.runa.common.WebResources.isGroupBySubprocessEnabled();
+
+    private String batchPresentationId;
+    private String excelExportAction;
+
+    @Override
+    public String getBatchPresentationId() {
+        return batchPresentationId;
+    }
+
+    @Attribute(required = true, rtexprvalue = true)
+    @Override
+    public void setBatchPresentationId(String id) {
+        batchPresentationId = id;
+    }
+
+    public String getExcelExportAction() {
+        return excelExportAction;
+    }
+
+    @Attribute(required = false, rtexprvalue = true)
+    public void setExcelExportAction(String excelExportAction) {
+        this.excelExportAction = excelExportAction;
+    }
 
     public String getApplyButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
@@ -74,19 +99,6 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
 
     public String getRemoveButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
-    }
-
-    private String batchPresentationId;
-
-    @Attribute(required = true, rtexprvalue = true)
-    @Override
-    public void setBatchPresentationId(String id) {
-        batchPresentationId = id;
-    }
-
-    @Override
-    public String getBatchPresentationId() {
-        return batchPresentationId;
     }
 
     @Override
@@ -199,6 +211,19 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             selectShared.addElement(optionNo);
             selectShared.addElement(optionShared);
             td.addElement(selectShared);
+
+            if (excelExportAction != null) {
+                A exportLink = new A();
+                exportLink.setHref(Commons.getActionUrl(excelExportAction, pageContext, PortletUrlType.Render));
+                exportLink.setClass(Resources.CLASS_LINK);
+                exportLink.setStyle("display: block; float: right;");
+                IMG img = new IMG(Commons.getUrl(Resources.EXCEL_ICON, pageContext, PortletUrlType.Resource), 0);
+                img.setWidth(21).setHeight(21).setStyle("vertical-align: middle;");
+                exportLink.addElement(img);
+                exportLink.addElement(Entities.NBSP);
+                exportLink.addElement(MessagesProcesses.BUTTON_EXPORT_EXCEL.message(pageContext));
+                td.addElement(exportLink);
+            }
         } else {
             // user can only "save as" shared batch presentation as private
             td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.SHARED_TYPE_NAME, TableViewSetupForm.SHARED_TYPE_NO));
@@ -293,7 +318,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             }
         }
         {// field sorting/groupping section
-            if (field.isSortable) {
+            if (field.sortable) {
                 Select sortingModeSelect = new Select(TableViewSetupForm.SORTING_MODE_NAMES, createSortModeOptions());
                 tr.addElement(new TD(sortingModeSelect));
                 Select sortingFieldPositoinSelect = new Select(TableViewSetupForm.SORTING_POSITIONS, createPositionOptions(batchPresentation,

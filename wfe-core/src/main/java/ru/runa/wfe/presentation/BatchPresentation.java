@@ -49,8 +49,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 /**
- * Presentation of objects collection, contains sorting rules, filter rules and
- * so on.
+ * Presentation of objects collection, contains sorting rules, filter rules and so on.
  */
 @Entity
 @Table(name = "BATCH_PRESENTATION")
@@ -136,8 +135,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     }
 
     /**
-     * Presentation group identity. Such as tasksList, processLists and so on.
-     * Each group refers to some page in web interface.
+     * Presentation group identity. Such as tasksList, processLists and so on. Each group refers to some page in web interface.
      */
     @Column(name = "CATEGORY", nullable = false, length = 1024)
     public String getCategory() {
@@ -145,8 +143,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     }
 
     /**
-     * Presentation group identity. Such as tasksList, processLists and so on.
-     * Each group refers to some page in web interface.
+     * Presentation group identity. Such as tasksList, processLists and so on. Each group refers to some page in web interface.
      */
     protected void setCategory(String tagName) {
         category = tagName;
@@ -324,7 +321,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     }
 
     public boolean isSortingField(int fieldIndex) {
-        if (!getAllFields()[fieldIndex].isSortable) {
+        if (!getAllFields()[fieldIndex].sortable) {
             return false;
         }
         return ArraysCommons.findPosition(getFields().sortIds, fieldIndex) >= 0;
@@ -392,7 +389,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     }
 
     public boolean isFieldGroupped(int fieldId) {
-        if (!getAllFields()[fieldId].isSortable) {
+        if (!getAllFields()[fieldId].sortable) {
             return false;
         }
         return ArraysCommons.contains(getFields().groupIds, fieldId);
@@ -462,8 +459,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     }
 
     /**
-     * Get helper to hold fields set (such us fields to display, sort and so
-     * on).
+     * Get helper to hold fields set (such us fields to display, sort and so on).
      *
      * @return Helper to current {@link BatchPresentation}.
      */

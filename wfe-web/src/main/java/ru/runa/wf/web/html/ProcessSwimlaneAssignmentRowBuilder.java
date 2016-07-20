@@ -72,11 +72,11 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
         tr.addElement(new TaskDeadlineTDBuilder().build(task, null).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         Date currentDate = new Date();
-        String period = TaskDeadlineUtils.calculateTimeDuration(task.getCreationDate(), currentDate);
-        tr.addElement(new TD().addElement(period).setClass(Resources.CLASS_LIST_TABLE_TD));
+        String duration = TaskDeadlineUtils.calculateTimeDuration(task.getCreationDate(), currentDate);
+        tr.addElement(new TD().addElement(duration).setClass(Resources.CLASS_LIST_TABLE_TD));
 
-        String deadLinePeriod = TaskDeadlineUtils.calculateTimeDuration(currentDate, task.getDeadlineDate());
-        tr.addElement(new TD().addElement(deadLinePeriod).setClass(Resources.CLASS_LIST_TABLE_TD));
+        String deadLineDuration = TaskDeadlineUtils.calculateTimeDuration(currentDate, task.getDeadlineDate());
+        tr.addElement(new TD().addElement(deadLineDuration).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         String startExecutionDateString = "";
         ProcessLogFilter filter = new ProcessLogFilter(task.getProcessId());

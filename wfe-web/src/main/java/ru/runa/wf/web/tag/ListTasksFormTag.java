@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.web.tag;
@@ -26,8 +26,8 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
-import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.CssClassStrategy;
@@ -48,18 +48,14 @@ import ru.runa.wfe.user.User;
 
 /**
  * Created on 15.10.2004
- * 
+ *
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listTasksForm")
 public class ListTasksFormTag extends BatchReturningTitledFormTag {
-
     private static final long serialVersionUID = -6863052817853155919L;
-
     private static boolean isButtonEnabled;
-
-    private static final String[] NO_PREFIX_HEADER_NAMES = new String[0];
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
@@ -70,7 +66,6 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
-        Commons.setSessionAttribute(pageContext.getSession(), Commons.TASK_LIST_SESSION_ATTR_NAME, table);
     }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
@@ -84,11 +79,9 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
                 }
             }
         }
-
-        TDBuilder[] builders = getBuilders(new TDBuilder[] { new AssignTaskCheckboxTDBuilder(!disableCheckbox) }, batchPresentation,
-                new TDBuilder[] {});
-
-        HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, NO_PREFIX_HEADER_NAMES.length, returnAction, pageContext);
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new AssignTaskCheckboxTDBuilder(!disableCheckbox) },
+                batchPresentation, null);
+        HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, returnAction, pageContext);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(tasks, batchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, returnAction, new TaskUrlStrategy(pageContext), builders);
         rowBuilder.setCssClassStrategy(new TasksCssClassStrategy());
@@ -105,29 +98,14 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         return MessagesProcesses.TITLE_TASKS.message(pageContext);
     }
 
-    /*
-     * @Override public String getFormButtonName() { return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext); }
-     */
-
-    /*
-     * @Override protected boolean isMultipleSubmit() { return true; }
-     * 
-     * @Override protected List<String> getFormButtonNames() {
-     * 
-     * List<String> submitButtons = new ArrayList<String>(); submitButtons.add(MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext));
-     * submitButtons.add(MessagesProcesses.BUTTON_EXPORT_EXCEL.message(pageContext));
-     * 
-     * return submitButtons; }
-     */
+    @Override
+    protected String getFormButtonName() {
+        return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
+    }
 
     @Override
     public String getAction() {
         return ProcessTaskAssignmentAction.ACTION_PATH;
-    }
-
-    @Override
-    protected String getFormButtonName() {
-        return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
     }
 
     public static class TasksCssClassStrategy implements CssClassStrategy {
