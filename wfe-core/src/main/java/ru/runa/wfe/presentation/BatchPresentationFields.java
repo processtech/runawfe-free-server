@@ -256,7 +256,8 @@ public class BatchPresentationFields implements Serializable {
         fields.groupIds = new int[0];
         int displayedFieldsCount = classPresentation.getFields().length;
         for (FieldDescriptor field : classPresentation.getFields()) {
-            if (field.displayName.startsWith(ClassPresentation.editable_prefix)) {
+            if (field.displayName.startsWith(ClassPresentation.editable_prefix)
+                    || field.displayName.startsWith(ClassPresentation.default_hidden_prefix)) {
                 displayedFieldsCount--;
             }
         }

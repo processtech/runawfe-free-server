@@ -27,8 +27,7 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 
 /**
- * Holds mapping from {@link FieldDescriptor} to alias, assigned to field in HQL
- * query and vice verse.
+ * Holds mapping from {@link FieldDescriptor} to alias, assigned to field in HQL query and vice verse.
  */
 public class HibernateCompilerAliasMapping {
 
@@ -53,8 +52,7 @@ public class HibernateCompilerAliasMapping {
     private final Map<String, Class<?>> joinedAliasToClass = new HashMap<String, Class<?>>();
 
     /**
-     * Creates mapping from {@link FieldDescriptor} to alias for specified
-     * {@link BatchPresentation}.
+     * Creates mapping from {@link FieldDescriptor} to alias for specified {@link BatchPresentation}.
      * 
      * @param batchPresentation
      *            {@link BatchPresentation} to initialize alias mappings.
@@ -139,6 +137,17 @@ public class HibernateCompilerAliasMapping {
      */
     public Set<String> getJoinedAliases() {
         return joinedAliasToClass.keySet();
+    }
+
+    /**
+     * Returns joined alias in {@link BatchPresentation}.
+     * 
+     * @param alias
+     *            HQL query alias.
+     * @return Entity for HQL alias.
+     */
+    public Class<?> getJoinedClass(String alias) {
+        return joinedAliasToClass.get(alias);
     }
 
     /**
