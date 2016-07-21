@@ -17,6 +17,10 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.SingleTableEntityPersister;
 
@@ -29,8 +33,7 @@ import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 
 /**
- * Helper class with some functions, required to compile query for batch
- * presentation.
+ * Helper class with some functions, required to compile query for batch presentation.
  */
 public final class HibernateCompilerHelper {
 
@@ -47,7 +50,8 @@ public final class HibernateCompilerHelper {
         if (field.fieldState == FieldState.DISABLED) {
             return false;
         }
-        if (!field.isWeakJoin) {
+        final List<FieldDescriptor> dysplayFields = Arrays.asList(batchPresentation.getDisplayFields());
+        if (!field.isWeakJoin && dysplayFields.contains(field)) {
             return true;
         }
         FieldDescriptor[] allFields = batchPresentation.getAllFields();

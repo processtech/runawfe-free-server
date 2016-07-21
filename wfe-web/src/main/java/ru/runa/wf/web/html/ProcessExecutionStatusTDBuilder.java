@@ -28,7 +28,11 @@ public class ProcessExecutionStatusTDBuilder implements TDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
+        return Messages.getMessage(getKey(object), env.getPageContext());
+    }
+
+    public String getKey(Object object) {
         WfProcess process = (WfProcess) object;
-        return Messages.getMessage(process.getExecutionStatus().getLabelKey(), env.getPageContext());
+        return process.getExecutionStatus().getLabelKey();
     }
 }

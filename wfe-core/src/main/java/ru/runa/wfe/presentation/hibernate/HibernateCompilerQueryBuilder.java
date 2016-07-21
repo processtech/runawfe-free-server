@@ -79,12 +79,12 @@ public class HibernateCompilerQueryBuilder {
         if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad()) {
             return session.createSQLQuery(sqlRequest).setResultTransformer(CountIdResultTransformer.INSTANCE);
         } else {
-            if (!hqlBuilder.getJoinedClasses().isEmpty()) {
+            if (!hqlBuilder.getVisibleJoinedClasses().isEmpty()) {
                 // Dirty hack - force hibernate to map many entities.
                 StringBuilder sb = new StringBuilder();
                 sb.append("/*{").append(StringHelper.unqualify(batchPresentation.getClassPresentation().getPresentationClass().getName()))
                         .append("}");
-                for (Class<?> entity : hqlBuilder.getJoinedClasses()) {
+                for (Class<?> entity : hqlBuilder.getVisibleJoinedClasses()) {
                     sb.append(",{").append(StringHelper.unqualify(entity.getName())).append("}");
                 }
                 sb.append("*/ ").append(sqlRequest);
@@ -92,7 +92,7 @@ public class HibernateCompilerQueryBuilder {
             }
             SQLQuery query = session.createSQLQuery(sqlRequest);
             query.addEntity(batchPresentation.getClassPresentation().getPresentationClass());
-            for (Class<?> entity : hqlBuilder.getJoinedClasses()) {
+            for (Class<?> entity : hqlBuilder.getVisibleJoinedClasses()) {
                 query.addEntity(entity);
             }
             return query;
@@ -136,7 +136,7 @@ public class HibernateCompilerQueryBuilder {
      *            SQL request to tune select clause.
      */
     private StringBuilder tuneSelectClause(StringBuilder sqlRequest) {
-        if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad() || !hqlBuilder.getJoinedClasses().isEmpty()) {
+        if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad() || !hqlBuilder.getVisibleJoinedClasses().isEmpty()) {
             return sqlRequest;
         }
         int posDot = sqlRequest.indexOf(".");

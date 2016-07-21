@@ -17,7 +17,9 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,12 +54,29 @@ public class HibernateCompilerAliasMapping {
     private final Map<String, Class<?>> joinedAliasToClass = new HashMap<String, Class<?>>();
 
     /**
+     * Map visible Class to query alias.
+     */
+    private final Map<Class<?>, String> visibleJoinedClassToAlias = new HashMap<Class<?>, String>();
+    /**
+     * Map visible HQL query alias to class.
+     */
+    private final Map<String, Class<?>> visibleJoinedAliasToClass = new HashMap<String, Class<?>>();
+
+    /**
      * Creates mapping from {@link FieldDescriptor} to alias for specified {@link BatchPresentation}.
      * 
      * @param batchPresentation
      *            {@link BatchPresentation} to initialize alias mappings.
      */
     public HibernateCompilerAliasMapping(BatchPresentation batchPresentation) {
+        final List<Class<?>> displayEntities = new ArrayList<Class<?>>();
+        for (final FieldDescriptor dysplayField : batchPresentation.getDisplayFields()) {
+            final Class<?> dysplayEntity = dysplayField.dbSources[0].getSourceObject();
+            if (!displayEntities.contains(dysplayEntity)) {
+                displayEntities.add(dysplayEntity);
+            }
+        }
+
         FieldDescriptor[] fields = batchPresentation.getAllFields();
         int tableIndex = 0;
         for (int idx = 0; idx < fields.length; ++idx) {
@@ -74,7 +93,11 @@ public class HibernateCompilerAliasMapping {
                 ;
             } else {
                 if (!joinedClassToAlias.containsKey(entity)) {
-                    addJoinedAliasMapping(entity, "tbl" + ++tableIndex);
+                    final String aliasName = "tbl" + ++tableIndex;
+                    addJoinedAliasMapping(entity, aliasName);
+                    if (displayEntities.contains(entity) && !visibleJoinedClassToAlias.containsKey(entity)) {
+                        addVisibleJoinedAliasMapping(entity, aliasName);
+                    }
                 }
                 addAliasMapping(field, joinedClassToAlias.get(entity));
             }
@@ -131,6 +154,15 @@ public class HibernateCompilerAliasMapping {
     }
 
     /**
+     * Returns visible joined entities in {@link BatchPresentation}.
+     * 
+     * @return All {@link BatchPresentation} entities.
+     */
+    public Set<Class<?>> getVisibleJoinedClasses() {
+        return visibleJoinedClassToAlias.keySet();
+    }
+
+    /**
      * Returns joined aliases in {@link BatchPresentation}.
      * 
      * @return All {@link BatchPresentation} entities.
@@ -140,14 +172,12 @@ public class HibernateCompilerAliasMapping {
     }
 
     /**
-     * Returns joined alias in {@link BatchPresentation}.
+     * Returns visible joined aliases in {@link BatchPresentation}.
      * 
-     * @param alias
-     *            HQL query alias.
-     * @return Entity for HQL alias.
+     * @return All {@link BatchPresentation} entities.
      */
-    public Class<?> getJoinedClass(String alias) {
-        return joinedAliasToClass.get(alias);
+    public Set<String> getVisibleJoinedAliases() {
+        return visibleJoinedAliasToClass.keySet();
     }
 
     /**
@@ -174,5 +204,10 @@ public class HibernateCompilerAliasMapping {
     private void addJoinedAliasMapping(Class<?> entity, String alias) {
         joinedClassToAlias.put(entity, alias);
         joinedAliasToClass.put(alias, entity);
+    }
+
+    private void addVisibleJoinedAliasMapping(Class<?> entity, String alias) {
+        visibleJoinedClassToAlias.put(entity, alias);
+        visibleJoinedAliasToClass.put(alias, entity);
     }
 }

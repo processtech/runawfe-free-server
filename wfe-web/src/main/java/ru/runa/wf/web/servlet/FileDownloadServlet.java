@@ -20,6 +20,7 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.wf.web.form.PagingForm;
+import ru.runa.wf.web.html.ProcessExecutionStatusTDBuilder;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -41,8 +42,8 @@ public class FileDownloadServlet extends HttpServlet {
         PrintStream ps = null;
         try {
             ps = new PrintStream(file);
-            final FileBuilder builder = new FileBuilder(batchPresentation, ps);
-            builder.printHerader(getLocale(request));
+            final FileBuilder builder = new FileBuilder(batchPresentation, ps, getLocale(request));
+            builder.printHeader();
             ps.flush();
 
             final List<?> rows = getRows(getUser(request), batchPresentation.clone());
@@ -104,24 +105,29 @@ public class FileDownloadServlet extends HttpServlet {
         private final List<String> fieldNames;
         private final List<TDBuilder> tdBuilders;
         private final PrintStream ps;
+        private final ResourceBundle bundle;
 
-        public FileBuilder(BatchPresentation batchPresentation, PrintStream ps) {
+        public FileBuilder(BatchPresentation batchPresentation, PrintStream ps, Locale locale) {
             this.ps = ps;
             this.fieldNames = new ArrayList<String>(batchPresentation.getDisplayFields().length);
             this.tdBuilders = new ArrayList<TDBuilder>(batchPresentation.getDisplayFields().length);
+            this.bundle = ResourceBundle.getBundle("struts", locale);
 
             for (final FieldDescriptor field : batchPresentation.getDisplayFields()) {
-                if (field.displayName.startsWith(ClassPresentation.editable_prefix)
-                        || field.displayName.startsWith(ClassPresentation.filterable_prefix) || field.fieldState != FieldState.ENABLED) {
+                String displayName = field.displayName;
+                if (displayName.startsWith(ClassPresentation.editable_prefix) || displayName.startsWith(ClassPresentation.filterable_prefix)
+                        || field.fieldState != FieldState.ENABLED) {
                     continue;
                 }
-                this.fieldNames.add(field.displayName);
+                if (displayName.startsWith(ClassPresentation.default_hidden_prefix)) {
+                    displayName = displayName.substring(displayName.indexOf(':') + 1);
+                }
+                this.fieldNames.add(displayName);
                 this.tdBuilders.add((TDBuilder) field.getTDBuilder());
             }
         }
 
-        public void printHerader(Locale locale) {
-            final ResourceBundle bundle = ResourceBundle.getBundle("struts", locale);
+        public void printHeader() {
             boolean isFirst = true;
             for (final String fieldName : fieldNames) {
                 if (isFirst) {
@@ -142,7 +148,13 @@ public class FileDownloadServlet extends HttpServlet {
                 } else {
                     ps.print(";");
                 }
-                ps.print(builder.getValue(row, null));
+                final String value;
+                if (builder instanceof ProcessExecutionStatusTDBuilder) {
+                    value = bundle.getString(((ProcessExecutionStatusTDBuilder) builder).getKey(row));
+                } else {
+                    value = builder.getValue(row, null);
+                }
+                ps.print(value);
             }
             ps.println();
         }

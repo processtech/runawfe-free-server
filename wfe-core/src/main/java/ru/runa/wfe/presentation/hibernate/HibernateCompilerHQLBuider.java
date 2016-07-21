@@ -154,10 +154,8 @@ public class HibernateCompilerHQLBuider {
             if (parameters.isOnlyIdentityLoad()) {
                 query.append(".id");
             } else {
-                for (String alias : aliasMapping.getJoinedAliases()) {
-//                    if (isVisibleAlias(aliasMapping.getJoinedClass(alias))) {
-                        query.append(", ").append(alias);
-//                    }
+                for (String alias : aliasMapping.getVisibleJoinedAliases()) {
+                    query.append(", ").append(alias);
                 }
             }
         }
@@ -168,16 +166,6 @@ public class HibernateCompilerHQLBuider {
             query.append(batchPresentation.getClassPresentation().getPresentationClass().getName());
         }
         query.append(" as ").append(ClassPresentation.classNameSQL);
-    }
-
-    private boolean isVisibleAlias(final Class<?> aliasEntity) {
-        for (final FieldDescriptor field : batchPresentation.getDisplayFields()) {
-            final Class<?> entity = field.dbSources[0].getSourceObject();
-            if (entity.equals(aliasEntity)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -379,7 +367,7 @@ public class HibernateCompilerHQLBuider {
      * 
      * @return All {@link BatchPresentation} entities.
      */
-    public Set<Class<?>> getJoinedClasses() {
-        return aliasMapping.getJoinedClasses();
+    public Set<Class<?>> getVisibleJoinedClasses() {
+        return aliasMapping.getVisibleJoinedClasses();
     }
 }
