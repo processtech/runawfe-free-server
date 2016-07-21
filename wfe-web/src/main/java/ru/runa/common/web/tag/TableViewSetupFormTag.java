@@ -225,7 +225,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 if (hiddenFields[i].displayName.startsWith(ClassPresentation.filterable_prefix)) {
                     continue;
                 }
-                if (!hiddenFields[i].displayName.startsWith(ClassPresentation.editable_prefix) && hiddenFields[i].fieldState == FieldState.ENABLED) {
+                if (!hiddenFields[i].displayName.startsWith(ClassPresentation.editable_prefix)
+                        && hiddenFields[i].fieldState == FieldState.ENABLED) {
                     table.addElement(buildViewRow(batchPresentation, hiddenFields[i].fieldIdx, -1));
                 }
             }
@@ -250,6 +251,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         boolean isEditable = field.displayName.startsWith(ClassPresentation.editable_prefix);
         boolean isDynamic = field.displayName.startsWith(ClassPresentation.removable_prefix);
         boolean isFilterable = field.displayName.startsWith(ClassPresentation.filterable_prefix);
+        boolean isDefaultHidden = field.displayName.startsWith(ClassPresentation.default_hidden_prefix);
         tr.addAttribute("field", field.displayName);
 
         { // field name section
@@ -270,6 +272,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 }
                 td = new TD(groupingInput);
                 td.addElement(MessagesCommon.LABEL_GROUP_BY_ID.message(pageContext));
+            } else if (isDefaultHidden) {
+                td = new TD(Messages.getMessage(field.displayName.substring(field.displayName.lastIndexOf(':') + 1), pageContext));
             } else {
                 td = new TD(Messages.getMessage(field.displayName, pageContext));
             }
@@ -284,7 +288,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             return tr;
         }
         { // field display position section
-            Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS, createPositionOptions(batchPresentation, fieldIdx));
+            Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS,
+                    createPositionOptions(batchPresentation, fieldIdx));
             tr.addElement(new TD(displayFieldPositionSelect));
             if (fieldDisplayPosition >= 0 && !isEditable) {
                 displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
@@ -296,8 +301,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             if (field.isSortable) {
                 Select sortingModeSelect = new Select(TableViewSetupForm.SORTING_MODE_NAMES, createSortModeOptions());
                 tr.addElement(new TD(sortingModeSelect));
-                Select sortingFieldPositoinSelect = new Select(TableViewSetupForm.SORTING_POSITIONS, createPositionOptions(batchPresentation,
-                        fieldIdx));
+                Select sortingFieldPositoinSelect = new Select(TableViewSetupForm.SORTING_POSITIONS,
+                        createPositionOptions(batchPresentation, fieldIdx));
                 tr.addElement(new TD(sortingFieldPositoinSelect));
                 selectSortingMode(batchPresentation, fieldIdx, sortingModeSelect, sortingFieldPositoinSelect);
 
@@ -305,7 +310,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 if (batchPresentation.isFieldGroupped(fieldIdx)) {
                     groupingInput.setChecked(true);
                 }
-                tr.addElement(new TD(groupingInput).addElement(new Input(Input.HIDDEN, TableViewSetupForm.SORTING_FIELD_IDS, String.valueOf(fieldIdx))));
+                tr.addElement(
+                        new TD(groupingInput).addElement(new Input(Input.HIDDEN, TableViewSetupForm.SORTING_FIELD_IDS, String.valueOf(fieldIdx))));
             } else {
                 for (int idx = 0; idx < 3; ++idx) {
                     tr.addElement(new TD());
@@ -316,9 +322,10 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         // filtering
         if (field.filterMode != FieldFilterMode.NONE) {
             FilterTDFormatter formatter = FilterFormatsFactory.getFormatter(batchPresentation.getAllFields()[fieldIdx].fieldType);
-            tr.addElement(formatter.format(pageContext, batchPresentation.getFieldFilteredCriteria(fieldIdx), fieldIdx,
-                    batchPresentation.isFieldFiltered(fieldIdx)).addElement(
-                    new Input(Input.HIDDEN, TableViewSetupForm.FILTERING_FIELD_IDS, String.valueOf(fieldIdx))));
+            tr.addElement(formatter
+                    .format(pageContext, batchPresentation.getFieldFilteredCriteria(fieldIdx), fieldIdx,
+                            batchPresentation.isFieldFiltered(fieldIdx))
+                    .addElement(new Input(Input.HIDDEN, TableViewSetupForm.FILTERING_FIELD_IDS, String.valueOf(fieldIdx))));
         } else {
             tr.addElement(new TD());
         }
@@ -326,7 +333,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         return tr;
     }
 
-    protected void selectSortingMode(BatchPresentation batchPresentation, int fieldIndex, Select sortingModeSelect, Select sortingFieldPositoinSelect) {
+    protected void selectSortingMode(BatchPresentation batchPresentation, int fieldIndex, Select sortingModeSelect,
+            Select sortingFieldPositoinSelect) {
         if (batchPresentation.isSortingField(fieldIndex)) {
             int sortedFieldIndex = batchPresentation.getSortingFieldPosition(fieldIndex);
             if (batchPresentation.getFieldsToSortModes()[sortedFieldIndex]) {
@@ -371,13 +379,9 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
 
     private TR getHeaderRow() {
         TR tr = new TR();
-        String[] headerNames = {
-                MessagesBatch.FIELD_NAMES.message(pageContext),
-                MessagesBatch.DISPLAY_POSITION.message(pageContext),
-                MessagesBatch.SORTING_TYPE.message(pageContext),
-                MessagesBatch.SORTING_POSITION.message(pageContext),
-                MessagesBatch.GROUPING.message(pageContext),
-                MessagesBatch.FILTER_CRITERIA.message(pageContext)
+        String[] headerNames = { MessagesBatch.FIELD_NAMES.message(pageContext), MessagesBatch.DISPLAY_POSITION.message(pageContext),
+                MessagesBatch.SORTING_TYPE.message(pageContext), MessagesBatch.SORTING_POSITION.message(pageContext),
+                MessagesBatch.GROUPING.message(pageContext), MessagesBatch.FILTER_CRITERIA.message(pageContext)
                         + " <a href='javascript:showFiltersHelp();' style='color: red; text-decoration: none;'>*</a>" };
         for (int i = 0; i < headerNames.length; i++) {
             tr.addElement(new TH(headerNames[i]));

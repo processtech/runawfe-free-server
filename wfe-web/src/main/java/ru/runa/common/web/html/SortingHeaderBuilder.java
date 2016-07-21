@@ -104,7 +104,8 @@ public class SortingHeaderBuilder implements HeaderBuilder {
     private String getDisplayString(FieldDescriptor field) {
         if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
             return field.displayName.substring(field.displayName.lastIndexOf(':') + 1);
-        } else if (field.displayName.startsWith(ClassPresentation.filterable_prefix)) {
+        } else if (field.displayName.startsWith(ClassPresentation.filterable_prefix)
+                || field.displayName.startsWith(ClassPresentation.default_hidden_prefix)) {
             return Messages.getMessage(field.displayName.substring(field.displayName.lastIndexOf(':') + 1), pageContext);
         } else {
             return Messages.getMessage(field.displayName, pageContext);
