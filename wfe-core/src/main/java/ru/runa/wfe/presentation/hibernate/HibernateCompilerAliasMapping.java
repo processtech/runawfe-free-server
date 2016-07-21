@@ -41,7 +41,7 @@ public class HibernateCompilerAliasMapping {
     /**
      * Map HQL query alias to {@link FieldDescriptor}.
      */
-    private final Map<String, FieldDescriptor> aliasToField = new HashMap<String, FieldDescriptor>();
+    private final Map<String, List<FieldDescriptor>> aliasToField = new HashMap<String, List<FieldDescriptor>>();
 
     /**
      * Map Class to query alias.
@@ -116,13 +116,16 @@ public class HibernateCompilerAliasMapping {
     }
 
     /**
-     * Returns field, corresponds to HQL alias.
+     * Returns fields, corresponds to HQL alias.
      * 
      * @param alias
      *            HQL query alias.
      * @return Field for HQL alias.
      */
-    public FieldDescriptor getField(String alias) {
+    public List<FieldDescriptor> getFields(String alias) {
+        if (!aliasToField.containsKey(alias)) {
+            aliasToField.put(alias, new ArrayList<FieldDescriptor>());
+        }
         return aliasToField.get(alias);
     }
 
@@ -190,7 +193,9 @@ public class HibernateCompilerAliasMapping {
      */
     private void addAliasMapping(FieldDescriptor field, String alias) {
         fieldToAlias.put(field, alias);
-        aliasToField.put(alias, field);
+        final List<FieldDescriptor> fields = getFields(alias);
+        fields.add(field);
+        aliasToField.put(alias, fields);
     }
 
     /**

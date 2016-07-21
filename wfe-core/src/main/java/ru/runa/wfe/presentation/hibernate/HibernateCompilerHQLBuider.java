@@ -175,21 +175,24 @@ public class HibernateCompilerHQLBuider {
         Set<String> multiSource = new HashSet<String>();
         Set<String> singleSource = new HashSet<String>();
         for (String alias : aliasMapping.getAliases()) {
-            FieldDescriptor field = aliasMapping.getField(alias);
-            if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation) || alias.equals(ClassPresentation.classNameSQL)) {
-                continue;
-            }
-            if (field.dbSources.length == 1) {
-                singleSource.add(alias);
-            } else {
-                multiSource.add(alias);
+            final List<FieldDescriptor> fields = aliasMapping.getFields(alias);
+            for (final FieldDescriptor field : fields) {
+                if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation) || alias.equals(ClassPresentation.classNameSQL)) {
+                    continue;
+                }
+                if (field.dbSources.length == 1) {
+                    singleSource.add(alias);
+                } else {
+                    multiSource.add(alias);
+                }
+                break;
             }
         }
         for (String alias : multiSource) {
-            query.append(", ").append(aliasMapping.getField(alias).dbSources[0].getSourceObject().getName()).append(" as ").append(alias);
+            query.append(", ").append(aliasMapping.getFields(alias).get(0).dbSources[0].getSourceObject().getName()).append(" as ").append(alias);
         }
         for (String alias : singleSource) {
-            query.append(", ").append(aliasMapping.getField(alias).dbSources[0].getSourceObject().getName()).append(" as ").append(alias);
+            query.append(", ").append(aliasMapping.getFields(alias).get(0).dbSources[0].getSourceObject().getName()).append(" as ").append(alias);
         }
     }
 
@@ -232,7 +235,7 @@ public class HibernateCompilerHQLBuider {
     private List<String> addJoinFieldRestrictions() {
         List<String> result = new LinkedList<String>();
         for (String alias : aliasMapping.getAliases()) {
-            FieldDescriptor field = aliasMapping.getField(alias);
+            FieldDescriptor field = aliasMapping.getFields(alias).get(0);
             if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation)) {
                 continue;
             }
