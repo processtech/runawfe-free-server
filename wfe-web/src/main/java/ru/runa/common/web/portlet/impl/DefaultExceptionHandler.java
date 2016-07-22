@@ -31,6 +31,7 @@ import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.InvalidSessionException;
 import ru.runa.common.web.portlet.PortletExceptionHandler;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.execution.ExtendedProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthenticationExpiredException;
@@ -69,6 +70,12 @@ public class DefaultExceptionHandler implements PortletExceptionHandler {
         if (exception instanceof ProcessDoesNotExistException) {
             ActionExceptionHelper.addException(getActionErrors(request), exception);
             servletContext.getRequestDispatcher("/manage_processes.do").forward(request, response);
+            return true;
+        }
+
+        if (exception instanceof ExtendedProcessDoesNotExistException) {
+            ActionExceptionHelper.addException(getActionErrors(request), exception);
+            servletContext.getRequestDispatcher("/manage_extended_processes.do").forward(request, response);
             return true;
         }
 

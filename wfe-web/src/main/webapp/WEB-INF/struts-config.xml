@@ -82,6 +82,8 @@
 		<forward name="validate_definition" path="/validate_process_definition.do" />
 		<forward name="manage_processes"
 			path="/manage_processes.do?tabForwardName=manage_processes" />
+        <forward name="manage_extended_processes"
+            path="/manage_extended_processes.do?tabForwardName=manage_extended_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
 		<forward name="configure_bot_station"
 			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
