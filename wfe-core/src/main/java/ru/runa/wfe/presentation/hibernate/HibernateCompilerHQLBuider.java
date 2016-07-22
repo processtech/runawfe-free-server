@@ -235,26 +235,30 @@ public class HibernateCompilerHQLBuider {
     private List<String> addJoinFieldRestrictions() {
         List<String> result = new LinkedList<String>();
         for (String alias : aliasMapping.getAliases()) {
-            FieldDescriptor field = aliasMapping.getFields(alias).get(0);
-            if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation)) {
-                continue;
+
+            final List<FieldDescriptor> fields = aliasMapping.getFields(alias);
+            for (final FieldDescriptor field : fields) {
+                if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation) || alias.equals(ClassPresentation.classNameSQL)) {
+                    continue;
+                }
+                String joinExpr = field.dbSources[0].getJoinExpression(alias);
+                if (joinExpr == null || joinExpr.equals("")) {
+                    continue;
+                }
+                StringBuilder joinRestriction = new StringBuilder();
+                joinRestriction.append("((").append(joinExpr).append(")");
+                if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
+                    String propertyDBPath = field.displayName.substring(ClassPresentation.removable_prefix.length(),
+                            field.displayName.indexOf(':', ClassPresentation.removable_prefix.length()));
+                    joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:")
+                            .append("removableUserValue" + field.fieldIdx).append(")");
+                    placeholders.put("removableUserValue" + field.fieldIdx, new QueryParameter("removableUserValue" + field.fieldIdx,
+                            field.displayName.substring(field.displayName.lastIndexOf(':') + 1)));
+                }
+                joinRestriction.append(")");
+                result.add(joinRestriction.toString());
+                break;
             }
-            String joinExpr = field.dbSources[0].getJoinExpression(alias);
-            if (joinExpr == null || joinExpr.equals("")) {
-                continue;
-            }
-            StringBuilder joinRestriction = new StringBuilder();
-            joinRestriction.append("((").append(joinExpr).append(")");
-            if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
-                String propertyDBPath = field.displayName.substring(ClassPresentation.removable_prefix.length(),
-                        field.displayName.indexOf(':', ClassPresentation.removable_prefix.length()));
-                joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:")
-                        .append("removableUserValue" + field.fieldIdx).append(")");
-                placeholders.put("removableUserValue" + field.fieldIdx, new QueryParameter("removableUserValue" + field.fieldIdx,
-                        field.displayName.substring(field.displayName.lastIndexOf(':') + 1)));
-            }
-            joinRestriction.append(")");
-            result.add(joinRestriction.toString());
         }
         return result;
     }

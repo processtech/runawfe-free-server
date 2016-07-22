@@ -169,6 +169,7 @@ public class HibernateCompilerLeftJoinBuilder {
         while (-1 == restrFrom) {
             restrictionIndex = sqlRequest.indexOf(joinedTableAlias, restrictionIndex);
             if (-1 == restrictionIndex) {
+                restrFrom = fromIndex;
                 break;
             }
             restrFrom = sqlRequest.lastIndexOf("(", restrictionIndex);
