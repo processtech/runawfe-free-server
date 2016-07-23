@@ -30,10 +30,10 @@
 	String returnAction = "/manage_extended_processes.do";
 %>
 
-<wf:listProcessesForm batchPresentationId="listProcessesForm" returnAction="<%= returnAction %>">
+<wf:listProcessesForm batchPresentationId="listExtendedProcessesForm" returnAction="<%= returnAction %>">
 	<div>
-		<wf:viewControlsHideableBlock hideableBlockId="listProcessesForm"  returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listProcessesForm" returnAction="<%= returnAction %>" />
+		<wf:viewControlsHideableBlock hideableBlockId="listExtendedProcessesForm"  returnAction="<%= returnAction %>" >
+			<wf:tableViewSetupForm batchPresentationId="listExtendedProcessesForm" returnAction="<%= returnAction %>" />
 		</wf:viewControlsHideableBlock>
 	</div>
 </wf:listProcessesForm>

@@ -845,6 +845,9 @@
 		<action path="/manage_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_processes.jsp" />
 
+		<action path="/manage_extended_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/wf/manage_extended_processes.jsp" />
+			
 		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction"
 			parameter="/WEB-INF/wf/manage_process.jsp" />
 
