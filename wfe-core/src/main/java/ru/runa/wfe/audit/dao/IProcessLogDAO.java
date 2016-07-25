@@ -10,8 +10,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 public interface IProcessLogDAO<T extends ProcessLog> extends IGenericDAO<T> {
 
     /**
-     * @return process logs for embedded subprocess or for main process without
-     *         embedded subprocesses.
+     * @return process logs for embedded subprocess or for main process without embedded subprocesses.
      */
     public List<T> get(Long processId, ProcessDefinition definition);
 

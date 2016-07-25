@@ -119,9 +119,6 @@ public class FileDownloadServlet extends HttpServlet {
                         || field.fieldState != FieldState.ENABLED) {
                     continue;
                 }
-                if (displayName.startsWith(ClassPresentation.default_hidden_prefix)) {
-                    displayName = displayName.substring(displayName.indexOf(':') + 1);
-                }
                 this.fieldNames.add(displayName);
                 this.tdBuilders.add((TDBuilder) field.getTDBuilder());
             }

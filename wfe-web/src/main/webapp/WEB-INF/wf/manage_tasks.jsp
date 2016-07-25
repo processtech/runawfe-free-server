@@ -39,7 +39,7 @@
 			</tr></tbody></table>
 		</div>
 		<wf:viewControlsHideableBlock hideableBlockId="listTasksForm"  returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listTasksForm" returnAction="<%= returnAction %>" />
+			<wf:tableViewSetupForm batchPresentationId="listTasksForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
 		</wf:viewControlsHideableBlock>
 		<div id="helpContentDiv" style="display: none;">
 			<table>
@@ -61,9 +61,8 @@
 				</tr>
 			</table>
 		</div>
-	</div>
+	</div>	
 </wf:listTasksForm>
-
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 <tiles:put name="head" type="string">

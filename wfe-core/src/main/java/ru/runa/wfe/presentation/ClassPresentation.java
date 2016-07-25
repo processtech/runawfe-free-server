@@ -49,11 +49,6 @@ public class ClassPresentation {
     public static final String filterable_prefix = "filterable:";
 
     /**
-     * Default hidden fields format:default_hidden_prefix:displayed name. This field not have display position.
-     */
-    public static final String default_hidden_prefix = "default_hidden:";
-
-    /**
      * Root persistent class of {@link ClassPresentation}. All fields is queried against this object.
      */
     private final Class<?> clazz;

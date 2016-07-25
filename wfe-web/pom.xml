@@ -70,6 +70,16 @@
 			<version>2.7.6</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- Include in WAR -->
 		<dependency>

@@ -192,4 +192,5 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
             log.warn("Custom log handler throws exception", e);
         }
     }
+
 }

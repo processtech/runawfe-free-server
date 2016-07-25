@@ -33,6 +33,10 @@ import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
@@ -54,10 +58,6 @@ import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * @author Gritsenko_S
@@ -252,7 +252,7 @@ public class ReflectionRowBuilder implements RowBuilder {
             int begin = displayName.lastIndexOf(':', end - 1) + 1;
             link.addElement(Messages.getMessage(displayName.substring(begin, end), pageContext) + " '"
                     + displayName.substring(displayName.lastIndexOf(':') + 1) + "':");
-        } else if (displayName.startsWith(ClassPresentation.filterable_prefix) || displayName.startsWith(ClassPresentation.default_hidden_prefix)) {
+        } else if (displayName.startsWith(ClassPresentation.filterable_prefix)) {
             link.addElement(Messages.getMessage(displayName.substring(displayName.lastIndexOf(':') + 1), pageContext));
         } else {
             link.addElement(ru.runa.common.web.Messages.getMessage(displayName, pageContext) + ":");

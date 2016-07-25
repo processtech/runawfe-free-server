@@ -15,6 +15,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 
 /**
@@ -35,8 +36,11 @@ public class ExecutorDataFileBuilder implements DataFileBuilder {
         List<Group> groupsForCreating = new ArrayList<Group>();
         List<Actor> actorOnPermissions = new ArrayList<Actor>();
         List<Group> groupOnPermissions = new ArrayList<Group>();
-        List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.EXECUTORS.createDefault());
+        List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.EXECUTORS.createNonPaged());
         for (Executor executor : executors) {
+            if (executor instanceof TemporaryGroup) {
+                continue;
+            }
             if (executor instanceof Actor) {
                 actorOnPermissions.add((Actor) executor);
                 populateActorElement(script, (Actor) executor);

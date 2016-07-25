@@ -60,8 +60,7 @@ public class TaskAggregatedLog {
      */
     private String initialActorName;
     /**
-     * Actor name, which complete task. May be null if task not completed or
-     * completed not by user (timeout and so on).
+     * Actor name, which complete task. May be null if task not completed or completed not by user (timeout and so on).
      */
     private String completeActorName;
     /**
@@ -98,8 +97,7 @@ public class TaskAggregatedLog {
      */
     private String swimlaneName;
     /**
-     * Assignment history for task instance. Initial assignment and completed
-     * actor is also here.
+     * Assignment history for task instance. Initial assignment and completed actor is also here.
      */
     private List<TaskAssignmentHistory> assignmentHistory = new LinkedList<TaskAssignmentHistory>();
 
@@ -172,7 +170,7 @@ public class TaskAggregatedLog {
             for (TaskAssignmentHistory assignment : assignmentHistory) {
                 // This check is for import - assignment may already be saved
                 // before import operation.
-                if (assignment.getAssingnDate().equals(assignmentDate) && assignment.getNewExecutorName().equals(newExecutorName)) {
+                if (assignment.getAssignDate().equals(assignmentDate) && assignment.getNewExecutorName().equals(newExecutorName)) {
                     oldExecutorName = newExecutorName;
                     break;
                 }
