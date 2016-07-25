@@ -148,9 +148,9 @@ public class HibernateCompilerHQLBuider {
      */
     private void buildSelectClause() {
         if (parameters.isCountQuery()) {
-            query.append("select count (").append(ClassPresentation.classNameSQL).append(")");
+            query.append("select count ( distinct ").append(ClassPresentation.classNameSQL).append(")");
         } else {
-            query.append("select ").append(ClassPresentation.classNameSQL);
+            query.append("select distinct ").append(ClassPresentation.classNameSQL);
             if (parameters.isOnlyIdentityLoad()) {
                 query.append(".id");
             } else {

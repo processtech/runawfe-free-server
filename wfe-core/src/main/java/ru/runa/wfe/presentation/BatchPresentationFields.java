@@ -255,14 +255,16 @@ public class BatchPresentationFields implements Serializable {
         fields.groupIds = new int[0];
         int displayedFieldsCount = classPresentation.getFields().length;
         for (FieldDescriptor fieldDescriptor : classPresentation.getFields()) {
-            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix) || !fieldDescriptor.isVisible()) {
+            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
+                    || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 displayedFieldsCount--;
             }
         }
         fields.displayIds = new int[displayedFieldsCount];
         for (int i = classPresentation.getFields().length - 1; i >= 0; i--) {
             FieldDescriptor fieldDescriptor = classPresentation.getFields()[i];
-            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix) || !fieldDescriptor.isVisible()) {
+            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
+                    || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 continue;
             }
             fields.displayIds[--displayedFieldsCount] = i;

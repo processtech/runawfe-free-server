@@ -309,13 +309,17 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             return tr;
         }
         { // field display position section
-            Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS,
-                    createPositionOptions(batchPresentation, fieldIdx));
-            tr.addElement(new TD(displayFieldPositionSelect));
-            if (fieldDisplayPosition >= 0 && !isEditable) {
-                displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
+            if (field.isShowable()) {
+                Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS,
+                        createPositionOptions(batchPresentation, fieldIdx));
+                tr.addElement(new TD(displayFieldPositionSelect));
+                if (fieldDisplayPosition >= 0 && !isEditable) {
+                    displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
+                } else {
+                    displayFieldPositionSelect.selectOption(noneOptionPosition);
+                }
             } else {
-                displayFieldPositionSelect.selectOption(noneOptionPosition);
+                tr.addElement(new TD());
             }
         }
         {// field sorting/groupping section
