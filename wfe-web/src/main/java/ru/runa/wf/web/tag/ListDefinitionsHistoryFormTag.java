@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.ReflectionRowBuilder;
@@ -51,8 +52,8 @@ public class ListDefinitionsHistoryFormTag extends BatchReturningTitledFormTag {
         List<WfDefinition> definitions = definitionService.getDeployments(getUser(), batchPresentation, true);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, count, "/definitions_history.do");
         navigation.addPagingNavigationTable(tdFormElement);
-        TDBuilder[] builders = getBuilders(new TDBuilder[] {}, batchPresentation, new TDBuilder[] { new UndeployProcessDefinitionTDBuilder(),
-                new PropertiesProcessTDBuilder() });
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, new TDBuilder[] {
+                new UndeployProcessDefinitionTDBuilder(), new PropertiesProcessTDBuilder() });
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 0, 2, getReturnAction(), pageContext);
         RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_MANAGE_DEFINITION,
                 getReturnAction(), new DefinitionUrlStrategy(pageContext), builders);

@@ -11,13 +11,13 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.ArraysCommons;
-import ru.runa.wfe.presentation.filter.FilterCriteria;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.ArraysCommons;
+import ru.runa.wfe.presentation.filter.FilterCriteria;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BatchPresentationFields implements Serializable {
@@ -88,7 +88,7 @@ public class BatchPresentationFields implements Serializable {
 
     public void setFirstFieldToSort(int newSortFieldId, FieldDescriptor[] allFields) {
         int fieldIndex = ArraysCommons.findPosition(sortIds, newSortFieldId);
-        boolean alreadyUsed = (fieldIndex == -1) ? false : true;
+        boolean alreadyUsed = fieldIndex == -1 ? false : true;
         boolean[] newFieldsToSortModes = null;
         int[] newFieldsToSortIds = null;
         // Bug fix
@@ -203,7 +203,7 @@ public class BatchPresentationFields implements Serializable {
         boolean[] newSortingModes = new boolean[newSortingIdList.size()];
         for (int i = 0; i < newSortingIdList.size(); i++) {
             int pos = sortingIdList.indexOf(newSortingIdList.get(i));
-            newSortingModes[i] = (pos < 0) ? BatchPresentationConsts.ASC : sortModes[pos];
+            newSortingModes[i] = pos < 0 ? BatchPresentationConsts.ASC : sortModes[pos];
         }
         // end of calculation of newSortingModes
         sortIds = ArraysCommons.createIntArray(newSortingIdList);
@@ -252,25 +252,21 @@ public class BatchPresentationFields implements Serializable {
     public static BatchPresentationFields createDefaultFields(ClassPresentationType type) {
         ClassPresentation classPresentation = ClassPresentations.getClassPresentation(type);
         BatchPresentationFields fields = new BatchPresentationFields();
-
         fields.groupIds = new int[0];
         int displayedFieldsCount = classPresentation.getFields().length;
-        for (FieldDescriptor field : classPresentation.getFields()) {
-            if (field.displayName.startsWith(ClassPresentation.editable_prefix)
-                    || field.displayName.startsWith(ClassPresentation.default_hidden_prefix)) {
+        for (FieldDescriptor fieldDescriptor : classPresentation.getFields()) {
+            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix) || !fieldDescriptor.isVisible()) {
                 displayedFieldsCount--;
             }
         }
         fields.displayIds = new int[displayedFieldsCount];
         for (int i = classPresentation.getFields().length - 1; i >= 0; i--) {
-            final String fieldDisplayName = classPresentation.getFields()[i].displayName;
-            if (fieldDisplayName.startsWith(ClassPresentation.editable_prefix)
-                    || fieldDisplayName.startsWith(ClassPresentation.default_hidden_prefix)) {
+            FieldDescriptor fieldDescriptor = classPresentation.getFields()[i];
+            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix) || !fieldDescriptor.isVisible()) {
                 continue;
             }
             fields.displayIds[--displayedFieldsCount] = i;
         }
-
         // Default sorting - creates array of sortIds,
         // which contains indexes of only(!) sorted fields - in order of sorting(!),
         // and synchronized array of sortModes.
@@ -296,7 +292,6 @@ public class BatchPresentationFields implements Serializable {
                 }
             }
         }
-
         return fields;
     }
 }

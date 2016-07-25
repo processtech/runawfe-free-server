@@ -19,43 +19,41 @@ package ru.runa.wf.web.html;
 
 import org.apache.ecs.html.TD;
 
-import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.html.TDBuilder;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.TaskAssignLog;
+import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
-import ru.runa.wfe.user.Executor;
 
 /**
- * Created on 24.07.2007
+ * Class for displaying task assignment date (TaskAssignLog.createDate of the appropriate TaskAssignLog entity) in the task list table
  *
- * @author Konstantinov A.
+ * @author Vladimir Shevtsov
+ *
  */
-public class TaskOwnerTDBuilder implements TDBuilder {
-
-    public TaskOwnerTDBuilder() {
-    }
-
-    private Executor getOwner(Object object) {
-        WfTask task = (WfTask) object;
-        if (task.isAcquiredBySubstitution()) {
-            return task.getTargetActor();
-        } else {
-            return task.getOwner();
-        }
-    }
+public class TaskAssignmentDateTDBuilder implements TDBuilder {
 
     @Override
     public TD build(Object object, Env env) {
-        TD td = new TD(HTMLUtils.createExecutorElement(env.getPageContext(), getOwner(object)));
+        TD td = new TD();
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
+        td.addElement(getValue(object, env));
         return td;
     }
 
     @Override
     public String getValue(Object object, Env env) {
-        if (env.getPageContext() != null) {
-            return HTMLUtils.getExecutorName(getOwner(object), env.getPageContext());
+        WfTask task = (WfTask) object;
+        ProcessLogFilter filter = new ProcessLogFilter(task.getProcessId());
+        filter.setNodeId(task.getNodeId());
+        ProcessLogs logs = Delegates.getAuditService().getProcessLogs(env.getUser(), filter);
+        TaskAssignLog taskAssignLog = logs.getLastOrNull(TaskAssignLog.class);
+        if (taskAssignLog != null) {
+            return CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
         }
-        return getOwner(object).getLabel();
+        return "";
     }
 
     @Override
@@ -67,4 +65,5 @@ public class TaskOwnerTDBuilder implements TDBuilder {
     public int getSeparatedValuesCount(Object object, Env env) {
         return 1;
     }
+
 }

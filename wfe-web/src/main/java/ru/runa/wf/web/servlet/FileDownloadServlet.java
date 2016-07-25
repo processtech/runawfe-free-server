@@ -97,6 +97,8 @@ public class FileDownloadServlet extends HttpServlet {
         final ExecutionService executionService = Delegates.getExecutionService();
         if ("listProcessesForm".equals(batchPresentation.getCategory())) {
             return executionService.getProcesses(user, batchPresentation);
+        } else if ("listExtendedProcessesForm".equals(batchPresentation.getCategory())) {
+            return executionService.getExtendedProcesses(user, batchPresentation);
         }
         return Collections.EMPTY_LIST;
     }
@@ -118,9 +120,6 @@ public class FileDownloadServlet extends HttpServlet {
                 if (displayName.startsWith(ClassPresentation.editable_prefix) || displayName.startsWith(ClassPresentation.filterable_prefix)
                         || field.fieldState != FieldState.ENABLED) {
                     continue;
-                }
-                if (displayName.startsWith(ClassPresentation.default_hidden_prefix)) {
-                    displayName = displayName.substring(displayName.indexOf(':') + 1);
                 }
                 this.fieldNames.add(displayName);
                 this.tdBuilders.add((TDBuilder) field.getTDBuilder());

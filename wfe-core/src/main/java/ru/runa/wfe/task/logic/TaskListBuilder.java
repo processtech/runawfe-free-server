@@ -111,6 +111,7 @@ public class TaskListBuilder implements ITaskListBuilder {
                 if (acceptable == null) {
                     continue;
                 }
+
                 result.add(acceptable);
             } catch (Exception e) {
                 if (taskDAO.get(task.getId()) == null) {
