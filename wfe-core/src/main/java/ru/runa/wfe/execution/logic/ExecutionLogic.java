@@ -440,6 +440,9 @@ public class ExecutionLogic extends WFCommonLogic {
         if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new InternalApplicationException(process + " already suspended");
         }
+        if (process.getExecutionStatus() == ExecutionStatus.ENDED) {
+            return;
+        }
         process.setExecutionStatus(ExecutionStatus.SUSPENDED);
         for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.ACTIVE)) {
             token.setExecutionStatus(ExecutionStatus.SUSPENDED);
