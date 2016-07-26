@@ -9,9 +9,9 @@
 
 <tiles:put name="body" type="string">
 <%
-	String returnAction = "/manage_tasks.do";
+	String returnAction = "/administer_tasks.do";
 %>
-<wf:listTasksForm batchPresentationId="listTasksForm" buttonAlignment="right" returnAction="<%= returnAction %>" >
+<wf:listTasksAdministerForm batchPresentationId="listTasksForm" buttonAlignment="right" returnAction="<%= returnAction %>" >
 	<script>
 	var helpVisible = false;
 	$().ready(function() {
@@ -62,7 +62,7 @@
 			</table>
 		</div>
 	</div>	
-</wf:listTasksForm>
+</wf:listTasksAdministerForm>
 
 <% if (WebResources.isTaskDelegationEnabled()) { %>
 	<%-- taskId = -1L - means that multiple delegation are processed --%>
@@ -72,6 +72,6 @@
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 <tiles:put name="head" type="string">
-	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/manage_tasks.do?tabForwardName=manage_tasks"/>'">
+	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/administetr_tasks.do?tabForwardName=administetr_tasks"/>'">
 </tiles:put>
 </tiles:insert>
