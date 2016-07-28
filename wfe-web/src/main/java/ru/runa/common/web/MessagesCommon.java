@@ -23,6 +23,8 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_SETTINGS = new StrutsMessage("manage_settings");
     // Forward menu (left main menu items) -> Logs.
     public static final StrutsMessage MAIN_MENU_ITEM_LOGS = new StrutsMessage("view_logs");
+    // Forward menu (left main menu items) -> Administer tasks.
+    public static final StrutsMessage MAIN_MENU_ADMINISTER_TASKS = new StrutsMessage("administer_tasks");
 
     // Common buttons
 
