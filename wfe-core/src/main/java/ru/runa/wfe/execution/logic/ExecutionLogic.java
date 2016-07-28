@@ -84,7 +84,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Process execution logic.
- *
+ * 
  * @author Dofs
  * @since 2.0
  */
@@ -404,6 +404,9 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     private void activateProcessWithSubprocesses(User user, Process process) {
+        if (process.getExecutionStatus() == ExecutionStatus.ENDED) {
+            return;
+        }
         if (process.getExecutionStatus() == ExecutionStatus.ACTIVE) {
             throw new InternalApplicationException(process + " already activated");
         }
