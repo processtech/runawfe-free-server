@@ -147,10 +147,11 @@ public class HibernateCompilerHQLBuider {
      * Builds 'select' HQL clause and 'from' clause with root persistent object.
      */
     private void buildSelectClause() {
+        final String distinct = batchPresentation.getClassPresentation().isDistinct() ? "distinct " : "";
         if (parameters.isCountQuery()) {
-            query.append("select count ( distinct ").append(ClassPresentation.classNameSQL).append(")");
+            query.append("select count (").append(distinct).append(ClassPresentation.classNameSQL).append(")");
         } else {
-            query.append("select distinct ").append(ClassPresentation.classNameSQL);
+            query.append("select ").append(distinct).append(ClassPresentation.classNameSQL);
             if (parameters.isOnlyIdentityLoad()) {
                 query.append(".id");
             } else {

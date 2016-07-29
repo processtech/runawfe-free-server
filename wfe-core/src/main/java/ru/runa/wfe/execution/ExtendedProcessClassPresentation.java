@@ -132,7 +132,7 @@ public class ExtendedProcessClassPresentation extends ClassPresentation {
     }
 
     private ExtendedProcessClassPresentation() {
-        super(Process.class, "", true, new FieldDescriptor[] {
+        super(Process.class, "", true, true, new FieldDescriptor[] {
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDBSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "id" }),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDBSource(Process.class, "deployment.name"), true,

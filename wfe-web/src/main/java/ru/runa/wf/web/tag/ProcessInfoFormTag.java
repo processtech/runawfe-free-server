@@ -38,6 +38,7 @@ import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
+import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ActivateProcessExecutionAction;
@@ -53,6 +54,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -188,8 +190,10 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
                     Div div = new Div();
                     div.addElement(statusElement);
                     div.addElement(Entities.NBSP);
+                    StrutsMessage message = process.getExecutionStatus() == ExecutionStatus.FAILED ? MessagesProcesses.PROCESS_ACTIVATE_FAILED_TOKENS
+                            : MessagesProcesses.PROCESS_ACTIVATE;
                     div.addElement(new A(Commons.getActionUrl(ActivateProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
-                            pageContext, PortletUrlType.Render), MessagesProcesses.PROCESS_ACTIVATE.message(pageContext)));
+                            pageContext, PortletUrlType.Render), message.message(pageContext)));
                     statusElement = div;
                 }
                 break;
