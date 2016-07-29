@@ -70,6 +70,11 @@ public class ClassPresentation {
     private final boolean withPaging;
 
     /**
+     * Flag, equals true, if need to distinct result.
+     */
+    private final boolean distinct;
+
+    /**
      * Creates class presentation instance.
      * 
      * @param clazz
@@ -82,10 +87,29 @@ public class ClassPresentation {
      *            Fields (properties), available via {@link BatchPresentation}.
      */
     public ClassPresentation(Class<?> clazz, String classRestrictions, boolean withPaging, FieldDescriptor[] fields) {
+        this(clazz, classRestrictions, withPaging, false, fields);
+    }
+
+    /**
+     * Creates class presentation instance.
+     * 
+     * @param clazz
+     *            Root persistent class.
+     * @param classRestrictions
+     *            Predefined restrictions for root persistent object.
+     * @param withPaging
+     *            Flag, equals true, if paging is enabled for persistent class loading; false otherwise.
+     * @param distinct
+     *            Flag, equals true, if need to distinct result.
+     * @param fields
+     *            Fields (properties), available via {@link BatchPresentation}.
+     */
+    public ClassPresentation(Class<?> clazz, String classRestrictions, boolean withPaging, boolean distinct, FieldDescriptor[] fields) {
         this.clazz = clazz;
         this.classRestrictions = classRestrictions;
         this.fields = fields;
         this.withPaging = withPaging;
+        this.distinct = distinct;
     }
 
     /**
@@ -123,6 +147,13 @@ public class ClassPresentation {
      */
     public boolean isWithPaging() {
         return withPaging;
+    }
+
+    /**
+     * @return Flag, equals true, if need to distinct result.
+     */
+    public boolean isDistinct() {
+        return distinct;
     }
 
     @Override
