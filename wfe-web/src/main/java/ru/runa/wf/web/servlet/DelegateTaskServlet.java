@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 
 import ru.runa.common.WebResources;
@@ -39,6 +40,8 @@ public class DelegateTaskServlet extends HttpServlet {
             JSONParser jsonParser = new JSONParser();
             JSONObject parameters = (JSONObject) jsonParser.parse(request.getReader());
             Long taskId = (Long) parameters.get("taskId");
+            Set<Long> tasks = Sets.newHashSet();
+            String tasksIdsParam = (String)parameters.get("tasksIds");
             boolean keepCurrentOwners = (Boolean) parameters.get("keepCurrent");
             JSONArray executorIdsArray = (JSONArray) parameters.get("executors");
             Set<Long> executorIds = Sets.newHashSet();
@@ -46,12 +49,22 @@ public class DelegateTaskServlet extends HttpServlet {
                 executorIds.add((Long) executorId);
             }
             User user = Commons.getUser(request.getSession());
-            WfTask task = Delegates.getTaskService().getTask(user, taskId);
             List<Executor> executors = Lists.newArrayList();
             for (Long executorId : executorIds) {
                 executors.add(Delegates.getExecutorService().getExecutor(user, executorId));
             }
-            Delegates.getTaskService().delegateTask(user, taskId, task.getOwner(), keepCurrentOwners, executors);
+            if (taskId != -1L) {
+                // Single task processing
+                WfTask task = Delegates.getTaskService().getTask(user, taskId);
+                Delegates.getTaskService().delegateTask(user, taskId, task.getOwner(), keepCurrentOwners, executors);
+            } else if (tasksIdsParam != null) {
+                // Multiple tasks processing
+                JSONArray tasksIds = (JSONArray) JSONValue.parse(tasksIdsParam);
+                for (Object task : tasksIds) {
+                    tasks.add((Long) task);
+                }
+                Delegates.getTaskService().delegateTasks(user, tasks, keepCurrentOwners, executors);
+            }
         } catch (Exception e) {
             log.error("Bad request", e);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);

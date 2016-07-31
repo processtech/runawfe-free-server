@@ -17,14 +17,27 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.jsp.PageContext;
+
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.json.simple.JSONValue;
 import org.tldgen.annotations.BodyContent;
+
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.PagingNavigationHelper;
-import ru.runa.common.web.html.*;
+import ru.runa.common.web.html.CssClassStrategy;
+import ru.runa.common.web.html.HeaderBuilder;
+import ru.runa.common.web.html.ReflectionRowBuilder;
+import ru.runa.common.web.html.SortingHeaderBuilder;
+import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ProcessTaskAssignmentAction;
@@ -35,10 +48,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
-import javax.servlet.jsp.PageContext;
-import java.util.Date;
-import java.util.List;
-
 /**
  * Created on 15.10.2004
  *
@@ -48,17 +57,31 @@ import java.util.List;
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listTasksAdministerForm")
 public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
     private static final long serialVersionUID = 1L;
+
     private static boolean isButtonEnabled;
+
+    private static final String[] NO_PREFIX_HEADER_NAMES = new String[0];
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
         BatchPresentation batchPresentation = getBatchPresentation();
-        List<WfTask> tasks = Delegates.getTaskService().getMyTasks(getUser(), batchPresentation);
+        List<WfTask> tasks = Delegates.getTaskService().getTasks(getUser(), batchPresentation);
         Table table = buildTasksTable(pageContext, batchPresentation, tasks, getReturnAction(), false);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, tasks.size());
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
+
+        // Build current tasks ID-s string (in JSON format for common purposes)
+        String batchName = batchPresentation.getName();
+        if (!batchName.equals("label.batch_presentation_default_name")) {
+            List<Long> ids = new ArrayList<Long>(tasks.size());
+            for (WfTask tsk : tasks) {
+                ids.add(tsk.getId());
+            }
+            String tasksIds = JSONValue.toJSONString(ids);
+            pageContext.setAttribute("tasksIds", tasksIds, PageContext.REQUEST_SCOPE);
+        }
     }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
@@ -72,9 +95,11 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
                 }
             }
         }
+
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new AssignTaskCheckboxTDBuilder(!disableCheckbox) },
-                batchPresentation, null);
-        HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, returnAction, pageContext);
+                batchPresentation, new TDBuilder[] {});
+
+        HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, NO_PREFIX_HEADER_NAMES.length, returnAction, pageContext);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(tasks, batchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, returnAction, new TaskUrlStrategy(pageContext), builders);
         rowBuilder.setCssClassStrategy(new TasksCssClassStrategy());

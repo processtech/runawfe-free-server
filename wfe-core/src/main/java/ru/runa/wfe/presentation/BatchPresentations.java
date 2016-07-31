@@ -19,9 +19,9 @@ package ru.runa.wfe.presentation;
 
 import java.util.Map;
 
-import ru.runa.wfe.InternalApplicationException;
-
 import com.google.common.collect.Maps;
+
+import ru.runa.wfe.InternalApplicationException;
 
 public class BatchPresentations {
     private static Map<String, BatchPresentationFactory> map = Maps.newHashMap();
@@ -45,6 +45,7 @@ public class BatchPresentations {
         map.put(BatchPresentationConsts.ID_DEFINITIONS, BatchPresentationFactory.DEFINITIONS);
         map.put(BatchPresentationConsts.ID_DEFINITIONS_HISTORY, BatchPresentationFactory.DEFINITIONS_HISTORY);
         map.put(BatchPresentationConsts.ID_TASKS, BatchPresentationFactory.TASKS);
+        map.put(BatchPresentationConsts.ID_ADMIN_TASKS, BatchPresentationFactory.TASKS);
         map.put(BatchPresentationConsts.ID_SYSTEM_LOGS, BatchPresentationFactory.SYSTEM_LOGS);
     }
 

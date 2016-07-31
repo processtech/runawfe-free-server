@@ -8,6 +8,12 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
 import ru.runa.wfe.commons.SystemProperties;
@@ -54,12 +60,6 @@ import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Task logic.
@@ -118,7 +118,8 @@ public class TaskLogic extends WFCommonLogic {
                     extraVariablesMap.put(mapping.getMappedName(), value);
                 }
             }
-            IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
+            IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap,
+                    executionContext.getVariableProvider());
             validateVariables(user, processDefinition, task.getNodeId(), variables, validationVariableProvider);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
@@ -153,10 +154,8 @@ public class TaskLogic extends WFCommonLogic {
             Set<Map.Entry<String, Object>> entries = new HashSet<Map.Entry<String, Object>>(variables.entrySet());
             for (Map.Entry<String, Object> entry : entries) {
                 if (Objects.equal(mapping.getMappedName(), entry.getKey()) || entry.getKey().startsWith(mapping.getMappedName() + UserType.DELIM)) {
-                    String mappedVariableName = entry.getKey().replaceFirst(
-                            mapping.getMappedName(),
-                            mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                    String mappedVariableName = entry.getKey().replaceFirst(mapping.getMappedName(), mapping.getName()
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex() + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -249,13 +248,65 @@ public class TaskLogic extends WFCommonLogic {
         AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
     }
 
-    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors) {
+    ///////////////////////////////
+    /**
+     * Delegates the Task (by taskId) to new owners. (Rely on multiply tasks delegation function delegateTasks(), though usually are done conversely.
+     * Done here so, because SET is more common case than single ELEMENT, and it's right way to build more special cases on top of commons, not
+     * versa.)
+     * 
+     * @param user
+     *            - Current user
+     * @param taskId
+     *            - Delegated Task (by taskId)
+     * @param currentOwner
+     *            - Current tasks Owner
+     * @param keepCurrentOwners
+     *            - Flag that current owners can still accept tasks
+     * @param newOwners
+     *            - new Owners for tasks
+     * @throws TaskAlreadyAcceptedException
+     */
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners)
+            throws TaskAlreadyAcceptedException {
         Task task = taskDAO.getNotNull(taskId);
+        DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task);
+        delegateTaskInner(user, task, currentOwner, keepCurrentOwners, newOwners, delegationGroup);
+    }
+
+    /**
+     * Delegates the Tasks (by taskIds) to new owners.
+     * 
+     * @param user
+     *            - Current user
+     * @param taskIds
+     *            - Delegated Tasks (by taskIds)
+     * @param keepCurrentOwners
+     *            - Flag that current owners can still accept tasks
+     * @param newOwners
+     *            - new Owners for tasks
+     * @throws TaskAlreadyAcceptedException
+     */
+    public void delegateTasks(User user, Set<Long> taskIds, boolean keepCurrentOwners, List<? extends Executor> newOwners)
+            throws TaskAlreadyAcceptedException {
+        for (Long taskId : taskIds) {
+            Task task = taskDAO.getNotNull(taskId);
+            // We get currentOwner just from task
+            Executor currentOwner = task.getExecutor();
+            // TODO: Good thought - refactor to single Delegation Group (before cycle). Now impossible due to Process link in temporary delegation
+            // group.
+            DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task);
+            delegateTaskInner(user, task, currentOwner, keepCurrentOwners, newOwners, delegationGroup);
+        }
+    }
+
+    private void delegateTaskInner(User user, Task task, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors,
+            DelegationGroup delegationGroup) throws TaskAlreadyAcceptedException {
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
         }
-        if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
+        // Check for user permissions, except for Administrators
+        if (SystemProperties.isTaskAssignmentStrictRulesEnabled() && !executorLogic.isAdministrator(user)) {
             checkCanParticipate(user.getActor(), task);
         }
         if (keepCurrentOwners) {
@@ -265,7 +316,16 @@ public class TaskLogic extends WFCommonLogic {
                 ((List<Executor>) executors).add(executorDAO.getExecutor(currentOwner.getId()));
             }
         }
-        DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), taskId);
+
+        executorDAO.addExecutorsToGroup(executors, delegationGroup);
+        ProcessDefinition processDefinition = getDefinition(task);
+        final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
+        executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
+        AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
+    }
+
+    private DelegationGroup createTemporaryDelegationGroup(User user, Task task) {
+        DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), task.getId());
         List<Permission> selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
         if (executorDAO.isExecutorExist(delegationGroup.getName())) {
             delegationGroup = (DelegationGroup) executorDAO.getExecutor(delegationGroup.getName());
@@ -279,12 +339,9 @@ public class TaskLogic extends WFCommonLogic {
             permissionDAO.setPermissions(user.getActor(), p, delegationGroup);
             permissionDAO.setPermissions(delegationGroup, selfPermissions, delegationGroup);
         }
-        executorDAO.addExecutorsToGroup(executors, delegationGroup);
-        ProcessDefinition processDefinition = getDefinition(task);
-        final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
-        executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
-        AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
+        return delegationGroup;
     }
+    /////////////////////////////////////////////////////////////////////////
 
     public int reassignTasks(User user, BatchPresentation batchPresentation) {
         if (!executorLogic.isAdministrator(user)) {

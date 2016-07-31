@@ -2,6 +2,7 @@ $.delegateDialog = undefined;
 function delegateTaskDialog(btn) {
     var button = $(btn);
     var taskId = parseInt(button.attr("data-taskid"));
+    var tasksIds = button.attr("data-tasksIds");
     if($.delegateDialog == undefined) {
         var dialog = $("<div>", {id : "delegateDialog"});
         $('<input class="filter" placeholder="фильтр" />' +
@@ -257,7 +258,8 @@ function delegateTaskDialog(btn) {
 		});
 		data.keepCurrent = d.find("input.keepCurrent").is(":checked");
 		data.taskId = taskId;
-		
+        data.tasksIds = tasksIds;
+
 		$.ajax({
 			type:"POST",
 			url:"/wfe/delegateTask",

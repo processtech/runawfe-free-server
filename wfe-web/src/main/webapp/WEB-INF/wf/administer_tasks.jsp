@@ -4,6 +4,8 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ page import="ru.runa.common.WebResources" %>
+<%@ page import="ru.runa.wf.web.tag.ListTasksFormTag" %>
+<%@ page import="ru.runa.wf.web.form.ProcessForm" %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
@@ -64,14 +66,17 @@
 	</div>	
 </wf:listTasksAdministerForm>
 
-<% if (WebResources.isTaskDelegationEnabled()) { %>
+	<% if (WebResources.isTaskDelegationEnabled()) { %>
 	<%-- taskId = -1L - means that multiple delegation are processed --%>
 	<wf:taskFormDelegationButton taskId="<%= -1L %>" />
-<% } %>
+	<% } %>
 
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 <tiles:put name="head" type="string">
-	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/administetr_tasks.do?tabForwardName=administetr_tasks"/>'">
+    <script type="text/javascript" src="<html:rewrite page="/js/taskformutils.js" />">c=0;</script>
+    <script type="text/javascript" src="<html:rewrite page="/js/delegate.dialog.js" />">c=0;</script>
+    <link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/delegate.dialog.css" />">
+	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/administer_tasks.do?tabForwardName=administer_tasks"/>'">
 </tiles:put>
 </tiles:insert>
