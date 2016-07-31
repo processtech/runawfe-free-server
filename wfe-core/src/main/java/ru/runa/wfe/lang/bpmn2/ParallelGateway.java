@@ -2,10 +2,12 @@ package ru.runa.wfe.lang.bpmn2;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -14,6 +16,7 @@ import ru.runa.wfe.lang.Transition;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class ParallelGateway extends Node {
     private static final long serialVersionUID = 1L;
@@ -26,56 +29,75 @@ public class ParallelGateway extends Node {
     @Override
     public void execute(ExecutionContext executionContext) {
         Token token = executionContext.getToken();
-        List<Token> arrivedTokens = Lists.newArrayList();
-        fillArrivedInThisNodeTokensWhichCanActivateParent(executionContext.getProcess().getRootToken(), arrivedTokens);
-        if (!arrivedTokens.contains(token)) {
-            arrivedTokens.add(token);
-        }
-        List<Token> tokensToPop = Lists.newArrayList();
-        boolean allArrivedTransitionArePassed = true;
-        for (Transition arrivingTransition : getArrivingTransitions()) {
+        Set<Token> arrivedTokens = Sets.newHashSet(token);
+        Set<String> activeTokenNodeIds = Sets.newHashSet();
+        fillTokensInfo(executionContext.getProcess().getRootToken(), arrivedTokens, activeTokenNodeIds);
+        List<Transition> notPassedTransitions = Lists.newArrayList();
+        for (Transition transition : getArrivingTransitions()) {
             boolean transitionIsPassedByToken = false;
             for (Token arrivedToken : arrivedTokens) {
-                if (arrivingTransition.getNodeId().equals(arrivedToken.getTransitionId())) {
+                if (Objects.equal(transition.getNodeId(), arrivedToken.getTransitionId())
+                        || Objects.equal(transition.getNodeIdBackCompatibilityPre4_3_0(), arrivedToken.getTransitionId())) {
                     transitionIsPassedByToken = true;
-                    tokensToPop.add(arrivedToken);
                     break;
                 }
             }
             if (!transitionIsPassedByToken) {
-                allArrivedTransitionArePassed = false;
-                log.debug("execution blocked due to waiting on " + arrivingTransition);
-                break;
+                notPassedTransitions.add(transition);
             }
         }
         if (getArrivingTransitions().size() > 1) {
             // #850 don't end root token
             token.end(executionContext, null);
         }
-        if (allArrivedTransitionArePassed) {
-            log.debug("marking tokens as inactive " + tokensToPop);
-            for (Token arrivedToken : tokensToPop) {
-                arrivedToken.setAbleToReactivateParent(false);
-            }
+        if (notPassedTransitions.isEmpty()) {
             if (getArrivingTransitions().size() > 1 && token.getParent() != null) {
                 Token parentToken = token.getParent();
-                log.debug("passed join with first parent " + parentToken);
+                log.debug("passed with first parent " + parentToken);
                 leave(new ExecutionContext(executionContext.getProcessDefinition(), parentToken));
             } else {
-                log.debug("marking token as active " + tokensToPop + " for subsequent execution");
-                token.setAbleToReactivateParent(true);
-                log.debug("passed join with this " + token);
-                leave(executionContext, null);
+                log.debug("passed with this " + token);
+                leave(executionContext);
+            }
+        } else {
+            log.debug("execution blocked due to waiting on " + notPassedTransitions);
+            boolean markProcessFailedExecutionStatus = false;
+            for (Transition transition : notPassedTransitions) {
+                if (!transitionCanBePassed(transition, activeTokenNodeIds)) {
+                    log.error("blocking " + executionContext.getProcess() + " execution because " + transition
+                            + " will not be passed by tokens in nodes " + activeTokenNodeIds);
+                    markProcessFailedExecutionStatus = true;
+                }
+            }
+            if (markProcessFailedExecutionStatus) {
+                executionContext.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                // TODO set process error = no token can activate this node
             }
         }
     }
 
-    private void fillArrivedInThisNodeTokensWhichCanActivateParent(Token parent, List<Token> tokens) {
-        if (parent.isAbleToReactivateParent() && Objects.equal(parent.getNodeId(), getNodeId())) {
-            tokens.add(parent);
+    private boolean transitionCanBePassed(Transition transition, Set<String> activeTokenNodeIds) {
+        Node node = transition.getFrom();
+        if (activeTokenNodeIds.contains(node.getNodeId())) {
+            return true;
         }
-        for (Token childToken : parent.getChildren()) {
-            fillArrivedInThisNodeTokensWhichCanActivateParent(childToken, tokens);
+        for (Transition nodeTransition : node.getArrivingTransitions()) {
+            if (transitionCanBePassed(nodeTransition, activeTokenNodeIds)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void fillTokensInfo(Token token, Set<Token> arrivedTokens, Set<String> activeTokenNodeIds) {
+        if (Objects.equal(token.getNodeId(), getNodeId())) {
+            arrivedTokens.add(token);
+        }
+        if (token.getNodeType() != NodeType.PARALLEL_GATEWAY && !token.hasEnded()) {
+            activeTokenNodeIds.add(token.getNodeId());
+        }
+        for (Token childToken : token.getChildren()) {
+            fillTokensInfo(childToken, arrivedTokens, activeTokenNodeIds);
         }
     }
 
