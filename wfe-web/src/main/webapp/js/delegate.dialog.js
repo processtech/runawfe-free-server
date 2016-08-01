@@ -267,7 +267,11 @@ function delegateTaskDialog(btn) {
 			dataType:"json", 
 			contentType:"application/json; charset=UTF-8",
 			success: function() {
-					window.location = "/wfe/manage_tasks.do";
+			        if (taskId !== -1) {
+                        window.location = "/wfe/manage_tasks.do";
+                    } else {
+                        window.location = "/wfe/administer_tasks.do";
+                    }
 			}
 		});
 	}
