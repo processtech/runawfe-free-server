@@ -32,6 +32,7 @@ public class ParallelGateway extends Node {
         Set<Token> arrivedTokens = Sets.newHashSet(token);
         Set<String> activeTokenNodeIds = Sets.newHashSet();
         fillTokensInfo(executionContext.getProcess().getRootToken(), arrivedTokens, activeTokenNodeIds);
+        List<Token> tokensToPop = Lists.newArrayList();
         List<Transition> notPassedTransitions = Lists.newArrayList();
         for (Transition transition : getArrivingTransitions()) {
             boolean transitionIsPassedByToken = false;
@@ -39,6 +40,7 @@ public class ParallelGateway extends Node {
                 if (Objects.equal(transition.getNodeId(), arrivedToken.getTransitionId())
                         || Objects.equal(transition.getNodeIdBackCompatibilityPre4_3_0(), arrivedToken.getTransitionId())) {
                     transitionIsPassedByToken = true;
+                    tokensToPop.add(arrivedToken);
                     break;
                 }
             }
@@ -51,6 +53,10 @@ public class ParallelGateway extends Node {
             token.end(executionContext, null);
         }
         if (notPassedTransitions.isEmpty()) {
+            log.debug("marking tokens as inactive " + tokensToPop);
+            for (Token arrivedToken : tokensToPop) {
+                arrivedToken.setAbleToReactivateParent(false);
+            }
             if (getArrivingTransitions().size() > 1 && token.getParent() != null) {
                 Token parentToken = token.getParent();
                 log.debug("passed with first parent " + parentToken);
@@ -90,7 +96,7 @@ public class ParallelGateway extends Node {
     }
 
     private void fillTokensInfo(Token token, Set<Token> arrivedTokens, Set<String> activeTokenNodeIds) {
-        if (Objects.equal(token.getNodeId(), getNodeId())) {
+        if (token.isAbleToReactivateParent() && Objects.equal(token.getNodeId(), getNodeId())) {
             arrivedTokens.add(token);
         }
         if (token.getNodeType() != NodeType.PARALLEL_GATEWAY && !token.hasEnded()) {
@@ -104,6 +110,7 @@ public class ParallelGateway extends Node {
     @Override
     public void leave(ExecutionContext executionContext, Transition transition) {
         Token token = executionContext.getToken();
+        token.setAbleToReactivateParent(true);
         checkCyclicExecution(token);
         Map<Token, Transition> childTokens = Maps.newHashMap();
         for (Transition leavingTransition : getLeavingTransitions()) {

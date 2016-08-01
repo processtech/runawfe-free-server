@@ -82,7 +82,6 @@ public class Token implements Serializable {
     private Process process;
     private Token parent;
     private Set<Token> children;
-    // only for jpdl
     private boolean ableToReactivateParent;
     private String nodeId;
     private NodeType nodeType;
