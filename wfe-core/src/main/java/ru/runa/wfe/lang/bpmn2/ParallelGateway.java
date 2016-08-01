@@ -1,5 +1,6 @@
 package ru.runa.wfe.lang.bpmn2;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +70,7 @@ public class ParallelGateway extends Node {
             log.debug("execution blocked due to waiting on " + notPassedTransitions);
             boolean markProcessFailedExecutionStatus = false;
             for (Transition transition : notPassedTransitions) {
-                if (!transitionCanBePassed(transition, activeTokenNodeIds)) {
+                if (!transitionCanBePassed(transition, activeTokenNodeIds, new HashSet<Node>())) {
                     log.error("blocking " + executionContext.getProcess() + " execution because " + transition
                             + " will not be passed by tokens in nodes " + activeTokenNodeIds);
                     markProcessFailedExecutionStatus = true;
@@ -82,13 +83,17 @@ public class ParallelGateway extends Node {
         }
     }
 
-    private boolean transitionCanBePassed(Transition transition, Set<String> activeTokenNodeIds) {
+    private boolean transitionCanBePassed(Transition transition, Set<String> activeTokenNodeIds, Set<Node> testedNodes) {
         Node node = transition.getFrom();
+        if (testedNodes.contains(node)) {
+            return false;
+        }
+        testedNodes.add(node);
         if (activeTokenNodeIds.contains(node.getNodeId())) {
             return true;
         }
         for (Transition nodeTransition : node.getArrivingTransitions()) {
-            if (transitionCanBePassed(nodeTransition, activeTokenNodeIds)) {
+            if (transitionCanBePassed(nodeTransition, activeTokenNodeIds, testedNodes)) {
                 return true;
             }
         }
