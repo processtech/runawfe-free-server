@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.ejb.Remote;
 
 import ru.runa.wfe.script.AdminScriptException;
+import ru.runa.wfe.script.dto.AdminScript;
 import ru.runa.wfe.user.User;
 
 /**
@@ -30,7 +31,8 @@ public interface ScriptingService {
      */
     public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) throws AdminScriptException;
 
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue);
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
+            String defaultPasswordValue);
 
     /**
      * Executes Groovy script.
@@ -42,4 +44,5 @@ public interface ScriptingService {
      */
     public void executeGroovyScript(User user, String script);
 
+    public List<AdminScript> getScripts();
 }

@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import groovy.lang.GroovyShell;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +35,18 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
+
+import groovy.lang.GroovyShell;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
 import ru.runa.wfe.script.AdminScriptRunner;
+import ru.runa.wfe.script.AdmScript;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
+import ru.runa.wfe.script.dto.AdminScript;
+import ru.runa.wfe.script.logic.ScriptLogic;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.interceptors.CacheReloader;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -51,18 +56,17 @@ import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Sets;
-
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, CacheReloader.class, PerformanceObserver.class, EjbTransactionSupport.class,
-    SpringBeanAutowiringInterceptor.class })
+        SpringBeanAutowiringInterceptor.class })
 @WebService(name = "ScriptingAPI", serviceName = "ScriptingWebService")
 @SOAPBinding
 public class ScriptingServiceBean implements ScriptingService {
     @Autowired
     private AdminScriptRunner runner;
+    @Autowired
+    private ScriptLogic scriptLogic;
     private static final Set<String> SYSTEM_EXECUTOR_NAMES = Sets.newHashSet();
     static {
         SYSTEM_EXECUTOR_NAMES.add(SystemProperties.getAdministratorName());
@@ -90,7 +94,8 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebMethod(exclude = true)
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue) {
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
+            String defaultPasswordValue) {
         ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue);
         final List<String> errors = new ArrayList<String>();
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
@@ -116,5 +121,16 @@ public class ScriptingServiceBean implements ScriptingService {
         }
         GroovyShell shell = new GroovyShell();
         shell.evaluate(script);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public List<AdminScript> getScripts() {
+        final List<AdmScript> scripts = scriptLogic.getScripts();
+        final List<AdminScript> results = new ArrayList<AdminScript>(scripts.size());
+        for (AdmScript script : scripts) {
+            results.add(new AdminScript(script));
+        }
+        return results;
     }
 }

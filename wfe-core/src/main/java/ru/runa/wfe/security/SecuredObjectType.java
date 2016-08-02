@@ -9,13 +9,15 @@ import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.relation.RelationPermission;
 import ru.runa.wfe.report.ReportPermission;
+import ru.runa.wfe.script.AdmScriptPermission;
 import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.GroupPermission;
 
 public enum SecuredObjectType {
     NONE(Permission.class), SYSTEM(WorkflowSystemPermission.class), BOTSTATION(BotStationPermission.class), ACTOR(ActorPermission.class), GROUP(
             GroupPermission.class), RELATION(RelationPermission.class), RELATIONGROUP(RelationPermission.class), RELATIONPAIR(
-            RelationPermission.class), DEFINITION(DefinitionPermission.class), PROCESS(ProcessPermission.class), REPORT(ReportPermission.class);
+                    RelationPermission.class), DEFINITION(DefinitionPermission.class), PROCESS(
+                            ProcessPermission.class), REPORT(ReportPermission.class), ADM_SCRIPT(AdmScriptPermission.class);
 
     private Class<? extends Permission> permissionClass;
 
