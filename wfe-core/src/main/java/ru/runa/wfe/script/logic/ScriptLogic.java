@@ -46,6 +46,10 @@ public class ScriptLogic extends CommonLogic {
         return scriptDAO.get(scriptId);
     }
 
+    public AdmScript getScriptByName(String name) {
+        return scriptDAO.getByName(name);
+    }
+
     public void deleteScript(Long scriptId) {
         final AdmScript script = scriptDAO.get(scriptId);
         scriptDAO.delete(script);
@@ -55,22 +59,33 @@ public class ScriptLogic extends CommonLogic {
         try {
             AdmScript admScript = scriptDAO.getByName(name);
             if (null == admScript) {
+                LobStorage storage = new LobStorage();
+                storage.setValue(new String(script, "UTF-8"));
+                storage = lobStorageDAO.create(storage);
                 admScript = new AdmScript();
                 admScript.setName(name);
+                admScript.setStorage(storage);
                 admScript = scriptDAO.create(admScript);
+            } else {
+                LobStorage storage = admScript.getStorage();
+                storage.setValue(new String(script, "UTF-8"));
+                storage = lobStorageDAO.update(storage);
+                admScript.setStorage(storage);
+                scriptDAO.update(admScript);
             }
-            LobStorage storage = admScript.getStorage();
-            if (null == storage) {
-                storage = new LobStorage();
-                storage = lobStorageDAO.create(storage);
-            }
-            storage.setValue(new String(script, "UTF-8"));
-            lobStorageDAO.update(storage);
-            admScript.setStorage(storage);
-            scriptDAO.update(admScript);
-            scriptDAO.flushPendingChanges();
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean delete(String name) {
+        AdmScript admScript = scriptDAO.getByName(name);
+        if (null == admScript) {
+            return false;
+        }
+        LobStorage lobStorage = admScript.getStorage();
+        scriptDAO.delete(admScript);
+        lobStorageDAO.delete(lobStorage);
+        return true;
     }
 }

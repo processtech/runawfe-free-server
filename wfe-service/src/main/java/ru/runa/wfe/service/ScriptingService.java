@@ -47,4 +47,8 @@ public interface ScriptingService {
     public List<AdminScript> getScripts();
 
     public void saveScript(String fileName, byte[] script);
+
+    public boolean deleteScript(String fileName);
+
+    public byte[] getScriptSource(String fileName);
 }

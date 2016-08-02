@@ -42,8 +42,8 @@ public class AdminkitScriptsAction extends ActionBase {
             if ("get".equals(action)) {
                 log.info("Getting script " + fileName);
                 if (!Strings.isNullOrEmpty(fileName)) {
-                    File file = new File(IOCommons.getAdminkitScriptsDirPath() + fileName);
-                    byte[] script = FileUtils.readFileToByteArray(file);
+                    final ScriptingService scriptingService = Delegates.getScriptingService();
+                    byte[] script = scriptingService.getScriptSource(fileName);
                     writeResponse(response, script);
                 }
             } else if ("execute".equals(action)) {
@@ -99,17 +99,12 @@ public class AdminkitScriptsAction extends ActionBase {
                 }
             } else if ("delete".equals(action)) {
                 log.debug("Deleting script " + fileName);
-                File file = new File(IOCommons.getAdminkitScriptsDirPath() + fileName);
-                boolean deleted = false;
-                if (file.exists()) {
-                    if (file.delete()) {
-                        deleted = true;
-                        log.info("Deleted script " + fileName);
-                    } else {
-                        log.warn("Script does not deleted " + fileName);
-                    }
+                final ScriptingService scriptingService = Delegates.getScriptingService();
+                final boolean deleted = scriptingService.deleteScript(fileName);
+                if (deleted) {
+                    log.info("Deleted script " + fileName);
                 } else {
-                    log.warn("Script does not exist " + fileName);
+                    log.warn("Script does not deleted " + fileName);
                 }
                 if (!ajaxRequest && deleted) {
                     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.delete.success"));
@@ -129,7 +124,7 @@ public class AdminkitScriptsAction extends ActionBase {
         }
         return mapping.findForward(Resources.FORWARD_SUCCESS);
     }
-    
+
     private byte[] getScript(AdminScriptForm form) throws IOException {
         if (!Strings.isNullOrEmpty(form.getScript())) {
             return form.getScript().getBytes(Charsets.UTF_8);

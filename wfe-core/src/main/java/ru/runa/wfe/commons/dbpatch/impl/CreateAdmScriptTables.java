@@ -75,11 +75,5 @@ public class CreateAdmScriptTables extends DBPatch {
 
     @Override
     protected void applyPatch(Session session) throws Exception {
-        String administratorName = SystemProperties.getAdministratorName();
-        Actor admin = executorDAO.getActor(administratorName);
-        String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-        Group adminGroup = executorDAO.getGroup(administratorsGroupName);
-        List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-        permissionDAO.addType(SecuredObjectType.ADM_SCRIPT, adminWithGroupExecutors);
     }
 }

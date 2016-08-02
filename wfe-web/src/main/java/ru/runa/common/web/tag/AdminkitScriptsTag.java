@@ -32,7 +32,7 @@ public class AdminkitScriptsTag extends TagSupport {
                 html += "<a href=\"#\" fileName=\"" + scriptName + "\">" + scriptName + "</a>&nbsp;";
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("action", "delete");
-                params.put("scriptName", scriptName);
+                params.put("fileName", scriptName);
                 String href = Commons.getActionUrl(AdminkitScriptsAction.PATH, params, pageContext, PortletUrlType.Action);
                 html += "(<a href=\"" + href + "\">X</a>)";
                 html += "&nbsp;&nbsp;";

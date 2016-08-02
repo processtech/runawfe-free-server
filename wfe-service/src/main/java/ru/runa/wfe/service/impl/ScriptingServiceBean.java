@@ -40,6 +40,7 @@ import com.google.common.collect.Sets;
 
 import groovy.lang.GroovyShell;
 import ru.runa.wfe.ConfigurationException;
+import ru.runa.wfe.commons.LobStorage;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
 import ru.runa.wfe.script.AdminScriptRunner;
@@ -138,5 +139,19 @@ public class ScriptingServiceBean implements ScriptingService {
     @WebMethod(exclude = true)
     public void saveScript(String fileName, byte[] script) {
         scriptLogic.save(fileName, script);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public boolean deleteScript(String fileName) {
+        return scriptLogic.delete(fileName);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public byte[] getScriptSource(String fileName) {
+        AdmScript admScript = scriptLogic.getScriptByName(fileName);
+        LobStorage lobStorage = admScript.getStorage();
+        return lobStorage.getValue().getBytes();
     }
 }
