@@ -284,6 +284,9 @@
 	<bean id="reportDAO" class="ru.runa.wfe.report.dao.ReportDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
+	<bean id="scriptDAO" class="ru.runa.wfe.script.dao.ScriptDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
 
 	<bean id="executorCache" class="ru.runa.wfe.user.cache.CacheFactory" factory-method="getInstance"/>
 	<bean id="substitutionCache" class="ru.runa.wfe.ss.cache.CacheFactory" factory-method="getInstance"/>
@@ -345,6 +348,7 @@
 	<bean id="adminScriptRunner" class="ru.runa.wfe.script.AdminScriptRunner" />
 	<bean id="reportLogic" class="ru.runa.wfe.report.logic.ReportLogic" />
 
+	<bean id="scriptLogic" class="ru.runa.wfe.script.logic.ScriptLogic" />
 	<bean id="initializerLogic" class="ru.runa.wfe.commons.logic.InitializerLogic" />
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
 

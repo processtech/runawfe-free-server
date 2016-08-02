@@ -20,8 +20,10 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.AdminScriptForm;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.client.AdminScriptClient;
 import ru.runa.wfe.service.client.AdminScriptClient.Handler;
+import ru.runa.wfe.service.delegate.Delegates;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -89,8 +91,8 @@ public class AdminkitScriptsAction extends ActionBase {
                     throw new Exception("File name is required");
                 }
                 log.debug("Saving script " + fileName);
-                File file = new File(IOCommons.getAdminkitScriptsDirPath() + fileName);
-                FileUtils.writeByteArrayToFile(file, getScript(form));
+                final ScriptingService scriptingService = Delegates.getScriptingService();
+                scriptingService.saveScript(fileName, getScript(form));
                 log.info("Saved script " + fileName);
                 if (!ajaxRequest) {
                     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.save.success"));
@@ -127,7 +129,7 @@ public class AdminkitScriptsAction extends ActionBase {
         }
         return mapping.findForward(Resources.FORWARD_SUCCESS);
     }
-
+    
     private byte[] getScript(AdminScriptForm form) throws IOException {
         if (!Strings.isNullOrEmpty(form.getScript())) {
             return form.getScript().getBytes(Charsets.UTF_8);

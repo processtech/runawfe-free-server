@@ -20,6 +20,7 @@ package ru.runa.wfe.service.delegate;
 import java.util.List;
 import java.util.Map;
 
+import ru.runa.wfe.script.dto.AdminScript;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.user.User;
 
@@ -34,7 +35,8 @@ public class ScriptingServiceDelegate extends EJB3Delegate implements ScriptingS
     }
 
     @Override
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue) {
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
+            String defaultPasswordValue) {
         try {
             return getScriptingService().executeAdminScriptSkipError(user, configData, externalResources, defaultPasswordValue);
         } catch (Exception e) {
@@ -55,6 +57,24 @@ public class ScriptingServiceDelegate extends EJB3Delegate implements ScriptingS
     public void executeGroovyScript(User user, String script) {
         try {
             getScriptingService().executeGroovyScript(user, script);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<AdminScript> getScripts() {
+        try {
+            return getScriptingService().getScripts();
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void saveScript(String fileName, byte[] script) {
+        try {
+            getScriptingService().saveScript(fileName, script);
         } catch (Exception e) {
             throw handleException(e);
         }
