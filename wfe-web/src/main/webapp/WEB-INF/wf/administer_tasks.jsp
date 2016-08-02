@@ -13,7 +13,7 @@
 <%
 	String returnAction = "/administer_tasks.do";
 %>
-<wf:listTasksAdministerForm batchPresentationId="listTasksForm" buttonAlignment="right" returnAction="<%= returnAction %>" >
+<wf:listTasksAdministerForm batchPresentationId="listTasksAdministerForm" buttonAlignment="right" returnAction="<%= returnAction %>" >
 	<script>
 	var helpVisible = false;
 	$().ready(function() {
@@ -40,8 +40,8 @@
 				</td>
 			</tr></tbody></table>
 		</div>
-		<wf:viewControlsHideableBlock hideableBlockId="listTasksForm"  returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listTasksForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
+		<wf:viewControlsHideableBlock hideableBlockId="listTasksAdministerForm"  returnAction="<%= returnAction %>" >
+			<wf:tableViewSetupForm batchPresentationId="listTasksAdministerForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
 		</wf:viewControlsHideableBlock>
 		<div id="helpContentDiv" style="display: none;">
 			<table>

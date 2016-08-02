@@ -57,10 +57,7 @@ import ru.runa.wfe.user.User;
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listTasksAdministerForm")
 public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
     private static final long serialVersionUID = 1L;
-
     private static boolean isButtonEnabled;
-
-    private static final String[] NO_PREFIX_HEADER_NAMES = new String[0];
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
@@ -99,7 +96,7 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new AssignTaskCheckboxTDBuilder(!disableCheckbox) },
                 batchPresentation, new TDBuilder[] {});
 
-        HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, NO_PREFIX_HEADER_NAMES.length, returnAction, pageContext);
+        HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, returnAction, pageContext);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(tasks, batchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, returnAction, new TaskUrlStrategy(pageContext), builders);
         rowBuilder.setCssClassStrategy(new TasksCssClassStrategy());
