@@ -19,10 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.commons.dao;
+package ru.runa.wfe.script.dao;
 
-import ru.runa.wfe.commons.LobStorage;
+import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.script.AdminScript;
 
 @SuppressWarnings("unchecked")
-public class LobStorageDAO extends GenericDAO<LobStorage> {
+public class AdminScriptDAO extends GenericDAO<AdminScript> {
+
+    public AdminScript getByName(String name) {
+        return findFirstOrNull("from AdminScript where name = ?", name);
+    }
 }

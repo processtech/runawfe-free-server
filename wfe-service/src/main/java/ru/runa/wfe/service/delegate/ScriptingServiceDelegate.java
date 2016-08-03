@@ -20,7 +20,6 @@ package ru.runa.wfe.service.delegate;
 import java.util.List;
 import java.util.Map;
 
-import ru.runa.wfe.script.dto.AdminScript;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.user.User;
 
@@ -63,14 +62,14 @@ public class ScriptingServiceDelegate extends EJB3Delegate implements ScriptingS
     }
 
     @Override
-    public List<AdminScript> getScripts() {
+    public List<String> getScriptsNames() {
         try {
-            return getScriptingService().getScripts();
+            return getScriptingService().getScriptsNames();
         } catch (Exception e) {
             throw handleException(e);
         }
     }
-    
+
     @Override
     public void saveScript(String fileName, byte[] script) {
         try {

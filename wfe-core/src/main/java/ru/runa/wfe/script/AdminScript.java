@@ -25,13 +25,11 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -42,29 +40,27 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.google.common.base.Objects;
 
-import ru.runa.wfe.commons.LobStorage;
-
 /**
  * Admin script.
  */
 @Entity
-@Table(name = "ADM_SCRIPT", indexes = { @Index(name = "IX_ADM_SCRIPT_NAME", unique = true, columnList = "NAME"),
-        @Index(name = "IX_ADM_SCRIPT_LOB_STORAGE", unique = false, columnList = "STORAGE_ID") })
+@Table(name = "ADMIN_SCRIPT", indexes = { @Index(name = "IX_ADMIN_SCRIPT_NAME", unique = true, columnList = "NAME"),
+        @Index(name = "IX_ADMIN_SCRIPT_LOB_STORAGE", unique = false, columnList = "STORAGE_ID") })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class AdmScript implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(AdmScript.class);
+public class AdminScript implements Serializable {
+    private static final long serialVersionUID = 2L;
+    private static final Log log = LogFactory.getLog(AdminScript.class);
 
     private Long id;
     private String name;
-    private LobStorage storage;
+    private String content;
 
-    public AdmScript() {
+    public AdminScript() {
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_ADM_SCRIPT", allocationSize = 1)
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_ADMIN_SCRIPT", allocationSize = 1)
     @Column(name = "ID")
     public Long getId() {
         return id;
@@ -83,14 +79,14 @@ public class AdmScript implements Serializable {
         this.name = name;
     }
 
-    @OneToOne(targetEntity = LobStorage.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "STORAGE_ID")
-    public LobStorage getStorage() {
-        return storage;
+    @Lob
+    @Column(name = "CONTENT")
+    public String getContent() {
+        return content;
     }
 
-    public void setStorage(LobStorage storage) {
-        this.storage = storage;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @Override

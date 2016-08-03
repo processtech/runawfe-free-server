@@ -14,7 +14,6 @@ import com.google.common.base.Throwables;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.action.AdminkitScriptsAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.script.dto.AdminScript;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -27,8 +26,7 @@ public class AdminkitScriptsTag extends TagSupport {
         try {
             final ScriptingService scriptingService = Delegates.getScriptingService();
             String html = "";
-            for (AdminScript adminScript : scriptingService.getScripts()) {
-                String scriptName = adminScript.getName();
+            for (String scriptName : scriptingService.getScriptsNames()) {
                 html += "<a href=\"#\" fileName=\"" + scriptName + "\">" + scriptName + "</a>&nbsp;";
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("action", "delete");

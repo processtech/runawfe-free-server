@@ -22,56 +22,50 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.commons.LobStorage;
-import ru.runa.wfe.commons.dao.LobStorageDAO;
 import ru.runa.wfe.commons.logic.CommonLogic;
-import ru.runa.wfe.script.AdmScript;
-import ru.runa.wfe.script.dao.ScriptDAO;
+import ru.runa.wfe.script.AdminScript;
+import ru.runa.wfe.script.dao.AdminScriptDAO;
 
-public class ScriptLogic extends CommonLogic {
+public class AdminScriptLogic extends CommonLogic {
     @Autowired
-    private ScriptDAO scriptDAO;
-    @Autowired
-    private LobStorageDAO lobStorageDAO;
+    private AdminScriptDAO scriptDAO;
 
-    public void updateSript(AdmScript script) {
+    public void updateSript(AdminScript script) {
         scriptDAO.update(script);
     }
 
-    public List<AdmScript> getScripts() {
+    public List<String> getScriptsNames() {
+        return scriptDAO.getHibernateTemplate().find("select o.name from AdminScript o order by o.name");
+    }
+
+    public List<AdminScript> getScripts() {
         return scriptDAO.getAll();
     }
 
-    public AdmScript getScript(Long scriptId) {
+    public AdminScript getScript(Long scriptId) {
         return scriptDAO.get(scriptId);
     }
 
-    public AdmScript getScriptByName(String name) {
+    public AdminScript getScriptByName(String name) {
         return scriptDAO.getByName(name);
     }
 
     public void deleteScript(Long scriptId) {
-        final AdmScript script = scriptDAO.get(scriptId);
+        final AdminScript script = scriptDAO.get(scriptId);
         scriptDAO.delete(script);
     }
 
     public void save(String name, byte[] script) {
         try {
-            AdmScript admScript = scriptDAO.getByName(name);
-            if (null == admScript) {
-                LobStorage storage = new LobStorage();
-                storage.setValue(new String(script, "UTF-8"));
-                storage = lobStorageDAO.create(storage);
-                admScript = new AdmScript();
-                admScript.setName(name);
-                admScript.setStorage(storage);
-                admScript = scriptDAO.create(admScript);
+            AdminScript adminScript = scriptDAO.getByName(name);
+            if (null == adminScript) {
+                adminScript = new AdminScript();
+                adminScript.setName(name);
+                adminScript.setContent(new String(script, "UTF-8"));
+                adminScript = scriptDAO.create(adminScript);
             } else {
-                LobStorage storage = admScript.getStorage();
-                storage.setValue(new String(script, "UTF-8"));
-                storage = lobStorageDAO.update(storage);
-                admScript.setStorage(storage);
-                scriptDAO.update(admScript);
+                adminScript.setContent(new String(script, "UTF-8"));
+                scriptDAO.update(adminScript);
             }
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
@@ -79,13 +73,11 @@ public class ScriptLogic extends CommonLogic {
     }
 
     public boolean delete(String name) {
-        AdmScript admScript = scriptDAO.getByName(name);
-        if (null == admScript) {
+        AdminScript adminScript = scriptDAO.getByName(name);
+        if (null == adminScript) {
             return false;
         }
-        LobStorage lobStorage = admScript.getStorage();
-        scriptDAO.delete(admScript);
-        lobStorageDAO.delete(lobStorage);
+        scriptDAO.delete(adminScript);
         return true;
     }
 }

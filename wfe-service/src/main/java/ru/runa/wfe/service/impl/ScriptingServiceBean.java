@@ -40,14 +40,12 @@ import com.google.common.collect.Sets;
 
 import groovy.lang.GroovyShell;
 import ru.runa.wfe.ConfigurationException;
-import ru.runa.wfe.commons.LobStorage;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.script.AdmScript;
+import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
 import ru.runa.wfe.script.AdminScriptRunner;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
-import ru.runa.wfe.script.dto.AdminScript;
-import ru.runa.wfe.script.logic.ScriptLogic;
+import ru.runa.wfe.script.logic.AdminScriptLogic;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.interceptors.CacheReloader;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -67,7 +65,7 @@ public class ScriptingServiceBean implements ScriptingService {
     @Autowired
     private AdminScriptRunner runner;
     @Autowired
-    private ScriptLogic scriptLogic;
+    private AdminScriptLogic scriptLogic;
     private static final Set<String> SYSTEM_EXECUTOR_NAMES = Sets.newHashSet();
     static {
         SYSTEM_EXECUTOR_NAMES.add(SystemProperties.getAdministratorName());
@@ -126,13 +124,8 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebResult(name = "result")
-    public List<AdminScript> getScripts() {
-        final List<AdmScript> scripts = scriptLogic.getScripts();
-        final List<AdminScript> results = new ArrayList<AdminScript>(scripts.size());
-        for (AdmScript script : scripts) {
-            results.add(new AdminScript(script));
-        }
-        return results;
+    public List<String> getScriptsNames() {
+        return scriptLogic.getScriptsNames();
     }
 
     @Override
@@ -150,8 +143,7 @@ public class ScriptingServiceBean implements ScriptingService {
     @Override
     @WebResult(name = "result")
     public byte[] getScriptSource(String fileName) {
-        AdmScript admScript = scriptLogic.getScriptByName(fileName);
-        LobStorage lobStorage = admScript.getStorage();
-        return lobStorage.getValue().getBytes();
+        AdminScript adminScript = scriptLogic.getScriptByName(fileName);
+        return adminScript.getContent().getBytes();
     }
 }
