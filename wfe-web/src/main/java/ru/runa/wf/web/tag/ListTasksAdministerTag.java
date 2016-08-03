@@ -30,7 +30,6 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
-import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.CssClassStrategy;
 import ru.runa.common.web.html.HeaderBuilder;
@@ -40,7 +39,6 @@ import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
-import ru.runa.wf.web.action.ProcessTaskAssignmentAction;
 import ru.runa.wf.web.html.AssignTaskCheckboxTDBuilder;
 import ru.runa.wf.web.html.TaskUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -49,15 +47,15 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
 /**
- * Created on 15.10.2004
- *
- * @author Vitaliy S aka Yilativs
- * @author Gordienko_m
+ * Tasks list form tag for special administrative purposes
+ * 
+ * Created on 15.07.2016
+ * 
+ * @author Alexander Mamchur
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listTasksAdministerForm")
 public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
     private static final long serialVersionUID = 1L;
-    private static boolean isButtonEnabled;
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
@@ -69,9 +67,9 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
 
-        // Build current tasks ID-s string (in JSON format for common purposes)
+        // Build current filtered tasks ID-s string (in JSON format for common purposes)
         String batchName = batchPresentation.getName();
-        if (!batchName.equals("label.batch_presentation_default_name")) {
+        if (!batchName.equals("label.batch_presentation_default_name") && tasks.size() > 0) {
             List<Long> ids = new ArrayList<Long>(tasks.size());
             for (WfTask tsk : tasks) {
                 ids.add(tsk.getId());
@@ -83,44 +81,25 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
             boolean disableCheckbox) {
-        isButtonEnabled = false;
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).isGroupAssigned()) {
-                if (!disableCheckbox) {
-                    isButtonEnabled = true;
-                    break;
-                }
-            }
-        }
 
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new AssignTaskCheckboxTDBuilder(!disableCheckbox) },
                 batchPresentation, new TDBuilder[] {});
 
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, returnAction, pageContext);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(tasks, batchPresentation, pageContext,
-                WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, returnAction, new TaskUrlStrategy(pageContext), builders);
+                WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, null, new TaskUrlStrategy(pageContext), builders);
         rowBuilder.setCssClassStrategy(new TasksCssClassStrategy());
         return new TableBuilder().build(headerBuilder, rowBuilder);
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        return isButtonEnabled;
+    protected boolean isFormButtonVisible() {
+        return false;
     }
 
     @Override
     protected String getTitle() {
         return MessagesProcesses.TITLE_TASKS.message(pageContext);
-    }
-
-    @Override
-    protected String getFormButtonName() {
-        return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
-    }
-
-    @Override
-    public String getAction() {
-        return ProcessTaskAssignmentAction.ACTION_PATH;
     }
 
     public static class TasksCssClassStrategy implements CssClassStrategy {
@@ -157,8 +136,4 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
         }
     }
 
-    @Override
-    public String getConfirmationPopupParameter() {
-        return ConfirmationPopupHelper.ACCEPT_TASK_PARAMETER;
-    }
 }

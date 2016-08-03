@@ -1,5 +1,7 @@
 package ru.runa.wf.web.tag;
 
+import javax.servlet.jsp.PageContext;
+
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.Button;
@@ -14,8 +16,6 @@ import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.ExecutorServiceDelegate;
-
-import javax.servlet.jsp.PageContext;
 
 /**
  * Created on 27.03.2015
@@ -42,13 +42,14 @@ public class TaskFormDelegationTag extends VisibleTag {
 
         String tasksIds = (String) pageContext.getAttribute("tasksIds", PageContext.REQUEST_SCOPE);
         ExecutorService executorService = new ExecutorServiceDelegate();
+        // taskId == -1 below - means multiple tasks delegation
         if (tasksIds != null && taskId == -1L && executorService.isAdministrator(Commons.getUser(pageContext.getSession()))) {
             button.addAttribute("data-tasksIds", tasksIds);
             button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASKS.message(pageContext)));
         } else if (taskId != -1L) {
             button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASK.message(pageContext)));
         } else {
-            return table; // Empty Table in this case
+            return table; // Empty table - means no vizible button in this case
         }
 
         col.addElement(button);
