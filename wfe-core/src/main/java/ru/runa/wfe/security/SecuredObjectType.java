@@ -15,8 +15,7 @@ import ru.runa.wfe.user.GroupPermission;
 public enum SecuredObjectType {
     NONE(Permission.class), SYSTEM(WorkflowSystemPermission.class), BOTSTATION(BotStationPermission.class), ACTOR(ActorPermission.class), GROUP(
             GroupPermission.class), RELATION(RelationPermission.class), RELATIONGROUP(RelationPermission.class), RELATIONPAIR(
-                    RelationPermission.class), DEFINITION(
-                            DefinitionPermission.class), PROCESS(ProcessPermission.class), REPORT(ReportPermission.class);
+                    RelationPermission.class), DEFINITION(DefinitionPermission.class), PROCESS(ProcessPermission.class), REPORT(ReportPermission.class);
 
     private Class<? extends Permission> permissionClass;
 
