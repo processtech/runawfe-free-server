@@ -7,19 +7,11 @@ import java.util.List;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.LobStorage;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
-import ru.runa.wfe.commons.dbpatch.DBPatch.ColumnDef;
-import ru.runa.wfe.report.ReportDefinition;
-import ru.runa.wfe.report.ReportParameter;
-import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.script.AdmScript;
 import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.collect.Lists;
 
 public class CreateAdmScriptTables extends DBPatch {
 
