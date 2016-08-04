@@ -11,13 +11,13 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.ArraysCommons;
-import ru.runa.wfe.presentation.filter.FilterCriteria;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.ArraysCommons;
+import ru.runa.wfe.presentation.filter.FilterCriteria;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BatchPresentationFields implements Serializable {
@@ -183,8 +183,8 @@ public class BatchPresentationFields implements Serializable {
         List<Integer> groupingNotSortingIdList = new ArrayList<Integer>(groupingIdList);
         groupingNotSortingIdList.removeAll(sortingAndGroupingIdList);
 
-        List<Integer> newSortingIdList = new ArrayList<Integer>(sortingAndGroupingIdList.size() + groupingNotSortingIdList.size()
-                + sortingNotGroupingIdList.size());
+        List<Integer> newSortingIdList = new ArrayList<Integer>(
+                sortingAndGroupingIdList.size() + groupingNotSortingIdList.size() + sortingNotGroupingIdList.size());
         newSortingIdList.addAll(sortingAndGroupingIdList);
         newSortingIdList.addAll(groupingNotSortingIdList);
         newSortingIdList.addAll(sortingNotGroupingIdList);
@@ -255,14 +255,16 @@ public class BatchPresentationFields implements Serializable {
         fields.groupIds = new int[0];
         int displayedFieldsCount = classPresentation.getFields().length;
         for (FieldDescriptor fieldDescriptor : classPresentation.getFields()) {
-            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix) || !fieldDescriptor.isVisible()) {
+            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
+                    || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 displayedFieldsCount--;
             }
         }
         fields.displayIds = new int[displayedFieldsCount];
         for (int i = classPresentation.getFields().length - 1; i >= 0; i--) {
             FieldDescriptor fieldDescriptor = classPresentation.getFields()[i];
-            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix) || !fieldDescriptor.isVisible()) {
+            if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
+                    || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 continue;
             }
             fields.displayIds[--displayedFieldsCount] = i;

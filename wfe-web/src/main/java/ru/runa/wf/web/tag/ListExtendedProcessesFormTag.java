@@ -44,26 +44,20 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
-/**
- * Created on 15.10.2004
- *
- * @author Vitaliy S aka Yilativs
- * @author Gordienko_m
- */
-@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listProcessesForm")
-public class ListProcessesFormTag extends BatchReturningTitledFormTag {
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExtendedProcessesForm")
+public class ListExtendedProcessesFormTag extends BatchReturningTitledFormTag {
 
-    private static final long serialVersionUID = 585180395259884607L;
+    private static final long serialVersionUID = 2L;
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
         BatchPresentation batchPresentation = getBatchPresentation();
         ExecutionService executionService = Delegates.getExecutionService();
 
-        int instanceCount = executionService.getProcessesCount(getUser(), batchPresentation);
+        int instanceCount = executionService.getExtendedProcessesCount(getUser(), batchPresentation);
         // we must call getProcesses before obtaining current page number
         // since it can be changed after getProcesses call
-        List<WfProcess> processes = executionService.getProcesses(getUser(), batchPresentation);
+        List<WfProcess> processes = executionService.getExtendedProcesses(getUser(), batchPresentation);
         // batchPresentation must be recalculated since the current page
         // number might changed
         batchPresentation = getBatchPresentation();
@@ -84,9 +78,11 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
             idx++;
         }
 
-        ReflectionRowBuilder rowBuilder = isFilterable ? new ProcessRowBuilder(processes, batchPresentation, pageContext,
-                ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders) : new ReflectionRowBuilder(processes,
-                        batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders);
+        ReflectionRowBuilder rowBuilder = isFilterable
+                ? new ProcessRowBuilder(processes, batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(), getReturnAction(),
+                        "id", builders)
+                : new ReflectionRowBuilder(processes, batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(),
+                        getReturnAction(), "id", builders);
         rowBuilder.setCssClassStrategy(new ProcessCssClassStrategy());
 
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder, isFilterable ? true : false));

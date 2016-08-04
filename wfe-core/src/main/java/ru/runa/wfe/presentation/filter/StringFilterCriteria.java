@@ -47,9 +47,30 @@ public class StringFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String fieldName, String persistentObjectQueryAlias, Map<String, QueryParameter> placeholders) {
-        String searchFilter = getFilterTemplate(0);
+    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+        final StringLikeFilter likeFilter = calcUseLike(getFilterTemplate(0));
+        String searchFilter = likeFilter.getSearchFilter();
+
+        String alias = makePlaceHolderName(aliasedFieldName);
+        String where = "";
+        if (ignoreCase) {
+            where += "lower(";
+        }
+        where += aliasedFieldName;
+        if (ignoreCase) {
+            where += ")";
+            searchFilter = searchFilter.toLowerCase();
+        }
+        where += " ";
+        where += likeFilter.isUseLike() ? "like" : "=";
+        where += " :" + alias + " ";
+        placeholders.put(alias, new QueryParameter(alias, searchFilter));
+        return where;
+    }
+
+    public static StringLikeFilter calcUseLike(String parSearchFilter) {
         boolean useLike = false;
+        String searchFilter = parSearchFilter;
         if (searchFilter.contains(ANY_SYMBOLS)) {
             searchFilter = searchFilter.replaceAll(QUOTED_ANY_SYMBOLS, DB_ANY_SYMBOLS);
             useLike = true;
@@ -58,20 +79,6 @@ public class StringFilterCriteria extends FilterCriteria {
             searchFilter = searchFilter.replaceAll(QUOTED_ANY_SYMBOL, DB_ANY_SYMBOL);
             useLike = true;
         }
-        String alias = persistentObjectQueryAlias + fieldName.replaceAll("\\.", "");
-        String where = "";
-        if (ignoreCase) {
-            where += "lower(";
-        }
-        where += persistentObjectQueryAlias + "." + fieldName;
-        if (ignoreCase) {
-            where += ")";
-            searchFilter = searchFilter.toLowerCase();
-        }
-        where += " ";
-        where += useLike ? "like" : "=";
-        where += " :" + alias + " ";
-        placeholders.put(alias, new QueryParameter(alias, searchFilter));
-        return where;
+        return new StringLikeFilter(searchFilter, useLike);
     }
 }

@@ -7,6 +7,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
+import ru.runa.wfe.execution.ExtendedProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
 import ru.runa.wfe.relation.RelationPairClassPresentation;
@@ -25,6 +26,7 @@ public class ClassPresentations {
         registerClassPresentation(ClassPresentationType.DEFINITION, DefinitionClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.DEFINITION_HISTORY, DefinitionHistoryClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.PROCESS, ProcessClassPresentation.getInstance());
+        registerClassPresentation(ClassPresentationType.EXTENDED_PROCESS, ExtendedProcessClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.TASK, TaskClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.RELATIONPAIR, RelationPairClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.RELATION, RelationClassPresentation.getInstance());

@@ -22,6 +22,11 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -48,6 +53,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.dto.ExtendedWfProcess;
 import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
@@ -76,11 +82,6 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Process execution logic.
@@ -197,8 +198,18 @@ public class ExecutionLogic extends WFCommonLogic {
 
     private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
-        for (Process process : processes) {
-            WfProcess wfProcess = new WfProcess(process);
+        for (Object wideProcess : processes) {
+            final Process process;
+            final Task task;
+            if (wideProcess instanceof Process) {
+                process = (Process) wideProcess;
+                task = null;
+            } else {
+                final Object[] entities = (Object[]) wideProcess;
+                process = (Process) entities[0];
+                task = (Task) entities[1];
+            }
+            WfProcess wfProcess = new ExtendedWfProcess(process, task);
             if (variableNamesToInclude != null) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);
