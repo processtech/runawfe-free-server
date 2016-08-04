@@ -28,13 +28,13 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.common.web.form.ReturnActionForm;
 import ru.runa.wf.web.action.SetViewPageAction;
 import ru.runa.wf.web.form.PagingForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.presentation.BatchPresentation;
-
-import com.google.common.collect.Maps;
 
 /**
  * Helper class to create paging navigation elements.
@@ -160,7 +160,7 @@ public final class PagingNavigationHelper {
         final Map<String, Object> params = Maps.newHashMap();
         params.put(PagingForm.BATCH_PRESENTATION_ID, batchPresentation.getCategory());
         final String actionUrl = Commons.getUrl("/download", params, pageContext, PortletUrlType.Resource);
-        final A href = new A(actionUrl, MessagesBatch.DOWNLOAD_AS_EXEL.message(pageContext));
+        final A href = new A(actionUrl, MessagesBatch.DOWNLOAD_AS_EXCEL.message(pageContext));
         downloadTd.addElement(href);
         return downloadTd;
     }

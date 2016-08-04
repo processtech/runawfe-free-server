@@ -37,6 +37,6 @@ public final class MessagesBatch {
     public static final StrutsMessage SHARED_OPTION_YES = new StrutsMessage("option.shared_yes");
     
     // Labels for batch presentation file download
-    public static final StrutsMessage DOWNLOAD_AS_EXEL = new StrutsMessage("label.download_as_exel");
+    public static final StrutsMessage DOWNLOAD_AS_EXCEL = new StrutsMessage("label.download_as_excel");
     
 }

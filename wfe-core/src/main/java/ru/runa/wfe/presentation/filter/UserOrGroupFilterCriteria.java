@@ -30,17 +30,14 @@ public class UserOrGroupFilterCriteria extends FilterCriteria {
         paramStringBuilder.append(alias);
         placeholders.put(alias, new QueryParameter(alias, likeFilter.getSearchFilter()));
 
-        final StringBuilder whereStringBuilder = new StringBuilder(aliasedFieldName);
+        final StringBuilder whereStringBuilder = new StringBuilder();
+        whereStringBuilder.append("( ").append(aliasedFieldName).append(paramStringBuilder);
         if (includeGroup) {
-            whereStringBuilder.append(" in ( select distinct egm.executor.name from ru.runa.wfe.user.ExecutorGroupMembership as egm, "
-                    + "ru.runa.wfe.user.ExecutorGroupMembership as egm2 where egm.group = egm2.group and (egm2.executor.name");
-            whereStringBuilder.append(paramStringBuilder);
-            whereStringBuilder.append(" or egm2.group.name ");
-            whereStringBuilder.append(paramStringBuilder);
-            whereStringBuilder.append("))");
-        } else {
-            whereStringBuilder.append(paramStringBuilder);
+            whereStringBuilder.append(" OR ").append(aliasedFieldName);
+            whereStringBuilder.append(" in ( select distinct egm.group.name from ru.runa.wfe.user.ExecutorGroupMembership as egm where egm.executor.name");
+            whereStringBuilder.append(paramStringBuilder).append(")");
         }
+        whereStringBuilder.append(")");
         return whereStringBuilder.toString();
     }
 }
