@@ -42,6 +42,7 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.AssignTaskCheckboxTDBuilder;
 import ru.runa.wf.web.html.TaskUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
@@ -69,7 +70,7 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
 
         // Build current filtered tasks ID-s string (in JSON format for common purposes)
         String batchName = batchPresentation.getName();
-        if (!batchName.equals("label.batch_presentation_default_name") && tasks.size() > 0) {
+        if (!BatchPresentationConsts.DEFAULT_NAME.equals(batchName) && tasks.size() > 0) {
             List<Long> ids = new ArrayList<Long>(tasks.size());
             for (WfTask tsk : tasks) {
                 ids.add(tsk.getId());
