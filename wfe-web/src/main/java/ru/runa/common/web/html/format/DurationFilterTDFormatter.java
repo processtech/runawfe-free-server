@@ -21,9 +21,13 @@ import javax.servlet.jsp.PageContext;
 
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.Input;
+import org.apache.ecs.html.Option;
+import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 
+import ru.runa.common.web.Messages;
 import ru.runa.common.web.form.TableViewSetupForm;
+import ru.runa.wfe.commons.bc.DurationEnum;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 
 /**
@@ -35,14 +39,26 @@ public class DurationFilterTDFormatter extends FilterTDFormatter {
     public void formatTd(TD filterInputTd, PageContext pageContext, FilterCriteria filterCriteria, int fieldIndex) {
         int inputsCount = 2;
         String[] stringConditions = filterCriteria.getFilterTemplates();
-        for (int j = 0; j < inputsCount; j++) {
+        for (int j = 0; j < inputsCount * 2; j += 2) {
             filterInputTd.addElement(new Input(Input.HIDDEN, TableViewSetupForm.FILTER_POSITIONS, String.valueOf(fieldIndex)));
             if (j != 0) {
                 filterInputTd.addElement(Entities.NBSP);
             }
             final Input input = new Input(Input.TEXT, TableViewSetupForm.FILTER_CRITERIA, stringConditions[j]);
-            input.setStyle("width: 100px;");
+            input.setStyle("width: 30px;");
             filterInputTd.addElement(input);
+            filterInputTd.addElement(new Input(Input.HIDDEN, TableViewSetupForm.FILTER_POSITIONS, String.valueOf(fieldIndex)));
+            final String selectedDuration = stringConditions[j + 1];
+            Select select = new Select(TableViewSetupForm.FILTER_CRITERIA);
+            for (DurationEnum value : DurationEnum.values()) {
+                Option option = new Option();
+                option.setValue(value.name());
+                option.addElement(Messages.getMessage(value.name(), pageContext));
+                option.setSelected(value.name().equals(selectedDuration));
+                select.addElement(option);
+            }
+            filterInputTd.addElement(select);
+            filterInputTd.addElement(Entities.NBSP);
         }
     }
 }

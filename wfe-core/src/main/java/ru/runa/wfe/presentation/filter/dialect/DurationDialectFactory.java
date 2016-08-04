@@ -10,6 +10,7 @@ public class DurationDialectFactory {
         if (null != dbtype) {
             switch (dbtype) {
             case H2:
+                return new H2DurationDialect();
             case HSQL:
             case MYSQL:
                 return new DateDiffDurationDialect();

@@ -6,9 +6,4 @@ public class MSSqlDurationDialect extends DateDiffDurationDialect {
     public String convertOperator(String fields) {
         return super.convertOperator(fields.replace("current_date", "getdate()"));
     }
-
-    @Override
-    protected String getSecondTag() {
-        return "SECOND";
-    }
 }

@@ -37,7 +37,7 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
     private BusinessDuration durationEnd;
 
     public TaskDurationFilterCriteria() {
-        super(2);
+        super(4);
     }
 
     @Override
@@ -45,10 +45,10 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
         super.validate(newTemplates);
         try {
             if (newTemplates[0].length() > 0) {
-                parseDuration(newTemplates[0]);
+                parseDuration(newTemplates[0] + " " + newTemplates[1]);
             }
-            if (newTemplates[1].length() > 0) {
-                parseDuration(newTemplates[1]);
+            if (newTemplates[2].length() > 0) {
+                parseDuration(newTemplates[2] + " " + newTemplates[1]);
             }
         } catch (Exception e) {
             throw new FilterFormatException(e.getMessage());
@@ -58,10 +58,10 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
     private void initTimes() {
         try {
             if (getFilterTemplate(0).length() > 0) {
-                durationStart = parseDuration(getFilterTemplate(0));
+                durationStart = parseDuration(getFilterTemplate(0) + " " + getFilterTemplate(1));
             }
-            if (getFilterTemplate(1).length() > 0) {
-                durationEnd = parseDuration(getFilterTemplate(1));
+            if (getFilterTemplate(2).length() > 0) {
+                durationEnd = parseDuration(getFilterTemplate(2) + " " + getFilterTemplate(3));
             }
         } catch (Exception e) {
             log.error("time parsing error: " + e);
@@ -97,12 +97,12 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
                 whereStringBuilder.append(" is null");
             } else {
                 // less than
-                whereStringBuilder.append(" < ").append(wrappedPlaceholderEnd);
+                whereStringBuilder.append(" <= ").append(wrappedPlaceholderEnd);
             }
         } else {
             if (durationEnd == null) {
                 // more than
-                whereStringBuilder.append(" > ").append(wrappedPlaceholderStart);
+                whereStringBuilder.append(" >= ").append(wrappedPlaceholderStart);
             } else {
                 // between
                 whereStringBuilder.append(" between ");
