@@ -9,10 +9,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Resources;
@@ -60,17 +66,15 @@ import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableInputSupport;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
 public class ViewUtil {
     private static final Log log = LogFactory.getLog(ViewUtil.class);
 
     private static final Random random = new Random(System.currentTimeMillis());
+    private static final Pattern SCRIPT_PATTERN = Pattern.compile("<script type='text/javascript'>(.*)</script>", Pattern.DOTALL);
 
     public static String createExecutorSelect(User user, WfVariable variable) {
-        return createExecutorSelect(user, variable.getDefinition().getName(), variable.getDefinition().getFormatNotNull(), variable.getValue(), true);
+        return createExecutorSelect(user, variable.getDefinition().getName(), variable.getDefinition().getFormatNotNull(), variable.getValue(),
+                true);
     }
 
     private static String createExecutorSelect(User user, String variableName, VariableFormat variableFormat, Object value, boolean enabled) {
@@ -93,7 +97,8 @@ public class ViewUtil {
         return createExecutorSelect(variableName, executors, value, javaSort, enabled);
     }
 
-    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort, boolean enabled) {
+    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort,
+            boolean enabled) {
         String html = "<select name=\"" + variableName + "\"";
         if (!enabled) {
             html += " disabled=\"true\"";
@@ -119,7 +124,8 @@ public class ViewUtil {
         return new WfVariable(definition, value);
     }
 
-    public static WfVariable createComponentVariable(WfVariable containerVariable, String nameSuffix, VariableFormat componentFormat, Object value) {
+    public static WfVariable createComponentVariable(WfVariable containerVariable, String nameSuffix, VariableFormat componentFormat,
+            Object value) {
         String name = containerVariable.getDefinition().getName() + (nameSuffix != null ? nameSuffix : "");
         String scriptingName = containerVariable.getDefinition().getScriptingName() + (nameSuffix != null ? nameSuffix : "");
         return createVariable(name, scriptingName, componentFormat, value);
@@ -376,9 +382,18 @@ public class ViewUtil {
             substitutions.put("VARIABLE", variableName);
             substitutions.put("UNIQUENAME", scriptingVariableName);
             WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
-            String componentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
-            componentHtml = componentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\n", "");
-            substitutions.put("COMPONENT_INPUT", componentHtml);
+            String componentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable).replaceAll("\"", "'");
+            Matcher m = SCRIPT_PATTERN.matcher(componentHtml);
+            final StringBuilder scriptsSB = new StringBuilder();
+            while (m.find()) {
+                if (0 < scriptsSB.length()) {
+                    scriptsSB.append(" ");
+                }
+                scriptsSB.append(m.group(1));
+            }
+            substitutions.put("COMPONENT_INPUT_JS", scriptsSB.toString());
+            String componentHtmlNoJs = componentHtml.replaceAll("\t", "").replaceAll("\n", "").replaceAll(SCRIPT_PATTERN.pattern(), "");
+            substitutions.put("COMPONENT_INPUT_NO_JS", componentHtmlNoJs);
             substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(variable));
             StringBuffer html = new StringBuffer();
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);

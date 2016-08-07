@@ -1,5 +1,5 @@
 
-var componentInputUNIQUENAME = "COMPONENT_INPUT";
+var componentInputUNIQUENAME = "COMPONENT_INPUT_NO_JS";
 var lastIndexUNIQUENAME = -1;
 
 $(document).ready(function() {
@@ -57,3 +57,5 @@ function updateIndexesUNIQUENAME() {
 	indexesInput.val(ids);
 	console.log("List size = " + getSizeUNIQUENAME());
 }
+
+COMPONENT_INPUT_JS
