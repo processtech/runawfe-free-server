@@ -70,7 +70,7 @@ public class ViewUtil {
     private static final Log log = LogFactory.getLog(ViewUtil.class);
 
     private static final Random random = new Random(System.currentTimeMillis());
-    private static final Pattern SCRIPT_PATTERN = Pattern.compile("<script type='text/javascript'>(.*)</script>", Pattern.DOTALL);
+    private static final Pattern SCRIPT_PATTERN = Pattern.compile("<script type=\"text/javascript\">/\\*<\\!\\[CDATA\\[\\*/(.*)/\\*\\]\\]>\\*/</script>", Pattern.DOTALL);
 
     public static String createExecutorSelect(User user, WfVariable variable) {
         return createExecutorSelect(user, variable.getDefinition().getName(), variable.getDefinition().getFormatNotNull(), variable.getValue(),
@@ -382,9 +382,77 @@ public class ViewUtil {
             substitutions.put("UNIQUENAME", scriptingVariableName);
             VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
             WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
-            String componentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable).replaceAll("\"", "'");
+            String componentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
             if (componentFormat instanceof UserTypeFormat) {
-                substitutions.put("COMPONENT_INPUT_JS", "");
+                StringBuilder scriptsSB = new StringBuilder();
+                scriptsSB.append("var componentInputlist___actors = \"<select name='list[].actors[]'><option value=''> ------------------------- </option><option value='ID4'>SystemExecutor:ProcessStarter</option><option value='ID1'>Administrator</option></select>\";\n");
+                scriptsSB.append("var lastIndexlist___actors = -1;\n");
+                
+//                $(document).ready(function() {
+//                    updateIndexeslist___actors();
+//                    lastIndexlist___actors = $("#list___actors div[row][current]").length - 1;  
+//                    $("#btnAddlist___actors").click(function() {
+//                        var rowIndex = parseInt(lastIndexlist___actors) + 1;
+//                        lastIndexlist___actors = rowIndex;
+//                        console.log("Adding row " + rowIndex);
+//                        var e = "<div current row='" + rowIndex + "' name='list[].actors' style='margin-bottom:4px;'>";
+//                        e += componentInputlist___actors.replace(/\[\]/g, "[" + rowIndex + "]");
+//                        e += "<input type='button' value=' - ' onclick='removelist___actors(this);' style='width: 30px;' />";
+//                        e += "</div>";
+//                        $("#btnAddlist___actors").before(e);
+//                        updateIndexeslist___actors();
+//                        
+//                        $("#list___actors").trigger("onRowAdded", [rowIndex]);
+//                    });
+//                });
+//
+//                function getSizelist___actors() {
+//                    return parseInt($("input[name='list[].actors.indexes']").val().split(',').length);
+//                }
+//
+//                function removelist___actors(button) {
+//                    var div = $(button).closest("div");
+//                    var rowIndex = parseInt(div.attr("row"));
+//                    console.log("Removing row ", rowIndex);
+//                    div.find(".inputFileDelete").each(function() {
+//                        $(this).click();
+//                    });
+//                    div.remove();
+//                    updateIndexeslist___actors();
+//                    $("#list___actors").trigger("onRowRemoved", [rowIndex]);
+//                }
+//
+//                function removeAlllist___actors() {
+//                    $("#list___actors div[row]").each(function() {
+//                        $(this).find(".inputFileDelete").each(function() {
+//                            $(this).click();
+//                        });
+//                        $(this).remove();
+//                    });
+//                    $("input[name='list[].actors.indexes']").val("");
+//                    $("#list___actors").trigger("onAllRowsRemoved");
+//                    console.log("Removed all rows");
+//                }
+                
+                scriptsSB.append("function updateIndexeslist___actors() {\n");
+                scriptsSB.append("    var ids = \"\";\n");
+                scriptsSB.append("    $(\"#list___actors div[row][current]\").each(function() {\n");
+                scriptsSB.append("        ids == \"\" ? ids = $(this).attr('row') : ids += \",\" + $(this).attr('row') ;\n"); 
+                scriptsSB.append("    });\n");
+                scriptsSB.append("    var indexesInput = $(\"input[name='list[].actors.indexes']\");\n");
+                scriptsSB.append("    indexesInput.val(ids);\n");
+                scriptsSB.append("    console.log(\"List size = \" + getSizelist___actors());\n");
+                scriptsSB.append("}\n");
+                
+//                Matcher m = SCRIPT_PATTERN.matcher(componentHtml);
+//                while (m.find()) {
+//                    if (0 < scriptsSB.length()) {
+//                        scriptsSB.append(" ");
+//                    }
+//                    scriptsSB.append(m.group(1));
+//                }
+                
+                substitutions.put("COMPONENT_INPUT_JS", scriptsSB.toString());
                 componentHtml = componentHtml.replaceAll("\t", "").replaceAll("\r", "").replaceAll("\n", "");
                 String componentHtmlNoJs = componentHtml.replaceAll(SCRIPT_PATTERN.pattern(), "");
                 substitutions.put("COMPONENT_INPUT_NO_JS", componentHtmlNoJs);
@@ -398,10 +466,10 @@ public class ViewUtil {
                     scriptsSB.append(m.group(1));
                 }
                 substitutions.put("COMPONENT_INPUT_JS", scriptsSB.toString());
-                String componentHtmlNoJs = componentHtml.replaceAll("\t", "").replaceAll("\r", "").replaceAll("\n", "").replaceAll(SCRIPT_PATTERN.pattern(), "");
+                String componentHtmlNoJs = componentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\r", "").replaceAll("\n", "").replaceAll(SCRIPT_PATTERN.pattern().replaceAll("\"", "'"), "");
                 substitutions.put("COMPONENT_INPUT_NO_JS", componentHtmlNoJs);
-                substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(variable));
             }
+            substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(variable));
             StringBuffer html = new StringBuffer();
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
             html.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
