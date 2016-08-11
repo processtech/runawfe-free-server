@@ -95,11 +95,11 @@ public class VariableLogic extends WFCommonLogic {
     }
 
     private List<Object> buildListVariable(ProcessDefinition processDefinition, Map<String, Object> values, VariableDefinition variableDefinition) {
+        List<Object> list = Lists.newArrayList();
         String sizeVariableName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
         Integer size = (Integer) values.remove(sizeVariableName);
         if (size == null) {
             if (values.containsKey(variableDefinition.getName())) {
-                List<Object> list = Lists.newArrayList();
                 Object value = values.remove(variableDefinition.getName());
                 if (value instanceof List) {
                     log.debug("Handling back compatibility list value for " + variableDefinition);
