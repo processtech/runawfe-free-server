@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,8 +68,6 @@ public class ViewUtil {
     private static final Log log = LogFactory.getLog(ViewUtil.class);
 
     private static final Random random = new Random(System.currentTimeMillis());
-    private static final Pattern SCRIPT_PATTERN = Pattern
-            .compile("<script type=\"text/javascript\">/\\*<\\!\\[CDATA\\[\\*/(.*)/\\*\\]\\]>\\*/</script>", Pattern.DOTALL);
 
     public static String createExecutorSelect(User user, WfVariable variable) {
         return createExecutorSelect(user, variable.getDefinition().getName(), variable.getDefinition().getFormatNotNull(), variable.getValue(),
@@ -100,17 +96,17 @@ public class ViewUtil {
 
     public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort,
             boolean enabled) {
-        String html = "<select name=\"" + variableName + "\"";
+        String html = "<select name='" + variableName + "'";
         if (!enabled) {
-            html += " disabled=\"true\"";
+            html += " disabled='true'";
         }
         html += ">";
         if (javaSort) {
             Collections.sort(executors);
         }
-        html += "<option value=\"\"> ------------------------- </option>";
+        html += "<option value=''> ------------------------- </option>";
         for (Executor executor : executors) {
-            html += "<option value=\"ID" + executor.getId() + "\"";
+            html += "<option value='ID" + executor.getId() + "'";
             if (Objects.equal(executor, value)) {
                 html += " selected";
             }
@@ -194,7 +190,7 @@ public class ViewUtil {
         if (stringValue == null) {
             stringValue = "";
         }
-        return "<input type=\"hidden\" name=\"" + variable.getDefinition().getName() + "\" value=\"" + stringValue + "\" />";
+        return "<input type='hidden' name='" + variable.getDefinition().getName() + "' value='" + stringValue + "' />";
     }
 
     public static String getFileInput(WebHelper webHelper, String variableName, boolean allowMultiple) {
@@ -208,18 +204,18 @@ public class ViewUtil {
             loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
             loadingMessage = webHelper.getMessage("message.loading");
         }
-        String hideStyle = "style=\"display: none;\"";
-        String html = "<div class=\"inputFileContainer\">";
-        html += "<div class=\"dropzone\" >";
-        html += "<label class=\"inputFileAttach\">";
-        html += "<div class=\"inputFileAttachButtonDiv\"><img src=\"" + attachImageUrl + "\" />" + uploadFileTitle + "</div>";
-        html += "<input class=\"inputFile inputFileAjax \" name=\"" + variableName + "\" type=\"file\" " + multiple + ">";
+        String hideStyle = "style='display: none;'";
+        String html = "<div class='inputFileContainer'>";
+        html += "<div class='dropzone' >";
+        html += "<label class='inputFileAttach'>";
+        html += "<div class='inputFileAttachButtonDiv'><img src='" + attachImageUrl + "' />" + uploadFileTitle + "</div>";
+        html += "<input class='inputFile inputFileAjax ' name='" + variableName + "' type='file' " + multiple + ">";
         html += "</label></div>";
-        html += "<div class=\"progressbar\" " + hideStyle + ">";
-        html += "<div class=\"line\" style=\"width: 0%;\"></div>";
-        html += "<div class=\"status\">";
-        html += "<img src=\"" + loadingImageUrl + "\" inputId=\"" + variableName + "\">";
-        html += "<span class=\"statusText\">";
+        html += "<div class='progressbar' " + hideStyle + ">";
+        html += "<div class='line' style='width: 0%;'></div>";
+        html += "<div class='status'>";
+        html += "<img src='" + loadingImageUrl + "' inputId='" + variableName + "'>";
+        html += "<span class='statusText'>";
         html += loadingMessage;
         html += "</span></div></div></div>";
         return html;
@@ -259,7 +255,7 @@ public class ViewUtil {
             objectsList.add(cvarObj);
         }
         String uniquename = String.format("%s_%x", variable.getDefinition().getScriptingNameWithoutDots(), random.nextInt());
-        String result = "<script src=\"/wfe/js/tidy-table.js\"></script>\n";
+        String result = "<script src='/wfe/js/tidy-table.js'></script>\n";
         InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.UserTypeListTable.js", ViewUtil.class);
         Map<String, String> substitutions = new HashMap<String, String>();
         substitutions.put("UNIQUENAME", uniquename);
@@ -273,8 +269,8 @@ public class ViewUtil {
             substitutions.put("DECTSELECTNAME", "");
         }
         result += WebUtils.getFormComponentScript(javascriptStream, substitutions);
-        result += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/wfe/css/tidy-table.css\">\n";
-        result += String.format("<div id=\"container%s\"></div>", uniquename);
+        result += "<link rel='stylesheet' type='text/css' href='/wfe/css/tidy-table.css'>\n";
+        result += String.format("<div id='container%s'></div>", uniquename);
         return result;
     }
 
@@ -287,16 +283,16 @@ public class ViewUtil {
         }
         if (StringFormat.class == variableFormat.getClass()) {
             String html = "";
-            html += "<input type=\"text\" name=\"" + variableName + "\" class=\"inputString\" ";
+            html += "<input type='text' name='" + variableName + "' class='inputString' ";
             if (value != null) {
-                html += "value=\"" + ((StringFormat) variableFormat).formatHtml(user, webHelper, 0L, variableName, value) + "\" ";
+                html += "value='" + ((StringFormat) variableFormat).formatHtml(user, webHelper, 0L, variableName, value) + "' ";
             }
             html += "/>";
             return html;
         }
         if (TextFormat.class == variableFormat.getClass()) {
             String html = "";
-            html += "<textarea name=\"" + variableName + "\" class=\"inputText\">";
+            html += "<textarea name='" + variableName + "' class='inputText'>";
             if (value != null) {
                 html += ((TextFormat) variableFormat).formatHtml(user, webHelper, 0L, variableName, value);
             }
@@ -306,9 +302,9 @@ public class ViewUtil {
         if (variableFormat instanceof LongFormat || DoubleFormat.class == variableFormat.getClass()
                 || BigDecimalFormat.class == variableFormat.getClass()) {
             String html = "";
-            html += "<input type=\"text\" name=\"" + variableName + "\" class=\"inputNumber\" ";
+            html += "<input type='text' name='" + variableName + "' class='inputNumber' ";
             if (value instanceof Number) {
-                html += "value=\"" + value + "\" ";
+                html += "value='" + value + "' ";
             }
             html += "/>";
             return html;
@@ -318,36 +314,36 @@ public class ViewUtil {
         }
         if (BooleanFormat.class == variableFormat.getClass()) {
             String html = "";
-            html += "<input type=\"checkbox\" name=\"" + variableName + "\" class=\"inputBoolean\" ";
+            html += "<input type='checkbox' name='" + variableName + "' class='inputBoolean' ";
             if (value instanceof Boolean && (Boolean) value) {
-                html += "checked=\"checked\" ";
+                html += "checked='checked' ";
             }
             html += "/>";
             return html;
         }
         if (DateFormat.class == variableFormat.getClass()) {
             String html = "";
-            html += "<input type=\"text\" name=\"" + variableName + "\" class=\"inputDate\" style=\"width: 100px;\" ";
+            html += "<input type='text' name='" + variableName + "' class='inputDate' style='width: 100px;' ";
             if (value instanceof Date) {
-                html += "value=\"" + CalendarUtil.formatDate((Date) value) + "\" ";
+                html += "value='" + CalendarUtil.formatDate((Date) value) + "' ";
             }
             html += "/>";
             return html;
         }
         if (TimeFormat.class == variableFormat.getClass()) {
             String html = "";
-            html += "<input type=\"text\" name=\"" + variableName + "\" class=\"inputTime\" style=\"width: 50px;\" ";
+            html += "<input type='text' name='" + variableName + "' class='inputTime' style='width: 50px;' ";
             if (value instanceof Date) {
-                html += "value=\"" + CalendarUtil.formatTime((Date) value) + "\" ";
+                html += "value='" + CalendarUtil.formatTime((Date) value) + "' ";
             }
             html += "/>";
             return html;
         }
         if (DateTimeFormat.class == variableFormat.getClass()) {
             String html = "";
-            html += "<input type=\"text\" name=\"" + variableName + "\" class=\"inputDateTime\" style=\"width: 150px;\" ";
+            html += "<input type='text' name='" + variableName + "' class='inputDateTime' style='width: 150px;' ";
             if (value instanceof Date) {
-                html += "value=\"" + CalendarUtil.formatDateTime((Date) value) + "\" ";
+                html += "value='" + CalendarUtil.formatDateTime((Date) value) + "' ";
             }
             html += "/>";
             return html;
@@ -362,11 +358,11 @@ public class ViewUtil {
                 userTypeMap = new UserTypeMap(userType);
             }
             StringBuffer b = new StringBuffer();
-            b.append("<table class=\"list\">");
+            b.append("<table class='list'>");
             for (VariableDefinition attributeDefinition : userType.getAttributes()) {
                 b.append("<tr>");
-                b.append("<td class=\"list\">").append(attributeDefinition.getName()).append("</td>");
-                b.append("<td class=\"list\">");
+                b.append("<td class='list'>").append(attributeDefinition.getName()).append("</td>");
+                b.append("<td class='list'>");
                 Object attributeValue = userTypeMap.get(attributeDefinition.getName());
                 WfVariable componentVariable = createUserTypeComponentVariable(variable, attributeDefinition, attributeValue);
                 b.append(getComponentInput(user, webHelper, componentVariable));
@@ -378,106 +374,15 @@ public class ViewUtil {
         }
         if (variableFormat instanceof ListFormat) {
             String scriptingVariableName = variable.getDefinition().getScriptingNameWithoutDots();
+            VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);
             substitutions.put("UNIQUENAME", scriptingVariableName);
-            VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
             WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
             String componentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
-            // if (componentFormat instanceof UserTypeFormat) {
-            // StringBuilder scriptsSB = new StringBuilder();
-            // scriptsSB.append("var componentInputlist___actors = \"<select name='list[].actors[]'><option value=''> -------------------------
-            // </option><option value='ID4'>SystemExecutor:ProcessStarter</option><option value='ID1'>Administrator</option></select>\";\r\n");
-            // scriptsSB.append("var lastIndexlist___actors = -1;\r\n");
-            //
-            // scriptsSB.append("$(document).ready(function() {\n");
-            // scriptsSB.append(" updateIndexeslist___actors();\n");
-            // scriptsSB.append(" lastIndexlist___actors = $(\"#list___actors div[row][current]\").length - 1;\n");
-            // scriptsSB.append(" $(\"#btnAddlist___actors\").click(function() {\n");
-            // scriptsSB.append(" var rowIndex = parseInt(lastIndexlist___actors) + 1;\n");
-            // scriptsSB.append(" lastIndexlist___actors = rowIndex;\n");
-            // scriptsSB.append(" console.log(\"Adding row \" + rowIndex);\n");
-            // scriptsSB.append(" var e = \"<div current row='\" + rowIndex + \"' name='list[].actors' style='margin-bottom:4px;'>\";\n");
-            // scriptsSB.append(" e += componentInputlist___actors.replace(/\\[\\]/g, \"[\" + rowIndex + \"]\");\n");
-            // scriptsSB.append(" e += \"<input type='button' value=' - ' onclick='removelist___actors(this);' style='width: 30px;' />\";\n");
-            // scriptsSB.append(" e += \"</div>\";\n");
-            // scriptsSB.append(" $(\"#btnAddlist___actors\").before(e);\n");
-            // scriptsSB.append(" updateIndexeslist___actors();\n");
-            //
-            // scriptsSB.append(" $(\"#list___actors\").trigger(\"onRowAdded\", [rowIndex]);\n");
-            // scriptsSB.append(" });\n");
-            // scriptsSB.append("});\n");
-            //
-            // scriptsSB.append("function getSizelist___actors() {\n");
-            // scriptsSB.append(" return parseInt($(\"input[name='list[].actors.indexes']\").val().split(',').length);\n");
-            // scriptsSB.append("}\n");
-            //
-            // scriptsSB.append("function removelist___actors(button) {\n");
-            // scriptsSB.append(" var div = $(button).closest(\"div\");\n");
-            // scriptsSB.append(" var rowIndex = parseInt(div.attr(\"row\"));\n");
-            // scriptsSB.append(" console.log(\"Removing row \", rowIndex);\n");
-            // scriptsSB.append(" div.find(\".inputFileDelete\").each(function() {\n");
-            // scriptsSB.append(" $(this).click();\n");
-            // scriptsSB.append(" });\n");
-            // scriptsSB.append(" div.remove();\n");
-            // scriptsSB.append(" updateIndexeslist___actors();\n");
-            // scriptsSB.append(" $(\"#list___actors\").trigger(\"onRowRemoved\", [rowIndex]);\n");
-            // scriptsSB.append("}\n");
-            //
-            // scriptsSB.append("function removeAlllist___actors() {\n");
-            // scriptsSB.append(" $(\"#list___actors div[row]\").each(function() {\n");
-            // scriptsSB.append(" $(this).find(\".inputFileDelete\").each(function() {\n");
-            // scriptsSB.append(" $(this).click();\n");
-            // scriptsSB.append(" });\n");
-            // scriptsSB.append(" $(this).remove();\n");
-            // scriptsSB.append(" });\n");
-            // scriptsSB.append(" $(\"input[name='list[].actors.indexes']\").val(\"\");\n");
-            // scriptsSB.append(" $(\"#list___actors\").trigger(\"onAllRowsRemoved\");\n");
-            // scriptsSB.append(" console.log(\"Removed all rows\");\n");
-            // scriptsSB.append("}\n\n");
-            //
-            // scriptsSB.append("function updateIndexeslist___actors() {\n");
-            // scriptsSB.append(" var ids = \"\";\n");
-            // scriptsSB.append(" $(\"#list___actors div[row][current]\").each(function() {\n");
-            // scriptsSB.append(" ids == \"\" ? ids = $(this).attr('row') : ids += \",\" + $(this).attr('row') ;\n");
-            // scriptsSB.append(" });\n");
-            // scriptsSB.append(" var indexesInput = $(\"input[name='list[].actors.indexes']\");\n");
-            // scriptsSB.append(" indexesInput.val(ids);\n");
-            // scriptsSB.append(" console.log(\"List size = \" + getSizelist___actors());\n");
-            // scriptsSB.append("}\r\n");
-            //
-            // Matcher m = SCRIPT_PATTERN.matcher(componentHtml);
-            // while (m.find()) {
-            // if (0 < scriptsSB.length()) {
-            // scriptsSB.append("\n");
-            // }
-            // scriptsSB.append(m.group(1));
-            // }
-            //
-            // substitutions.put("COMPONENT_INPUT_JS", scriptsSB.toString());
-            // componentHtml = componentHtml.replaceAll("\t", "").replaceAll("\r", "").replaceAll("\n", "");
-            // String componentHtmlNoJs = componentHtml.replaceAll(SCRIPT_PATTERN.pattern(), "");
-            // substitutions.put("COMPONENT_INPUT_NO_JS", componentHtmlNoJs);
-            // } else {
-            Matcher m = SCRIPT_PATTERN.matcher(componentHtml);
-            final StringBuilder scriptsSB = new StringBuilder();
-            while (m.find()) {
-                if (0 < scriptsSB.length()) {
-                    scriptsSB.append("\n");
-                }
-                scriptsSB.append(m.group(1));
-            }
-            final String scripts;
-            if (0 < scriptsSB.length()) {
-                scripts = "\"" + scriptsSB.append("\"").toString();
-            } else {
-                scripts = "";
-            }
-            substitutions.put("COMPONENT_INPUT_JS", scripts);
-            String componentHtmlNoJs = componentHtml.replaceAll("\t", "").replaceAll("\r", "").replaceAll("\n", "")
-                    .replaceAll(SCRIPT_PATTERN.pattern(), "");
-            substitutions.put("COMPONENT_INPUT_NO_JS", componentHtmlNoJs.replace("\"", "\\\""));
-            // }
+            componentHtml = componentHtml.replaceAll("\t", "").replaceAll("\r", "").replaceAll("\n", "").replaceAll("script", "_script");
+            componentHtml = componentHtml.replaceAll("»", "_»").replaceAll("'", "«»");
+            substitutions.put("COMPONENT_INPUT", componentHtml);
             substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(variable));
             StringBuffer html = new StringBuffer();
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
@@ -486,20 +391,20 @@ public class ViewUtil {
             if (list == null) {
                 list = new ArrayList<Object>();
             }
-            html.append("<div class=\"editList\" id=\"").append(scriptingVariableName).append("\">");
+            html.append("<div class='editList' id='").append(scriptingVariableName).append("'>");
             WfVariable indexesVariable = ViewUtil.createListIndexesVariable(variable, list.size());
             html.append(ViewUtil.getHiddenInput(indexesVariable));
             for (int row = 0; row < list.size(); row++) {
                 Object o = list.get(row);
-                html.append("<div><div current row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
+                html.append("<div><div current row='").append(row).append("' name='").append(variableName).append("'>");
                 WfVariable componentVariable = ViewUtil.createListComponentVariable(variable, row, componentFormat, o);
                 html.append(ViewUtil.getComponentInput(user, webHelper, componentVariable));
-                html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
-                html.append("(this);\" style=\"width: 30px;\" />");
+                html.append("<input type='button' value=' - ' onclick='remove").append(scriptingVariableName);
+                html.append("(this);' style='width: 30px;' />");
                 html.append("</div></div>");
             }
-            html.append("<div><input type=\"button\" id=\"btnAdd").append(scriptingVariableName);
-            html.append("\" value=\" + \" style=\"width: 30px;\" /></div>");
+            html.append("<div><input type='button' id='btnAdd").append(scriptingVariableName);
+            html.append("' value=' + ' style='width: 30px;' /></div>");
             html.append("</div>");
             return html.toString();
         }
@@ -510,11 +415,11 @@ public class ViewUtil {
             substitutions.put("UNIQUENAME", scriptingVariableName);
             WfVariable templateComponentVariableKey = ViewUtil.createMapKeyComponentVariable(variable, -1, null);
             String keyComponentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariableKey);
-            keyComponentHtml = keyComponentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\n", "");
+            keyComponentHtml = keyComponentHtml.replaceAll("'", "'").replaceAll("\t", "").replaceAll("\n", "");
             substitutions.put("COMPONENT_INPUT_KEY", keyComponentHtml);
             WfVariable templateComponentVariableValue = ViewUtil.createMapValueComponentVariable(variable, -1, null);
             String valueComponentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariableValue);
-            valueComponentHtml = valueComponentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\n", "");
+            valueComponentHtml = valueComponentHtml.replaceAll("'", "'").replaceAll("\t", "").replaceAll("\n", "");
             substitutions.put("COMPONENT_INPUT_VALUE", valueComponentHtml);
             VariableFormat keyFormat = FormatCommons.createComponent(variable, 0);
             VariableFormat valueFormat = FormatCommons.createComponent(variable, 1);
@@ -527,23 +432,23 @@ public class ViewUtil {
             if (map == null) {
                 map = new HashMap<Object, Object>();
             }
-            html.append("<div class=\"editList\" id=\"").append(scriptingVariableName).append("\">");
+            html.append("<div class='editList' id='").append(scriptingVariableName).append("'>");
             WfVariable indexesVariable = ViewUtil.createListIndexesVariable(variable, map.size());
             html.append(ViewUtil.getHiddenInput(indexesVariable));
             int row = -1;
             for (Object key : map.keySet()) {
                 row++;
-                html.append("<div><div current row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
+                html.append("<div><div current row='").append(row).append("' name='").append(variableName).append("'>");
                 WfVariable keyComponentVariable = ViewUtil.createMapKeyComponentVariable(variable, row, key);
                 html.append(ViewUtil.getComponentInput(user, webHelper, keyComponentVariable));
                 WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(variable, row, key);
                 html.append(ViewUtil.getComponentInput(user, webHelper, valueComponentVariable));
-                html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
-                html.append("(this);\" style=\"width: 30px;\" />");
+                html.append("<input type='button' value=' - ' onclick='remove").append(scriptingVariableName);
+                html.append("(this);' style='width: 30px;' />");
                 html.append("</div></div>");
             }
-            html.append("<div><input type=\"button\" id=\"btnAddMap").append(scriptingVariableName);
-            html.append("\" value=\" + \" style=\"width: 30px;\" /></div>");
+            html.append("<div><input type='button' id='btnAddMap").append(scriptingVariableName);
+            html.append("' value=' + ' style='width: 30px;' /></div>");
             html.append("</div>");
             return html.toString();
         }
@@ -559,15 +464,15 @@ public class ViewUtil {
             return getFileComponent(webHelper, variableName, (IFileVariable) value, false);
         }
         if (StringFormat.class == variableFormat.getClass()) {
-            String html = "<input type=\"text\" name=\"" + variableName + "\" class=\"inputString\" disabled=\"true\" ";
+            String html = "<input type='text' name='" + variableName + "' class='inputString' disabled='true' ";
             if (value != null) {
-                html += "value=\"" + ((StringFormat) variableFormat).formatHtml(user, webHelper, processId, variableName, value) + "\" ";
+                html += "value='" + ((StringFormat) variableFormat).formatHtml(user, webHelper, processId, variableName, value) + "' ";
             }
             html += "/>";
             return html;
         }
         if (TextFormat.class == variableFormat.getClass()) {
-            String html = "<textarea name=\"" + variableName + "\" class=\"inputText\" disabled=\"true\">";
+            String html = "<textarea name='" + variableName + "' class='inputText' disabled='true'>";
             if (value != null) {
                 html += ((TextFormat) variableFormat).formatHtml(user, webHelper, processId, variableName, value);
             }
@@ -576,41 +481,41 @@ public class ViewUtil {
         }
         if (variableFormat instanceof LongFormat || DoubleFormat.class == variableFormat.getClass()
                 || BigDecimalFormat.class == variableFormat.getClass()) {
-            String html = "<input type=\"text\" name=\"" + variableName + "\" class=\"inputNumber\" disabled=\"true\" ";
+            String html = "<input type='text' name='" + variableName + "' class='inputNumber' disabled='true' ";
             if (value instanceof Number) {
-                html += "value=\"" + value + "\" ";
+                html += "value='" + value + "' ";
             }
             html += "/>";
             return html;
         }
         if (BooleanFormat.class == variableFormat.getClass()) {
-            String html = "<input type=\"checkbox\" name=\"" + variableName + "\" class=\"inputBoolean\" disabled=\"true\" ";
+            String html = "<input type='checkbox' name='" + variableName + "' class='inputBoolean' disabled='true' ";
             if (value instanceof Boolean && (Boolean) value) {
-                html += "checked=\"checked\" ";
+                html += "checked='checked' ";
             }
             html += "/>";
             return html;
         }
         if (DateFormat.class == variableFormat.getClass()) {
-            String html = "<input type=\"text\" name=\"" + variableName + "\" class=\"inputDate\" style=\"width: 100px;\" disabled=\"true\" ";
+            String html = "<input type='text' name='" + variableName + "' class='inputDate' style='width: 100px;' disabled='true' ";
             if (value instanceof Date) {
-                html += "value=\"" + CalendarUtil.formatDate((Date) value) + "\" ";
+                html += "value='" + CalendarUtil.formatDate((Date) value) + "' ";
             }
             html += "/>";
             return html;
         }
         if (TimeFormat.class == variableFormat.getClass()) {
-            String html = "<input type=\"text\" name=\"" + variableName + "\" class=\"inputTime\" style=\"width: 50px;\" disabled=\"true\" ";
+            String html = "<input type='text' name='" + variableName + "' class='inputTime' style='width: 50px;' disabled='true' ";
             if (value instanceof Date) {
-                html += "value=\"" + CalendarUtil.formatTime((Date) value) + "\" ";
+                html += "value='" + CalendarUtil.formatTime((Date) value) + "' ";
             }
             html += "/>";
             return html;
         }
         if (DateTimeFormat.class == variableFormat.getClass()) {
-            String html = "<input type=\"text\" name=\"" + variableName + "\" class=\"inputDateTime\" style=\"width: 150px;\" disabled=\"true\" ";
+            String html = "<input type='text' name='" + variableName + "' class='inputDateTime' style='width: 150px;' disabled='true' ";
             if (value instanceof Date) {
-                html += "value=\"" + CalendarUtil.formatDateTime((Date) value) + "\" ";
+                html += "value='" + CalendarUtil.formatDateTime((Date) value) + "' ";
             }
             html += "/>";
             return html;
@@ -622,11 +527,11 @@ public class ViewUtil {
             UserTypeMap userTypeMap = (UserTypeMap) value;
             UserType userType = ((UserTypeFormat) variableFormat).getUserType();
             StringBuffer b = new StringBuffer();
-            b.append("<table class=\"list\">");
+            b.append("<table class='list'>");
             for (VariableDefinition attributeDefinition : userType.getAttributes()) {
                 b.append("<tr>");
-                b.append("<td class=\"list\">").append(attributeDefinition.getName()).append("</td>");
-                b.append("<td class=\"list\">");
+                b.append("<td class='list'>").append(attributeDefinition.getName()).append("</td>");
+                b.append("<td class='list'>");
                 Object attributeValue = userTypeMap.get(attributeDefinition.getName());
                 WfVariable componentVariable = createUserTypeComponentVariable(variable, attributeDefinition, attributeValue);
                 b.append(getComponentOutput(user, webHelper, processId, componentVariable));
@@ -640,11 +545,11 @@ public class ViewUtil {
             VariableFormat componentFormat = FormatCommons.createComponent(variable.getDefinition(), 0);
             StringBuffer html = new StringBuffer();
             List<Object> list = TypeConversionUtil.convertTo(List.class, value);
-            html.append("<div class=\"viewList\" id=\"").append(variable.getDefinition().getScriptingName()).append("\">");
+            html.append("<div class='viewList' id='").append(variable.getDefinition().getScriptingName()).append("'>");
             if (list != null) {
                 for (int row = 0; row < list.size(); row++) {
                     Object listValue = list.get(row);
-                    html.append("<div row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
+                    html.append("<div row='").append(row).append("' name='").append(variableName).append("'>");
                     WfVariable componentVariable = createListComponentVariable(variable, row, componentFormat, listValue);
                     html.append(ViewUtil.getComponentOutput(user, webHelper, processId, componentVariable));
                     html.append("</div>");
@@ -656,17 +561,17 @@ public class ViewUtil {
         if (variableFormat instanceof MapFormat) {
             StringBuffer html = new StringBuffer();
             Map<Object, Object> map = TypeConversionUtil.convertTo(Map.class, value);
-            html.append("<div class=\"viewList\" id=\"").append(variable.getDefinition().getScriptingName()).append("\">");
-            html.append("<table class=\"list\">");
+            html.append("<div class='viewList' id='").append(variable.getDefinition().getScriptingName()).append("'>");
+            html.append("<table class='list'>");
             if (map != null) {
                 int row = -1;
                 for (Object key : map.keySet()) {
                     row++;
-                    html.append("<tr><td class=\"list\">");
-                    html.append("<div row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
+                    html.append("<tr><td class='list'>");
+                    html.append("<div row='").append(row).append("' name='").append(variableName).append("'>");
                     WfVariable keyComponentVariable = ViewUtil.createMapKeyComponentVariable(variable, row, key);
                     html.append(ViewUtil.getComponentOutput(user, webHelper, processId, keyComponentVariable));
-                    html.append("</td><td class=\"list\">");
+                    html.append("</td><td class='list'>");
                     WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(variable, row, key);
                     html.append(ViewUtil.getComponentOutput(user, webHelper, processId, valueComponentVariable));
                     html.append("</td></div></tr>");
@@ -775,7 +680,7 @@ public class ViewUtil {
                 if (variable.getDefinition().isSynthetic()) {
                     return String.valueOf(variable.getValue());
                 } else {
-                    return " <span style=\"color: #cccccc;\">(" + variable.getValue() + ")</span>";
+                    return " <span style='color: #cccccc;'>(" + variable.getValue() + ")</span>";
                 }
             }
         }
@@ -783,7 +688,7 @@ public class ViewUtil {
 
     private static String getFileComponent(WebHelper webHelper, String variableName, IFileVariable value, boolean enabled) {
         if (!WebResources.isAjaxFileInputEnabled()) {
-            return "<input type=\"file\" name=\"" + variableName + "\" class=\"inputFile\" />";
+            return "<input type='file' name='" + variableName + "' class='inputFile' />";
         }
         String id = null;
         UploadedFile file = null;
@@ -816,25 +721,25 @@ public class ViewUtil {
             uploadFileTitle = webHelper.getMessage("message.upload.file");
             loadingMessage = webHelper.getMessage("message.loading");
         }
-        String hideStyle = "style=\"display: none;\"";
-        String html = "<div class=\"inputFileContainer\"" + (!enabled && file == null ? hideStyle : "") + ">";
-        html += "<div class=\"dropzone\" " + (file != null ? hideStyle : "") + ">";
-        html += "<label class=\"inputFileAttach\">";
-        html += "<div class=\"inputFileAttachButtonDiv\"><img src=\"" + attachImageUrl + "\" />" + uploadFileTitle + "</div>";
-        html += "<input class=\"inputFile inputFileAjax\" name=\"" + variableName + "\" type=\"file\"" + (enabled ? "current" : "") + ">";
+        String hideStyle = "style='display: none;'";
+        String html = "<div class='inputFileContainer'" + (!enabled && file == null ? hideStyle : "") + ">";
+        html += "<div class='dropzone' " + (file != null ? hideStyle : "") + ">";
+        html += "<label class='inputFileAttach'>";
+        html += "<div class='inputFileAttachButtonDiv'><img src='" + attachImageUrl + "' />" + uploadFileTitle + "</div>";
+        html += "<input class='inputFile inputFileAjax' name='" + variableName + "' type='file'" + (enabled ? "current" : "") + ">";
         html += "</label></div>";
-        html += "<div class=\"progressbar\" " + (file == null ? hideStyle : "") + ">";
-        html += "<div class=\"line\" style=\"width: " + (file != null ? "10" : "") + "0%;\"></div>";
-        html += "<div class=\"status\">";
+        html += "<div class='progressbar' " + (file == null ? hideStyle : "") + ">";
+        html += "<div class='line' style='width: " + (file != null ? "10" : "") + "0%;'></div>";
+        html += "<div class='status'>";
         if (enabled) {
             if (file != null) {
-                html += "<img src=\"" + deleteImageUrl + "\" class=\"inputFileDelete\" inputId=\"" + variableName + "\">";
+                html += "<img src='" + deleteImageUrl + "' class='inputFileDelete' inputId='" + variableName + "'>";
             } else {
-                html += "<img src=\"" + loadingImageUrl + "\" inputId=\"" + variableName + "\">";
+                html += "<img src='" + loadingImageUrl + "' inputId='" + variableName + "'>";
             }
         }
 
-        html += "<span class=\"statusText\">";
+        html += "<span class='statusText'>";
         if (file != null && webHelper != null) {
             String viewUrl = webHelper.getUrl("/upload?action=view&inputId=" + variableName + "&id=" + id);
             html += "<a href='" + viewUrl + "'>" + file.getName() + (file.getSize() != null ? " - " + file.getSize() : "") + "</a>";
@@ -847,7 +752,7 @@ public class ViewUtil {
 
     public static String generateTableHeader(List<WfVariable> variables, IVariableProvider variableProvider, String operationsColumn) {
         StringBuffer header = new StringBuffer();
-        header.append("<tr class=\"header\">");
+        header.append("<tr class='header'>");
         for (WfVariable variable : variables) {
             Object value = variableProvider.getValue(variable.getDefinition().getName() + "_header");
             if (value == null) {
@@ -866,7 +771,7 @@ public class ViewUtil {
         HashMap<String, Object> params = Maps.newHashMap();
         params.put(WebHelper.PARAM_ID, logId);
         String href = webHelper.getActionUrl(WebHelper.ACTION_DOWNLOAD_LOG_FILE, params);
-        return "<a href=\"" + href + "\">" + fileName + "</>";
+        return "<a href='" + href + "'>" + fileName + "</>";
     }
 
 }
