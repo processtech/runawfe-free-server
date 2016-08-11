@@ -381,7 +381,7 @@ public class ViewUtil {
             WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
             String componentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
             componentHtml = componentHtml.replaceAll("\t", "").replaceAll("\r", "").replaceAll("\n", "").replaceAll("script", "_script");
-            componentHtml = componentHtml.replaceAll("»", "_»").replaceAll("'", "«»");
+            componentHtml = componentHtml.replaceAll("»", "_»").replaceAll("\"", "«»");
             substitutions.put("COMPONENT_INPUT", componentHtml);
             substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(variable));
             StringBuffer html = new StringBuffer();

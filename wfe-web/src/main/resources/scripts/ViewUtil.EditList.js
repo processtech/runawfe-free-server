@@ -10,8 +10,9 @@ $(document).ready(function() {
         var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
         lastIndexUNIQUENAME = rowIndex;
 		console.log("Adding row " + rowIndex);
+		var prefix = "UNIQUENAME".replace(/\[/g,"\\[").replace(/\]/g,"\\]");
         var e = "<div current row='" + rowIndex + "' name='VARIABLE' style='margin-bottom:4px;'>";
-        e += componentInputUNIQUENAME.replace(/\[\]/g, "[" + rowIndex + "]");
+        e += componentInputUNIQUENAME.replace(new RegExp(prefix + "\[\]",'g'), "UNIQUENAME[" + rowIndex + "]");
         e += "<input type='button' value=' - ' onclick='removeUNIQUENAME(this);' style='width: 30px;' />";
         e += "</div>";
         console.log("e: " + e);
@@ -53,7 +54,7 @@ function removeAllUNIQUENAME() {
 function updateIndexesUNIQUENAME() {
 	var ids = "";
 	$("#UNIQUENAME div[row][current]").each(function() {
-		ids == "" ? ids = $(this).attr("row") : ids += "," + $(this).attr("row") ; 
+		ids == "" ? ids = $(this).attr('row') : ids += "," + $(this).attr('row') ; 
 	});
 	var indexesInput = $("input[name='VARIABLE.indexes']");
 	indexesInput.val(ids);
