@@ -15,7 +15,7 @@ import com.google.common.io.ByteStreams;
 public class WebUtils {
 
     public static String getScript(String javascript) {
-        return "<script type=\"text/javascript\">/*<![CDATA[*/" + javascript + "/*]]>*/</script>";
+        return "<script type=\"text/javascript\">" + javascript + "</script>";
     }
 
     public static String getFormComponentScript(String javascript, Map<String, String> substitutions) {
