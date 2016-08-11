@@ -53,7 +53,7 @@ function removeAllUNIQUENAME() {
 function updateIndexesUNIQUENAME() {
 	var ids = "";
 	$("#UNIQUENAME div[row][current]").each(function() {
-		ids == "" ? ids = $(this).attr("row") : ids += "," + $(this).attr("row") ; 
+		ids == "" ? ids = $(this).attr('row') : ids += "," + $(this).attr('row') ; 
 	});
 	var indexesInput = $("input[name='VARIABLE.indexes']");
 	indexesInput.val(ids);
