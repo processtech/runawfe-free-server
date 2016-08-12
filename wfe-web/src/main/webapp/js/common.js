@@ -121,3 +121,13 @@ function showFiltersHelp() {
 		}]
 	});
 }
+
+function createListElementRegExp(s) {
+	s = s.replace(/\[/g, '\\[');
+	s = s.replace(/\]/g, '\\]');
+	return new RegExp(s + '\\[\\]','g');		
+}
+
+function createDoubleSubLineRegExp() {
+	return new RegExp('__','g');		
+}
