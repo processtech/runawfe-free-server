@@ -1,7 +1,7 @@
 package ru.runa.wf.web.ftl.component;
 
 
-public class DisplayListUserVariables extends AbstractListUserVariables {
+public class DisplayUserTypeList extends AbstractListUserVariables {
     private static final long serialVersionUID = 1L;
 
     @Override

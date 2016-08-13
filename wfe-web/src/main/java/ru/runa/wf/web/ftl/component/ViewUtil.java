@@ -273,7 +273,7 @@ public class ViewUtil {
         result += String.format("<div id='container%s'></div>", uniquename);
         return result;
     }
-
+    
     public static String getComponentInput(User user, WebHelper webHelper, WfVariable variable) {
         String variableName = variable.getDefinition().getName();
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
@@ -373,7 +373,7 @@ public class ViewUtil {
             return b.toString();
         }
         if (variableFormat instanceof ListFormat) {
-            String scriptingVariableName = variable.getDefinition().getScriptingNameWithoutDots();
+            String scriptingVariableName = "var_" + variable.getDefinition().getScriptingNameWithoutDots();
             VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);

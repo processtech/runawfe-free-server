@@ -22,7 +22,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class MultipleSelectFromListUserVariables extends AbstractListUserVariables implements FormComponentSubmissionHandler {
+public class MultipleSelectFromUserTypeList extends AbstractListUserVariables implements FormComponentSubmissionHandler {
     private static final long serialVersionUID = 1L;
 
     @Override

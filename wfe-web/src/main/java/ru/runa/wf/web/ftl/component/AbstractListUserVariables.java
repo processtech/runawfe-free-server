@@ -15,11 +15,11 @@ abstract class AbstractListUserVariables extends FormComponent {
     protected String sortField;
 
     protected void initFields() {
-        if (getClass().equals(DisplayListUserVariables.class)) {
+        if (getClass().equals(DisplayUserTypeList.class)) {
             variableName = getParameterAsString(0);
             displayMode = DisplayMode.fromString(getParameterAsString(1));
             sortField = getParameterAsString(2);
-        } else if (getClass().equals(MultipleSelectFromListUserVariables.class)) {
+        } else if (getClass().equals(MultipleSelectFromUserTypeList.class)) {
             variableName = getParameterAsString(1);
             list = variableProvider.getValue(List.class, variableName);
             dectVariableName = getParameterAsString(0);
