@@ -1,114 +1,109 @@
 package ru.runa.wf.web.ftl.component;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import com.google.common.collect.Maps;
 
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
-import ru.runa.wfe.var.file.IFileVariable;
-import ru.runa.wfe.var.format.FileFormat;
-import ru.runa.wfe.var.format.FormatCommons;
-import ru.runa.wfe.var.format.TextFormat;
-import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.EditableCheckBoxFormat;
 
 public class MultipleSelectFromUserTypeList extends AbstractListUserVariables implements FormComponentSubmissionHandler {
     private static final long serialVersionUID = 1L;
+    private static final String CHECKED = "checked";
 
     @Override
     protected Object renderRequest() throws Exception {
         initFields();
         return ViewUtil.getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName),
-                variableProvider.getVariableNotNull(dectVariableName), variableProvider.getProcessId(), sortField,
-                displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE);
+                variableProvider.getVariableNotNull(dectVariableName), variableProvider.getProcessId(), new MultySelectUsertTableColumns(
+                        variableProvider.getVariableNotNull(variableName), sortField, displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE));
     }
 
     @Override
     public Map<String, ? extends Object> extractVariables(Interaction interaction, VariableDefinition variableDefinition,
             Map<String, ? extends Object> userInput, Map<String, String> formatErrors) throws Exception {
-        Map<String, Object> result = Maps.newHashMap();
-        Object raw = userInput.get(getVariableNameForSubmissionProcessing());
-        String json = null;
-        VariableFormat format = FormatCommons.create(variableDefinition);
-        if (!(raw instanceof String[])) {
-            json = (String) raw;
-        } else {
-            json = Arrays.toString((String[]) raw);
-        }
-        if (list == null) {
-            try {
-                result.put(variableDefinition.getName(), format.parse(json));
-            } catch (ClassCastException e) {
-                /*
-                 * FIXME: bad handle executor and file type variables in json
-                 */
-                log.error(String.format("%s", e));
-                throw e;
+        final Map<String, Object> result = Maps.newHashMap();
+        final String variablename = getVariableNameForSubmissionProcessing();
+        final List<Object> selected = new ArrayList<Object>();
+        final List<?> list = getParameterVariableValue(List.class, 1, null);
+        for (int i = 0; i < list.size(); i++) {
+            final String[] checked = (String[]) userInput.get(variablename + "[" + i + "]." + CHECKED);
+            if (null != checked && 0 < checked.length && checked[0].equals("on")) {
+                selected.add(list.get(i));
             }
-            return result;
         }
-        try {
-            List<UserTypeMap> selected = Lists.newArrayList();
-            JSONArray input = (JSONArray) JSONValue.parse(json);
-            for (Object o : input) {
-                for (UserTypeMap userTypeMap : list) {
-                    if (!compareByValue(userTypeMap, (JSONObject) o)) {
-                        continue;
-                    }
-                    if (!selected.contains(userTypeMap)) {
-                        selected.add(userTypeMap);
-                    }
-                    break;
-                }
-            }
-            result.put(variableDefinition.getName(), selected);
-        } catch (Exception e) {
-            log.error(String.format("%s", e));
-            throw e;
-        }
+        result.put(getVariableNameForSubmissionProcessing(), selected);
         return result;
     }
 
-    private final boolean compareByValue(UserTypeMap whoMap, JSONObject with) {
-        boolean result = true;
-        UserType type = whoMap.getUserType();
-        for (Object keyName : with.keySet()) {
-            VariableDefinition def = type.getAttribute((String) keyName);
-            VariableFormat format = FormatCommons.create(def);
-            String toCompare = null;
-            if (format instanceof FileFormat) {
-                IFileVariable file = (IFileVariable) whoMap.get(keyName);
-                if (file != null) {
-                    toCompare = file.getName();
-                }
-            } else {
-                toCompare = format.format(whoMap.get(keyName));
-            }
-            if (toCompare == null) {
-                toCompare = "";
-            }
-            if (format instanceof TextFormat) {
-                String[] words1 = toCompare.split("\\s+");
-                String[] words2 = ((String) with.get(keyName)).split("\\s+");
-                if (Arrays.equals(words1, words2)) {
-                    continue;
-                }
-            } else if (toCompare.equals(with.get(keyName))) {
-                continue;
-            }
-            result = false;
-            break;
+    public class MultySelectUsertTableColumns extends UserTableColumns {
+
+        public MultySelectUsertTableColumns(WfVariable variable, String sortField, boolean isMultiDim) {
+            super(variable, sortField, isMultiDim);
         }
-        return result;
+
+        @Override
+        public Integer getSortColumn() {
+            return super.getSortColumn() + 1;
+        }
+
+        @Override
+        public List<Integer> getNoSortableColumns() {
+            final List<Integer> columns = new ArrayList<Integer>();
+            columns.add(0);
+            for (Integer column : super.getNoSortableColumns()) {
+                columns.add(column + 1);
+            }
+            return columns;
+        }
+
+        @Override
+        protected List<VariableDefinition> createAttributes() {
+            if (null == getUserType()) {
+                return Collections.emptyList();
+            }
+            final List<VariableDefinition> attributes = new ArrayList<VariableDefinition>();
+            attributes.add(createChekBoxDefinition(-1));
+            attributes.addAll(super.createAttributes());
+            return attributes;
+        }
+
+        private VariableDefinition createChekBoxDefinition(final int i) {
+            return new VariableDefinition(dectVariableName + "[" + i + "]." + CHECKED, "", new EditableCheckBoxFormat());
+        }
+
+        @Override
+        protected List<WfVariable> createValues(UserTypeMap userTypeMap) {
+            if (null == getUserType()) {
+                return Collections.emptyList();
+            }
+            final WfVariable dectVariable = variableProvider.getVariableNotNull(dectVariableName);
+            Boolean val = false;
+            if (dectVariable.getValue() instanceof List) {
+                for (Object dectElement : (List<?>) dectVariable.getValue()) {
+                    if (userTypeMap.equals(dectElement)) {
+                        val = true;
+                        break;
+                    }
+                }
+            }
+            final List<WfVariable> values = new ArrayList<WfVariable>();
+            List<?> list = getParameterVariableValue(List.class, 1, null);
+            for (int i = 0; i < list.size(); i++) {
+                if (userTypeMap.equals(list.get(i))) {
+                    values.add(new WfVariable(createChekBoxDefinition(i), val));
+                    break;
+                }
+            }
+            values.addAll(super.createValues(userTypeMap));
+            return values;
+        }
     }
 }

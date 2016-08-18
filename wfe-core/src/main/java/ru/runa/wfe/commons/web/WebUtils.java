@@ -15,7 +15,7 @@ import com.google.common.io.ByteStreams;
 public class WebUtils {
 
     public static String getScript(String javascript) {
-        return "<script type='text/javascript'>" + javascript + "</script>";
+        return "<script type=\"text/javascript\">" + javascript + "</script>";
     }
 
     public static String getFormComponentScript(String javascript, Map<String, String> substitutions) {
@@ -44,7 +44,7 @@ public class WebUtils {
         }
         webHelper.getRequest().setAttribute(src, Boolean.TRUE);
         String url = webHelper.getUrl(src);
-        return "<script type='text/javascript' src='" + url + "'></script>";
+        return "<script type=\"text/javascript\" src=\"" + url + "\"></script>";
     }
 
 }

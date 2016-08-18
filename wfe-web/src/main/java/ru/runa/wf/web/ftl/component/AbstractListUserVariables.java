@@ -8,7 +8,6 @@ import ru.runa.wfe.var.UserTypeMap;
 abstract class AbstractListUserVariables extends FormComponent {
     private static final long serialVersionUID = 1L;
 
-    protected List<UserTypeMap> list;
     protected String variableName;
     protected String dectVariableName;
     protected DisplayMode displayMode;
@@ -21,7 +20,6 @@ abstract class AbstractListUserVariables extends FormComponent {
             sortField = getParameterAsString(2);
         } else if (getClass().equals(MultipleSelectFromUserTypeList.class)) {
             variableName = getParameterAsString(1);
-            list = variableProvider.getValue(List.class, variableName);
             dectVariableName = getParameterAsString(0);
             displayMode = DisplayMode.fromString(getParameterAsString(2));
             sortField = getParameterAsString(3);

@@ -114,7 +114,6 @@ public class Token implements Serializable {
         setName(name);
         setNodeId(parent.getNodeId());
         setNodeType(parent.getNodeType());
-        setTransitionId(parent.getTransitionId());
         setAbleToReactivateParent(true);
         setChildren(new HashSet<Token>());
         setParent(parent);

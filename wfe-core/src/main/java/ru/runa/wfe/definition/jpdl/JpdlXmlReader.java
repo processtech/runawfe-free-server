@@ -495,6 +495,7 @@ public class JpdlXmlReader {
         transition.setProcessDefinition(processDefinition);
         node.addLeavingTransition(transition);
         transition.setName(element.attributeValue(NAME_ATTR));
+        transition.setNodeId(node.getNodeId() + "/" + transition.getName());
         for (CreateTimerAction createTimerAction : node.getTimerActions(false)) {
             if (Objects.equal(createTimerAction.getTransitionName(), transition.getName())) {
                 transition.setTimerTransition(true);
