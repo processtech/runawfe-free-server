@@ -40,10 +40,9 @@ public class JavaScriptActionHandler extends ActionHandlerBase {
         for (VariableDefinition definition : rawDefinitions) {
             Object value = bindings.get(definition.getScriptingName());
             Object currentValue = executionContext.getVariableValue(definition.getName());
-            if (!Objects.equal(value, currentValue)) {
+            if (value != null && !Objects.equal(value, currentValue)) {
                 executionContext.setVariableValue(definition.getName(), value);
             }
         }
     }
-
 }

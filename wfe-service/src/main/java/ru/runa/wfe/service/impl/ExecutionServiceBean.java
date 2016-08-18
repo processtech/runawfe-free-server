@@ -42,6 +42,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
+import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -317,6 +318,15 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(user != null);
         Preconditions.checkArgument(processId != null);
         return executionLogic.getJobs(user, processId, recursive);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public List<WfToken> getProcessTokens(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
+            @WebParam(name = "recursive") boolean recursive) throws ProcessDoesNotExistException {
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(processId != null);
+        return executionLogic.getTokens(user, processId, recursive);
     }
 
     @Override

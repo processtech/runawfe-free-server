@@ -51,6 +51,7 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
+import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.history.GraphHistoryBuilder;
@@ -84,7 +85,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Process execution logic.
- * 
+ *
  * @author Dofs
  * @since 2.0
  */
@@ -181,6 +182,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
         Process process = processDAO.getNotNull(processId);
+        checkPermissionAllowed(user, process, Permission.READ);
         List<Job> jobs = jobDAO.findByProcess(process);
         if (recursive) {
             List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
@@ -191,6 +193,30 @@ public class ExecutionLogic extends WFCommonLogic {
         List<WfJob> result = Lists.newArrayList();
         for (Job job : jobs) {
             result.add(new WfJob(job));
+        }
+        return result;
+    }
+
+    public List<WfToken> getTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
+        Process process = processDAO.getNotNull(processId);
+        checkPermissionAllowed(user, process, Permission.READ);
+        List<WfToken> result = Lists.newArrayList();
+        result.addAll(getTokens(process));
+        if (recursive) {
+            List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
+            for (Process subProcess : subprocesses) {
+                result.addAll(getTokens(subProcess));
+            }
+        }
+        return result;
+    }
+
+    private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
+        List<WfToken> result = Lists.newArrayList();
+        List<Token> tokens = tokenDAO.findByProcessAndExecutionStatusIsNotEnded(process);
+        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
+        for (Token token : tokens) {
+            result.add(new WfToken(token, processDefinition));
         }
         return result;
     }

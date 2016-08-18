@@ -38,10 +38,8 @@ public class Transition extends GraphElement {
     private boolean timerTransition;
     private List<Bendpoint> bendpoints = Lists.newArrayList();
 
-    @Override
-    public void setName(String name) {
-        super.setName(name);
-        setNodeId(from.getNodeId() + "/" + name);
+    public String getNodeIdBackCompatibilityPre4_3_0() {
+        return from.getNodeId() + "/" + name;
     }
 
     @Override
