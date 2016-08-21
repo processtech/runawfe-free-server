@@ -241,7 +241,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     }
 
     @Override
-    // FIXME
+    // TODO VariableDefinition is not serializable in web service due to UserTypes
     @WebMethod(exclude = true)
     public List<VariableDefinition> getVariableDefinitions(User user, Long definitionId) {
         Preconditions.checkArgument(user != null);
@@ -250,7 +250,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     }
 
     @Override
-    // FIXME
+    // TODO VariableDefinition is not serializable in web service due to UserTypes
     @WebMethod(exclude = true)
     public VariableDefinition getVariableDefinition(User user, Long definitionId, String variableName) {
         Preconditions.checkArgument(user != null);

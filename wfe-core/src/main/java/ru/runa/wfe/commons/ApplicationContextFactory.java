@@ -117,8 +117,6 @@ public class ApplicationContextFactory {
         return (DataSource) new InitialContext().lookup(dsName);
     }
 
-    // TODO Environment
-
     public static Dialect getDialect() {
         return Dialect.getDialect(getConfiguration().getProperties());
     }

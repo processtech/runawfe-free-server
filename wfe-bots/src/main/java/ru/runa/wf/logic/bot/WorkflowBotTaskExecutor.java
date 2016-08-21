@@ -48,9 +48,9 @@ import com.google.common.base.Throwables;
 
 /**
  * Execute task handlers for particular bot.
- *
+ * 
  * Configures and executes task handler in same method.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -168,7 +168,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     for (Map.Entry<String, ParamDef> entry : paramsDef.getOutputParams().entrySet()) {
                         String paramName = entry.getKey();
                         Object object = null;
-                        // TODO back compatibility until 4.1.0
+                        // back compatibility before v4.1.0
                         if (variables.containsKey(paramName)) {
                             object = variables.remove(paramName);
                         } else if (variables.containsKey("param:" + paramName)) {

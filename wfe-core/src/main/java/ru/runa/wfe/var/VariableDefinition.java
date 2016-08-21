@@ -90,7 +90,6 @@ public class VariableDefinition implements Serializable {
     }
 
     public void initComponentUserTypes(ProcessDefinition processDefinition) {
-        // TODO List(List(UserType)) not supported
         String[] componentFormats = getFormatComponentClassNames();
         this.formatComponentUserTypes = new UserType[componentFormats.length];
         for (int i = 0; i < componentFormats.length; i++) {

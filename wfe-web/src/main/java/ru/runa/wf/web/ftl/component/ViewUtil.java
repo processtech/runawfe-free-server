@@ -610,7 +610,7 @@ public class ViewUtil {
                 hasFile = true;
                 componentJsHandlers += "$('.dropzone').each(function () { initFileInput($(this)) });\n";
             } else if (ListFormat.class.getName().equals(componentClassName)) {
-                // TODO: handle nested list-type entries
+                throw new InternalApplicationException("Embedded lists does not supported");
             } else if (UserTypeFormat.class.getName().equals(componentClassName)) {
                 for (VariableDefinition variableDefinition : ((ListFormat) variableFormat).getComponentUserType(0).getAttributes()) {
                     VariableFormat nestedFormat = FormatCommons.create(variableDefinition);
@@ -627,7 +627,7 @@ public class ViewUtil {
                         hasFile = true;
                         componentJsHandlers += getComponentJSFunction(nestedFormat);
                     } else if (ListFormat.class == nestedFormat.getClass()) {
-                        // TODO: handle nested list-type entries
+                        throw new InternalApplicationException("Embedded lists does not supported");
                     }
                 }
             }

@@ -66,7 +66,6 @@ public class JpdlXmlReader {
     private LocalizationDAO localizationDAO;
 
     private final Document document;
-    // TODO move to Spring (or GPD process setting)
     private final boolean waitStateCompatibility = true;
 
     private static final String INVALID_ATTR = "invalid";
@@ -131,8 +130,6 @@ public class JpdlXmlReader {
 
     public ProcessDefinition readProcessDefinition(ProcessDefinition processDefinition) {
         try {
-            // TODO document = XmlUtils.parseWithXSDValidation(definitionXml,
-            // ClassLoaderUtil.getResourceAsStream("jpdl-4.0.xsd", getClass()));
             Element root = document.getRootElement();
 
             // read the process name
@@ -486,7 +483,7 @@ public class JpdlXmlReader {
 
     /**
      * creates the transition object and configures it by the read attributes
-     *
+     * 
      * @return the created <code>ru.runa.wfe.lang.Transition</code> object (useful, if you want to override this method to read additional
      *         configuration properties)
      */
