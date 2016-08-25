@@ -7,7 +7,7 @@ public class DisplayUserTypeList extends AbstractListUserVariables {
     protected Object renderRequest() throws Exception {
         initFields();
         return ViewUtil.getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName), null,
-                variableProvider.getProcessId(), new UserTableColumns(variableProvider.getVariableNotNull(variableName), sortField,
+                variableProvider.getProcessId(), new UserTableColumns(variableProvider.getVariableNotNull(variableName), sortField, displayFields,
                         displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE));
     }
 }

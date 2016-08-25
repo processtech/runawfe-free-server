@@ -22,8 +22,9 @@ public class MultipleSelectFromUserTypeList extends AbstractListUserVariables im
     protected Object renderRequest() throws Exception {
         initFields();
         return ViewUtil.getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName),
-                variableProvider.getVariableNotNull(dectVariableName), variableProvider.getProcessId(), new MultySelectUsertTableColumns(
-                        variableProvider.getVariableNotNull(variableName), sortField, displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE));
+                variableProvider.getVariableNotNull(dectVariableName), variableProvider.getProcessId(),
+                new MultySelectUsertTableColumns(variableProvider.getVariableNotNull(variableName), sortField, displayFields,
+                        displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE));
     }
 
     @Override
@@ -45,8 +46,8 @@ public class MultipleSelectFromUserTypeList extends AbstractListUserVariables im
 
     public class MultySelectUsertTableColumns extends UserTableColumns {
 
-        public MultySelectUsertTableColumns(WfVariable variable, String sortField, boolean isMultiDim) {
-            super(variable, sortField, isMultiDim);
+        public MultySelectUsertTableColumns(WfVariable variable, String sortField, List<String> displayFields, boolean isMultiDim) {
+            super(variable, sortField, displayFields, isMultiDim);
         }
 
         @Override
@@ -65,13 +66,12 @@ public class MultipleSelectFromUserTypeList extends AbstractListUserVariables im
         }
 
         @Override
-        protected List<VariableDefinition> createAttributes() {
+        public List<VariableDefinition> createAttributes() {
             if (null == getUserType()) {
                 return Collections.emptyList();
             }
-            final List<VariableDefinition> attributes = new ArrayList<VariableDefinition>();
-            attributes.add(createChekBoxDefinition(-1));
-            attributes.addAll(super.createAttributes());
+            final List<VariableDefinition> attributes = super.createAttributes();
+            attributes.add(0, createChekBoxDefinition(-1));
             return attributes;
         }
 
@@ -80,7 +80,7 @@ public class MultipleSelectFromUserTypeList extends AbstractListUserVariables im
         }
 
         @Override
-        protected List<WfVariable> createValues(UserTypeMap userTypeMap) {
+        public List<WfVariable> createValues(UserTypeMap userTypeMap) {
             if (null == getUserType()) {
                 return Collections.emptyList();
             }
@@ -94,15 +94,14 @@ public class MultipleSelectFromUserTypeList extends AbstractListUserVariables im
                     }
                 }
             }
-            final List<WfVariable> values = new ArrayList<WfVariable>();
-            List<?> list = getParameterVariableValue(List.class, 1, null);
+            final List<WfVariable> values = super.createValues(userTypeMap);
+            final List<?> list = getParameterVariableValue(List.class, 1, null);
             for (int i = 0; i < list.size(); i++) {
                 if (userTypeMap.equals(list.get(i))) {
-                    values.add(new WfVariable(createChekBoxDefinition(i), val));
+                    values.add(0, new WfVariable(createChekBoxDefinition(i), val));
                     break;
                 }
             }
-            values.addAll(super.createValues(userTypeMap));
             return values;
         }
     }

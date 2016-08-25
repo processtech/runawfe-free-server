@@ -231,7 +231,7 @@ public class ViewUtil {
 
         final StringBuilder result = new StringBuilder(255);
         result.append("<link rel='stylesheet' type='text/css' href='/wfe/css/tablesorter.css'>\n");
-        result.append("<script src=\"/wfe/js/jquery.tablesorter.min.js' type='text/javascript'></script>\n");
+        result.append("<script src='/wfe/js/jquery.tablesorter.min.js' type='text/javascript'></script>\n");
 
         final InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.UserTypeListTables.js", ViewUtil.class);
         final Map<String, String> substitutions = new HashMap<String, String>();
@@ -254,12 +254,12 @@ public class ViewUtil {
         substitutions.put("SORTCOLUMN", columns.getSortColumn().toString());
         result.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
 
-        result.append("<table id='").append(uniquename).append("' class=\"tablesorter'>\n");
+        result.append("<table id='").append(uniquename).append("' class='tablesorter'>\n");
         result.append("\t<thead>\n\t\t<tr>\n");
         for (final VariableDefinition attribute : columns.createAttributes()) {
             final String attributeName;
             if (attribute.getFormatClassName().equals(EditableCheckBoxFormat.class.getName())) {
-                attributeName = "<input type='checkBox' name='check_all' style=\"margin: 3px 3px 3px 4px; width: 30px;'";
+                attributeName = "<input type='checkBox' name='check_all' style='margin: 3px 3px 3px 4px; width: 30px;'";
             } else {
                 attributeName = attribute.getName();
             }
