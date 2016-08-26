@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Interface for database patch (Applied during version update).
- *
+ * 
  * @author Dofs
  */
 public abstract class DBPatch {
@@ -31,8 +31,7 @@ public abstract class DBPatch {
     }
 
     /**
-     * Execute patch DDL statements before DML (non-transacted mode in most
-     * databases).
+     * Execute patch DDL statements before DML (non-transacted mode in most databases).
      */
     public final void executeDDLBefore() throws Exception {
         executeDDL("[DDLBefore]", getDDLQueriesBefore());
@@ -62,8 +61,7 @@ public abstract class DBPatch {
     protected abstract void applyPatch(Session session) throws Exception;
 
     /**
-     * Execute patch DDL statements after DML (non-transacted mode in most
-     * databases).
+     * Execute patch DDL statements after DML (non-transacted mode in most databases).
      */
     public final void executeDDLAfter() throws Exception {
         executeDDL("[DDLAfter]", getDDLQueriesAfter());
@@ -158,7 +156,7 @@ public abstract class DBPatch {
     }
 
     protected final String getDDLRemoveTable(String tableName) {
-        return "DROP TABLE " + tableName; // TODO IF EXISTS
+        return "DROP TABLE " + tableName;
     }
 
     protected final String getDDLCreateIndex(String tableName, String indexName, String... columnNames) {

@@ -36,6 +36,7 @@ import ru.runa.wfe.var.file.IFileVariable;
 
 import com.google.common.collect.Lists;
 
+//TODO introduce strict mode and throw exceptions there
 public class FormulaActionHandler extends ActionHandlerBase {
     private ExecutionContext context;
     private final FormulaActionHandlerOperations actions = new FormulaActionHandlerOperations();

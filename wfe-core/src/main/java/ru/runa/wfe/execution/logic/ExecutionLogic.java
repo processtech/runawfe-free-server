@@ -85,7 +85,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Process execution logic.
- *
+ * 
  * @author Dofs
  * @since 2.0
  */
@@ -376,8 +376,7 @@ public class ExecutionLogic extends WFCommonLogic {
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
         Process process = processDAO.getNotNull(processId);
-        // TODO
-        // checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
+        // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
         Deployment deployment = process.getDeployment();
         long newDeploymentVersion = version != null ? version : deployment.getVersion() + 1;
         if (newDeploymentVersion == deployment.getVersion()) {

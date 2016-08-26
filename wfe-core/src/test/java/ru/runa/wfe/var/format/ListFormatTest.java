@@ -16,6 +16,5 @@ public class ListFormatTest {
         String s = listFormat.format(list);
         // System.out.println(s);
         List<Date> dates = (List<Date>) listFormat.parse(s);
-        // TODO assert dates == list
     }
 }

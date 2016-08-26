@@ -224,9 +224,7 @@ public class ExecutionContext {
     }
 
     /**
-     * TODO old
-     *
-     * @return the variable value with the given name.
+     * @return the variable or swimlane value with the given name.
      */
     public Object getVariableValue(String name) {
         WfVariable variable = getVariable(name, true);
