@@ -106,7 +106,7 @@ public class UserTableColumns {
     }
 
     private VariableDefinition createSelfDefinition() {
-        return new VariableDefinition("", "_self", new UserTypeFormat(getUserType()));
+        return new VariableDefinition("", "_self", new UserTypeFormat(getUserType(), displayFields));
     }
 
     public List<WfVariable> createValues(final UserTypeMap userTypeMap) {

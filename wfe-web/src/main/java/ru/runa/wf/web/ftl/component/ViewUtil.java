@@ -12,7 +12,6 @@ import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -30,11 +29,9 @@ import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.commons.web.WebUtils;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.util.OrderedJSONObject;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
@@ -95,7 +92,8 @@ public class ViewUtil {
         return createExecutorSelect(variableName, executors, value, javaSort, enabled);
     }
 
-    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort, boolean enabled) {
+    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort,
+            boolean enabled) {
         String html = "<select name=\"" + variableName + "\"";
         if (!enabled) {
             html += " disabled=\"true\"";
@@ -121,7 +119,8 @@ public class ViewUtil {
         return new WfVariable(definition, value);
     }
 
-    public static WfVariable createComponentVariable(WfVariable containerVariable, String nameSuffix, VariableFormat componentFormat, Object value) {
+    public static WfVariable createComponentVariable(WfVariable containerVariable, String nameSuffix, VariableFormat componentFormat,
+            Object value) {
         String name = containerVariable.getDefinition().getName() + (nameSuffix != null ? nameSuffix : "");
         String scriptingName = containerVariable.getDefinition().getScriptingName() + (nameSuffix != null ? nameSuffix : "");
         return createVariable(name, scriptingName, componentFormat, value);
@@ -283,59 +282,6 @@ public class ViewUtil {
 
         result.append("</table>\n");
         return result.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    public static final String getUserTypeListTable(User user, WebHelper webHelper, WfVariable variable, WfVariable dectSelectVariable,
-            Long processId, String sortFieldName, boolean isMultiDim) {
-        if (!(variable.getValue() instanceof List)) {
-            return "";
-        }
-        JSONArray objectsList = new JSONArray();
-        List<?> values = (List<?>) variable.getValue();
-        for (Object value : values) {
-            if (!(value instanceof UserTypeMap)) {
-                return "";
-            }
-            UserTypeMap userTypeMap = (UserTypeMap) value;
-            OrderedJSONObject cvarObj = new OrderedJSONObject();
-            for (VariableDefinition varDef : userTypeMap.getUserType().getAttributes()) {
-                if (userTypeMap.get(varDef.getName()) == null) {
-                    cvarObj.put(varDef.getName(), "");
-                    continue;
-                }
-                VariableFormat format = FormatCommons.create(varDef);
-                if (dectSelectVariable == null) {
-                    if (format instanceof FileFormat) {
-                        FileVariableProxy proxy = (FileVariableProxy) userTypeMap.get(varDef.getName());
-                        cvarObj.put(varDef.getName(), getFileComponent(webHelper, proxy.getName(), proxy, false));
-                    } else {
-                        cvarObj.put(varDef.getName(), format.format(userTypeMap.get(varDef.getName())));
-                    }
-                } else {
-                    cvarObj.put(varDef.getName(), format.format(userTypeMap.get(varDef.getName())));
-                }
-            }
-            objectsList.add(cvarObj);
-        }
-        String uniquename = String.format("%s_%x", variable.getDefinition().getScriptingNameWithoutDots(), random.nextInt());
-        String result = "<script src=\"/wfe/js/tidy-table.js\"></script>\n";
-        InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.UserTypeListTable.js", ViewUtil.class);
-        Map<String, String> substitutions = new HashMap<String, String>();
-        substitutions.put("UNIQUENAME", uniquename);
-        substitutions.put("JSONDATATEMPLATE", objectsList.toJSONString());
-        substitutions.put("SORTFIELDNAMEVALUE", String.format("%s", sortFieldName));
-        substitutions.put("DIMENTIONALVALUE", String.format("%s", isMultiDim));
-        substitutions.put("SELECTABLEVALUE", String.format("%s", dectSelectVariable != null));
-        if (dectSelectVariable != null) {
-            substitutions.put("DECTSELECTNAME", dectSelectVariable.getDefinition().getName());
-        } else {
-            substitutions.put("DECTSELECTNAME", "");
-        }
-        result += WebUtils.getFormComponentScript(javascriptStream, substitutions);
-        result += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/wfe/css/tidy-table.css\">\n";
-        result += String.format("<div id=\"container%s\"></div>", uniquename);
-        return result;
     }
 
     public static String getComponentInput(User user, WebHelper webHelper, WfVariable variable) {
