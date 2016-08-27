@@ -68,8 +68,7 @@ public class ViewUtil {
     private static final Random random = new Random(System.currentTimeMillis());
 
     public static String createExecutorSelect(User user, WfVariable variable) {
-        return createExecutorSelect(user, variable.getDefinition().getName(), variable.getDefinition().getFormatNotNull(), variable.getValue(),
-                true);
+        return createExecutorSelect(user, variable.getDefinition().getName(), variable.getDefinition().getFormatNotNull(), variable.getValue(), true);
     }
 
     private static String createExecutorSelect(User user, String variableName, VariableFormat variableFormat, Object value, boolean enabled) {
@@ -119,8 +118,7 @@ public class ViewUtil {
         return new WfVariable(definition, value);
     }
 
-    public static WfVariable createComponentVariable(WfVariable containerVariable, String nameSuffix, VariableFormat componentFormat,
-            Object value) {
+    public static WfVariable createComponentVariable(WfVariable containerVariable, String nameSuffix, VariableFormat componentFormat, Object value) {
         String name = containerVariable.getDefinition().getName() + (nameSuffix != null ? nameSuffix : "");
         String scriptingName = containerVariable.getDefinition().getScriptingName() + (nameSuffix != null ? nameSuffix : "");
         return createVariable(name, scriptingName, componentFormat, value);
