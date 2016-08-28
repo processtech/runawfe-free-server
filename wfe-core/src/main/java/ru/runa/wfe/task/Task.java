@@ -63,6 +63,7 @@ import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.extension.Assignable;
+import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
@@ -75,8 +76,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 
 /**
- * is one task that can be assigned to an actor (read: put in someones task
- * list) and that can trigger the coninuation of execution of the token upon
+ * is one task that can be assigned to an actor (read: put in someones task list) and that can trigger the coninuation of execution of the token upon
  * completion.
  */
 @Entity
@@ -292,11 +292,9 @@ public class Task implements Assignable {
     }
 
     /**
-     * marks this task as done and specifies a transition leaving the task-node
-     * for the case that the completion of this tasks triggers a signal on the
-     * token. If this task leads to a signal on the token, the given transition
-     * name will be used in the signal. If this task completion does not trigger
-     * execution to move on, the transition is ignored.
+     * marks this task as done and specifies a transition leaving the task-node for the case that the completion of this tasks triggers a signal on
+     * the token. If this task leads to a signal on the token, the given transition name will be used in the signal. If this task completion does not
+     * trigger execution to move on, the transition is ignored.
      */
     public void end(ExecutionContext executionContext, TaskCompletionInfo completionInfo) {
         log.debug("Ending " + this + " with " + completionInfo);
@@ -335,6 +333,7 @@ public class Task implements Assignable {
 
     public void delete() {
         getProcess().getTasks().remove(this);
+        AssignmentHelper.removeTemporaryGroupOnTaskEnd(getExecutor());
     }
 
     @Override

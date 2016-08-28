@@ -41,8 +41,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
- * is a node that relates to one or more tasks. Property <code>signal</code>
- * specifies how task completion triggers continuation of execution.
+ * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
  */
 public class MultiTaskNode extends BaseTaskNode {
     private static final long serialVersionUID = 1L;

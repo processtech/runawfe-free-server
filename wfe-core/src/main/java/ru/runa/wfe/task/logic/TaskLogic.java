@@ -156,7 +156,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -170,9 +170,14 @@ public class TaskLogic extends WFCommonLogic {
             throw new InternalApplicationException("completion of " + task + " failed. Different node id in task and token: " + token.getNodeId());
         }
         InteractionNode node = (InteractionNode) executionContext.getNode();
-        if (node instanceof MultiTaskNode && !((MultiTaskNode) node).isCompletionTriggersSignal(task)) {
-            log.debug("!MultiTaskNode.isCompletionTriggersSignal in " + task);
-            return;
+        if (node instanceof MultiTaskNode) {
+            MultiTaskNode multiTaskNode = (MultiTaskNode) node;
+            if (multiTaskNode.isCompletionTriggersSignal(task)) {
+                multiTaskNode.endTokenTasks(executionContext, TaskCompletionInfo.createForHandler(multiTaskNode.getSynchronizationMode().name()));
+            } else {
+                log.debug("!MultiTaskNode.isCompletionTriggersSignal in " + task);
+                return;
+            }
         }
         log.debug("completion of " + task + " by " + transition);
         token.signal(executionContext, transition);
