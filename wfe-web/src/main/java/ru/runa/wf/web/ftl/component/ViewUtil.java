@@ -370,8 +370,12 @@ public class ViewUtil {
             return b.toString();
         }
         if (variableFormat instanceof ListFormat) {
-            String scriptingVariableName = variable.getDefinition().getScriptingNameWithoutDots();
             VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
+            if (componentFormat instanceof ActorFormat) {
+                final SelectEmployeeFromGroupRenderer renderer = new SelectEmployeeFromGroupRenderer(user, webHelper);
+                return renderer.getComponentInput(variable);
+            }
+            String scriptingVariableName = "var_" + variable.getDefinition().getScriptingNameWithoutDots();
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);
             substitutions.put("UNIQUENAME", scriptingVariableName);
