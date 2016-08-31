@@ -167,7 +167,12 @@ public class ExecutionContext {
         if (searchInSwimlanes) {
             SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
-                Swimlane swimlane = getProcess().getSwimlane(swimlaneDefinition.getName());
+                Swimlane swimlane;
+                if (SystemProperties.isSwimlaneAutoInitializationEnabled()) {
+                    swimlane = getProcess().getInitializedSwimlaneNotNull(this, swimlaneDefinition, false);
+                } else {
+                    swimlane = getProcess().getSwimlane(swimlaneDefinition.getName());
+                }
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
         }

@@ -290,4 +290,8 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.suspension.enabled", true);
     }
 
+    public static boolean isSwimlaneAutoInitializationEnabled() {
+        return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", false);
+    }
+
 }
