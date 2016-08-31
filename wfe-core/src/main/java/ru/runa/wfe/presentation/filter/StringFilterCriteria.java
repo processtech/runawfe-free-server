@@ -18,19 +18,15 @@
 package ru.runa.wfe.presentation.filter;
 
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import ru.runa.wfe.commons.SQLCommons;
+import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.presentation.hibernate.QueryParameter;
 
 public class StringFilterCriteria extends FilterCriteria {
-    public static final String ANY_SYMBOLS = "*";
-    public static final String ANY_SYMBOL = "?";
+    public static final String ANY_SYMBOLS = SQLCommons.ANY_SYMBOLS;
+    public static final String ANY_SYMBOL = SQLCommons.ANY_SYMBOL;
     private static final long serialVersionUID = -1849845246809052465L;
-    private static final String QUOTED_ANY_SYMBOLS = Pattern.quote(ANY_SYMBOLS);
-    private static final String QUOTED_ANY_SYMBOL = Pattern.quote(ANY_SYMBOL);
-    private static final String DB_ANY_SYMBOLS = Matcher.quoteReplacement("%");
-    private static final String DB_ANY_SYMBOL = Matcher.quoteReplacement("_");
     private boolean ignoreCase;
 
     public StringFilterCriteria() {
@@ -49,15 +45,7 @@ public class StringFilterCriteria extends FilterCriteria {
     @Override
     public String buildWhereCondition(String fieldName, String persistentObjectQueryAlias, Map<String, QueryParameter> placeholders) {
         String searchFilter = getFilterTemplate(0);
-        boolean useLike = false;
-        if (searchFilter.contains(ANY_SYMBOLS)) {
-            searchFilter = searchFilter.replaceAll(QUOTED_ANY_SYMBOLS, DB_ANY_SYMBOLS);
-            useLike = true;
-        }
-        if (searchFilter.contains(ANY_SYMBOL)) {
-            searchFilter = searchFilter.replaceAll(QUOTED_ANY_SYMBOL, DB_ANY_SYMBOL);
-            useLike = true;
-        }
+        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(searchFilter);
         String alias = persistentObjectQueryAlias + fieldName.replaceAll("\\.", "");
         String where = "";
         if (ignoreCase) {
@@ -69,7 +57,7 @@ public class StringFilterCriteria extends FilterCriteria {
             searchFilter = searchFilter.toLowerCase();
         }
         where += " ";
-        where += useLike ? "like" : "=";
+        where += expression.getComparisonOperator();
         where += " :" + alias + " ";
         placeholders.put(alias, new QueryParameter(alias, searchFilter));
         return where;

@@ -3,6 +3,8 @@ package ru.runa.wfe.var.dao;
 import java.util.List;
 import java.util.Map;
 
+import ru.runa.wfe.commons.SQLCommons;
+import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
@@ -26,6 +28,12 @@ public class VariableDAO extends GenericDAO<Variable> {
 
     public Variable<?> get(Process process, String name) {
         return findFirstOrNull("from Variable where process=? and name=?", process, name);
+    }
+
+    public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
+        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(variableNamePattern);
+        String query = "from Variable where name " + expression.getComparisonOperator() + " ? and stringValue = ?";
+        return getHibernateTemplate().find(query, expression.getValue(), stringValue);
     }
 
     /**
