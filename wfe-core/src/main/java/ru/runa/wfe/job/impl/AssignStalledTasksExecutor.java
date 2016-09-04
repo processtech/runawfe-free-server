@@ -39,7 +39,7 @@ public class AssignStalledTasksExecutor extends TransactionalExecutor {
 
     @Override
     protected void doExecuteInTransaction() {
-        List<Task> unassignedTasks = taskDAO.findUnassignedTasks();
+        List<Task> unassignedTasks = taskDAO.findUnassignedTasksInActiveProcesses();
         log.debug("Unassigned tasks: " + unassignedTasks.size());
         for (Task unassignedTask : unassignedTasks) {
             taskAssigner.assignTask(unassignedTask, false);

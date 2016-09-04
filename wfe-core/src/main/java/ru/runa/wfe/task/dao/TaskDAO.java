@@ -24,6 +24,7 @@ package ru.runa.wfe.task.dao;
 import java.util.List;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDoesNotExistException;
@@ -53,8 +54,8 @@ public class TaskDAO extends GenericDAO<Task> {
     /**
      * @return active tasks but not assigned.
      */
-    public List<Task> findUnassignedTasks() {
-        return getHibernateTemplate().find("from Task where executor is null");
+    public List<Task> findUnassignedTasksInActiveProcesses() {
+        return getHibernateTemplate().find("from Task where executor is null and token.executionStatus=?", ExecutionStatus.ACTIVE);
     }
 
 }
