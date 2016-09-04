@@ -59,7 +59,7 @@ public class StringFilterCriteria extends FilterCriteria {
         where += " ";
         where += expression.getComparisonOperator();
         where += " :" + alias + " ";
-        placeholders.put(alias, new QueryParameter(alias, searchFilter));
+        placeholders.put(alias, new QueryParameter(alias, expression.getValue()));
         return where;
     }
 }
