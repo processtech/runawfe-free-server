@@ -1,8 +1,6 @@
 package ru.runa.wf.web.action;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,15 +10,15 @@ import java.util.zip.ZipInputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
-import org.dom4j.Document;
-import org.dom4j.Element;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.FileForm;
@@ -29,17 +27,18 @@ import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
+import ru.runa.wfe.script.common.WorkflowScriptDto;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.SystemExecutors;
+import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 /**
@@ -58,8 +57,6 @@ public class ImportDataFileAction extends ActionBase {
     public static final String UPLOAD_ONLY = "uploadOnly";
     public static final String SET_PASSWORD = "setPassword";
     public static final String CLEAR_PASSWORD = "clearPassword";
-    private static final String DEPLOY_PROCESS_DEFINITION_TAG_NAME = "deployProcessDefinition";
-    private static final String FILE_ATTRIBUTE_NAME = "file";
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -85,108 +82,90 @@ public class ImportDataFileAction extends ActionBase {
             }
 
             ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(archive));
-            Map<String, byte[]> files = new HashMap<String, byte[]>();
-            Map<String, byte[]> configs = new HashMap<String, byte[]>();
+            Map<String, byte[]> externalResources = new HashMap<String, byte[]>();
             ZipEntry entry;
             while ((entry = zin.getNextEntry()) != null) {
                 byte[] bytes = ByteStreams.toByteArray(zin);
                 if (entry.getName().endsWith(".conf")) {
-                    configs.put(entry.getName().substring(DataFileBuilder.PATH_TO_BOTTASK.length(), entry.getName().length()), bytes);
+                    externalResources.put(entry.getName().substring(DataFileBuilder.PATH_TO_BOTTASK.length(), entry.getName().length()), bytes);
                 } else {
-                    files.put(entry.getName(), bytes);
+                    externalResources.put(entry.getName(), bytes);
                 }
             }
-            byte[] scriptXml = files.remove(DataFileBuilder.PATH_TO_XML);
+            byte[] scriptXml = externalResources.remove(DataFileBuilder.PATH_TO_XML);
 
-            InputStream scriptInputStream = new ByteArrayInputStream(scriptXml);
-            Document allDocument = XmlUtils.parseWithXSDValidation(scriptInputStream, "workflowScript.xsd");
-            Element root = allDocument.getRootElement();
-            byte[][] processDefinitionsBytes = readProcessDefinitionsToByteArrays(root, files);
+            Unmarshaller unmarshaller = JAXBContext.newInstance(WorkflowScriptDto.class).createUnmarshaller();
+            WorkflowScriptDto data = (WorkflowScriptDto) unmarshaller.unmarshal(new ByteArrayInputStream(scriptXml));
+            data.validate(false);
 
+            User user = getLoggedUser(request);
             if (clearBeforeUpload) {
-                List<WfProcess> wfProcesses = Delegates.getExecutionService().getProcesses(getLoggedUser(request),
-                        BatchPresentationFactory.PROCESSES.createDefault());
+                List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, BatchPresentationFactory.PROCESSES.createNonPaged());
                 ProcessFilter processFilter = new ProcessFilter();
-                for (WfProcess wfProcess : wfProcesses) {
-                    processFilter.setId(wfProcess.getId());
-                    Delegates.getExecutionService().removeProcesses(getLoggedUser(request), processFilter);
+                for (WfProcess process : processes) {
+                    processFilter.setId(process.getId());
+                    Delegates.getExecutionService().removeProcesses(user, processFilter);
                 }
 
-                List<WfDefinition> definitions = Delegates.getDefinitionService().getProcessDefinitions(getLoggedUser(request),
-                        BatchPresentationFactory.DEFINITIONS.createDefault(), false);
+                List<WfDefinition> definitions = Delegates.getDefinitionService().getProcessDefinitions(user,
+                        BatchPresentationFactory.DEFINITIONS.createNonPaged(), false);
                 for (WfDefinition definition : definitions) {
-                    Delegates.getDefinitionService().undeployProcessDefinition(getLoggedUser(request), definition.getName(), null);
+                    Delegates.getDefinitionService().undeployProcessDefinition(user, definition.getName(), null);
                 }
 
                 List<BotStation> botStations = Delegates.getBotService().getBotStations();
                 for (BotStation botStation : botStations) {
-                    List<Bot> bots = Delegates.getBotService().getBots(getLoggedUser(request), botStation.getId());
+                    List<Bot> bots = Delegates.getBotService().getBots(user, botStation.getId());
                     for (Bot bot : bots) {
-                        List<BotTask> botTasks = Delegates.getBotService().getBotTasks(getLoggedUser(request), bot.getId());
+                        List<BotTask> botTasks = Delegates.getBotService().getBotTasks(user, bot.getId());
                         for (BotTask botTask : botTasks) {
-                            Delegates.getBotService().removeBotTask(getLoggedUser(request), botTask.getId());
+                            Delegates.getBotService().removeBotTask(user, botTask.getId());
                         }
-                        Delegates.getBotService().removeBot(getLoggedUser(request), bot.getId());
+                        Delegates.getBotService().removeBot(user, bot.getId());
                     }
-                    Delegates.getBotService().removeBotStation(getLoggedUser(request), botStation.getId());
+                    Delegates.getBotService().removeBotStation(user, botStation.getId());
                 }
 
-                List<Relation> relations = Delegates.getRelationService().getRelations(getLoggedUser(request),
-                        BatchPresentationFactory.RELATIONS.createDefault());
+                List<Relation> relations = Delegates.getRelationService().getRelations(user, BatchPresentationFactory.RELATIONS.createNonPaged());
                 for (Relation relation : relations) {
-                    List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(getLoggedUser(request), relation.getName(),
-                            BatchPresentationFactory.RELATION_PAIRS.createDefault());
+                    List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(user, relation.getName(),
+                            BatchPresentationFactory.RELATION_PAIRS.createNonPaged());
                     for (RelationPair relationPair : relationPairs) {
-                        Delegates.getRelationService().removeRelationPair(getLoggedUser(request), relationPair.getId());
+                        Delegates.getRelationService().removeRelationPair(user, relationPair.getId());
                     }
-                    Delegates.getRelationService().removeRelation(getLoggedUser(request), relation.getId());
+                    Delegates.getRelationService().removeRelation(user, relation.getId());
                 }
 
-                List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(getLoggedUser(request),
-                        BatchPresentationFactory.EXECUTORS.createDefault());
+                List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user,
+                        BatchPresentationFactory.EXECUTORS.createNonPaged());
                 List<Long> ids = new ArrayList<Long>();
                 for (Executor executor : executors) {
-                    if (!ApplicationContextFactory.getPermissionDAO().isPrivilegedExecutor(executor)) {
-                        ids.add(executor.getId());
+                    if (ApplicationContextFactory.getPermissionDAO().isPrivilegedExecutor(executor)) {
+                        continue;
                     }
+                    if (SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
+                        continue;
+                    }
+                    ids.add(executor.getId());
                 }
-                Delegates.getExecutorService().remove(getLoggedUser(request), ids);
+                Delegates.getExecutorService().remove(user, ids);
             }
 
-            List<String> errors = Delegates.getScriptingService().executeAdminScriptSkipError(getLoggedUser(request), scriptXml,
-                    processDefinitionsBytes, configs, defaultPasswordValue);
+            List<String> errors = Delegates.getScriptingService().executeAdminScriptSkipError(user, scriptXml, externalResources,
+                    defaultPasswordValue);
             if (errors != null && errors.size() > 0) {
                 for (String error : errors) {
                     addError(request, new Exception(error));
                 }
-                addMessage(request, new ActionMessage(Messages.EXECUTOR_STATE_DONT_UPDATE));
+                addMessage(request, new ActionMessage(MessagesOther.EXECUTOR_STATE_DONT_UPDATE.getKey()));
                 return mapping.findForward(Resources.FORWARD_FAILURE);
             }
-            addMessage(request, new ActionMessage(Messages.IMPORT_DATA_SUCCESS));
-            addMessage(request, new ActionMessage(Messages.EXECUTOR_STATE_DONT_UPDATE));
+            addMessage(request, new ActionMessage(MessagesOther.IMPORT_DATA_SUCCESS.getKey()));
+            addMessage(request, new ActionMessage(MessagesOther.EXECUTOR_STATE_DONT_UPDATE.getKey()));
             return mapping.findForward(Resources.FORWARD_SUCCESS);
         } catch (Exception e) {
             addError(request, e);
             return mapping.findForward(Resources.FORWARD_FAILURE);
         }
-
-    }
-
-    private static byte[][] readProcessDefinitionsToByteArrays(Element element, Map<String, byte[]> files) throws IOException {
-        String[] fileNames = readProcessDefinitionFileNames(element);
-        byte[][] processDefinitionsBytes = new byte[fileNames.length][];
-        for (int i = 0; i < fileNames.length; i++) {
-            processDefinitionsBytes[i] = files.get(fileNames[i]);
-        }
-        return processDefinitionsBytes;
-    }
-
-    private static String[] readProcessDefinitionFileNames(Element element) {
-        List<Element> elements = element.elements(DEPLOY_PROCESS_DEFINITION_TAG_NAME);
-        List<String> fileNames = Lists.newArrayList();
-        for (Element e : elements) {
-            fileNames.add(e.attributeValue(FILE_ATTRIBUTE_NAME));
-        }
-        return fileNames.toArray(new String[fileNames.size()]);
     }
 }

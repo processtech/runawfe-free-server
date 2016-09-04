@@ -21,11 +21,13 @@ import ru.runa.wfe.commons.dao.SettingDAO;
 import ru.runa.wfe.commons.hibernate.Converters;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.relation.dao.RelationDAO;
 import ru.runa.wfe.relation.dao.RelationPairDAO;
+import ru.runa.wfe.report.dao.ReportDAO;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.ss.dao.SubstitutionDAO;
 import ru.runa.wfe.task.dao.TaskDAO;
@@ -92,6 +94,10 @@ public class ApplicationContextFactory {
         return getContext().getBean(IProcessDefinitionLoader.class);
     }
 
+    public static INodeAsyncExecutor getNodeAsyncExecutor() {
+        return getContext().getBean(INodeAsyncExecutor.class);
+    }
+
     // TODO avoid static methods, inject
     public static SessionFactory getSessionFactory() {
         return getContext().getBean("sessionFactory", SessionFactory.class);
@@ -110,8 +116,6 @@ public class ApplicationContextFactory {
         String dsName = getConfiguration().getProperty("hibernate.connection.datasource");
         return (DataSource) new InitialContext().lookup(dsName);
     }
-
-    // TODO Environment
 
     public static Dialect getDialect() {
         return Dialect.getDialect(getConfiguration().getProperties());
@@ -161,6 +165,10 @@ public class ApplicationContextFactory {
 
     public static SubstitutionDAO getSubstitutionDAO() {
         return getContext().getBean(SubstitutionDAO.class);
+    }
+
+    public static ReportDAO getReportDAO() {
+        return getContext().getBean(ReportDAO.class);
     }
 
     public static List<ITaskNotifier> getTaskNotifiers() {

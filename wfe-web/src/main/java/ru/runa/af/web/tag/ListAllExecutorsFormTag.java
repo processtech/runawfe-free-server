@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.af.web.tag;
@@ -20,12 +20,14 @@ package ru.runa.af.web.tag;
 import java.util.List;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
-import ru.runa.af.web.BatchExecutorPermissionHelper;
+import ru.runa.af.web.BatchPresentationUtils;
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveExecutorsAction;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
@@ -43,11 +45,11 @@ import ru.runa.wfe.user.ExecutorPermission;
 
 /**
  * Created on 18.08.2004
- * 
+ *
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
- * @jsp.tag name = "listAllExecutorsForm" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listAllExecutorsForm")
 public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     private static final long serialVersionUID = -7478022960008761625L;
@@ -59,12 +61,13 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
         int executorsCount = Delegates.getExecutorService().getExecutorsCount(getUser(), getBatchPresentation());
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(getUser(), getBatchPresentation());
         BatchPresentation batchPresentation = getBatchPresentation();
-        buttonEnabled = BatchExecutorPermissionHelper.isAllowedForAnyone(getUser(), executors, batchPresentation, ExecutorPermission.UPDATE);
+        buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation,
+                ExecutorPermission.UPDATE);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
         TableBuilder tableBuilder = new TableBuilder();
         TDBuilder[] prefixBuilders = new TDBuilder[] { new IdentifiableCheckboxTDBuilder(ExecutorPermission.UPDATE) };
-        TDBuilder[] builders = getBuilders(prefixBuilders, batchPresentation, new TDBuilder[] {});
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, getReturnAction(), pageContext);
@@ -74,7 +77,7 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_REMOVE, pageContext);
+        return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
@@ -84,7 +87,7 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_EXECUTORS, pageContext);
+        return MessagesExecutor.TITLE_EXECUTORS.message(pageContext);
     }
 
     @Override

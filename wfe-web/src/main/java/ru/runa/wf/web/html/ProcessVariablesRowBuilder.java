@@ -27,6 +27,7 @@ import org.apache.ecs.html.TR;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsWebHelper;
 import ru.runa.common.web.html.RowBuilder;
@@ -69,7 +70,7 @@ public class ProcessVariablesRowBuilder implements RowBuilder {
         }
         String formattedValue;
         if (value == null) {
-            formattedValue = Messages.getMessage("label.unset_empty.value", pageContext);
+            formattedValue = MessagesOther.LABEL_UNSET_EMPTY_VALUE.message(pageContext);
         } else {
             User user = Commons.getUser(pageContext.getSession());
             formattedValue = ViewUtil.getOutput(user, new StrutsWebHelper(pageContext), processId, variable);

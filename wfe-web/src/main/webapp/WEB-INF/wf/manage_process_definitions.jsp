@@ -31,7 +31,7 @@
 			</wf:viewControlsHideableBlock>
 		</div>
 		<div>
-			<wf:bulkDeployDefinitionControlHideableBlock hideableBlockId="bulkDeployDefinitionsConrol" returnAction="<%= returnAction %>" >
+			<wf:bulkDeployDefinitionControlHideableBlock hideableBlockId="bulkDeployDefinitionsControl" returnAction="<%= returnAction %>" >
 				<wf:bulkDeployDefinitionControl />
 			</wf:bulkDeployDefinitionControlHideableBlock>
 		</div>

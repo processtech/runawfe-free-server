@@ -41,6 +41,7 @@ public abstract class Job {
     private Long id;
     private Long version;
     private String name;
+    private String dueDateExpression;
     private Date dueDate;
     private Process process;
     private Token token;
@@ -77,13 +78,22 @@ public abstract class Job {
         this.version = version;
     }
 
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 1024)
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Column(name = "DUE_DATE_EXPRESSION")
+    public String getDueDateExpression() {
+        return dueDateExpression;
+    }
+
+    public void setDueDateExpression(String dueDateExpression) {
+        this.dueDateExpression = dueDateExpression;
     }
 
     @Column(name = "DUE_DATE")

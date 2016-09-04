@@ -74,10 +74,10 @@ public class AssignmentHelper {
         }
     }
 
-    public static void assignSwimlane(ExecutionContext executionContext, String swimlaneName, String swimlaneInitializer) {
+    public static boolean assignSwimlane(ExecutionContext executionContext, String swimlaneName, String swimlaneInitializer) {
         List<? extends Executor> executors = SwimlaneInitializerHelper.evaluate(swimlaneInitializer, executionContext.getVariableProvider());
         SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
         Swimlane swimlane = executionContext.getProcess().getSwimlaneNotNull(swimlaneDefinition);
-        assign(executionContext, swimlane, executors);
+        return assign(executionContext, swimlane, executors);
     }
 }

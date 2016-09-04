@@ -59,7 +59,7 @@ public class XWorkJavascriptValidator {
             Set<String> tagNames = new HashSet<String>();
 
             ValidatorContext validatorContext = new ValidatorContext();
-            List<Validator> validators = ValidatorManager.getInstance().createValidators(user, null, validationXmlBytes, validatorContext,
+            List<Validator> validators = ValidatorManager.getInstance().createValidators(user, null, null, validationXmlBytes, validatorContext,
                     new HashMap<String, Object>());
             for (Validator validator : validators) {
                 if (validator instanceof FieldValidator) {

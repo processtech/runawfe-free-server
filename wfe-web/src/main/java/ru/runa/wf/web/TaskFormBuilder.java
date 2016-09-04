@@ -22,7 +22,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateDefinitionVariableProvider;
 import ru.runa.wfe.service.client.DelegateTaskVariableProvider;
@@ -56,9 +56,9 @@ public abstract class TaskFormBuilder {
     public final String build(Long definitionId) {
         this.definitionId = definitionId;
         if (interaction.hasForm()) {
-            IVariableProvider variableProvider = new MapDelegableVariableProvider(interaction.getDefaultVariableValues(),
-                    new DelegateDefinitionVariableProvider(user, definitionId));
-            Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables((HttpServletRequest) pageContext.getRequest(), interaction);
+            IVariableProvider variableProvider = new DelegateDefinitionVariableProvider(user, definitionId);
+            HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+            Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables(request, interaction, variableProvider);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
@@ -73,7 +73,8 @@ public abstract class TaskFormBuilder {
         this.task = task;
         if (interaction.hasForm()) {
             IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task.getProcessId(), task.getId());
-            Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables((HttpServletRequest) pageContext.getRequest(), interaction);
+            HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+            Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables(request, interaction, variableProvider);
             if (map != null) {
                 variableProvider = new MapDelegableVariableProvider(map, variableProvider);
             }
@@ -93,7 +94,7 @@ public abstract class TaskFormBuilder {
     private String buildEmptyForm() {
         String message = "Task form is not defined";
         if (pageContext != null) {
-            message = Messages.getMessage("task.form.not.defined.error", pageContext);
+            message = MessagesException.ERROR_TASK_FORM_NOT_DEFINED.message(pageContext);
         }
         return message;
     }

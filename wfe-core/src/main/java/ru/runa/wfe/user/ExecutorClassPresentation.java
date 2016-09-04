@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.user;
 
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -37,7 +38,8 @@ public class ExecutorClassPresentation extends ClassPresentation {
         super(Executor.class, "", true, new FieldDescriptor[] {
                 // display name field type DB source isSort filter mode get
                 // value/show in web getter param
-                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Executor.class, "name"), true, FieldFilterMode.DATABASE,
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Executor.class, "name"), true, 1, BatchPresentationConsts.ASC,
+                		FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
                 new FieldDescriptor(FULL_NAME, String.class.getName(), new DefaultDBSource(Executor.class, "fullName"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "fullName" }),

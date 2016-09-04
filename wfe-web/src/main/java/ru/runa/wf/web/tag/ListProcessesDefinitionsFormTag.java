@@ -23,11 +23,12 @@ import java.util.List;
 import javax.servlet.jsp.PageContext;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.CheckboxTDBuilder;
 import ru.runa.common.web.html.EnvBaseImpl;
@@ -37,8 +38,8 @@ import ru.runa.common.web.html.SortingHeaderBuilder;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionsAction;
-import ru.runa.wf.web.html.DefinitionUrlStrategy;
 import ru.runa.wf.web.html.PropertiesProcessTDBuilder;
 import ru.runa.wf.web.html.StartProcessTDBuilder;
 import ru.runa.wfe.definition.DefinitionPermission;
@@ -50,11 +51,11 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 /**
  * Created on 30.09.2004
- *
+ * 
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
- * @jsp.tag name = "listProcessesDefinitionsForm" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listProcessesDefinitionsForm")
 public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag {
 
     private static final long serialVersionUID = 8409543832272909874L;
@@ -69,12 +70,12 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, definitions.size());
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
-        TDBuilder[] builders = getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION),
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION),
                 new StartProcessTDBuilder() }, batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
                 pageContext);
-        RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_MANAGE_DEFINITION,
+        RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_START_PROCESS,
                 getReturnAction(), new DefinitionUrlStrategy(pageContext), builders);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
         navigation.addPagingNavigationTable(tdFormElement);
@@ -86,7 +87,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         for (int i = 0; i < 1 + grouppingCells; ++i) {
             prefixCellsHeaders.add("");
         }
-        prefixCellsHeaders.add(Messages.getMessage(Messages.LABEL_START_PROCESS, pageContext));
+        prefixCellsHeaders.add(MessagesProcesses.LABEL_START_PROCESS.message(pageContext));
         return prefixCellsHeaders.toArray(new String[prefixCellsHeaders.size()]);
     }
 
@@ -135,7 +136,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_UNDEPLOY_DEFINITION, pageContext);
+        return MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(pageContext);
     }
 
     @Override
@@ -145,7 +146,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PROCESS_DEFINITIONS, pageContext);
+        return MessagesProcesses.TITLE_PROCESS_DEFINITIONS.message(pageContext);
     }
 
     @Override

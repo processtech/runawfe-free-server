@@ -6,54 +6,55 @@ import org.apache.ecs.html.Button;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.VisibleTag;
+import ru.runa.wf.web.MessagesProcesses;
 
 /**
  * Created on 27.03.2015
  * 
  * @author artmikheev
- * @jsp.tag name = "taskFormDelegationButton" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "taskFormDelegationButton")
 public class TaskFormDelegationTag extends VisibleTag {
-	private static final long serialVersionUID = 1L;
-	
-	// required
-	private Long taskId;
-	
-	@Override
-	protected ConcreteElement getEndElement() {
-		Table table = new Table();
-		table.setClass("box");
-		TR row = new TR();
-		TD col = new TD();
-		col.setAlign("right");
-		
-		Button button = new Button();
-		button.addElement(new StringElement(Messages.getMessage(Messages.BUTTON_DELEGATE_TASK, pageContext)));
-		button.addAttribute("data-taskid", taskId.intValue());
-		button.setOnClick("delegateTaskDialog(this)");
-		
-		col.addElement(button);
-		
-		row.addElement(col);
-		table.addElement(row);
-		
-		return table;
-	}
+    private static final long serialVersionUID = 1L;
+
+    private Long taskId;
+
+    @Override
+    protected ConcreteElement getEndElement() {
+        Table table = new Table();
+        table.setClass("box");
+        TR row = new TR();
+        TD col = new TD();
+        col.setAlign("right");
+
+        Button button = new Button();
+        button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASK.message(pageContext)));
+        button.addAttribute("data-taskid", taskId.intValue());
+        button.setOnClick("delegateTaskDialog(this)");
+
+        col.addElement(button);
+
+        row.addElement(col);
+        table.addElement(row);
+
+        return table;
+    }
 
     @Override
     protected ConcreteElement getStartElement() {
         return new StringElement();
     }
 
-	public Long getTaskId() {
-		return taskId;
-	}
+    public Long getTaskId() {
+        return taskId;
+    }
 
-	public void setTaskId(Long taskId) {
-		this.taskId = taskId;
-	}
-
+    @Attribute(required = true, rtexprvalue = true)
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
 }

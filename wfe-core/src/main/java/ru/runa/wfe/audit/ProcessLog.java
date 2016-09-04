@@ -62,7 +62,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Base class for logging process unit of work.
- *
+ * 
  * @author Dofs
  */
 @Entity
@@ -120,7 +120,7 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
         this.tokenId = tokenId;
     }
 
-    @Column(name = "NODE_ID")
+    @Column(name = "NODE_ID", length = 1024)
     public String getNodeId() {
         return nodeId;
     }
@@ -138,7 +138,7 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
         this.createDate = date;
     }
 
-    @Column(name = "SEVERITY", nullable = false)
+    @Column(name = "SEVERITY", nullable = false, length = 1024)
     @Enumerated(EnumType.STRING)
     public Severity getSeverity() {
         return severity;
@@ -203,15 +203,14 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
     }
 
     /**
-     * @return Arguments for localized pattern to format log message
-     *         description.
+     * @return Arguments for localized pattern to format log message description.
      */
     @Transient
     public abstract Object[] getPatternArguments();
 
     /**
      * Applies some operation to process log instance.
-     *
+     * 
      * @param visitor
      *            Operation to apply.
      */
@@ -219,7 +218,7 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
 
     /**
      * Formats log message description
-     *
+     * 
      * @param pattern
      *            localized pattern
      * @return formatted message

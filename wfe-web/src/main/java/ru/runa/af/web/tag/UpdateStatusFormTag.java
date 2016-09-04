@@ -18,19 +18,17 @@
 package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateStatusAction;
 import ru.runa.af.web.html.StatusTableBuilder;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ActorPermission;
 
-/**
- * Created on 18.08.2004
- * 
- * @jsp.tag name = "updateStatusForm" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateStatusForm")
 public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
 
     private static final long serialVersionUID = 1L;
@@ -48,7 +46,7 @@ public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
@@ -58,7 +56,7 @@ public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_ACTOR_STATUS, pageContext);
+        return MessagesExecutor.TITLE_ACTOR_STATUS.message(pageContext);
     }
 
     @Override

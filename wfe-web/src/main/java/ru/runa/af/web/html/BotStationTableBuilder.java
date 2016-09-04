@@ -31,9 +31,9 @@ import org.apache.ecs.html.Table;
 import ru.runa.af.web.form.BotStationForm;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdsForm;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.commons.web.PortletUrlType;
 
@@ -75,18 +75,19 @@ public class BotStationTableBuilder {
         TR tr = new TR();
         tr.setClass(Resources.CLASS_LIST_TABLE_TH);
         tr.addElement(new TH("").setWidth("20").setClass(Resources.CLASS_LIST_TABLE_TD));
-        tr.addElement(new TH(Messages.getMessage(Messages.LABEL_BOT_STATION_NAME, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
-        tr.addElement(new TH(Messages.getMessage(Messages.LABEL_BOT_STATION_ADDRESS, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TH(MessagesBot.LABEL_BOT_STATION_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TH(MessagesBot.LABEL_BOT_STATION_ADDRESS.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
     }
 
     public static Table createBotStationDetailsTable(PageContext pageContext, String name, String address) {
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_BOT_STATION_NAME, pageContext), BotStationForm.BOT_STATION_NAME,
-                name, true, true));
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_BOT_STATION_ADDRESS, pageContext),
-                BotStationForm.BOT_STATION_RMI_ADDRESS, address, true, false));
+        Input nameInput = HTMLUtils.createInput(BotStationForm.BOT_STATION_NAME, name, true, true);
+        table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_STATION_NAME.message(pageContext), nameInput));
+
+        Input addressInput = HTMLUtils.createInput(BotStationForm.BOT_STATION_RMI_ADDRESS, name);
+        table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_STATION_ADDRESS.message(pageContext), addressInput));
         return table;
     }
 

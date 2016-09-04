@@ -86,7 +86,7 @@ public class ReceiveMessageBean implements MessageListener {
         try {
             log.debug("Received " + messageString);
             transaction.begin();
-            List<Token> tokens = tokenDAO.findActiveTokens(NodeType.RECEIVE_MESSAGE);
+            List<Token> tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
             for (Token token : tokens) {
                 ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
                 ReceiveMessageNode receiveMessageNode = (ReceiveMessageNode) token.getNodeNotNull(processDefinition);
@@ -183,16 +183,25 @@ public class ReceiveMessageBean implements MessageListener {
             }
         }
         lock.lock();
+        if (!processLocks.containsKey(processId)) {
+            synchronized (processLocks) {
+                log.debug("adding " + lock + " to map for " + processId);
+                processLocks.put(processId, lock);
+            }
+        }
+        log.debug("acquired " + lock + " for " + processId);
     }
 
     private void releaseLock(Long processId) {
+        log.debug("releasing lock for " + processId);
         synchronized (processLocks) {
             ReentrantLock lock = processLocks.get(processId);
             if (!lock.hasQueuedThreads()) {
-                log.debug("releasing " + lock + " for " + processId);
+                log.debug("deleting " + lock + " for " + processId);
                 processLocks.remove(processId);
             }
             lock.unlock();
+            log.debug("released " + lock + " for " + processId);
         }
     }
 

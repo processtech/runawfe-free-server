@@ -18,18 +18,15 @@
 package ru.runa.wf.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.wf.web.action.UpdatePermissionsOnProcessAction;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 
-/**
- * Created on 24.08.2004
- * 
- * @jsp.tag name = "updatePermissionsOnProcessForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updatePermissionsOnProcessForm")
 public class UpdatePermissionsOnProcessFormTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = 8819829254395916036L;
 
@@ -47,12 +44,12 @@ public class UpdatePermissionsOnProcessFormTag extends ProcessBaseFormTag {
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PERMISSION_OWNERS, pageContext);
+        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
     }
 
     @Override

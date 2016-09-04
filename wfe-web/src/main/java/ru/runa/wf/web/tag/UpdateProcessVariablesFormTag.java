@@ -11,22 +11,26 @@ import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UpdateProcessVariableAction;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.var.VariableDefinition;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateProcessVariables")
 public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
     private static final long serialVersionUID = 1L;
 
     private Long processId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setProcessId(Long id) {
         processId = id;
     }
@@ -40,7 +44,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
         List<VariableDefinition> variables = Delegates.getDefinitionService().getVariableDefinitions(getUser(), process.getDefinitionId());
         if (!variables.isEmpty()) {
-            if (SystemProperties.isUpdateVariablesEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
+            if (SystemProperties.isUpdateProcessVariablesInAPIEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
                 getForm().setEncType(Form.ENC_UPLOAD);
                 String labelTDWidth = "150px";
 
@@ -53,7 +57,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
                 TD labelTd = new TD();
                 Label labelVariable = new Label("variableSel");
-                labelVariable.addElement(Messages.getMessage(Messages.LABEL_VARIABLE, pageContext) + "&nbsp;");
+                labelVariable.addElement(MessagesProcesses.LABEL_VARIABLE.message(pageContext) + "&nbsp;");
                 labelTd.addElement(labelVariable);
                 labelTd.setWidth(labelTDWidth);
                 variableComboboxTr.addElement(labelTd.setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -76,7 +80,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
                 labelTd = new TD();
                 Label labelScriptingValue = new Label("variableScriptingValue");
-                labelScriptingValue.addElement(Messages.getMessage(Messages.LABEL_VARIABLE_SCRIPTING_VALUE, pageContext) + ":&nbsp;");
+                labelScriptingValue.addElement(MessagesProcesses.LABEL_VARIABLE_SCRIPTING_VALUE.message(pageContext) + ":&nbsp;");
                 labelTd.addElement(labelScriptingValue);
                 labelTd.setWidth(labelTDWidth);
                 variableScriptingValueTr.addElement(labelTd.setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -93,7 +97,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
                 labelTd = new TD();
                 Label labelCurrentValue = new Label("variableCurrentValue");
-                labelCurrentValue.addElement(Messages.getMessage(Messages.LABEL_VARIABLE_OLD_VALUE, pageContext) + ":&nbsp;");
+                labelCurrentValue.addElement(MessagesProcesses.LABEL_VARIABLE_OLD_VALUE.message(pageContext) + ":&nbsp;");
                 labelTd.addElement(labelCurrentValue);
                 labelTd.setWidth(labelTDWidth);
                 variableCurrentValueTr.addElement(labelTd.setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -111,7 +115,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
                 labelTd = new TD();
                 Label labelInputValue = new Label("variableInput");
-                labelInputValue.addElement(Messages.getMessage(Messages.LABEL_VARIABLE_NEW_VALUE, pageContext) + ":&nbsp;");
+                labelInputValue.addElement(MessagesProcesses.LABEL_VARIABLE_NEW_VALUE.message(pageContext) + ":&nbsp;");
                 labelTd.addElement(labelInputValue);
                 labelTd.setWidth(labelTDWidth);
                 variableInputTr.addElement(labelTd.setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -128,7 +132,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
                 Label labelNullValue = new Label("isNullValue");
                 labelNullValue.setID("nullValueLabel");
-                labelNullValue.addElement(Messages.getMessage(Messages.LABEL_VARIABLE_NULL_VALUE, pageContext) + "&nbsp;");
+                labelNullValue.addElement(MessagesProcesses.LABEL_VARIABLE_NULL_VALUE.message(pageContext) + "&nbsp;");
                 inputTd.addElement(labelNullValue);
 
                 variableInputTr.addElement(inputTd.setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -136,14 +140,14 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
             }
         } else {
             Label variablesExist = new Label("variables");
-            variablesExist.addElement(Messages.getMessage(Messages.LABEL_NO_VARIABLES, pageContext) + "&nbsp;");
+            variablesExist.addElement(MessagesProcesses.LABEL_NO_VARIABLES.message(pageContext) + "&nbsp;");
             tdFormElement.addElement(variablesExist);
         }
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_UPDATE_VARIABLE, pageContext);
+        return MessagesProcesses.BUTTON_UPDATE_VARIABLE.message(pageContext);
     }
 
     @Override
@@ -153,7 +157,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_UPDATE_VARIABLE, pageContext);
+        return MessagesProcesses.BUTTON_UPDATE_VARIABLE.message(pageContext);
     }
 
 }

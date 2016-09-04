@@ -25,7 +25,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 
 import com.google.common.base.Strings;
 
@@ -66,7 +66,7 @@ public class RelationForm extends ActionForm {
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = new ActionErrors();
         if (Strings.isNullOrEmpty(getName())) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(Messages.ERROR_FILL_REQUIRED_VALUES));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesException.ERROR_FILL_REQUIRED_VALUES.getKey()));
         }
         return errors;
     }

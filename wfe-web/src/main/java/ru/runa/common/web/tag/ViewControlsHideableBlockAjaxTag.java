@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web.tag;
@@ -28,15 +28,17 @@ import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.Option;
-import org.apache.ecs.html.Script;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.BatchPresentationsVisibility;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesBatch;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ChangeActiveBatchPresentationAction;
@@ -47,16 +49,13 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Profile;
 
-/**
- * Created 18.05.2005
- * 
- * @jsp.tag name = "viewControlsHideableBlock" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "viewControlsHideableBlock")
 public class ViewControlsHideableBlockAjaxTag extends AbstractReturningTag {
     private static final long serialVersionUID = -4644961104278379700L;
 
     private String hideableBlockId;
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setHideableBlockId(String id) {
         hideableBlockId = id;
     }
@@ -66,11 +65,11 @@ public class ViewControlsHideableBlockAjaxTag extends AbstractReturningTag {
     }
 
     public String getHideTitle() {
-        return Messages.getMessage(Messages.LABEL_HIDE_CONTROLS, pageContext);
+        return MessagesBatch.HIDE_CONTROLS.message(pageContext);
     }
 
     public String getShowTitle() {
-        return Messages.getMessage(Messages.LABEL_SHOW_CONTROLS, pageContext);
+        return MessagesBatch.SHOW_CONTROLS.message(pageContext);
     }
 
     @Override
@@ -82,7 +81,7 @@ public class ViewControlsHideableBlockAjaxTag extends AbstractReturningTag {
     public int doStartTag() throws JspException {
         JspWriter jspOut = pageContext.getOut();
         try {
-            jspOut.println(new Table().createStartTag());
+            jspOut.println(new Table().setWidth("100%").createStartTag());
             TR tr = new TR();
             TD headerTD = new TD();
             tr.addElement(headerTD);

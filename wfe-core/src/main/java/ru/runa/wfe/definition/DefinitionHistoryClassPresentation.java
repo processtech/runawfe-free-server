@@ -49,7 +49,7 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                         // display name field type DB source isSort filter mode
                         // get value/show in web getter parameters
                         new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
+                    FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
                                         DefinitionPermission.START_PROCESS, "name" }),
                         new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDBSource(Deployment.class, "version"), true,
                                 FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { DefinitionPermission.READ,
@@ -57,15 +57,15 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                         new FieldDescriptor(DESCRIPTION, String.class.getName(), new SubstringDBSource(Deployment.class, "description"), true,
                                 FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
                         new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(Deployment.class, "category"),
-                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TypeProcessTDBuilder", new Object[] {}, true),
-                                new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "createDate"), true,
-                                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTDBuilder", new Object[] {}),
-                                        new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "createActor"), false,
-                                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionCreateActorTDBuilder", new Object[] {}),
-                                                new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "updateDate"), true,
-                                                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTDBuilder", new Object[] {}),
-                                                        new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "updateActor"), false,
-                                                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
+                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}, true),
+                        new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "createDate"), true,
+                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTDBuilder", new Object[] {}),
+                        new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "createActor"), false,
+                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionCreateActorTDBuilder", new Object[] {}),
+                        new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "updateDate"), true,
+                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTDBuilder", new Object[] {}),
+                        new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "updateActor"), false,
+                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
                         new FieldDescriptor(PROCESSES_COUNT, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), false,
                                 FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTDBuilder", new Object[] {}) });
     }

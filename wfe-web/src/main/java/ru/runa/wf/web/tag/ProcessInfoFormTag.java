@@ -19,31 +19,42 @@ package ru.runa.wf.web.tag;
 
 import java.util.Map;
 
+import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Element;
 import org.apache.ecs.Entities;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Div;
+import org.apache.ecs.html.Span;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
+import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wf.web.action.ActivateProcessExecutionAction;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wf.web.action.RemoveProcessAction;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
+import ru.runa.wf.web.action.SuspendProcessExecutionAction;
 import ru.runa.wf.web.action.UpgradeProcessToDefinitionVersionAction;
 import ru.runa.wf.web.form.TaskIdForm;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -53,23 +64,17 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 import com.google.common.collect.Maps;
 
-/**
- * Created on 29.11.2004
- *
- * @jsp.tag name = "processInfoForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processInfoForm")
 public class ProcessInfoFormTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = -1275657878697999574L;
 
     private Long taskId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getTaskId() {
         return taskId;
     }
@@ -117,7 +122,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     @Override
     public String getFormButtonName() {
         boolean ended = getProcess().isEnded();
-        return Messages.getMessage(ended ? Messages.BUTTON_REMOVE : Messages.BUTTON_CANCEL_PROCESS, pageContext);
+        return ended ? MessagesCommon.BUTTON_REMOVE.message(pageContext) : MessagesProcesses.BUTTON_CANCEL_PROCESS.message(pageContext);
     }
 
     // end #179
@@ -165,19 +170,55 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         startedTR.addElement(new TD(startedName).setClass(Resources.CLASS_LIST_TABLE_TD));
         startedTR.addElement(new TD(CalendarUtil.formatDateTime(process.getStartDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
-        if (process.isEnded()) {
-            TR endedTR = new TR();
-            table.addElement(endedTR);
-            String endedName = Messages.getMessage(ProcessClassPresentation.PROCESS_END_DATE, pageContext);
-            endedTR.addElement(new TD(endedName).setClass(Resources.CLASS_LIST_TABLE_TD));
-            endedTR.addElement(new TD(CalendarUtil.formatDateTime(process.getEndDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
+        if (process.getExecutionStatus() != null) {
+            ConcreteElement statusElement = new Span(Messages.getMessage(process.getExecutionStatus().getLabelKey(), pageContext));
+            switch (process.getExecutionStatus()) {
+            case ACTIVE:
+                if (SystemProperties.isProcessSuspensionEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
+                    Div div = new Div();
+                    div.addElement(statusElement);
+                    div.addElement(Entities.NBSP);
+                    div.addElement(new A(Commons.getActionUrl(SuspendProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
+                            pageContext, PortletUrlType.Render), MessagesProcesses.PROCESS_SUSPEND.message(pageContext)));
+                    statusElement = div;
+                }
+                break;
+            case FAILED:
+            case SUSPENDED:
+                statusElement.setClass(Resources.CLASS_SUSPENDED);
+                if (Delegates.getExecutorService().isAdministrator(getUser())) {
+                    Div div = new Div();
+                    div.addElement(statusElement);
+                    div.addElement(Entities.NBSP);
+                    StrutsMessage message = process.getExecutionStatus() == ExecutionStatus.FAILED ? MessagesProcesses.PROCESS_ACTIVATE_FAILED_TOKENS
+                            : MessagesProcesses.PROCESS_ACTIVATE;
+                    div.addElement(new A(Commons.getActionUrl(ActivateProcessExecutionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(),
+                            pageContext, PortletUrlType.Render), message.message(pageContext)));
+                    statusElement = div;
+                }
+                break;
+            case ENDED:
+                Div div = new Div();
+                div.addElement(statusElement);
+                div.addElement(Entities.NBSP);
+                div.addElement(CalendarUtil.formatDateTime(process.getEndDate()));
+                statusElement = div;
+                break;
+            default:
+                throw new InternalApplicationException(String.valueOf(process.getExecutionStatus()));
+            }
+            TR statusTR = new TR();
+            String statusLabel = Messages.getMessage(ProcessClassPresentation.PROCESS_EXECUTION_STATUS, pageContext);
+            statusTR.addElement(new TD(statusLabel).setClass(Resources.CLASS_LIST_TABLE_TD));
+            statusTR.addElement(new TD(statusElement).setClass(Resources.CLASS_LIST_TABLE_TD));
+            table.addElement(statusTR);
         }
 
         WfProcess parentProcess = Delegates.getExecutionService().getParentProcess(getUser(), getIdentifiableId());
         if (parentProcess != null) {
             TR parentTR = new TR();
             table.addElement(parentTR);
-            String parentNameString = Messages.getMessage(Messages.LABEL_PARENT_PROCESS, pageContext);
+            String parentNameString = MessagesProcesses.LABEL_PARENT_PROCESS.message(pageContext);
             parentTR.addElement(new TD(parentNameString).setClass(Resources.CLASS_LIST_TABLE_TD));
             TD td = new TD();
             td.setClass(Resources.CLASS_LIST_TABLE_TD);
@@ -199,7 +240,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     private Element addUpgradeLinkIfRequired(WfProcess process, Element versionElement) {
-        if (!SystemProperties.isUpgradeProcessToNextDefinitionVersionEnabled()) {
+        if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             return versionElement;
         }
         Div div = new Div();
@@ -207,7 +248,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         div.addElement(Entities.NBSP);
         String url = Commons.getActionUrl(UpgradeProcessToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(), pageContext,
                 PortletUrlType.Render);
-        A upgradeLink = new A(url, Commons.getMessage(Messages.PROCESS_UPGRADE_TO_DEFINITION_VERSION, pageContext));
+        A upgradeLink = new A(url, MessagesProcesses.PROCESS_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
         upgradeLink.addAttribute("data-processId", process.getId());
         upgradeLink.addAttribute("data-definitionName", process.getName());
         upgradeLink.addAttribute("data-definitionVersion", process.getVersion());
@@ -222,7 +263,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PROCESS, pageContext);
+        return MessagesProcesses.TITLE_PROCESS.message(pageContext);
     }
 
 }

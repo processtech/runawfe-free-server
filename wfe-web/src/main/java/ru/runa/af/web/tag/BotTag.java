@@ -3,12 +3,15 @@ package ru.runa.af.web.tag;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.UpdateBotAction;
 import ru.runa.af.web.form.BotForm;
 import ru.runa.af.web.html.BotTableBuilder;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationPermission;
@@ -16,22 +19,17 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 import com.google.common.base.Preconditions;
 
-/**
- * @author petrmikheev
- * @jsp.tag name = "botTag" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botTag")
 public class BotTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
 
     private Long botId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setBotId(Long botId) {
         this.botId = botId;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getBotId() {
         return botId;
     }
@@ -54,12 +52,12 @@ public class BotTag extends TitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_BOT_DETAILS, pageContext);
+        return MessagesBot.TITLE_BOT_DETAILS.message(pageContext);
     }
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override

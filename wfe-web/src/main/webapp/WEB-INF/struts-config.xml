@@ -5,20 +5,17 @@
 <struts-config>
 
 	<!-- ========== Data Sources Definitions =================================== -->
-	<!-- Define your Struts data sources in a file called struts-data-sources.xml 
-		and place it in your merge directory. -->
+	<!-- Define your Struts data sources in a file called struts-data-sources.xml and place it in your merge directory. -->
 
 	<!-- ========== Form Bean Definitions =================================== -->
 	<form-beans>
 
 		<form-bean name="createExecutorForm" type="ru.runa.af.web.form.CreateExecutorForm" />
-		<form-bean name="updatePermissionsOnIdentifiableForm"
-			type="ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm" />
+		<form-bean name="updatePermissionsOnIdentifiableForm" type="ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm" />
 		<form-bean name="groupForm" type="ru.runa.common.web.form.GroupForm" />
 		<form-bean name="processForm" type="ru.runa.wf.web.form.ProcessForm" />
 		<form-bean name="loginForm" type="ru.runa.af.web.form.LoginForm" />
-		<form-bean name="substitutionCriteriasForm"
-			type="ru.runa.common.web.form.SubstitutionCriteriasForm" />
+		<form-bean name="substitutionCriteriasForm" type="ru.runa.common.web.form.SubstitutionCriteriasForm" />
 		<form-bean name="strIdsForm" type="ru.runa.common.web.form.StrIdsForm" />
 		<form-bean name="deployBotForm" type="ru.runa.af.web.form.DeployBotForm" />
 		<form-bean name="tableViewSetupForm" type="ru.runa.common.web.form.TableViewSetupForm" />
@@ -28,8 +25,7 @@
 		<form-bean name="updatePasswordForm" type="ru.runa.af.web.form.UpdatePasswordForm" />
 		<form-bean name="setSortingForm" type="ru.runa.common.web.form.SetSortingForm" />
 		<form-bean name="botForm" type="ru.runa.af.web.form.BotForm" />
-		<form-bean name="substitutionCriteriaForm"
-			type="ru.runa.af.web.form.SubstitutionCriteriaForm" />
+		<form-bean name="substitutionCriteriaForm" type="ru.runa.af.web.form.SubstitutionCriteriaForm" />
 		<form-bean name="botTasksForm" type="ru.runa.af.web.form.BotTasksForm" />
 		<form-bean name="taskIdForm" type="ru.runa.wf.web.form.TaskIdForm" />
 		<form-bean name="commonProcessForm" type="ru.runa.wf.web.form.CommonProcessForm" />
@@ -39,25 +35,24 @@
 		<form-bean name="relationPairForm" type="ru.runa.af.web.form.RelationPairForm" />
 		<form-bean name="relationPairsForm" type="ru.runa.af.web.form.RelationPairsForm" />
 		<form-bean name="idsForm" type="ru.runa.common.web.form.IdsForm" />
-		<form-bean name="updateExecutorDetailsForm"
-			type="ru.runa.af.web.form.UpdateExecutorDetailsForm" />
+		<form-bean name="updateExecutorDetailsForm" type="ru.runa.af.web.form.UpdateExecutorDetailsForm" />
 		<form-bean name="botStationForm" type="ru.runa.af.web.form.BotStationForm" />
 		<form-bean name="idUrlForm" type="ru.runa.wf.web.form.DefinitionFileForm" />
 		<form-bean name="variableForm" type="ru.runa.wf.web.form.VariableForm" />
 		<form-bean name="substitutionForm" type="ru.runa.af.web.form.SubstitutionForm" />
-		<form-bean name="batchPresentationForm"
-			type="ru.runa.common.web.form.BatchPresentationForm" />
+		<form-bean name="batchPresentationForm" type="ru.runa.common.web.form.BatchPresentationForm" />
 		<form-bean name="settingsForm" type="ru.runa.wf.web.form.SettingsForm" />
 		<form-bean name="viewLogForm" type="ru.runa.common.web.form.ViewLogForm" />
 		<form-bean name="updateStatusForm" type="ru.runa.af.web.form.UpdateStatusForm" />
 		<form-bean name="pagingForm" type="ru.runa.wf.web.form.PagingForm" />
 		<form-bean name="adminScriptForm" type="ru.runa.common.web.form.AdminScriptForm" />
+		<form-bean name="deployReportForm" type="ru.runa.report.web.form.DeployReportForm" />
+		
 	</form-beans>
 
 	<!-- ========== Global Exceptions Definitions =================================== -->
 	<global-exceptions>
-		<exception type="ru.runa.wfe.security.AuthenticationException"
-			key="login.failed" path="/start.do" />
+		<exception type="ru.runa.wfe.security.AuthenticationException" key="login.failed" path="/start.do" />
 	</global-exceptions>
 
 	<!-- ========== Global Forward Definitions =================================== -->
@@ -67,6 +62,11 @@
 		<forward name="create_group" path="/create_executor.do?executorType=group" />
 		<forward name="manage_executors"
 			path="/manage_executors.do?tabForwardName=manage_executors" />
+		<forward name="manage_reports"
+			path="/manage_reports.do?tabForwardName=manage_reports" />
+		<forward name="deploy_report" path="/deploy_report.do" />
+		<forward name="manage_report" path="/manage_report.do" />
+		<forward name="build_report" path="/build_report.do" />
 		<forward name="manage_relations"
 			path="/manage_relations.do?tabForwardName=manage_relations" />
 		<forward name="manage_system" path="/manage_system.do?tabForwardName=manage_system" />
@@ -206,6 +206,10 @@
 			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
 			<forward name="submitTask" path="/submit_task.do" redirect="false" />
 		</action>
+		<action path="/exportExcelTasks" type="ru.runa.wf.web.action.ExportExcelTasksAction" scope="request">
+		</action>
+		<action path="/exportExcelProcesses" type="ru.runa.wf.web.action.ExportExcelProcessesAction" scope="request">
+		</action>
 		<action path="/create_bot" type="ru.runa.af.web.action.CreateBotAction"
 			name="botForm" scope="request" input="/WEB-INF/wf/add_bot.jsp"
 			unknown="false" validate="false">
@@ -268,6 +272,16 @@
 		<action path="/cancelProcess" type="ru.runa.wf.web.action.CancelProcessAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
 			unknown="false" validate="true">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/activateProcessExecution" type="ru.runa.wf.web.action.ActivateProcessExecutionAction" 
+			name="idForm" scope="request">
+			<forward name="success" path="/manage_process.do" redirect="true" />
+			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
+			name="idForm" scope="request">
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
@@ -583,12 +597,106 @@
 			<forward name="failure" path="/deploy_process_definition.do"
 				redirect="false" />
 		</action>
+		<action path="/manage_report_permissions" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/manage_report_permissions.jsp" />
+		<action path="/grant_permissions_on_report" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/grant_permissions_on_report.jsp" />
+		<action path="/manage_reports_permissions" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/manage_reports_permissions.jsp" />
+		<action path="/grant_permissions_on_reports" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/grant_permissions_on_reports.jsp" />
+		<action path="/grantPermissionsOnReport"
+			type="ru.runa.report.web.action.GrantPermissionsOnReportAction" name="idsForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_report_permissions.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_report_permissions.do"
+				redirect="true" />
+		</action>
+		<action path="/updatePermissionsOnReport"
+			type="ru.runa.report.web.action.UpdatePermissionsOnReportAction"
+			name="updatePermissionsOnIdentifiableForm" scope="request" unknown="false"
+			validate="false">
+			<forward name="success" path="/manage_report_permissions.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_report_permissions.do"
+				redirect="true" />
+		</action>
+		<action path="/grantPermissionsOnReports"
+			type="ru.runa.report.web.action.GrantPermissionsOnReportsAction" name="idsForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_reports_permissions.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_reports_permissions.do"
+				redirect="true" />
+		</action>
+		<action path="/updatePermissionsOnReports"
+			type="ru.runa.report.web.action.UpdatePermissionsOnReportsAction"
+			name="updatePermissionsOnIdentifiableForm" scope="request" unknown="false"
+			validate="false">
+			<forward name="success" path="/manage_reports_permissions.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_reports_permissions.do"
+				redirect="true" />
+		</action>
+		<action path="/deployReport"
+			type="ru.runa.report.web.action.DeployReportAction" name="deployReportForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_reports.do"
+				redirect="true" />
+			<forward name="failure" path="/deploy_report.do"
+				redirect="false" />
+		</action>
+		<action path="/analyzeReport"
+			type="ru.runa.report.web.action.AnalyzeReportAction" name="fileForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/deploy_report.do"
+				redirect="false" />
+			<forward name="failure" path="/deploy_report.do"
+				redirect="false" />
+		</action>
+		<action path="/redeployReport"
+			type="ru.runa.report.web.action.RedeployReportAction" name="deployReportForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_report.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_report.do"
+				redirect="false" />
+		</action>
+		<action path="/undeployReport"
+			type="ru.runa.report.web.action.UndeployReportAction" name="idsForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_reports.do"
+				redirect="true" />
+			<forward name="failure" path="/manage_reports.do"
+				redirect="true" />
+		</action>
+		<action path="/buildReport"
+			type="ru.runa.report.web.action.BuildReportAction" name="idForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/build_report.do"
+				redirect="false" />
+			<forward name="failure" path="/build_report.do"
+				redirect="false" />
+		</action>
+		<action path="/reportResource"
+			type="ru.runa.report.web.action.GetReportResourceAction" 
+			scope="request" unknown="false" validate="false">
+		</action>
 		<action path="/updateProcessVariable"
 			type="ru.runa.wf.web.action.UpdateProcessVariableAction" name="commonProcessForm"
 			scope="request" unknown="false" validate="false">
 			<forward name="success" path="/manage_process.do"
 				redirect="true" />
 			<forward name="failure" path="/update_process_variables.do"
+				redirect="false" />
+		</action>
+		<action path="/updateProcessSwimlane"
+			type="ru.runa.wf.web.action.UpdateProcessSwimlaneAction" name="commonProcessForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process.do"
+				redirect="true" />
+			<forward name="failure" path="/update_process_swimlanes.do"
 				redirect="false" />
 		</action>
 		<action path="/setViewPage" type="ru.runa.wf.web.action.SetViewPageAction"
@@ -658,6 +766,18 @@
 
 		<action path="/manage_executors" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/af/manage_executors.jsp" />
+
+		<action path="/manage_reports" type="ru.runa.common.web.action.TabHeaderForwardAction"
+			parameter="/WEB-INF/report/manage_reports.jsp" />
+
+		<action path="/deploy_report" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/deploy_report.jsp" />
+
+		<action path="/manage_report" name="idForm" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/manage_report.jsp" />
+
+		<action path="/build_report" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/report/build_report.jsp" />
 
 		<action path="/manage_relations" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/af/manage_relations.jsp" />
@@ -803,7 +923,7 @@
 		<action path="/version" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/common/version.jsp" />
 
-		<action path="/displayLogs" type="org.apache.struts.actions.ForwardAction"
+		<action path="/displayLogs" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/common/logs.jsp" />
 
 		<action path="/show_tasks_history" type="org.apache.struts.actions.ForwardAction"
@@ -822,6 +942,10 @@
 		
 		<action path="/update_process_variables" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/update_process_variables_value.jsp" />
+		
+		<action path="/update_process_swimlanes" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/update_process_swimlanes.jsp" />
+
 	</action-mappings>
 
 	<controller contentType="text/html; charset=UTF-8" nocache="true"
@@ -829,8 +953,5 @@
 
 	<message-resources parameter="struts" />
 	<message-resources parameter="settingsDescriptions" key="settingsDescriptions" />
-
-	<!-- Define your Struts plugins in a file called struts-plugins.xml and 
-		place it in your merge directory. -->
 
 </struts-config>

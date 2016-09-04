@@ -10,6 +10,7 @@ import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
@@ -19,6 +20,7 @@ import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.TRRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.VisibleTag;
+import ru.runa.wf.web.MessagesError;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -30,6 +32,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "viewBotTaskErrors")
 public class ShowBotTaskErrorsTag extends VisibleTag {
     private static final long serialVersionUID = 1L;
 
@@ -71,9 +74,9 @@ public class ShowBotTaskErrorsTag extends VisibleTag {
         @Override
         public TR build() {
             TR tr = new TR();
-            tr.addElement(new TH(Messages.getMessage("errors.bot.name", pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage("errors.bottask.name", pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage("errors.error", pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesError.ERRORS_BOT_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesError.ERRORS_BOT_TASKNAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesError.ERRORS_ERROR.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             return tr;
         }
     }

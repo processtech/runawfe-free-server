@@ -25,10 +25,10 @@ import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.IdVersionForm;
 import ru.runa.common.web.html.BaseTDBuilder;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionPermission;
@@ -65,7 +65,7 @@ public class UndeployProcessDefinitionTDBuilder extends BaseTDBuilder {
             parameters.put(IdForm.ID_INPUT_NAME, definition.getId());
             parameters.put(IdVersionForm.VERSION_INPUT_NAME, definition.getVersion());
             String url = Commons.getActionUrl(UndeployProcessDefinitionAction.ACTION_PATH, parameters, env.getPageContext(), PortletUrlType.Render);
-            element = new A(url, Messages.getMessage(Messages.BUTTON_UNDEPLOY_DEFINITION, env.getPageContext()));
+            element = new A(url, MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(env.getPageContext()));
         } else {
             element = new StringElement();
         }
@@ -76,7 +76,7 @@ public class UndeployProcessDefinitionTDBuilder extends BaseTDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        String result = Messages.getMessage(Messages.BUTTON_UNDEPLOY_DEFINITION, env.getPageContext());
+        String result = MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(env.getPageContext());
         if (result == null) {
             result = "";
         }

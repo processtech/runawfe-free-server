@@ -18,26 +18,34 @@
 package ru.runa.wfe.service.client;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
+import ru.runa.wfe.bot.Bot;
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.IOCommons;
-import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.script.common.ScriptOperation;
+import ru.runa.wfe.script.common.TransactionScopeDto;
+import ru.runa.wfe.script.common.TransactionScopeType;
+import ru.runa.wfe.script.common.WorkflowScriptDto;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.service.utils.AdminScriptUtils;
 import ru.runa.wfe.user.User;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
 /**
  * Created on 12.12.2005
- *
+ * 
  */
 public class AdminScriptClient {
     private static final String DEPLOY_PROCESS_DEFINITION_TAG_NAME = "deployProcessDefinition";
@@ -71,91 +79,92 @@ public class AdminScriptClient {
         }
     }
 
-    public static void run(User user, byte[] scriptBytes, Handler handler) throws IOException {
-        InputStream scriptInputStream = new ByteArrayInputStream(scriptBytes);
-        Document allDocument = XmlUtils.parseWithXSDValidation(scriptInputStream, "workflowScript.xsd");
-        Element root = allDocument.getRootElement();
-        List<Element> transactionScopeElements = root.elements("transactionScope");
-        String defaultTransactionScope = root.attributeValue("defaultTransactionScope");
-        if (transactionScopeElements.size() == 0 && "all".equals(defaultTransactionScope)) {
-            byte[][] processDefinitionsBytes = readProcessDefinitionsToByteArrays(root);
-            Delegates.getScriptingService().executeAdminScript(user, scriptBytes, processDefinitionsBytes);
+    public static void run(User user, byte[] scriptBytes, Handler handler) throws IOException, JAXBException {
+
+        Unmarshaller unmarshaller = JAXBContext.newInstance(WorkflowScriptDto.class).createUnmarshaller();
+        WorkflowScriptDto data = (WorkflowScriptDto) unmarshaller.unmarshal(new ByteArrayInputStream(scriptBytes));
+        data.validate(true);
+        List<List<ScriptOperation>> splitScriptToTransactions = splitScriptToTransactions(data);
+        if (!data.transactionScopes.isEmpty()) {
+            System.out.println("multiple docs [by <transactionScope>]: " + splitScriptToTransactions.size());
         } else {
-            if (transactionScopeElements.size() > 0) {
-                System.out.println("multiple docs [by <transactionScope>]: " + transactionScopeElements.size());
-                for (Element transactionScopeElement : transactionScopeElements) {
-                    Document document = AdminScriptUtils.createScriptDocument();
-                    List<Element> children = transactionScopeElement.elements();
-                    for (Element element : children) {
-                        document.getRootElement().add(element.createCopy());
-                    }
-                    byte[] bs = XmlUtils.save(document);
-                    byte[][] processDefinitionsBytes = readProcessDefinitionsToByteArrays(document.getRootElement());
-                    try {
-                        handler.onStartTransaction(bs);
-                        Delegates.getScriptingService().executeAdminScript(user, bs, processDefinitionsBytes);
-                        handler.onEndTransaction();
-                    } catch (Exception e) {
-                        handler.onTransactionException(e);
-                    }
-                }
-            } else {
-                List<Element> allChildrenElements = allDocument.getRootElement().elements();
-                System.out.println("multiple docs [by defaultTransactionScope]: " + allChildrenElements.size());
-                for (Element child : allChildrenElements) {
-                    Document document = AdminScriptUtils.createScriptDocument();
-                    document.getRootElement().add(child.createCopy());
-                    byte[] bs = XmlUtils.save(document);
-                    byte[][] processDefinitionsBytes = readProcessDefinitionsToByteArrays(document.getRootElement());
-                    try {
-                        handler.onStartTransaction(bs);
-                        Delegates.getScriptingService().executeAdminScript(user, bs, processDefinitionsBytes);
-                        handler.onEndTransaction();
-                    } catch (Exception e) {
-                        handler.onTransactionException(e);
-                    }
-                }
+            System.out.println("multiple docs [by defaultTransactionScope]: " + splitScriptToTransactions.size());
+        }
+        Map<String, byte[]> externalResources = readExternalResources(data);
+        for (List<ScriptOperation> operations : splitScriptToTransactions) {
+            WorkflowScriptDto scriptPart = new WorkflowScriptDto();
+            scriptPart.identitySets = data.identitySets;
+            scriptPart.operations = operations;
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            JAXBContext.newInstance(WorkflowScriptDto.class).createMarshaller().marshal(scriptPart, outputStream);
+            byte[] scriptPartData = outputStream.toByteArray();
+            try {
+                handler.onStartTransaction(scriptPartData);
+                Delegates.getScriptingService().executeAdminScript(user, scriptPartData, externalResources);
+                handler.onEndTransaction();
+            } catch (Exception e) {
+                handler.onTransactionException(e);
             }
         }
     }
 
-    private static byte[][] readProcessDefinitionsToByteArrays(Element element) throws IOException {
-        String[] fileNames = readProcessDefinitionFileNames(element);
-        byte[][] processDefinitionsBytes = new byte[fileNames.length][];
-        for (int i = 0; i < fileNames.length; i++) {
-            File processFile = new File(fileNames[i]);
-            if (processFile.isFile()) {
-                processDefinitionsBytes[i] = Files.toByteArray(new File(fileNames[i]));
-            } else {
-                processDefinitionsBytes[i] = IOCommons.jarToBytesArray(processFile);
-            }
+    private static List<List<ScriptOperation>> splitScriptToTransactions(WorkflowScriptDto script) {
+        if (!script.operations.isEmpty()) {
+            TransactionScopeType transactionType = script.defaultTransactionScope == null ? TransactionScopeType.TRANSACTION_PER_OPERATION
+                    : script.defaultTransactionScope;
+            return splitScopeToTransactions(script.operations, transactionType);
         }
-        return processDefinitionsBytes;
+        List<List<ScriptOperation>> result = Lists.newArrayList();
+        for (TransactionScopeDto transactionScope : script.transactionScopes) {
+            TransactionScopeType transactionType = transactionScope.transactionScope;
+            if (transactionType == null) {
+                transactionType = script.defaultTransactionScope;
+            }
+            if (transactionType == null) {
+                transactionType = TransactionScopeType.TRANSACTION_PER_SCOPE;
+            }
+            result.addAll(splitScopeToTransactions(transactionScope.operations, transactionType));
+        }
+        return result;
     }
 
-    private static String[] readProcessDefinitionFileNames(Element element) {
-        List<Element> elements = element.elements(DEPLOY_PROCESS_DEFINITION_TAG_NAME);
-        List<String> fileNames = Lists.newArrayList();
-        for (Element e : elements) {
-            fileNames.add(e.attributeValue(FILE_ATTRIBUTE_NAME));
+    private static List<List<ScriptOperation>> splitScopeToTransactions(List<ScriptOperation> scopeOperations, TransactionScopeType transactionType) {
+        List<List<ScriptOperation>> result = Lists.newArrayList();
+        if (transactionType == TransactionScopeType.TRANSACTION_PER_SCOPE) {
+            result.add(scopeOperations);
+        } else {
+            for (ScriptOperation op : scopeOperations) {
+                result.add(Lists.newArrayList(op));
+            }
         }
-        return fileNames.toArray(new String[fileNames.size()]);
+        return result;
+    }
+
+    private static Map<String, byte[]> readExternalResources(WorkflowScriptDto script) throws IOException {
+        List<String> externalResourceNames = script.getExternalResourceNames();
+        Map<String, byte[]> result = Maps.newHashMap();
+        for (String resource : externalResourceNames) {
+            File processFile = new File(resource);
+            if (!processFile.exists()) {
+                result.put(resource, ByteStreams.toByteArray(ClassLoaderUtil.getAsStreamNotNull(resource, Bot.class)));
+            } else if (processFile.isFile()) {
+                result.put(resource, Files.toByteArray(new File(resource)));
+            } else {
+                result.put(resource, IOCommons.jarToBytesArray(processFile));
+            }
+        }
+        return result;
     }
 
     public static class Handler {
 
         public void onStartTransaction(byte[] script) {
-
         }
 
         public void onEndTransaction() {
-
         }
 
         public void onTransactionException(Exception e) {
-
         }
-
     }
-
 }

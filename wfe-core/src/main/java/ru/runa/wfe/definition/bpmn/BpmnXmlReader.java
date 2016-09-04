@@ -38,8 +38,8 @@ import ru.runa.wfe.lang.ReceiveMessageNode;
 import ru.runa.wfe.lang.ScriptNode;
 import ru.runa.wfe.lang.SendMessageNode;
 import ru.runa.wfe.lang.StartNode;
-import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
@@ -57,7 +57,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-@SuppressWarnings({ "unchecked" })
 public class BpmnXmlReader {
     private static final String RUNA_NAMESPACE = "http://runa.ru/wfe/xml";
     private static final String PROCESS = "process";
@@ -84,7 +83,7 @@ public class BpmnXmlReader {
     private static final String LANE_SET = "laneSet";
     private static final String LANE = "lane";
     private static final String FLOW_NODE_REF = "flowNodeRef";
-    public static final String SHOW_WIMLANE = "showSwimlane";
+    private static final String SHOW_WIMLANE = "showSwimlane";
     private static final String REASSIGN = "reassign";
     private static final String REASSIGN_SWIMLANE_TO_TASK_PERFORMER = "reassignSwimlaneToTaskPerformer";
     private static final String CLASS = "class";
@@ -116,6 +115,7 @@ public class BpmnXmlReader {
     private static final String DISCRIMINATOR_USAGE = "discriminatorUsage";
     private static final String DISCRIMINATOR_VALUE = "discriminatorValue";
     private static final String DISCRIMINATOR_CONDITION = "discriminatorCondition";
+    private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -162,6 +162,9 @@ public class BpmnXmlReader {
             if ("false".equals(process.attributeValue(IS_EXECUTABLE))) {
                 throw new InvalidDefinitionException(processDefinition.getName(), "process is not executable");
             }
+            if (processProperties.containsKey(NODE_ASYNC_EXECUTION)) {
+                processDefinition.setNodeAsyncExecution("new".equals(processProperties.get(NODE_ASYNC_EXECUTION)));
+            }
 
             // 1: read most content
             readSwimlanes(processDefinition, process);
@@ -190,7 +193,7 @@ public class BpmnXmlReader {
                 SwimlaneDefinition swimlaneDefinition = new SwimlaneDefinition();
                 swimlaneDefinition.setNodeId(swimlaneElement.attributeValue(ID));
                 swimlaneDefinition.setName(swimlaneName);
-                swimlaneDefinition.setDelegation(readDelegation(swimlaneElement, true));
+                swimlaneDefinition.setDelegation(readDelegation(swimlaneElement, parseExtensionProperties(swimlaneElement), true));
                 SwimlaneUtils.setOrgFunctionLabel(swimlaneDefinition, localizationDAO);
                 List<Element> flowNodeRefElements = swimlaneElement.elements(FLOW_NODE_REF);
                 List<String> flowNodeIds = Lists.newArrayList();
@@ -207,6 +210,7 @@ public class BpmnXmlReader {
         List<Element> elements = parentElement.elements();
         for (Element element : elements) {
             String nodeName = element.getName();
+            Map<String, String> properties = parseExtensionProperties(element);
             Node node = null;
             if (nodeTypes.containsKey(nodeName)) {
                 node = ApplicationContextFactory.createAutowiredBean(nodeTypes.get(nodeName));
@@ -217,7 +221,6 @@ public class BpmnXmlReader {
                     node = ApplicationContextFactory.createAutowiredBean(StartNode.class);
                 }
             } else if (END_EVENT.equals(nodeName)) {
-                Map<String, String> properties = parseExtensionProperties(element);
                 if (properties.containsKey(TOKEN)) {
                     if (processDefinition instanceof SubprocessDefinition) {
                         node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessEndNode.class);
@@ -228,7 +231,6 @@ public class BpmnXmlReader {
                     node = ApplicationContextFactory.createAutowiredBean(EndNode.class);
                 }
             } else if (SUBPROCESS.equals(nodeName)) {
-                Map<String, String> properties = parseExtensionProperties(element);
                 if (properties.containsKey(MULTI_INSTANCE)) {
                     node = ApplicationContextFactory.createAutowiredBean(MultiSubprocessNode.class);
                 } else {
@@ -237,34 +239,27 @@ public class BpmnXmlReader {
             }
             if (node != null) {
                 node.setProcessDefinition(processDefinition);
-                readNode(processDefinition, element, node);
+                readNode(processDefinition, element, properties, node);
             }
         }
     }
 
-    private void readNode(ProcessDefinition processDefinition, Element element, Node node) {
+    private void readNode(ProcessDefinition processDefinition, Element element, Map<String, String> properties, Node node) {
         node.setNodeId(element.attributeValue(ID));
         node.setName(element.attributeValue(NAME));
         node.setDescription(element.elementTextTrim(DOCUMENTATION));
+        if (properties.containsKey(NODE_ASYNC_EXECUTION)) {
+            node.setAsyncExecution("new".equals(properties.get(NODE_ASYNC_EXECUTION)));
+        }
         processDefinition.addNode(node);
-
         if (node instanceof StartNode) {
             StartNode startNode = (StartNode) node;
-            readTask(processDefinition, element, startNode);
-        }
-        if (node instanceof TaskNode) {
-            TaskNode taskNode = (TaskNode) node;
-            readTask(processDefinition, element, taskNode);
-            readBoundaryEvent(processDefinition, element, taskNode);
-        }
-        if (node instanceof MultiTaskNode) {
-            MultiTaskNode taskNode = (MultiTaskNode) node;
-            readTask(processDefinition, element, taskNode);
-            readBoundaryEvent(processDefinition, element, taskNode);
+            readTask(processDefinition, element, properties, startNode);
         }
         if (node instanceof BaseTaskNode) {
-            Map<String, String> properties = parseExtensionProperties(element);
             BaseTaskNode taskNode = (BaseTaskNode) node;
+            readTask(processDefinition, element, properties, taskNode);
+            readBoundaryEvent(processDefinition, element, node);
             if (properties.containsKey(ASYNC)) {
                 taskNode.setAsync(Boolean.valueOf(properties.get(ASYNC)));
             }
@@ -279,7 +274,6 @@ public class BpmnXmlReader {
         if (node instanceof SubprocessNode) {
             SubprocessNode subprocessNode = (SubprocessNode) node;
             subprocessNode.setSubProcessName(element.attributeValue(QName.get(PROCESS, RUNA_NAMESPACE)));
-            Map<String, String> properties = parseExtensionProperties(element);
             if (properties.containsKey(EMBEDDED)) {
                 subprocessNode.setEmbedded(Boolean.parseBoolean(properties.get(EMBEDDED)));
             }
@@ -292,7 +286,7 @@ public class BpmnXmlReader {
         }
         if (node instanceof ExclusiveGateway) {
             ExclusiveGateway gateway = (ExclusiveGateway) node;
-            gateway.setDelegation(readDelegation(element, false));
+            gateway.setDelegation(readDelegation(element, properties, false));
         }
         if (node instanceof WaitNode) {
             WaitNode waitNode = (WaitNode) node;
@@ -300,7 +294,7 @@ public class BpmnXmlReader {
         }
         if (node instanceof ScriptNode) {
             ScriptNode serviceTask = (ScriptNode) node;
-            serviceTask.setDelegation(readDelegation(element, true));
+            serviceTask.setDelegation(readDelegation(element, properties, true));
         }
         if (node instanceof SendMessageNode) {
             SendMessageNode sendMessageNode = (SendMessageNode) node;
@@ -340,12 +334,12 @@ public class BpmnXmlReader {
             }
         }
         createTimerAction.setDueDate(durationString);
-        Map<String, String> extensionProperties = parseExtensionProperties(timerElement);
-        createTimerAction.setRepeatDurationString(extensionProperties.get(REPEAT));
+        Map<String, String> properties = parseExtensionProperties(timerElement);
+        createTimerAction.setRepeatDurationString(properties.get(REPEAT));
         String createEventType = node instanceof TaskNode ? Event.TASK_CREATE : Event.NODE_ENTER;
         addAction(node, createEventType, createTimerAction);
 
-        Delegation timerDelegation = readDelegation(timerElement, false);
+        Delegation timerDelegation = readDelegation(timerElement, properties, false);
         if (timerDelegation != null) {
             Action timerAction = new Action();
             timerAction.setName(name);
@@ -448,27 +442,10 @@ public class BpmnXmlReader {
             source.addLeavingTransition(transition);
             // set destinationNode of the transition
             target.addArrivingTransition(transition);
-            // read the actions
-            // readActions(processDefinition, element, transition,
-            // Event.EVENTTYPE_TRANSITION);
         }
     }
 
-    // private int getOutgoingTransitionsCount(Element processDefinitionElement,
-    // String sourceNodeId) {
-    // int count = 0;
-    // List<Element> elements =
-    // processDefinitionElement.elements(SEQUENCE_FLOW);
-    // for (Element element : elements) {
-    // String from = element.attributeValue(SOURCE_REF);
-    // if (Objects.equal(from, sourceNodeId)) {
-    // count++;
-    // }
-    // }
-    // return count;
-    // }
-
-    private void readTask(ProcessDefinition processDefinition, Element element, InteractionNode node) {
+    private void readTask(ProcessDefinition processDefinition, Element element, Map<String, String> properties, InteractionNode node) {
         if (node instanceof EmbeddedSubprocessStartNode) {
             return;
         }
@@ -479,7 +456,6 @@ public class BpmnXmlReader {
         taskDefinition.setDescription(node.getDescription());
         node.addTask(taskDefinition);
         // assignment
-        Map<String, String> properties = parseExtensionProperties(element);
         String swimlaneName = properties.get(LANE);
         if (!Strings.isNullOrEmpty(swimlaneName)) {
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
@@ -510,9 +486,8 @@ public class BpmnXmlReader {
         }
     }
 
-    private Delegation readDelegation(Element element, boolean required) {
-        Map<String, String> swimlaneProperties = parseExtensionProperties(element);
-        String className = swimlaneProperties.get(CLASS);
+    private Delegation readDelegation(Element element, Map<String, String> properties, boolean required) {
+        String className = properties.get(CLASS);
         if (className == null) {
             if (required) {
                 throw new InternalApplicationException("no className specified in " + element.asXML());
@@ -520,7 +495,7 @@ public class BpmnXmlReader {
             return null;
         }
         ClassLoaderUtil.instantiate(className);
-        String configuration = swimlaneProperties.get(CONFIG);
+        String configuration = properties.get(CONFIG);
         return new Delegation(className, configuration);
     }
 

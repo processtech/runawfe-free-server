@@ -4,33 +4,30 @@ import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.StartPeriodicBotsInvocationAction;
 import ru.runa.af.web.action.StopPeriodicBotsInvocationAction;
 import ru.runa.af.web.form.BotStationForm;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.service.delegate.BotInvokerServiceDelegate;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * @author petrmikheev
- * @jsp.tag name = "botStationStatusTag" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botStationStatusTag")
 public class BotStationStatusTag extends TitledFormTag {
     private static final long serialVersionUID = 1920713038009470026L;
 
     private Long botStationId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setBotStationId(Long botStationId) {
         this.botStationId = botStationId;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getBotStationId() {
         return botStationId;
     }
@@ -57,13 +54,12 @@ public class BotStationStatusTag extends TitledFormTag {
         tdFormElement.addElement(hiddenBotStationID);
         Table table = new Table();
         TR tr = new TR();
-        tr.addElement(new TD(stationOn ? Messages.getMessage(Messages.MESSAGE_BOTSTATION_ON, pageContext) : Messages.getMessage(
-                Messages.MESSAGE_BOTSTATION_OFF, pageContext)));
+        tr.addElement(new TD((stationOn ? MessagesBot.MESSAGE_BOTSTATION_ON : MessagesBot.MESSAGE_BOTSTATION_OFF).message(pageContext)));
         table.addElement(tr);
         if (stationOn) {
             tr = new TR();
-            tr.addElement(new TD(periodicInvocationOn ? Messages.getMessage(Messages.MESSAGE_PERIODIC_BOTS_INVOCATION_ON, pageContext) : Messages
-                    .getMessage(Messages.MESSAGE_PERIODIC_BOTS_INVOCATION_OFF, pageContext)));
+            tr.addElement(new TD((periodicInvocationOn ? MessagesBot.MESSAGE_PERIODIC_BOTS_INVOCATION_ON
+                    : MessagesBot.MESSAGE_PERIODIC_BOTS_INVOCATION_OFF).message(pageContext)));
             table.addElement(tr);
         }
         tdFormElement.addElement(table);
@@ -71,15 +67,15 @@ public class BotStationStatusTag extends TitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_BOT_STATION_STATUS, pageContext);
+        return MessagesBot.TITLE_BOT_STATION_STATUS.message(pageContext);
     }
 
     @Override
     protected String getFormButtonName() {
         if (periodicInvocationOn) {
-            return Messages.getMessage(Messages.BUTTON_STOP_PERIODIC_BOTS_INVOCATION, pageContext);
+            return MessagesBot.BUTTON_STOP_PERIODIC_BOTS_INVOCATION.message(pageContext);
         } else {
-            return Messages.getMessage(Messages.BUTTON_START_PERIODIC_BOTS_INVOCATION, pageContext);
+            return MessagesBot.BUTTON_START_PERIODIC_BOTS_INVOCATION.message(pageContext);
         }
     }
 

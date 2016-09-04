@@ -34,7 +34,7 @@ public class AssignmentHistory {
     /**
      * Date of assignment.
      */
-    private Date assingnDate;
+    private Date assignDate;
     /**
      * Previous assignment executor.
      */
@@ -48,8 +48,8 @@ public class AssignmentHistory {
         super();
     }
 
-    public AssignmentHistory(long objectId, Date assingnDate, String oldExecutorName, String newExecutorName) {
-        this.assingnDate = assingnDate;
+    public AssignmentHistory(long objectId, Date assignDate, String oldExecutorName, String newExecutorName) {
+        this.assignDate = assignDate;
         this.oldExecutorName = oldExecutorName;
         this.newExecutorName = newExecutorName;
     }
@@ -68,15 +68,15 @@ public class AssignmentHistory {
 
     @Column(name = "ASSIGNMENT_DATE", nullable = false)
     @Index(name = "IX_AGGLOG_ASSIGN_DATE")
-    public Date getAssingnDate() {
-        return assingnDate;
+    public Date getAssignDate() {
+        return assignDate;
     }
 
-    public void setAssingnDate(Date assingnDate) {
-        this.assingnDate = assingnDate;
+    public void setAssignDate(Date assignDate) {
+        this.assignDate = assignDate;
     }
 
-    @Column(name = "OLD_EXECUTOR_NAME")
+    @Column(name = "OLD_EXECUTOR_NAME", length = 1024)
     public String getOldExecutorName() {
         return oldExecutorName;
     }
@@ -85,7 +85,7 @@ public class AssignmentHistory {
         this.oldExecutorName = oldExecutorName;
     }
 
-    @Column(name = "NEW_EXECUTOR_NAME")
+    @Column(name = "NEW_EXECUTOR_NAME", length = 1024)
     @Index(name = "IX_AGGLOG_ASSIGN_EXECUTOR")
     public String getNewExecutorName() {
         return newExecutorName;

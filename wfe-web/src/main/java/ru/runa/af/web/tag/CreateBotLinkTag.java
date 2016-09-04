@@ -17,16 +17,15 @@
  */
 package ru.runa.af.web.tag;
 
-import ru.runa.common.web.Messages;
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.tag.LinkTag;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * @author petrmikheev
- * @jsp.tag name = "createBotLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "createBotLink")
 public class CreateBotLinkTag extends LinkTag {
     private static final long serialVersionUID = 1L;
 
@@ -37,6 +36,6 @@ public class CreateBotLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.BUTTON_ADD_BOT, pageContext);
+        return MessagesBot.BUTTON_ADD_BOT.message(pageContext);
     }
 }

@@ -17,17 +17,15 @@
  */
 package ru.runa.af.web.tag;
 
-import ru.runa.common.web.Messages;
+import org.tldgen.annotations.BodyContent;
+
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.IdLinkBaseTag;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 
-/**
- * Created on 03.09.2004
- * 
- * @jsp.tag name = "grantReadPermissionOnExecutorLink" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "grantReadPermissionOnExecutorLink")
 public class GrantReadPermissionOnExecutorLinkTag extends IdLinkBaseTag {
 
     private static final long serialVersionUID = -6511718027087691517L;
@@ -40,7 +38,7 @@ public class GrantReadPermissionOnExecutorLinkTag extends IdLinkBaseTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.BUTTON_ADD, pageContext);
+        return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 
 }

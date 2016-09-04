@@ -2,6 +2,8 @@ package ru.runa.wfe.script;
 
 public class AdminScriptConstants {
 
+    public final static String NAMESPACE = "http://runa.ru/xml";
+
     public final static String EXECUTOR_ELEMENT_NAME = "executor";
     public final static String IDENTITY_ELEMENT_NAME = "identity";
     public final static String NAMED_IDENTITY_ELEMENT_NAME = "namedIdentitySet";

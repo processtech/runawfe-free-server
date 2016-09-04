@@ -17,19 +17,18 @@
  */
 package ru.runa.af.web.tag;
 
-import ru.runa.common.web.Messages;
+import org.tldgen.annotations.BodyContent;
+
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.web.tag.IdLinkBaseTag;
 
-/**
- * Created on 17.03.2006
- * 
- * @jsp.tag name = "updateExecutorLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateExecutorLink")
 public class UpdateExecutorLinkTag extends IdLinkBaseTag {
 
     private static final long serialVersionUID = 8986818529014107234L;
 
+    @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.TITLE_EXECUTOR_DETAILS, pageContext);
+        return MessagesExecutor.TITLE_EXECUTOR_DETAILS.message(pageContext);
     }
 }

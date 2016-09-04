@@ -98,8 +98,10 @@ public class AdminkitScriptsAction extends ActionBase {
             } else if ("delete".equals(action)) {
                 log.debug("Deleting script " + fileName);
                 File file = new File(IOCommons.getAdminkitScriptsDirPath() + fileName);
+                boolean deleted = false;
                 if (file.exists()) {
                     if (file.delete()) {
+                        deleted = true;
                         log.info("Deleted script " + fileName);
                     } else {
                         log.warn("Script does not deleted " + fileName);
@@ -107,7 +109,7 @@ public class AdminkitScriptsAction extends ActionBase {
                 } else {
                     log.warn("Script does not exist " + fileName);
                 }
-                if (!ajaxRequest) {
+                if (!ajaxRequest && deleted) {
                     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.delete.success"));
                 }
             } else {

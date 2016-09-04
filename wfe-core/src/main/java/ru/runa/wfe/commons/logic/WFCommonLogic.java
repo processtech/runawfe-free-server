@@ -32,6 +32,7 @@ import ru.runa.wfe.audit.dao.SystemLogDAO;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
@@ -104,11 +105,12 @@ public class WFCommonLogic extends CommonLogic {
         return processDefinitionLoader.getLatestDefinition(definitionName);
     }
 
-    protected void validateVariables(User user, ProcessDefinition processDefinition, String nodeId, Map<String, Object> variables,
-            IVariableProvider variableProvider) throws ValidationException {
+    protected void validateVariables(User user, ExecutionContext executionContext, IVariableProvider variableProvider,
+            ProcessDefinition processDefinition, String nodeId, Map<String, Object> variables) throws ValidationException {
         Interaction interaction = processDefinition.getInteractionNotNull(nodeId);
         if (interaction.getValidationData() != null) {
-            ValidatorContext context = ValidatorManager.getInstance().validate(user, variableProvider, interaction.getValidationData(), variables);
+            ValidatorContext context = ValidatorManager.getInstance().validate(user, executionContext, variableProvider,
+                    interaction.getValidationData(), variables);
             if (context.hasGlobalErrors() || context.hasFieldErrors()) {
                 throw new ValidationException(context.getFieldErrors(), context.getGlobalErrors());
             }
@@ -194,15 +196,13 @@ public class WFCommonLogic extends CommonLogic {
 
     /**
      * Loads graph presentation elements for process definition.
-     * 
+     *
      * @param user
      *            Current user.
      * @param id
-     *            Identity of process definition, which presentation elements
-     *            must be loaded.
+     *            Identity of process definition, which presentation elements must be loaded.
      * @param visitor
-     *            Operation, which must be applied to loaded graph elements, or
-     *            null, if nothing to apply.
+     *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.
      * @return List of graph presentation elements.
      */
     public List<NodeGraphElement> getDefinitionGraphElements(User user, ProcessDefinition definition, NodeGraphElementVisitor visitor) {

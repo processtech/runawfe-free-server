@@ -17,18 +17,16 @@
  */
 package ru.runa.wf.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.WebResources;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.LinkTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * 
- * 
- * @jsp.tag name = "deployDefinitionLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployDefinitionLink")
 public class DeployDefinitionLinkTag extends LinkTag {
 
     private static final long serialVersionUID = 984615575450934781L;
@@ -41,7 +39,7 @@ public class DeployDefinitionLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.BUTTON_DEPLOY_DEFINITION, pageContext);
+        return MessagesProcesses.BUTTON_DEPLOY_DEFINITION.message(pageContext);
     }
 
 }

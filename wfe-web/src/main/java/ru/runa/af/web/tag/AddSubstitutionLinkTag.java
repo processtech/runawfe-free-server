@@ -17,28 +17,25 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.IdLinkBaseTag;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.ActorPermission;
 
-/**
- * Created on 01.02.2006
- * 
- * @jsp.tag name = "addSubstitutionLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "addSubstitutionLink")
 public class AddSubstitutionLinkTag extends IdLinkBaseTag {
     private static final long serialVersionUID = 1L;
     private String text;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
     public String getText() {
         return text;
     }
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setText(String text) {
         this.text = text;
     }

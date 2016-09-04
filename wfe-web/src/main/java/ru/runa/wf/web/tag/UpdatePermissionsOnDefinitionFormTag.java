@@ -21,8 +21,9 @@ import java.util.List;
 
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.BodyContent;
 
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.wf.web.action.UpdatePermissionsOnProcessDefinitionAction;
 import ru.runa.wfe.definition.DefinitionPermission;
@@ -32,11 +33,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.SystemExecutors;
 
-/**
- * Created on 24.08.2004
- * 
- * @jsp.tag name = "updatePermissionsOnDefinitionForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updatePermissionsOnDefinitionForm")
 public class UpdatePermissionsOnDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     private static final long serialVersionUID = -3924515617058954059L;
@@ -65,12 +62,12 @@ public class UpdatePermissionsOnDefinitionFormTag extends ProcessDefinitionBaseF
 
     @Override
     public String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PERMISSION_OWNERS, pageContext);
+        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
     }
 
     @Override

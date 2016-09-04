@@ -35,8 +35,8 @@ import ru.runa.wfe.lang.ReceiveMessageNode;
 import ru.runa.wfe.lang.ScriptNode;
 import ru.runa.wfe.lang.SendMessageNode;
 import ru.runa.wfe.lang.StartNode;
-import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
@@ -66,7 +66,6 @@ public class JpdlXmlReader {
     private LocalizationDAO localizationDAO;
 
     private final Document document;
-    // TODO move to Spring (or GPD process setting)
     private final boolean waitStateCompatibility = true;
 
     private static final String INVALID_ATTR = "invalid";
@@ -104,6 +103,7 @@ public class JpdlXmlReader {
     private static final String EMBEDDED = "embedded";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String CREATION_MODE = "creationMode";
+    private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -130,8 +130,6 @@ public class JpdlXmlReader {
 
     public ProcessDefinition readProcessDefinition(ProcessDefinition processDefinition) {
         try {
-            // TODO document = XmlUtils.parseWithXSDValidation(definitionXml,
-            // ClassLoaderUtil.getResourceAsStream("jpdl-4.0.xsd", getClass()));
             Element root = document.getRootElement();
 
             // read the process name
@@ -144,6 +142,10 @@ public class JpdlXmlReader {
             String accessTypeString = root.attributeValue(ACCESS_TYPE);
             if (!Strings.isNullOrEmpty(accessTypeString)) {
                 processDefinition.setAccessType(ProcessDefinitionAccessType.valueOf(accessTypeString));
+            }
+            String nodeAsyncExecutionString = root.attributeValue(NODE_ASYNC_EXECUTION);
+            if (!Strings.isNullOrEmpty(nodeAsyncExecutionString)) {
+                processDefinition.setNodeAsyncExecution("new".equals(nodeAsyncExecutionString));
             }
 
             // 1: read most content
@@ -287,6 +289,10 @@ public class JpdlXmlReader {
         node.setNodeId(element.attributeValue(ID_ATTR));
         node.setName(element.attributeValue(NAME_ATTR));
         node.setDescription(element.elementTextTrim(DESCRIPTION_NODE));
+        String nodeAsyncExecutionString = element.attributeValue(NODE_ASYNC_EXECUTION);
+        if (!Strings.isNullOrEmpty(nodeAsyncExecutionString)) {
+            node.setAsyncExecution("new".equals(nodeAsyncExecutionString));
+        }
         processDefinition.addNode(node);
         readEvents(processDefinition, element, node);
         // save the transitions and parse them at the end
@@ -477,9 +483,8 @@ public class JpdlXmlReader {
 
     /**
      * creates the transition object and configures it by the read attributes
-     *
-     * @return the created <code>ru.runa.wfe.lang.Transition</code> object
-     *         (useful, if you want to override this method to read additional
+     * 
+     * @return the created <code>ru.runa.wfe.lang.Transition</code> object (useful, if you want to override this method to read additional
      *         configuration properties)
      */
     private void resolveTransitionDestination(ProcessDefinition processDefinition, Element element, Node node) {
@@ -487,6 +492,7 @@ public class JpdlXmlReader {
         transition.setProcessDefinition(processDefinition);
         node.addLeavingTransition(transition);
         transition.setName(element.attributeValue(NAME_ATTR));
+        transition.setNodeId(node.getNodeId() + "/" + transition.getName());
         for (CreateTimerAction createTimerAction : node.getTimerActions(false)) {
             if (Objects.equal(createTimerAction.getTransitionName(), transition.getName())) {
                 transition.setTimerTransition(true);

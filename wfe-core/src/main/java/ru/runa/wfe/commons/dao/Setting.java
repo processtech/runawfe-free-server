@@ -58,7 +58,7 @@ class Setting {
         this.id = id;
     }
 
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "NAME", nullable = false, length = 1024)
     public String getName() {
         return name;
     }
@@ -67,7 +67,7 @@ class Setting {
         this.name = name;
     }
 
-    @Column(name = "FILE_NAME", nullable = false)
+    @Column(name = "FILE_NAME", nullable = false, length = 1024)
     public String getFileName() {
         return fileName;
     }
@@ -76,7 +76,7 @@ class Setting {
         this.fileName = fileName;
     }
 
-    @Column(name = "VALUE")
+    @Column(name = "VALUE", length = 1024)
     public String getValue() {
         return value;
     }

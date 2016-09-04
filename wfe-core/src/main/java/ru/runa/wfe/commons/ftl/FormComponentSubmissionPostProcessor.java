@@ -18,7 +18,7 @@
 package ru.runa.wfe.commons.ftl;
 
 /**
- * Interface allowed freemarker tags make transforms of user input values in task form.
+ * Interface allows form components have custom transformation of user input.
  *
  * @author dofs
  */

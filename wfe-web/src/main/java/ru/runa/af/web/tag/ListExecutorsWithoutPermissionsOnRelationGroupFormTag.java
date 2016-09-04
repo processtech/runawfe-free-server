@@ -17,10 +17,13 @@
  */
 package ru.runa.af.web.tag;
 
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.af.web.action.GrantPermissionsOnRelationGroupAction;
 import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.security.Identifiable;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsOnRelationGroupForm")
 public class ListExecutorsWithoutPermissionsOnRelationGroupFormTag extends ListExecutorsWithoutPermissionsBase {
     private static final long serialVersionUID = 1L;
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
@@ -14,6 +15,7 @@ import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.TRRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -33,8 +35,8 @@ import com.google.common.collect.Lists;
  * Display tasks history for process.
  * 
  * @author riven 18.08.2012
- * @jsp.tag name = "showTasksHistory" body-content = "JSP"
  */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showTasksHistory")
 public class ShowTasksHistoryTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = 1L;
 
@@ -111,16 +113,13 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
         @Override
         public TR build() {
             TR tr = new TR();
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_TASK_HISTORY_TABLE_TASK_NAME, pageContext))
+            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_TASK_NAME.message(pageContext))
                     .setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_TASK_HISTORY_TABLE_EXECUTOR, pageContext))
+            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_EXECUTOR.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_START_DATE.message(pageContext))
                     .setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_TASK_HISTORY_TABLE_START_DATE, pageContext))
-                    .setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_TASK_HISTORY_TABLE_END_DATE, pageContext))
-                    .setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_TASK_HISTORY_TABLE_DURATION, pageContext))
-                    .setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_END_DATE.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_DURATION.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             return tr;
         }
     }
@@ -132,7 +131,7 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.LABEL_TASK_HISTORY_TABLE_NAME, pageContext);
+        return MessagesProcesses.LABEL_TASK_HISTORY_TABLE_NAME.message(pageContext);
     }
 
     @Override

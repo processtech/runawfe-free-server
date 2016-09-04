@@ -1,14 +1,14 @@
 package ru.runa.wf.web.tag;
 
-import ru.runa.common.web.Messages;
+import org.tldgen.annotations.BodyContent;
+
 import ru.runa.common.web.tag.LinkTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * @jsp.tag name = "showDefinitionsHistoryLink" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "showDefinitionsHistoryLink")
 public class ShowDefinitionsHistoryLinkTag extends LinkTag {
 
     private static final long serialVersionUID = -1626836525120255263L;
@@ -20,6 +20,6 @@ public class ShowDefinitionsHistoryLinkTag extends LinkTag {
 
     @Override
     protected String getLinkText() {
-        return Messages.getMessage(Messages.TITLE_DEFINITIONS_HISTORY, pageContext);
+        return MessagesProcesses.TITLE_DEFINITIONS_HISTORY.message(pageContext);
     }
 }

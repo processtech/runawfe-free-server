@@ -29,6 +29,9 @@ public class FormatCommons {
         if (userType != null) {
             return new UserTypeFormat(userType);
         }
+        if (className == null) {
+            className = "ru.runa.wfe.var.format.StringFormat";
+        }
         VariableFormat format = ClassLoaderUtil.instantiate(className);
         if (format instanceof VariableFormatContainer) {
             // see

@@ -156,7 +156,7 @@ public abstract class DBPatch {
     }
 
     protected final String getDDLRemoveTable(String tableName) {
-        return "DROP TABLE " + tableName; // TODO IF EXISTS
+        return "DROP TABLE " + tableName;
     }
 
     protected final String getDDLCreateIndex(String tableName, String indexName, String... columnNames) {
@@ -279,6 +279,30 @@ public abstract class DBPatch {
         return query;
     }
 
+    protected final String getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName, boolean nullable) {
+        String query;
+        switch (dbType) {
+        case ORACLE:
+            query = "ALTER TABLE " + tableName + " MODIFY(" + columnName + " " + (nullable == true ? "NULL" : "NOT NULL") + ")";
+            break;
+        case POSTGRESQL:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + (nullable == true ? "DROP" : "SET") + " NOT NULL";
+            break;
+        case H2:
+        case HSQL:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " SET " + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        case MYSQL:
+            query = "ALTER TABLE " + tableName + " MODIFY " + columnName + " " + currentSqlTypeName + " " + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        default:
+            query = "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " " + currentSqlTypeName + " "
+                    + (nullable == true ? "NULL" : "NOT NULL");
+            break;
+        }
+        return query;
+    }
+
     protected final String getDDLRemoveColumn(String tableName, String columnName) {
         return "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
     }
@@ -342,4 +366,5 @@ public abstract class DBPatch {
             return this;
         }
     }
+
 }

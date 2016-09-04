@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web;
@@ -43,8 +43,6 @@ public class Resources {
     public static final String CLASS_EMPTY20_TABLE_TD = "empty20";
     public static final String CLASS_ERROR = "error";
     public static final String CLASS_VIEW_SETUP_TABLE = "view-setup";
-    public static final String CLASS_VIEW_SETUP_TH = "view-setup";
-    public static final String CLASS_VIEW_SETUP_TD = "view-setup";
     public static final String CLASS_BUTTON = "button";
     public static final String CLASS_HIDEABLEBLOCK = "hideableblock";
     public static final String CLASS_PAGING_TABLE = "paging";
@@ -65,5 +63,7 @@ public class Resources {
     public static final String IMAGE_ATTACH = "/images/attach.png";
     public static final String IMAGE_DELETE = "/images/delete.png";
     public static final String IMAGE_LOADING = "/images/loading.gif";
+    public static final String CLASS_SUSPENDED = "suspended";
+    public static final String EXCEL_ICON = "/images/excel-icon.png";
 
 }

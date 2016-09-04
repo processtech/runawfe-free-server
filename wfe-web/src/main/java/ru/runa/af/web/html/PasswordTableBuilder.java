@@ -24,7 +24,7 @@ import org.apache.ecs.html.Table;
 
 import ru.runa.af.web.form.UpdatePasswordForm;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 
 public class PasswordTableBuilder {
     private final boolean enabled;
@@ -38,10 +38,10 @@ public class PasswordTableBuilder {
     public Table build() {
         Table table = new Table();
         table.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE);
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_PASSWORD, pageContext), UpdatePasswordForm.PASSWORD_INPUT_NAME,
-                "", enabled, true, Input.PASSWORD));
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_PASSWORD_CONFIRM, pageContext),
-                UpdatePasswordForm.PASSWORD_CONFIRM_INPUT_NAME, "", enabled, true, Input.PASSWORD));
+        Input passwordInput = HTMLUtils.createInput(Input.PASSWORD, UpdatePasswordForm.PASSWORD_INPUT_NAME, "", enabled, true);
+        table.addElement(HTMLUtils.createRow(MessagesCommon.PASSWORD.message(pageContext), passwordInput));
+        Input passwordConfirmInput = HTMLUtils.createInput(Input.PASSWORD, UpdatePasswordForm.PASSWORD_CONFIRM_INPUT_NAME, "", enabled, true);
+        table.addElement(HTMLUtils.createRow(MessagesCommon.PASSWORD_CONFIRM.message(pageContext), passwordConfirmInput));
         return table;
     }
 }

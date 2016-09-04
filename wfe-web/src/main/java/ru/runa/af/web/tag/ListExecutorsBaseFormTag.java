@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.af.web.tag;
@@ -20,8 +20,9 @@ package ru.runa.af.web.tag;
 import java.util.List;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.Attribute;
 
-import ru.runa.af.web.BatchExecutorPermissionHelper;
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.form.IdForm;
@@ -40,7 +41,7 @@ import ru.runa.wfe.user.Executor;
 
 /**
  * Created on 06.09.2004
- * 
+ *
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
  */
@@ -50,14 +51,12 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
 
     @Override
     protected boolean isFormButtonEnabled() {
-        return buttonEnabled && (super.isFormButtonEnabled());
+        return buttonEnabled && super.isFormButtonEnabled();
     }
 
     private String batchPresentationId;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
+    @Attribute(required = true, rtexprvalue = true)
     @Override
     public void setBatchPresentationId(String batchPresentationId) {
         this.batchPresentationId = batchPresentationId;
@@ -78,14 +77,15 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
         int executorsCount = getExecutorsCount();
         List<? extends Executor> executors = getExecutors();
         if (super.isFormButtonEnabled()) {
-            buttonEnabled = BatchExecutorPermissionHelper.isAllowedForAnyone(getUser(), executors, getBatchPresentation(), getExecutorsPermission());
+            buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, getBatchPresentation(),
+                    getExecutorsPermission());
         }
         BatchPresentation batchPresentation = getBatchPresentation();
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder[] builders = getBuilders(new TDBuilder[] { new IdentifiableCheckboxTDBuilder(getExecutorsPermission()) }, batchPresentation,
-                new TDBuilder[] {});
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new IdentifiableCheckboxTDBuilder(getExecutorsPermission()) },
+                batchPresentation, null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, returnAction, pageContext);
@@ -95,15 +95,14 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
 
     /**
      * Load executors to show.
-     * 
+     *
      * @return Array of executors to show in tag.
      */
     protected abstract List<? extends Executor> getExecutors();
 
     /**
-     * Load count of all executors may be shown in tag. Used to setup pages
-     * before and after executor list.
-     * 
+     * Load count of all executors may be shown in tag. Used to setup pages before and after executor list.
+     *
      * @return Executors count.
      */
     protected abstract int getExecutorsCount();
@@ -117,9 +116,7 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
         return returnAction;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     @Override
     public void setReturnAction(String returnAction) {
         this.returnAction = returnAction;

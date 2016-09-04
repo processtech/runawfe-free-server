@@ -4,7 +4,6 @@ import ru.runa.wfe.var.file.IFileVariable;
 
 import com.google.common.base.Objects;
 
-// TODO s:
 /*
  * Options not implemented: acceptFileTypes, maxFileSize
  *
@@ -22,8 +21,7 @@ public class UploadedFile {
     private IFileVariable fileVariable;
 
     /**
-     * Bug fix #1095(http://sourceforge.net/p/runawfe/bugs/1095/)
-     * Indicates that the user has uploaded a file to the server
+     * Bug fix #1095(http://sourceforge.net/p/runawfe/bugs/1095/) Indicates that the user has uploaded a file to the server
      */
     private boolean flagFor1095;
 

@@ -33,9 +33,9 @@ import ru.runa.af.web.form.BotForm;
 import ru.runa.af.web.tag.ActorSelect;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdsForm;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.user.User;
@@ -76,7 +76,7 @@ public class BotTableBuilder {
         TR tr = new TR();
         tr.setClass(Resources.CLASS_LIST_TABLE_TH);
         tr.addElement(new TH("").setWidth("20").setClass(Resources.CLASS_LIST_TABLE_TD));
-        tr.addElement(new TH(Messages.getMessage(Messages.LABEL_BOT_NAME, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TH(MessagesBot.LABEL_BOT_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
     }
 
@@ -84,10 +84,10 @@ public class BotTableBuilder {
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
         ActorSelect actorSelect = new ActorSelect(user, BotForm.USER_NAME, bot != null ? bot.getUsername() : "", true);
-        table.addElement(HTMLUtils.createSelectRow(Messages.getMessage(Messages.LABEL_BOT_NAME, pageContext), actorSelect, true));
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_BOT_PASSWORD, pageContext), BotForm.PASSWORD,
-                bot != null ? bot.getPassword() : "", true, false, Input.PASSWORD));
-        table.addElement(HTMLUtils.createCheckboxRow(Messages.getMessage(Messages.LABEL_BOT_SEQUENTIAL, pageContext), BotForm.IS_SEQUENTIAL,
+        table.addElement(HTMLUtils.createSelectRow(MessagesBot.LABEL_BOT_NAME.message(pageContext), actorSelect, true));
+        Input passwordInput = HTMLUtils.createInput(Input.PASSWORD, BotForm.PASSWORD, bot != null ? bot.getPassword() : "");
+        table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_PASSWORD.message(pageContext), passwordInput));
+        table.addElement(HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL,
                 bot != null ? bot.isSequentialExecution() : false, true, false));
         return table;
     }

@@ -13,7 +13,7 @@ public class Conjunction extends Node {
     }
 
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
         log.debug("Executing " + this);
         leave(executionContext);
     }

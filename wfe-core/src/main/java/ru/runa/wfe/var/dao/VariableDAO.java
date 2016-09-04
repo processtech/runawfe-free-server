@@ -3,6 +3,8 @@ package ru.runa.wfe.var.dao;
 import java.util.List;
 import java.util.Map;
 
+import ru.runa.wfe.commons.SQLCommons;
+import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
@@ -26,6 +28,12 @@ public class VariableDAO extends GenericDAO<Variable> {
 
     public Variable<?> get(Process process, String name) {
         return findFirstOrNull("from Variable where process=? and name=?", process, name);
+    }
+
+    public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
+        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(variableNamePattern);
+        String query = "from Variable where name " + expression.getComparisonOperator() + " ? and stringValue = ?";
+        return getHibernateTemplate().find(query, expression.getValue(), stringValue);
     }
 
     /**
@@ -97,10 +105,8 @@ public class VariableDAO extends GenericDAO<Variable> {
             List<Object> list = (List<Object>) value;
             for (int i = 0; i < list.size(); i++) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
-                    list.set(
-                            i,
-                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0],
-                                    list.get(i)));
+                    list.set(i,
+                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], list.get(i)));
                 }
             }
         }
@@ -131,8 +137,10 @@ public class VariableDAO extends GenericDAO<Variable> {
             }
             return null;
         }
-        String componentFormat = variableDefinition.getFormatComponentClassNames()[0];
-        UserType componentUserType = variableDefinition.getFormatComponentUserTypes()[0];
+        String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
+        String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
+        UserType[] formatComponentUserTypes = variableDefinition.getFormatComponentUserTypes();
+        UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
         for (int i = 0; i < size; i++) {
             String componentName = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
                     + VariableFormatContainer.COMPONENT_QUALIFIER_END;
@@ -154,10 +162,12 @@ public class VariableDAO extends GenericDAO<Variable> {
                         variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END)));
                 VariableDefinition listVariableDefinition = processDefinition.getVariable(listVariableName, false);
                 List<Object> list = (List<Object>) getVariableValue(processDefinition, process, listVariableDefinition);
-                if (list != null && list.size() > listIndex) {
-                    variableValue = list.get(listIndex);
-                } else {
-                    log.warn("Strange list when requesting " + process + ":" + variableName + ": " + list);
+                if (list != null) {
+                    if (list.size() > listIndex) {
+                        variableValue = list.get(listIndex);
+                    } else {
+                        log.warn("Strange list when requesting " + process + ":" + variableName + ": " + list);
+                    }
                 }
             }
             return new WfVariable(variableDefinition, variableValue);

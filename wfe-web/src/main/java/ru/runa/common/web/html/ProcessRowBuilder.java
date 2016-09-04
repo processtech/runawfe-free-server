@@ -18,6 +18,7 @@ import org.apache.ecs.html.TR;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.GroupState;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ExpandCollapseGroupAction;
 import ru.runa.common.web.form.GroupForm;
@@ -62,8 +63,8 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
         FieldDescriptor[] fieldsToDisplayNames = batchPresentation.getAllFields();
         List<TR> result = new ArrayList<TR>();
         Object item = items.get(currentState.getItemIndex());
-        List<WfProcess> subrocesses = Delegates.getExecutionService().getSubprocesses(
-                Commons.getUser(pageContext.getSession()), ((WfProcess) item).getId(), true);
+        List<WfProcess> subrocesses = Delegates.getExecutionService().getSubprocesses(Commons.getUser(pageContext.getSession()),
+                ((WfProcess) item).getId(), true);
         if (currentState.isGroupHeader()
                 && fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()].displayName.startsWith(ClassPresentation.filterable_prefix)) {
             result.add(buildGroupHeader(subrocesses));
@@ -159,7 +160,7 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
                             } else {
                                 message = Messages.getMessage(displayName, pageContext);
                             }
-                            message += " " + Messages.getMessage("label.is.missed", pageContext);
+                            message += " " + MessagesOther.LABEL_IS_MISSED.message(pageContext);
                             td = new TD();
                             td.addElement(new A(href, message));
                             td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
@@ -178,8 +179,8 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
         if (allProcesses == null) {
             allProcesses = new ArrayList<WfProcess>();
             for (Object item : items) {
-                List<WfProcess> listSubProcessInstance = Delegates.getExecutionService().getSubprocesses(
-                        Commons.getUser(pageContext.getSession()), ((WfProcess) item).getId(), true);
+                List<WfProcess> listSubProcessInstance = Delegates.getExecutionService().getSubprocesses(Commons.getUser(pageContext.getSession()),
+                        ((WfProcess) item).getId(), true);
                 allProcesses.add((WfProcess) item);
                 allProcesses.addAll(listSubProcessInstance);
             }

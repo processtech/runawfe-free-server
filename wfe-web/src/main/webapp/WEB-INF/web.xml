@@ -213,7 +213,7 @@
 	</error-page>
 
 	<error-page>
-		<exception-type>ru.runa.wfe.definition.ProcessDefinitionDoesNotExistException</exception-type>
+		<exception-type>ru.runa.wfe.definition.DefinitionDoesNotExistException</exception-type>
 		<location>/manage_process_definitions.do</location>
 	</error-page>
 

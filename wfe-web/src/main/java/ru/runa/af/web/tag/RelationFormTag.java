@@ -20,12 +20,16 @@ package ru.runa.af.web.tag;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.CreateRelationAction;
 import ru.runa.af.web.action.UpdateRelationAction;
 import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wfe.relation.Relation;
@@ -33,6 +37,7 @@ import ru.runa.wfe.relation.RelationPermission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "relationForm")
 public class RelationFormTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
     private Long relationId;
@@ -42,6 +47,7 @@ public class RelationFormTag extends TitledFormTag {
         return relationId;
     }
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setRelationId(Long relationId) {
         this.relationId = relationId;
     }
@@ -53,12 +59,12 @@ public class RelationFormTag extends TitledFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(relationId != null ? Messages.BUTTON_SAVE : Messages.BUTTON_CREATE, pageContext);
+        return (relationId != null ? MessagesCommon.BUTTON_SAVE : MessagesCommon.BUTTON_CREATE).message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_RELATION_DETAILS, pageContext);
+        return MessagesExecutor.TITLE_RELATION_DETAILS.message(pageContext);
     }
 
     @Override
@@ -82,11 +88,11 @@ public class RelationFormTag extends TitledFormTag {
             tdFormElement.addElement(hiddenRelationID);
         }
         String name = relation != null ? relation.getName() : "";
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_RELATION_NAME, pageContext), RelationForm.RELATION_NAME, name,
-                enabled, true));
-        String description = relation != null && relation.getDescription() != null ? relation.getDescription() : "";
-        table.addElement(HTMLUtils.createInputRow(Messages.getMessage(Messages.LABEL_RELATION_DESCRIPTION, pageContext),
-                RelationForm.RELATION_DESCRIPTION, description, true, false));
+        Input nameInput = HTMLUtils.createInput(RelationForm.RELATION_NAME, name, enabled, true);
+        table.addElement(HTMLUtils.createRow(MessagesExecutor.LABEL_RELATION_NAME.message(pageContext), nameInput));
+        String description = relation != null ? relation.getDescription() : "";
+        Input descriptionInput = HTMLUtils.createInput(RelationForm.RELATION_DESCRIPTION, description);
+        table.addElement(HTMLUtils.createRow(MessagesExecutor.LABEL_RELATION_DESCRIPTION.message(pageContext), descriptionInput));
         tdFormElement.addElement(table);
     }
 }

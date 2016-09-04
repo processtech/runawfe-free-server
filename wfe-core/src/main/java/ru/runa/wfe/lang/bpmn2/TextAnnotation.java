@@ -13,7 +13,7 @@ public class TextAnnotation extends Node {
     }
 
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
         throw new UnsupportedOperationException();
     }
 

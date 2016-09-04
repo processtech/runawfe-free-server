@@ -29,6 +29,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -100,6 +102,7 @@ public class Process extends IdentifiableBase {
     private Deployment deployment;
     private Set<Swimlane> swimlanes;
     private Set<Task> tasks;
+    private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Process() {
     }
@@ -149,7 +152,7 @@ public class Process extends IdentifiableBase {
         this.version = version;
     }
 
-    @Column(name = "TREE_PATH")
+    @Column(name = "TREE_PATH", length = 1024)
     public String getHierarchyIds() {
         return hierarchyIds;
     }
@@ -174,6 +177,16 @@ public class Process extends IdentifiableBase {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
     }
 
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
@@ -297,6 +310,7 @@ public class Process extends IdentifiableBase {
         rootToken.end(executionContext, canceller);
         // mark this process as ended
         setEndDate(new Date());
+        setExecutionStatus(ExecutionStatus.ENDED);
         // check if this process was started as a subprocess of a super
         // process
         NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();

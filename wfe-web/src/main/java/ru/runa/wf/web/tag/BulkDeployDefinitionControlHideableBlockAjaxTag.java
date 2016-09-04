@@ -8,34 +8,32 @@ import javax.servlet.jsp.JspWriter;
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
-import org.apache.ecs.html.Script;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.BatchPresentationsVisibility;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.HideableBlockAction;
 import ru.runa.common.web.tag.AbstractReturningTag;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
-/**
- * Created 23.05.2014
- * 
- * @jsp.tag name = "bulkDeployDefinitionControlHideableBlock" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "bulkDeployDefinitionControlHideableBlock")
 public class BulkDeployDefinitionControlHideableBlockAjaxTag extends AbstractReturningTag {
     private static final long serialVersionUID = -4644961109658379700L;
 
     private String hideableBlockId;
 
+    @Attribute(required = true, rtexprvalue = true)
     public void setHideableBlockId(String id) {
         hideableBlockId = id;
     }
@@ -45,11 +43,11 @@ public class BulkDeployDefinitionControlHideableBlockAjaxTag extends AbstractRet
     }
 
     public String getHideTitle() {
-        return Messages.getMessage(Messages.LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS, pageContext);
+        return MessagesProcesses.LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS.message(pageContext);
     }
 
     public String getShowTitle() {
-        return Messages.getMessage(Messages.LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS, pageContext);
+        return MessagesProcesses.LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS.message(pageContext);
     }
 
     @Override
@@ -117,12 +115,13 @@ public class BulkDeployDefinitionControlHideableBlockAjaxTag extends AbstractRet
     }
 
     /**
-     * Check when bulk deployment is enabled and user has right's to deploy process definitions 
+     * Check when bulk deployment is enabled and user has right's to deploy process definitions
+     * 
      * @return true, if element must be displayed and false otherwise.
      */
-	private boolean isBulkDeployEnabled() {
-		User user = Commons.getUser(pageContext.getSession());
-		boolean isDeployAllowed = Delegates.getAuthorizationService().isAllowed(user, WorkflowSystemPermission.DEPLOY_DEFINITION, ASystem.INSTANCE);
-		return WebResources.isBulkDeploymentElements() && isDeployAllowed;
-	}
+    private boolean isBulkDeployEnabled() {
+        User user = Commons.getUser(pageContext.getSession());
+        boolean isDeployAllowed = Delegates.getAuthorizationService().isAllowed(user, WorkflowSystemPermission.DEPLOY_DEFINITION, ASystem.INSTANCE);
+        return WebResources.isBulkDeploymentElements() && isDeployAllowed;
+    }
 }

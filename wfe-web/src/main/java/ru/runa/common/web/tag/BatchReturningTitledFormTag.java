@@ -17,6 +17,8 @@
  */
 package ru.runa.common.web.tag;
 
+import org.tldgen.annotations.Attribute;
+
 import ru.runa.wfe.presentation.BatchPresentation;
 
 public abstract class BatchReturningTitledFormTag extends TitledFormTag implements BatchedTag, ReturningTag {
@@ -24,9 +26,7 @@ public abstract class BatchReturningTitledFormTag extends TitledFormTag implemen
     private static final long serialVersionUID = 1L;
     private String batchPresentationId;
 
-    /**
-     * @jsp.attribute required = "true" rtexprvalue = "true"
-     */
+    @Attribute(required = true, rtexprvalue = true)
     @Override
     public void setBatchPresentationId(String batchPresentationId) {
         this.batchPresentationId = batchPresentationId;
@@ -49,9 +49,7 @@ public abstract class BatchReturningTitledFormTag extends TitledFormTag implemen
         return returnAction;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     @Override
     public void setReturnAction(String returnAction) {
         this.returnAction = returnAction;

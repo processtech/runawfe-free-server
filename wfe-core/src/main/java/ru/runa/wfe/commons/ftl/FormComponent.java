@@ -25,10 +25,10 @@ import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 
 public abstract class FormComponent implements TemplateMethodModelEx, Serializable {
-    private static final String RICH_COMBO_VALUE_PREFIX = "value@";
-    private static final long serialVersionUID = 1L;
-    protected Log log = LogFactory.getLog(getClass());
     public static final String TARGET_PROCESS_PREFIX = "TargetProcess";
+    private static final long serialVersionUID = 1L;
+    private static final String RICH_COMBO_VALUE_PREFIX = "value@";
+    protected Log log = LogFactory.getLog(getClass());
     protected User user;
     protected IVariableProvider variableProvider;
     protected WebHelper webHelper;
@@ -69,6 +69,16 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
         }
     }
 
+    /**
+     * @return component name
+     */
+    public String getName() {
+        return getClass().getSimpleName();
+    }
+
+    /**
+     * Optionally used in {@link FormComponentSubmissionHandler}, {@link FormComponentSubmissionPostProcessor} and ajax processing.
+     */
     public String getVariableNameForSubmissionProcessing() {
         return getParameterAsString(0);
     }

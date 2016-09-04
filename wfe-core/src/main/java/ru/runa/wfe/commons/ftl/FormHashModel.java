@@ -57,10 +57,10 @@ public class FormHashModel extends SimpleHash {
             return model;
         }
         try {
-            FormComponent tag = FreemarkerConfiguration.getInstance().getComponent(key);
-            if (tag != null) {
-                tag.init(user, webHelper, variableProvider, key.startsWith(FormComponent.TARGET_PROCESS_PREFIX));
-                if (webHelper != null && webHelper.getRequest() != null && tag instanceof AjaxFormComponent) {
+            FormComponent component = FreemarkerConfiguration.getInstance().getComponent(key);
+            if (component != null) {
+                component.init(user, webHelper, variableProvider, key.startsWith(FormComponent.TARGET_PROCESS_PREFIX));
+                if (webHelper != null && webHelper.getRequest() != null && component instanceof AjaxFormComponent) {
                     HttpSession session = webHelper.getRequest().getSession();
                     String sessionKey = AjaxFormComponent.COMPONENT_SESSION_PREFIX + key;
                     List<AjaxFormComponent> tags = (List<AjaxFormComponent>) session.getAttribute(sessionKey);
@@ -68,9 +68,9 @@ public class FormHashModel extends SimpleHash {
                         tags = new ArrayList<AjaxFormComponent>();
                         session.setAttribute(sessionKey, tags);
                     }
-                    tags.add((AjaxFormComponent) tag);
+                    tags.add((AjaxFormComponent) component);
                 }
-                return tag;
+                return component;
             }
         } catch (Exception e) {
             Throwables.propagateIfInstanceOf(e, RuntimeException.class);

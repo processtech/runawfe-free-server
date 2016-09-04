@@ -64,6 +64,10 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
 
     @Override
     public Object getValue(String variableName) {
+        WfVariable variable = getVariable(variableName);
+        if (variable != null) {
+            return variable.getValue();
+        }
         return null;
     }
 

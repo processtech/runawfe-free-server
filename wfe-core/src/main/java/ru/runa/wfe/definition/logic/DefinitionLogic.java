@@ -70,7 +70,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     static final SecuredObjectType[] securedObjectTypes = new SecuredObjectType[] { SecuredObjectType.DEFINITION };
 
-    public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> processType) {
+    public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
         checkPermissionAllowed(user, ASystem.INSTANCE, WorkflowSystemPermission.DEPLOY_DEFINITION);
         ProcessDefinition definition = null;
         try {
@@ -84,7 +84,7 @@ public class DefinitionLogic extends WFCommonLogic {
         } catch (DefinitionDoesNotExistException e) {
             // expected
         }
-        definition.getDeployment().setCategories(processType);
+        definition.getDeployment().setCategories(categories);
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
         deploymentDAO.deploy(definition.getDeployment(), null);
@@ -94,12 +94,12 @@ public class DefinitionLogic extends WFCommonLogic {
         return new WfDefinition(definition, true);
     }
 
-    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> processTypes) {
+    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
         Deployment oldDeployment = deploymentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, oldDeployment, DefinitionPermission.REDEPLOY_DEFINITION);
         if (processArchiveBytes == null) {
-            Preconditions.checkNotNull(processTypes, "In mode 'update only categories' process type is required");
-            oldDeployment.setCategories(processTypes);
+            Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
+            oldDeployment.setCategories(categories);
             return getProcessDefinition(user, definitionId);
         }
         ProcessDefinition definition;
@@ -112,8 +112,8 @@ public class DefinitionLogic extends WFCommonLogic {
             throw new DefinitionNameMismatchException("Expected definition name " + oldDeployment.getName(), definition.getName(),
                     oldDeployment.getName());
         }
-        if (processTypes != null) {
-            definition.getDeployment().setCategories(processTypes);
+        if (categories != null) {
+            definition.getDeployment().setCategories(categories);
         } else {
             definition.getDeployment().setCategory(oldDeployment.getCategory());
         }
@@ -130,7 +130,6 @@ public class DefinitionLogic extends WFCommonLogic {
      * @param user
      * @param definitionId
      * @param processArchiveBytes
-     * @param processType
      * @return
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes) {

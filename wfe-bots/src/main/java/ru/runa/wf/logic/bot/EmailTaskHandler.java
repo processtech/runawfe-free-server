@@ -58,7 +58,7 @@ public class EmailTaskHandler extends TaskHandlerBase {
             map.put("task", task);
             ScriptingVariableProvider scriptingVariableProvider = new ScriptingVariableProvider(variableProvider);
             IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, scriptingVariableProvider);
-            EmailUtils.prepareTaskMessage(user, config, interaction, emailVariableProvider);
+            EmailUtils.prepareMessage(user, config, interaction, emailVariableProvider);
             EmailUtils.sendMessage(config);
         } catch (Exception e) {
             if (config.isThrowErrorOnFailure()) {

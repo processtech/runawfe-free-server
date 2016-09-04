@@ -19,12 +19,10 @@ package ru.runa.common.web.tag;
 
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
-/**
- * Created on 06.09.2004
- * 
- * @jsp.tag name = "message" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "message")
 public class MessageTag extends VisibleTag {
 
     private static final long serialVersionUID = -1765787772164997739L;
@@ -40,9 +38,7 @@ public class MessageTag extends VisibleTag {
         return message;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
+    @Attribute(required = false, rtexprvalue = true)
     public void setMessage(String message) {
         if (message == null) {
             message = "";

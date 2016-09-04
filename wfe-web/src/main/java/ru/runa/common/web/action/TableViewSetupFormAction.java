@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web.action;
@@ -31,7 +31,7 @@ import org.apache.struts.actions.LookupDispatchAction;
 
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.form.TableViewSetupForm;
 import ru.runa.common.web.html.format.FilterFormatsFactory;
@@ -47,7 +47,7 @@ import ru.runa.wfe.user.Profile;
 
 /**
  * Created on 26.01.2005
- * 
+ *
  * @struts:action path="/tableViewSetup" name="tableViewSetupForm"
  *                validate="false" parameter = "dispatch"
  */
@@ -61,10 +61,10 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
     @Override
     protected Map<String, String> getKeyMethodMap() {
         Map<String, String> map = new HashMap<String, String>();
-        map.put(Messages.BUTTON_APPLY, "apply");
-        map.put(Messages.BUTTON_SAVE, "save");
-        map.put(Messages.BUTTON_SAVE_AS, "saveAs");
-        map.put(Messages.BUTTON_REMOVE, "delete");
+        map.put(MessagesCommon.BUTTON_APPLY.getKey(), "apply");
+        map.put(MessagesCommon.BUTTON_SAVE.getKey(), "save");
+        map.put(MessagesCommon.BUTTON_SAVE_AS.getKey(), "saveAs");
+        map.put(MessagesCommon.BUTTON_REMOVE.getKey(), "delete");
         return map;
     }
 
@@ -117,13 +117,13 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
                     }
                 }
                 batchPresentation.setFilteredFields(result);
-                int[] groupFields = (arrayPos == -1) ? tableViewSetupForm.getSortPositionsIds() : ArraysCommons.remove(
+                int[] groupFields = arrayPos == -1 ? tableViewSetupForm.getSortPositionsIds() : ArraysCommons.remove(
                         tableViewSetupForm.getSortPositionsIds(), arrayPos);
-                boolean[] sortModes = (arrayPos == -1) ? tableViewSetupForm.getSortingModes() : ArraysCommons.remove(
+                boolean[] sortModes = arrayPos == -1 ? tableViewSetupForm.getSortingModes() : ArraysCommons.remove(
                         tableViewSetupForm.getSortingModes(), arrayPos);
                 batchPresentation.setFieldsToSort(groupFields, sortModes);
                 arrayPos = ArraysCommons.findPosition(tableViewSetupForm.getFieldsToGroupIds(), idx);
-                groupFields = (arrayPos == -1) ? tableViewSetupForm.getFieldsToGroupIds() : ArraysCommons.remove(
+                groupFields = arrayPos == -1 ? tableViewSetupForm.getFieldsToGroupIds() : ArraysCommons.remove(
                         tableViewSetupForm.getFieldsToGroupIds(), arrayPos);
                 batchPresentation.setFieldsToGroup(groupFields);
             }
@@ -153,13 +153,17 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
                 }
             }
         }
+        if (TableViewSetupForm.SHARED_TYPE_SHARED.equals(tableViewSetupForm.getSharedType())) {
+            batchPresentation.setShared(true);
+        } else if (TableViewSetupForm.SHARED_TYPE_NO.equals(tableViewSetupForm.getSharedType())) {
+            batchPresentation.setShared(false);
+        }
     }
 
     public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         TableViewSetupForm tableViewSetupForm = (TableViewSetupForm) form;
         try {
             Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
-            tableViewSetupForm = (TableViewSetupForm) form;
             BatchPresentation batchPresentation = profile.getActiveBatchPresentation(tableViewSetupForm.getBatchPresentationId());
             applyBatchPresentation(batchPresentation, tableViewSetupForm);
             profile = Delegates.getProfileService().saveBatchPresentation(Commons.getUser(request.getSession()), batchPresentation);

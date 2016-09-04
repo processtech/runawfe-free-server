@@ -9,6 +9,7 @@
 	<name>RunaWFE application</name>
 
 	<modules>
+		<module>../jasperreports-html-component</module>
 		<module>../wfe-core</module>
 		<module>../wfe-service</module>
 		<module>../wfe-bots</module>
@@ -25,26 +26,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.organization.name>runawfe.org</project.organization.name>
 		<spring.version>3.1.2.RELEASE</spring.version>
-	</properties>
 
-	<profiles>
-		<profile>
-			<id>jboss7</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-				<property>
-					<name>appserver</name>
-					<value>jboss7</value>
-				</property>
-			</activation>
-			<properties>
-				<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
-				<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
-				<maven.profile.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.profile.hibernate.dialect>
-				<maven.profile.user.transaction.jndi.name>java:jboss/UserTransaction</maven.profile.user.transaction.jndi.name>
-			</properties>
-		</profile>
-	</profiles>
+		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
+		<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
+		<maven.profile.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.profile.hibernate.dialect>
+		<maven.profile.user.transaction.jndi.name>java:jboss/UserTransaction</maven.profile.user.transaction.jndi.name>
+	</properties>
 
 	<dependencyManagement>
 		<dependencies>

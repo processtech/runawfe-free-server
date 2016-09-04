@@ -33,6 +33,8 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.Native2AsciiHelper;
 import ru.runa.af.web.action.BotTaskConfigurationDownloadAction;
@@ -41,13 +43,14 @@ import ru.runa.af.web.action.UpdateBotTasksAction;
 import ru.runa.af.web.form.BotTasksForm;
 import ru.runa.af.web.system.TaskHandlerClassesInformation;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdsForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.bot.BotTask;
@@ -56,21 +59,16 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * @author petrmikheev
- * @jsp.tag name = "botTaskListTag" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botTaskListTag")
 public class BotTaskListTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
     private Long botId;
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setBotId(Long botId) {
         this.botId = botId;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getBotId() {
         return botId;
     }
@@ -101,12 +99,12 @@ public class BotTaskListTag extends TitledFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_BOT_TASK_LIST, pageContext);
+        return MessagesBot.TITLE_BOT_TASK_LIST.message(pageContext);
     }
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
@@ -126,8 +124,8 @@ public class BotTaskListTag extends TitledFormTag {
         public TR build() {
             TR tr = new TR();
             tr.addElement(new TH().setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_BOT_TASK_DETAILS, context)).setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(Messages.getMessage(Messages.LABEL_BOT_TASK_SEQUENTIAL, context)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesBot.LABEL_BOT_TASK_DETAILS.message(context)).setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesBot.LABEL_BOT_TASK_SEQUENTIAL.message(context)).setClass(Resources.CLASS_LIST_TABLE_TH));
             return tr;
         }
     }
@@ -170,17 +168,17 @@ public class BotTaskListTag extends TitledFormTag {
             table.setWidth("100%");
 
             TR nameTr = new TR();
-            nameTr.addElement(new TD(Messages.getMessage(Messages.LABEL_BOT_TASK_NAME, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+            nameTr.addElement(new TD(MessagesBot.LABEL_BOT_TASK_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
             nameTr.addElement(buildNameTD(task));
             table.addElement(nameTr);
 
             TR handlerTr = new TR();
-            handlerTr.addElement(new TD(Messages.getMessage(Messages.LABEL_BOT_TASK_HANDLER, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+            handlerTr.addElement(new TD(MessagesBot.LABEL_BOT_TASK_HANDLER.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
             handlerTr.addElement(buildHandlerTD(task));
             table.addElement(handlerTr);
 
             TR configTr = new TR();
-            configTr.addElement(new TD(Messages.getMessage(Messages.LABEL_BOT_TASK_CONFIG, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+            configTr.addElement(new TD(MessagesBot.LABEL_BOT_TASK_CONFIG.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
             configTr.addElement(buildConfigurationUploadTD(task));
             table.addElement(configTr);
 
@@ -192,8 +190,7 @@ public class BotTaskListTag extends TitledFormTag {
         private TD buildNameTD(BotTask task) {
             TD resTD = new TD();
             resTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-            Input input = new Input(Input.TEXT, BotTasksForm.BOT_TASK_INPUT_NAME_PREFIX + task.getId() + BotTasksForm.NAME_INPUT_NAME,
-                    task.getName());
+            Input input = new Input(Input.TEXT, BotTasksForm.BOT_TASK_INPUT_NAME_PREFIX + task.getId() + BotTasksForm.NAME_INPUT_NAME, task.getName());
             input.setDisabled(disabled);
             input.setSize(nameSize);
             resTD.addElement(input);
@@ -221,7 +218,7 @@ public class BotTaskListTag extends TitledFormTag {
             if (!isHandlerPresent) {
                 Option option = new Option();
                 option.setSelected(true);
-                String handlerName = Messages.getMessage(Messages.LABEL_UNKNOWN_BOT_HANDLER, pageContext) + ": " + taskHandlerClazz;
+                String handlerName = MessagesBot.LABEL_UNKNOWN_BOT_HANDLER.message(pageContext) + ": " + taskHandlerClazz;
                 option.setValue(handlerName);
                 option.addElement(handlerName);
                 select.addElement(option);
@@ -263,13 +260,13 @@ public class BotTaskListTag extends TitledFormTag {
         fileUploadTD.addElement(fileUploadInput);
         if (task.getConfiguration() != null && task.getConfiguration().length > 0) {
             A link = new A(Commons.getActionUrl(BotTaskConfigurationDownloadAction.DOWNLOAD_BOT_TASK_CONFIGURATION_ACTION_PATH, "id", task.getId(),
-                    pageContext, PortletUrlType.Action), Messages.getMessage(Messages.LABEL_BOT_TASK_CONFIG_DOWNLOAD, pageContext));
+                    pageContext, PortletUrlType.Action), MessagesBot.LABEL_BOT_TASK_CONFIG_DOWNLOAD.message(pageContext));
             link.setClass(Resources.CLASS_LINK);
             fileUploadTD.addElement(link);
 
             StringBuffer str = new StringBuffer();
             str.append("&nbsp;");
-            str.append(Messages.getMessage(Messages.LABEL_BOT_TASK_CONFIG_EDIT, pageContext));
+            str.append(MessagesBot.LABEL_BOT_TASK_CONFIG_EDIT.message(pageContext));
             boolean configurationIsXml = true;
             try {
                 XmlUtils.parseWithoutValidation(task.getConfiguration());
@@ -287,12 +284,12 @@ public class BotTaskListTag extends TitledFormTag {
             jsLink.append(Commons.getActionUrl(BotTaskConfigurationDownloadAction.DOWNLOAD_BOT_TASK_CONFIGURATION_ACTION_PATH, parameterMap,
                     pageContext, PortletUrlType.Action));
             jsLink.append("','");
-            jsLink.append(Commons.getActionUrl(UpdateBotTaskConfigurationAction.UPDATE_TASK_HANDLER_CONF_ACTION_PATH, "id", task.getId(), pageContext,
-                    PortletUrlType.Action));
+            jsLink.append(Commons.getActionUrl(UpdateBotTaskConfigurationAction.UPDATE_TASK_HANDLER_CONF_ACTION_PATH, "id", task.getId(),
+                    pageContext, PortletUrlType.Action));
             jsLink.append("','");
-            jsLink.append(Messages.getMessage(Messages.BUTTON_SAVE, pageContext));
+            jsLink.append(MessagesCommon.BUTTON_SAVE.message(pageContext));
             jsLink.append("','");
-            jsLink.append(Messages.getMessage(Messages.BUTTON_CANCEL, pageContext));
+            jsLink.append(MessagesCommon.BUTTON_CANCEL.message(pageContext));
             jsLink.append("');");
 
             A editLink = new A(jsLink.toString(), str.toString());

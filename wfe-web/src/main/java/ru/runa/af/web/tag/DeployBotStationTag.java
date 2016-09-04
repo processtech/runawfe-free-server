@@ -20,21 +20,19 @@ package ru.runa.af.web.tag;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.DeployBotStationAction;
 import ru.runa.af.web.form.DeployBotForm;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-/**
- * @author petrmikheev
- * @jsp.tag name = "deployBotStation" body-content = "empty"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployBotStation")
 public class DeployBotStationTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
 
@@ -45,12 +43,12 @@ public class DeployBotStationTag extends TitledFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_DEPLOY_BOT_STATION, pageContext);
+        return MessagesBot.BUTTON_DEPLOY_BOT_STATION.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.BUTTON_DEPLOY_BOT_STATION, pageContext);
+        return MessagesBot.BUTTON_DEPLOY_BOT_STATION.message(pageContext);
     }
 
     @Override
@@ -63,7 +61,7 @@ public class DeployBotStationTag extends TitledFormTag {
         getForm().setEncType(Form.ENC_UPLOAD);
         Input boolInput = new Input(Input.CHECKBOX, DeployBotForm.REPLACE_OPTION_NAME);
         tdFormElement.addElement(boolInput);
-        tdFormElement.addElement(Messages.getMessage(Messages.LABEL_REPLACE_BOT_TASKS, pageContext) + "<br>");
+        tdFormElement.addElement(MessagesBot.LABEL_REPLACE_BOT_TASKS.message(pageContext) + "<br>");
         Input fileUploadInput = new Input(Input.FILE, FileForm.FILE_INPUT_NAME);
         fileUploadInput.setClass(Resources.CLASS_REQUIRED);
         tdFormElement.addElement(fileUploadInput);

@@ -1,5 +1,7 @@
 package ru.runa.wfe.lang;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.execution.ExecutionContext;
@@ -38,16 +40,16 @@ public abstract class BaseTaskNode extends InteractionNode implements Synchroniz
         this.asyncCompletionMode = completionMode;
     }
 
-    @Override
-    public void leave(ExecutionContext executionContext, Transition transition) {
-        if (!async) {
+    public void endTokenTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo) {
+        List<Task> tasks = executionContext.getToken().getTasks();
+        if (!tasks.isEmpty()) {
+            log.debug("Ending " + tasks.size() + " tasks of " + executionContext.getToken() + " with " + taskCompletionInfo);
             for (Task task : executionContext.getToken().getTasks()) {
                 if (Objects.equal(task.getNodeId(), getNodeId())) {
-                    task.end(executionContext, TaskCompletionInfo.createForTimer());
+                    task.end(executionContext, taskCompletionInfo);
                 }
             }
         }
-        super.leave(executionContext, transition);
     }
 
 }

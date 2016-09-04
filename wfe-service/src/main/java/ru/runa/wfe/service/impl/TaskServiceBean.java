@@ -58,7 +58,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     }
 
     @Override
-    public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
+    @WebResult(name = "result")
+    public List<WfTask> getTasks(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         Preconditions.checkArgument(user != null);
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.TASKS.createNonPaged();
@@ -99,7 +100,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     }
 
     @Override
-    public int reassignTasks(User user, BatchPresentation batchPresentation) {
+    @WebResult(name = "result")
+    public int reassignTasks(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         Preconditions.checkArgument(user != null);
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.TASKS.createNonPaged();
@@ -108,7 +110,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     }
 
     @Override
-    public void reassignTask(User user, Long taskId) {
+    @WebResult(name = "result")
+    public void reassignTask(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") Long taskId) {
         Preconditions.checkArgument(user != null);
         Preconditions.checkArgument(taskId != null);
         taskLogic.reassignTask(user, taskId);
@@ -132,9 +135,9 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
 
     @WebMethod(exclude = true)
     @Override
-    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepOwners, List<? extends Executor> newOwners) {
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners) {
         Preconditions.checkArgument(user != null);
-        taskLogic.delegateTask(user, taskId, currentOwner, newOwners);
+        taskLogic.delegateTask(user, taskId, currentOwner, keepCurrentOwners, newOwners);
     }
 
 }

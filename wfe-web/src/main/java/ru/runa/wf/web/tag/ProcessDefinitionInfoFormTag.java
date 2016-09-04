@@ -21,11 +21,14 @@ import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction;
 import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -39,11 +42,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskClassPresentation;
 
-/**
- * Created on 22.07.2005
- *
- * @jsp.tag name = "processDefinitionInfoForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processDefinitionInfoForm")
 public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
     private static final long serialVersionUID = 7118850164438509260L;
 
@@ -74,7 +73,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
             nameTD.addElement(definition.getName() + " (");
             String historyUrl = Commons.getActionUrl(ShowDefinitionHistoryAction.ACTION, "name", definition.getName(), pageContext,
                     PortletUrlType.Render);
-            nameTD.addElement(new A(historyUrl, Messages.getMessage("title.definitions_history", pageContext)));
+            nameTD.addElement(new A(historyUrl, MessagesProcesses.TITLE_DEFINITIONS_HISTORY.message(pageContext)));
             nameTD.addElement(")");
         } else {
             nameTD.addElement(definition.getName());
@@ -89,7 +88,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         versionTD.addElement(definition.getVersion() + " (");
         String downloadUrl = Commons.getActionUrl(LoadProcessDefinitionArchiveAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
                 pageContext, PortletUrlType.Render);
-        versionTD.addElement(new A(downloadUrl, Messages.getMessage("label.export", pageContext)));
+        versionTD.addElement(new A(downloadUrl, MessagesOther.LABEL_EXPORT.message(pageContext)));
         versionTD.addElement(")");
         versionTR.addElement(versionTD.setClass(Resources.CLASS_LIST_TABLE_TD));
 
@@ -99,12 +98,26 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         createdDateTR.addElement(new TD(createDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
         createdDateTR.addElement(new TD(CalendarUtil.formatDateTime(definition.getCreateDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
+        TR createdByTR = new TR();
+        table.addElement(createdByTR);
+        String createdByMessage = Messages.getMessage(DefinitionClassPresentation.CREATE_ACTOR, pageContext);
+        createdByTR.addElement(new TD(createdByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+        String createdBy = definition.getCreateActor() != null ? definition.getCreateActor().getLabel() : "";
+        createdByTR.addElement(new TD(createdBy).setClass(Resources.CLASS_LIST_TABLE_TD));
+
         if (definition.getUpdateDate() != null) {
             TR updateDateTR = new TR();
             table.addElement(updateDateTR);
             String updateDateMessage = Messages.getMessage(DefinitionClassPresentation.UPDATE_DATE, pageContext);
             updateDateTR.addElement(new TD(updateDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
             updateDateTR.addElement(new TD(CalendarUtil.formatDateTime(definition.getUpdateDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
+
+            TR updatedByTR = new TR();
+            table.addElement(updatedByTR);
+            String updatedByMessage = Messages.getMessage(DefinitionClassPresentation.UPDATE_ACTOR, pageContext);
+            updatedByTR.addElement(new TD(updatedByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+            String updatedBy = definition.getUpdateActor() != null ? definition.getUpdateActor().getLabel() : "";
+            updatedByTR.addElement(new TD(updatedBy).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
 
         TR descriptionTR = new TR();
@@ -121,6 +134,6 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PROCESS_DEFINITION, pageContext);
+        return MessagesProcesses.TITLE_PROCESS_DEFINITION.message(pageContext);
     }
 }

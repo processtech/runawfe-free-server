@@ -55,24 +55,20 @@ public class AjaxFormComponentServlet extends HttpServlet {
                 String sessionKey = AjaxFormComponent.COMPONENT_SESSION_PREFIX + componentName;
                 String qualifier = request.getParameter("qualifier");
                 List<AjaxFormComponent> list = (List<AjaxFormComponent>) request.getSession().getAttribute(sessionKey);
-                if (list == null || list.size() < 1) {
+                if (list == null || list.isEmpty()) {
                     throw new NullPointerException("No components found in session by " + sessionKey);
                 }
-                AjaxFormComponent formComponent = null;
-                if (qualifier != null) {
-                    for (AjaxFormComponent component : list) {
-                        if (Objects.equal(component.getQualifier(), qualifier)) {
-                            formComponent = component;
-                            break;
-                        }
+                AjaxFormComponent component = null;
+                for (AjaxFormComponent testComponent : list) {
+                    if (Objects.equal(testComponent.getVariableNameForSubmissionProcessing(), qualifier)) {
+                        component = testComponent;
+                        break;
                     }
-                    if (formComponent == null) {
-                        throw new NullPointerException("No component found by qualifier '" + qualifier + "', components in session: " + list);
-                    }
-                } else {
-                    formComponent = list.get(0);
                 }
-                formComponent.processAjaxRequest(request, response);
+                if (component == null) {
+                    throw new NullPointerException("No component found by qualifier '" + qualifier + "', components found: " + list.size());
+                }
+                component.processAjaxRequest(request, response);
             } catch (Exception e) {
                 log.error("", e);
                 throw new ServletException(e);

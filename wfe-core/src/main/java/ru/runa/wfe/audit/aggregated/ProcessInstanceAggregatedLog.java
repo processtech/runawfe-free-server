@@ -121,7 +121,7 @@ public class ProcessInstanceAggregatedLog {
         this.parentProcessInstanceId = parentProcessInstanceId;
     }
 
-    @Column(name = "START_ACTOR_NAME")
+    @Column(name = "START_ACTOR_NAME", length = 1024)
     public String getActorName() {
         return actorName;
     }
@@ -130,7 +130,7 @@ public class ProcessInstanceAggregatedLog {
         this.actorName = actorName;
     }
 
-    @Column(name = "CANCEL_ACTOR_NAME")
+    @Column(name = "CANCEL_ACTOR_NAME", length = 1024)
     public String getCancelActorName() {
         return cancelActorName;
     }

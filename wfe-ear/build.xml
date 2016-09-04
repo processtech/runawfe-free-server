@@ -10,8 +10,6 @@
 		</copy>
 	</target>
 
-	<property name="jboss.home.dir" value="E:/Dofs/jboss4" />
-
 	<target name="dist.adminkit" description="Make distribution of admin kit">
 		<copy todir="${jboss.home.dir}/samples" overwrite="true">
 			<fileset dir="${samples.dir}" />

@@ -30,14 +30,17 @@ import org.apache.ecs.html.Span;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
+import org.tldgen.annotations.Attribute;
+import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateSubstitutionAction;
 import ru.runa.af.web.form.SubstitutionForm;
 import ru.runa.af.web.orgfunction.FunctionDef;
 import ru.runa.af.web.orgfunction.ParamDef;
 import ru.runa.af.web.orgfunction.SubstitutionDefinitions;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.wfe.execution.logic.OrgFunctionSwimlaneInitializer;
@@ -51,35 +54,27 @@ import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 
-/**
- * Created on 14.08.2010
- * 
- * @jsp.tag name = "updateSubstitutionForm" body-content = "JSP"
- */
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateSubstitutionForm")
 public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
     private static final long serialVersionUID = 9096797376521541558L;
     private Substitution substitution;
     private boolean terminator;
     private Long actorId;
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public boolean isTerminator() {
         return terminator;
     }
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setTerminator(boolean terminator) {
         this.terminator = terminator;
     }
 
-    /**
-     * @jsp.attribute required = "false" rtexprvalue = "true"
-     */
     public Long getActorId() {
         return actorId;
     }
 
+    @Attribute(required = false, rtexprvalue = true)
     public void setActorId(Long actorId) {
         this.actorId = actorId;
     }
@@ -119,8 +114,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
 
     @Override
     public String getFormButtonName() {
-        String message = (substitution != null) ? Messages.BUTTON_SAVE : Messages.BUTTON_ADD;
-        return Messages.getMessage(message, pageContext);
+        return ((substitution != null) ? MessagesCommon.BUTTON_SAVE : MessagesCommon.BUTTON_ADD).message(pageContext);
     }
 
     @Override
@@ -130,7 +124,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
             substitution = substitutionService.getSubstitution(getUser(), getIdentifiableId());
             terminator = substitution instanceof TerminatorSubstitution;
         }
-        return Messages.getMessage((terminator ? "terminator.edit.title" : "substitution.edit.title"), pageContext);
+        return (terminator ? MessagesExecutor.TITLE_TERMINATOR_EDIT : MessagesExecutor.TITLE_SUBSTITUTION_EDIT).message(pageContext);
     }
 
     @Override
@@ -154,9 +148,9 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
             if (substitution != null && substitution.getCriteria() != null) {
                 criteriaId = substitution.getCriteria().getId().toString();
             }
-            table.addElement(HTMLUtils.createSelectRow(Messages.getMessage(Messages.LABEL_SUBSTITUTORS_CRITERIA, pageContext),
+            table.addElement(HTMLUtils.createSelectRow(MessagesExecutor.LABEL_SUBSTITUTORS_CRITERIA.message(pageContext),
                     SubstitutionForm.CRITERIA_ID_INPUT_NAME, getCriteriaOptions(criteriaId), true, false));
-            table.addElement(HTMLUtils.createCheckboxRow(Messages.getMessage(Messages.LABEL_SUBSTITUTORS_ENABLED, pageContext),
+            table.addElement(HTMLUtils.createCheckboxRow(MessagesExecutor.LABEL_SUBSTITUTORS_ENABLED.message(pageContext),
                     SubstitutionForm.ENABLED_INPUT_NAME, substitution == null || substitution.isEnabled(), true, false));
             if (!terminator) {
                 String function = "";
@@ -173,7 +167,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
                 if (function.length() == 0 && functionOptions.length > 0) {
                     function = functionOptions[0].getValue();
                 }
-                table.addElement(HTMLUtils.createSelectRow(Messages.getMessage(Messages.LABEL_SWIMLANE_ORGFUNCTION, pageContext),
+                table.addElement(HTMLUtils.createSelectRow(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext),
                         SubstitutionForm.FUNCTION_INPUT_NAME, functionOptions, true, true));
                 if (function.length() > 0) {
                     FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(function);
@@ -199,7 +193,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
             List<SubstitutionCriteria> criterias = Delegates.getSubstitutionService().getAllCriterias(getUser());
             Option[] options = new Option[criterias.size() + 1];
             options[0] = new Option("");
-            options[0].addElement(Messages.getMessage(Messages.SUBSTITUTION_ALWAYS, pageContext));
+            options[0].addElement(MessagesExecutor.SUBSTITUTION_ALWAYS.message(pageContext));
             for (int i = 1; i < options.length; i++) {
                 options[i] = new Option(String.valueOf(criterias.get(i - 1).getId()));
                 options[i].addElement(criterias.get(i - 1).getName());
@@ -251,7 +245,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
             span.addElement(Entities.NBSP);
             String url = "javascript:editParameter('" + index + "','" + renderer.getClass().getName() + "');";
             A selectorHref = new A(url);
-            selectorHref.addElement(Messages.getMessage("substitution.select", pageContext));
+            selectorHref.addElement(MessagesExecutor.LABEL_SUBSTITUTION_SELECT.message(pageContext));
             span.addElement(selectorHref);
         }
         return span;

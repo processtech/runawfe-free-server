@@ -29,7 +29,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 
 import ru.runa.common.WebResources;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesException;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -39,6 +39,7 @@ import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
+import ru.runa.wfe.var.IVariableProvider;
 
 import com.google.common.base.Strings;
 
@@ -81,14 +82,14 @@ public abstract class BaseProcessFormAction extends ActionBase {
             if (e.getGlobalErrors().size() > 0) {
                 for (String message : e.getGlobalErrors()) {
                     if (Strings.isNullOrEmpty(message)) {
-                        addError(request, new ActionMessage(Messages.MESSAGE_VALIDATION_ERROR));
+                        addError(request, new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey()));
                     } else {
                         // we are working with localized string
                         addError(request, new ActionMessage(message, false));
                     }
                 }
             } else {
-                addError(request, new ActionMessage(Messages.MESSAGE_VALIDATION_ERROR));
+                addError(request, new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey()));
             }
             forward = getErrorForward(mapping, form);
         } catch (Exception e) {
@@ -99,8 +100,9 @@ public abstract class BaseProcessFormAction extends ActionBase {
         return forward;
     }
 
-    protected Map<String, Object> getFormVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction) {
-        return FormSubmissionUtils.extractVariables(request, actionForm, interaction);
+    protected Map<String, Object> getFormVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction,
+            IVariableProvider variableProvider) {
+        return FormSubmissionUtils.extractVariables(request, actionForm, interaction, variableProvider);
     }
 
     protected abstract ActionMessage getMessage(Long processId);

@@ -18,15 +18,17 @@
 package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
+import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.action.UpdatePermissionsOnRelation;
-import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updatePermissionsOnRelationForm")
 public class UpdatePermissionsOnRelationFormTag extends IdentifiableFormTag {
     private static final long serialVersionUID = 1L;
 
@@ -53,12 +55,12 @@ public class UpdatePermissionsOnRelationFormTag extends IdentifiableFormTag {
 
     @Override
     protected String getFormButtonName() {
-        return Messages.getMessage(Messages.BUTTON_APPLY, pageContext);
+        return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
     protected String getTitle() {
-        return Messages.getMessage(Messages.TITLE_PERMISSION_OWNERS, pageContext);
+        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
     }
 
 }

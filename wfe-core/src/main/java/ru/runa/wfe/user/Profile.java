@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
@@ -59,7 +59,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Created on 17.01.2005
- * 
+ *
  */
 @Entity
 @Table(name = "PROFILE")
@@ -75,6 +75,7 @@ public final class Profile implements Serializable {
     @XmlTransient
     private Map<String, BatchPresentation> defaultBatchPresentations = Maps.newHashMap();
     private Date createDate;
+    private Set<BatchPresentation> sharedBatchPresentations = Sets.newHashSet();
 
     public Profile() {
     }
@@ -146,7 +147,8 @@ public final class Profile implements Serializable {
     }
 
     /**
-     * @return all batch presentations for specified batchPresentationId
+     * @return all (including shared) batch presentations for specified
+     *         batchPresentationId
      */
     public List<BatchPresentation> getBatchPresentations(String batchPresentationId) {
         List<BatchPresentation> result = Lists.newArrayList();
@@ -156,19 +158,40 @@ public final class Profile implements Serializable {
                 result.add(batch);
             }
         }
+        for (BatchPresentation batch : sharedBatchPresentations) {
+            if (Objects.equal(batch.getCategory(), batchPresentationId)) {
+                result.add(batch);
+            }
+        }
         return result;
     }
 
     public void setActiveBatchPresentation(String batchPresentationId, String batchPresentationName) {
+        boolean found = false;
         for (BatchPresentation batch : batchPresentations) {
             if (Objects.equal(batch.getCategory(), batchPresentationId)) {
                 batch.setActive(batch.getName().equals(batchPresentationName));
+                if (batch.isActive()) {
+                    found = true;
+                }
+            }
+        }
+        if (!found) {
+            for (BatchPresentation batch : sharedBatchPresentations) {
+                if (Objects.equal(batch.getCategory(), batchPresentationId)) {
+                    batch.setActive(batch.getName().equals(batchPresentationName));
+                }
             }
         }
     }
 
     public BatchPresentation getActiveBatchPresentation(String batchPresentationId) {
         for (BatchPresentation batch : batchPresentations) {
+            if (batch.getCategory().equals(batchPresentationId) && batch.isActive()) {
+                return batch;
+            }
+        }
+        for (BatchPresentation batch : sharedBatchPresentations) {
             if (batch.getCategory().equals(batchPresentationId) && batch.isActive()) {
                 return batch;
             }
@@ -183,4 +206,7 @@ public final class Profile implements Serializable {
         batchPresentations.remove(batchPresentation);
     }
 
+    public void addSharedBatchPresentation(BatchPresentation batchPresentation) {
+        sharedBatchPresentations.add(batchPresentation);
+    }
 }

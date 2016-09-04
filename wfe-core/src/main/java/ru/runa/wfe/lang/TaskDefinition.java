@@ -35,8 +35,7 @@ public class TaskDefinition extends GraphElement {
     protected InteractionNode node;
     protected SwimlaneDefinition swimlaneDefinition;
     /**
-     * reassign swimlane value to evaluated swimlane initializer due to task
-     * create
+     * reassign swimlane value to evaluated swimlane initializer due to task create
      */
     protected boolean reassignSwimlane;
     // TODO switch reassignSwimlane to useSwimlaneInitializerForTaskExecutor;
@@ -56,19 +55,21 @@ public class TaskDefinition extends GraphElement {
     }
 
     /**
-     * sets the swimlane unidirectionally. Since a task can have max one of
-     * swimlane or assignmentHandler, this method removes the assignmentHandler
+     * sets the swimlane unidirectionally. Since a task can have max one of swimlane or assignmentHandler, this method removes the assignmentHandler
      * and assignmentExpression if one of those isset.
      */
     public void setSwimlane(SwimlaneDefinition swimlaneDefinition) {
         this.swimlaneDefinition = swimlaneDefinition;
         if (SystemProperties.isAutoInvocationLocalBotStationEnabled() && swimlaneDefinition.isBotExecutor()) {
-            Event event = getEventNotNull(Event.TASK_ASSIGN);
-            Action action = new Action();
-            action.setEvent(event);
-            action.setDelegation(new Delegation("ru.runa.wfe.service.handler.BotInvokerActionHandler", null));
-            action.setParent(this);
-            event.addAction(action);
+            // in async mode BotInvokerActionHandler will not work as expected
+            if (!SystemProperties.isProcessExecutionNodeAsyncEnabled(NodeType.TASK_STATE)) {
+                Event event = getEventNotNull(Event.TASK_ASSIGN);
+                Action action = new Action();
+                action.setEvent(event);
+                action.setDelegation(new Delegation("ru.runa.wfe.service.handler.BotInvokerActionHandler", null));
+                action.setParent(this);
+                event.addAction(action);
+            }
         }
     }
 

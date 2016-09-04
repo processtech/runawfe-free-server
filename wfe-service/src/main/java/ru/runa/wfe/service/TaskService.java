@@ -135,10 +135,11 @@ public interface TaskService {
      *            task id
      * @param currentOwner
      *            current executor
-     * @param keepOwners TODO
+     * @param keepCurrentOwners
+     *            whether current owners should remain
      * @param newOwners
      *            new executor list
      */
-    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepOwners, List<? extends Executor> newOwners);
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners);
 
 }

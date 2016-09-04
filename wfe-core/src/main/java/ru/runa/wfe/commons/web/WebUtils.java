@@ -22,9 +22,8 @@ public class WebUtils {
         if (substitutions == null) {
             substitutions = Maps.newHashMap();
         }
-        for (String sKey : substitutions.keySet()) {
-            String v = substitutions.get(sKey);
-            javascript = javascript.replaceAll(Pattern.quote(sKey), Matcher.quoteReplacement(v));
+        for (Map.Entry<String, String> entry : substitutions.entrySet()) {
+            javascript = javascript.replaceAll(Pattern.quote(entry.getKey()), Matcher.quoteReplacement(entry.getValue()));
         }
         return getScript(javascript);
     }

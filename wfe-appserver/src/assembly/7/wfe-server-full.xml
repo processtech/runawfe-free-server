@@ -13,7 +13,7 @@
 
 	<fileSets>
 		<fileSet>
-			<directory>${project.build.directory}/${jboss.zip.folder}</directory>
+			<directory>${project.build.directory}/jboss</directory>
 			<outputDirectory>jboss</outputDirectory>
 		</fileSet>
 	</fileSets>
