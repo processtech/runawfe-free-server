@@ -160,16 +160,16 @@ public class ExecutionLogic extends WFCommonLogic {
         return new WfProcess(process);
     }
 
-    public WfProcess getParentProcess(User user, Long id) throws ProcessDoesNotExistException {
-        NodeProcess nodeProcess = nodeProcessDAO.getNodeProcessByChild(id);
+    public WfProcess getParentProcess(User user, Long processId) throws ProcessDoesNotExistException {
+        NodeProcess nodeProcess = nodeProcessDAO.getNodeProcessByChild(processId);
         if (nodeProcess == null) {
             return null;
         }
         return new WfProcess(nodeProcess.getProcess());
     }
 
-    public List<WfProcess> getSubprocesses(User user, Long id, boolean recursive) throws ProcessDoesNotExistException {
-        Process process = processDAO.getNotNull(id);
+    public List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
+        Process process = processDAO.getNotNull(processId);
         List<Process> subprocesses;
         if (recursive) {
             subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
@@ -416,7 +416,8 @@ public class ExecutionLogic extends WFCommonLogic {
         ProcessDefinition processDefinition = getDefinition(process);
         SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
         Swimlane swimlane = process.getSwimlaneNotNull(swimlaneDefinition);
-        AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, Lists.newArrayList(executor));
+        List<Executor> executors = executor != null ? Lists.newArrayList(executor) : null;
+        AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, executors);
     }
 
     public void activateProcess(User user, Long processId) {

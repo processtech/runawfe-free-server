@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
 
 import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.var.VariableDefinition;
 
 import com.google.common.collect.Lists;
@@ -54,6 +55,7 @@ public class Interaction implements Serializable {
     private final HashMap<String, VariableDefinition> variableDefinitions = Maps.newHashMap();
     @XmlTransient
     private final HashMap<String, Object> defaultVariableValues = Maps.newHashMap();
+    private final List<String> outputTransitionNames = Lists.newArrayList();
 
     protected Interaction() {
     }
@@ -71,6 +73,11 @@ public class Interaction implements Serializable {
         this.formScriptData = formScriptData;
         this.cssData = cssData;
         this.templateData = templateData;
+        for (Transition transition : node.getLeavingTransitions()) {
+            if (!transition.isTimerTransition()) {
+                outputTransitionNames.add(transition.getName());
+            }
+        }
     }
 
     public String getNodeId() {
@@ -136,4 +143,7 @@ public class Interaction implements Serializable {
         return defaultVariableValues;
     }
 
+    public List<String> getOutputTransitionNames() {
+        return outputTransitionNames;
+    }
 }

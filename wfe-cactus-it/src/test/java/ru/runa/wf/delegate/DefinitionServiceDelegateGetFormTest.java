@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.delegate;
@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.cactus.ServletTestCase;
 
 import ru.runa.wf.service.WfServiceTestHelper;
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.security.AuthenticationException;
@@ -33,7 +34,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -41,7 +41,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Created on 20.04.2005
- * 
+ *
  * @author Gritsenko_S
  * @author Vitaliy S
  */
@@ -59,7 +59,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
 
     private WfServiceTestHelper th = null;
 
-    private long taskId;
+    private WfTask task;
 
     protected static final long FAKE_ID = -1;
     protected static final String FAKE_NAME = "FAKE NAME OF TASK";
@@ -84,7 +84,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
         assertNotNull(tasks);
         assertEquals(tasks.size() > 0, true);
-        taskId = tasks.get(0).getId();
+        task = tasks.get(0);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
 
     public void testGetFormTestByAuthorizedSubject() throws Exception {
         initTaskData();
-        Interaction interaction = definitionService.getTaskInteraction(th.getAuthorizedPerformerUser(), taskId);
+        Interaction interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), task.getDefinitionId(), task.getNodeId());
         // TODO assertEquals("form name differ from original", STATE_1_NAME,
         // interaction.getStateName());
         // TODO assertEquals("form name differ from original", STATE_1_TYPE,
@@ -108,7 +108,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
     public void testGetFormTestByUnauthorizedSubject() throws Exception {
         initTaskData();
         try {
-            definitionService.getTaskInteraction(th.getUnauthorizedPerformerUser(), taskId);
+            definitionService.getTaskNodeInteraction(th.getUnauthorizedPerformerUser(), task.getDefinitionId(), task.getNodeId());
             fail("testGetFormTestByUnauthorizedSubject , no AuthorizationException");
         } catch (AuthorizationException e) {
         }
@@ -117,7 +117,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
     public void testGetFormTestByNullUser() throws Exception {
         initTaskData();
         try {
-            definitionService.getTaskInteraction(null, taskId);
+            definitionService.getTaskNodeInteraction(null, task.getDefinitionId(), task.getNodeId());
             fail("testGetFormTestByNullSubject , no IllegalArgumentException");
         } catch (IllegalArgumentException e) {
         }
@@ -126,8 +126,8 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
     public void testGetFormTestByFakeSubject() throws Exception {
         initTaskData();
         try {
-            taskId = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation()).get(0).getId();
-            definitionService.getTaskInteraction(th.getFakeUser(), taskId);
+            task = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation()).get(0);
+            definitionService.getTaskNodeInteraction(th.getFakeUser(), task.getDefinitionId(), task.getNodeId());
             fail("testGetFormTestByFakeSubject , no AuthenticationException");
         } catch (AuthenticationException e) {
         }
@@ -136,18 +136,9 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
     public void testGetFormTestByAuthorizedSubjectWithInvalidDefinitionId() throws Exception {
         initTaskData();
         try {
-            definitionService.getTaskInteraction(th.getAuthorizedPerformerUser(), -1l);
+            definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), -1l, "");
             fail("testGetFormTestByAuthorizedSubjectWithInvalidDefinitionId , no Exception");
-        } catch (TaskDoesNotExistException e) {
-        }
-    }
-
-    public void testGetFormTestByUnauthorizedSubjectWithInvalidTaskId() throws Exception {
-        initTaskData();
-        try {
-            definitionService.getTaskInteraction(th.getUnauthorizedPerformerUser(), -1l);
-            fail("testGetFormTestByUnauthorizedSubjectWithInvalidDefinitionId , no Exception");
-        } catch (TaskDoesNotExistException e) {
+        } catch (DefinitionDoesNotExistException e) {
         }
     }
 
@@ -155,7 +146,8 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
         assertEquals(tasks.size() > 0, true);
 
-        Interaction interaction = definitionService.getTaskInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getId());
+        Interaction interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(), tasks
+                .get(0).getNodeId());
 
         // TODO assertEquals("state name differs from expected", STATE_1_NAME,
         // interaction.getStateName());
@@ -192,7 +184,8 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
             th.getTaskService().completeTask(th.getAuthorizedPerformerUser(), tasks.get(0).getId(), new HashMap<String, Object>(), null);
 
             tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), th.getTaskBatchPresentation());
-            interaction = definitionService.getTaskInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getId());
+            interaction = definitionService.getTaskNodeInteraction(th.getAuthorizedPerformerUser(), tasks.get(0).getDefinitionId(), tasks.get(0)
+                    .getNodeId());
 
             // TODO assertEquals("state name differs from expected",
             // STATE_2_NAME, interaction.getStateName());

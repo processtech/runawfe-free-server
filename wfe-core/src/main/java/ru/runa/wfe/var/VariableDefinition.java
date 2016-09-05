@@ -43,6 +43,7 @@ public class VariableDefinition implements Serializable {
     private String format;
     private String formatLabel;
     private UserType userType;
+    // web-service serialization limitation
     private UserType[] formatComponentUserTypes;
     private boolean publicAccess;
     private Object defaultValue;

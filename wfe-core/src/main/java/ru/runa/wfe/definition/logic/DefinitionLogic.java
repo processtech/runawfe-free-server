@@ -46,7 +46,6 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.ProcessDefinitionInfoVisitor;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
-import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
@@ -55,7 +54,6 @@ import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -248,38 +246,6 @@ public class DefinitionLogic extends WFCommonLogic {
         systemLogDAO.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
     }
 
-    public Interaction getInteraction(User user, Long taskId) {
-        Task task = taskDAO.getNotNull(taskId);
-        checkCanParticipate(user.getActor(), task);
-        ProcessDefinition definition = getDefinition(task);
-        return definition.getInteractionNotNull(task.getNodeId());
-    }
-
-    public Interaction getInteraction(User user, Long definitionId, String nodeId) {
-        ProcessDefinition definition = getDefinition(definitionId);
-        checkPermissionAllowed(user, definition.getDeployment(), Permission.READ);
-        return definition.getInteraction(nodeId);
-    }
-
-    public List<String> getOutputTransitionNames(User user, Long definitionId, Long taskId, boolean withTimerTransitions) {
-        List<Transition> transitions;
-        if (definitionId != null) {
-            ProcessDefinition processDefinition = getDefinition(definitionId);
-            transitions = processDefinition.getStartStateNotNull().getLeavingTransitions();
-        } else {
-            Task task = taskDAO.getNotNull(taskId);
-            ProcessDefinition processDefinition = getDefinition(task);
-            transitions = processDefinition.getNodeNotNull(task.getNodeId()).getLeavingTransitions();
-        }
-        List<String> result = new ArrayList<String>();
-        for (Transition transition : transitions) {
-            if (withTimerTransitions || !transition.isTimerTransition()) {
-                result.add(transition.getName());
-            }
-        }
-        return result;
-    }
-
     public byte[] getFile(User user, Long definitionId, String fileName) {
         ProcessDefinition definition = getDefinition(definitionId);
         if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName)) {
@@ -308,6 +274,12 @@ public class DefinitionLogic extends WFCommonLogic {
             interaction.getDefaultVariableValues().put(entry.getKey(), entry.getValue());
         }
         return interaction;
+    }
+
+    public Interaction getTaskNodeInteraction(User user, Long definitionId, String nodeId) {
+        ProcessDefinition definition = getDefinition(definitionId);
+        checkPermissionAllowed(user, definition.getDeployment(), Permission.READ);
+        return definition.getInteraction(nodeId);
     }
 
     public List<SwimlaneDefinition> getSwimlanes(User user, Long definitionId) {
