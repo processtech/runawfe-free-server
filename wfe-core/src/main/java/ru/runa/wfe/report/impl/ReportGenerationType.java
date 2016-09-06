@@ -56,7 +56,7 @@ public enum ReportGenerationType {
             exporter.setExporterInput(new SimpleExporterInput(report));
             SimpleHtmlExporterConfiguration configuration = new SimpleHtmlExporterConfiguration();
             configuration.setHtmlFooter("");
-            configuration.setHtmlHeader("");
+            configuration.setHtmlHeader("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">");
             configuration.setBetweenPagesHtml("");
             exporter.setConfiguration(configuration);
             exporter.exportReport();
