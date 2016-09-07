@@ -216,10 +216,6 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         return variables;
     }
 
-    public Interaction getInteraction(String nodeId) {
-        return interactions.get(nodeId);
-    }
-
     public Interaction getInteractionNotNull(String nodeId) {
         Interaction interaction = interactions.get(nodeId);
         if (interaction == null) {
