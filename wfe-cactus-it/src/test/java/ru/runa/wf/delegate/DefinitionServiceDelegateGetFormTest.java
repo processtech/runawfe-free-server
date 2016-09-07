@@ -41,7 +41,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Created on 20.04.2005
- *
+ * 
  * @author Gritsenko_S
  * @author Vitaliy S
  */
@@ -71,7 +71,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         executionService = Delegates.getExecutionService();
 
         definitionService.deployProcessDefinition(th.getAdminUser(),
-                WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"));
+            WfServiceTestHelper.readBytesFromFile(WfServiceTestHelper.ONE_SWIMLANE_FILE_NAME), Lists.newArrayList("testProcess"));
 
         Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
@@ -107,11 +107,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
 
     public void testGetFormTestByUnauthorizedSubject() throws Exception {
         initTaskData();
-        try {
-            definitionService.getTaskNodeInteraction(th.getUnauthorizedPerformerUser(), task.getDefinitionId(), task.getNodeId());
-            fail("testGetFormTestByUnauthorizedSubject , no AuthorizationException");
-        } catch (AuthorizationException e) {
-        }
+        definitionService.getTaskNodeInteraction(th.getUnauthorizedPerformerUser(), task.getDefinitionId(), task.getNodeId());
     }
 
     public void testGetFormTestByNullUser() throws Exception {
