@@ -437,7 +437,7 @@ public class ExecutionLogic extends WFCommonLogic {
             throw new InternalApplicationException(process + " already activated");
         }
         for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
-            nodeAsyncExecutor.execute(process.getId(), token.getId());
+            nodeAsyncExecutor.execute(process.getId(), token.getId(), token.getNodeId());
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
         }
         for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
