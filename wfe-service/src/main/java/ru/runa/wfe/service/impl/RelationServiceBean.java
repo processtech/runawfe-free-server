@@ -119,7 +119,6 @@ public class RelationServiceBean implements RelationServiceLocal, RelationServic
     public List<RelationPair> getExecutorsRelationPairsRight(@WebParam(name = "user") User user, @WebParam(name = "name") String name,
             @WebParam(name = "right") List<? extends Executor> right) {
         Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(name != null, "name");
         Preconditions.checkArgument(right != null, "right");
         return relationLogic.getExecutorRelationPairsRight(user, name, right);
     }
@@ -129,7 +128,6 @@ public class RelationServiceBean implements RelationServiceLocal, RelationServic
     public List<RelationPair> getExecutorsRelationPairsLeft(@WebParam(name = "user") User user, @WebParam(name = "name") String name,
             @WebParam(name = "left") List<? extends Executor> left) {
         Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(name != null, "name");
         Preconditions.checkArgument(left != null, "left");
         return relationLogic.getExecutorRelationPairsLeft(user, name, left);
     }
