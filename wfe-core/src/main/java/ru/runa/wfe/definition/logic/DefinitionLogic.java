@@ -267,7 +267,6 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public Interaction getStartInteraction(User user, Long definitionId) {
         ProcessDefinition definition = getDefinition(definitionId);
-        checkPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.READ);
         Interaction interaction = definition.getInteractionNotNull(definition.getStartStateNotNull().getNodeId());
         Map<String, Object> defaultValues = definition.getDefaultVariableValues();
         for (Map.Entry<String, Object> entry : defaultValues.entrySet()) {
@@ -278,7 +277,6 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public Interaction getTaskNodeInteraction(User user, Long definitionId, String nodeId) {
         ProcessDefinition definition = getDefinition(definitionId);
-        checkPermissionAllowed(user, definition.getDeployment(), Permission.READ);
         return definition.getInteraction(nodeId);
     }
 
