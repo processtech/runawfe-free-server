@@ -111,7 +111,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public List<WfProcess> getProcesses(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+    public List<WfProcess> getProcesses(@WebParam(name = "user") User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         Preconditions.checkArgument(user != null, "user");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
@@ -314,6 +315,16 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.upgradeProcessToDefinitionVersion(user, processId, version);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public void upgradeProcessesToNewDefinition(@WebParam(name = "user") User user, @WebParam(name = "oldDefinitionId") Long oldDefinitionId,
+            @WebParam(name = "newDefinitionId") Long newDefinitionId) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(oldDefinitionId != null, "oldDefinitionId");
+        Preconditions.checkArgument(newDefinitionId != null, "newDefinitionId");
+        executionLogic.upgradeProcessesToNewDefinition(user, oldDefinitionId, newDefinitionId);
     }
 
     @Override

@@ -385,9 +385,29 @@ public class ExecutionLogic extends WFCommonLogic {
         Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newDeploymentVersion);
         process.setDeployment(nextDeployment);
         processDAO.update(process);
-        processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
-                newDeploymentVersion), process, null);
+        processLogDAO.addLog(
+                new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(), newDeploymentVersion),
+                process, null);
         return true;
+    }
+
+    public void upgradeProcessesToNewDefinition(User user, Long oldDefinitionId, Long newDefinitionId) {
+        if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
+            throw new ConfigurationException(
+                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
+        }
+        Deployment oldDeployment = deploymentDAO.get(oldDefinitionId);
+        final List<Process> processes = processDAO.findAllProcesses(oldDefinitionId);
+        for (final Process process : processes) {
+            if (process.hasEnded()) {
+                continue;
+            }
+            Deployment nextDeployment = deploymentDAO.get(newDefinitionId);
+            process.setDeployment(nextDeployment);
+            processDAO.update(process);
+            processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, oldDeployment.getVersion(),
+                    nextDeployment.getVersion()), process, null);
+        }
     }
 
     public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {

@@ -177,6 +177,14 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+        <property title="process.definition.update.version.enabled">
+            <value>true</value>
+            <value>false</value>
+        </property>
+        <property title="process.definition.increment.subversion.on.update.enabled">
+            <value>true</value>
+            <value>false</value>
+        </property>
 		<property title="process.removal.enabled">
 			<value>true</value>
 			<value>false</value>

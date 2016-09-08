@@ -220,6 +220,15 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
+    public void upgradeProcessesToNewDefinition(User user, Long oldDefinitionId, Long newDefinitionId) {
+        try {
+            getExecutionService().upgradeProcessesToNewDefinition(user, oldDefinitionId, newDefinitionId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         try {
             return getExecutionService().getSwimlanes(user, processId);

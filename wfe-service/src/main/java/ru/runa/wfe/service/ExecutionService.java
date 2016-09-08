@@ -58,8 +58,8 @@ public interface ExecutionService {
      * @throws DefinitionDoesNotExistException
      * @throws ValidationException
      */
-    public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-            ValidationException;
+    public Long startProcess(User user, String definitionName, Map<String, Object> variables)
+            throws DefinitionDoesNotExistException, ValidationException;
 
     /**
      * Gets process count for {@link BatchPresentation}.
@@ -300,6 +300,13 @@ public interface ExecutionService {
      * @return false if version equal to current process definition version
      */
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version);
+
+    /**
+     * Upgrades running processes to specified definition. This is not safe operation, use it with caution.
+     *
+     * @return false if version equal to current process definition version
+     */
+    public void upgradeProcessesToNewDefinition(User user, Long oldDefinitionId, Long newDefinitionId);
 
     /**
      * Get all active jobs (recursively) by process id.

@@ -30,18 +30,16 @@ import ru.runa.wfe.user.User;
 /**
  * Created on 06.10.2004
  *
- * @struts:action path="/deployProcessDefinition" name="fileForm"
- *                validate="false"
- * @struts.action-forward name="success" path="/manage_process_definitions.do"
- *                        redirect = "true"
- * @struts.action-forward name="failure" path="/deploy_process_definition.do"
- *                        redirect = "false"
+ * @struts:action path="/deployProcessDefinition" name="fileForm" validate="false"
+ * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/deploy_process_definition.do" redirect = "false"
  */
 public class DeployProcessDefinitionAction extends BaseDeployProcessDefinitionAction {
     public static final String ACTION_PATH = "/deployProcessDefinition";
 
     @Override
-    protected void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion) throws Exception {
+    protected void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion,
+            boolean isUpdateAllIncompleteProcesses) throws Exception {
         Delegates.getDefinitionService().deployProcessDefinition(user, fileForm.getFile().getFileData(), categories);
     }
 

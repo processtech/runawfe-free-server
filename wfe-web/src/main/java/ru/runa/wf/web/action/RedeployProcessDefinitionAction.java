@@ -22,11 +22,13 @@ import java.util.List;
 
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -36,15 +38,10 @@ import com.google.common.base.Strings;
 /**
  * Created on 06.10.2004
  *
- * @struts:action path="/redeployProcessDefinition" name="fileForm"
- *                validate="false"
- * @struts.action-forward name="success" path="/manage_process_definition.do"
- *                        redirect = "true"
- * @struts.action-forward name="failure" path="/manage_process_definition.do"
- *                        redirect = "false"
- * @struts.action-forward name="failure_process_definition_does_not_exist"
- *                        path="/manage_process_definitions.do" redirect =
- *                        "true"
+ * @struts:action path="/redeployProcessDefinition" name="fileForm" validate="false"
+ * @struts.action-forward name="success" path="/manage_process_definition.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/manage_process_definition.do" redirect = "false"
+ * @struts.action-forward name="failure_process_definition_does_not_exist" path="/manage_process_definitions.do" redirect = "true"
  */
 public class RedeployProcessDefinitionAction extends BaseDeployProcessDefinitionAction {
     public static final String ACTION_PATH = "/redeployProcessDefinition";
@@ -52,13 +49,18 @@ public class RedeployProcessDefinitionAction extends BaseDeployProcessDefinition
     private Long definitionId;
 
     @Override
-    protected void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion) throws IOException {
+    protected void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion,
+            boolean isUpdateAllIncompleteProcesses) throws IOException {
         WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, fileForm.getId());
         byte[] data = Strings.isNullOrEmpty(fileForm.getFile().getFileName()) ? null : fileForm.getFile().getFileData();
         if (isUpdateCurrentVersion) {
             definition = Delegates.getDefinitionService().updateProcessDefinition(user, fileForm.getId(), data);
         } else {
+            WfDefinition oldDefinition = definition;
             definition = Delegates.getDefinitionService().redeployProcessDefinition(user, fileForm.getId(), data, categories);
+            if (isUpdateAllIncompleteProcesses) {
+                Delegates.getExecutionService().upgradeProcessesToNewDefinition(user, oldDefinition.getId(), definition.getId());
+            }
         }
         definitionId = definition.getId();
     }

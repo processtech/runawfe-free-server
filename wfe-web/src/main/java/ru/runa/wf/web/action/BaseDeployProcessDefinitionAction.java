@@ -38,16 +38,18 @@ import ru.runa.wfe.user.User;
  */
 public abstract class BaseDeployProcessDefinitionAction extends ActionBase {
 
-    protected abstract void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion) throws Exception;
+    protected abstract void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion,
+            boolean isUpdateAllIncompleteProcesses) throws Exception;
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         boolean isUpdateCurrentVersion = request.getParameter(RedeployDefinitionFormTag.TYPE_UPDATE_CURRENT_VERSION) != null;
+        boolean isUpdateAllIncompleteProcesses = request.getParameter(RedeployDefinitionFormTag.TYPE_UPDATE_ALL_INCOMLETE_PROCESSES) != null;
 
         FileForm fileForm = (FileForm) form;
         prepare(fileForm);
         try {
-            doAction(getLoggedUser(request), fileForm, CategoriesSelectUtils.extract(request), isUpdateCurrentVersion);
+            doAction(getLoggedUser(request), fileForm, CategoriesSelectUtils.extract(request), isUpdateCurrentVersion, isUpdateAllIncompleteProcesses);
         } catch (Exception e) {
             addError(request, e);
             return getErrorForward(mapping);

@@ -25,6 +25,7 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.common.WebResources;
 import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.HTMLUtils;
@@ -44,21 +45,33 @@ import ru.runa.wfe.user.User;
 public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     public static final String TYPE_UPDATE_CURRENT_VERSION = "updateCurrentVersion";
+    public static final String TYPE_UPDATE_ALL_INCOMLETE_PROCESSES = "updateAllUncompleteProcesses";
 
     private static final long serialVersionUID = 5106903896165128752L;
 
     public static void fillTD(TD tdFormElement, Form form, String[] definitionTypes, User user, PageContext pageContext) {
         form.setEncType(Form.ENC_UPLOAD);
+
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
+
         Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true);
         table.addElement(HTMLUtils.createRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), fileInput));
+
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
         TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, definitionTypes, pageContext);
         table.addElement(HTMLUtils.createRow(Messages.getMessage(DefinitionClassPresentation.TYPE, pageContext), hierarchyType));
+
         tdFormElement.addElement(table);
-        table.addElement(HTMLUtils.createCheckboxRow(MessagesProcesses.LABEL_UPDATE_CURRENT_VERSION.message(pageContext),
-                TYPE_UPDATE_CURRENT_VERSION, false, true, false));
+
+        if (WebResources.isUpdateCurrentVersion()) {
+            table.addElement(HTMLUtils.createCheckboxRow(MessagesProcesses.LABEL_UPDATE_CURRENT_VERSION.message(pageContext),
+                    TYPE_UPDATE_CURRENT_VERSION, false, true, false));
+        }
+        if (WebResources.isIncrementSubversion()) {
+            table.addElement(HTMLUtils.createCheckboxRow(MessagesProcesses.LABEL_AUTO_UPDATE_PROCESS_VERSION.message(pageContext),
+                    TYPE_UPDATE_ALL_INCOMLETE_PROCESSES, true, true, false));
+        }
     }
 
     @Override
