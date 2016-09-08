@@ -180,6 +180,10 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         if (componentStartIndex != -1) {
             String containerVariableName = variableName.substring(0, componentStartIndex);
             VariableDefinition containerVariableDefinition = variablesMap.get(containerVariableName);
+            if (containerVariableDefinition == null) {
+                log.debug("Unable to build syntetic container variable by name '" + variableName + "'");
+                return null;
+            }
             String format = containerVariableDefinition.getFormatComponentClassNames()[0];
             VariableDefinition variableDefinition = new VariableDefinition(variableName, null, format, getUserType(format));
             variableDefinition.initComponentUserTypes(this);
