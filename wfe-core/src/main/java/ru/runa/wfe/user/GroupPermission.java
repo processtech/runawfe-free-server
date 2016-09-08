@@ -33,6 +33,7 @@ public class GroupPermission extends ExecutorPermission {
     public static final Permission LIST_GROUP = new GroupPermission((byte) 3, "permission.list_group");
     public static final Permission ADD_TO_GROUP = new GroupPermission((byte) 4, "permission.add_to_group");
     public static final Permission REMOVE_FROM_GROUP = new GroupPermission((byte) 5, "permission.remove_from_group");
+    public static final Permission READ_GROUPUSERS_TASKS = new ExecutorPermission((byte) 6, "permission.read_groupusers_tasks");
 
     private static final List<Permission> GROUP_PERMISSIONS = fillPermissions();
 
@@ -55,6 +56,7 @@ public class GroupPermission extends ExecutorPermission {
         result.add(LIST_GROUP);
         result.add(ADD_TO_GROUP);
         result.add(REMOVE_FROM_GROUP);
+        result.add(READ_GROUPUSERS_TASKS);
         return result;
     }
 }

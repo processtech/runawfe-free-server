@@ -28,29 +28,31 @@ import com.google.common.collect.Lists;
  */
 public class ActorPermission extends ExecutorPermission {
 
-    private static final long serialVersionUID = 7900437485850107134L;
+	private static final long serialVersionUID = 7900437485850107134L;
 
-    public static final Permission UPDATE_STATUS = new ActorPermission((byte) 3, "permission.update_actor_status");
-    private static final List<Permission> PERMISSIONS = fillPermissions();
+	public static final Permission UPDATE_STATUS = new ActorPermission((byte) 3, "permission.update_actor_status");
+	public static final Permission READ_USER_TASKS = new ExecutorPermission((byte) 4, "permission.read_user_tasks");
+	private static final List<Permission> PERMISSIONS = fillPermissions();
 
-    public ActorPermission() {
-        super();
-    }
+	public ActorPermission() {
+		super();
+	}
 
-    protected ActorPermission(byte maskPower, String name) {
-        super(maskPower, name);
-    }
+	protected ActorPermission(byte maskPower, String name) {
+		super(maskPower, name);
+	}
 
-    @Override
-    public List<Permission> getAllPermissions() {
-        return Lists.newArrayList(PERMISSIONS);
-    }
+	@Override
+	public List<Permission> getAllPermissions() {
+		return Lists.newArrayList(PERMISSIONS);
+	}
 
-    private static List<Permission> fillPermissions() {
-        List<Permission> superPermissions = new ExecutorPermission().getAllPermissions();
-        List<Permission> result = Lists.newArrayList(superPermissions);
-        result.add(UPDATE_STATUS);
-        return result;
-    }
+	private static List<Permission> fillPermissions() {
+		List<Permission> superPermissions = new ExecutorPermission().getAllPermissions();
+		List<Permission> result = Lists.newArrayList(superPermissions);
+		result.add(UPDATE_STATUS);
+		result.add(READ_USER_TASKS);
+		return result;
+	}
 
 }
