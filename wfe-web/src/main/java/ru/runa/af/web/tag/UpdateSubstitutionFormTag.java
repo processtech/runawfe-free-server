@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.af.web.tag;
@@ -87,7 +87,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
     @Override
     public void fillFormData(TD tdFormElement) {
         StringBuffer paramsDiv = new StringBuffer("<div id='rh' style='display: none;'>");
-        List<FunctionDef> functions = SubstitutionDefinitions.getAll();
+        List<FunctionDef> functions = SubstitutionDefinitions.getAll(getUser());
         int i = 0;
         for (FunctionDef functionDef : functions) {
             paramsDiv.append("<div id='").append(functionDef.getClassName()).append("'>");
@@ -114,7 +114,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
 
     @Override
     public String getFormButtonName() {
-        return ((substitution != null) ? MessagesCommon.BUTTON_SAVE : MessagesCommon.BUTTON_ADD).message(pageContext);
+        return (substitution != null ? MessagesCommon.BUTTON_SAVE : MessagesCommon.BUTTON_ADD).message(pageContext);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
                 table.addElement(HTMLUtils.createSelectRow(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext),
                         SubstitutionForm.FUNCTION_INPUT_NAME, functionOptions, true, true));
                 if (function.length() > 0) {
-                    FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(function);
+                    FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(getUser(), function);
                     if (functionDef != null) {
                         for (int i = 0; i < functionDef.getParams().size(); i++) {
                             String value = "";
@@ -208,7 +208,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
         }
 
         private Option[] getFunctionOptions(String selectedValue) {
-            List<FunctionDef> definitions = SubstitutionDefinitions.getAll();
+            List<FunctionDef> definitions = SubstitutionDefinitions.getAll(getUser());
             Option[] options = new Option[definitions.size()];
             for (int i = 0; i < options.length; i++) {
                 options[i] = new Option(definitions.get(i).getClassName());
