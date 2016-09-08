@@ -22,7 +22,6 @@ package ru.runa.wfe.task;
 
 import java.util.Date;
 
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
@@ -31,7 +30,6 @@ import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.SubstringDBSource;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionMapping;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.Variable;
 
 /**
@@ -53,14 +51,14 @@ public class TaskClassPresentation extends ClassPresentation {
 
     private static final ClassPresentation INSTANCE = new TaskClassPresentation();
 
-
     private static class OthersPermissionsDBSource extends DefaultDBSource {
         public OthersPermissionsDBSource(Class<?> sourceObject, String valueDBPath) {
             super(sourceObject, valueDBPath);
         }
+
         @Override
         public String getJoinExpression(String alias) {
-            return "CAST(" + ClassPresentation.classNameSQL + ".id AS VARCHAR(128))" + " = " + alias + ".identifiableId";
+            return "";// TODO Filter here..."CAST(" + ClassPresentation.classNameSQL + ".id AS VARCHAR(128))" + " = " + alias + ".identifiableId";
         }
     }
 
@@ -91,8 +89,10 @@ public class TaskClassPresentation extends ClassPresentation {
                         "ru.runa.wf.web.html.TaskOwnerTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
+
                 new FieldDescriptor(TASK_OTHERS, String.class.getName(), new OthersPermissionsDBSource(PermissionMapping.class, "identifiableId"), false,
-                		FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}, true),
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}, true).setVisible(false),
+
                 new FieldDescriptor(TASK_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskVariableTDBuilder", new Object[] {}, true),
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDBSource(Task.class, "deadlineDate"), true, 1,
