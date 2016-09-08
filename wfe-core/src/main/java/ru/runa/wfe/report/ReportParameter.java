@@ -15,7 +15,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * DTO для хранения данных по параметрам, которые должны быть запрошены у пользователя для построения отчета.
+ * DTO for parameters data storage. These parameters must be input by the user in order to build report.
  */
 
 @Entity
@@ -25,22 +25,22 @@ public class ReportParameter {
     private Long id;
 
     /**
-     * Название параметра, отображаемого пользователю.
+     * Parameter name that is shown to user.
      */
     private String name;
 
     /**
-     * Тип параметра.
+     * Parameter type.
      */
     private ReportParameterType type;
 
     /**
-     * Название, под которым параметр должен быть передан в отчет.
+     * Report parameter name.
      */
     private String innerName;
 
     /**
-     * Флаг, равный true, если параметр обязателен для заполнения и false иначе.
+     * True if parameter is required and false if it's optional.
      */
     private boolean required;
 
@@ -66,7 +66,7 @@ public class ReportParameter {
         this.id = id;
     }
 
-    @Column(name = "NAME", length = 255, nullable = false)
+    @Column(name = "NAME", length = 1024, nullable = false)
     public String getName() {
         return name;
     }
@@ -75,7 +75,7 @@ public class ReportParameter {
         this.name = name;
     }
 
-    @Column(name = "TYPE", length = 255, nullable = false)
+    @Column(name = "TYPE", length = 1024, nullable = false)
     @Enumerated(EnumType.STRING)
     public ReportParameterType getType() {
         return type;
@@ -85,7 +85,7 @@ public class ReportParameter {
         this.type = type;
     }
 
-    @Column(name = "INNER_NAME", length = 255, nullable = false)
+    @Column(name = "INNER_NAME", length = 1024, nullable = false)
     public String getInnerName() {
         return innerName;
     }

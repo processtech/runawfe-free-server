@@ -102,6 +102,10 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
             if (componentVariableName.startsWith(variableName + UserType.DELIM)) {
                 String attributeName = componentVariableName.substring(variableName.length() + UserType.DELIM.length());
                 Object componentValue = getMergeValue(componentVariableName);
+                if (userTypeMap.getUserType().getAttribute(attributeName) == null) {
+                    log.debug("Ignored to merge non-defined " + variableName + "." + attributeName + " value " + componentValue);
+                    continue;
+                }
                 log.debug("Merging " + variableName + "." + attributeName + " value to " + componentValue);
                 userTypeMap.put(attributeName, componentValue);
             }
@@ -120,7 +124,7 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
         String sizeVariableName = variableName + VariableFormatContainer.SIZE_SUFFIX;
         if (values.containsKey(sizeVariableName)) {
             int size = TypeConversionUtil.convertTo(int.class, values.get(sizeVariableName));
-            for (int i = 0; i < list.size() - size; i++) {
+            while (list.size() > size) {
                 list.remove(size);
             }
             UserType componentUserType = variableDefinition.getFormatComponentUserTypes()[0];

@@ -18,6 +18,7 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.par.ValidationXmlParser;
+import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
@@ -85,8 +86,8 @@ public class ValidatorManager {
         return "";
     }
 
-    public List<Validator> createValidators(User user, IVariableProvider variableProvider, byte[] validationXml, ValidatorContext validatorContext,
-            Map<String, Object> variables) {
+    public List<Validator> createValidators(User user, ExecutionContext executionContext, IVariableProvider variableProvider, byte[] validationXml,
+            ValidatorContext validatorContext, Map<String, Object> variables) {
         List<ValidatorConfig> configs = ValidationXmlParser.parseValidatorConfigs(validationXml);
         ArrayList<Validator> validators = new ArrayList<Validator>(configs.size());
         for (ValidatorConfig config : configs) {
@@ -98,15 +99,16 @@ public class ValidatorManager {
                 throw new InternalApplicationException("Validator '" + config.getType() + "' is not registered");
             }
             Validator validator = ApplicationContextFactory.createAutowiredBean(className);
-            validator.init(user, variableProvider, config, validatorContext, variables);
+            validator.init(user, executionContext, variableProvider, config, validatorContext, variables);
             validators.add(validator);
         }
         return validators;
     }
 
-    public ValidatorContext validate(User user, IVariableProvider variableProvider, byte[] validationXml, Map<String, Object> variables) {
+    public ValidatorContext validate(User user, ExecutionContext executionContext, IVariableProvider variableProvider, byte[] validationXml,
+            Map<String, Object> variables) {
         ValidatorContext validatorContext = new ValidatorContext();
-        List<Validator> validators = createValidators(user, variableProvider, validationXml, validatorContext, variables);
+        List<Validator> validators = createValidators(user, executionContext, variableProvider, validationXml, validatorContext, variables);
         // can be null for single output transition
         String transitionName = (String) variableProvider.getValue(WfProcess.SELECTED_TRANSITION_KEY);
         for (Validator validator : validators) {

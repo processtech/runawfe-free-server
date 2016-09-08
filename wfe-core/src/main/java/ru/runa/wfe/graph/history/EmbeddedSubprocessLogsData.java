@@ -12,7 +12,7 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.SubProcessState;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
 import com.google.common.base.Strings;
@@ -101,7 +101,7 @@ public class EmbeddedSubprocessLogsData {
     private void consumeProcessLog(ProcessLog log, HashMap<Long, Stack<String>> tokenIdToSubprocess) {
         processLogsWithoutEmbedded.add(log);
         if (log instanceof NodeEnterLog && NodeType.SUBPROCESS == ((NodeEnterLog) log).getNodeType()) {
-            SubProcessState node = getSubprocessNode(log.getNodeId());
+            SubprocessNode node = getSubprocessNode(log.getNodeId());
             if (node != null && node.isEmbedded()) {
                 SubprocessDefinition subprocessDefinition = processDefinitionData.getEmbeddedSubprocess(node.getSubProcessName());
                 String subProcessName = subprocessDefinition.getNodeId();
@@ -120,7 +120,7 @@ public class EmbeddedSubprocessLogsData {
         }
         Stack<String> stack = tokenIdToSubprocess.get(log.getTokenId());
         if (log instanceof NodeEnterLog && NodeType.SUBPROCESS == ((NodeEnterLog) log).getNodeType()) {
-            SubProcessState node = getSubprocessNode(log.getNodeId());
+            SubprocessNode node = getSubprocessNode(log.getNodeId());
             if (node != null && node.isEmbedded()) {
                 SubprocessDefinition subprocessDefinition = processDefinitionData.getEmbeddedSubprocess(node.getSubProcessName());
                 String newSubprocessName = subprocessDefinition.getNodeId();
@@ -149,12 +149,12 @@ public class EmbeddedSubprocessLogsData {
         }
     }
 
-    private SubProcessState getSubprocessNode(String nodeId) {
+    private SubprocessNode getSubprocessNode(String nodeId) {
         Node result = processDefinitionData.getNode(nodeId);
-        if (result == null || !(result instanceof SubProcessState)) {
+        if (result == null || !(result instanceof SubprocessNode)) {
             return null;
         }
-        return (SubProcessState) result;
+        return (SubprocessNode) result;
     }
 
     public List<ProcessLog> getProcessLogs(String subProcessId) {

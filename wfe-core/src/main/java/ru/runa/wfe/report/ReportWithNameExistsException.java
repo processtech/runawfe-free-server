@@ -14,17 +14,14 @@ public class ReportWithNameExistsException extends InternalApplicationException 
 
     public ReportWithNameExistsException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
     public ReportWithNameExistsException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
     public ReportWithNameExistsException(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 
     public String getReportName() {

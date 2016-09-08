@@ -47,8 +47,7 @@ import com.google.common.base.Throwables;
  * @since 4.2
  */
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/email"),
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "useDLQ", propertyValue = "false") })
+        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class })
 public class EmailSenderBean implements MessageListener {

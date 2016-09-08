@@ -104,7 +104,7 @@ public abstract class Variable<T extends Object> {
         this.version = version;
     }
 
-    @Column(name = "NAME")
+    @Column(name = "NAME", length = 1024)
     @Index(name = "IX_VARIABLE_NAME")
     public String getName() {
         return name;
@@ -177,7 +177,6 @@ public abstract class Variable<T extends Object> {
 
     public boolean supports(Object value) {
         if (value == null) {
-            // TODO check this
             return false;
         }
         return converter != null && converter.supports(value);

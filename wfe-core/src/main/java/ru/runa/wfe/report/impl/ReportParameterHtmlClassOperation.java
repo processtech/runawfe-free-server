@@ -3,7 +3,7 @@ package ru.runa.wfe.report.impl;
 import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
 
 /**
- * Операция для получения HTML класса для элемента input параметра.
+ * Operation to get HTML class for input element for parameter.
  * 
  */
 public class ReportParameterHtmlClassOperation implements ReportParameterTypeVisitor<String, Object> {

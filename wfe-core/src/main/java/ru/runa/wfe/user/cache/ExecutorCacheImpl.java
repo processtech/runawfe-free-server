@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 
@@ -101,37 +102,37 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
 
     @Override
     public Actor getActor(Long code) {
-        return codeToActorCache.get(code);
+        return (Actor) SerializationUtils.clone(codeToActorCache.get(code));
     }
 
     @Override
     public Executor getExecutor(String name) {
-        return nameToExecutorCache.get(name);
+        return (Executor) SerializationUtils.clone(nameToExecutorCache.get(name));
     }
 
     @Override
     public Executor getExecutor(Long id) {
-        return idToExecutorCache.get(id);
+        return (Executor) SerializationUtils.clone(idToExecutorCache.get(id));
     }
 
     @Override
     public Set<Executor> getGroupMembers(Group group) {
-        return groupToMembersCache.get(group.getId());
+        return (Set<Executor>) SerializationUtils.clone(groupToMembersCache.get(group.getId()));
     }
 
     @Override
     public Set<Actor> getGroupActorsAll(Group group) {
-        return groupToAllActorMembersCache.get(group.getId());
+        return (Set<Actor>) SerializationUtils.clone(groupToAllActorMembersCache.get(group.getId()));
     }
 
     @Override
     public Set<Group> getExecutorParents(Executor executor) {
-        return executorToParentGroupsCache.get(executor.getId());
+        return (Set<Group>) SerializationUtils.clone(executorToParentGroupsCache.get(executor.getId()));
     }
 
     @Override
     public Set<Group> getExecutorParentsAll(Executor executor) {
-        return executorToAllParentGroupsCache.get(executor.getId());
+        return (Set<Group>) SerializationUtils.clone(executorToAllParentGroupsCache.get(executor.getId()));
     }
 
     @Override

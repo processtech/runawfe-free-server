@@ -60,7 +60,7 @@ public class Constant {
         this.id = id;
     }
 
-    @Column(name = "NAME", unique = true)
+    @Column(name = "NAME", unique = true, length = 1024)
     public String getName() {
         return name;
     }
@@ -69,7 +69,7 @@ public class Constant {
         this.name = name;
     }
 
-    @Column(name = "VALUE")
+    @Column(name = "VALUE", length = 1024)
     public String getValue() {
         return value;
     }

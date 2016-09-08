@@ -19,8 +19,8 @@ public class TaskAssignmentHistory extends AssignmentHistory {
     public TaskAssignmentHistory() {
     }
 
-    public TaskAssignmentHistory(TaskAggregatedLog taskAggregatedLog, long objectId, Date assingnDate, String oldExecutorName, String newExecutorName) {
-        super(objectId, assingnDate, oldExecutorName, newExecutorName);
+    public TaskAssignmentHistory(TaskAggregatedLog taskAggregatedLog, long objectId, Date assignDate, String oldExecutorName, String newExecutorName) {
+        super(objectId, assignDate, oldExecutorName, newExecutorName);
         log = taskAggregatedLog;
     }
 

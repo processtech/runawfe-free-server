@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.relation;
 
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -34,9 +35,9 @@ public class RelationPairClassPresentation extends ClassPresentation {
         super(RelationPair.class, "", false, new FieldDescriptor[] {
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(RelationPair.class, "relation.name"), true,
                         FieldFilterMode.DATABASE, FieldState.HIDDEN),
-                new FieldDescriptor(EXECUTOR_FROM, String.class.getName(), new DefaultDBSource(RelationPair.class, "left.name"), true,
+                new FieldDescriptor(EXECUTOR_FROM, String.class.getName(), new DefaultDBSource(RelationPair.class, "left.name"), true, 1, BatchPresentationConsts.ASC,
                         FieldFilterMode.DATABASE, "ru.runa.af.web.html.RelationFromTDBuilder", null),
-                new FieldDescriptor(EXECUTOR_TO, String.class.getName(), new DefaultDBSource(RelationPair.class, "right.name"), true,
+                new FieldDescriptor(EXECUTOR_TO, String.class.getName(), new DefaultDBSource(RelationPair.class, "right.name"), true, 2, BatchPresentationConsts.ASC,
                         FieldFilterMode.DATABASE, "ru.runa.af.web.html.RelationToTDBuilder", null) });
     }
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.runa.wfe.commons.EntityWithType;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.security.Identifiable;
@@ -44,14 +45,14 @@ public class ReportDto extends Identifiable implements Comparable<ReportDto>, En
         category = definition.getCategory();
         compiledReport = definition.getCompiledReport();
         parameters = new ArrayList<ReportParameterDto>(Lists.transform(definition.getParameters(),
-            new Function<ReportParameter, ReportParameterDto>() {
-                int position = 0;
+                new Function<ReportParameter, ReportParameterDto>() {
+                    int position = 0;
 
-                @Override
-                public ReportParameterDto apply(ReportParameter input) {
-                    return new ReportParameterDto(input.getName(), "", input.getInnerName(), ++position, input.getType(), input.isRequired());
-                }
-            }));
+                    @Override
+                    public ReportParameterDto apply(ReportParameter input) {
+                        return new ReportParameterDto(input.getName(), "", input.getInnerName(), ++position, input.getType(), input.isRequired());
+                    }
+                }));
     }
 
     public Long getId() {
@@ -89,7 +90,7 @@ public class ReportDto extends Identifiable implements Comparable<ReportDto>, En
     @Override
     public String[] getCategories() {
         if (category != null) {
-            return category.split("/");
+            return category.split(Utils.CATEGORY_DELIMITER);
         }
         return new String[] {};
     }

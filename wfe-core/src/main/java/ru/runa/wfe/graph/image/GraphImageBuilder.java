@@ -38,7 +38,7 @@ import ru.runa.wfe.graph.image.figure.uml.UMLFigureFactory;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubProcessState;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskDeadlineUtils;
 
@@ -130,7 +130,7 @@ public class GraphImageBuilder {
         for (Token childToken : token.getActiveChildren()) {
             fillActiveSubprocesses(childToken);
         }
-        if (processDefinition.getNode(token.getNodeId()) != null && token.getNodeNotNull(processDefinition) instanceof SubProcessState) {
+        if (processDefinition.getNode(token.getNodeId()) != null && token.getNodeNotNull(processDefinition) instanceof SubprocessNode) {
             AbstractFigure node = allNodeFigures.get(token.getNodeNotNull(processDefinition).getNodeId());
             Color color;
             if (highlightedToken != null && Objects.equal(highlightedToken.getId(), token.getId())) {

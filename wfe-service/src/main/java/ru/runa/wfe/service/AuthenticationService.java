@@ -64,5 +64,5 @@ public interface AuthenticationService {
      * @throws AuthenticationException
      * @since 4.2.0
      */
-    public User authenticateByTrsustedPrincipal(User serviceUser, String login) throws AuthenticationException;
+    public User authenticateByTrustedPrincipal(User serviceUser, String login) throws AuthenticationException;
 }

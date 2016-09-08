@@ -46,11 +46,13 @@ public class BotInvokerServiceBean implements BotInvokerService {
     private static final Log log = LogFactory.getLog(BotInvokerServiceBean.class);
     @Resource
     private TimerService timerService;
+    private boolean firstInvocation;
 
     @Override
     public synchronized void startPeriodicBotsInvocation(BotStation botStation) {
         if (!isRunning()) {
             log.info("Starting periodic bot execution...");
+            firstInvocation = true;
             timerService.createTimer(0, BotStationResources.getBotInvocationPeriod(), botStation.getId());
         } else {
             log.info("BotRunner is running. skipping start...");
@@ -76,7 +78,7 @@ public class BotInvokerServiceBean implements BotInvokerService {
 
     @Override
     public void invokeBots(BotStation botStation) {
-        invokeBotsImpl(botStation);
+        invokeBotsImpl(botStation, false);
     }
 
     @WebMethod(exclude = true)
@@ -85,17 +87,18 @@ public class BotInvokerServiceBean implements BotInvokerService {
         try {
             // refresh version and check that bot station exists
             BotStation botStation = Delegates.getBotService().getBotStation((Long) timer.getInfo());
-            invokeBotsImpl(botStation);
+            invokeBotsImpl(botStation, firstInvocation);
+            firstInvocation = false;
         } catch (BotStationDoesNotExistException e) {
             log.warn("Cancelling periodic invocation due to: " + e);
             timer.cancel();
         }
     }
 
-    private static void invokeBotsImpl(BotStation botStation) {
+    private static void invokeBotsImpl(BotStation botStation, boolean resetFailedDelay) {
         try {
             log.debug("Invoking bots...");
-            BotInvokerFactory.getBotInvoker().invokeBots(botStation);
+            BotInvokerFactory.getBotInvoker().invokeBots(botStation, resetFailedDelay);
         } catch (Throwable th) {
             log.error("Unable to invoke bots", th);
         }

@@ -50,7 +50,7 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @Override
     @WebResult(name = "result")
     public List<WfTask> getMyTasks(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(user != null, "user");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.TASKS.createNonPaged();
         }
@@ -58,8 +58,9 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     }
 
     @Override
-    public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null);
+    @WebResult(name = "result")
+    public List<WfTask> getTasks(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+        Preconditions.checkArgument(user != null, "user");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.TASKS.createNonPaged();
         }
@@ -69,7 +70,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @Override
     @WebResult(name = "result")
     public WfTask getTask(@WebParam(name = "user") User user, @WebParam(name = "taskId") Long taskId) {
-        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(taskId != null, "taskId");
         return taskLogic.getTask(user, taskId);
     }
 
@@ -77,14 +79,16 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @WebResult(name = "result")
     public List<WfTask> getProcessTasks(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "includeSubprocesses") boolean includeSubprocesses) {
-        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(processId != null, "processId");
         return taskLogic.getTasks(user, processId, includeSubprocesses);
     }
 
     @WebMethod(exclude = true)
     @Override
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) {
-        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(taskId != null, "taskId");
         Long processId = taskLogic.getProcessId(user, taskId);
         FileVariablesUtil.unproxyFileVariables(user, processId, taskId, variables);
         taskLogic.completeTask(user, taskId, variables, swimlaneActorId);
@@ -95,11 +99,13 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     public void assignTask(@WebParam(name = "user") User user, @WebParam(name = "taskId") Long taskId,
             @WebParam(name = "previousOwner") Executor previousOwner, @WebParam(name = "newExecutor") Executor newExecutor) {
         Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(taskId != null, "taskId");
         taskLogic.assignTask(user, taskId, previousOwner, newExecutor);
     }
 
     @Override
-    public int reassignTasks(User user, BatchPresentation batchPresentation) {
+    @WebResult(name = "result")
+    public int reassignTasks(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         Preconditions.checkArgument(user != null);
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.TASKS.createNonPaged();
@@ -108,7 +114,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     }
 
     @Override
-    public void reassignTask(User user, Long taskId) {
+    @WebResult(name = "result")
+    public void reassignTask(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") Long taskId) {
         Preconditions.checkArgument(user != null);
         Preconditions.checkArgument(taskId != null);
         taskLogic.reassignTask(user, taskId);
@@ -117,7 +124,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @Override
     @WebResult(name = "result")
     public void markTaskOpened(@WebParam(name = "user") User user, @WebParam(name = "taskId") Long taskId) {
-        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(taskId != null, "taskId");
         taskLogic.markTaskOpened(user, taskId);
     }
 
@@ -125,6 +133,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     @WebResult(name = "result")
     public void completeTaskWS(@WebParam(name = "user") User user, @WebParam(name = "taskId") Long taskId,
             @WebParam(name = "variables") List<Variable> variables, @WebParam(name = "swimlaneActorId") Long swimlaneActorId) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(taskId != null, "taskId");
         WfTask task = taskLogic.getTask(user, taskId);
         ProcessDefinition processDefinition = executionLogic.getDefinition(task.getDefinitionId());
         completeTask(user, taskId, VariableConverter.unmarshal(processDefinition, variables), swimlaneActorId);
@@ -132,9 +142,11 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
 
     @WebMethod(exclude = true)
     @Override
-    public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> newOwners) {
-        Preconditions.checkArgument(user != null);
-        taskLogic.delegateTask(user, taskId, currentOwner, newOwners);
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(taskId != null, "taskId");
+        Preconditions.checkArgument(newOwners != null, "newOwners");
+        taskLogic.delegateTask(user, taskId, currentOwner, keepCurrentOwners, newOwners);
     }
 
 }

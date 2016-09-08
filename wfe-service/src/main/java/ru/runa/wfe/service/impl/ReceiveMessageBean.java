@@ -50,7 +50,7 @@ import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.ReceiveMessage;
+import ru.runa.wfe.lang.ReceiveMessageNode;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.var.VariableMapping;
@@ -86,13 +86,13 @@ public class ReceiveMessageBean implements MessageListener {
         try {
             log.debug("Received " + messageString);
             transaction.begin();
-            List<Token> tokens = tokenDAO.findActiveTokens(NodeType.RECEIVE_MESSAGE);
+            List<Token> tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
             for (Token token : tokens) {
                 ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
-                ReceiveMessage receiveMessage = (ReceiveMessage) token.getNodeNotNull(processDefinition);
+                ReceiveMessageNode receiveMessageNode = (ReceiveMessageNode) token.getNodeNotNull(processDefinition);
                 ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
                 boolean suitable = true;
-                for (VariableMapping mapping : receiveMessage.getVariableMappings()) {
+                for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
                     if (mapping.isPropertySelector()) {
                         String selectorValue = message.getStringProperty(mapping.getName());
                         String testValue = mapping.getMappedName();
@@ -102,9 +102,9 @@ public class ReceiveMessageBean implements MessageListener {
                         } else if (Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED.equals(testValue)) {
                             expectedValue = token.getProcess().getDeployment().getName();
                         } else if (Variables.CURRENT_NODE_NAME_WRAPPED.equals(testValue)) {
-                            expectedValue = receiveMessage.getName();
+                            expectedValue = receiveMessageNode.getName();
                         } else if (Variables.CURRENT_NODE_ID_WRAPPED.equals(testValue)) {
-                            expectedValue = receiveMessage.getNodeId();
+                            expectedValue = receiveMessageNode.getNodeId();
                         } else {
                             Object value = ExpressionEvaluator.evaluateVariable(executionContext.getVariableProvider(), testValue);
                             expectedValue = TypeConversionUtil.convertTo(String.class, value);
@@ -118,7 +118,7 @@ public class ReceiveMessageBean implements MessageListener {
                     }
                 }
                 if (suitable) {
-                    handlers.add(new ReceiveMessageData(executionContext, receiveMessage));
+                    handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
                 }
             }
             transaction.commit();
@@ -183,25 +183,34 @@ public class ReceiveMessageBean implements MessageListener {
             }
         }
         lock.lock();
+        if (!processLocks.containsKey(processId)) {
+            synchronized (processLocks) {
+                log.debug("adding " + lock + " to map for " + processId);
+                processLocks.put(processId, lock);
+            }
+        }
+        log.debug("acquired " + lock + " for " + processId);
     }
 
     private void releaseLock(Long processId) {
+        log.debug("releasing lock for " + processId);
         synchronized (processLocks) {
             ReentrantLock lock = processLocks.get(processId);
             if (!lock.hasQueuedThreads()) {
-                log.debug("releasing " + lock + " for " + processId);
+                log.debug("deleting " + lock + " for " + processId);
                 processLocks.remove(processId);
             }
             lock.unlock();
+            log.debug("released " + lock + " for " + processId);
         }
     }
 
     private static class ReceiveMessageData {
         private Long processId;
         private Long tokenId;
-        private ReceiveMessage node;
+        private ReceiveMessageNode node;
 
-        public ReceiveMessageData(ExecutionContext executionContext, ReceiveMessage node) {
+        public ReceiveMessageData(ExecutionContext executionContext, ReceiveMessageNode node) {
             this.processId = executionContext.getProcess().getId();
             this.tokenId = executionContext.getToken().getId();
             this.node = node;

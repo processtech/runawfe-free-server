@@ -10,10 +10,10 @@ import ru.runa.wfe.execution.ExecutionContext;
  */
 public class EmbeddedSubprocessEndNode extends Node {
     private static final long serialVersionUID = 1L;
-    private SubProcessState subProcessState;
+    private SubprocessNode subprocessNode;
 
-    public void setSubProcessState(SubProcessState subProcessState) {
-        this.subProcessState = subProcessState;
+    public void setSubProcessState(SubprocessNode subprocessNode) {
+        this.subprocessNode = subprocessNode;
     }
     
     @Override
@@ -26,19 +26,19 @@ public class EmbeddedSubprocessEndNode extends Node {
         if (arriving) {
             return super.getTransitionNodeId(arriving);
         }
-        return subProcessState.getNodeId();
+        return subprocessNode.getNodeId();
     }
     
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    public void execute(ExecutionContext executionContext) {
         leave(executionContext);
     }
 
     @Override
     protected void addLeaveLog(ExecutionContext executionContext) {
         super.addLeaveLog(executionContext);
-        executionContext.getToken().setNodeId(subProcessState.getNodeId());
-        executionContext.addLog(new NodeLeaveLog(subProcessState));
+        executionContext.getToken().setNodeId(subprocessNode.getNodeId());
+        executionContext.addLog(new NodeLeaveLog(subprocessNode));
         executionContext.getToken().setNodeId(getNodeId());
     }
 

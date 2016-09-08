@@ -20,7 +20,7 @@ package ru.runa.report.web.tag;
 import java.util.Iterator;
 import java.util.List;
 
-import ru.runa.common.web.HierarchyTypesIterator;
+import ru.runa.common.web.CategoriesIterator;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.report.dto.ReportDto;
@@ -33,13 +33,13 @@ import com.google.common.collect.Lists;
 
 public class ReportTypesIterator implements Iterator<String[]> {
 
-    private final HierarchyTypesIterator innerIterator;
+    private final CategoriesIterator innerIterator;
 
     public ReportTypesIterator(User user) {
-        innerIterator = new HierarchyTypesIterator(getAllTypes(user));
+        innerIterator = new CategoriesIterator(getAllcategories(user));
     }
 
-    private static List<String[]> getAllTypes(User user) {
+    private static List<String[]> getAllcategories(User user) {
         ReportService reportService = Delegates.getReportService();
         BatchPresentation batchPresentation = BatchPresentationFactory.REPORTS.createNonPaged();
         List<ReportDto> definitions = reportService.getReportDefinitions(user, batchPresentation, false);
@@ -60,11 +60,6 @@ public class ReportTypesIterator implements Iterator<String[]> {
     @Override
     public String[] next() {
         return innerIterator.next();
-    }
-
-    // TODO remove this method. Action must not use this iterator - iterator may be changed before action execution (wrong type will be set).
-    public String[] getItem(int idx) {
-        return innerIterator.getItem(idx);
     }
 
     @Override

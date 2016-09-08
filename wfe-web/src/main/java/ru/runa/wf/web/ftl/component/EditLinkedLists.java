@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.commons.TypeConversionUtil;
-import ru.runa.wfe.commons.ftl.AjaxFormComponent;
+import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
@@ -19,7 +19,7 @@ import com.google.common.collect.Lists;
  * @author dofs
  * @since 4.0.5
  */
-public class EditLinkedLists extends AjaxFormComponent {
+public class EditLinkedLists extends FormComponent {
     private static final long serialVersionUID = 1L;
 
     @Override

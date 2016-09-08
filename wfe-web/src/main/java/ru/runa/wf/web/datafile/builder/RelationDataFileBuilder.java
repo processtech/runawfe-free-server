@@ -29,14 +29,14 @@ public class RelationDataFileBuilder implements DataFileBuilder {
 
     @Override
     public void build(ZipOutputStream zos, Document script) {
-        List<Relation> relations = Delegates.getRelationService().getRelations(user, BatchPresentationFactory.RELATIONS.createDefault());
+        List<Relation> relations = Delegates.getRelationService().getRelations(user, BatchPresentationFactory.RELATIONS.createNonPaged());
         for (Relation relation : relations) {
             if (Strings.isNullOrEmpty(relation.getName())) {
                 continue;
             }
             Map<Executor, List<Executor>> map = Maps.newHashMap();
             List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(user, relation.getName(),
-                    BatchPresentationFactory.RELATION_PAIRS.createDefault());
+                    BatchPresentationFactory.RELATION_PAIRS.createNonPaged());
             for (RelationPair relationPair : relationPairs) {
                 List<Executor> list = map.get(relationPair.getLeft());
                 if (list == null) {

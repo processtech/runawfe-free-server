@@ -7,43 +7,43 @@ import ru.runa.wfe.report.ReportParameterType;
 import ru.runa.wfe.report.dto.ReportParameterDto;
 
 /**
- * Модель параметра, требуемого для построения отчета.
+ * Parameter model that is required in order to build report.
  */
 public class ReportParameterModel {
     /**
-     * Название, отображаемое пользователю.
+     * Name that is shown to user.
      */
     private String name;
     /**
-     * Тип параметра.
+     * Parameter type.
      */
     private ReportParameterType type;
     /**
-     * Название параметра, в котором хранится значение при передаче в отчет.
+     * Parameter name for report.
      */
     private String innerName;
     /**
-     * Значение параметра.
+     * Parameter value.
      */
     private String value;
     /**
-     * Флаг, равный true, если параметр обязателен и false иначе.
+     * true if parameter is required, false if it's optional.
      */
     private boolean required;
     /**
-     * Тип параметра в html элементе input.
+     * Parameter type in input html element.
      */
     private String htmlInputType;
     /**
-     * CSS-класс в html элементе input.
-     */
+     * CSS-class in input html element 
+     *      */
     private String htmlInputClass;
     /**
-     * Значения для выбора из списка.
+     * Values for dropdown list.
      */
     private List<ListValuesData> listValues = new ArrayList<ReportParameterModel.ListValuesData>();
     /**
-     * Описание параметра, отображаемое пользователю.
+     * Parameter description that is shown to user.
      */
     private String description;
 
@@ -142,11 +142,11 @@ public class ReportParameterModel {
 
     public static class ListValuesData {
         /**
-         * Текст, отображаемый пользователю.
+         * Text that is shown to user.
          */
         private String valueName;
         /**
-         * Значение, соответствующее параметру.
+         * Value that corresponds to parameter.
          */
         private Object value;
 

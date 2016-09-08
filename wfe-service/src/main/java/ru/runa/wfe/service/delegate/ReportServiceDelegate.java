@@ -36,9 +36,9 @@ public class ReportServiceDelegate extends EJB3Delegate implements ReportService
     }
 
     @Override
-    public List<ReportParameterDto> analizeReportFile(ReportDto report, byte[] reportFileContent) {
+    public List<ReportParameterDto> analyzeReportFile(ReportDto report, byte[] reportFileContent) {
         try {
-            return getReportService().analizeReportFile(report, reportFileContent);
+            return getReportService().analyzeReportFile(report, reportFileContent);
         } catch (Exception e) {
             throw handleException(e);
         }

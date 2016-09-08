@@ -19,7 +19,8 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 /**
- * Populate zip archive definition files. Add action 'deployProcessDefinition' to xml.
+ * Populate zip archive definition files. Add action 'deployProcessDefinition'
+ * to xml.
  * 
  * @author riven
  * 
@@ -33,26 +34,21 @@ public class DefinitionDataFileBuilder implements DataFileBuilder {
     }
 
     @Override
-    public void build(ZipOutputStream zos, Document script) {
-        try {
-            DefinitionService definitionService = Delegates.getDefinitionService();
-            BatchPresentation batchPresentation = BatchPresentationFactory.DEFINITIONS.createDefault();
-            List<WfDefinition> definitions = definitionService.getProcessDefinitions(user, batchPresentation, false);
-            for (WfDefinition definition : definitions) {
-                String fileName = definition.getName() + "." + IFileDataProvider.PAR_FILE;
-                byte[] definitionPar = definitionService.getProcessDefinitionFile(user, definition.getId(), IFileDataProvider.PAR_FILE);
-                ZipEntry zipEntry = new ZipEntry(PATH_TO_PROCESS_DEF + fileName);
-                zos.putNextEntry(zipEntry);
-                zos.write(definitionPar, 0, definitionPar.length);
-                zos.closeEntry();
-
-                Element element = script.getRootElement().addElement("deployProcessDefinition", XmlUtils.RUNA_NAMESPACE);
-                element.addAttribute("file", PATH_TO_PROCESS_DEF + fileName);
-            }
-            new PermissionsDataFileBuilder(user, definitions, "addPermissionsOnDefinition", true).build(zos, script);
-        } catch (Exception e) {
-            log.error("", e);
+    public void build(ZipOutputStream zos, Document script) throws Exception {
+        DefinitionService definitionService = Delegates.getDefinitionService();
+        BatchPresentation batchPresentation = BatchPresentationFactory.DEFINITIONS.createNonPaged();
+        List<WfDefinition> definitions = definitionService.getProcessDefinitions(user, batchPresentation, false);
+        for (WfDefinition definition : definitions) {
+            String fileName = definition.getName() + "." + IFileDataProvider.PAR_FILE;
+            byte[] definitionPar = definitionService.getProcessDefinitionFile(user, definition.getId(), IFileDataProvider.PAR_FILE);
+            ZipEntry zipEntry = new ZipEntry(PATH_TO_PROCESS_DEF + fileName);
+            zos.putNextEntry(zipEntry);
+            zos.write(definitionPar, 0, definitionPar.length);
+            zos.closeEntry();
+            Element element = script.getRootElement().addElement("deployProcessDefinition", XmlUtils.RUNA_NAMESPACE);
+            element.addAttribute("file", PATH_TO_PROCESS_DEF + fileName);
+            element.addAttribute("type", definition.getCategories()[0]);
         }
-
+        new PermissionsDataFileBuilder(user, definitions, "addPermissionsOnDefinition", true).build(zos, script);
     }
 }

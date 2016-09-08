@@ -27,7 +27,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import com.google.common.base.Joiner;
 
 /**
- * DTO для описания отчета.
+ * DTO for report description.
  */
 
 @Entity
@@ -37,44 +37,32 @@ public class ReportDefinition {
     private Long id;
     private Long version;
     /**
-     * Название отчета, отображаемое пользователю.
+     * Report name that is shown to user.
      */
     private String name;
 
     /**
-     * Описание отчета, отображаемое пользователю.
+     * Report description that is shown to user.
      */
     private String description;
 
     /**
-     * Набор параметров, которые требуется запросить у пользователя для построения отчета.
+     * Parameters set that is required for user to input in order to build report.
      */
     private List<ReportParameter> parameters;
 
     /**
-     * Скомпилированный (.jasper) отчет jasper reports.
+     * Compiled (.jasper) jasper reports.
      */
     private byte[] compiledReport;
 
     /**
-     * Тип конфигурации и построения отчета.
+     * Configuration and report construction type.
      */
     private ReportConfigurationType configType;
 
     /**
-     * Содержимое JAR файла, требуемого для построения отчета. Используется для построения отчетов с типом конфигурации
-     * {@link ReportConfigurationType.PARAMETER_BUILDER}.
-     */
-    private byte[] jarFile;
-
-    /**
-     * Название класса, реализующего интерфейс {@link ReportParametersBuilder} и используемого для заполнения параметров отчета. Используется для
-     * построения отчетов с типом конфигурации {@link ReportConfigurationType.PARAMETER_BUILDER}.
-     */
-    private String parameterBuilderClassName;
-
-    /**
-     * Категория (тип) отчета.
+     * Report category (type).
      */
     private String category;
 
@@ -116,7 +104,7 @@ public class ReportDefinition {
         this.version = version;
     }
 
-    @Column(name = "NAME", length = 255, nullable = false, unique = true)
+    @Column(name = "NAME", length = 1024, nullable = false, unique = true)
     public String getName() {
         return name;
     }
@@ -155,26 +143,7 @@ public class ReportDefinition {
         this.compiledReport = compiledReport;
     }
 
-    @Lob
-    @Column(name = "JAR_FILE", nullable = true, length = 128 * 1024 * 1024)
-    public byte[] getJarFile() {
-        return jarFile;
-    }
-
-    public void setJarFile(byte[] jarFile) {
-        this.jarFile = jarFile;
-    }
-
-    @Column(name = "PARAM_BUILDER_NAME", length = 255, nullable = true)
-    public String getParameterBuilderClassName() {
-        return parameterBuilderClassName;
-    }
-
-    public void setParameterBuilderClassName(String parameterBuilderClassName) {
-        this.parameterBuilderClassName = parameterBuilderClassName;
-    }
-
-    @Column(name = "CONFIG_TYPE", length = 255, nullable = false)
+    @Column(name = "CONFIG_TYPE", length = 1024, nullable = false)
     @Enumerated(EnumType.STRING)
     public ReportConfigurationType getConfigType() {
         return configType;
@@ -184,7 +153,7 @@ public class ReportDefinition {
         this.configType = reportConfigType;
     }
 
-    @Column(name = "CATEGORY", length = 255, nullable = false)
+    @Column(name = "CATEGORY", length = 1024)
     public String getCategory() {
         return category;
     }
@@ -207,9 +176,7 @@ public class ReportDefinition {
         this.compiledReport = reportDefinition.compiledReport;
         this.configType = reportDefinition.configType;
         this.description = reportDefinition.description;
-        this.jarFile = reportDefinition.jarFile;
         this.name = reportDefinition.name;
-        this.parameterBuilderClassName = reportDefinition.parameterBuilderClassName;
         this.parameters.clear();
         this.parameters.addAll(reportDefinition.getParameters());
     }

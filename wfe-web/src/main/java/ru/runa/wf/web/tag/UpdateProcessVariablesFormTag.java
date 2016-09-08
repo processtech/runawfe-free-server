@@ -44,7 +44,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
         WfProcess process = Delegates.getExecutionService().getProcess(getUser(), getProcessId());
         List<VariableDefinition> variables = Delegates.getDefinitionService().getVariableDefinitions(getUser(), process.getDefinitionId());
         if (!variables.isEmpty()) {
-            if (SystemProperties.isUpdateVariablesEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
+            if (SystemProperties.isUpdateProcessVariablesInAPIEnabled() && Delegates.getExecutorService().isAdministrator(getUser())) {
                 getForm().setEncType(Form.ENC_UPLOAD);
                 String labelTDWidth = "150px";
 

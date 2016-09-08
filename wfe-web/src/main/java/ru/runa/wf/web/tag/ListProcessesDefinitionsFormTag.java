@@ -25,6 +25,7 @@ import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
@@ -69,12 +70,12 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, definitions.size());
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
-        TDBuilder[] builders = getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION),
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION),
                 new StartProcessTDBuilder() }, batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
                 pageContext);
-        RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_MANAGE_DEFINITION,
+        RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_START_PROCESS,
                 getReturnAction(), new DefinitionUrlStrategy(pageContext), builders);
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
         navigation.addPagingNavigationTable(tdFormElement);

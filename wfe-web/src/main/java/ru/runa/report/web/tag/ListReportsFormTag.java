@@ -25,6 +25,7 @@ import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
@@ -65,7 +66,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(reports);
         TDBuilder[] builders =
-                getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", ReportPermission.DEPLOY) }, batchPresentation,
+                BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", ReportPermission.DEPLOY) }, batchPresentation,
                     new TDBuilder[] { new ReportPropertiesTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, reports);
         SortingHeaderBuilder headerBuilder =

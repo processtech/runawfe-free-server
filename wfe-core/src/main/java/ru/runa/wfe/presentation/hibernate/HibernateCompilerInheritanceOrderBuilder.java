@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.presentation.hibernate;
@@ -32,7 +32,7 @@ import ru.runa.wfe.presentation.FieldState;
 public class HibernateCompilerInheritanceOrderBuilder {
 
     /**
-     * {@link BatchPresentation}, used to build query. 
+     * {@link BatchPresentation}, used to build query.
      */
     private final BatchPresentation batchPresentation;
 
@@ -48,9 +48,13 @@ public class HibernateCompilerInheritanceOrderBuilder {
 
     /**
      * Constructs instance for building order by SQL statements for fields with inheritance.
-     * @param batchPresentation {@link BatchPresentation}, used to build query.
-     * @param hqlBuilder Component to build HQL query for {@link BatchPresentation}.
-     * @param queryTranslator Translator, used to translate HQL query to SQL.
+     * 
+     * @param batchPresentation
+     *            {@link BatchPresentation}, used to build query.
+     * @param hqlBuilder
+     *            Component to build HQL query for {@link BatchPresentation}.
+     * @param queryTranslator
+     *            Translator, used to translate HQL query to SQL.
      */
     public HibernateCompilerInheritanceOrderBuilder(BatchPresentation batchPresentation, HibernateCompilerHQLBuider hqlBuilder,
             HibernateCompilerTranslator queryTranslator) {
@@ -61,7 +65,9 @@ public class HibernateCompilerInheritanceOrderBuilder {
 
     /**
      * Injects SQL statements to order by fields with inheritance into SQL query.
-     * @param sqlQuery SQL query to inject order statements.
+     * 
+     * @param sqlQuery
+     *            SQL query to inject order statements.
      */
     public void injectOrderStatements(StringBuilder sqlQuery) {
         if (!hqlBuilder.isOrderByInheritance()) {
@@ -83,9 +89,12 @@ public class HibernateCompilerInheritanceOrderBuilder {
 
     /**
      * Fills inheritedFieldPositions with actual positions (absolute position in SQL query) of sorted field with inheritance.
-     * @param sqlQuery SQL query to inject order statements.
-     * @param inheritedFieldPositions Position (order position) of sorted field with inheritance.
-     * @return true, if SQL query has order by clause with non inherited fields and false otherwise. 
+     * 
+     * @param sqlQuery
+     *            SQL query to inject order statements.
+     * @param inheritedFieldPositions
+     *            Position (order position) of sorted field with inheritance.
+     * @return true, if SQL query has order by clause with non inherited fields and false otherwise.
      */
     private boolean getFieldPositionInSql(StringBuilder sqlQuery, int[] inheritedFieldPositions) {
         boolean hasOrderBy = true;
@@ -113,11 +122,12 @@ public class HibernateCompilerInheritanceOrderBuilder {
     }
 
     /**
-     * Calculates position of sorted field with inheritance in result order by SQL statement.
-     * For example if we sort {id, variable, variable}, result will be {1, 2}.
-     * If we sort {variable, id, name, variable}, result will be {0, 3}.
-     * This calculation need to insert statement into correct position in result SQL query.  
-     * @param orders Statements, which will be inserted into order by clause.
+     * Calculates position of sorted field with inheritance in result order by SQL statement. For example if we sort {id, variable, variable}, result
+     * will be {1, 2}. If we sort {variable, id, name, variable}, result will be {0, 3}. This calculation need to insert statement into correct
+     * position in result SQL query.
+     * 
+     * @param orders
+     *            Statements, which will be inserted into order by clause.
      * @return Position (order position) of sorted field with inheritance.
      */
     private int[] getIneritanceFieldIndexes(String[] orders) {
@@ -133,7 +143,8 @@ public class HibernateCompilerInheritanceOrderBuilder {
     }
 
     /**
-     * Builds order statements for fields with inheritance. 
+     * Builds order statements for fields with inheritance.
+     * 
      * @return List of statements for fields with inheritance.
      */
     private List<String> buildSQLOrderClause() {
@@ -144,7 +155,7 @@ public class HibernateCompilerInheritanceOrderBuilder {
             return orderClause;
         }
         for (int i = 0; i < sortedFields.length; i++) {
-            if (!sortedFields[i].isSortable || sortedFields[i].fieldState == FieldState.DISABLED) {
+            if (!sortedFields[i].sortable || sortedFields[i].fieldState == FieldState.DISABLED) {
                 continue;
             }
             if (sortedFields[i].dbSources.length == 1) {
@@ -166,8 +177,11 @@ public class HibernateCompilerInheritanceOrderBuilder {
 
     /**
      * Creates list of statements to add to order by clause.
-     * @param field Field to create order by statements.
-     * @param sortingMode true, if sorting is ascending and false for descending. 
+     * 
+     * @param field
+     *            Field to create order by statements.
+     * @param sortingMode
+     *            true, if sorting is ascending and false for descending.
      * @return List of statements to add to order by clause.
      */
     private List<String> buildOrderToField(FieldDescriptor field, boolean sortingMode) {

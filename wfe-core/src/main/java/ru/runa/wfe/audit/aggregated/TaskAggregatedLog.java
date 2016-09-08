@@ -60,8 +60,7 @@ public class TaskAggregatedLog {
      */
     private String initialActorName;
     /**
-     * Actor name, which complete task. May be null if task not completed or
-     * completed not by user (timeout and so on).
+     * Actor name, which complete task. May be null if task not completed or completed not by user (timeout and so on).
      */
     private String completeActorName;
     /**
@@ -98,8 +97,7 @@ public class TaskAggregatedLog {
      */
     private String swimlaneName;
     /**
-     * Assignment history for task instance. Initial assignment and completed
-     * actor is also here.
+     * Assignment history for task instance. Initial assignment and completed actor is also here.
      */
     private List<TaskAssignmentHistory> assignmentHistory = new LinkedList<TaskAssignmentHistory>();
 
@@ -172,7 +170,7 @@ public class TaskAggregatedLog {
             for (TaskAssignmentHistory assignment : assignmentHistory) {
                 // This check is for import - assignment may already be saved
                 // before import operation.
-                if (assignment.getAssingnDate().equals(assignmentDate) && assignment.getNewExecutorName().equals(newExecutorName)) {
+                if (assignment.getAssignDate().equals(assignmentDate) && assignment.getNewExecutorName().equals(newExecutorName)) {
                     oldExecutorName = newExecutorName;
                     break;
                 }
@@ -214,7 +212,7 @@ public class TaskAggregatedLog {
         this.processId = processId;
     }
 
-    @Column(name = "INITIAL_ACTOR_NAME")
+    @Column(name = "INITIAL_ACTOR_NAME", length = 1024)
     public String getInitialActorName() {
         return initialActorName;
     }
@@ -223,7 +221,7 @@ public class TaskAggregatedLog {
         this.initialActorName = initialActorName;
     }
 
-    @Column(name = "COMPLETE_ACTOR_NAME")
+    @Column(name = "COMPLETE_ACTOR_NAME", length = 1024)
     public String getCompleteActorName() {
         return completeActorName;
     }
@@ -279,7 +277,7 @@ public class TaskAggregatedLog {
         this.tokenId = tokenId;
     }
 
-    @Column(name = "NODE_ID", nullable = false)
+    @Column(name = "NODE_ID", nullable = false, length = 1024)
     public String getNodeId() {
         return nodeId;
     }
@@ -288,7 +286,7 @@ public class TaskAggregatedLog {
         this.nodeId = nodeId;
     }
 
-    @Column(name = "TASK_NAME", nullable = false)
+    @Column(name = "TASK_NAME", nullable = false, length = 1024)
     public String getTaskName() {
         return taskName;
     }
@@ -306,7 +304,7 @@ public class TaskAggregatedLog {
         this.taskIndex = taskIndex;
     }
 
-    @Column(name = "SWIMLANE_NAME")
+    @Column(name = "SWIMLANE_NAME", length = 1024)
     public String getSwimlaneName() {
         return swimlaneName;
     }

@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.af.web.tag;
@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.form.RelationPairForm;
 import ru.runa.common.WebResources;
@@ -70,7 +71,7 @@ public class ListExecutorRightRelationsFormTag extends IdentifiableFormTag {
             relations.add(pair.getRelation());
         }
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder[] builders = getBuilders(new TDBuilder[] {}, BatchPresentationFactory.RELATIONS.createDefault(), new TDBuilder[] {});
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, BatchPresentationFactory.RELATIONS.createDefault(), null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(Lists.newArrayList(relations), executorBatchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_MANAGE_RELATION, "", new RelationURLStrategy(), builders);
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(getNames());

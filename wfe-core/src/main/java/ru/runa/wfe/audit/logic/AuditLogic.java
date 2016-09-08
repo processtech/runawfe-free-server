@@ -25,6 +25,7 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
@@ -38,14 +39,20 @@ import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.user.User;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * Audit logic.
- * 
+ *
  * @author dofs
  * @since 4.0
  */
 public class AuditLogic extends CommonLogic {
+    private static final List<Class<? extends ProcessLog>> PUBLIC_LOG_CLASSES = Lists.newArrayList();
+    static {
+        // for TaskAssignmentDateTDBuilder
+        PUBLIC_LOG_CLASSES.add(TaskAssignLog.class);
+    }
     @Autowired
     private ProcessDAO processDAO;
     @Autowired
@@ -63,18 +70,20 @@ public class AuditLogic extends CommonLogic {
 
     public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter) {
         Preconditions.checkNotNull(filter.getProcessId(), "filter.processId");
-        checkPermissionAllowed(user, processDAO.getNotNull(filter.getProcessId()), Permission.READ);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
         List<ProcessLog> logs = processLogDAO.getAll(filter);
         result.addLogs(logs, filter.isIncludeSubprocessLogs());
+        ru.runa.wfe.execution.Process process = processDAO.getNotNull(filter.getProcessId());
         if (filter.isIncludeSubprocessLogs()) {
-            ru.runa.wfe.execution.Process process = processDAO.getNotNull(filter.getProcessId());
             for (ru.runa.wfe.execution.Process subprocess : nodeProcessDAO.getSubprocessesRecursive(process)) {
                 ProcessLogFilter subprocessFilter = new ProcessLogFilter(subprocess.getId());
                 subprocessFilter.setSeverities(filter.getSeverities());
                 logs = processLogDAO.getAll(subprocessFilter);
                 result.addLogs(logs, filter.isIncludeSubprocessLogs());
             }
+        }
+        if (!isPermissionAllowed(user, process, Permission.READ)) {
+            filterPublicLogs(result);
         }
         return result;
     }
@@ -88,7 +97,7 @@ public class AuditLogic extends CommonLogic {
 
     /**
      * Load system logs according to {@link BatchPresentation}.
-     * 
+     *
      * @param user
      *            Requester user.
      * @param batchPresentation
@@ -103,7 +112,7 @@ public class AuditLogic extends CommonLogic {
 
     /**
      * Load system logs count according to {@link BatchPresentation}.
-     * 
+     *
      * @param user
      *            Requester user.
      * @param batchPresentation
@@ -116,4 +125,11 @@ public class AuditLogic extends CommonLogic {
         return compiler.getCount();
     }
 
+    private void filterPublicLogs(ProcessLogs processLogs) {
+        for (ProcessLog log : Lists.newArrayList(processLogs.getLogs())) {
+            if (!PUBLIC_LOG_CLASSES.contains(log.getClass())) {
+                processLogs.getLogs().remove(log);
+            }
+        }
+    }
 }

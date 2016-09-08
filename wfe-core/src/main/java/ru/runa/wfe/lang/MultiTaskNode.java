@@ -31,7 +31,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.utils.MultiInstanceParameters;
+import ru.runa.wfe.lang.utils.MultiNodeParameters;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.MapVariableProvider;
@@ -41,8 +41,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
- * is a node that relates to one or more tasks. Property <code>signal</code>
- * specifies how task completion triggers continuation of execution.
+ * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
  */
 public class MultiTaskNode extends BaseTaskNode {
     private static final long serialVersionUID = 1L;
@@ -118,7 +117,7 @@ public class MultiTaskNode extends BaseTaskNode {
     @Override
     public void execute(ExecutionContext executionContext) {
         TaskDefinition taskDefinition = getFirstTaskNotNull();
-        MultiInstanceParameters parameters = new MultiInstanceParameters(executionContext, this);
+        MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
         List<?> data = (List<?>) parameters.getDiscriminatorValue();
         boolean tasksCreated = createTasks(executionContext, taskDefinition, data);
         if (!tasksCreated) {

@@ -1,5 +1,7 @@
-/*/target/
+bin
+target
 .classpath
 .project
 .settings
 wfe-web/src/main/webapp/WEB-INF/wf.tld
+wfe-webservice-client/src/main/

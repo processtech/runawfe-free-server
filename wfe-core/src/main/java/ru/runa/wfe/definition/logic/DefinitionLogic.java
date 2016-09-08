@@ -42,11 +42,10 @@ import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.ProcessDefinitionInfoVisitor;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
-import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
@@ -55,7 +54,6 @@ import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -70,7 +68,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     static final SecuredObjectType[] securedObjectTypes = new SecuredObjectType[] { SecuredObjectType.DEFINITION };
 
-    public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> processType) {
+    public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
         checkPermissionAllowed(user, ASystem.INSTANCE, WorkflowSystemPermission.DEPLOY_DEFINITION);
         ProcessDefinition definition = null;
         try {
@@ -84,7 +82,7 @@ public class DefinitionLogic extends WFCommonLogic {
         } catch (DefinitionDoesNotExistException e) {
             // expected
         }
-        definition.getDeployment().setCategories(processType);
+        definition.getDeployment().setCategories(categories);
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
         deploymentDAO.deploy(definition.getDeployment(), null);
@@ -94,12 +92,12 @@ public class DefinitionLogic extends WFCommonLogic {
         return new WfDefinition(definition, true);
     }
 
-    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> processTypes) {
+    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
         Deployment oldDeployment = deploymentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, oldDeployment, DefinitionPermission.REDEPLOY_DEFINITION);
         if (processArchiveBytes == null) {
-            Preconditions.checkNotNull(processTypes, "In mode 'update only categories' process type is required");
-            oldDeployment.setCategories(processTypes);
+            Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
+            oldDeployment.setCategories(categories);
             return getProcessDefinition(user, definitionId);
         }
         ProcessDefinition definition;
@@ -112,8 +110,8 @@ public class DefinitionLogic extends WFCommonLogic {
             throw new DefinitionNameMismatchException("Expected definition name " + oldDeployment.getName(), definition.getName(),
                     oldDeployment.getName());
         }
-        if (processTypes != null) {
-            definition.getDeployment().setCategories(processTypes);
+        if (categories != null) {
+            definition.getDeployment().setCategories(categories);
         } else {
             definition.getDeployment().setCategory(oldDeployment.getCategory());
         }
@@ -126,11 +124,10 @@ public class DefinitionLogic extends WFCommonLogic {
 
     /**
      * Updates process definition.
-     * 
+     *
      * @param user
      * @param definitionId
      * @param processArchiveBytes
-     * @param processType
      * @return
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes) {
@@ -190,7 +187,7 @@ public class DefinitionLogic extends WFCommonLogic {
         return processDefinition;
     }
 
-    public List<GraphElementPresentation> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
         ProcessDefinition definition = getDefinition(definitionId);
         checkPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.READ);
         if (subprocessId != null) {
@@ -249,38 +246,6 @@ public class DefinitionLogic extends WFCommonLogic {
         systemLogDAO.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
     }
 
-    public Interaction getInteraction(User user, Long taskId) {
-        Task task = taskDAO.getNotNull(taskId);
-        checkCanParticipate(user.getActor(), task);
-        ProcessDefinition definition = getDefinition(task);
-        return definition.getInteractionNotNull(task.getNodeId());
-    }
-
-    public Interaction getInteraction(User user, Long definitionId, String nodeId) {
-        ProcessDefinition definition = getDefinition(definitionId);
-        checkPermissionAllowed(user, definition.getDeployment(), Permission.READ);
-        return definition.getInteraction(nodeId);
-    }
-
-    public List<String> getOutputTransitionNames(User user, Long definitionId, Long taskId, boolean withTimerTransitions) {
-        List<Transition> transitions;
-        if (definitionId != null) {
-            ProcessDefinition processDefinition = getDefinition(definitionId);
-            transitions = processDefinition.getStartStateNotNull().getLeavingTransitions();
-        } else {
-            Task task = taskDAO.getNotNull(taskId);
-            ProcessDefinition processDefinition = getDefinition(task);
-            transitions = processDefinition.getNodeNotNull(task.getNodeId()).getLeavingTransitions();
-        }
-        List<String> result = new ArrayList<String>();
-        for (Transition transition : transitions) {
-            if (withTimerTransitions || !transition.isTimerTransition()) {
-                result.add(transition.getName());
-            }
-        }
-        return result;
-    }
-
     public byte[] getFile(User user, Long definitionId, String fileName) {
         ProcessDefinition definition = getDefinition(definitionId);
         if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName)) {
@@ -302,13 +267,17 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public Interaction getStartInteraction(User user, Long definitionId) {
         ProcessDefinition definition = getDefinition(definitionId);
-        checkPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.READ);
         Interaction interaction = definition.getInteractionNotNull(definition.getStartStateNotNull().getNodeId());
         Map<String, Object> defaultValues = definition.getDefaultVariableValues();
         for (Map.Entry<String, Object> entry : defaultValues.entrySet()) {
             interaction.getDefaultVariableValues().put(entry.getKey(), entry.getValue());
         }
         return interaction;
+    }
+
+    public Interaction getTaskNodeInteraction(User user, Long definitionId, String nodeId) {
+        ProcessDefinition definition = getDefinition(definitionId);
+        return definition.getInteractionNotNull(nodeId);
     }
 
     public List<SwimlaneDefinition> getSwimlanes(User user, Long definitionId) {

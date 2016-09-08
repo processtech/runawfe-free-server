@@ -240,6 +240,8 @@
                         <deployable>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>wfe-cactus-it</artifactId>
+                            <pingURL>http://localhost:8080/cactus/ServletRedirector?Cactus_Service=GET_VERSION</pingURL>
+                            <pingTimeout>180000</pingTimeout>
                         </deployable>
                     </deployables>
                 </configuration>
