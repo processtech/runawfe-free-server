@@ -22,12 +22,14 @@ package ru.runa.wfe.task;
 
 import java.util.Date;
 
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.SubstringDBSource;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.dao.PermissionMapping;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.Variable;
 
@@ -41,10 +43,22 @@ public class TaskClassPresentation extends ClassPresentation {
     public static final String PROCESS_ID = "batch_presentation.task.process_id";
     public static final String OWNER = "batch_presentation.task.owner";
     public static final String TASK_SWIMLINE = "batch_presentation.task.swimlane";
+    public static final String TASK_OTHERS = "batch_presentation.task.others";
     public static final String TASK_VARIABLE = editable_prefix + "name:batch_presentation.task.variable";
     public static final String TASK_DEADLINE = "batch_presentation.task.deadline";
 
     private static final ClassPresentation INSTANCE = new TaskClassPresentation();
+
+
+    private static class OthersPermissionsDBSource extends DefaultDBSource {
+        public OthersPermissionsDBSource(Class<?> sourceObject, String valueDBPath) {
+            super(sourceObject, valueDBPath);
+        }
+        @Override
+        public String getJoinExpression(String alias) {
+            return "CAST(" + ClassPresentation.classNameSQL + ".id AS VARCHAR(128))" + " = " + alias + ".identifiableId";
+        }
+    }
 
     private static class VariableDBSource extends DefaultDBSource {
         public VariableDBSource(Class<?> sourceObject) {
@@ -73,6 +87,8 @@ public class TaskClassPresentation extends ClassPresentation {
                         "ru.runa.wf.web.html.TaskOwnerTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
+                new FieldDescriptor(TASK_OTHERS, String.class.getName(), new OthersPermissionsDBSource(PermissionMapping.class, "identifiableId"), false, 
+                		FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}, true),
                 new FieldDescriptor(TASK_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskVariableTDBuilder", new Object[] {}, true),
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDBSource(Task.class, "deadlineDate"), true,
