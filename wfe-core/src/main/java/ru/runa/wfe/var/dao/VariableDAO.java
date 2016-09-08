@@ -135,7 +135,7 @@ public class VariableDAO extends GenericDAO<Variable> {
             if (variable != null) {
                 return (List<Object>) processComplexVariablesPre430(processDefinition, variableDefinition, null, variable.getValue());
             }
-            return null;
+            return list;
         }
         String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;

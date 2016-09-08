@@ -51,6 +51,7 @@ import org.hibernate.annotations.Type;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
+import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.VariableUpdateLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -165,13 +166,13 @@ public abstract class Variable<T extends Object> {
      */
     protected abstract void setStorableValue(T object);
 
-    private void addLog(ExecutionContext executionContext, Object oldValue, Object newValue, VariableFormat format) {
+    private VariableLog getLog(Object oldValue, Object newValue, VariableFormat format) {
         if (oldValue == null) {
-            executionContext.addLog(new VariableCreateLog(this, newValue, format));
+            return new VariableCreateLog(this, newValue, format);
         } else if (newValue == null) {
-            executionContext.addLog(new VariableDeleteLog(this));
+            return new VariableDeleteLog(this);
         } else {
-            executionContext.addLog(new VariableUpdateLog(this, oldValue, newValue, format));
+            return new VariableUpdateLog(this, oldValue, newValue, format);
         }
     }
 
@@ -182,7 +183,7 @@ public abstract class Variable<T extends Object> {
         return converter != null && converter.supports(value);
     }
 
-    public void setValue(ExecutionContext executionContext, Object newValue, VariableFormat format) {
+    public VariableLog setValue(ExecutionContext executionContext, Object newValue, VariableFormat format) {
         Object newStorableValue;
         if (supports(newValue)) {
             if (converter != null && converter.supports(newValue)) {
@@ -200,7 +201,7 @@ public abstract class Variable<T extends Object> {
             oldValue = converter.revert(oldValue);
         }
         setStorableValue((T) newStorableValue);
-        addLog(executionContext, oldValue, newValue, format);
+        return getLog(oldValue, newValue, format);
     }
 
     @Transient

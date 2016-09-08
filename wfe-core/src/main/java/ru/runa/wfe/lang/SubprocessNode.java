@@ -130,21 +130,24 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             super.leave(subExecutionContext, transition);
             return;
         }
-
         if (getClass() == SubprocessNode.class) {
             Process subProcess = subExecutionContext.getProcess();
             ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
-            for (VariableMapping variableMapping : variableMappings) {
-                // if this variable access is writable
-                if (variableMapping.isWritable()) {
-                    // the variable is copied from the sub process mapped name
-                    // to the super process variable name
-                    String mappedName = variableMapping.getMappedName();
-                    Object value = subExecutionContext.getVariableProvider().getValue(mappedName);
-                    if (value != null) {
-                        String variableName = variableMapping.getName();
-                        log.debug("copying sub process var '" + mappedName + "' to super process var '" + variableName + "': " + value);
-                        executionContext.setVariableValue(variableName, value);
+            if (isInBaseIdProcessMode()) {
+                log.debug("baseProcessId mode, no write made");
+            } else {
+                for (VariableMapping variableMapping : variableMappings) {
+                    // if this variable access is writable
+                    if (variableMapping.isWritable()) {
+                        // the variable is copied from the sub process mapped name
+                        // to the super process variable name
+                        String mappedName = variableMapping.getMappedName();
+                        Object value = subExecutionContext.getVariableProvider().getValue(mappedName);
+                        if (value != null) {
+                            String variableName = variableMapping.getName();
+                            log.debug("copying sub process var '" + mappedName + "' to super process var '" + variableName + "': " + value);
+                            executionContext.setVariableValue(variableName, value);
+                        }
                     }
                 }
             }
