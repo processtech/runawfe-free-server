@@ -165,6 +165,10 @@ public class WebResources {
     public static boolean isBulkDeploymentElements() {
         return RESOURCES.getBooleanProperty("process.definition.ajax.bulk.deployment.enabled", true);
     }
+    
+    public static boolean isUpdateCurrentVersion() {
+        return RESOURCES.getBooleanProperty("process.definition.update.version.enabled", false);
+    }
 
     public static boolean isLDAPSynchronizationEnabled() {
         return RESOURCES.getBooleanProperty("synchronization.ldap.link.enabled", false);
