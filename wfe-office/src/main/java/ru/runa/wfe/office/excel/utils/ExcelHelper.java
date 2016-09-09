@@ -13,8 +13,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.format.VariableFormat;
 
-import com.google.common.base.Preconditions;
-
 public class ExcelHelper {
 
     public static Sheet getSheet(Workbook workbook, String sheetName, int sheetIndex) {
@@ -47,7 +45,9 @@ public class ExcelHelper {
     }
 
     public static void setCellValue(Cell cell, Object value) {
-        Preconditions.checkNotNull(value);
+        if (value == null) {
+            throw new NullPointerException("Value is null for cell row = " + (cell.getRowIndex() + 1) + ", column = " + (cell.getColumnIndex() + 1));
+        }
         if (value instanceof Date) {
             CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
             CellStyle cellStyle = cell.getSheet().getWorkbook().createCellStyle();
