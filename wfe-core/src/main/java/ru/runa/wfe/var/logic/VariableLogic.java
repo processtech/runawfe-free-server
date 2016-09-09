@@ -76,6 +76,9 @@ public class VariableLogic extends WFCommonLogic {
             return buildListVariable(processDefinition, values, variableDefinition);
         } else {
             Object object = values.remove(variableDefinition.getName());
+            if (object == null && variableDefinition.getDefaultValue() != null) {
+                object = variableDefinition.getDefaultValue();
+            }
             if (object == null && SystemProperties.isVariableTreatEmptyStringsAsNulls()
                     && variableDefinition.getFormatNotNull() instanceof StringFormat) {
                 object = "";

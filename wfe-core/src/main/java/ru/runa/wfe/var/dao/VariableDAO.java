@@ -93,11 +93,13 @@ public class VariableDAO extends GenericDAO<Variable> {
                 Object value = variable.getValue();
                 value = processComplexVariablesPre430(processDefinition, variableDefinition, variableDefinition.getUserType(), value);
                 return value;
+            } else if (variableDefinition.getDefaultValue() != null) {
+                return variableDefinition.getDefaultValue();
             } else if (SystemProperties.isVariableTreatEmptyStringsAsNulls() && variableDefinition.getFormatNotNull() instanceof StringFormat) {
                 return "";
             }
+            return null;
         }
-        return variableDefinition.getDefaultValue();
     }
 
     public Object processComplexVariablesPre430(ProcessDefinition processDefinition, VariableDefinition variableDefinition, UserType userType,
