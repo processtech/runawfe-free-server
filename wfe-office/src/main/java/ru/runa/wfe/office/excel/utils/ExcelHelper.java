@@ -2,6 +2,8 @@ package ru.runa.wfe.office.excel.utils;
 
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -14,6 +16,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.format.VariableFormat;
 
 public class ExcelHelper {
+    private static final Log log = LogFactory.getLog(ExcelHelper.class);
 
     public static Sheet getSheet(Workbook workbook, String sheetName, int sheetIndex) {
         if (sheetName != null) {
@@ -46,7 +49,7 @@ public class ExcelHelper {
 
     public static void setCellValue(Cell cell, Object value) {
         if (value == null) {
-            throw new NullPointerException("Value is null for cell row = " + (cell.getRowIndex() + 1) + ", column = " + (cell.getColumnIndex() + 1));
+            log.warn("Value is null for cell row = " + (cell.getRowIndex() + 1) + ", column = " + (cell.getColumnIndex() + 1));
         }
         if (value instanceof Date) {
             CreationHelper createHelper = cell.getSheet().getWorkbook().getCreationHelper();
@@ -59,7 +62,7 @@ public class ExcelHelper {
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
         } else {
-            cell.setCellValue(String.valueOf(value));
+            cell.setCellValue(value != null ? String.valueOf(value) : null);
         }
     }
 
