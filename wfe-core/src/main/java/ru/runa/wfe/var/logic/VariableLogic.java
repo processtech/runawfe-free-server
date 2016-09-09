@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -36,6 +37,7 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
+import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Objects;
@@ -43,7 +45,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Process execution logic.
- * 
+ *
  * @author Dofs
  * @since 2.0
  */
@@ -73,7 +75,12 @@ public class VariableLogic extends WFCommonLogic {
         } else if (ListFormat.class.getName().equals(variableDefinition.getFormatClassName())) {
             return buildListVariable(processDefinition, values, variableDefinition);
         } else {
-            return values.remove(variableDefinition.getName());
+            Object object = values.remove(variableDefinition.getName());
+            if (object == null && SystemProperties.isVariableTreatEmptyStringsAsNulls()
+                    && variableDefinition.getFormatNotNull() instanceof StringFormat) {
+                object = "";
+            }
+            return object;
         }
     }
 

@@ -16,6 +16,7 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
+import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.legacy.ComplexVariable;
 
@@ -52,9 +53,33 @@ public class VariableDAO extends GenericDAO<Variable> {
         return variables;
     }
 
-    public void deleteAll(Process process) {
-        log.debug("deleting variables for process " + process.getId());
-        getHibernateTemplate().bulkUpdate("delete from Variable where process=?", process);
+    public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
+        VariableDefinition variableDefinition = processDefinition.getVariable(variableName, false);
+        if (variableDefinition != null) {
+            Object variableValue = getVariableValue(processDefinition, process, variableDefinition);
+            if (variableValue == null && SystemProperties.isV4ListVariableCompatibilityMode()
+                    && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
+                String listVariableName = variableName.substring(0, variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START));
+                int listIndex = Integer.parseInt(variableName.substring(variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START) + 1,
+                        variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END)));
+                VariableDefinition listVariableDefinition = processDefinition.getVariable(listVariableName, false);
+                List<Object> list = (List<Object>) getVariableValue(processDefinition, process, listVariableDefinition);
+                if (list != null) {
+                    if (list.size() > listIndex) {
+                        variableValue = list.get(listIndex);
+                    } else {
+                        log.warn("Strange list when requesting " + process + ":" + variableName + ": " + list);
+                    }
+                }
+            }
+            return new WfVariable(variableDefinition, variableValue);
+        }
+        if (SystemProperties.isV3CompatibilityMode() || SystemProperties.isAllowedNotDefinedVariables()) {
+            Variable<?> variable = get(process, variableName);
+            return new WfVariable(variableName, variable != null ? variable.getValue() : null);
+        }
+        log.debug("No variable defined by name '" + variableName + "' in " + process + ", returning null");
+        return null;
     }
 
     public Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
@@ -68,6 +93,8 @@ public class VariableDAO extends GenericDAO<Variable> {
                 Object value = variable.getValue();
                 value = processComplexVariablesPre430(processDefinition, variableDefinition, variableDefinition.getUserType(), value);
                 return value;
+            } else if (SystemProperties.isVariableTreatEmptyStringsAsNulls() && variableDefinition.getFormatNotNull() instanceof StringFormat) {
+                return "";
             }
         }
         return variableDefinition.getDefaultValue();
@@ -113,6 +140,11 @@ public class VariableDAO extends GenericDAO<Variable> {
         return value;
     }
 
+    public void deleteAll(Process process) {
+        log.debug("deleting variables for process " + process.getId());
+        getHibernateTemplate().bulkUpdate("delete from Variable where process=?", process);
+    }
+
     private UserTypeMap loadUserTypeVariable(ProcessDefinition processDefinition, Process process, String prefix,
             VariableDefinition variableDefinition) {
         UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
@@ -149,35 +181,6 @@ public class VariableDAO extends GenericDAO<Variable> {
             list.add(componentValue);
         }
         return list;
-    }
-
-    public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
-        VariableDefinition variableDefinition = processDefinition.getVariable(variableName, false);
-        if (variableDefinition != null) {
-            Object variableValue = getVariableValue(processDefinition, process, variableDefinition);
-            if (variableValue == null && SystemProperties.isV4ListVariableCompatibilityMode()
-                    && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
-                String listVariableName = variableName.substring(0, variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START));
-                int listIndex = Integer.parseInt(variableName.substring(variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START) + 1,
-                        variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END)));
-                VariableDefinition listVariableDefinition = processDefinition.getVariable(listVariableName, false);
-                List<Object> list = (List<Object>) getVariableValue(processDefinition, process, listVariableDefinition);
-                if (list != null) {
-                    if (list.size() > listIndex) {
-                        variableValue = list.get(listIndex);
-                    } else {
-                        log.warn("Strange list when requesting " + process + ":" + variableName + ": " + list);
-                    }
-                }
-            }
-            return new WfVariable(variableDefinition, variableValue);
-        }
-        if (SystemProperties.isV3CompatibilityMode() || SystemProperties.isAllowedNotDefinedVariables()) {
-            Variable<?> variable = get(process, variableName);
-            return new WfVariable(variableName, variable != null ? variable.getValue() : null);
-        }
-        log.debug("No variable defined by name '" + variableName + "' in " + process + ", returning null");
-        return null;
     }
 
 }

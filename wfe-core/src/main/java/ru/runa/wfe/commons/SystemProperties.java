@@ -170,6 +170,10 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("variables.autocast.enabled", true);
     }
 
+    public static boolean isVariableTreatEmptyStringsAsNulls() {
+        return RESOURCES.getBooleanProperty("variables.treat.empty.strings.as.nulls", false);
+    }
+
     public static boolean isEscalationEnabled() {
         return RESOURCES.getBooleanProperty("escalation.enabled", true);
     }

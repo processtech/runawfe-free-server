@@ -197,25 +197,6 @@ public class ExecutionContext {
         return null;
     }
 
-    private WfVariable getVariableUsingBaseProcess(ProcessDefinition processDefinition, Process process, String name, WfVariable variable) {
-        Long baseProcessId = baseProcessIdCache.getBaseProcessId(processDefinition, process);
-        if (baseProcessId != null) {
-            name = baseProcessIdCache.getVariableNameInBaseProcess(processDefinition, process, name);
-            log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
-            Process baseProcess = processDAO.getNotNull(baseProcessId);
-            ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
-            WfVariable baseVariable = variableDAO.getVariable(baseProcessDefinition, baseProcess, name);
-            if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null
-                    && baseVariable.getValue() instanceof UserTypeMap) {
-                ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
-            } else if (baseVariable != null && !Utils.isNullOrEmpty(baseVariable.getValue())) {
-                return baseVariable;
-            }
-            return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, variable);
-        }
-        return variable;
-    }
-
     /**
      * @return the variable or swimlane value with the given name.
      */
@@ -246,6 +227,47 @@ public class ExecutionContext {
             }
         }
         setVariableValue(variableDefinition, value);
+    }
+
+    /**
+     * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
+     */
+    public void setVariableValues(Map<String, Object> variables) {
+        for (Map.Entry<String, Object> entry : variables.entrySet()) {
+            setVariableValue(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public IVariableProvider getVariableProvider() {
+        return new ExecutionVariableProvider(this);
+    }
+
+    public void addLog(ProcessLog processLog) {
+        processLogDAO.addLog(processLog, getProcess(), token);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("processId", getToken().getProcess().getId()).add("tokenId", getToken().getId()).toString();
+    }
+
+    private WfVariable getVariableUsingBaseProcess(ProcessDefinition processDefinition, Process process, String name, WfVariable variable) {
+        Long baseProcessId = baseProcessIdCache.getBaseProcessId(processDefinition, process);
+        if (baseProcessId != null) {
+            name = baseProcessIdCache.getVariableNameInBaseProcess(processDefinition, process, name);
+            log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
+            Process baseProcess = processDAO.getNotNull(baseProcessId);
+            ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
+            WfVariable baseVariable = variableDAO.getVariable(baseProcessDefinition, baseProcess, name);
+            if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null
+                    && baseVariable.getValue() instanceof UserTypeMap) {
+                ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
+            } else if (baseVariable != null && !Utils.isNullOrEmpty(baseVariable.getValue())) {
+                return baseVariable;
+            }
+            return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, variable);
+        }
+        return variable;
     }
 
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
@@ -288,9 +310,8 @@ public class ExecutionContext {
             int newSize = TypeConversionUtil.getListSize(value);
             String sizeVariableName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
             VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
-            sizeDefinition.setDefaultValue(0);
-            int oldSize = (Integer) variableDAO.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
-            int maxSize = Math.max(oldSize, newSize);
+            Integer oldSize = (Integer) variableDAO.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
+            int maxSize = oldSize != null ? Math.max(oldSize, newSize) : newSize;
             String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
             String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
             UserType[] formatComponentUserTypes = variableDefinition.getFormatComponentUserTypes();
@@ -317,6 +338,16 @@ public class ExecutionContext {
         setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value);
     }
 
+    private boolean variableShouldBeCreated(Object value) {
+        if (value == null) {
+            return false;
+        }
+        if (SystemProperties.isVariableTreatEmptyStringsAsNulls()) {
+            return !Utils.isNullOrEmpty(value);
+        }
+        return true;
+    }
+
     /**
      * @return true if setting is done
      */
@@ -330,7 +361,7 @@ public class ExecutionContext {
             variable = null;
         }
         if (variable == null) {
-            if (value != null && (ApplicationContextFactory.getDBType() != DBType.ORACLE || !Utils.isNullOrEmpty(value))) {
+            if (variableShouldBeCreated(value)) {
                 VariableDefinition baseProcessVariableDefinition = baseProcessIdCache.getVariableDefinitionToSetInBaseProcess(processDefinition,
                         token.getProcess(), variableDefinition);
                 if (baseProcessVariableDefinition != null) {
@@ -353,6 +384,7 @@ public class ExecutionContext {
                 return;
             }
             if (ApplicationContextFactory.getDBType() == DBType.ORACLE && Utils.isNullOrEmpty(value) && Utils.isNullOrEmpty(variable.getValue())) {
+                // ignore changes "" -> " " for Oracle
                 return;
             }
             log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'"
@@ -399,31 +431,6 @@ public class ExecutionContext {
         }
     }
 
-    /**
-     * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
-     */
-    public void setVariableValues(Map<String, Object> variables) {
-        for (Map.Entry<String, Object> entry : variables.entrySet()) {
-            setVariableValue(entry.getKey(), entry.getValue());
-        }
-    }
-
-    /**
-     * @return variable provider for this process.
-     */
-    public IVariableProvider getVariableProvider() {
-        return new ExecutionVariableProvider(this);
-    }
-
-    public void addLog(ProcessLog processLog) {
-        processLogDAO.addLog(processLog, getProcess(), token);
-    }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("processId", getToken().getProcess().getId()).add("tokenId", getToken().getId()).toString();
-    }
-
     private class BaseProcessIdCache {
         private Map<Process, Long> processIds = Maps.newHashMap();
         private Map<Process, Map<String, String>> variableNameMappings = Maps.newHashMap();
@@ -436,6 +443,10 @@ public class ExecutionContext {
                 if (baseProcessIdVariableName != null && processDefinition.getVariable(baseProcessIdVariableName, false) != null) {
                     WfVariable baseProcessIdVariable = variableDAO.getVariable(processDefinition, process, baseProcessIdVariableName);
                     Long baseProcessId = (Long) (baseProcessIdVariable != null ? baseProcessIdVariable.getValue() : null);
+                    if (Objects.equal(baseProcessId, process.getId())) {
+                        throw new InternalApplicationException(baseProcessIdVariableName + " reference should not point to current process id "
+                                + process.getId());
+                    }
                     processIds.put(process, baseProcessId);
                 }
             }
