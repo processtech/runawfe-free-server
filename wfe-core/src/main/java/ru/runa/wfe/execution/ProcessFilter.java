@@ -12,7 +12,7 @@ import java.util.Date;
 public class ProcessFilter implements Serializable {
     private static final long serialVersionUID = 1L;
     private String definitionName;
-    private Long definitionVersion;
+    private String definitionVersion;
     private Long id;
     private Long idFrom;
     private Long idTo;
@@ -31,11 +31,11 @@ public class ProcessFilter implements Serializable {
         this.definitionName = definitionName;
     }
 
-    public Long getDefinitionVersion() {
+    public String getDefinitionVersion() {
         return definitionVersion;
     }
 
-    public void setDefinitionVersion(Long version) {
+    public void setDefinitionVersion(String version) {
         this.definitionVersion = version;
     }
 

@@ -32,6 +32,8 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.form.Interaction;
@@ -52,8 +54,6 @@ import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "DefinitionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -161,7 +161,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @Override
     @WebResult(name = "result")
     public void undeployProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
-            @WebParam(name = "version") Long version) {
+            @WebParam(name = "version") String version) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionName != null, "definitionName");
         definitionLogic.undeployProcessDefinition(user, definitionName, version);

@@ -35,7 +35,7 @@ import com.google.common.base.Objects;
 public class Deployment extends Identifiable {
     private static final long serialVersionUID = 1L;
     private Long id;
-    private Long version;
+    private String version;
     private Language language;
     private String name;
     private String description;
@@ -59,11 +59,11 @@ public class Deployment extends Identifiable {
     }
 
     @Column(name = "VERSION", nullable = false)
-    public Long getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(String version) {
         this.version = version;
     }
 

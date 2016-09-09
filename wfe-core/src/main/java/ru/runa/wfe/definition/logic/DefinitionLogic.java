@@ -209,7 +209,7 @@ public class DefinitionLogic extends WFCommonLogic {
         return result;
     }
 
-    public void undeployProcessDefinition(User user, String definitionName, Long version) {
+    public void undeployProcessDefinition(User user, String definitionName, String version) {
         Preconditions.checkNotNull(definitionName, "definitionName must be specified.");
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(definitionName);
@@ -217,8 +217,8 @@ public class DefinitionLogic extends WFCommonLogic {
         List<Process> processes = processDAO.getProcesses(filter);
         for (Process process : processes) {
             if (nodeProcessDAO.getNodeProcessByChild(process.getId()) != null) {
-                throw new ParentProcessExistsException(definitionName, nodeProcessDAO.getNodeProcessByChild(process.getId()).getProcess()
-                        .getDeployment().getName());
+                throw new ParentProcessExistsException(definitionName,
+                        nodeProcessDAO.getNodeProcessByChild(process.getId()).getProcess().getDeployment().getName());
             }
         }
         if (version == null) {

@@ -56,8 +56,8 @@ public interface DefinitionService {
      * @throws DefinitionAlreadyExistException
      * @throws DefinitionArchiveFormatException
      */
-    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
-            DefinitionArchiveFormatException;
+    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories)
+            throws DefinitionAlreadyExistException, DefinitionArchiveFormatException;
 
     /**
      * Redeploys process definition by name.
@@ -93,8 +93,8 @@ public interface DefinitionService {
      * @throws DefinitionArchiveFormatException
      * @throws DefinitionNameMismatchException
      */
-    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
-            DefinitionArchiveFormatException, DefinitionNameMismatchException;
+    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive)
+            throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
      * Gets only last version from process definition by name.
@@ -157,8 +157,8 @@ public interface DefinitionService {
      *            version or <code>null</code>
      * @throws DefinitionDoesNotExistException
      */
-    public void undeployProcessDefinition(User user, String definitionName, Long version) throws DefinitionDoesNotExistException,
-            ParentProcessExistsException;
+    public void undeployProcessDefinition(User user, String definitionName, String version)
+            throws DefinitionDoesNotExistException, ParentProcessExistsException;
 
     /**
      * Retrieves file data from process definition archive.

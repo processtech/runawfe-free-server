@@ -33,6 +33,8 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -65,8 +67,6 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.logic.VariableLogic;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "ExecutionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -311,7 +311,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @Override
     @WebResult(name = "result")
     public boolean upgradeProcessToDefinitionVersion(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "version") Long version) {
+            @WebParam(name = "version") String version) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.upgradeProcessToDefinitionVersion(user, processId, version);

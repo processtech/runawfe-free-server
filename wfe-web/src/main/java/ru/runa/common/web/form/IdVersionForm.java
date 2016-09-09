@@ -14,13 +14,13 @@ public class IdVersionForm extends IdForm {
 
     public static final String VERSION_INPUT_NAME = "version";
 
-    private Long version;
+    private String version;
 
-    public Long getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
+    public void setVersion(String version) {
         this.version = version;
     }
 

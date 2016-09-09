@@ -33,6 +33,7 @@ import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.commons.VersionUtils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionPermission;
@@ -370,7 +371,7 @@ public class ExecutionLogic extends WFCommonLogic {
         }
     }
 
-    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version) {
+    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, String version) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
@@ -378,7 +379,7 @@ public class ExecutionLogic extends WFCommonLogic {
         Process process = processDAO.getNotNull(processId);
         // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
         Deployment deployment = process.getDeployment();
-        long newDeploymentVersion = version != null ? version : deployment.getVersion() + 1;
+        String newDeploymentVersion = version != null ? version : VersionUtils.increment(deployment.getVersion().split("\\.")[0]);
         if (newDeploymentVersion == deployment.getVersion()) {
             return false;
         }

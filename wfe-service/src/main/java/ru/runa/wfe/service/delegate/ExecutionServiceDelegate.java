@@ -211,7 +211,7 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version) {
+    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, String version) {
         try {
             return getExecutionService().upgradeProcessToDefinitionVersion(user, processId, version);
         } catch (Exception e) {

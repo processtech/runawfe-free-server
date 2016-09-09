@@ -46,7 +46,7 @@ public class WfProcess extends IdentifiableBase {
     private String name;
     private Date startDate;
     private Date endDate;
-    private int version;
+    private String version;
     private Long definitionId;
     private String hierarchyIds;
     // map is not usable in web services
@@ -60,7 +60,7 @@ public class WfProcess extends IdentifiableBase {
         id = process.getId();
         name = process.getDeployment().getName();
         definitionId = process.getDeployment().getId();
-        version = process.getDeployment().getVersion().intValue();
+        version = process.getDeployment().getVersion();
         startDate = process.getStartDate();
         endDate = process.getEndDate();
         hierarchyIds = process.getHierarchyIds();
@@ -96,7 +96,7 @@ public class WfProcess extends IdentifiableBase {
         return startDate;
     }
 
-    public int getVersion() {
+    public String getVersion() {
         return version;
     }
 

@@ -18,7 +18,7 @@ public abstract class FilterableProcessInstancesOperation extends ScriptOperatio
     public String name;
 
     @XmlAttribute(name = AdminScriptConstants.VERSION_ATTRIBUTE_NAME)
-    public Long version;
+    public String version;
 
     @XmlAttribute(name = AdminScriptConstants.ID_ATTRIBUTE_NAME)
     public Long id;

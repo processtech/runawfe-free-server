@@ -299,7 +299,7 @@ public interface ExecutionService {
      *
      * @return false if version equal to current process definition version
      */
-    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version);
+    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, String version);
 
     /**
      * Upgrades running processes to specified definition. This is not safe operation, use it with caution.
