@@ -303,10 +303,15 @@ public interface ExecutionService {
 
     /**
      * Upgrades running processes to specified definition. This is not safe operation, use it with caution.
-     *
-     * @return false if version equal to current process definition version
      */
     public void upgradeProcessesToNewDefinition(User user, Long oldDefinitionId, Long newDefinitionId);
+
+    /**
+     * Upgrades all running processes to specified version. This is not safe operation, use it with caution.
+     *
+     * @return number of updated processes
+     */
+    public int upgradeAllProcessesToDefinition(User user, Long newDefinitionId);
 
     /**
      * Get all active jobs (recursively) by process id.

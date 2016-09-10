@@ -329,6 +329,14 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
+    public int upgradeAllProcessesToDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        return executionLogic.upgradeAllProcessesToDefinition(user, definitionId);
+    }
+
+    @Override
+    @WebResult(name = "result")
     public void updateVariablesWS(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "variables") List<Variable> variables) {
         WfProcess process = executionLogic.getProcess(user, processId);
@@ -367,5 +375,4 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(processId != null, "processId");
         executionLogic.suspendProcess(user, processId);
     }
-
 }

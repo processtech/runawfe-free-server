@@ -17,20 +17,26 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.Map;
+
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.common.web.form.IdVersionForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction;
 import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
+import ru.runa.wf.web.action.UpgradeAllProcessesToDefinitionAction;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
@@ -89,6 +95,14 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         String downloadUrl = Commons.getActionUrl(LoadProcessDefinitionArchiveAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
                 pageContext, PortletUrlType.Render);
         versionTD.addElement(new A(downloadUrl, MessagesOther.LABEL_EXPORT.message(pageContext)));
+        versionTD.addElement(")");
+        versionTD.addElement(definition.getVersion() + " (");
+        Map<String, Object> parameters = Maps.newHashMap();
+        parameters.put(IdForm.ID_INPUT_NAME, definition.getId());
+        parameters.put(IdVersionForm.VERSION_INPUT_NAME, definition.getVersion());
+        String upgradeAllUrl = Commons.getActionUrl(UpgradeAllProcessesToDefinitionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
+                pageContext, PortletUrlType.Render);
+        versionTD.addElement(new A(upgradeAllUrl, MessagesOther.LABEL_UPDATE_ALL_OLD.message(pageContext)));
         versionTD.addElement(")");
         versionTR.addElement(versionTD.setClass(Resources.CLASS_LIST_TABLE_TD));
 

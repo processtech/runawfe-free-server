@@ -151,7 +151,7 @@ public class Utils {
         }
     }
 
-    public static void sendNodeAsyncExecutionMessage(Long processId, Long tokenId) {
+    public static void sendNodeAsyncExecutionMessage(Long processId, Long tokenId, String nodeId) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -163,8 +163,9 @@ public class Utils {
             ObjectMessage message = session.createObjectMessage();
             message.setLongProperty("processId", processId);
             message.setLongProperty("tokenId", tokenId);
+            message.setStringProperty("nodeId", nodeId);
+            log.debug("sending node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
             sender.send(message);
-            log.debug("node async execution request sent: " + message);
         } catch (Exception e) {
             throw Throwables.propagate(e);
         } finally {

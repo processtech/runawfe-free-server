@@ -49,6 +49,9 @@ public class ChangeProcessDefinitionVersionPatch extends DBPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesBefore();
+        
+        sql.add(getDDLRemoveColumn("SYSTEM_LOG", "PROCESS_DEFINITION_VERSION_"));
+
         sql.add(getDDLRemoveColumn("BPM_PROCESS_DEFINITION", "VERSION_"));
         sql.add(getDDLModifyColumnNullability("BPM_PROCESS_DEFINITION", "VERSION", dialect.getTypeName(Types.VARCHAR), false));
 

@@ -277,7 +277,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public Interaction getTaskNodeInteraction(User user, Long definitionId, String nodeId) {
         ProcessDefinition definition = getDefinition(definitionId);
-        return definition.getInteraction(nodeId);
+        return definition.getInteractionNotNull(nodeId);
     }
 
     public List<SwimlaneDefinition> getSwimlanes(User user, Long definitionId) {

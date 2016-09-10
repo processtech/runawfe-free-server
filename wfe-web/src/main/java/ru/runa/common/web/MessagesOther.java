@@ -41,4 +41,6 @@ public class MessagesOther {
     public static final StrutsMessage LABEL_UNSET_EMPTY_VALUE = new StrutsMessage("label.unset_empty.value");
 
     public static final StrutsMessage LABEL_EXPORT = new StrutsMessage("label.export");
+    public static final StrutsMessage LABEL_UPDATE_ALL_OLD = new StrutsMessage("label.update_all_old_processes");
+
 }

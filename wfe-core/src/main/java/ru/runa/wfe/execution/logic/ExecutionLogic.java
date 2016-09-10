@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.execution.logic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -397,18 +398,46 @@ public class ExecutionLogic extends WFCommonLogic {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
-        Deployment oldDeployment = deploymentDAO.get(oldDefinitionId);
+        final Deployment oldDeployment = deploymentDAO.get(oldDefinitionId);
         final List<Process> processes = processDAO.findAllProcesses(oldDefinitionId);
         for (final Process process : processes) {
             if (process.hasEnded()) {
                 continue;
             }
-            Deployment nextDeployment = deploymentDAO.get(newDefinitionId);
+            final Deployment nextDeployment = deploymentDAO.get(newDefinitionId);
             process.setDeployment(nextDeployment);
             processDAO.update(process);
             processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, oldDeployment.getVersion(),
                     nextDeployment.getVersion()), process, null);
         }
+    }
+
+    public int upgradeAllProcessesToDefinition(User user, Long definitionId) {
+        if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
+            throw new ConfigurationException(
+                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
+        }
+        final Deployment newDeployment = deploymentDAO.get(definitionId);
+        final List<Deployment> oldDeployments = deploymentDAO.findAllDeploymentVersions(newDeployment.getName());
+        final List<Process> processes = new ArrayList<Process>();
+        for (final Deployment oldDeployment : oldDeployments) {
+            if (0 > oldDeployment.getVersion().compareTo(newDeployment.getVersion())) {
+                processes.addAll(processDAO.findAllProcesses(oldDeployment.getId()));
+            }
+        }
+        int count = 0;
+        for (final Process process : processes) {
+            if (process.hasEnded()) {
+                continue;
+            }
+            final Deployment oldDeployment = process.getDeployment();
+            process.setDeployment(newDeployment);
+            processDAO.update(process);
+            processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, oldDeployment.getVersion(),
+                    newDeployment.getVersion()), process, null);
+            count++;
+        }
+        return count;
     }
 
     public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
@@ -458,7 +487,7 @@ public class ExecutionLogic extends WFCommonLogic {
             throw new InternalApplicationException(process + " already activated");
         }
         for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
-            nodeAsyncExecutor.execute(process.getId(), token.getId());
+            nodeAsyncExecutor.execute(process.getId(), token.getId(), token.getNodeId());
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
         }
         for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {

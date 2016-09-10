@@ -229,6 +229,15 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
+    public int upgradeAllProcessesToDefinition(User user, Long definitionId) {
+        try {
+            return getExecutionService().upgradeAllProcessesToDefinition(user, definitionId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         try {
             return getExecutionService().getSwimlanes(user, processId);
@@ -281,5 +290,4 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
             throw handleException(e);
         }
     }
-
 }

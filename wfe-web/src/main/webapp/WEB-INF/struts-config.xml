@@ -297,6 +297,12 @@
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
+        <action path="/upgradeAllProcessesToDefinition" type="ru.runa.wf.web.action.UpgradeAllProcessesToDefinitionAction"
+            name="idForm" scope="request" input="/WEB-INF/wf/manage_process_definition.jsp"
+            unknown="false" validate="true">
+            <forward name="success" path="/manage_process_definition.do" redirect="true" />
+            <forward name="failure" path="/manage_process_definition.do" redirect="true" />
+        </action>
 		<action path="/processDefinitionArchive"
 			type="ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction" name="idForm"
 			scope="request" unknown="false" validate="false">

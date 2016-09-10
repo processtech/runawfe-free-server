@@ -60,11 +60,11 @@ public class SubstitutionForm extends IdForm {
                 if (params == null) {
                     params = new String[0];
                 }
-                FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(function);
+                User user = Commons.getUser(request.getSession());
+                FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(user, function);
                 if (functionDef.getParams().size() != params.length) {
                     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(ERROR_KEY));
                 } else {
-                    User user = Commons.getUser(request.getSession());
                     for (int i = 0; i < functionDef.getParams().size(); i++) {
                         ParamRenderer renderer = functionDef.getParams().get(i).getRenderer();
                         if (!renderer.isValueValid(user, params[i])) {

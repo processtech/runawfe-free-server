@@ -72,6 +72,8 @@ public class NodeAsyncExecutionBean implements MessageListener {
         try {
             Long processId = message.getLongProperty("processId");
             Long tokenId = message.getLongProperty("tokenId");
+            String nodeId = message.getStringProperty("nodeId");
+            log.debug("handling node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
             handleMessage(processId, tokenId);
         } catch (Exception e) {
             log.error(message, e);
