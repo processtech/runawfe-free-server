@@ -52,13 +52,22 @@ public class TaskClassPresentation extends ClassPresentation {
     private static final ClassPresentation INSTANCE = new TaskClassPresentation();
 
     private static class OthersPermissionsDBSource extends DefaultDBSource {
-        public OthersPermissionsDBSource(Class<?> sourceObject, String valueDBPath) {
-            super(sourceObject, valueDBPath);
+        public OthersPermissionsDBSource(Class<?> sourceObject) {
+            super(sourceObject, "");
+        }
+        // TODO Похоже вся эта обработка уезжает на этап сборки HQL
+        @Override
+        public String getValueDBPath(String alias) {
+            // TODO Включать только если заполнено поле для Группы 
+            return "(SELECT exec_.name FROM ru.runa.wfe.user.Executor exec_ WHERE exec_.id=\"permission1_\".\"identifiable_id\""; // )) ?
         }
 
         @Override
         public String getJoinExpression(String alias) {
-            return "";// TODO Filter here..."CAST(" + ClassPresentation.classNameSQL + ".id AS VARCHAR(128))" + " = " + alias + ".identifiableId";
+            return classNameSQL + ".executor.id=" + alias + ".identifiableId AND ((" +
+                    alias + ".type=3 AND " + alias + ".mask=16 ) " +
+                    "OR (" + // TODO -- <<< - ЗАМЕНИТЬ ПЕРЕКЛЮЧАТЕЛЕМ!
+                    alias + ".type=4 AND " + alias + ".mask=64 ))"; 
         }
     }
 
@@ -90,7 +99,7 @@ public class TaskClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
 
-                new FieldDescriptor(TASK_OTHERS, String.class.getName(), new OthersPermissionsDBSource(PermissionMapping.class, "identifiableId"), false,
+               new FieldDescriptor(TASK_OTHERS, Integer.class.getName(), new OthersPermissionsDBSource(PermissionMapping.class), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}, true).setVisible(false),
 
                 new FieldDescriptor(TASK_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,

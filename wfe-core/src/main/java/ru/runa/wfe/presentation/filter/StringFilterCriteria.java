@@ -51,7 +51,12 @@ public class StringFilterCriteria extends FilterCriteria {
         if (ignoreCase) {
             where += "lower(";
         }
-        where += persistentObjectQueryAlias + "." + fieldName;
+        if (!fieldName.startsWith("(")) {
+            where += persistentObjectQueryAlias + "." + fieldName;
+        } else {
+            where += fieldName;
+            alias = "param_for_extra_case";
+        }
         if (ignoreCase) {
             where += ")";
             searchValue = searchValue.toLowerCase();
