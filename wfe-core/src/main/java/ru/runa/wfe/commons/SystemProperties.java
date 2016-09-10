@@ -132,7 +132,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     *
+     * 
      * @return max string value
      */
     public static int getStringVariableValueLength() {
