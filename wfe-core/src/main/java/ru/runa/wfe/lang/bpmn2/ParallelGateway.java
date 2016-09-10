@@ -32,6 +32,10 @@ public class ParallelGateway extends Node {
         Token token = executionContext.getToken();
         Set<Token> arrivedTokens = Sets.newHashSet(token);
         Set<String> activeTokenNodeIds = Sets.newHashSet();
+        if (getArrivingTransitions().size() > 1) {
+            // #850 don't end root token
+            token.end(executionContext, null);
+        }
         fillTokensInfo(executionContext.getProcess().getRootToken(), arrivedTokens, activeTokenNodeIds);
         List<Token> tokensToPop = Lists.newArrayList();
         List<Transition> notPassedTransitions = Lists.newArrayList();
@@ -49,10 +53,6 @@ public class ParallelGateway extends Node {
                 notPassedTransitions.add(transition);
             }
         }
-        if (getArrivingTransitions().size() > 1) {
-            // #850 don't end root token
-            token.end(executionContext, null);
-        }
         if (notPassedTransitions.isEmpty()) {
             log.debug("marking tokens as inactive " + tokensToPop);
             for (Token arrivedToken : tokensToPop) {
@@ -67,9 +67,13 @@ public class ParallelGateway extends Node {
                 leave(executionContext);
             }
         } else {
-            log.debug("execution blocked due to waiting on " + notPassedTransitions);
+            log.debug("execution blocked in " + this + " due to waiting on " + notPassedTransitions);
             boolean markProcessFailedExecutionStatus = false;
             for (Transition transition : notPassedTransitions) {
+                if (activeTokenNodeIds.contains(transition.getNodeId())) {
+                    log.debug("concurrent token found for " + transition);
+                    continue;
+                }
                 if (!transitionCanBePassed(transition, activeTokenNodeIds, new HashSet<Node>())) {
                     log.error("blocking " + executionContext.getProcess() + " execution because " + transition
                             + " will not be passed by tokens in nodes " + activeTokenNodeIds);
@@ -101,11 +105,16 @@ public class ParallelGateway extends Node {
     }
 
     private void fillTokensInfo(Token token, Set<Token> arrivedTokens, Set<String> activeTokenNodeIds) {
-        if (token.isAbleToReactivateParent() && Objects.equal(token.getNodeId(), getNodeId())) {
+        if (token.isAbleToReactivateParent() && token.hasEnded() && Objects.equal(token.getNodeId(), getNodeId())) {
             arrivedTokens.add(token);
         }
-        if (token.getNodeType() != NodeType.PARALLEL_GATEWAY && !token.hasEnded()) {
-            activeTokenNodeIds.add(token.getNodeId());
+        if (token.isAbleToReactivateParent() && !token.hasEnded()) {
+            if (Objects.equal(token.getNodeId(), getNodeId())) {
+                // special case: concurred tokens
+                activeTokenNodeIds.add(token.getTransitionId());
+            } else {
+                activeTokenNodeIds.add(token.getNodeId());
+            }
         }
         for (Token childToken : token.getChildren()) {
             fillTokensInfo(childToken, arrivedTokens, activeTokenNodeIds);
