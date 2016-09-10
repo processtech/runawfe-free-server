@@ -34,6 +34,7 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -104,7 +105,7 @@ public class VariableLogic extends WFCommonLogic {
                 if (value instanceof List) {
                     log.debug("Handling back compatibility list value for " + variableDefinition);
                     list = (List<Object>) value;
-                    variableDAO.processComplexVariablesPre430(processDefinition, variableDefinition, null, list);
+                    VariableLoader.processComplexVariablesPre430(processDefinition, variableDefinition, null, list);
                 } else {
                     log.debug(variableDefinition + " can be changed due to incompatible process definition update");
                     list.add(value);

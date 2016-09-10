@@ -1,5 +1,6 @@
 package ru.runa.wfe.task.logic;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,8 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.dao.VariableDAO;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -56,7 +59,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Task list builder component.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -87,6 +90,8 @@ public class TaskListBuilder implements ITaskListBuilder {
     private ProcessDAO processDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
+    @Autowired
+    private VariableDAO variableDAO;
 
     public TaskListBuilder(TaskCache cache) {
         taskCache = cache;
@@ -95,24 +100,114 @@ public class TaskListBuilder implements ITaskListBuilder {
     @Override
     public List<WfTask> getTasks(Actor actor, BatchPresentation batchPresentation) {
         Preconditions.checkNotNull(batchPresentation, "batchPresentation");
+
         VersionedCacheData<List<WfTask>> cached = taskCache.getTasks(actor.getId(), batchPresentation);
         if (cached != null && cached.getData() != null) {
             return cached.getData();
         }
-        List<WfTask> result = Lists.newArrayList();
+
+        List<TaskInListState> tasksState = loadMyAndGroupsAndSubstitutedTasks(actor, batchPresentation);
+        tasksState.addAll(loadAdministrativeTasks(actor));
+
+        List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(getTasksProcesses(tasksState), variableNames);
+        HashSet<Long> openedTasks = new HashSet<Long>(taskDAO.getOpenedTasks(actor.getId(), getTasksIds(tasksState)));
+
+        List<WfTask> result = new ArrayList<WfTask>();
+        for (TaskInListState state : tasksState) {
+            WfTask wfTask = taskObjectFactory.create(state.getTask(), state.getActor(), state.isAcquiredBySubstitution(), null,
+                !openedTasks.contains(state.getTask().getId()));
+            if (!Utils.isNullOrEmpty(variableNames)) {
+                Process process = state.getTask().getProcess();
+                ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
+                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
+                for (String variableName : variableNames) {
+                    wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
+                }
+            }
+            result.add(wfTask);
+        }
+        taskCache.setTasks(cached, actor.getId(), batchPresentation, result);
+        return result;
+    }
+
+    /**
+     * Get processes, which tasks is in user tasks list.
+     * 
+     * @param tasksState
+     *            User tasks list.
+     * @return set of processes, which tasks is in user tasks list.
+     */
+    private HashSet<Process> getTasksProcesses(List<TaskInListState> tasksState) {
+        return new HashSet<Process>(Lists.transform(tasksState, new Function<TaskInListState, Process>() {
+            @Override
+            public Process apply(TaskInListState input) {
+                return input.getTask().getProcess();
+            }
+        }));
+    }
+
+    /**
+     * Get tasks id, which tasks is in user tasks list.
+     * 
+     * @param tasksState
+     *            User tasks list.
+     * @return list of tasks id, which tasks is in user tasks list.
+     */
+    private ArrayList<Long> getTasksIds(List<TaskInListState> tasksState) {
+        return new ArrayList<Long>(Lists.transform(tasksState, new Function<TaskInListState, Long>() {
+            @Override
+            public Long apply(TaskInListState input) {
+                return input.getTask().getId();
+            }
+        }));
+    }
+
+    /**
+     * Load administrative tasks if actor is in process administrators group.
+     * 
+     * @param actor
+     *            Actor, which task list is created.
+     * @return List of administrative tasks or empty list if actor is not in process administrators group. Always not null.
+     */
+    private List<TaskInListState> loadAdministrativeTasks(Actor actor) {
+        List<TaskInListState> tasksState = Lists.newArrayList();
+        for (String groupName : SystemProperties.getProcessAdminGroupNames()) {
+            try {
+                Group group = executorDAO.getGroup(groupName);
+                if (executorDAO.getGroupActors(group).contains(actor)) {
+                    includeAdministrativeTasks(tasksState, group, actor);
+                    break;
+                }
+            } catch (ExecutorDoesNotExistException e) {
+                log.warn(e);
+            }
+        }
+        return tasksState;
+    }
+
+    /**
+     * Load tasks for me, for all my groups, for actors, substituted by me.
+     * 
+     * @param actor
+     *            Actor, which task list is created.
+     * @param batchPresentation
+     *            {@link BatchPresentation} with parameters for loading tasks.
+     * @return List of tasks. Always not null.
+     */
+    private List<TaskInListState> loadMyAndGroupsAndSubstitutedTasks(Actor actor, BatchPresentation batchPresentation) {
         Set<Executor> executorsToGetTasksByMembership = getExecutorsToGetTasks(actor, false);
         Set<Executor> executorsToGetTasks = Sets.newHashSet(executorsToGetTasksByMembership);
         getSubstituteExecutorsToGetTasks(actor, executorsToGetTasks);
-        @SuppressWarnings("unchecked")
         List<Task> tasks = loadTasks(batchPresentation, executorsToGetTasks);
+        List<TaskInListState> tasksState = Lists.newArrayList();
         for (Task task : tasks) {
             try {
-                WfTask acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
+                TaskInListState acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
                 if (acceptable == null) {
                     continue;
                 }
-
-                result.add(acceptable);
+                tasksState.add(acceptable);
             } catch (Exception e) {
                 if (taskDAO.get(task.getId()) == null) {
                     log.debug(String.format("getTasks: task: %s has been completed", task, e));
@@ -121,19 +216,7 @@ public class TaskListBuilder implements ITaskListBuilder {
                 log.error(String.format("getTasks: task: %s unable to build ", task), e);
             }
         }
-        for (String groupName : SystemProperties.getProcessAdminGroupNames()) {
-            try {
-                Group group = executorDAO.getGroup(groupName);
-                if (executorDAO.getGroupActors(group).contains(actor)) {
-                    includeAdministrativeTasks(result, group, actor);
-                    break;
-                }
-            } catch (ExecutorDoesNotExistException e) {
-                log.warn(e);
-            }
-        }
-        taskCache.setTasks(cached, actor.getId(), batchPresentation, result);
-        return result;
+        return tasksState;
     }
 
     @SuppressWarnings("unchecked")
@@ -151,10 +234,10 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
     }
 
-    private void includeAdministrativeTasks(List<WfTask> result, Group group, Actor actor) {
+    private void includeAdministrativeTasks(List<TaskInListState> result, Group group, Actor actor) {
         if (Utils.isNullOrEmpty(group.getDescription())) {
             for (Task task : taskDAO.getAll()) {
-                WfTask wfTask = taskObjectFactory.create(task, actor, true, null);
+                TaskInListState wfTask = new TaskInListState(task, actor, true);
                 if (!result.contains(wfTask)) {
                     result.add(wfTask);
                 }
@@ -173,13 +256,13 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
     }
 
-    private void includeAdministrativeTasks(List<WfTask> result, Actor actor, Long processId) {
+    private void includeAdministrativeTasks(List<TaskInListState> result, Actor actor, Long processId) {
         Process process = processDAO.get(processId);
         if (process == null || process.hasEnded()) {
             return;
         }
         for (Task task : process.getTasks()) {
-            WfTask wfTask = taskObjectFactory.create(task, actor, true, null);
+            TaskInListState wfTask = new TaskInListState(task, actor, true);
             if (!result.contains(wfTask)) {
                 result.add(wfTask);
             }
@@ -187,7 +270,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
         for (Process subprocess : subprocesses) {
             for (Task task : subprocess.getTasks()) {
-                WfTask wfTask = taskObjectFactory.create(task, actor, true, null);
+                TaskInListState wfTask = new TaskInListState(task, actor, true);
                 if (!result.contains(wfTask)) {
                     result.add(wfTask);
                 }
@@ -195,7 +278,8 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
     }
 
-    protected WfTask getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, Set<Executor> executorsToGetTasksByMembership) {
+    protected TaskInListState getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation,
+            Set<Executor> executorsToGetTasksByMembership) {
         if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             log.debug(task + " is ignored due to process suspended state");
             return null;
@@ -210,7 +294,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
         if (executorsToGetTasksByMembership.contains(taskExecutor)) {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
-            return taskObjectFactory.create(task, actor, false, batchPresentation.getDynamicFieldsToDisplay(true));
+            return new TaskInListState(task, actor, false);
         }
         if (processDefinition.ignoreSubsitutionRulesForTask(task)) {
             log.debug(String.format("getAcceptableTask: task: %s is ignored due to ignore subsitution rule", task));
@@ -219,14 +303,13 @@ public class TaskListBuilder implements ITaskListBuilder {
         return getAcceptableTask(task, actor, batchPresentation, executionContextFactory.createExecutionContext(processDefinition, task));
     }
 
-    protected WfTask getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, ExecutionContext executionContext) {
+    protected TaskInListState getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, ExecutionContext executionContext) {
         log.debug(String.format("getAcceptableTask: whether task: %s should be acquired by substitution rules?", task));
-        boolean firstOpen = !task.getOpenedByExecutorIds().contains(actor.getId());
         Executor taskExecutor = task.getExecutor();
         if (taskExecutor instanceof Actor) {
             if (isTaskAcceptableBySubstitutionRules(executionContext, task, (Actor) taskExecutor, actor)) {
                 log.debug(String.format("getAcceptableTask: task: %s is acquired by substitution rules [by actor]", task));
-                return taskObjectFactory.create(task, (Actor) taskExecutor, true, batchPresentation.getDynamicFieldsToDisplay(true), firstOpen);
+                return new TaskInListState(task, (Actor) taskExecutor, true);
             }
         } else {
             for (Actor groupActor : executorDAO.getGroupActors((Group) taskExecutor)) {
@@ -234,7 +317,7 @@ public class TaskListBuilder implements ITaskListBuilder {
                     continue;
                 }
                 log.debug(String.format("getAcceptableTask: task: %s is acquired by substitution rules [by group]", task));
-                return taskObjectFactory.create(task, groupActor, true, batchPresentation.getDynamicFieldsToDisplay(true), firstOpen);
+                return new TaskInListState(task, groupActor, true);
             }
         }
         return null;
@@ -324,14 +407,14 @@ public class TaskListBuilder implements ITaskListBuilder {
                 continue;
             }
             int substitutionRules = checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor,
-                    substitutorActor);
+                substitutorActor);
             if ((substitutionRules & SUBSTITUTION_APPLIES) == 0) {
                 continue;
             }
             return (substitutionRules & CAN_I_SUBSTITUTE) != 0;
         }
         log.debug(String.format("isTaskAcceptableBySubstitutionRules:  task: %s is ignored due to no subsitution rule applies: %s", task,
-                mapOfSubstitionRule));
+            mapOfSubstitionRule));
         return false;
     }
 
@@ -383,5 +466,4 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
         return false;
     }
-
 }

@@ -58,6 +58,7 @@ import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dao.VariableDAO;
+import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -89,15 +90,27 @@ public class ExecutionContext {
     @Autowired
     protected JobDAO jobDAO;
 
-    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token) {
+    private final VariableLoader variableLoader;
+
+    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
+            Map<Process, Map<String, Variable<?>>> loadedVariables) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
+        this.variableLoader = new VariableLoader(variableDAO, loadedVariables);
+    }
+
+    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
+        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, null);
+    }
+
+    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables) {
+        this(processDefinition, process.getRootToken(), loadedVariables);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Process process) {
@@ -176,7 +189,7 @@ public class ExecutionContext {
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
         }
-        WfVariable variable = variableDAO.getVariable(getProcessDefinition(), getProcess(), name);
+        WfVariable variable = variableLoader.getVariable(getProcessDefinition(), getProcess(), name);
         if (variable == null || Utils.isNullOrEmpty(variable.getValue()) || variable.getValue() instanceof UserTypeMap) {
             variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
         }
@@ -184,7 +197,7 @@ public class ExecutionContext {
             return variable;
         }
         if (name.endsWith(ListFormat.SIZE_SUFFIX) || SystemProperties.isV3CompatibilityMode() || SystemProperties.isAllowedNotDefinedVariables()) {
-            Variable<?> dbVariable = variableDAO.get(getProcess(), name);
+            Variable<?> dbVariable = variableLoader.get(getProcess(), name);
             return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
         }
         log.debug("No variable defined by '" + name + "' in " + getProcess() + ", returning null");
@@ -194,7 +207,7 @@ public class ExecutionContext {
     private WfVariable getVariableUsingBaseProcess(ProcessDefinition processDefinition, Process process, String name, WfVariable variable) {
         String baseProcessIdVariableName = SystemProperties.getBaseProcessIdVariableName();
         if (baseProcessIdVariableName != null && processDefinition.getVariable(baseProcessIdVariableName, false) != null) {
-            WfVariable baseProcessIdVariable = variableDAO.getVariable(processDefinition, process, baseProcessIdVariableName);
+            WfVariable baseProcessIdVariable = variableLoader.getVariable(processDefinition, process, baseProcessIdVariableName);
             if (baseProcessIdVariable != null && baseProcessIdVariable.getValue() != null) {
                 String baseProcessIdMappingVariablePrefix = SystemProperties.getBaseProcessIdMappingVariablePrefix();
                 if (baseProcessIdMappingVariablePrefix != null) {
@@ -206,7 +219,8 @@ public class ExecutionContext {
                         baseMappingVariableName = name.substring(0, userTypeAttributeNameStartIndex);
                     }
                     String baseProcessIdMappingVariableName = baseProcessIdMappingVariablePrefix + " " + baseMappingVariableName;
-                    WfVariable baseProcessIdMappingVariable = variableDAO.getVariable(processDefinition, process, baseProcessIdMappingVariableName);
+                    WfVariable baseProcessIdMappingVariable = variableLoader
+                            .getVariable(processDefinition, process, baseProcessIdMappingVariableName);
                     if (baseProcessIdMappingVariable != null && baseProcessIdMappingVariable.getValue() != null) {
                         log.debug("Mapping rule '" + baseMappingVariableName + "' -> '" + baseProcessIdMappingVariable.getValue() + "'");
                         name = (String) baseProcessIdMappingVariable.getValue() + userTypeAttributeName;
@@ -215,7 +229,7 @@ public class ExecutionContext {
                 log.debug("Loading variable '" + name + "' from process '" + baseProcessIdVariable.getValue() + "'");
                 Process baseProcess = processDAO.getNotNull((Long) baseProcessIdVariable.getValue());
                 ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
-                WfVariable baseVariable = variableDAO.getVariable(baseProcessDefinition, baseProcess, name);
+                WfVariable baseVariable = variableLoader.getVariable(baseProcessDefinition, baseProcess, name);
                 if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null
                         && baseVariable.getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
@@ -301,7 +315,7 @@ public class ExecutionContext {
             String sizeVariableName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
             VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
             sizeDefinition.setDefaultValue(0);
-            int oldSize = (Integer) variableDAO.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
+            int oldSize = (Integer) variableLoader.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
             int maxSize = Math.max(oldSize, newSize);
             String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
             String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
@@ -318,7 +332,7 @@ public class ExecutionContext {
             setSimpleVariableValue(sizeDefinition, value != null ? newSize : null);
             if (SystemProperties.isV4ListVariableCompatibilityMode()) {
                 // delete old list variables as blobs (pre 4.3.0)
-                Variable<?> variable = variableDAO.get(getProcess(), variableDefinition.getName());
+                Variable<?> variable = variableLoader.get(getProcess(), variableDefinition.getName());
                 if (variable != null) {
                     log.debug("Removing old-style list variable '" + variableDefinition.getName() + "'");
                     variableDAO.delete(variable);
@@ -330,7 +344,7 @@ public class ExecutionContext {
     }
 
     private void setSimpleVariableValue(VariableDefinition variableDefinition, Object value) {
-        Variable<?> variable = variableDAO.get(getProcess(), variableDefinition.getName());
+        Variable<?> variable = variableLoader.get(getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
         if (variable != null && !variable.supports(value)) {
             log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' from '" + this + "'");

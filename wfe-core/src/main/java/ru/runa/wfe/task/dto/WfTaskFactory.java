@@ -39,7 +39,7 @@ import com.google.common.base.Objects;
 
 /**
  * {@link WfTask} factory.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -50,7 +50,7 @@ public class WfTaskFactory implements IWfTaskFactory {
     private ExecutorDAO executorDAO;
 
     /**
-     *
+     * 
      * @param task
      * @param targetActor
      * @param acquiredBySubstitution
@@ -64,7 +64,7 @@ public class WfTaskFactory implements IWfTaskFactory {
     }
 
     /**
-     *
+     * 
      * @param task
      * @param targetActor
      * @param acquiredBySubstitution
@@ -92,13 +92,9 @@ public class WfTaskFactory implements IWfTaskFactory {
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(deployment.getId());
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
             for (String variableName : variableNamesToInclude) {
-                WfVariable variable = executionContext.getVariableProvider().getVariable(variableName);
-                if (variable != null) {
-                    wfTask.addVariable(variable);
-                }
+                wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
             }
         }
         return wfTask;
     }
-
 }
