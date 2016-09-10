@@ -78,7 +78,6 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.dao.VariableDAO;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
@@ -99,8 +98,6 @@ public class ExecutionLogic extends WFCommonLogic {
     private ExecutorLogic executorLogic;
     @Autowired
     private INodeAsyncExecutor nodeAsyncExecutor;
-    @Autowired
-    private VariableDAO variableDao;
 
     public void cancelProcess(User user, Long processId) throws ProcessDoesNotExistException {
         ProcessFilter filter = new ProcessFilter();
@@ -228,7 +225,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
         for (Process process : processes) {
             WfProcess wfProcess = new WfProcess(process);
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
