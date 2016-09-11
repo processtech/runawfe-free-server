@@ -45,6 +45,7 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import ru.runa.wfe.audit.SwimlaneAssignLog;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.task.Task;
@@ -163,10 +164,8 @@ public class Swimlane implements Serializable, Assignable {
         }
         if (cascadeUpdate) {
             // change actor for already assigned tasks
-            for (Task task : process.getTasks()) {
-                if (task.getSwimlane() != null && name.equals(task.getSwimlane().getName())) {
-                    task.assignExecutor(executionContext, executor, false);
-                }
+            for (Task task : ApplicationContextFactory.getTaskDAO().findByProcessAndSwimlane(process, this)) {
+                task.assignExecutor(executionContext, executor, false);
             }
         }
     }

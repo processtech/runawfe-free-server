@@ -72,7 +72,7 @@ public class EmailTaskNotifierActionHandler extends ActionHandlerBase {
         for (Actor actor : actors) {
             String email = actor.getEmail();
             if (!Strings.isNullOrEmpty(email)) {
-                List<Task> taskList = taskDAO.findTasks(actor);
+                List<Task> taskList = taskDAO.findByExecutor(actor);
                 for (Task task : taskList) {
                     if (!Objects.equal(task.getId(), executionContext.getTask().getId())) {
                         EmailConfig config = EmailConfigParser.parse(configBytes);

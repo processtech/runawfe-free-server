@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.af.web.tag;
@@ -62,7 +62,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
     @Override
     public void fillFormData(TD tdFormElement) {
         StringBuffer paramsDiv = new StringBuffer("<div id='rh' style='display: none;'>");
-        List<FunctionDef> functions = SubstitutionCriteriaDefinitions.getAll();
+        List<FunctionDef> functions = SubstitutionCriteriaDefinitions.getAll(getUser());
         int i = 0;
         for (FunctionDef functionDef : functions) {
             paramsDiv.append("<div id='").append(functionDef.getClassName()).append("'>");
@@ -111,7 +111,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
         }
 
         public Table buildTable() {
-            SubstitutionCriteria substitutionCriteria = (getIdentifiableId() != null) ? Delegates.getSubstitutionService().getCriteria(getUser(),
+            SubstitutionCriteria substitutionCriteria = getIdentifiableId() != null ? Delegates.getSubstitutionService().getCriteria(getUser(),
                     getIdentifiableId()) : null;
             Table table = new Table();
             table.setID("paramsTable");
@@ -130,7 +130,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
             }
             table.addElement(HTMLUtils.createSelectRow(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_TYPE.message(pageContext),
                     SubstitutionCriteriaForm.TYPE_INPUT_NAME, typeOptions, enabled, false));
-            FunctionDef functionDef = SubstitutionCriteriaDefinitions.getByClassName(criteriaType);
+            FunctionDef functionDef = SubstitutionCriteriaDefinitions.getByClassName(getUser(), criteriaType);
             if (functionDef != null) {
                 for (int i = 0; i < functionDef.getParams().size(); i++) {
                     ParamDef paramDef = functionDef.getParams().get(i);
@@ -146,7 +146,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
         }
 
         private Option[] getTypeOptions(String selectedValue) {
-            List<FunctionDef> definitions = SubstitutionCriteriaDefinitions.getAll();
+            List<FunctionDef> definitions = SubstitutionCriteriaDefinitions.getAll(getUser());
             Option[] options = new Option[definitions.size()];
             for (int i = 0; i < options.length; i++) {
                 options[i] = new Option(definitions.get(i).getClassName());
