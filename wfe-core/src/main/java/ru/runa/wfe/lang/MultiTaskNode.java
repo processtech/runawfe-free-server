@@ -153,7 +153,7 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     private boolean createTasksByDiscriminator(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
-        Swimlane swimlane = executionContext.getProcess().getInitializedSwimlaneNotNull(executionContext, taskDefinition);
+        Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
         String script = discriminatorCondition;
         if (Utils.isNullOrEmpty(script)) {
             // TODO temporary
@@ -198,7 +198,7 @@ public class MultiTaskNode extends BaseTaskNode {
     private boolean isLastTaskToComplete(Task task) {
         Token token = task.getToken();
         boolean lastToComplete = true;
-        for (Task other : token.getTasks()) {
+        for (Task other : taskDAO.findByToken(token)) {
             if (!other.equals(task)) {
                 lastToComplete = false;
                 break;

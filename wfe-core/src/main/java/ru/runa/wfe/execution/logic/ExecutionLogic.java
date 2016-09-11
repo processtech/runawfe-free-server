@@ -267,7 +267,8 @@ public class ExecutionLogic extends WFCommonLogic {
         if (predefinedProcessStarterObject != null) {
             Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-            process.getSwimlaneNotNull(startTaskSwimlaneDefinition).assignExecutor(executionContext, predefinedProcessStarter, true);
+            Swimlane swimlane = swimlaneDAO.findOrCreate(process, startTaskSwimlaneDefinition);
+            swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
         }
         log.info(process + " was successfully started by " + user);
         return process.getId();
@@ -397,7 +398,7 @@ public class ExecutionLogic extends WFCommonLogic {
         List<SwimlaneDefinition> swimlanes = processDefinition.getSwimlanes();
         List<WfSwimlane> result = Lists.newArrayListWithExpectedSize(swimlanes.size());
         for (SwimlaneDefinition swimlaneDefinition : swimlanes) {
-            Swimlane swimlane = process.getSwimlane(swimlaneDefinition.getName());
+            Swimlane swimlane = swimlaneDAO.findByProcessAndName(process, swimlaneDefinition.getName());
             Executor assignedExecutor = null;
             if (swimlane != null && swimlane.getExecutor() != null) {
                 if (permissionDAO.isAllowed(user, ExecutorPermission.READ, swimlane.getExecutor())) {
@@ -415,7 +416,7 @@ public class ExecutionLogic extends WFCommonLogic {
         Process process = processDAO.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
-        Swimlane swimlane = process.getSwimlaneNotNull(swimlaneDefinition);
+        Swimlane swimlane = swimlaneDAO.findOrCreate(process, swimlaneDefinition);
         List<Executor> executors = executor != null ? Lists.newArrayList(executor) : null;
         AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, executors);
     }

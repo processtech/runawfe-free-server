@@ -17,15 +17,21 @@
  */
 package ru.runa.wfe.extension.handler.user;
 
+import java.util.List;
+
 import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.dao.SwimlaneDAO;
+import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.ActionHandlerBase;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.user.Executor;
 
 import com.google.common.base.Preconditions;
 
@@ -36,6 +42,8 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
     private boolean strictMode = true;
     private String swimlaneName;
     private String swimlaneInitializer;
+    @Autowired
+    private SwimlaneDAO swimlaneDAO;
 
     @Override
     public void setConfiguration(String configuration) {
@@ -62,14 +70,22 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
         if (Utils.isNullOrEmpty(swimlaneInitializer)) {
             log.debug("using process definition swimlane initializer");
             SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
-            Swimlane swimlane = executionContext.getProcess().getInitializedSwimlaneNotNull(executionContext, swimlaneDefinition, true);
+            Swimlane swimlane = swimlaneDAO.findOrCreateInitialized(executionContext, swimlaneDefinition, true);
             assigned = swimlane.getExecutor() != null;
         } else {
             log.debug("using handler swimlane initializer");
-            assigned = AssignmentHelper.assignSwimlane(executionContext, swimlaneName, swimlaneInitializer);
+            assigned = assignSwimlane(executionContext, swimlaneName, swimlaneInitializer);
         }
         if (strictMode && !assigned) {
             throw new Exception("Swimlane " + swimlaneName + " is not assigned");
         }
     }
+
+    private boolean assignSwimlane(ExecutionContext executionContext, String swimlaneName, String swimlaneInitializer) {
+        List<? extends Executor> executors = SwimlaneInitializerHelper.evaluate(swimlaneInitializer, executionContext.getVariableProvider());
+        SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
+        Swimlane swimlane = swimlaneDAO.findOrCreate(executionContext.getProcess(), swimlaneDefinition);
+        return AssignmentHelper.assign(executionContext, swimlane, executors);
+    }
+
 }

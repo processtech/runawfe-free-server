@@ -40,7 +40,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -94,7 +93,6 @@ public abstract class Variable<T extends Object> {
         this.id = id;
     }
 
-    @Version
     @Column(name = "VERSION")
     public Long getVersion() {
         return version;

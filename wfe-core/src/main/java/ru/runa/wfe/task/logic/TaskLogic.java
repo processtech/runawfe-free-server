@@ -226,14 +226,14 @@ public class TaskLogic extends WFCommonLogic {
         List<WfTask> result = Lists.newArrayList();
         Process process = processDAO.getNotNull(processId);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
-        for (Task task : process.getTasks()) {
+        for (Task task : taskDAO.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
             List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
             for (Process subprocess : subprocesses) {
                 checkPermissionAllowed(user, subprocess, ProcessPermission.READ);
-                for (Task task : subprocess.getTasks()) {
+                for (Task task : taskDAO.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }
             }
