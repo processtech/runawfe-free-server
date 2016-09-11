@@ -59,7 +59,6 @@ import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.Transition;
-import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 
 import com.google.common.base.Objects;
@@ -128,17 +127,17 @@ public class Token implements Serializable {
         return id;
     }
 
-    protected void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
     @Version
     @Column(name = "VERSION")
-    protected Long getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    protected void setVersion(Long version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 
@@ -253,11 +252,6 @@ public class Token implements Serializable {
 
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
         return processDefinition.getNodeNotNull(nodeId);
-    }
-
-    @Transient
-    public List<Task> getTasks() {
-        return getProcess().getTokenTasks(this);
     }
 
     private void addChild(Token token) {
