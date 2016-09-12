@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -75,32 +76,38 @@ public class MultiSubprocessNode extends SubprocessNode {
                 continue;
             }
             Map<String, Object> variables = Maps.newHashMap();
-            for (VariableMapping variableMapping : variableMappings) {
-                // if this variable access is readable
-                String variableName = variableMapping.getName();
-                if (variableMapping.isReadable()) {
-                    Object value = variableProvider.getValue(variableName);
-                    String mappedName = variableMapping.getMappedName();
-                    if (value != null) {
-                        log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value + " of "
-                                + value.getClass());
-                    } else {
-                        log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
-                        continue;
-                    }
-                    if (variableMapping.isMultiinstanceLink()) {
-                        variables.put(mappedName, TypeConversionUtil.getListValue(value, index));
-                    } else {
-                        variables.put(mappedName, value);
+            Object discriminatorValue = TypeConversionUtil.getListValue(parameters.getDiscriminatorValue(), index);
+            if (discriminatorValue instanceof ISelectable) {
+                discriminatorValue = ((ISelectable) discriminatorValue).getValue();
+            }
+            log.debug("setting discriminator var '" + parameters.getDiscriminatorVariableName() + "' to sub process var '"
+                    + parameters.getIteratorVariableName() + "': " + discriminatorValue);
+            variables.put(parameters.getIteratorVariableName(), discriminatorValue);
+            if (isInBaseIdProcessMode()) {
+                Long baseProcessId = variableProvider.getValueNotNull(Long.class, getBaseIdProcessVariableName());
+                log.debug("executing in base_process_id: " + baseProcessId);
+                variables.put(SystemProperties.getBaseProcessIdVariableName(), baseProcessId);
+            } else {
+                for (VariableMapping variableMapping : variableMappings) {
+                    // if this variable access is readable
+                    String variableName = variableMapping.getName();
+                    if (variableMapping.isReadable()) {
+                        Object value = variableProvider.getValue(variableName);
+                        String mappedName = variableMapping.getMappedName();
+                        if (value != null) {
+                            log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value + " of "
+                                    + value.getClass());
+                        } else {
+                            log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
+                            continue;
+                        }
+                        if (variableMapping.isMultiinstanceLink()) {
+                            variables.put(mappedName, TypeConversionUtil.getListValue(value, index));
+                        } else {
+                            variables.put(mappedName, value);
+                        }
                     }
                 }
-                Object value = TypeConversionUtil.getListValue(parameters.getDiscriminatorValue(), index);
-                if (value instanceof ISelectable) {
-                    value = ((ISelectable) value).getValue();
-                }
-                log.debug("setting discriminator var '" + parameters.getDiscriminatorVariableName() + "' to sub process var '"
-                        + parameters.getIteratorVariableName() + "': " + value);
-                variables.put(parameters.getIteratorVariableName(), value);
             }
             Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, index);
             subProcesses.add(subProcess);

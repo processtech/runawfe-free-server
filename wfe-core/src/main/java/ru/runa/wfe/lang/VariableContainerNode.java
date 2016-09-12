@@ -19,6 +19,7 @@ package ru.runa.wfe.lang;
 
 import java.util.List;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.var.VariableMapping;
 
@@ -48,6 +49,16 @@ public abstract class VariableContainerNode extends Node {
             }
         }
         return false;
+    }
+
+    protected String getBaseIdProcessVariableName() {
+        String baseProcessIdVariableName = SystemProperties.getBaseProcessIdVariableName();
+        for (VariableMapping variableMapping : variableMappings) {
+            if (baseProcessIdVariableName.equals(variableMapping.getMappedName())) {
+                return variableMapping.getName();
+            }
+        }
+        throw new InternalApplicationException("Not in base_process_id mode");
     }
 
     @Override
