@@ -29,7 +29,6 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.SubstringDBSource;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.dao.PermissionMapping;
 import ru.runa.wfe.var.Variable;
 
 /**
@@ -55,19 +54,16 @@ public class TaskClassPresentation extends ClassPresentation {
         public OthersPermissionsDBSource(Class<?> sourceObject) {
             super(sourceObject, "");
         }
-        // TODO Похоже вся эта обработка уезжает на этап сборки HQL
-        @Override
-        public String getValueDBPath(String alias) {
-            // TODO Включать только если заполнено поле для Группы 
-            return "(SELECT exec_.name FROM ru.runa.wfe.user.Executor exec_ WHERE exec_.id=\"permission1_\".\"identifiable_id\""; // )) ?
-        }
 
         @Override
-        public String getJoinExpression(String alias) {
-            return classNameSQL + ".executor.id=" + alias + ".identifiableId AND ((" +
-                    alias + ".type=3 AND " + alias + ".mask=16 ) " +
-                    "OR (" + // TODO -- <<< - ЗАМЕНИТЬ ПЕРЕКЛЮЧАТЕЛЕМ!
-                    alias + ".type=4 AND " + alias + ".mask=64 ))"; 
+        public String getValueDBPath(String alias) {
+            return "((" + classNameSQL + ".executor.id IN "
+                    + "(SELECT pm.identifiableId FROM ru.runa.wfe.security.dao.PermissionMapping pm WHERE pm.executor.id in (:ownersIds) "
+                    + "AND :param_extra_case='' AND  pm.type=3 AND pm.mask=16) OR " + classNameSQL + ".executor.id IN  "
+                    + "(SELECT  gm.executor.id FROM ru.runa.wfe.user.ExecutorGroupMembership gm, "
+                    + " ru.runa.wfe.security.dao.PermissionMapping pm, ru.runa.wfe.user.Executor exec  "
+                    + "WHERE pm.identifiableId = gm.group.id AND exec.id=gm.group.id " + "AND pm.executor.id in (:ownersIds) "
+                    + "AND exec.name = :param_extra_case AND :param_extra_case!='' AND pm.type=4 AND pm.mask=64) ))";
         }
     }
 
@@ -99,8 +95,8 @@ public class TaskClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
 
-               new FieldDescriptor(TASK_OTHERS, Integer.class.getName(), new OthersPermissionsDBSource(PermissionMapping.class), false,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}, true).setVisible(false),
+                new FieldDescriptor(TASK_OTHERS, Integer.class.getName(), new OthersPermissionsDBSource(Task.class), false, FieldFilterMode.DATABASE,
+                        "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}).setVisible(false),
 
                 new FieldDescriptor(TASK_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskVariableTDBuilder", new Object[] {}, true),

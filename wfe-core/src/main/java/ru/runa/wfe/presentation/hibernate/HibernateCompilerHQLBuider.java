@@ -33,6 +33,8 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 
 import com.google.common.base.Strings;
 
+import static ru.runa.wfe.task.TaskClassPresentation.TASK_OTHERS;
+
 /**
  * Builds HQL query for {@link BatchPresentation}.
  */
@@ -261,6 +263,11 @@ public class HibernateCompilerHQLBuider {
     private List<String> addOwners() {
         List<String> result = new LinkedList<String>();
         if (!parameters.hasOwners()) {
+            return result;
+        }
+        // Very special case, in which [:ownersIds] will be used several times inside very complicated WHERE condition. So here - switched off.
+        if (batchPresentation.getCategory().equals("listTasksForm") && batchPresentation.getFilteredFields().containsKey(6)){
+            placeholders.put("ownersIds", null);
             return result;
         }
         String owners = "(" + ClassPresentation.classNameSQL + "." + parameters.getOwnerDBPath() + " in (:ownersIds) )";

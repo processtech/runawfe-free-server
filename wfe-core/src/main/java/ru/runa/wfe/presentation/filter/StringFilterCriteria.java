@@ -51,19 +51,24 @@ public class StringFilterCriteria extends FilterCriteria {
         if (ignoreCase) {
             where += "lower(";
         }
-        if (!fieldName.startsWith("(")) {
+        // Let "((" be the mark of very special case, in which [field] is complicated expression, which holds parameter inside.
+        if (!fieldName.startsWith("((")) {
             where += persistentObjectQueryAlias + "." + fieldName;
         } else {
+            // So, we simply add expression to query
             where += fieldName;
-            alias = "param_for_extra_case";
+            // Set parameter with predefined name here
+            alias = "param_extra_case";
         }
         if (ignoreCase) {
             where += ")";
             searchValue = searchValue.toLowerCase();
         }
         where += " ";
-        where += expression.getComparisonOperator();
-        where += " :" + alias + " ";
+        if (!fieldName.startsWith("((")) {
+            where += expression.getComparisonOperator();
+            where += " :" + alias + " ";
+        }
         placeholders.put(alias, new QueryParameter(alias, searchValue));
         return where;
     }

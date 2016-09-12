@@ -39,12 +39,8 @@ public class TaskOthersTDBuilder implements TDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-//        WfTask task = (WfTask) object;
-//        WfVariable variable = task.getVariable(variableName);
-//        if (variable != null && variable.getValue() != null) {
-//            return ViewUtil.getOutput(env.getUser(), new StrutsWebHelper(env.getPageContext()), task.getProcessId(), variable);
-//        }
-        return "";
+        WfTask task = (WfTask) object;
+        return ""; //TODO don't catch meaning of this :-( ??? task.get???();
     }
 
     @Override
