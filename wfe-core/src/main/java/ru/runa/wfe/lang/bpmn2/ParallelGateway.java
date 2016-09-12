@@ -29,60 +29,62 @@ public class ParallelGateway extends Node {
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        Token token = executionContext.getToken();
-        Set<Token> arrivedTokens = Sets.newHashSet(token);
-        Set<String> activeTokenNodeIds = Sets.newHashSet();
-        if (getArrivingTransitions().size() > 1) {
-            // #850 don't end root token
-            token.end(executionContext, null);
-        }
-        fillTokensInfo(executionContext.getProcess().getRootToken(), arrivedTokens, activeTokenNodeIds);
-        List<Token> tokensToPop = Lists.newArrayList();
-        List<Transition> notPassedTransitions = Lists.newArrayList();
-        for (Transition transition : getArrivingTransitions()) {
-            boolean transitionIsPassedByToken = false;
-            for (Token arrivedToken : arrivedTokens) {
-                if (Objects.equal(transition.getNodeId(), arrivedToken.getTransitionId())
-                        || Objects.equal(transition.getNodeIdBackCompatibilityPre4_3_0(), arrivedToken.getTransitionId())) {
-                    transitionIsPassedByToken = true;
-                    tokensToPop.add(arrivedToken);
-                    break;
+        synchronized (this) {
+            Token token = executionContext.getToken();
+            Set<Token> arrivedTokens = Sets.newHashSet(token);
+            Set<String> activeTokenNodeIds = Sets.newHashSet();
+            if (getArrivingTransitions().size() > 1) {
+                // #850 don't end root token
+                token.end(executionContext, null);
+            }
+            fillTokensInfo(executionContext.getProcess().getRootToken(), arrivedTokens, activeTokenNodeIds);
+            List<Token> tokensToPop = Lists.newArrayList();
+            List<Transition> notPassedTransitions = Lists.newArrayList();
+            for (Transition transition : getArrivingTransitions()) {
+                boolean transitionIsPassedByToken = false;
+                for (Token arrivedToken : arrivedTokens) {
+                    if (Objects.equal(transition.getNodeId(), arrivedToken.getTransitionId())
+                            || Objects.equal(transition.getNodeIdBackCompatibilityPre4_3_0(), arrivedToken.getTransitionId())) {
+                        transitionIsPassedByToken = true;
+                        tokensToPop.add(arrivedToken);
+                        break;
+                    }
+                }
+                if (!transitionIsPassedByToken) {
+                    notPassedTransitions.add(transition);
                 }
             }
-            if (!transitionIsPassedByToken) {
-                notPassedTransitions.add(transition);
-            }
-        }
-        if (notPassedTransitions.isEmpty()) {
-            log.debug("marking tokens as inactive " + tokensToPop);
-            for (Token arrivedToken : tokensToPop) {
-                arrivedToken.setAbleToReactivateParent(false);
-            }
-            if (getArrivingTransitions().size() > 1 && token.getParent() != null) {
-                Token parentToken = token.getParent();
-                log.debug("passed with first parent " + parentToken);
-                leave(new ExecutionContext(executionContext.getProcessDefinition(), parentToken));
+            if (notPassedTransitions.isEmpty()) {
+                log.debug("marking tokens as inactive " + tokensToPop);
+                for (Token arrivedToken : tokensToPop) {
+                    arrivedToken.setAbleToReactivateParent(false);
+                }
+                if (getArrivingTransitions().size() > 1 && token.getParent() != null) {
+                    Token parentToken = token.getParent();
+                    log.debug("passed with first parent " + parentToken);
+                    leave(new ExecutionContext(executionContext.getProcessDefinition(), parentToken));
+                } else {
+                    log.debug("passed with this " + token);
+                    leave(executionContext);
+                }
             } else {
-                log.debug("passed with this " + token);
-                leave(executionContext);
-            }
-        } else {
-            log.debug("execution blocked in " + this + " due to waiting on " + notPassedTransitions);
-            boolean markProcessFailedExecutionStatus = false;
-            for (Transition transition : notPassedTransitions) {
-                if (activeTokenNodeIds.contains(transition.getNodeId())) {
-                    log.debug("concurrent token found for " + transition);
-                    continue;
+                log.debug("execution blocked in " + this + " due to waiting on " + notPassedTransitions);
+                boolean markProcessFailedExecutionStatus = false;
+                for (Transition transition : notPassedTransitions) {
+                    if (activeTokenNodeIds.contains(transition.getNodeId())) {
+                        log.debug("concurrent token found for " + transition);
+                        continue;
+                    }
+                    if (!transitionCanBePassed(transition, activeTokenNodeIds, new HashSet<Node>())) {
+                        log.error("blocking " + executionContext.getProcess() + " execution because " + transition
+                                + " will not be passed by tokens in nodes " + activeTokenNodeIds);
+                        markProcessFailedExecutionStatus = true;
+                    }
                 }
-                if (!transitionCanBePassed(transition, activeTokenNodeIds, new HashSet<Node>())) {
-                    log.error("blocking " + executionContext.getProcess() + " execution because " + transition
-                            + " will not be passed by tokens in nodes " + activeTokenNodeIds);
-                    markProcessFailedExecutionStatus = true;
+                if (markProcessFailedExecutionStatus) {
+                    executionContext.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                    // TODO set process error = no token can activate this node
                 }
-            }
-            if (markProcessFailedExecutionStatus) {
-                executionContext.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                // TODO set process error = no token can activate this node
             }
         }
     }
