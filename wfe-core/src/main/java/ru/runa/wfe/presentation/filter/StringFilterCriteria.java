@@ -51,7 +51,7 @@ public class StringFilterCriteria extends FilterCriteria {
         if (ignoreCase) {
             where += "lower(";
         }
-        // Let "((" be the mark of very special case, in which [field] is complicated expression, which holds parameter inside.
+        // Let "((" be the mark of very special case, in which [field] is complicated expression, which holds parameter inside, and not here.
         if (!fieldName.startsWith("((")) {
             where += persistentObjectQueryAlias + "." + fieldName;
         } else {
@@ -65,6 +65,7 @@ public class StringFilterCriteria extends FilterCriteria {
             searchValue = searchValue.toLowerCase();
         }
         where += " ";
+     // Ordinal case - not special noted above. For that case - skip this.
         if (!fieldName.startsWith("((")) {
             where += expression.getComparisonOperator();
             where += " :" + alias + " ";

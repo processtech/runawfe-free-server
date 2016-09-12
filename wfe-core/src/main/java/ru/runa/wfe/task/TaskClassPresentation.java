@@ -52,11 +52,13 @@ public class TaskClassPresentation extends ClassPresentation {
 
     private static class OthersPermissionsDBSource extends DefaultDBSource {
         public OthersPermissionsDBSource(Class<?> sourceObject) {
-            super(sourceObject, "");
+            super(sourceObject, null);
         }
 
         @Override
         public String getValueDBPath(String alias) {
+            // Starting "((" are used in HibernateCompilerHQLBuider to detect such soecial comlicated case,
+            // and skip some parts of normal processing
             return "((" + classNameSQL + ".executor.id IN "
                     + "(SELECT pm.identifiableId FROM ru.runa.wfe.security.dao.PermissionMapping pm WHERE pm.executor.id in (:ownersIds) "
                     + "AND :param_extra_case='' AND  pm.type=3 AND pm.mask=16) OR " + classNameSQL + ".executor.id IN  "
@@ -94,10 +96,10 @@ public class TaskClassPresentation extends ClassPresentation {
                         "ru.runa.wf.web.html.TaskOwnerTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
-
-                new FieldDescriptor(TASK_OTHERS, Integer.class.getName(), new OthersPermissionsDBSource(Task.class), false, FieldFilterMode.DATABASE,
+                // Don't change this field position (6) - some logic in HibernateCompilerHQLBuider and TaskListBuilder are based on that!
+                new FieldDescriptor(TASK_OTHERS, String.class.getName(), new OthersPermissionsDBSource(Task.class), false, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}).setVisible(false),
-
+                // ---
                 new FieldDescriptor(TASK_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskVariableTDBuilder", new Object[] {}, true),
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDBSource(Task.class, "deadlineDate"), true, 1,

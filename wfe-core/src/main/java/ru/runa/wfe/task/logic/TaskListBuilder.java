@@ -208,7 +208,9 @@ public class TaskListBuilder implements ITaskListBuilder {
             log.warn(String.format("getAcceptableTask: not found definition for task: %s with process: %s", task, task.getProcess()));
             return null;
         }
-        if (executorsToGetTasksByMembership.contains(taskExecutor)) {
+        if (executorsToGetTasksByMembership.contains(taskExecutor)
+        		// Key(6) means that others tasks are listed
+        		|| batchPresentation.getFilteredFields().containsKey(6)) {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return taskObjectFactory.create(task, actor, false, batchPresentation.getDynamicFieldsToDisplay(true));
         }
