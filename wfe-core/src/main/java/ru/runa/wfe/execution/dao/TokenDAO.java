@@ -27,4 +27,8 @@ public class TokenDAO extends GenericDAO<Token> {
         return getHibernateTemplate().find("from Token where process=? and executionStatus=?", process, status);
     }
 
+    public List<Token> findByProcessAndNodeIdAndExecutionStatusIsFailed(ru.runa.wfe.execution.Process process, String nodeId) {
+        return getHibernateTemplate().find("from Token where process=? and nodeId=? and executionStatus=?", process, nodeId, ExecutionStatus.FAILED);
+    }
+
 }

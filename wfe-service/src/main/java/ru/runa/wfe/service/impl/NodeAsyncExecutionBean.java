@@ -94,7 +94,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
             }.executeInTransaction(true);
             for (ITransactionListener listener : TransactionListeners.get()) {
                 try {
-                    listener.onTransactionComplete();
+                    listener.onTransactionComplete(context.getUserTransaction());
                 } catch (Throwable th) {
                     log.error(th);
                 }
