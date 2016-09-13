@@ -91,7 +91,7 @@ public class MultiSubprocessNode extends SubprocessNode {
                 for (VariableMapping variableMapping : variableMappings) {
                     // if this variable access is readable
                     String variableName = variableMapping.getName();
-                    if (variableMapping.isReadable()) {
+                    if (variableMapping.isReadable() || variableMapping.isSyncable()) {
                         Object value = variableProvider.getValue(variableName);
                         String mappedName = variableMapping.getMappedName();
                         if (value != null) {

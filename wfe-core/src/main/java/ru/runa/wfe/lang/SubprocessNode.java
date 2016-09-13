@@ -108,7 +108,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         } else {
             for (VariableMapping variableMapping : variableMappings) {
                 // if this variable mapping is readable
-                if (variableMapping.isReadable()) {
+                if (variableMapping.isReadable() || variableMapping.isSyncable()) {
                     // the variable is copied from the super process variable
                     // name to the sub process mapped name
                     String variableName = variableMapping.getName();
