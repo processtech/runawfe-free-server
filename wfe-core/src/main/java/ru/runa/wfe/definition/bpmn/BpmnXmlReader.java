@@ -28,6 +28,7 @@ import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
+import ru.runa.wfe.lang.InterruptingNode;
 import ru.runa.wfe.lang.MultiProcessState;
 import ru.runa.wfe.lang.MultiTaskCreationMode;
 import ru.runa.wfe.lang.MultiTaskNode;
@@ -116,6 +117,7 @@ public class BpmnXmlReader {
     private static final String DISCRIMINATOR_USAGE = "discriminatorUsage";
     private static final String DISCRIMINATOR_VALUE = "discriminatorValue";
     private static final String DISCRIMINATOR_CONDITION = "discriminatorCondition";
+    private static final String INTERRUPTING = "interrupting";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -313,6 +315,12 @@ public class BpmnXmlReader {
         if (node instanceof TextAnnotation) {
             node.setName("TextAnnotation_" + node.getNodeId());
             node.setDescription(element.elementTextTrim(TEXT));
+        }
+        if (node instanceof InterruptingNode) {
+            String interrupting = element.attributeValue(INTERRUPTING);
+            if (!Strings.isNullOrEmpty(interrupting)) {
+                ((InterruptingNode) node).setInterrupting(Boolean.parseBoolean(interrupting));
+            }
         }
     }
 

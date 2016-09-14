@@ -30,6 +30,6 @@ public class ReceiveMessage extends VariableContainerNode {
     @Override
     public void execute(ExecutionContext executionContext) {
         log.info("Waiting for message in " + this);
+        super.execute(executionContext);
     }
-
 }

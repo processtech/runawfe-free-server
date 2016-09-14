@@ -25,6 +25,7 @@ import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
+import ru.runa.wfe.lang.InterruptingNode;
 import ru.runa.wfe.lang.MultiProcessState;
 import ru.runa.wfe.lang.MultiTaskCreationMode;
 import ru.runa.wfe.lang.MultiTaskNode;
@@ -104,6 +105,7 @@ public class JpdlXmlReader {
     private static final String EMBEDDED = "embedded";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String CREATION_MODE = "creationMode";
+    private static final String INTERRUPTING = "interrupting";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -359,6 +361,12 @@ public class JpdlXmlReader {
             serviceTask.setDelegation(readDelegation(processDefinition, actionElement));
         }
         readNodeTimers(processDefinition, element, node);
+        if (node instanceof InterruptingNode) {
+            String interrupting = element.attributeValue(INTERRUPTING);
+            if (!Strings.isNullOrEmpty(interrupting)) {
+                ((InterruptingNode) node).setInterrupting(Boolean.parseBoolean(interrupting));
+            }
+        }
     }
 
     private void readNodeTimers(ProcessDefinition processDefinition, Element parentElement, GraphElement node) {
@@ -478,8 +486,7 @@ public class JpdlXmlReader {
     /**
      * creates the transition object and configures it by the read attributes
      *
-     * @return the created <code>ru.runa.wfe.lang.Transition</code> object
-     *         (useful, if you want to override this method to read additional
+     * @return the created <code>ru.runa.wfe.lang.Transition</code> object (useful, if you want to override this method to read additional
      *         configuration properties)
      */
     private void resolveTransitionDestination(ProcessDefinition processDefinition, Element element, Node node) {
