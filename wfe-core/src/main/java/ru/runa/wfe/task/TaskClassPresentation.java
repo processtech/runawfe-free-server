@@ -57,7 +57,7 @@ public class TaskClassPresentation extends ClassPresentation {
 
         @Override
         public String getValueDBPath(String alias) {
-            // Starting "((" are used in HibernateCompilerHQLBuider to detect such soecial comlicated case,
+            // Starting "((" are used in HibernateCompilerHQLBuider to detect such special comlicated case,
             // and skip some parts of normal processing
             return "((" + classNameSQL + ".executor.id IN "
                     + "(SELECT pm.identifiableId FROM ru.runa.wfe.security.dao.PermissionMapping pm WHERE pm.executor.id in (:ownersIds) "

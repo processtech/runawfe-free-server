@@ -190,10 +190,17 @@ public class TaskLogic extends WFCommonLogic {
 
     public WfTask getTask(User user, Long taskId) {
         Task task = taskDAO.getNotNull(taskId);
-        if (!executorLogic.isAdministrator(user)) {
-            checkCanParticipate(user.getActor(), task);
+        boolean byOthers = false;
+        if (!canReadOthersTask(user, task)) {
+            if (!executorLogic.isAdministrator(user)) {
+                checkCanParticipate(user.getActor(), task);
+            }
+        } else {
+            byOthers = true;
         }
-        return taskObjectFactory.create(task, user.getActor(), false, null);
+        WfTask wftask = taskObjectFactory.create(task, user.getActor(), false, null);
+        wftask.setReadByOthersPermission(byOthers);
+        return wftask;
     }
 
     public Long getProcessId(User user, Long taskId) {

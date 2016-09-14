@@ -30,6 +30,7 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.ProcessForm;
+import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -81,10 +82,14 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
                 task.addVariable(variable);
             }
         }
-        this.buttonEnabled = task.isGroupAssigned();
-        String url = getReturnAction() + "?" + IdForm.ID_INPUT_NAME + "=" + taskId + "&" + ProcessForm.ACTOR_ID_INPUT_NAME + "=" + actorId;
+        String isReadByOthersPermission = task.isReadByOthersPermission() ? "true" : "false";
+        this.buttonEnabled = task.isGroupAssigned() && !task.isReadByOthersPermission();
+        String url = getReturnAction() + "?" + IdForm.ID_INPUT_NAME + "=" + taskId +
+                "&" + ProcessForm.ACTOR_ID_INPUT_NAME + "=" + actorId +
+                "&" + TaskIdForm.DELEGATION_PERMITTED + "=" + isReadByOthersPermission;
         tdFormElement.addElement(ListTasksFormTag.buildTasksTable(pageContext, batchPresentation, Lists.newArrayList(task), url, true));
         tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(taskId)));
+        tdFormElement.addElement(new Input(Input.HIDDEN, TaskIdForm.DELEGATION_PERMITTED, isReadByOthersPermission));
         tdFormElement.addElement(new Input(Input.HIDDEN, ProcessForm.ACTOR_ID_INPUT_NAME, String.valueOf(actorId)));
         tdFormElement.addElement(new Input(Input.HIDDEN, WebResources.HIDDEN_ONE_TASK_INDICATOR, WebResources.HIDDEN_ONE_TASK_INDICATOR));
         if (task.getOwner() != null) {

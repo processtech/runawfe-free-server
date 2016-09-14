@@ -63,6 +63,7 @@ public class WfTask implements Serializable {
     private boolean escalated;
     private boolean firstOpen;
     private boolean acquiredBySubstitution;
+    private boolean readByOthersPermission;
     private Integer multitaskIndex;
 
     // map is not usable in web services
@@ -162,6 +163,14 @@ public class WfTask implements Serializable {
 
     public boolean isAcquiredBySubstitution() {
         return acquiredBySubstitution;
+    }
+
+    public boolean isReadByOthersPermission() {
+        return readByOthersPermission;
+    }
+
+    public void setReadByOthersPermission(boolean readByOthersPermission) {
+        this.readByOthersPermission = readByOthersPermission;
     }
 
     public Integer getMultitaskIndex() {

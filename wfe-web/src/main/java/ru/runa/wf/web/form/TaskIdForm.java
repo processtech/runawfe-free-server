@@ -31,9 +31,11 @@ public class TaskIdForm extends IdNameForm {
     private static final long serialVersionUID = 23542935792835791L;
 
     public static final String TASK_ID_INPUT_NAME = "taskId";
+    public static final String DELEGATION_PERMITTED = "delegationPermitted";
 
     private Long taskId;
     private Long childProcessId;
+    private String delegationPermitted;
 
     public Long getTaskId() {
         return taskId;
@@ -49,5 +51,13 @@ public class TaskIdForm extends IdNameForm {
 
     public void setChildProcessId(Long childProcessId) {
         this.childProcessId = childProcessId;
+    }
+
+    public String getDelegationPermitted() {
+        return delegationPermitted;
+    }
+
+    public void setDelegationPermitted(String delegationPermitted) {
+        this.delegationPermitted = delegationPermitted;
     }
 }
