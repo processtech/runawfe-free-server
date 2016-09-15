@@ -56,7 +56,7 @@ public class ParallelGateway extends Node {
             break;
         }
         case WAITING: {
-            log.debug("blocking token " + token.getId() + " execution in " + this + " due to waiting on " + stateInfo.notPassedTransitions);
+            log.debug("blocking token " + token.getId() + " execution due to waiting on " + stateInfo.notPassedTransitions);
             break;
         }
         case BLOCKING: {
@@ -209,7 +209,8 @@ public class ParallelGateway extends Node {
                             break;
                         }
                         case WAITING: {
-                            throw new InternalApplicationException("Unexpected in " + this);
+                            log.warn("leaving failed tokens " + failedTokens + " due to waiting on " + stateInfo.notPassedTransitions);
+                            break;
                         }
                         case BLOCKING: {
                             log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
