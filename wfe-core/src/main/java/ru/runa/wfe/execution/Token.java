@@ -300,9 +300,7 @@ public class Token implements Serializable {
         }
         // end all this token's children not depending from current token state
         for (Token child : getChildren()) {
-            if (!child.hasEnded()) {
-                child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller);
-            }
+            child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller);
         }
     }
 
