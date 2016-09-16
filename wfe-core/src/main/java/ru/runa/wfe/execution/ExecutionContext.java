@@ -70,6 +70,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 public class ExecutionContext {
@@ -352,8 +353,8 @@ public class ExecutionContext {
         if (value == null) {
             return false;
         }
-        if (SystemProperties.isVariableTreatEmptyStringsAsNulls()) {
-            return !Utils.isNullOrEmpty(value);
+        if (SystemProperties.isVariableTreatEmptyStringsAsNulls() && value instanceof String) {
+            return !Strings.isNullOrEmpty((String) value);
         }
         return true;
     }
