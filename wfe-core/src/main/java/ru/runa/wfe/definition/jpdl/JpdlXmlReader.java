@@ -25,7 +25,6 @@ import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
-import ru.runa.wfe.lang.InterruptingNode;
 import ru.runa.wfe.lang.MultiProcessState;
 import ru.runa.wfe.lang.MultiTaskCreationMode;
 import ru.runa.wfe.lang.MultiTaskNode;
@@ -361,12 +360,6 @@ public class JpdlXmlReader {
             serviceTask.setDelegation(readDelegation(processDefinition, actionElement));
         }
         readNodeTimers(processDefinition, element, node);
-        if (node instanceof InterruptingNode) {
-            String interrupting = element.attributeValue(INTERRUPTING);
-            if (!Strings.isNullOrEmpty(interrupting)) {
-                ((InterruptingNode) node).setInterrupting(Boolean.parseBoolean(interrupting));
-            }
-        }
     }
 
     private void readNodeTimers(ProcessDefinition processDefinition, Element parentElement, GraphElement node) {
@@ -397,6 +390,12 @@ public class JpdlXmlReader {
                 throw new UnsupportedOperationException("task/timer");
             }
             String createEventType = node instanceof TaskNode ? Event.TASK_CREATE : Event.NODE_ENTER;
+            if (node instanceof TaskNode) {
+                String interrupting = element.attributeValue(INTERRUPTING);
+                if (!Strings.isNullOrEmpty(interrupting)) {
+                    createTimerAction.setInterrupting(Boolean.parseBoolean(interrupting));
+                }
+            }
             addAction(node, createEventType, createTimerAction);
             Action timerAction = readSingleAction(processDefinition, element);
             if (timerAction != null) {

@@ -19,13 +19,12 @@ package ru.runa.wfe.lang;
 
 import java.util.List;
 
-import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.VariableMapping;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
-public abstract class VariableContainerNode extends InterruptingNode {
+public abstract class VariableContainerNode extends Node {
     private static final long serialVersionUID = 1L;
     protected final List<VariableMapping> variableMappings = Lists.newArrayList();
 
@@ -36,11 +35,6 @@ public abstract class VariableContainerNode extends InterruptingNode {
     public void setVariableMappings(List<VariableMapping> variableMappings) {
         this.variableMappings.clear();
         this.variableMappings.addAll(variableMappings);
-    }
-
-    @Override
-    protected void execute(ExecutionContext executionContext) {
-        super.execute(executionContext);
     }
 
     @Override

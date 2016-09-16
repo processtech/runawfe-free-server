@@ -28,7 +28,6 @@ import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
-import ru.runa.wfe.lang.InterruptingNode;
 import ru.runa.wfe.lang.MultiProcessState;
 import ru.runa.wfe.lang.MultiTaskCreationMode;
 import ru.runa.wfe.lang.MultiTaskNode;
@@ -316,12 +315,6 @@ public class BpmnXmlReader {
             node.setName("TextAnnotation_" + node.getNodeId());
             node.setDescription(element.elementTextTrim(TEXT));
         }
-        if (node instanceof InterruptingNode) {
-            String interrupting = element.attributeValue(INTERRUPTING);
-            if (!Strings.isNullOrEmpty(interrupting)) {
-                ((InterruptingNode) node).setInterrupting(Boolean.parseBoolean(interrupting));
-            }
-        }
     }
 
     private void readBoundaryEvent(ProcessDefinition processDefinition, Element element, GraphElement parent) {
@@ -351,6 +344,12 @@ public class BpmnXmlReader {
         Map<String, String> extensionProperties = parseExtensionProperties(timerElement);
         createTimerAction.setRepeatDurationString(extensionProperties.get(REPEAT));
         String createEventType = node instanceof TaskNode ? Event.TASK_CREATE : Event.NODE_ENTER;
+        if (node instanceof TaskNode) {
+            String interrupting = eventElement.attributeValue(INTERRUPTING);
+            if (!Strings.isNullOrEmpty(interrupting)) {
+                createTimerAction.setInterrupting(Boolean.parseBoolean(interrupting));
+            }
+        }
         addAction(node, createEventType, createTimerAction);
 
         Delegation timerDelegation = readDelegation(timerElement, false);

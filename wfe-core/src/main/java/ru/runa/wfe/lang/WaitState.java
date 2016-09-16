@@ -2,7 +2,7 @@ package ru.runa.wfe.lang;
 
 import ru.runa.wfe.execution.ExecutionContext;
 
-public class WaitState extends InterruptingNode {
+public class WaitState extends Node {
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -13,6 +13,5 @@ public class WaitState extends InterruptingNode {
     @Override
     protected void execute(ExecutionContext executionContext) {
         log.info("Waiting in " + this);
-        super.execute(executionContext);
     }
 }
