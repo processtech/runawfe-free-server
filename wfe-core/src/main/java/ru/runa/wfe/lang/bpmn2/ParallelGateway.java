@@ -60,7 +60,7 @@ public class ParallelGateway extends Node {
             break;
         }
         case BLOCKING: {
-            log.error("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
+            log.warn("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
                     + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
             token.setExecutionStatus(ExecutionStatus.FAILED);
             TransactionListeners.addListener(new ParallelGatewayPostExecutionCheck(this, executionContext.getProcess().getId()), false);
