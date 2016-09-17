@@ -287,18 +287,15 @@ public class Token implements Serializable {
      *            actor who cancels process (if any), can be <code>null</code>
      */
     public void end(ExecutionContext executionContext, Actor canceller) {
-        if (hasEnded()) {
-            log.debug(this + " already ended");
-        } else {
-            log.info("Ending " + this + " by " + canceller);
+        if (endDate == null) {
+            log.debug("Ending " + this + " by " + canceller);
             setEndDate(new Date());
-            setExecutionStatus(ExecutionStatus.ENDED);
             for (Process subProcess : executionContext.getNotEndedSubprocesses()) {
                 ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
                 subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
             }
         }
-        // end all this token's children not depending from current token state
+        setExecutionStatus(ExecutionStatus.ENDED);
         for (Token child : getChildren()) {
             child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller);
         }
@@ -326,7 +323,8 @@ public class Token implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("processId", getProcess().getId()).add("nodeId", nodeId).toString();
+        return Objects.toStringHelper(this).add("id", id).add("processId", getProcess().getId()).add("nodeId", nodeId).add("status", executionStatus)
+                .toString();
     }
 
 }
