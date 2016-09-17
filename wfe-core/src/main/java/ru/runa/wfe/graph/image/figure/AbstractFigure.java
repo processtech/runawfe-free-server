@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -48,6 +49,7 @@ import ru.runa.wfe.graph.image.util.ActionUtils;
 import ru.runa.wfe.graph.image.util.AngleInfo;
 import ru.runa.wfe.graph.image.util.Line;
 import ru.runa.wfe.graph.image.util.LineUtils;
+import ru.runa.wfe.job.CreateTimerAction;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -67,6 +69,7 @@ public abstract class AbstractFigure {
     protected boolean async;
     protected boolean minimized;
     protected boolean hasTimer;
+    protected boolean timerInterrupting = true;
     protected boolean useEgdingOnly;
 
     protected Map<String, TransitionFigureBase> transitions = new HashMap<String, TransitionFigureBase>();
@@ -76,7 +79,11 @@ public abstract class AbstractFigure {
         this.nodeName = node.getName();
         this.nodeType = node.getNodeType();
         this.coords = node.getGraphConstraints();
-        this.hasTimer = node.getTimerActions(false).size() > 0;
+        List<CreateTimerAction> timerActions = node.getTimerActions(false);
+        this.hasTimer = timerActions.size() > 0;
+        if (this.hasTimer) {
+            this.timerInterrupting = timerActions.get(0).isInterrupting();
+        }
         if (node.getProcessDefinition().isGraphActionsEnabled()) {
             this.actionsCount = GraphImageHelper.getNodeActionsCount(node);
         }

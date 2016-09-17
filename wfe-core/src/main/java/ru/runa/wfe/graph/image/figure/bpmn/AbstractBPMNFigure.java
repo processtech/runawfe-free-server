@@ -19,8 +19,13 @@ public abstract class AbstractBPMNFigure extends AbstractFigure {
 
     protected void drawTimer(Graphics2D graphics) {
         if (hasTimer && !minimized) {
-            drawImage(graphics, "image/bpmn/boundary_timer.png", coords[0] + 1, coords[1] + coords[3] - 2 * DrawProperties.GRID_SIZE, true);
+            String fileName;
+            if (timerInterrupting) {
+                fileName = "image/bpmn/boundary_timer.png";
+            } else {
+                fileName = "image/bpmn/boundary_timer_notinterrupting.png";
+            }
+            drawImage(graphics, fileName, coords[0] + 1, coords[1] + coords[3] - 2 * DrawProperties.GRID_SIZE, true);
         }
     }
-
 }
