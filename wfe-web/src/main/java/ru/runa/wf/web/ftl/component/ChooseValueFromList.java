@@ -31,7 +31,6 @@ public class ChooseValueFromList extends FormComponent {
         WfVariable variable = variableProvider.getVariableNotNull(variableName);
         String scriptingName = variable.getDefinition().getScriptingNameWithoutDots();
         String html = "";
-        html += "<span class='inputVariable " + scriptingName + "' variable='" + variableName + "'>";
         html += "<div class='radioset'>";
         int i = 1;
         for (String option : getOptions()) {

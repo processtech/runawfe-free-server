@@ -124,7 +124,7 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
         String sizeVariableName = variableName + VariableFormatContainer.SIZE_SUFFIX;
         if (values.containsKey(sizeVariableName)) {
             int size = TypeConversionUtil.convertTo(int.class, values.get(sizeVariableName));
-            for (int i = 0; i < list.size() - size; i++) {
+            while (list.size() > size) {
                 list.remove(size);
             }
             UserType componentUserType = variableDefinition.getFormatComponentUserTypes()[0];

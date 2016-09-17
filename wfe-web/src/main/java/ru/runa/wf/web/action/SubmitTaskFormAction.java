@@ -34,6 +34,7 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.ProcessForm;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.service.client.DelegateProcessVariableProvider;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Profile;
@@ -56,11 +57,12 @@ public class SubmitTaskFormAction extends BaseProcessFormAction {
         ProcessForm form = (ProcessForm) actionForm;
         Long taskId = form.getId();
         log.debug(user + " submitted task form for id " + taskId);
-        Interaction interaction = Delegates.getDefinitionService().getTaskInteraction(user, taskId);
-        Map<String, Object> variables = getFormVariables(request, actionForm, interaction);
+        WfTask task = Delegates.getTaskService().getTask(user, taskId);
+        Interaction interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionId(), task.getNodeId());
+        Map<String, Object> variables = getFormVariables(request, actionForm, interaction,
+                new DelegateProcessVariableProvider(user, task.getProcessId()));
         Long processId = null;
         if (WebResources.isAutoShowForm()) {
-            WfTask task = Delegates.getTaskService().getTask(user, taskId);
             processId = task.getProcessId();
         }
         String transitionName = form.getSubmitButton();

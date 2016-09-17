@@ -278,7 +278,7 @@ public class StoreServiceImpl implements StoreService {
                     continue;
                 }
             } else {
-                // TODO need implement filter for non complex variables
+                // TODO need implement filter for non user type variables
             }
             if (conditionResult) {
                 filtered.add(object);
@@ -310,14 +310,14 @@ public class StoreServiceImpl implements StoreService {
 
     private int getLastRowIndex(Sheet sheet, int columnIndex, VariableFormat variableFormat) {
         int startRowIndex = START_ROW_INDEX;
-        boolean complex = variableFormat instanceof UserTypeFormat;
+        boolean isUserTypeVariable = variableFormat instanceof UserTypeFormat;
         List<VariableDefinition> attributes = null;
-        if (complex) {
+        if (isUserTypeVariable) {
             attributes = ((UserTypeFormat) variableFormat).getUserType().getAttributes();
         }
         while (true) {
             Row row = ExcelHelper.getRow(sheet, startRowIndex, true);
-            if (complex) {
+            if (isUserTypeVariable) {
                 int colIndex = columnIndex;
                 int emptyCount = 0;
                 for (int i = 0; i < attributes.size(); i++) {
@@ -430,11 +430,7 @@ public class StoreServiceImpl implements StoreService {
                 Cell cell = ExcelHelper.getCell(row, colIndex, true);
                 VariableFormat cellFormat = variableDefinition.getFormatNotNull();
                 String val = cellFormat.format(userTypeMap.get(variableDefinition.getName()));
-                if (val == null) {
-                    cell.setCellValue(val);
-                } else {
-                    ExcelHelper.setCellValue(cell, val);
-                }
+                ExcelHelper.setCellValue(cell, val);
                 colIndex++;
             }
         } else {

@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.lang.NodeType;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -139,8 +140,7 @@ public class SystemProperties {
     }
 
     /**
-     * ORA-24816: Expanded non LONG bind data supplied after actual LONG or LOB
-     * column (if string length > 1000)
+     * ORA-24816: Expanded non LONG bind data supplied after actual LONG or LOB column (if string length > 1000)
      */
     public static int getLogMaxAttributeValueLength() {
         return RESOURCES.getIntegerProperty("log.attribute.max.length", 512);
@@ -198,8 +198,8 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("scriptingServiceAPI.executeGroovyScript.enabled", false);
     }
 
-    public static boolean isUpgradeProcessToNextDefinitionVersionEnabled() {
-        return RESOURCES.getBooleanProperty("upgrade.process.to.definition.version.enabled", false);
+    public static boolean isUpgradeProcessToDefinitionVersionEnabled() {
+        return RESOURCES.getBooleanProperty("upgrade.process.to.definition.version.enabled", true);
     }
 
     public static boolean isErrorEmailNotificationEnabled() {
@@ -247,7 +247,7 @@ public class SystemProperties {
     }
 
     public static boolean setPermissionsToTemporaryGroups() {
-        return RESOURCES.getBooleanProperty("temporary.groups.set.permissions", true);
+        return RESOURCES.getBooleanProperty("temporary.groups.set.permissions", false);
     }
 
     public static boolean deleteTemporaryGroupsOnProcessEnd() {
@@ -277,4 +277,21 @@ public class SystemProperties {
     public static List<String> getRequiredValidatorNames() {
         return RESOURCES.getMultipleStringProperty("required.validator.names");
     }
+
+    public static boolean isProcessExecutionNodeAsyncEnabled(NodeType nodeType) {
+        String propertyValue = RESOURCES.getStringProperty("process.execution.node.async." + nodeType);
+        if (propertyValue != null) {
+            return Boolean.parseBoolean(propertyValue);
+        }
+        return RESOURCES.getBooleanProperty("process.execution.node.async.default", false);
+    }
+
+    public static boolean isProcessSuspensionEnabled() {
+        return RESOURCES.getBooleanProperty("process.suspension.enabled", true);
+    }
+
+    public static boolean isSwimlaneAutoInitializationEnabled() {
+        return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", false);
+    }
+
 }

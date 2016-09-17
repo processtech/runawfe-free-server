@@ -16,7 +16,7 @@ function getCurrentExecutor(value) {
 				swimlaneName : value
 			}),
 			dataType : "json",
-			contentType : "application/json",
+			contentType : "application/json; charset=UTF-8",
 			processData : false,
 			success : function(result) {
 				var currentExecutor = $("#currentExecutor")

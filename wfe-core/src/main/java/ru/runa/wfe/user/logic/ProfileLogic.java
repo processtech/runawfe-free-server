@@ -94,7 +94,6 @@ public class ProfileLogic extends CommonLogic {
     public Profile changeActiveBatchPresentation(User user, String batchPresentationId, String newActiveBatchName) {
         Profile profile = getProfileWithSharedBatchPresentations(user.getActor());
         profile.setActiveBatchPresentation(batchPresentationId, newActiveBatchName);
-        // batchPresentationDAO.flushPendingChanges();
         return getProfileWithSharedBatchPresentations(user.getActor());
     }
 
@@ -104,8 +103,6 @@ public class ProfileLogic extends CommonLogic {
         }
         Profile profile = getProfileWithSharedBatchPresentations(user.getActor());
         profile.deleteBatchPresentation(batchPresentation);
-        // batchPresentationDAO.delete(batchPresentation);
-        // batchPresentationDAO.flushPendingChanges();
         return profile;
     }
 

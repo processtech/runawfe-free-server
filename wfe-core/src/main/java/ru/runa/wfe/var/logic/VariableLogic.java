@@ -43,7 +43,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Process execution logic.
- *
+ * 
  * @author Dofs
  * @since 2.0
  */
@@ -99,10 +99,16 @@ public class VariableLogic extends WFCommonLogic {
         String sizeVariableName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
         Integer size = (Integer) values.remove(sizeVariableName);
         if (size == null) {
-            // back compatibility
             if (values.containsKey(variableDefinition.getName())) {
-                list = (List<Object>) values.remove(variableDefinition.getName());
-                variableDAO.processComplexVariablesPre430(processDefinition, variableDefinition, null, list);
+                Object value = values.remove(variableDefinition.getName());
+                if (value instanceof List) {
+                    log.debug("Handling back compatibility list value for " + variableDefinition);
+                    list = (List<Object>) value;
+                    variableDAO.processComplexVariablesPre430(processDefinition, variableDefinition, null, list);
+                } else {
+                    log.debug(variableDefinition + " can be changed due to incompatible process definition update");
+                    list.add(value);
+                }
                 return list;
             }
             return null;

@@ -13,9 +13,10 @@ import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.StartState;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.security.Permission;
@@ -37,6 +38,8 @@ public class ProcessFactory {
     private ExecutorDAO executorDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
+    @Autowired
+    private SwimlaneDAO swimlaneDAO;
 
     private static final Map<Permission, Permission> DEFINITION_TO_PROCESS_PERMISSION_MAP;
     static {
@@ -57,15 +60,12 @@ public class ProcessFactory {
     }
 
     /**
-     * Creates and starts a new process for the given process definition, puts
-     * the root-token (=main path of execution) in the start state and executes
-     * the initial node.
+     * Creates and starts a new process for the given process definition, puts the root-token (=main path of execution) in the start state and
+     * executes the initial node.
      *
      * @param variables
-     *            will be inserted into the context variables after the context
-     *            submodule has been created and before the process-start event
-     *            is fired, which is also before the execution of the initial
-     *            node.
+     *            will be inserted into the context variables after the context submodule has been created and before the process-start event is
+     *            fired, which is also before the execution of the initial node.
      */
     public Process startProcess(ProcessDefinition processDefinition, Map<String, Object> variables, Actor actor, String transitionName,
             Map<String, Object> transientVariables) {
@@ -156,7 +156,7 @@ public class ProcessFactory {
         executionContext.setVariableValues(variables);
         if (actor != null) {
             SwimlaneDefinition swimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
-            Swimlane swimlane = process.getSwimlaneNotNull(swimlaneDefinition);
+            Swimlane swimlane = swimlaneDAO.findOrCreate(process, swimlaneDefinition);
             swimlane.assignExecutor(executionContext, actor, false);
         }
         return executionContext;
@@ -164,12 +164,12 @@ public class ProcessFactory {
 
     private void startProcessInternal(ExecutionContext executionContext, String transitionName) {
         // execute the start node
-        StartState startState = executionContext.getProcessDefinition().getStartStateNotNull();
-        // startState.enter(executionContext);
+        StartNode startNode = executionContext.getProcessDefinition().getStartStateNotNull();
+        // startNode.enter(executionContext);
         Transition transition = null;
         if (transitionName != null) {
             transition = executionContext.getProcessDefinition().getStartStateNotNull().getLeavingTransitionNotNull(transitionName);
         }
-        startState.leave(executionContext, transition);
+        startNode.leave(executionContext, transition);
     }
 }

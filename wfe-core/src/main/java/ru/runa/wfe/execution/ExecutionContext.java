@@ -43,6 +43,7 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.Node;
@@ -71,6 +72,7 @@ public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
     private final ProcessDefinition processDefinition;
     private final Token token;
+    private Task task;
     private final Map<String, Object> transientVariables = Maps.newHashMap();
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
@@ -85,15 +87,17 @@ public class ExecutionContext {
     @Autowired
     private VariableDAO variableDAO;
     @Autowired
-    protected TaskDAO taskDAO;
+    private TaskDAO taskDAO;
     @Autowired
-    protected JobDAO jobDAO;
+    private JobDAO jobDAO;
+    @Autowired
+    private SwimlaneDAO swimlaneDAO;
 
-    protected ExecutionContext(ApplicationContext appContext, ProcessDefinition processDefinition, Token token) {
+    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
-        appContext.getAutowireCapableBeanFactory().autowireBean(this);
+        applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {
@@ -106,6 +110,7 @@ public class ExecutionContext {
 
     public ExecutionContext(ProcessDefinition processDefinition, Task task) {
         this(processDefinition, task.getToken());
+        this.task = task;
     }
 
     /**
@@ -141,7 +146,7 @@ public class ExecutionContext {
     }
 
     public Task getTask() {
-        return getProcess().getTask(getToken().getNodeId());
+        return task;
     }
 
     public NodeProcess getParentNodeProcess() {
@@ -152,8 +157,8 @@ public class ExecutionContext {
         return nodeProcessDAO.getSubprocesses(getProcess());
     }
 
-    public List<Process> getActiveSubprocesses() {
-        return nodeProcessDAO.getSubprocesses(getProcess(), getToken().getNodeId(), getToken(), true);
+    public List<Process> getNotEndedSubprocesses() {
+        return nodeProcessDAO.getSubprocesses(getProcess(), getToken().getNodeId(), getToken(), false);
     }
 
     public List<Process> getSubprocessesRecursively() {
@@ -167,7 +172,12 @@ public class ExecutionContext {
         if (searchInSwimlanes) {
             SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
-                Swimlane swimlane = getProcess().getSwimlane(swimlaneDefinition.getName());
+                Swimlane swimlane;
+                if (SystemProperties.isSwimlaneAutoInitializationEnabled()) {
+                    swimlane = swimlaneDAO.findOrCreateInitialized(this, swimlaneDefinition, false);
+                } else {
+                    swimlane = swimlaneDAO.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
+                }
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
         }
@@ -224,9 +234,7 @@ public class ExecutionContext {
     }
 
     /**
-     * TODO old
-     *
-     * @return the variable value with the given name.
+     * @return the variable or swimlane value with the given name.
      */
     public Object getVariableValue(String name) {
         WfVariable variable = getVariable(name, true);
@@ -241,7 +249,7 @@ public class ExecutionContext {
         SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
-            Swimlane swimlane = getProcess().getSwimlaneNotNull(swimlaneDefinition);
+            Swimlane swimlane = swimlaneDAO.findOrCreate(getProcess(), swimlaneDefinition);
             swimlane.assignExecutor(this, TypeConversionUtil.convertTo(Executor.class, value), true);
             return;
         }
@@ -358,7 +366,7 @@ public class ExecutionContext {
     }
 
     private void updateRelatedObjectsDueToDateVariableChange(String variableName) {
-        List<Task> tasks = taskDAO.findTasksByProcessAndDeadlineExpressionContaining(getProcess(), variableName);
+        List<Task> tasks = taskDAO.findByProcessAndDeadlineExpressionContaining(getProcess(), variableName);
         for (Task task : tasks) {
             Date oldDate = task.getDeadlineDate();
             task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
@@ -373,8 +381,7 @@ public class ExecutionContext {
     }
 
     /**
-     * Adds all the given variables. It doesn't remove any existing variables
-     * unless they are overwritten by the given variables.
+     * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
      */
     public void setVariableValues(Map<String, Object> variables) {
         for (Map.Entry<String, Object> entry : variables.entrySet()) {

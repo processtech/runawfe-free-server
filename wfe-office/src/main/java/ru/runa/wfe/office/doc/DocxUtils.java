@@ -197,9 +197,7 @@ public class DocxUtils {
                     }
                 }
                 if (value == null) {
-                    // TODO? config.reportProblem("returning null for " +
-                    // selector +
-                    // " at stage " + variableName);
+                    config.warn("returning null for " + selector + " at stage " + variableName);
                     return null;
                 }
                 if (keyName != null) {
@@ -230,7 +228,7 @@ public class DocxUtils {
             }
         }
         if (value instanceof String) {
-            value = ((String) value).replaceAll(Pattern.quote("</p>"), "\n");
+            value = ((String) value).replaceAll(Pattern.quote("</p>"), "\n").replaceAll("&nbsp;", " ");
             Matcher m = STRIP_HTML_TAGS_PATTERN.matcher((String) value);
             return m.replaceAll("");
         }
@@ -575,8 +573,7 @@ public class DocxUtils {
                         int imageType = getPictureType(config, fileVariable.getName().toLowerCase());
                         if (imageType > 0) {
                             BufferedImage image = ImageIO.read(new ByteArrayInputStream(fileVariable.getData()));
-                            // TODO does not work without
-                            // org.apache.poi.ooxml-schemas 1.1
+                            // TODO does not work without ooxml
                             imageOperation.setImageType(imageType);
                             imageOperation.setWidth(Units.toEMU(image.getWidth()));
                             imageOperation.setHeight(Units.toEMU(image.getHeight()));

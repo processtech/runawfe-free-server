@@ -3,6 +3,8 @@ package ru.runa.wfe.var.dao;
 import java.util.List;
 import java.util.Map;
 
+import ru.runa.wfe.commons.SQLCommons;
+import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
@@ -26,6 +28,12 @@ public class VariableDAO extends GenericDAO<Variable> {
 
     public Variable<?> get(Process process, String name) {
         return findFirstOrNull("from Variable where process=? and name=?", process, name);
+    }
+
+    public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
+        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(variableNamePattern);
+        String query = "from Variable where name " + expression.getComparisonOperator() + " ? and stringValue = ?";
+        return getHibernateTemplate().find(query, expression.getValue(), stringValue);
     }
 
     /**
@@ -82,11 +90,13 @@ public class VariableDAO extends GenericDAO<Variable> {
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
                     map.put(entry.getKey(),
-                        processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], entry.getValue()));
+                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0],
+                                    entry.getValue()));
                 }
                 if (variableDefinition.getFormatComponentUserTypes()[1] != null) {
                     map.put(entry.getKey(),
-                        processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[1], entry.getValue()));
+                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[1],
+                                    entry.getValue()));
                 }
             }
         }
@@ -96,7 +106,7 @@ public class VariableDAO extends GenericDAO<Variable> {
             for (int i = 0; i < list.size(); i++) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
                     list.set(i,
-                        processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], list.get(i)));
+                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], list.get(i)));
                 }
             }
         }
@@ -149,13 +159,15 @@ public class VariableDAO extends GenericDAO<Variable> {
                     && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
                 String listVariableName = variableName.substring(0, variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START));
                 int listIndex = Integer.parseInt(variableName.substring(variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START) + 1,
-                    variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END)));
+                        variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END)));
                 VariableDefinition listVariableDefinition = processDefinition.getVariable(listVariableName, false);
                 List<Object> list = (List<Object>) getVariableValue(processDefinition, process, listVariableDefinition);
-                if (list != null && list.size() > listIndex) {
-                    variableValue = list.get(listIndex);
-                } else {
-                    log.warn("Strange list when requesting " + process + ":" + variableName + ": " + list);
+                if (list != null) {
+                    if (list.size() > listIndex) {
+                        variableValue = list.get(listIndex);
+                    } else {
+                        log.warn("Strange list when requesting " + process + ":" + variableName + ": " + list);
+                    }
                 }
             }
             return new WfVariable(variableDefinition, variableValue);

@@ -1,12 +1,12 @@
 package ru.runa.wfe.report;
 
 /**
- * Тип конфигурации отчета.
+ * Report configuration type.
  * 
- * На данный момент поддерживается только один тип отчета: Отчет строится через SQL запросы.
+ * Currently only one report type is supported: Report is built via SQL requests.
  */
 public enum ReportConfigurationType {
-    RAW_SQL_REPORT("JasperReport с SQL внутри отчёта", ".jasper") {
+    RAW_SQL_REPORT("JasperReport with SQL inside the report", ".jasper") {
 
         @Override
         public <Result> Result processBy(ReportConfigurationTypeVisitor<Result> visitor) {
@@ -15,12 +15,12 @@ public enum ReportConfigurationType {
     };
 
     /**
-     * Описание типа отчета.
+     * Report type description.
      */
     private final String description;
 
     /**
-     * Расширение файла с отчётом.
+     * Report file extension.
      */
     private final String fileExtension;
 
@@ -30,60 +30,59 @@ public enum ReportConfigurationType {
     }
 
     /**
-     * Возвращает текстовое описание способа построения отчёта.
+     * Returns text description of the report construction details.
      * 
-     * @return Возвращает текстовое описание способа построения отчёта.
+     * @return text description of the report construction details.
      */
     public final String getDescription() {
         return description;
     }
 
     /**
-     * Возвращает фильтр для файла с отчётом (Может использоваться для ограничения множества файлов, доступных для выбора).
+     * Returns filter for report file (Can be used to filter files that are shown in select).
      * 
-     * @return Возвращает фильтр для файла с отчётом.
+     * @return filter for report file.
      */
     public String getFileExtension() {
         return fileExtension;
     }
 
     /**
-     * Применяет операцию в зависимости от типа конфигурирования отчета.
+     * Applies operation on the basis of report configuration type.
      * 
      * @param visitor
-     *            Применяемая операция.
-     * @return Возвращает результат применения операции.
+     *            Applied operation.
+     * @return Result of operation being applied.
      * 
      * @throws Exception
-     *             Может выбрасывать любые исключения
+     *             any exception can be thrown
      */
     public abstract <Result> Result processBy(ReportConfigurationTypeVisitor<Result> visitor);
 
     /**
-     * Интерфейс операции, которая может быть применена в зависимости от типа конфигурирования отчета.
+     * Opertion interface. Operation is applied on the basis of report configuration type.
      * 
      * @param <Result>
-     *            Тип результата, возвращаемого операцией.
+     *            the type of result that is return by the operation.
      */
     public static interface ReportConfigurationTypeVisitor<Result> {
         /**
-         * Вызывается для обработки отчета, который строится с использованием {@link ReportParametersBuilder}.
+         * Used to process report that is constructed with {@link ReportParametersBuilder}.
          * 
-         * @return Возвращает результат применения операции.
+         * @return result of operation being applied.
          * 
          * @throws Exception
-         *             Может выбрасывать любые исключения
+         *             Any exception can be thrown
          */
         public Result onParameterBuilder();
 
         /**
-         * Вызывается для обработки отчета, который строится с использованием SQL запросов. Дополнительных действия для построения отчёта не
-         * требуется.
+         * Used to process report that is constructed with the use of SQL requests. No additional work to build report is required.
          * 
-         * @return Возвращает результат применения операции.
+         * @return result of operation being applied.
          * 
          * @throws Exception
-         *             Может выбрасывать любые исключения
+         *             Any exception can be thrown
          */
         public Result onRawSqlReport();
     }

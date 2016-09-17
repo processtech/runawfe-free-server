@@ -14,9 +14,11 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessPermission;
+import ru.runa.wfe.execution.ProcessSuspendedException;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
@@ -41,7 +43,9 @@ import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.validation.ValidationException;
@@ -75,6 +79,9 @@ public class TaskLogic extends WFCommonLogic {
 
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException {
         Task task = taskDAO.getNotNull(taskId);
+        if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            throw new ProcessSuspendedException(task.getProcess().getId());
+        }
         try {
             if (variables == null) {
                 variables = Maps.newHashMap();
@@ -112,7 +119,7 @@ public class TaskLogic extends WFCommonLogic {
                 }
             }
             IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
-            validateVariables(user, processDefinition, task.getNodeId(), variables, validationVariableProvider);
+            validateVariables(user, executionContext, validationVariableProvider, processDefinition, task.getNodeId(), variables);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
             Transition transition;
@@ -149,7 +156,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -163,9 +170,14 @@ public class TaskLogic extends WFCommonLogic {
             throw new InternalApplicationException("completion of " + task + " failed. Different node id in task and token: " + token.getNodeId());
         }
         InteractionNode node = (InteractionNode) executionContext.getNode();
-        if (node instanceof MultiTaskNode && !((MultiTaskNode) node).isCompletionTriggersSignal(task)) {
-            log.debug("!MultiTaskNode.isCompletionTriggersSignal in " + task);
-            return;
+        if (node instanceof MultiTaskNode) {
+            MultiTaskNode multiTaskNode = (MultiTaskNode) node;
+            if (multiTaskNode.isCompletionTriggersSignal(task)) {
+                multiTaskNode.endTokenTasks(executionContext, TaskCompletionInfo.createForHandler(multiTaskNode.getSynchronizationMode().name()));
+            } else {
+                log.debug("!MultiTaskNode.isCompletionTriggersSignal in " + task);
+                return;
+            }
         }
         log.debug("completion of " + task + " by " + transition);
         token.signal(executionContext, transition);
@@ -214,14 +226,14 @@ public class TaskLogic extends WFCommonLogic {
         List<WfTask> result = Lists.newArrayList();
         Process process = processDAO.getNotNull(processId);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
-        for (Task task : process.getTasks()) {
+        for (Task task : taskDAO.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
             List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
             for (Process subprocess : subprocesses) {
                 checkPermissionAllowed(user, subprocess, ProcessPermission.READ);
-                for (Task task : subprocess.getTasks()) {
+                for (Task task : taskDAO.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }
             }
@@ -242,7 +254,7 @@ public class TaskLogic extends WFCommonLogic {
         AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
     }
 
-    public void delegateTask(User user, Long taskId, Executor currentOwner, List<? extends Executor> executors) throws TaskAlreadyAcceptedException {
+    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors) {
         Task task = taskDAO.getNotNull(taskId);
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
@@ -250,6 +262,13 @@ public class TaskLogic extends WFCommonLogic {
         }
         if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
             checkCanParticipate(user.getActor(), task);
+        }
+        if (keepCurrentOwners) {
+            if (currentOwner instanceof TemporaryGroup) {
+                ((List<Executor>) executors).addAll(executorDAO.getGroupChildren((Group) currentOwner));
+            } else {
+                ((List<Executor>) executors).add(executorDAO.getExecutor(currentOwner.getId()));
+            }
         }
         DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), taskId);
         List<Permission> selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);

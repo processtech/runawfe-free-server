@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
@@ -34,24 +35,41 @@ import com.google.common.base.Objects;
 public abstract class Validator {
     protected final Log log = LogFactory.getLog(getClass());
     private User user;
+    private ExecutionContext executionContext;
+    private IVariableProvider oldVariableProvider;
+    private IVariableProvider variableProvider;
     private ValidatorConfig config;
     private ValidatorContext validatorContext;
-    private IVariableProvider variableProvider;
     private Map<String, Object> newVariables;
-    private IVariableProvider oldVariableProvider;
 
-    public void init(User user, IVariableProvider variableProvider, ValidatorConfig config, ValidatorContext validatorContext,
-            Map<String, Object> variables) {
+    public void init(User user, ExecutionContext executionContext, IVariableProvider variableProvider, ValidatorConfig config,
+            ValidatorContext validatorContext, Map<String, Object> variables) {
         this.user = user;
+        this.executionContext = executionContext;
+        this.oldVariableProvider = variableProvider;
+        this.variableProvider = new MapDelegableVariableProvider(config.getParams(), new MapDelegableVariableProvider(variables, variableProvider));
         this.config = config;
         this.validatorContext = validatorContext;
         this.newVariables = variables;
-        this.oldVariableProvider = variableProvider;
-        this.variableProvider = new MapDelegableVariableProvider(config.getParams(), new MapDelegableVariableProvider(variables, variableProvider));
     }
 
     protected User getUser() {
         return user;
+    }
+
+    protected ExecutionContext getExecutionContext() {
+        return executionContext;
+    }
+
+    /**
+     * Access only to old values (without submitted ones).
+     */
+    protected IVariableProvider getOldVariableProvider() {
+        return oldVariableProvider;
+    }
+
+    protected IVariableProvider getVariableProvider() {
+        return variableProvider;
     }
 
     public ValidatorConfig getConfig() {
@@ -62,22 +80,11 @@ public abstract class Validator {
         return validatorContext;
     }
 
-    protected IVariableProvider getVariableProvider() {
-        return variableProvider;
-    }
-
     /**
      * Access only to submitted values (with previous ones).
      */
     protected Map<String, Object> getNewVariables() {
         return newVariables;
-    }
-
-    /**
-     * Access only to old values (without submitted ones).
-     */
-    protected IVariableProvider getOldVariableProvider() {
-        return oldVariableProvider;
     }
 
     private <T extends Object> T getParameter(Class<T> clazz, String name) {

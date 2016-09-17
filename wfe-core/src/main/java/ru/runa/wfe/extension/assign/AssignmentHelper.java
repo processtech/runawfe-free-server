@@ -1,7 +1,6 @@
 package ru.runa.wfe.extension.assign;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,12 +8,9 @@ import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
-import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.Assignable;
-import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.Executor;
@@ -74,10 +70,4 @@ public class AssignmentHelper {
         }
     }
 
-    public static void assignSwimlane(ExecutionContext executionContext, String swimlaneName, String swimlaneInitializer) {
-        List<? extends Executor> executors = SwimlaneInitializerHelper.evaluate(swimlaneInitializer, executionContext.getVariableProvider());
-        SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
-        Swimlane swimlane = executionContext.getProcess().getSwimlaneNotNull(swimlaneDefinition);
-        assign(executionContext, swimlane, executors);
-    }
 }

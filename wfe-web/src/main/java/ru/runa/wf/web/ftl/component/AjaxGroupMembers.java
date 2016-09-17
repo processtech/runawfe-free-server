@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.web.ftl.component;
@@ -48,15 +48,14 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
         String userVariableName = getParameterAsString(1);
         String userScriptingVariableName = variableProvider.getVariableNotNull(userVariableName).getDefinition().getScriptingNameWithoutDots();
         Map<String, String> substitutions = Maps.newHashMap();
-        substitutions.put("QUALIFIER", groupVariableName);
         substitutions.put("groupSelectorId", groupScriptingVariableName);
         substitutions.put("userSelectorId", userScriptingVariableName);
         StringBuffer html = new StringBuffer();
         html.append(exportScript(substitutions, true));
-        html.append("<span class=\"ajaxGroupMembers\">");
-        html.append("<span id=\"ajaxGroupMembers_").append(groupScriptingVariableName).append("\">");
-        html.append("<select id=\"").append(groupScriptingVariableName).append("\" name=\"").append(groupVariableName)
-                .append("\" style=\"width: auto;\">");
+        html.append("<div class=\"ajaxGroupMembers\">");
+        html.append("<div id=\"ajaxGroupMembers_").append(groupScriptingVariableName).append("\">");
+        html.append("<select id=\"").append(groupScriptingVariableName).append("\" name=\"").append(groupVariableName);
+        html.append("\" style=\"width: auto;\">");
         List<Group> groups = (List<Group>) Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.GROUPS.createNonPaged());
         Group defaultGroup = variableProvider.getValue(Group.class, groupVariableName);
         if (defaultGroup == null && groups.size() > 0) {
@@ -72,10 +71,10 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
             }
             html.append(">").append(group.getName()).append("</option>");
         }
-        html.append("</select></span>");
-        html.append("<span id=\"ajaxGroupMembers_").append(userScriptingVariableName).append("\">");
+        html.append("</select></div>");
+        html.append("<div id=\"ajaxGroupMembers_").append(userScriptingVariableName).append("\">");
         html.append("<select id=\"").append(userScriptingVariableName).append("\" name=\"").append(userVariableName)
-                .append("\" style=\"width: auto;\">");
+        .append("\" style=\"width: auto;\">");
         if (defaultGroup != null) {
             List<Actor> actors = Delegates.getExecutorService().getGroupActors(user, defaultGroup);
             Actor defaultActor = variableProvider.getValue(Actor.class, userVariableName);
@@ -97,8 +96,8 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
         } else {
             html.append("<option value=\"\"></option>");
         }
-        html.append("</select></span>");
-        html.append("</span>");
+        html.append("</select></div>");
+        html.append("</div>");
         return html.toString();
     }
 

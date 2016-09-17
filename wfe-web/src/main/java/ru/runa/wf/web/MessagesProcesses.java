@@ -24,6 +24,11 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SHOW_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.show_deploy_definition_controls");
     public static final StrutsMessage LABEL_HIDE_DEPLOY_DEFINITION_CONTROLS = new StrutsMessage("label.hide_deploy_definition_controls");
     public static final StrutsMessage PROCESS_STARTED = new StrutsMessage("process.started");
+    public static final StrutsMessage PROCESS_ACTIVATE = new StrutsMessage("process.activate");
+    public static final StrutsMessage PROCESS_ACTIVATE_FAILED_TOKENS = new StrutsMessage("process.activate.failed.tokens");
+    public static final StrutsMessage PROCESS_ACTIVATED = new StrutsMessage("process.activated");
+    public static final StrutsMessage PROCESS_SUSPEND = new StrutsMessage("process.suspend");
+    public static final StrutsMessage PROCESS_SUSPENDED = new StrutsMessage("process.suspended");
     public static final StrutsMessage PROCESS_CANCELED = new StrutsMessage("process.canceled");
     public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");
@@ -41,6 +46,11 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_SWIMLANE = new StrutsMessage("label.swimlane");
     public static final StrutsMessage LABEL_SWIMLANE_NAME = new StrutsMessage("label.swimlane_name");
     public static final StrutsMessage LABEL_SWIMLANE_ASSIGNMENT = new StrutsMessage("label.swimlane_assigned_to");
+    public static final StrutsMessage LABEL_CREATE_TIME = new StrutsMessage("label.create_time");
+    public static final StrutsMessage LABEL_END_TIME = new StrutsMessage("label.end_time");
+    public static final StrutsMessage LABEL_CURRENT_DURATION = new StrutsMessage("label.current_duration");
+    public static final StrutsMessage LABEL_REMAINING_TIME = new StrutsMessage("label.remaining_time");
+    public static final StrutsMessage LABEL_ASSIGNMENT_TIME = new StrutsMessage("label.assignment_time");
     public static final StrutsMessage LINK_UPDATE_SWIMLANE = new StrutsMessage("link.update_swimlane");
     public static final StrutsMessage BUTTON_UPDATE_SWIMLANE = new StrutsMessage("button.update_swimlane");
     public static final StrutsMessage LABEL_SWIMLANE_NEW_EXECUTOR = new StrutsMessage("label.swimlane_new_executor");
@@ -51,6 +61,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
     public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
     public static final StrutsMessage BUTTON_DELEGATE_TASK = new StrutsMessage("button.delegate_task");
+    public static final StrutsMessage BUTTON_EXPORT_EXCEL = new StrutsMessage("button.export_excel");
     public static final StrutsMessage TITLE_UPDATE_VARIABLE = new StrutsMessage("title.update_variable");
     public static final StrutsMessage LABEL_VARIABLE_NAME = new StrutsMessage("label.variable_name");
     public static final StrutsMessage LABEL_VARIABLE_VALUE = new StrutsMessage("label.variable_value");

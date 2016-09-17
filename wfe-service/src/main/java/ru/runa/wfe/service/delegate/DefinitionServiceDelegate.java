@@ -22,7 +22,8 @@ import java.util.List;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -45,18 +46,18 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition deployProcessDefinition(User user, byte[] process, List<String> processType) {
+    public WfDefinition deployProcessDefinition(User user, byte[] process, List<String> categories) {
         try {
-            return getDefinitionService().deployProcessDefinition(user, process, processType);
+            return getDefinitionService().deployProcessDefinition(user, process, categories);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfDefinition redeployProcessDefinition(User user, Long processId, byte[] processArchive, List<String> processType) {
+    public WfDefinition redeployProcessDefinition(User user, Long processId, byte[] processArchive, List<String> categories) {
         try {
-            return getDefinitionService().redeployProcessDefinition(user, processId, processArchive, processType);
+            return getDefinitionService().redeployProcessDefinition(user, processId, processArchive, categories);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -126,6 +127,15 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
+    public Node getNode(User user, Long definitionId, String nodeId) throws DefinitionDoesNotExistException {
+        try {
+            return getDefinitionService().getNode(user, definitionId, nodeId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public void undeployProcessDefinition(User user, String definitionName, Long version) {
         try {
             getDefinitionService().undeployProcessDefinition(user, definitionName, version);
@@ -135,27 +145,9 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<String> getOutputTransitionNames(User user, Long definitionId, Long taskId, boolean withTimerTransitions) {
-        try {
-            return getDefinitionService().getOutputTransitionNames(user, definitionId, taskId, withTimerTransitions);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
     public Interaction getStartInteraction(User user, Long definitionId) {
         try {
             return getDefinitionService().getStartInteraction(user, definitionId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public Interaction getTaskInteraction(User user, Long taskId) {
-        try {
-            return getDefinitionService().getTaskInteraction(user, taskId);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -234,7 +226,7 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<GraphElementPresentation> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
         try {
             return getDefinitionService().getProcessDefinitionGraphElements(user, definitionId, subprocessId);
         } catch (Exception e) {

@@ -52,13 +52,13 @@ public class EmailTaskHandler extends TaskHandlerBase {
     @Override
     public Map<String, Object> handle(final User user, IVariableProvider variableProvider, final WfTask task) throws Exception {
         try {
-            Interaction interaction = Delegates.getDefinitionService().getTaskInteraction(user, task.getId());
+            Interaction interaction = Delegates.getDefinitionService().getTaskNodeInteraction(user, task.getDefinitionId(), task.getNodeId());
             Map<String, Object> map = Maps.newHashMap();
             map.put("interaction", interaction);
             map.put("task", task);
             ScriptingVariableProvider scriptingVariableProvider = new ScriptingVariableProvider(variableProvider);
             IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, scriptingVariableProvider);
-            EmailUtils.prepareTaskMessage(user, config, interaction, emailVariableProvider);
+            EmailUtils.prepareMessage(user, config, interaction, emailVariableProvider);
             EmailUtils.sendMessage(config);
         } catch (Exception e) {
             if (config.isThrowErrorOnFailure()) {

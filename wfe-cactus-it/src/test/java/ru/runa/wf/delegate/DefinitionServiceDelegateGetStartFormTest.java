@@ -28,7 +28,6 @@ import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.security.AuthenticationException;
-import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.var.VariableDefinition;
@@ -87,11 +86,7 @@ public class DefinitionServiceDelegateGetStartFormTest extends ServletTestCase {
     }
 
     public void testGetStartFormTestByUnauthorizedSubject() throws Exception {
-        try {
-            definitionService.getStartInteraction(helper.getUnauthorizedPerformerUser(), definitionId);
-            fail("testGetStartFormTestByUnauthorizedSubject , no AuthorizationException");
-        } catch (AuthorizationException e) {
-        }
+        definitionService.getStartInteraction(helper.getUnauthorizedPerformerUser(), definitionId);
     }
 
     public void testGetStartFormTestByFakeSubject() throws Exception {

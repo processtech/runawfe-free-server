@@ -26,11 +26,11 @@ import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.graph.view.GraphElementPresentation;
+import ru.runa.wfe.graph.view.NodeGraphElement;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
@@ -57,7 +57,7 @@ public interface DefinitionService {
      * @throws DefinitionArchiveFormatException
      */
     public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
-    DefinitionArchiveFormatException;
+            DefinitionArchiveFormatException;
 
     /**
      * Redeploys process definition by name.
@@ -94,7 +94,7 @@ public interface DefinitionService {
      * @throws DefinitionNameMismatchException
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
-    DefinitionArchiveFormatException, DefinitionNameMismatchException;
+            DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
      * Gets only last version from process definition by name.
@@ -133,8 +133,21 @@ public interface DefinitionService {
     public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
 
     /**
-     * Deletes process definition by name. If version is not specified all
-     * versions will be deleted.
+     * Gets parsed process definition by id.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @param nodeId
+     *            node id
+     * @return node or <code>null</code>
+     * @throws DefinitionDoesNotExistException
+     */
+    public Node getNode(User user, Long definitionId, String nodeId) throws DefinitionDoesNotExistException;
+
+    /**
+     * Deletes process definition by name. If version is not specified all versions will be deleted.
      *
      * @param user
      *            authorized user
@@ -145,7 +158,7 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      */
     public void undeployProcessDefinition(User user, String definitionName, Long version) throws DefinitionDoesNotExistException,
-    ParentProcessExistsException;
+            ParentProcessExistsException;
 
     /**
      * Retrieves file data from process definition archive.
@@ -162,8 +175,7 @@ public interface DefinitionService {
     public byte[] getProcessDefinitionFile(User user, Long definitionId, String fileName) throws DefinitionDoesNotExistException;
 
     /**
-     * Retrieves processimage.png (or earlier equivalent) file data from process
-     * definition archive.
+     * Retrieves processimage.png (or earlier equivalent) file data from process definition archive.
      *
      * @param user
      *            authorized user
@@ -177,22 +189,6 @@ public interface DefinitionService {
     public byte[] getProcessDefinitionGraph(User user, Long definitionId, String subprocessId) throws DefinitionDoesNotExistException;
 
     /**
-     * Gets available output transition names. Process definition id or task id
-     * is required.
-     *
-     * @param user
-     *            authorized user
-     *
-     * @param definitionId
-     *            process definition id, can be <code>null</code>
-     * @param taskId
-     *            task id, can be <code>null</code>
-     * @return not <code>null</code>
-     */
-    public List<String> getOutputTransitionNames(User user, Long definitionId, Long taskId, boolean withTimerTransitions)
-            throws TaskDoesNotExistException;
-
-    /**
      * Gets start task user interaction.
      *
      * @param user
@@ -201,33 +197,24 @@ public interface DefinitionService {
      *            process definition id
      * @return not <code>null</code>
      * @throws DefinitionDoesNotExistException
+     * @deprecated use {@link #getTaskNodeInteraction(User, Long, String)}
      */
+    @Deprecated
     public Interaction getStartInteraction(User user, Long definitionId) throws DefinitionDoesNotExistException;
 
     /**
-     * Gets task user interaction.
-     *
-     * @param user
-     *            authorized user
-     * @param taskId
-     *            task id
-     * @return not <code>null</code>
-     * @throws TaskDoesNotExistException
-     */
-    public Interaction getTaskInteraction(User user, Long taskId) throws TaskDoesNotExistException;
-
-    /**
-     * Gets task user interaction.
+     * Gets task node user interaction.
      *
      * @param user
      *            authorized user
      * @param definitionId
-     *            process definition id
+     *            definition id
      * @param nodeId
-     *            node id
-     * @return interaction or <code>null</code> in case of invalid node id
+     *            interaction node id
+     * @return not <code>null</code>
+     * @throws DefinitionDoesNotExistException
      */
-    public Interaction getTaskNodeInteraction(User user, Long definitionId, String nodeId);
+    public Interaction getTaskNodeInteraction(User user, Long definitionId, String nodeId) throws DefinitionDoesNotExistException;
 
     /**
      * Gets all role definitions for process definition by id.
@@ -304,7 +291,7 @@ public interface DefinitionService {
      *            embedded subprocess id or <code>null</code>
      * @return not <code>null</code>
      */
-    public List<GraphElementPresentation> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId);
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId);
 
     /**
      * Gets all versions of process definition specified by name.

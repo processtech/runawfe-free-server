@@ -4,6 +4,10 @@ public interface ProcessLogVisitor {
 
     void onProcessStartLog(ProcessStartLog processStartLog);
 
+    void onProcessActivateLog(ProcessActivateLog processActivateLog);
+
+    void onProcessSuspendLog(ProcessSuspendLog processSuspendLog);
+
     void onProcessEndLog(ProcessEndLog processEndLog);
 
     void onProcessCancelLog(ProcessCancelLog processCancelLog);

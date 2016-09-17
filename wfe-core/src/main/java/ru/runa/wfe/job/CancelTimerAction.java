@@ -36,7 +36,7 @@ public class CancelTimerAction extends Action {
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        // TODO remove timers created with NAME='node name' or NAME='node id'
+        // remove timers created with NAME='node name' or NAME='node id'
         jobDAO.deleteTimersByName(getName(), executionContext.getToken());
         jobDAO.deleteTimersByName(getNodeId(), executionContext.getToken());
         executionContext.addLog(new ActionLog(this));

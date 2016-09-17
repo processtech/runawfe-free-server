@@ -23,19 +23,18 @@ package ru.runa.wfe.execution;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -45,8 +44,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -58,16 +55,13 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
-import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubProcessState;
-import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Synchronizable;
-import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.security.IdentifiableBase;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
@@ -78,7 +72,6 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 /**
  * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
@@ -98,16 +91,13 @@ public class Process extends IdentifiableBase {
     private Token rootToken;
     private String hierarchyIds;
     private Deployment deployment;
-    private Set<Swimlane> swimlanes;
-    private Set<Task> tasks;
+    private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Process() {
     }
 
     public Process(Deployment deployment) {
         setDeployment(deployment);
-        setSwimlanes(new HashSet<Swimlane>());
-        setTasks(new HashSet<Task>());
         setStartDate(new Date());
     }
 
@@ -141,11 +131,11 @@ public class Process extends IdentifiableBase {
 
     @Version
     @Column(name = "VERSION")
-    protected Long getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    protected void setVersion(Long version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 
@@ -176,6 +166,16 @@ public class Process extends IdentifiableBase {
         this.endDate = endDate;
     }
 
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
+    }
+
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
@@ -200,86 +200,6 @@ public class Process extends IdentifiableBase {
         this.rootToken = rootToken;
     }
 
-    @OneToMany(targetEntity = Swimlane.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID")
-    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
-    public Set<Swimlane> getSwimlanes() {
-        return swimlanes;
-    }
-
-    public void setSwimlanes(Set<Swimlane> swimlanes) {
-        this.swimlanes = swimlanes;
-    }
-
-    @OneToMany(targetEntity = Task.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID")
-    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
-    public Set<Task> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(Set<Task> tasks) {
-        this.tasks = tasks;
-    }
-
-    public Swimlane getSwimlane(String swimlaneName) {
-        for (Swimlane existing : swimlanes) {
-            if (Objects.equal(swimlaneName, existing.getName())) {
-                return existing;
-            }
-        }
-        return null;
-    }
-
-    public Swimlane getSwimlaneNotNull(SwimlaneDefinition swimlaneDefinition) {
-        Swimlane swimlane = getSwimlane(swimlaneDefinition.getName());
-        if (swimlane == null) {
-            swimlane = new Swimlane(swimlaneDefinition.getName());
-            swimlane.setProcess(this);
-            swimlanes.add(swimlane);
-        }
-        return swimlane;
-    }
-
-    public Swimlane getInitializedSwimlaneNotNull(ExecutionContext executionContext, TaskDefinition taskDefinition) {
-        return getInitializedSwimlaneNotNull(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlane());
-    }
-
-    public Swimlane getInitializedSwimlaneNotNull(ExecutionContext executionContext, SwimlaneDefinition swimlaneDefinition, boolean reassign) {
-        Swimlane swimlane = getSwimlaneNotNull(swimlaneDefinition);
-        if (reassign || swimlane.getExecutor() == null) {
-            try {
-                AssignmentHandler assignmentHandler = swimlaneDefinition.getDelegation().getInstance();
-                assignmentHandler.assign(executionContext, swimlane);
-            } catch (Exception e) {
-                log.error("Unable to assign in " + this, e);
-            }
-        }
-        return swimlane;
-    }
-
-    public Task getTask(String nodeId) {
-        for (Task task : tasks) {
-            if (Objects.equal(nodeId, task.getNodeId())) {
-                return task;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @return collection of {@link Task}'s for the given token.
-     */
-    public List<Task> getTokenTasks(Token token) {
-        List<Task> result = Lists.newArrayList();
-        for (Task task : tasks) {
-            if (Objects.equal(token.getId(), task.getToken().getId())) {
-                result.add(task);
-            }
-        }
-        return result;
-    }
-
     /**
      * Ends this process and all the tokens in it.
      *
@@ -297,6 +217,7 @@ public class Process extends IdentifiableBase {
         rootToken.end(executionContext, canceller);
         // mark this process as ended
         setEndDate(new Date());
+        setExecutionStatus(ExecutionStatus.ENDED);
         // check if this process was started as a subprocess of a super
         // process
         NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();
@@ -323,7 +244,7 @@ public class Process extends IdentifiableBase {
         // flush just created tasks
         ApplicationContextFactory.getTaskDAO().flushPendingChanges();
         boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
-        for (Task task : Lists.newArrayList(getTasks())) {
+        for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(this)) {
             Node node = executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
             if (node instanceof Synchronizable) {
                 Synchronizable synchronizable = (Synchronizable) node;
@@ -345,13 +266,13 @@ public class Process extends IdentifiableBase {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
             endSubprocessAndTasksOnMainProcessEndRecursively(executionContext, canceller);
         }
-        for (Swimlane swimlane : swimlanes) {
+        for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDAO().findByProcess(this)) {
             if (swimlane.getExecutor() instanceof TemporaryGroup) {
                 swimlane.setExecutor(null);
             }
         }
         for (Process subProcess : executionContext.getSubprocessesRecursively()) {
-            for (Swimlane swimlane : subProcess.getSwimlanes()) {
+            for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDAO().findByProcess(subProcess)) {
                 if (swimlane.getExecutor() instanceof TemporaryGroup) {
                     swimlane.setExecutor(null);
                 }
@@ -384,11 +305,11 @@ public class Process extends IdentifiableBase {
         if (subprocesses.size() > 0) {
             ProcessDefinition processDefinition = executionContext.getProcessDefinition();
             List<Node> nodes = processDefinition.getNodes(true);
-            HashMap<String, SubProcessState> subProcessesStates = new HashMap<String, SubProcessState>(subprocesses.size());
+            HashMap<String, SubprocessNode> subProcessesStates = new HashMap<String, SubprocessNode>(subprocesses.size());
             for (Node node : nodes) {
-                if (node instanceof SubProcessState) {
-                    SubProcessState subProcessState = (SubProcessState) node;
-                    subProcessesStates.put(subProcessState.getSubProcessName(), subProcessState);
+                if (node instanceof SubprocessNode) {
+                    SubprocessNode subprocessNode = (SubprocessNode) node;
+                    subProcessesStates.put(subprocessNode.getSubProcessName(), subprocessNode);
                 }
             }
             IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
@@ -398,7 +319,7 @@ public class Process extends IdentifiableBase {
 
                 endSubprocessAndTasksOnMainProcessEndRecursively(subExecutionContext, canceller);
 
-                for (Task task : Lists.newArrayList(subProcess.getTasks())) {
+                for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(subProcess)) {
                     Node node = subProcessDefinition.getNodeNotNull(task.getNodeId());
                     if (node instanceof Synchronizable) {
                         Synchronizable synchronizable = (Synchronizable) node;
@@ -415,7 +336,7 @@ public class Process extends IdentifiableBase {
                 }
 
                 String subProcessName = subProcessDefinition.getName();
-                SubProcessState subprocessState = subProcessesStates.get(subProcessName);
+                SubprocessNode subprocessState = subProcessesStates.get(subProcessName);
 
                 if (subprocessState.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
                     subProcess.end(subExecutionContext, canceller);
@@ -433,7 +354,7 @@ public class Process extends IdentifiableBase {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).toString();
+        return Objects.toStringHelper(this).add("id", id).add("status", executionStatus).toString();
     }
 
 }

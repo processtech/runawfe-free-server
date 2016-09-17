@@ -98,12 +98,26 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         createdDateTR.addElement(new TD(createDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
         createdDateTR.addElement(new TD(CalendarUtil.formatDateTime(definition.getCreateDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
+        TR createdByTR = new TR();
+        table.addElement(createdByTR);
+        String createdByMessage = Messages.getMessage(DefinitionClassPresentation.CREATE_ACTOR, pageContext);
+        createdByTR.addElement(new TD(createdByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+        String createdBy = definition.getCreateActor() != null ? definition.getCreateActor().getLabel() : "";
+        createdByTR.addElement(new TD(createdBy).setClass(Resources.CLASS_LIST_TABLE_TD));
+
         if (definition.getUpdateDate() != null) {
             TR updateDateTR = new TR();
             table.addElement(updateDateTR);
             String updateDateMessage = Messages.getMessage(DefinitionClassPresentation.UPDATE_DATE, pageContext);
             updateDateTR.addElement(new TD(updateDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
             updateDateTR.addElement(new TD(CalendarUtil.formatDateTime(definition.getUpdateDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
+
+            TR updatedByTR = new TR();
+            table.addElement(updatedByTR);
+            String updatedByMessage = Messages.getMessage(DefinitionClassPresentation.UPDATE_ACTOR, pageContext);
+            updatedByTR.addElement(new TD(updatedByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+            String updatedBy = definition.getUpdateActor() != null ? definition.getUpdateActor().getLabel() : "";
+            updatedByTR.addElement(new TD(updatedBy).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
 
         TR descriptionTR = new TR();

@@ -24,6 +24,7 @@ import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.af.web.action.RemoveRelationPairsAction;
 import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.WebResources;
@@ -72,7 +73,7 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
                 return isFormButtonVisible;
             }
         };
-        TDBuilder[] builders = getBuilders(new TDBuilder[] { checkboxBuilder }, batchPresentation, new TDBuilder[] {});
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { checkboxBuilder }, batchPresentation, null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(relationPairs, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, getReturnAction(), pageContext);

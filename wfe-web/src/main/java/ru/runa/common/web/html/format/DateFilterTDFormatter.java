@@ -29,7 +29,9 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 import com.google.common.base.Strings;
 
 /**
- * Created on 14.09.2005 TODO only dates supported now
+ * Only dates supported now.
+ * 
+ * Created on 14.09.2005
  */
 public class DateFilterTDFormatter extends FilterTDFormatter {
 

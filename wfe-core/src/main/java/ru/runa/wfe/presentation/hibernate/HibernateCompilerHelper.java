@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.presentation.hibernate;
@@ -30,8 +30,11 @@ public final class HibernateCompilerHelper {
 
     /**
      * Check, if field must affects SQL query.
-     * @param field Filed to check.
-     * @param batchPresentation {@link BatchPresentation}, used to build query.
+     * 
+     * @param field
+     *            Filed to check.
+     * @param batchPresentation
+     *            {@link BatchPresentation}, used to build query.
      * @return True, is field will affects SQL; false otherwise.
      */
     public static boolean isFieldSQLAffects(FieldDescriptor field, BatchPresentation batchPresentation) {
@@ -48,9 +51,11 @@ public final class HibernateCompilerHelper {
                 break;
             }
         }
-        return (batchPresentation.isFieldFiltered(idx) && field.filterMode == FieldFilterMode.DATABASE)
-                || ((batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) && field.isSortable && (!field.displayName
-                        .startsWith(ClassPresentation.filterable_prefix) || field.displayName.startsWith(ClassPresentation.filterable_prefix)
-                        && batchPresentation.isFieldGroupped(idx)));
+        return batchPresentation.isFieldFiltered(idx)
+                && field.filterMode == FieldFilterMode.DATABASE
+                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx))
+                && field.sortable
+                && (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || field.displayName
+                        .startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
     }
 }

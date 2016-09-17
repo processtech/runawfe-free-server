@@ -272,6 +272,9 @@
 	<bean id="systemLogDAO" class="ru.runa.wfe.audit.dao.SystemLogDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
+	<bean id="swimlaneDAO" class="ru.runa.wfe.execution.dao.SwimlaneDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
 	<bean id="taskDAO" class="ru.runa.wfe.task.dao.TaskDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
@@ -423,11 +426,12 @@
 		</property>
 	</bean>
 
-
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 	
 	<bean id="executionContextFactory" class="ru.runa.wfe.execution.DefaultExecutionContextFactory" />
 	
 	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
+	
+	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JMSNodeAsyncExecutor" />
 	
 </beans>

@@ -35,7 +35,7 @@ import ru.runa.wf.web.tag.DefinitionUrlStrategy;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.service.DefinitionService;
+import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 
 /**
@@ -57,14 +57,14 @@ public class StartProcessTDBuilder extends BaseTDBuilder {
         if (definition.isCanBeStarted()) {
             if (definition.hasStartImage()) {
                 href = Commons.getActionUrl(StartImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(), env.getPageContext(),
-                    PortletUrlType.Resource);
+                        PortletUrlType.Resource);
             } else {
                 href = Commons.getUrl(WebResources.START_PROCESS_IMAGE, env.getPageContext(), PortletUrlType.Resource);
             }
         } else {
             if (definition.hasDisabledImage()) {
                 href = Commons.getActionUrl(StartDisabledImageProcessAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
-                    env.getPageContext(), PortletUrlType.Resource);
+                        env.getPageContext(), PortletUrlType.Resource);
             } else {
                 href = Commons.getUrl(WebResources.START_PROCESS_DISABLED_IMAGE, env.getPageContext(), PortletUrlType.Resource);
             }
@@ -78,13 +78,11 @@ public class StartProcessTDBuilder extends BaseTDBuilder {
             startLink = new A(url).addElement(startImg);
             if (ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_PARAMETER)
                     || ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER)) {
-                DefinitionService definitionService = Delegates.getDefinitionService();
-                String actionParameter = null;
-                if (!(definitionService.getStartInteraction(env.getUser(), definition.getId()).hasForm() || definitionService
-                        .getOutputTransitionNames(env.getUser(), definition.getId(), null, false).size() > 1)) {
-                    actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
+                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(env.getUser(), definition.getId());
+                if (!(interaction.hasForm() || interaction.getOutputTransitionNames().size() > 1)) {
+                    String actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
                     startLink.addAttribute("onclick",
-                        ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, env.getPageContext()));
+                            ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, env.getPageContext()));
                 }
             }
         } else {

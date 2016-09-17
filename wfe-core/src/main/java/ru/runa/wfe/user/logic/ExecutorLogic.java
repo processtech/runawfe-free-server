@@ -47,6 +47,7 @@ import ru.runa.wfe.user.ExecutorParticipatesInProcessesException;
 import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
+import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
@@ -134,7 +135,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void remove(Executor executor) {
-        if (permissionDAO.isPrivilegedExecutor(executor)) {
+        if (permissionDAO.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }
         Set<Number> processIds = processDAO.getDependentProcessIds(executor);
@@ -239,12 +240,6 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     private void removeExecutorsFromGroupInternal(User user, List<? extends Executor> executors, Group group) {
-        // TODO this must be implemented by some mechanism
-        // if (executorDAO.getAdministrator().equals(executor) &&
-        // executorDAO.getAdministratorsGroup().equals(group)) {
-        // throw new AuthorizationException("Executor " + executor.getName()
-        // + " can not be removed from group " + group.getName());
-        // }
         checkPermissionsOnExecutor(user, group, GroupPermission.REMOVE_FROM_GROUP);
         checkPermissionsOnExecutors(user, executors, Permission.READ);
         executorDAO.removeExecutorsFromGroup(executors, group);

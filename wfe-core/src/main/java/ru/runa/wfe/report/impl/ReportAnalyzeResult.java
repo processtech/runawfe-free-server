@@ -10,7 +10,7 @@ public class ReportAnalyzeResult {
     private String message;
 
     /**
-     * Дополнительные параметры, которые должны быть определены для построения отчёта.
+     * Additional parameters that must be defined in order to build report.
      */
     private List<ReportAdminParameterEditModel> requiredParameters;
 
@@ -27,7 +27,7 @@ public class ReportAnalyzeResult {
             requiredParameters = new ArrayList<ReportAdminParameterEditModel>();
         }
         requiredParameters.add(parameter);
-        appendMessage("Не задан параметр " + parameter.getInnerName() + " необходимый для построения отчёта");
+        appendMessage("Parameter " + parameter.getInnerName() + " is not set but required for report construction");
     }
 
     public String getMessage() {
@@ -43,6 +43,6 @@ public class ReportAnalyzeResult {
     }
 
     public void appendMessage(String parameterName, String message) {
-        appendMessage("Параметр '" + parameterName + "': " + message);
+        appendMessage("Parameter '" + parameterName + "': " + message);
     }
 }

@@ -36,14 +36,15 @@ public class SetDateVariableHandler extends CommonHandler {
         config = new CalendarConfig(configuration);
     }
 
-    @Override
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider) throws Exception {
-        Calendar calendar = Calendar.getInstance();
+    protected Map<String, Object> executeAction(IVariableProvider variableProvider, boolean pre430CompatibilityMode) throws Exception {
+        config.applySubstitutions(variableProvider);
+        Calendar calendar;
         if (config.getBaseVariableName() != null) {
             Date baseDate = variableProvider.getValueNotNull(Date.class, config.getBaseVariableName());
-            calendar.setTime(baseDate);
+            calendar = CalendarUtil.dateToCalendar(baseDate);
+        } else {
+            calendar = Calendar.getInstance();
         }
-        config.applySubstitutions(variableProvider);
         for (CalendarOperation operation : config.getOperations()) {
             log.debug("Executing " + operation + " on " + CalendarUtil.formatDateTime(calendar));
             Integer amount = Integer.parseInt(operation.getExpression());
@@ -53,6 +54,9 @@ public class SetDateVariableHandler extends CommonHandler {
                 calendar.setTime(date);
             }
             if (CalendarOperation.SET.equals(operation.getType())) {
+                if (operation.getField() == Calendar.MONTH && !pre430CompatibilityMode) {
+                    amount--;
+                }
                 calendar.set(operation.getField(), amount);
             }
             log.debug("Result: " + CalendarUtil.formatDateTime(calendar));
@@ -60,6 +64,11 @@ public class SetDateVariableHandler extends CommonHandler {
         Map<String, Object> result = Maps.newHashMap();
         result.put(config.getOutVariableName(), calendar.getTime());
         return result;
+    }
+
+    @Override
+    protected Map<String, Object> executeAction(IVariableProvider variableProvider) throws Exception {
+        return executeAction(variableProvider, false);
     }
 
     public static class CalendarConfig {

@@ -21,6 +21,7 @@ import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.IExecutionContextFactory;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
@@ -55,7 +56,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Task list builder component.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -103,13 +104,14 @@ public class TaskListBuilder implements ITaskListBuilder {
         Set<Executor> executorsToGetTasks = Sets.newHashSet(executorsToGetTasksByMembership);
         getSubstituteExecutorsToGetTasks(actor, executorsToGetTasks);
         @SuppressWarnings("unchecked")
-        List<Task> tasks = LoadTasks(batchPresentation, executorsToGetTasks);
+        List<Task> tasks = loadTasks(batchPresentation, executorsToGetTasks);
         for (Task task : tasks) {
             try {
                 WfTask acceptable = getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
                 if (acceptable == null) {
                     continue;
                 }
+
                 result.add(acceptable);
             } catch (Exception e) {
                 if (taskDAO.get(task.getId()) == null) {
@@ -135,14 +137,14 @@ public class TaskListBuilder implements ITaskListBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Task> LoadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
+    private List<Task> loadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
         if (executorsToGetTasks.size() < SystemProperties.getDatabaseParametersCount()) {
             CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(executorsToGetTasks, "executor"));
             return (List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters);
         } else {
             List<Task> tasks = Lists.newArrayList();
-            for (List<Executor> ex : Lists.partition(Lists.newArrayList(executorsToGetTasks), SystemProperties.getDatabaseParametersCount())) {
-                CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(ex, "executor"));
+            for (List<Executor> list : Lists.partition(Lists.newArrayList(executorsToGetTasks), SystemProperties.getDatabaseParametersCount())) {
+                CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(list, "executor"));
                 tasks.addAll((List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters));
             }
             return tasks;
@@ -176,7 +178,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         if (process == null || process.hasEnded()) {
             return;
         }
-        for (Task task : process.getTasks()) {
+        for (Task task : taskDAO.findByProcess(process)) {
             WfTask wfTask = taskObjectFactory.create(task, actor, true, null);
             if (!result.contains(wfTask)) {
                 result.add(wfTask);
@@ -184,7 +186,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
         List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
         for (Process subprocess : subprocesses) {
-            for (Task task : subprocess.getTasks()) {
+            for (Task task : taskDAO.findByProcess(subprocess)) {
                 WfTask wfTask = taskObjectFactory.create(task, actor, true, null);
                 if (!result.contains(wfTask)) {
                     result.add(wfTask);
@@ -194,6 +196,10 @@ public class TaskListBuilder implements ITaskListBuilder {
     }
 
     protected WfTask getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, Set<Executor> executorsToGetTasksByMembership) {
+        if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            log.debug(task + " is ignored due to process suspended state");
+            return null;
+        }
         Executor taskExecutor = task.getExecutor();
         ProcessDefinition processDefinition = null;
         try {

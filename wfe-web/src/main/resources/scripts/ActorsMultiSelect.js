@@ -20,8 +20,8 @@ $(document).ready(function() {
 function updateDialogContent_UNIQUENAME() {
     $("#dialogContent_UNIQUENAME").html("");
     $.getJSON(
-        "jsonUrl",
-        {"component": "ActorsMultiSelect", qualifier: "VARIABLE", hint: $("#dialogFilter_UNIQUENAME").val()},
+        "JSON_URL",
+        { hint: $("#dialogFilter_UNIQUENAME").val() },
         function(data) {
             $.each(data, function(i, item) {
                 $("#dialogContent_UNIQUENAME").append("<div><a href='javascript:addActor_UNIQUENAME(\""+item.id+"\", \""+escapeQuotesForHtmlContext(item.name)+"\");'>"+item.name+"</a></div>");

@@ -25,24 +25,24 @@ import ru.runa.wfe.lang.EndNode;
 import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
-import ru.runa.wfe.lang.MultiProcessState;
+import ru.runa.wfe.lang.MultiSubprocessNode;
 import ru.runa.wfe.lang.MultiTaskCreationMode;
 import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.MultiTaskSynchronizationMode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.ReceiveMessage;
-import ru.runa.wfe.lang.ScriptTask;
-import ru.runa.wfe.lang.SendMessage;
-import ru.runa.wfe.lang.StartState;
-import ru.runa.wfe.lang.SubProcessState;
+import ru.runa.wfe.lang.ReceiveMessageNode;
+import ru.runa.wfe.lang.ScriptNode;
+import ru.runa.wfe.lang.SendMessageNode;
+import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.VariableContainerNode;
-import ru.runa.wfe.lang.WaitState;
+import ru.runa.wfe.lang.WaitNode;
 import ru.runa.wfe.lang.jpdl.Conjunction;
 import ru.runa.wfe.lang.jpdl.Decision;
 import ru.runa.wfe.lang.jpdl.EndToken;
@@ -66,7 +66,6 @@ public class JpdlXmlReader {
     private LocalizationDAO localizationDAO;
 
     private final Document document;
-    // TODO move to Spring (or GPD process setting)
     private final boolean waitStateCompatibility = true;
 
     private static final String INVALID_ATTR = "invalid";
@@ -104,25 +103,25 @@ public class JpdlXmlReader {
     private static final String EMBEDDED = "embedded";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String CREATION_MODE = "creationMode";
-    private static final String INTERRUPTING = "interrupting";
+    private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
-        // nodeTypes.put("start-state", StartState.class);
+        // nodeTypes.put("start-state", StartNode.class);
         // nodeTypes.put("end-token-state", EndToken.class);
         nodeTypes.put("end-state", EndNode.class);
-        nodeTypes.put("wait-state", WaitState.class);
+        nodeTypes.put("wait-state", WaitNode.class);
         nodeTypes.put("task-node", TaskNode.class);
         nodeTypes.put("multi-task-node", MultiTaskNode.class);
         nodeTypes.put("fork", Fork.class);
         nodeTypes.put("join", Join.class);
         nodeTypes.put("decision", Decision.class);
         nodeTypes.put("conjunction", Conjunction.class);
-        nodeTypes.put("process-state", SubProcessState.class);
-        nodeTypes.put("multiinstance-state", MultiProcessState.class);
-        nodeTypes.put("send-message", SendMessage.class);
-        nodeTypes.put("receive-message", ReceiveMessage.class);
-        nodeTypes.put("node", ScriptTask.class);
+        nodeTypes.put("process-state", SubprocessNode.class);
+        nodeTypes.put("multiinstance-state", MultiSubprocessNode.class);
+        nodeTypes.put("send-message", SendMessageNode.class);
+        nodeTypes.put("receive-message", ReceiveMessageNode.class);
+        nodeTypes.put("node", ScriptNode.class);
     }
 
     public JpdlXmlReader(Document document) {
@@ -131,8 +130,6 @@ public class JpdlXmlReader {
 
     public ProcessDefinition readProcessDefinition(ProcessDefinition processDefinition) {
         try {
-            // TODO document = XmlUtils.parseWithXSDValidation(definitionXml,
-            // ClassLoaderUtil.getResourceAsStream("jpdl-4.0.xsd", getClass()));
             Element root = document.getRootElement();
 
             // read the process name
@@ -145,6 +142,10 @@ public class JpdlXmlReader {
             String accessTypeString = root.attributeValue(ACCESS_TYPE);
             if (!Strings.isNullOrEmpty(accessTypeString)) {
                 processDefinition.setAccessType(ProcessDefinitionAccessType.valueOf(accessTypeString));
+            }
+            String nodeAsyncExecutionString = root.attributeValue(NODE_ASYNC_EXECUTION);
+            if (!Strings.isNullOrEmpty(nodeAsyncExecutionString)) {
+                processDefinition.setNodeAsyncExecution("new".equals(nodeAsyncExecutionString));
             }
 
             // 1: read most content
@@ -193,7 +194,7 @@ public class JpdlXmlReader {
                 if (processDefinition instanceof SubprocessDefinition) {
                     node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessStartNode.class);
                 } else {
-                    node = ApplicationContextFactory.createAutowiredBean(StartState.class);
+                    node = ApplicationContextFactory.createAutowiredBean(StartNode.class);
                 }
             } else if ("end-token-state".equals(nodeName)) {
                 if (processDefinition instanceof SubprocessDefinition) {
@@ -253,9 +254,9 @@ public class JpdlXmlReader {
             if (node instanceof MultiTaskNode && ((MultiTaskNode) node).getCreationMode() != MultiTaskCreationMode.BY_EXECUTORS) {
             } else if (waitStateCompatibility) {
                 processDefinition.removeNode(node);
-                WaitState waitState = new WaitState();
-                waitState.setProcessDefinition(processDefinition);
-                readNode(processDefinition, element.getParent(), waitState);
+                WaitNode waitNode = new WaitNode();
+                waitNode.setProcessDefinition(processDefinition);
+                readNode(processDefinition, element.getParent(), waitNode);
                 return;
             } else {
                 throw new InvalidDefinitionException(processDefinition.getName(),
@@ -288,19 +289,23 @@ public class JpdlXmlReader {
         node.setNodeId(element.attributeValue(ID_ATTR));
         node.setName(element.attributeValue(NAME_ATTR));
         node.setDescription(element.elementTextTrim(DESCRIPTION_NODE));
+        String nodeAsyncExecutionString = element.attributeValue(NODE_ASYNC_EXECUTION);
+        if (!Strings.isNullOrEmpty(nodeAsyncExecutionString)) {
+            node.setAsyncExecution("new".equals(nodeAsyncExecutionString));
+        }
         processDefinition.addNode(node);
         readEvents(processDefinition, element, node);
         // save the transitions and parse them at the end
         addUnresolvedTransitionDestination(element, node);
 
-        if (node instanceof StartState) {
-            StartState startState = (StartState) node;
+        if (node instanceof StartNode) {
+            StartNode startNode = (StartNode) node;
             Element startTaskElement = element.element(TASK_NODE);
             if (startTaskElement != null) {
-                readTask(processDefinition, startTaskElement, startState, element);
+                readTask(processDefinition, startTaskElement, startNode, element);
             }
         }
-        // if (node instanceof WaitState) {
+        // if (node instanceof WaitNode) {
         // CreateTimerAction createTimerAction =
         // ApplicationContextFactory.createAutowiredBean(CreateTimerAction.class);
         // createTimerAction.setName(node.getName() + "/wait");
@@ -333,12 +338,12 @@ public class JpdlXmlReader {
             multiTaskNode.setVariableMappings(readVariableMappings(processDefinition, element));
             readTasks(processDefinition, element, multiTaskNode);
         }
-        if (node instanceof SubProcessState) {
-            SubProcessState subProcessState = (SubProcessState) node;
+        if (node instanceof SubprocessNode) {
+            SubprocessNode subprocessNode = (SubprocessNode) node;
             Element subProcessElement = element.element(SUB_PROCESS_NODE);
             if (subProcessElement != null) {
-                subProcessState.setSubProcessName(subProcessElement.attributeValue(NAME_ATTR));
-                subProcessState.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
+                subprocessNode.setSubProcessName(subProcessElement.attributeValue(NAME_ATTR));
+                subprocessNode.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
             }
         }
         if (node instanceof Decision) {
@@ -349,12 +354,12 @@ public class JpdlXmlReader {
             }
             decision.setDelegation(readDelegation(processDefinition, decisionHandlerElement));
         }
-        if (node instanceof SendMessage) {
-            SendMessage sendMessage = (SendMessage) node;
-            sendMessage.setTtlDuration(element.attributeValue(DUEDATE_ATTR, "1 days"));
+        if (node instanceof SendMessageNode) {
+            SendMessageNode sendMessageNode = (SendMessageNode) node;
+            sendMessageNode.setTtlDuration(element.attributeValue(DUEDATE_ATTR, "1 days"));
         }
-        if (node instanceof ScriptTask) {
-            ScriptTask serviceTask = (ScriptTask) node;
+        if (node instanceof ScriptNode) {
+            ScriptNode serviceTask = (ScriptNode) node;
             Element actionElement = element.element(ACTION_NODE);
             Preconditions.checkNotNull(actionElement, "No action defined in " + serviceTask);
             serviceTask.setDelegation(readDelegation(processDefinition, actionElement));
@@ -390,12 +395,6 @@ public class JpdlXmlReader {
                 throw new UnsupportedOperationException("task/timer");
             }
             String createEventType = node instanceof TaskNode ? Event.TASK_CREATE : Event.NODE_ENTER;
-            if (node instanceof TaskNode) {
-                String interrupting = element.attributeValue(INTERRUPTING);
-                if (!Strings.isNullOrEmpty(interrupting)) {
-                    createTimerAction.setInterrupting(Boolean.parseBoolean(interrupting));
-                }
-            }
             addAction(node, createEventType, createTimerAction);
             Action timerAction = readSingleAction(processDefinition, element);
             if (timerAction != null) {
@@ -484,7 +483,7 @@ public class JpdlXmlReader {
 
     /**
      * creates the transition object and configures it by the read attributes
-     *
+     * 
      * @return the created <code>ru.runa.wfe.lang.Transition</code> object (useful, if you want to override this method to read additional
      *         configuration properties)
      */
@@ -493,6 +492,7 @@ public class JpdlXmlReader {
         transition.setProcessDefinition(processDefinition);
         node.addLeavingTransition(transition);
         transition.setName(element.attributeValue(NAME_ATTR));
+        transition.setNodeId(node.getNodeId() + "/" + transition.getName());
         for (CreateTimerAction createTimerAction : node.getTimerActions(false)) {
             if (Objects.equal(createTimerAction.getTransitionName(), transition.getName())) {
                 transition.setTimerTransition(true);

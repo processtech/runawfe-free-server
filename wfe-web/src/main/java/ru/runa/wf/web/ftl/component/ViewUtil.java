@@ -265,7 +265,7 @@ public class ViewUtil {
         } else {
             substitutions.put("DECTSELECTNAME", "");
         }
-        result += WebUtils.getFormComponentScript(webHelper, javascriptStream, substitutions);
+        result += WebUtils.getFormComponentScript(javascriptStream, substitutions);
         result += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/wfe/css/tidy-table.css\">\n";
         result += String.format("<div id=\"container%s\"></div>", uniquename);
         return result;
@@ -382,7 +382,7 @@ public class ViewUtil {
             substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(variable));
             StringBuffer html = new StringBuffer();
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
-            html.append(WebUtils.getFormComponentScript(webHelper, javascriptStream, substitutions));
+            html.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
             List<Object> list = TypeConversionUtil.convertTo(List.class, variable.getValue());
             if (list == null) {
                 list = new ArrayList<Object>();
@@ -395,12 +395,12 @@ public class ViewUtil {
                 html.append("<div><div current row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
                 WfVariable componentVariable = ViewUtil.createListComponentVariable(variable, row, componentFormat, o);
                 html.append(ViewUtil.getComponentInput(user, webHelper, componentVariable));
-                html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName)
-                        .append("(this);\" style=\"width: 30px;\" />");
+                html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
+                html.append("(this);\" style=\"width: 30px;\" />");
                 html.append("</div></div>");
             }
-            html.append("<div><input type=\"button\" id=\"btnAdd").append(scriptingVariableName)
-                    .append("\" value=\" + \" style=\"width: 30px;\" /></div>");
+            html.append("<div><input type=\"button\" id=\"btnAdd").append(scriptingVariableName);
+            html.append("\" value=\" + \" style=\"width: 30px;\" /></div>");
             html.append("</div>");
             return html.toString();
         }
@@ -419,11 +419,11 @@ public class ViewUtil {
             substitutions.put("COMPONENT_INPUT_VALUE", valueComponentHtml);
             VariableFormat keyFormat = FormatCommons.createComponent(variable, 0);
             VariableFormat valueFormat = FormatCommons.createComponent(variable, 1);
-            substitutions.put("COMPONENT_JS_HANDLER",
-                ViewUtil.getComponentJSFunction(keyFormat) + "\n" + ViewUtil.getComponentJSFunction(valueFormat));
+            String jsHandler = ViewUtil.getComponentJSFunction(keyFormat) + "\n" + ViewUtil.getComponentJSFunction(valueFormat);
+            substitutions.put("COMPONENT_JS_HANDLER", jsHandler);
             StringBuffer html = new StringBuffer();
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditMap.js", ViewUtil.class);
-            html.append(WebUtils.getFormComponentScript(webHelper, javascriptStream, substitutions));
+            html.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
             Map<Object, Object> map = TypeConversionUtil.convertTo(Map.class, variable.getValue());
             if (map == null) {
                 map = new HashMap<Object, Object>();
@@ -439,12 +439,12 @@ public class ViewUtil {
                 html.append(ViewUtil.getComponentInput(user, webHelper, keyComponentVariable));
                 WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(variable, row, key);
                 html.append(ViewUtil.getComponentInput(user, webHelper, valueComponentVariable));
-                html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName)
-                        .append("(this);\" style=\"width: 30px;\" />");
+                html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
+                html.append("(this);\" style=\"width: 30px;\" />");
                 html.append("</div></div>");
             }
-            html.append("<div><input type=\"button\" id=\"btnAddMap").append(scriptingVariableName)
-                    .append("\" value=\" + \" style=\"width: 30px;\" /></div>");
+            html.append("<div><input type=\"button\" id=\"btnAddMap").append(scriptingVariableName);
+            html.append("\" value=\" + \" style=\"width: 30px;\" /></div>");
             html.append("</div>");
             return html.toString();
         }
@@ -610,7 +610,7 @@ public class ViewUtil {
                 hasFile = true;
                 componentJsHandlers += "$('.dropzone').each(function () { initFileInput($(this)) });\n";
             } else if (ListFormat.class.getName().equals(componentClassName)) {
-                // TODO: handle nested list-type entries
+                throw new InternalApplicationException("Embedded lists does not supported");
             } else if (UserTypeFormat.class.getName().equals(componentClassName)) {
                 for (VariableDefinition variableDefinition : ((ListFormat) variableFormat).getComponentUserType(0).getAttributes()) {
                     VariableFormat nestedFormat = FormatCommons.create(variableDefinition);
@@ -627,7 +627,7 @@ public class ViewUtil {
                         hasFile = true;
                         componentJsHandlers += getComponentJSFunction(nestedFormat);
                     } else if (ListFormat.class == nestedFormat.getClass()) {
-                        // TODO: handle nested list-type entries
+                        throw new InternalApplicationException("Embedded lists does not supported");
                     }
                 }
             }
@@ -701,8 +701,8 @@ public class ViewUtil {
                     // #766, load file content only for input file component
                     file.setContent(value.getData());
                 }
-                FormSubmissionUtils.getUploadedFilesMap(webHelper.getRequest())
-                        .put(id + FormSubmissionUtils.FILES_MAP_QUALIFIER + variableName, file);
+                String fileKey = id + FormSubmissionUtils.FILES_MAP_QUALIFIER + variableName;
+                FormSubmissionUtils.getUploadedFilesMap(webHelper.getRequest()).put(fileKey, file);
             }
         }
         String attachImageUrl = "";

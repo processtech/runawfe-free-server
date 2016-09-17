@@ -58,6 +58,11 @@ public class EmailUtils {
      * Sends email in non-blocking and transactional mode
      */
     public static void sendMessageRequest(EmailConfig config) throws Exception {
+        config.checkValid();
+        if (Strings.isNullOrEmpty(config.getHeaderProperties().get(EmailConfig.HEADER_TO))) {
+            log.warn("Ignored message with empty 'To' recipients: " + config);
+            return;
+        }
         Utils.sendEmailRequest(config);
     }
 
@@ -148,7 +153,7 @@ public class EmailUtils {
         }
     }
 
-    public static void prepareTaskMessage(User user, EmailConfig config, Interaction interaction, IVariableProvider variableProvider) {
+    public static void prepareMessage(User user, EmailConfig config, Interaction interaction, IVariableProvider variableProvider) {
         config.setMessageId(variableProvider.getProcessId() + ": " + (interaction != null ? interaction.getName() : "no interaction"));
         config.applySubstitutions(variableProvider);
         String formTemplate;
@@ -206,7 +211,7 @@ public class EmailUtils {
         return emails;
     }
 
-    public static String concatenateEmails(List<String> emails) {
+    public static String concatenateEmails(Collection<String> emails) {
         return Joiner.on(", ").join(emails);
     }
 

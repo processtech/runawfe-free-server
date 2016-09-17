@@ -52,7 +52,7 @@ public class UserType implements Serializable {
                 return null;
             }
             if (attributeDefinition.getUserType() == null) {
-                throw new InternalApplicationException("Trying to retrieve complex attribute in non-complex parent attribute: " + name);
+                throw new InternalApplicationException(String.format("Unable get attribute '%s' from non user type", name));
             }
             String nameRemainder = name.substring(firstDotIndex + 1);
             return attributeDefinition.getUserType().getAttribute(nameRemainder);
@@ -85,7 +85,7 @@ public class UserType implements Serializable {
                 return null;
             }
             if (attributeDefinition.getUserType() == null) {
-                throw new InternalApplicationException("Trying to retrieve complex attribute in non-complex parent attribute: " + name);
+                throw new InternalApplicationException(String.format(String.format("Unable get attribute '%s' from non user type", name)));
             }
             String nameRemainder = name.substring(firstDotIndex + 1);
             VariableDefinition innerAttributeDefinition = attributeDefinition.getUserType().getAttributeExpanded(nameRemainder);

@@ -31,8 +31,6 @@ import ru.runa.common.web.form.IdNameForm;
 /**
  * Created on 26.01.2005
  * 
- * TODO remove unused file
- * 
  * @struts:action path="/hideableBlock" name="idNameForm" validate="false"
  */
 public class HideableBlockAction extends Action {

@@ -22,12 +22,12 @@ import java.util.List;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveRelationAction;
 import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.IdentifiableCheckboxTDBuilder;
@@ -61,7 +61,7 @@ public class ListRelationsFormTag extends BatchReturningTitledFormTag {
                 return formButtonVisible;
             }
         };
-        TDBuilder[] builders = getBuilders(new TDBuilder[] { checkboxBuilder }, getBatchPresentation(), new TDBuilder[] {});
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { checkboxBuilder }, getBatchPresentation(), null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(relations, getBatchPresentation(), pageContext, WebResources.ACTION_MAPPING_MANAGE_RELATION,
                 getReturnAction(), new RelationURLStrategy(), builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(getBatchPresentation(), 1, 0, getReturnAction(), pageContext);

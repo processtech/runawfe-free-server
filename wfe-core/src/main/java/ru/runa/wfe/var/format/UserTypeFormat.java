@@ -104,8 +104,6 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
         for (VariableDefinition attributeDefinition : userType.getAttributes()) {
             b.append("<tr>");
             b.append("<td class=\"list\">").append(attributeDefinition.getName()).append("</td>");
-            // TODO make option?
-            // b.append("<td class=\"list\">").append(attributeDefinition.getFormatLabel()).append("</td>");
             VariableFormat attributeFormat = FormatCommons.create(attributeDefinition);
             Object attributeValue = userTypeMap.get(attributeDefinition.getName());
             b.append("<td class=\"list\">");

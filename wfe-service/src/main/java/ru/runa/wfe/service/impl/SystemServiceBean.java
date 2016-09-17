@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.service.impl;
@@ -44,8 +44,7 @@ import ru.runa.wfe.user.User;
 import com.google.common.base.Preconditions;
 
 /**
- * Represent system ru.runa.commons.test operations login/logout. Created on
- * 16.08.2004
+ * Represent system ru.runa.commons.test operations login/logout. Created on 16.08.2004
  */
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -59,48 +58,49 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @Override
     @WebResult(name = "result")
     public void login(@WebParam(name = "user") User user) {
-        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(user != null, "user");
         auditLogic.login(user, ASystem.INSTANCE);
     }
 
     @Override
     @WebResult(name = "result")
     public List<Localization> getLocalizations(@WebParam(name = "user") User user) {
-        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(user != null, "user");
         return auditLogic.getLocalizations(user);
     }
 
     @Override
     @WebResult(name = "result")
     public String getLocalized(@WebParam(name = "user") User user, @WebParam(name = "name") String name) {
-        Preconditions.checkArgument(name != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(name != null, "name");
         return auditLogic.getLocalized(user, name);
     }
 
     @Override
     @WebResult(name = "result")
     public void saveLocalizations(@WebParam(name = "user") User user, @WebParam(name = "localizations") List<Localization> localizations) {
-        Preconditions.checkNotNull(user);
-        Preconditions.checkNotNull(localizations);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(localizations != null, "localizations");
         auditLogic.saveLocalizations(user, localizations);
     }
 
-	@Override
-	public String getSetting(String fileName, String name) {
-		Preconditions.checkArgument(fileName != null);
-		Preconditions.checkArgument(name != null);
-		return auditLogic.getSetting(fileName, name);
-	}
+    @Override
+    public String getSetting(String fileName, String name) {
+        Preconditions.checkArgument(fileName != null, "fileName");
+        Preconditions.checkArgument(name != null, "name");
+        return auditLogic.getSetting(fileName, name);
+    }
 
-	@Override
-	public void setSetting(String fileName, String name, String value) {
-		Preconditions.checkArgument(fileName != null);
-		Preconditions.checkArgument(name != null);
-		auditLogic.setSetting(fileName, name, value);
-	}
+    @Override
+    public void setSetting(String fileName, String name, String value) {
+        Preconditions.checkArgument(fileName != null, "fileName");
+        Preconditions.checkArgument(name != null, "name");
+        auditLogic.setSetting(fileName, name, value);
+    }
 
-	@Override
-	public void clearSettings() {
-		auditLogic.clearSettings();
-	}
+    @Override
+    public void clearSettings() {
+        auditLogic.clearSettings();
+    }
 }
