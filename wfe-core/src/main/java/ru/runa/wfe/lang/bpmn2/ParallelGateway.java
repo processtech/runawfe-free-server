@@ -56,14 +56,19 @@ public class ParallelGateway extends Node {
             break;
         }
         case WAITING: {
-            log.debug("blocking token " + token.getId() + " execution due to waiting on " + stateInfo.notPassedTransitions);
+            if (stateInfo.activeTokenNodeIds.contains(getNodeId())) {
+                log.debug("scheduling execution due to active concurrent token found in this node");
+                TransactionListeners.addListener(new ActiveCheck(this, executionContext.getProcess().getId()), false);
+            } else {
+                log.debug("blocking token " + token.getId() + " execution due to waiting on " + stateInfo.notPassedTransitions);
+            }
             break;
         }
         case BLOCKING: {
             log.warn("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
                     + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
             token.setExecutionStatus(ExecutionStatus.FAILED);
-            TransactionListeners.addListener(new ParallelGatewayPostExecutionCheck(this, executionContext.getProcess().getId()), false);
+            TransactionListeners.addListener(new FailedCheck(this, executionContext.getProcess().getId()), false);
             break;
         }
         }
@@ -172,18 +177,79 @@ public class ParallelGateway extends Node {
         private Transition unreachableTransition;
     }
 
-    private static class ParallelGatewayPostExecutionCheck implements ITransactionListener {
+    private static class ActiveCheck implements ITransactionListener {
         private final ParallelGateway gateway;
         private final Long processId;
 
-        public ParallelGatewayPostExecutionCheck(ParallelGateway gateway, Long processId) {
+        public ActiveCheck(ParallelGateway gateway, Long processId) {
             this.gateway = gateway;
             this.processId = processId;
         }
 
         @Override
         public void onTransactionComplete(UserTransaction transaction) {
-            synchronized (ParallelGatewayPostExecutionCheck.class) {
+            synchronized (ParallelGateway.class) {
+                new TransactionalExecutor(transaction) {
+
+                    @Override
+                    protected void doExecuteInTransaction() throws Exception {
+                        log.debug("Executing " + this);
+                        ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
+                        TokenDAO tokenDAO = ApplicationContextFactory.getTokenDAO();
+                        List<Token> endedTokens = tokenDAO.findByProcessAndNodeIdAndExecutionStatusIsEndedAndAbleToReactivateParent(process,
+                                gateway.getNodeId());
+                        if (endedTokens.isEmpty()) {
+                            log.debug("no ended tokens found");
+                            return;
+                        }
+                        StateInfo stateInfo = gateway.findStateInfo(process.getRootToken(), true);
+                        switch (stateInfo.state) {
+                        case LEAVING: {
+                            log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
+                            for (Token tokenToPop : stateInfo.tokensToPop) {
+                                tokenToPop.setAbleToReactivateParent(false);
+                            }
+                            Token parentToken = stateInfo.tokensToPop.get(0).getParent();
+                            gateway.leave(new ExecutionContext(gateway.getProcessDefinition(), parentToken));
+                            break;
+                        }
+                        case WAITING: {
+                            log.warn("continue waiting on " + stateInfo.notPassedTransitions);
+                            break;
+                        }
+                        case BLOCKING: {
+                            log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
+                                    + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
+                            process.setExecutionStatus(ExecutionStatus.FAILED);
+                            Exception exception = new InternalApplicationException("no token can activate this node");
+                            ProcessExecutionErrors.addProcessError(processId, gateway.getNodeId(), gateway.getName(), null, exception);
+                            break;
+                        }
+                        }
+                    }
+
+                    @Override
+                    public String toString() {
+                        return Objects.toStringHelper(getClass()).add("processId", processId).add("gateway", gateway).toString();
+                    }
+
+                }.executeInTransaction(false);
+            }
+        }
+    }
+
+    private static class FailedCheck implements ITransactionListener {
+        private final ParallelGateway gateway;
+        private final Long processId;
+
+        public FailedCheck(ParallelGateway gateway, Long processId) {
+            this.gateway = gateway;
+            this.processId = processId;
+        }
+
+        @Override
+        public void onTransactionComplete(UserTransaction transaction) {
+            synchronized (ParallelGateway.class) {
                 new TransactionalExecutor(transaction) {
 
                     @Override

@@ -288,7 +288,7 @@ public class Token implements Serializable {
      */
     public void end(ExecutionContext executionContext, Actor canceller) {
         if (endDate == null) {
-            log.info("Ending " + this + " by " + canceller);
+            log.debug("Ending " + this + " by " + canceller);
             setEndDate(new Date());
             for (Process subProcess : executionContext.getNotEndedSubprocesses()) {
                 ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
