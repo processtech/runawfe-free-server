@@ -181,11 +181,12 @@ public class ExecutionContext {
         if (searchInSwimlanes) {
             SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
-                Swimlane swimlane;
-                if (SystemProperties.isSwimlaneAutoInitializationEnabled()) {
+                Swimlane swimlane = swimlaneDAO.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
+                if (swimlane == null) {
+                    swimlane = getSwimlaneUsingBaseProcess(getProcessDefinition(), getProcess(), swimlaneDefinition.getName());
+                }
+                if (swimlane == null && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
                     swimlane = swimlaneDAO.findOrCreateInitialized(this, swimlaneDefinition, false);
-                } else {
-                    swimlane = swimlaneDAO.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
                 }
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
@@ -258,6 +259,24 @@ public class ExecutionContext {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("processId", getToken().getProcess().getId()).add("tokenId", getToken().getId()).toString();
+    }
+
+    private Swimlane getSwimlaneUsingBaseProcess(ProcessDefinition processDefinition, Process process, String name) {
+        Long baseProcessId = subprocessSyncCache.getBaseProcessId(processDefinition, process);
+        if (baseProcessId != null) {
+            name = subprocessSyncCache.getBaseProcessReadVariableName(processDefinition, process, name);
+            if (name != null) {
+                log.debug("Loading swimlane '" + name + "' from process '" + baseProcessId + "'");
+                Process baseProcess = processDAO.getNotNull(baseProcessId);
+                ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
+                Swimlane swimlane = swimlaneDAO.findByProcessAndName(baseProcess, name);
+                if (swimlane != null) {
+                    return swimlane;
+                }
+                return getSwimlaneUsingBaseProcess(baseProcessDefinition, baseProcess, name);
+            }
+        }
+        return null;
     }
 
     private WfVariable getVariableUsingBaseProcess(ProcessDefinition processDefinition, Process process, String name, WfVariable variable) {
