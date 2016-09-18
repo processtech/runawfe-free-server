@@ -63,6 +63,7 @@ import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dao.VariableDAO;
+import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -99,15 +100,27 @@ public class ExecutionContext {
     @Autowired
     private SwimlaneDAO swimlaneDAO;
 
-    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token) {
+    private final VariableLoader variableLoader;
+
+    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
+            Map<Process, Map<String, Variable<?>>> loadedVariables) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
+        this.variableLoader = new VariableLoader(variableDAO, loadedVariables);
+    }
+
+    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
+        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, null);
+    }
+
+    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables) {
+        this(processDefinition, process.getRootToken(), loadedVariables);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Process process) {
@@ -191,7 +204,7 @@ public class ExecutionContext {
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
         }
-        WfVariable variable = variableDAO.getVariable(getProcessDefinition(), getProcess(), name);
+        WfVariable variable = variableLoader.getVariable(getProcessDefinition(), getProcess(), name);
         if (variable == null || Utils.isNullOrEmpty(variable.getValue())
                 || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue()) || variable.getValue() instanceof UserTypeMap) {
             variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
@@ -200,7 +213,7 @@ public class ExecutionContext {
             return variable;
         }
         if (SystemProperties.isV3CompatibilityMode() || SystemProperties.isAllowedNotDefinedVariables()) {
-            Variable<?> dbVariable = variableDAO.get(getProcess(), name);
+            Variable<?> dbVariable = variableLoader.get(getProcess(), name);
             return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
         }
         log.debug("No variable defined by '" + name + "' in " + getProcess() + ", returning null");
@@ -287,7 +300,7 @@ public class ExecutionContext {
                 log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
                 Process baseProcess = processDAO.getNotNull(baseProcessId);
                 ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
-                WfVariable baseVariable = variableDAO.getVariable(baseProcessDefinition, baseProcess, name);
+                WfVariable baseVariable = variableLoader.getVariable(baseProcessDefinition, baseProcess, name);
                 if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null
                         && baseVariable.getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
@@ -340,7 +353,7 @@ public class ExecutionContext {
             int newSize = TypeConversionUtil.getListSize(value);
             String sizeVariableName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
             VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
-            Integer oldSize = (Integer) variableDAO.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
+            Integer oldSize = (Integer) variableLoader.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
             int maxSize = oldSize != null ? Math.max(oldSize, newSize) : newSize;
             String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
             String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
@@ -357,7 +370,7 @@ public class ExecutionContext {
             setSimpleVariableValue(getProcessDefinition(), getToken(), sizeDefinition, newSize != 0 ? newSize : null);
             if (SystemProperties.isV4ListVariableCompatibilityMode()) {
                 // delete old list variables as blobs (pre 4.3.0)
-                Variable<?> variable = variableDAO.get(getProcess(), variableDefinition.getName());
+                Variable<?> variable = variableLoader.get(getProcess(), variableDefinition.getName());
                 if (variable != null) {
                     log.debug("Removing old-style list variable '" + variableDefinition.getName() + "'");
                     variableDAO.delete(variable);
@@ -378,11 +391,8 @@ public class ExecutionContext {
         return true;
     }
 
-    /**
-     * @return true if setting is done
-     */
     private void setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value) {
-        Variable<?> variable = variableDAO.get(token.getProcess(), variableDefinition.getName());
+        Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
         if (variable != null && !variable.supports(value)) {
             log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess());
@@ -478,7 +488,7 @@ public class ExecutionContext {
             if (!baseProcessIdsMap.containsKey(process)) {
                 String baseProcessIdVariableName = SystemProperties.getBaseProcessIdVariableName();
                 if (baseProcessIdVariableName != null && processDefinition.getVariable(baseProcessIdVariableName, false) != null) {
-                    WfVariable baseProcessIdVariable = variableDAO.getVariable(processDefinition, process, baseProcessIdVariableName);
+                    WfVariable baseProcessIdVariable = variableLoader.getVariable(processDefinition, process, baseProcessIdVariableName);
                     Long baseProcessId = (Long) (baseProcessIdVariable != null ? baseProcessIdVariable.getValue() : null);
                     if (Objects.equal(baseProcessId, process.getId())) {
                         throw new InternalApplicationException(baseProcessIdVariableName + " reference should not point to current process id "
