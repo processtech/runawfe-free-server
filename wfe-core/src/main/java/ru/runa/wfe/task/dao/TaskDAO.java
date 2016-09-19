@@ -73,4 +73,8 @@ public class TaskDAO extends GenericDAO<Task> {
         return getHibernateTemplate().find("from Task where executor is null and token.executionStatus=?", ExecutionStatus.ACTIVE);
     }
 
+    public void deleteAll(Process process) {
+        log.debug("deleting tasks for process " + process.getId());
+        getHibernateTemplate().bulkUpdate("delete from Task where process=?", process);
+    }
 }
