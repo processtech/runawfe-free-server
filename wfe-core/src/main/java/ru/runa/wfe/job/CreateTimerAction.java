@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.CreateTimerActionLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.Action;
 
@@ -45,8 +44,7 @@ public class CreateTimerAction extends Action {
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        Token oldToken = executionContext.getToken();
-        Timer timer = new Timer(oldToken);
+        Timer timer = new Timer(executionContext.getToken());
         timer.setName(getName());
         timer.setDueDateExpression(dueDate);
         timer.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDate));
@@ -55,11 +53,6 @@ public class CreateTimerAction extends Action {
         jobDAO.create(timer);
         log.debug("Created " + timer + " for duration '" + dueDate + "'");
         executionContext.addLog(new CreateTimerActionLog(this, timer.getDueDate()));
-        if (!isInterrupting()) {
-            Token newToken = new Token(oldToken, oldToken.getName());
-            ExecutionContext newExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), newToken);
-            newToken.signal(newExecutionContext, newExecutionContext.getNode().getLeavingTransitionNotNull(transitionName));
-        }
     }
 
     public String getDueDate() {
@@ -94,4 +87,5 @@ public class CreateTimerAction extends Action {
     public void setInterrupting(boolean interrupting) {
         this.interrupting = interrupting;
     }
+
 }

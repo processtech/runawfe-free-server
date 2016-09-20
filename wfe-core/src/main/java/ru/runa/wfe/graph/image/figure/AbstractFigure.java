@@ -18,10 +18,12 @@
 
 package ru.runa.wfe.graph.image.figure;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
@@ -59,6 +61,7 @@ import ru.runa.wfe.lang.Transition;
 
 public abstract class AbstractFigure {
     private final static Log log = LogFactory.getLog(AbstractFigure.class);
+    private final static Stroke DASHED_STROKE = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL, 0, new float[] { 4 }, 2);
 
     protected String nodeName;
     protected int[] coords;
@@ -223,6 +226,13 @@ public abstract class AbstractFigure {
         } catch (IOException e) {
             log.error("Unable to paint image", e);
         }
+    }
+
+    protected void drawStrokedCircle(Graphics2D graphics, double x, double y) {
+        Stroke oldStroke = graphics.getStroke();
+        graphics.setStroke(DASHED_STROKE);
+        graphics.draw(new java.awt.geom.Ellipse2D.Double(x, y, 2 * DrawProperties.GRID_SIZE - 1, 2 * DrawProperties.GRID_SIZE - 1));
+        graphics.setStroke(oldStroke);
     }
 
     public Point getBendpoint() {

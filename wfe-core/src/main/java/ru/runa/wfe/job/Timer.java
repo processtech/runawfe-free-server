@@ -1,5 +1,7 @@
 package ru.runa.wfe.job;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -19,6 +21,7 @@ import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Event;
+import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
 import com.google.common.base.Objects;
@@ -74,11 +77,20 @@ public class Timer extends Job {
                 }
             }
             if (outTransitionName != null) {
-                if (executionContext.getNode() instanceof BaseTaskNode) {
-                    ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer());
+                Transition transition = executionContext.getNode().getLeavingTransitionNotNull(outTransitionName);
+                List<CreateTimerAction> createTimerActions = executionContext.getNode().getTimerActions(false);
+                if (createTimerActions.isEmpty() || createTimerActions.get(0).isInterrupting()) {
+                    if (executionContext.getNode() instanceof BaseTaskNode) {
+                        ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer());
+                    }
+                    log.info("Leaving " + this + " from " + executionContext.getNode() + " by transition " + outTransitionName);
+                    getToken().signal(executionContext, transition);
+                } else {
+                    log.info("Leaving non-interrupting " + this + " from " + executionContext.getNode() + " by transition " + outTransitionName);
+                    Token newToken = new Token(getToken(), createTimerActions.get(0).getName());
+                    ExecutionContext newExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), newToken);
+                    newToken.signal(newExecutionContext, transition);
                 }
-                log.info("Leaving " + this + " from " + executionContext.getNode() + " by transition " + outTransitionName);
-                getToken().signal(executionContext, executionContext.getNode().getLeavingTransitionNotNull(outTransitionName));
             } else if (Boolean.TRUE == executionContext.getTransientVariable(STOP_RE_EXECUTION)) {
                 log.info("Deleting " + this + " due to STOP_RE_EXECUTION");
                 ApplicationContextFactory.getJobDAO().deleteTimersByName(getName(), getToken());

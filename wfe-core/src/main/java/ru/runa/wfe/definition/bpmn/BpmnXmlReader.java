@@ -116,7 +116,7 @@ public class BpmnXmlReader {
     private static final String DISCRIMINATOR_VALUE = "discriminatorValue";
     private static final String DISCRIMINATOR_CONDITION = "discriminatorCondition";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
-    private static final String INTERRUPTING = "interrupting";
+    private static final String CANCEL_ACTIVITY = "cancelActivity";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -337,14 +337,13 @@ public class BpmnXmlReader {
         createTimerAction.setDueDate(durationString);
         Map<String, String> properties = parseExtensionProperties(timerElement);
         createTimerAction.setRepeatDurationString(properties.get(REPEAT));
-        String createEventType = node instanceof TaskNode ? Event.TASK_CREATE : Event.NODE_ENTER;
-        if (BOUNDARY_EVENT.equals(eventElement.getName()) && node instanceof TaskNode) {
-            String interrupting = eventElement.attributeValue(INTERRUPTING);
+        if (BOUNDARY_EVENT.equals(eventElement.getName())) {
+            String interrupting = eventElement.attributeValue(CANCEL_ACTIVITY);
             if (!Strings.isNullOrEmpty(interrupting)) {
-                createTimerAction.setInterrupting(Boolean.parseBoolean(interrupting));
+                createTimerAction.setInterrupting(Boolean.valueOf(interrupting));
             }
         }
-        addAction(node, createEventType, createTimerAction);
+        addAction(node, Event.NODE_ENTER, createTimerAction);
 
         Delegation timerDelegation = readDelegation(timerElement, properties, false);
         if (timerDelegation != null) {
@@ -355,10 +354,10 @@ public class BpmnXmlReader {
         }
 
         CancelTimerAction cancelTimerAction = ApplicationContextFactory.createAutowiredBean(CancelTimerAction.class);
-        cancelTimerAction.setNodeId(createTimerAction.getNodeId());
+        cancelTimerAction.setNodeId(createTimerAction.getNodeId() + "_leave");
         cancelTimerAction.setName(createTimerAction.getName());
-        String cancelEventType = node instanceof TaskDefinition ? Event.TASK_END : Event.NODE_LEAVE;
-        addAction(node, cancelEventType, cancelTimerAction);
+        cancelTimerAction.setInterrupting(createTimerAction.isInterrupting());
+        addAction(node, Event.NODE_LEAVE, cancelTimerAction);
     }
 
     private void addAction(GraphElement graphElement, String eventType, Action action) {
