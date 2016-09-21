@@ -13,16 +13,12 @@ import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.logic.SwimlaneUtils;
-import ru.runa.wfe.job.CancelTimerAction;
-import ru.runa.wfe.job.CreateTimerAction;
-import ru.runa.wfe.job.Timer;
-import ru.runa.wfe.lang.Action;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
 import ru.runa.wfe.lang.EmbeddedSubprocessStartNode;
 import ru.runa.wfe.lang.EndNode;
-import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.MultiSubprocessNode;
@@ -31,7 +27,6 @@ import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.MultiTaskSynchronizationMode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.ReceiveMessageNode;
 import ru.runa.wfe.lang.ScriptNode;
 import ru.runa.wfe.lang.SendMessageNode;
 import ru.runa.wfe.lang.StartNode;
@@ -42,12 +37,17 @@ import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.VariableContainerNode;
-import ru.runa.wfe.lang.WaitNode;
+import ru.runa.wfe.lang.jpdl.Action;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
+import ru.runa.wfe.lang.jpdl.CancelTimerAction;
 import ru.runa.wfe.lang.jpdl.Conjunction;
+import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 import ru.runa.wfe.lang.jpdl.Decision;
 import ru.runa.wfe.lang.jpdl.EndToken;
 import ru.runa.wfe.lang.jpdl.Fork;
 import ru.runa.wfe.lang.jpdl.Join;
+import ru.runa.wfe.lang.jpdl.ReceiveMessageNode;
+import ru.runa.wfe.lang.jpdl.WaitNode;
 import ru.runa.wfe.var.VariableMapping;
 
 import com.google.common.base.Objects;
@@ -383,7 +383,7 @@ public class JpdlXmlReader {
             createTimerAction.setName(name);
             createTimerAction.setTransitionName(element.attributeValue(TRANSITION_ATTR));
             String durationString = element.attributeValue(DUEDATE_ATTR);
-            if (Strings.isNullOrEmpty(durationString) && node instanceof TaskNode && Timer.ESCALATION_NAME.equals(name)) {
+            if (Strings.isNullOrEmpty(durationString) && node instanceof TaskNode && TimerJob.ESCALATION_NAME.equals(name)) {
                 durationString = ((TaskNode) node).getFirstTaskNotNull().getDeadlineDuration();
                 if (Strings.isNullOrEmpty(durationString)) {
                     throw new InvalidDefinitionException(processDefinition.getName(), "No '" + DUEDATE_ATTR + "' specified for timer in " + node);
@@ -394,17 +394,17 @@ public class JpdlXmlReader {
             if (node instanceof TaskDefinition) {
                 throw new UnsupportedOperationException("task/timer");
             }
-            String createEventType = node instanceof TaskNode ? Event.TASK_CREATE : Event.NODE_ENTER;
+            String createEventType = node instanceof TaskNode ? ActionEvent.TASK_CREATE : ActionEvent.NODE_ENTER;
             addAction(node, createEventType, createTimerAction);
             Action timerAction = readSingleAction(processDefinition, element);
             if (timerAction != null) {
                 timerAction.setName(name);
-                addAction(node, Event.TIMER, timerAction);
+                addAction(node, ActionEvent.TIMER, timerAction);
             }
             CancelTimerAction cancelTimerAction = ApplicationContextFactory.createAutowiredBean(CancelTimerAction.class);
             cancelTimerAction.setNodeId(createTimerAction.getNodeId());
             cancelTimerAction.setName(createTimerAction.getName());
-            String cancelEventType = node instanceof TaskDefinition ? Event.TASK_END : Event.NODE_LEAVE;
+            String cancelEventType = node instanceof TaskDefinition ? ActionEvent.TASK_END : ActionEvent.NODE_LEAVE;
             addAction(node, cancelEventType, cancelTimerAction);
         }
     }
@@ -427,9 +427,9 @@ public class JpdlXmlReader {
     }
 
     private void addAction(GraphElement graphElement, String eventType, Action action) {
-        Event event = graphElement.getEventNotNull(eventType);
+        ActionEvent actionEvent = graphElement.getEventNotNull(eventType);
         action.setParent(graphElement);
-        event.addAction(action);
+        actionEvent.addAction(action);
     }
 
     private Action readSingleAction(ProcessDefinition processDefinition, Element nodeElement) {
@@ -493,7 +493,7 @@ public class JpdlXmlReader {
         node.addLeavingTransition(transition);
         transition.setName(element.attributeValue(NAME_ATTR));
         transition.setNodeId(node.getNodeId() + "/" + transition.getName());
-        for (CreateTimerAction createTimerAction : node.getTimerActions(false)) {
+        for (CreateTimerAction createTimerAction : CreateTimerAction.getNodeTimerActions(node, false)) {
             if (Objects.equal(createTimerAction.getTransitionName(), transition.getName())) {
                 transition.setTimerTransition(true);
             }
@@ -507,7 +507,7 @@ public class JpdlXmlReader {
         Node to = processDefinition.getNodeNotNull(toId);
         to.addArrivingTransition(transition);
         // read the actions
-        readActions(processDefinition, element, transition, Event.TRANSITION);
+        readActions(processDefinition, element, transition, ActionEvent.TRANSITION);
     }
 
     private void verifyElements(ProcessDefinition processDefinition) {

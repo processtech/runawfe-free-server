@@ -20,9 +20,7 @@ package ru.runa.wfe.graph.image.figure.uml;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
-
-public class EndTokenStateFigure extends AbstractFigure {
+public class EndTokenStateFigure extends AbstractUmlFigure {
 
     @Override
     public void fill(Graphics2D graphics) {

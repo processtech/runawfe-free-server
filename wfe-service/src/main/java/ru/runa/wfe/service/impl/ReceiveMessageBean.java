@@ -47,9 +47,9 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
+import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.ReceiveMessageNode;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.var.VariableMapping;
@@ -86,7 +86,7 @@ public class ReceiveMessageBean implements MessageListener {
             List<Token> tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
             for (Token token : tokens) {
                 ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
-                ReceiveMessageNode receiveMessageNode = (ReceiveMessageNode) token.getNodeNotNull(processDefinition);
+                BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(processDefinition);
                 ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
                 boolean suitable = true;
                 for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
@@ -167,9 +167,9 @@ public class ReceiveMessageBean implements MessageListener {
     private static class ReceiveMessageData {
         private Long processId;
         private Long tokenId;
-        private ReceiveMessageNode node;
+        private BaseMessageNode node;
 
-        public ReceiveMessageData(ExecutionContext executionContext, ReceiveMessageNode node) {
+        public ReceiveMessageData(ExecutionContext executionContext, BaseMessageNode node) {
             this.processId = executionContext.getProcess().getId();
             this.tokenId = executionContext.getToken().getId();
             this.node = node;

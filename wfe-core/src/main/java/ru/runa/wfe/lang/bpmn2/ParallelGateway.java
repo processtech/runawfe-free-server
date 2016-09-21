@@ -38,7 +38,7 @@ public class ParallelGateway extends Node {
     @Override
     public void execute(ExecutionContext executionContext) {
         Token token = executionContext.getToken();
-        token.end(executionContext, null);
+        token.end(executionContext, null, null, false);
         log.debug("Executing " + this + " with " + token);
         StateInfo stateInfo = findStateInfo(executionContext.getProcess().getRootToken(), true);
         switch (stateInfo.state) {

@@ -20,7 +20,7 @@ package ru.runa.wfe.graph.image.figure.bpmn;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-public class Circle extends AbstractBPMNFigure {
+public class Circle extends AbstractBpmnFigure {
     private final String imageName;
 
     public Circle(String imageName) {
@@ -29,14 +29,14 @@ public class Circle extends AbstractBPMNFigure {
 
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {
-        drawImage(graphics, imageName);
+        drawImageIfNoEdgingOnly(graphics, imageName);
         if (renderHits.isPassed()) {
             Rectangle r = getRectangle();
             if (cleanMode) {
                 graphics.drawOval(r.x + 5, r.y + 5, 38, 38);
             }
             graphics.drawOval(r.x + 7, r.y + 7, 34, 34);
-            drawTimer(graphics);
+            drawBoundaryEvents(graphics);
         }
     }
 }

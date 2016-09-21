@@ -20,8 +20,12 @@ import com.google.common.collect.Maps;
 @SuppressWarnings("unchecked")
 public class NodeProcessDAO extends GenericDAO<NodeProcess> {
 
-    public NodeProcess getNodeProcessByChild(Long processId) {
+    public NodeProcess findBySubProcessId(Long processId) {
         return findFirstOrNull("from NodeProcess where subProcess.id = ?", processId);
+    }
+
+    public NodeProcess findByParentToken(Token parentToken) {
+        return findFirstOrNull("from NodeProcess where parentToken = ?", parentToken);
     }
 
     public List<NodeProcess> getNodeProcesses(final Process process, final Token parentToken, final String nodeId, final Boolean finished) {

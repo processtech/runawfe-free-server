@@ -32,6 +32,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -83,7 +84,7 @@ public abstract class Node extends GraphElement {
 
     /**
      * creates a bidirection relation between this node and the given leaving transition.
-     *
+     * 
      * @throws IllegalArgumentException
      *             if leavingTransition is null.
      */
@@ -100,7 +101,7 @@ public abstract class Node extends GraphElement {
 
     /**
      * checks for the presence of a leaving transition with the given name.
-     *
+     * 
      * @return true if this node has a leaving transition with the given name, false otherwise.
      */
     public boolean hasLeavingTransition(String transitionName) {
@@ -145,7 +146,7 @@ public abstract class Node extends GraphElement {
 
     /**
      * add a bidirection relation between this node and the given arriving transition.
-     *
+     * 
      * @throws IllegalArgumentException
      *             if t is null.
      */
@@ -182,8 +183,19 @@ public abstract class Node extends GraphElement {
         token.setNodeId(getNodeId());
         token.setNodeType(getNodeType());
         // fire the leave-node event for this node
-        fireEvent(executionContext, Event.NODE_ENTER);
+        fireEvent(executionContext, ActionEvent.NODE_ENTER);
         executionContext.addLog(new NodeEnterLog(this));
+        if (this instanceof BoundaryEventContainer) {
+            for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
+                if (!boundaryEvent.isBoundaryEventInterrupting()) {
+                    Token eventToken = new Token(executionContext.getToken(), getNodeId());
+                    ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
+                    ((Node) boundaryEvent).execute(eventExecutionContext);
+                } else {
+                    ((Node) boundaryEvent).execute(executionContext);
+                }
+            }
+        }
         boolean async = getAsyncExecution(executionContext);
         if (async) {
             ApplicationContextFactory.getNodeAsyncExecutor().execute(token.getProcess().getId(), token.getId(), token.getNodeId());
@@ -218,12 +230,23 @@ public abstract class Node extends GraphElement {
      * called by the implementation of this node to continue execution over the given transition.
      */
     public void leave(ExecutionContext executionContext, Transition transition) {
+        log.debug("Leaving " + this + " with " + executionContext.toString());
+        if (this instanceof BoundaryEventContainer) {
+            List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
+            for (Token token : executionContext.getToken().getActiveChildren()) {
+                Node node = token.getNodeNotNull(getProcessDefinition());
+                if (boundaryEvents.contains(node)) {
+                    ExecutionContext childExecutionContext = new ExecutionContext(getProcessDefinition(), token);
+                    token.end(childExecutionContext, null, null, false);
+                }
+            }
+        }
         Token token = executionContext.getToken();
         for (IProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
             listener.onNodeLeave(executionContext, this, transition);
         }
         // fire the leave-node event for this node
-        fireEvent(executionContext, Event.NODE_LEAVE);
+        fireEvent(executionContext, ActionEvent.NODE_LEAVE);
         addLeaveLog(executionContext);
         if (transition == null) {
             transition = getDefaultLeavingTransitionNotNull();

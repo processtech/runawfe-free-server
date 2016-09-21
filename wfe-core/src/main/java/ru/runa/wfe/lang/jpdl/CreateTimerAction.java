@@ -19,40 +19,42 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.job;
+package ru.runa.wfe.lang.jpdl;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.audit.CreateTimerActionLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDAO;
-import ru.runa.wfe.lang.Action;
+import ru.runa.wfe.lang.GraphElement;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 public class CreateTimerAction extends Action {
     private static final long serialVersionUID = 1L;
-
     private String dueDate;
     private String transitionName;
     private String repeatDurationString;
-    private boolean interrupting = true;
 
     @Autowired
     private transient JobDAO jobDAO;
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        Timer timer = new Timer(executionContext.getToken());
-        timer.setName(getName());
-        timer.setDueDateExpression(dueDate);
-        timer.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDate));
-        timer.setRepeatDurationString(repeatDurationString);
-        timer.setOutTransitionName(transitionName);
-        jobDAO.create(timer);
-        log.debug("Created " + timer + " for duration '" + dueDate + "'");
-        executionContext.addLog(new CreateTimerActionLog(this, timer.getDueDate()));
+        TimerJob timerJob = new TimerJob(executionContext.getToken());
+        timerJob.setName(getName());
+        timerJob.setDueDateExpression(dueDate);
+        timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDate));
+        timerJob.setRepeatDurationString(repeatDurationString);
+        timerJob.setOutTransitionName(transitionName);
+        jobDAO.create(timerJob);
+        log.debug("Created " + timerJob + " for duration '" + dueDate + "'");
+        executionContext.addLog(new CreateTimerActionLog(this, timerJob.getDueDate()));
     }
 
     public String getDueDate() {
@@ -80,12 +82,20 @@ public class CreateTimerAction extends Action {
         return Objects.toStringHelper(this).add("event", getEvent()).add("dueDate", dueDate).toString();
     }
 
-    public boolean isInterrupting() {
-        return interrupting;
-    }
-
-    public void setInterrupting(boolean interrupting) {
-        this.interrupting = interrupting;
+    // TODO 212 usage
+    public static List<CreateTimerAction> getNodeTimerActions(GraphElement graphElement, boolean includeEscalation) {
+        List<CreateTimerAction> list = Lists.newArrayList();
+        for (ActionEvent actionEvent : graphElement.getEvents().values()) {
+            for (Action action : actionEvent.getActions()) {
+                if (action instanceof CreateTimerAction) {
+                    if (!includeEscalation && TimerJob.ESCALATION_NAME.equals(action.getName())) {
+                        continue;
+                    }
+                    list.add((CreateTimerAction) action);
+                }
+            }
+        }
+        return list;
     }
 
 }

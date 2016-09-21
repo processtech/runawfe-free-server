@@ -10,9 +10,9 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.job.CreateTimerAction;
-import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.TaskDefinition;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
+import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.user.Executor;
 
@@ -24,7 +24,7 @@ public class TaskFactory {
         if (taskDefinition.getDeadlineDuration() != null) {
             return taskDefinition.getDeadlineDuration();
         }
-        List<CreateTimerAction> timerActions = taskDefinition.getNode().getTimerActions(true);
+        List<CreateTimerAction> timerActions = CreateTimerAction.getNodeTimerActions(taskDefinition.getNode(), true);
         if (timerActions.size() > 0) {
             return timerActions.get(0).getDueDate();
         }
@@ -45,7 +45,7 @@ public class TaskFactory {
         taskDAO.create(task);
         taskDAO.flushPendingChanges();
         executionContext.addLog(new TaskCreateLog(task));
-        taskDefinition.fireEvent(executionContext, Event.TASK_CREATE);
+        taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);
         if (swimlane != null) {
             task.assignExecutor(executionContext, swimlane.getExecutor(), false);

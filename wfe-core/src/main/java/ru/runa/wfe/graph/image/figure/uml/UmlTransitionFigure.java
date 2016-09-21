@@ -19,16 +19,16 @@ package ru.runa.wfe.graph.image.figure.uml;
 
 import java.awt.Rectangle;
 
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.lang.NodeType;
 
-public class TransitionFigure extends TransitionFigureBase {
+public class UmlTransitionFigure extends TransitionFigure {
 
     @Override
     protected double[] getReferencePoint(Rectangle rectFrom, Rectangle rectTo) {
         double x;
         double y;
-        if (figureTo.getType() == NodeType.FORK || figureTo.getType() == NodeType.JOIN) {
+        if (figureTo.getNode().getNodeType() == NodeType.FORK || figureTo.getNode().getNodeType() == NodeType.JOIN) {
             ForkJoinFigure forkJoin = (ForkJoinFigure) figureTo;
             if (!forkJoin.isVertical() && rectTo.contains(rectFrom.getCenterX(), rectTo.getCenterY())) {
                 // horizontal ForkJoin

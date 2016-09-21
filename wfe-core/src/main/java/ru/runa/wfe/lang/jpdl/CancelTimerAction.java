@@ -19,33 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.job;
+package ru.runa.wfe.lang.jpdl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.job.dao.JobDAO;
-import ru.runa.wfe.lang.Action;
 
 public class CancelTimerAction extends Action {
     private static final long serialVersionUID = 1L;
-    private boolean interrupting = true;
-
     @Autowired
     private transient JobDAO jobDAO;
 
-    public void setInterrupting(boolean interrupting) {
-        this.interrupting = interrupting;
-    }
-
     @Override
     public void execute(ExecutionContext executionContext) {
-        Token timerToken = interrupting ? executionContext.getToken() : executionContext.getToken().getParent();
         // remove timers created with NAME='node name' or NAME='node id'
-        jobDAO.deleteTimersByName(getName(), timerToken);
-        jobDAO.deleteTimersByName(getNodeId(), timerToken);
+        jobDAO.deleteTimersByName(executionContext.getToken(), getName());
+        jobDAO.deleteTimersByName(executionContext.getToken(), getNodeId());
         executionContext.addLog(new ActionLog(this));
     }
 

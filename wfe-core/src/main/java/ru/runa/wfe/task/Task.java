@@ -64,11 +64,11 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
-import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.TaskDefinition;
-import ru.runa.wfe.lang.WaitNode;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
+import ru.runa.wfe.lang.jpdl.WaitNode;
 import ru.runa.wfe.task.logic.ITaskNotifier;
 import ru.runa.wfe.user.Executor;
 
@@ -281,7 +281,7 @@ public class Task implements Assignable {
             setExecutor(executor);
             InteractionNode node = (InteractionNode) executionContext.getProcessDefinition().getNodeNotNull(nodeId);
             ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
-            node.getFirstTaskNotNull().fireEvent(taskExecutionContext, Event.TASK_ASSIGN);
+            node.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_ASSIGN);
             for (ITaskNotifier notifier : ApplicationContextFactory.getTaskNotifiers()) {
                 notifier.onTaskAssigned(executionContext.getProcessDefinition(), executionContext.getVariableProvider(), this, previousExecutor);
             }
@@ -327,7 +327,7 @@ public class Task implements Assignable {
         }
         InteractionNode interactionNode = (InteractionNode) node;
         ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
-        interactionNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, Event.TASK_END);
+        interactionNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
         delete();
     }
 

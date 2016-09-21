@@ -19,11 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.lang;
+package ru.runa.wfe.lang.jpdl;
 
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
+import ru.runa.wfe.lang.Delegation;
+import ru.runa.wfe.lang.GraphElement;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -32,7 +34,7 @@ import com.google.common.base.Throwables;
 public class Action extends GraphElement {
     private static final long serialVersionUID = 1L;
     private Delegation delegation;
-    private Event event;
+    private ActionEvent actionEvent;
     private GraphElement parent;
 
     @Override
@@ -48,7 +50,7 @@ public class Action extends GraphElement {
     public void validate() {
         super.validate();
         Preconditions.checkNotNull(delegation, "delegation in " + this);
-        Preconditions.checkNotNull(event, "event in " + this);
+        Preconditions.checkNotNull(actionEvent, "event in " + this);
         Preconditions.checkNotNull(parent, "parent in " + this);
     }
 
@@ -64,12 +66,12 @@ public class Action extends GraphElement {
         }
     }
 
-    public Event getEvent() {
-        return event;
+    public ActionEvent getEvent() {
+        return actionEvent;
     }
 
-    public void setEvent(Event event) {
-        this.event = event;
+    public void setEvent(ActionEvent actionEvent) {
+        this.actionEvent = actionEvent;
     }
 
     public Delegation getDelegation() {
@@ -82,7 +84,7 @@ public class Action extends GraphElement {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("event", event).add("delegation", delegation).toString();
+        return Objects.toStringHelper(this).add("event", actionEvent).add("delegation", delegation).toString();
     }
 
 }

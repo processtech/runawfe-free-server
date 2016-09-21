@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.lang;
+package ru.runa.wfe.lang.jpdl;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class Event implements Serializable {
+public class ActionEvent implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String TRANSITION = "transition";
@@ -44,7 +44,7 @@ public class Event implements Serializable {
     private final String eventType;
     private final List<Action> actions = Lists.newArrayList();
 
-    public Event(String eventType) {
+    public ActionEvent(String eventType) {
         this.eventType = eventType;
     }
 

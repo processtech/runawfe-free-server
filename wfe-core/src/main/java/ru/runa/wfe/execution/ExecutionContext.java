@@ -150,7 +150,11 @@ public class ExecutionContext {
     }
 
     public NodeProcess getParentNodeProcess() {
-        return nodeProcessDAO.getNodeProcessByChild(getProcess().getId());
+        return nodeProcessDAO.findBySubProcessId(getProcess().getId());
+    }
+
+    public NodeProcess getChildNodeProcess() {
+        return nodeProcessDAO.findByParentToken(getToken());
     }
 
     public List<Process> getSubprocesses() {

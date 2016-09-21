@@ -20,10 +20,10 @@ package ru.runa.wfe.graph.image.figure.uml;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.lang.Node;
 
-public class UMLFigureFactory extends AbstractFigureFactory {
+public class UmlFigureFactory extends AbstractFigureFactory {
 
     @Override
     public AbstractFigure createFigure(Node node, boolean useEgdingOnly) {
@@ -82,7 +82,7 @@ public class UMLFigureFactory extends AbstractFigureFactory {
     }
 
     @Override
-    public TransitionFigureBase createTransitionFigure() {
-        return new TransitionFigure();
+    public TransitionFigure createTransitionFigure() {
+        return new UmlTransitionFigure();
     }
 }

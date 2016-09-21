@@ -34,12 +34,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.job.CreateTimerAction;
-import ru.runa.wfe.job.Timer;
+import ru.runa.wfe.lang.jpdl.Action;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -53,7 +52,7 @@ public abstract class GraphElement implements Serializable, Cloneable {
     @XmlTransient
     protected ProcessDefinition processDefinition;
     @XmlTransient
-    protected Map<String, Event> events = Maps.newHashMap();
+    protected Map<String, ActionEvent> actionEvents = Maps.newHashMap();
     private int[] graphConstraints;
 
     public String getNodeId() {
@@ -123,28 +122,28 @@ public abstract class GraphElement implements Serializable, Cloneable {
         Preconditions.checkNotNull(name, "name in " + this);
     }
 
-    public Map<String, Event> getEvents() {
-        return events;
+    public Map<String, ActionEvent> getEvents() {
+        return actionEvents;
     }
 
-    public Event getEventNotNull(String eventType) {
-        Event event = events.get(eventType);
-        if (event == null) {
-            event = new Event(eventType);
-            addEvent(event);
+    public ActionEvent getEventNotNull(String eventType) {
+        ActionEvent actionEvent = actionEvents.get(eventType);
+        if (actionEvent == null) {
+            actionEvent = new ActionEvent(eventType);
+            addEvent(actionEvent);
         }
-        return event;
+        return actionEvent;
     }
 
-    public Event addEvent(Event event) {
-        Preconditions.checkArgument(event != null, "can't add null event to graph element");
-        Preconditions.checkArgument(event.getEventType() != null, "can't add an event without type to graph element");
-        events.put(event.getEventType(), event);
-        return event;
+    public ActionEvent addEvent(ActionEvent actionEvent) {
+        Preconditions.checkArgument(actionEvent != null, "can't add null event to graph element");
+        Preconditions.checkArgument(actionEvent.getEventType() != null, "can't add an event without type to graph element");
+        actionEvents.put(actionEvent.getEventType(), actionEvent);
+        return actionEvent;
     }
 
     public Action getAction(String id) {
-        for (Entry<String, Event> entry : getEvents().entrySet()) {
+        for (Entry<String, ActionEvent> entry : getEvents().entrySet()) {
             for (Action action : entry.getValue().getActions()) {
                 if (id.equals(action.getNodeId())) {
                     return action;
@@ -154,27 +153,12 @@ public abstract class GraphElement implements Serializable, Cloneable {
         return null;
     }
 
-    public List<CreateTimerAction> getTimerActions(boolean includeEscalation) {
-        List<CreateTimerAction> list = Lists.newArrayList();
-        for (Event event : getEvents().values()) {
-            for (Action action : event.getActions()) {
-                if (action instanceof CreateTimerAction) {
-                    if (!includeEscalation && Timer.ESCALATION_NAME.equals(action.getName())) {
-                        continue;
-                    }
-                    list.add((CreateTimerAction) action);
-                }
-            }
-        }
-        return list;
-    }
-
     public void fireEvent(ExecutionContext executionContext, String eventType) {
         log.debug("event '" + eventType + "' on '" + this + "' for '" + executionContext.getToken() + "'");
         // execute static actions
-        Event event = getEventNotNull(eventType);
+        ActionEvent actionEvent = getEventNotNull(eventType);
         // execute the static actions specified in the process definition
-        executeActions(executionContext, event.getActions());
+        executeActions(executionContext, actionEvent.getActions());
         // propagate the event to the parent element
         GraphElement parent = getParent();
         if (parent != null) {

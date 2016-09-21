@@ -161,7 +161,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public WfProcess getParentProcess(User user, Long processId) throws ProcessDoesNotExistException {
-        NodeProcess nodeProcess = nodeProcessDAO.getNodeProcessByChild(processId);
+        NodeProcess nodeProcess = nodeProcessDAO.findBySubProcessId(processId);
         if (nodeProcess == null) {
             return null;
         }
@@ -288,7 +288,7 @@ public class ExecutionLogic extends WFCommonLogic {
                 }
             }
             if (childProcessId != null) {
-                highlightedToken = nodeProcessDAO.getNodeProcessByChild(childProcessId).getParentToken();
+                highlightedToken = nodeProcessDAO.findBySubProcessId(childProcessId).getParentToken();
             }
             if (subprocessId != null) {
                 processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);

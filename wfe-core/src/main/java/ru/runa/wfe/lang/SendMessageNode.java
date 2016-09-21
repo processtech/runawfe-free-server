@@ -30,7 +30,7 @@ import ru.runa.wfe.var.dto.Variables;
 
 import com.google.common.collect.Maps;
 
-public class SendMessageNode extends VariableContainerNode {
+public class SendMessageNode extends BaseMessageNode {
     private static final long serialVersionUID = 1L;
 
     private String ttlDuration;

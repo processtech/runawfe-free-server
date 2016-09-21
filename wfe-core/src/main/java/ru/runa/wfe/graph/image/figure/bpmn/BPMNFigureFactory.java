@@ -20,10 +20,10 @@ package ru.runa.wfe.graph.image.figure.bpmn;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.lang.Node;
 
-public class BPMNFigureFactory extends AbstractFigureFactory {
+public class BpmnFigureFactory extends AbstractFigureFactory {
 
     @Override
     public AbstractFigure createFigure(Node node, boolean useEgdingOnly) {
@@ -57,7 +57,8 @@ public class BPMNFigureFactory extends AbstractFigureFactory {
             figure = new RoundedRect("image/bpmn/script.png");
             break;
         case WAIT_STATE:
-            figure = new Circle("image/bpmn/waitstate.png");
+        case TIMER:
+            figure = new Circle("image/bpmn/timer.png");
             break;
         case MULTI_SUBPROCESS:
             figure = new SubprocessRect();
@@ -79,7 +80,7 @@ public class BPMNFigureFactory extends AbstractFigureFactory {
     }
 
     @Override
-    public TransitionFigureBase createTransitionFigure() {
-        return new TransitionFigureBase();
+    public TransitionFigure createTransitionFigure() {
+        return new TransitionFigure();
     }
 }

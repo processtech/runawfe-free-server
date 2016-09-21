@@ -202,7 +202,7 @@ public class Process extends IdentifiableBase {
 
     /**
      * Ends this process and all the tokens in it.
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
@@ -213,8 +213,9 @@ public class Process extends IdentifiableBase {
         }
         log.info("Ending " + this + " by " + canceller);
         ProcessExecutionErrors.removeProcessErrors(id);
+        TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
         // end the main path of execution
-        rootToken.end(executionContext, canceller);
+        rootToken.end(executionContext, canceller, taskCompletionInfo, true);
         // mark this process as ended
         setEndDate(new Date());
         setExecutionStatus(ExecutionStatus.ENDED);
@@ -260,7 +261,7 @@ public class Process extends IdentifiableBase {
                     }
                 }
             }
-            task.end(executionContext, TaskCompletionInfo.createForProcessEnd(id));
+            task.end(executionContext, taskCompletionInfo);
         }
         if (parentNodeProcess == null) {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");

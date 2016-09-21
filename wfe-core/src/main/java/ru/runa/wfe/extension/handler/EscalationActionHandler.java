@@ -31,7 +31,7 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.logic.RelationSwimlaneInitializer;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.ActionHandlerBase;
-import ru.runa.wfe.job.Timer;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
@@ -67,7 +67,7 @@ public class EscalationActionHandler extends ActionHandlerBase {
     public void execute(ExecutionContext executionContext) throws Exception {
         if (!SystemProperties.isEscalationEnabled()) {
             log.info("Escalation disabled");
-            executionContext.setTransientVariable(Timer.STOP_RE_EXECUTION, Boolean.TRUE);
+            executionContext.setTransientVariable(TimerJob.STOP_RE_EXECUTION, Boolean.TRUE);
             return;
         }
         if (executionContext.getNode() instanceof TaskNode) {
@@ -127,7 +127,7 @@ public class EscalationActionHandler extends ActionHandlerBase {
             }
             if (assignedExecutors.size() == previousSwimlaneActors.size()) {
                 log.debug("Escalation ignored. No new members found for " + previousSwimlaneActors);
-                executionContext.setTransientVariable(Timer.STOP_RE_EXECUTION, Boolean.TRUE);
+                executionContext.setTransientVariable(TimerJob.STOP_RE_EXECUTION, Boolean.TRUE);
                 return;
             }
             int escalationLevel = previousEscalationLevel + 1;

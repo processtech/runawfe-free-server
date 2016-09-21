@@ -22,6 +22,8 @@
 package ru.runa.wfe.lang;
 
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.lang.jpdl.Action;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
 
 import com.google.common.base.Preconditions;
 
@@ -63,12 +65,12 @@ public class TaskDefinition extends GraphElement {
         if (SystemProperties.isAutoInvocationLocalBotStationEnabled() && swimlaneDefinition.isBotExecutor()) {
             // in async mode BotInvokerActionHandler will not work as expected
             if (!SystemProperties.isProcessExecutionNodeAsyncEnabled(NodeType.TASK_STATE)) {
-                Event event = getEventNotNull(Event.TASK_ASSIGN);
+                ActionEvent actionEvent = getEventNotNull(ActionEvent.TASK_ASSIGN);
                 Action action = new Action();
-                action.setEvent(event);
+                action.setEvent(actionEvent);
                 action.setDelegation(new Delegation("ru.runa.wfe.service.handler.BotInvokerActionHandler", null));
                 action.setParent(this);
-                event.addAction(action);
+                actionEvent.addAction(action);
             }
         }
     }

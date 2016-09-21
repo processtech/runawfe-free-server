@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.job.CreateTimerAction;
+import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 
 /**
  * Logging timer creation.

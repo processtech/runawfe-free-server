@@ -38,6 +38,7 @@ public class SubprocessRect extends RoundedRect {
             graphics.drawLine(xCenter - DrawProperties.GRID_SIZE / 2 + d, y + DrawProperties.GRID_SIZE / 2, xCenter + DrawProperties.GRID_SIZE / 2
                     - d, y + DrawProperties.GRID_SIZE / 2);
             graphics.drawLine(xCenter, y + d, xCenter, y + DrawProperties.GRID_SIZE - d);
+            drawBoundaryEvents(graphics);
         }
     }
 }

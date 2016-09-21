@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.history.graph.HistoryGraphForkNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphGenericNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphJoinNodeModel;
@@ -95,7 +95,7 @@ public class CreateHistoryGraphImage implements HistoryGraphNodeVisitor<CreateHi
      *            Data with figures to draw.
      */
     private void drawTransitions(FiguresNodeData data) {
-        for (TransitionFigureBase transition : data.getTransitions()) {
+        for (TransitionFigure transition : data.getTransitions()) {
             transition.draw(graphics, transition.getRenderHits().getColor());
         }
     }

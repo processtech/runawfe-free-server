@@ -26,6 +26,7 @@ import java.util.List;
 
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -89,7 +90,7 @@ public class Transition extends GraphElement {
         executionContext.getToken().setTransitionId(getNodeId());
         executionContext.addLog(new TransitionLog(this));
         // fire the transition event (if any)
-        fireEvent(executionContext, Event.TRANSITION);
+        fireEvent(executionContext, ActionEvent.TRANSITION);
         // pass the token to the destinationNode node
         to.enter(executionContext);
     }

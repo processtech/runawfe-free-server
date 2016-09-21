@@ -37,7 +37,7 @@ public class EndToken extends Node {
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        executionContext.getToken().end(executionContext, null);
+        executionContext.getToken().end(executionContext, null, null, false);
         if (!executionContext.getProcess().hasEnded()) {
             // boolean activeTokensFound = false;
             // List<Token> tokens =
