@@ -82,7 +82,11 @@ public class TaskDAO extends GenericDAO<Task> {
             return new ArrayList<Long>();
         }
         return getHibernateTemplate().findByNamedParam("select id from Task where :actorId in elements(openedByExecutorIds) and id in (:tasksIds)",
-            new String[] { "actorId", "tasksIds" }, new Object[] { actorId, tasksIds });
+                new String[] { "actorId", "tasksIds" }, new Object[] { actorId, tasksIds });
     }
 
+    public void deleteAll(Process process) {
+        log.debug("deleting tasks for process " + process.getId());
+        getHibernateTemplate().bulkUpdate("delete from Task where process=?", process);
+    }
 }
