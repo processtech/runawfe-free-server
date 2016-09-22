@@ -90,7 +90,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         if (isEmbedded()) {
             throw new InternalApplicationException("it's not intended for execution");
         }

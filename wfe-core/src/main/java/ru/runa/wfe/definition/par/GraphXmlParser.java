@@ -15,7 +15,6 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.lang.Transition;
-import ru.runa.wfe.lang.jpdl.Action;
 
 import com.google.common.base.Throwables;
 
@@ -55,9 +54,6 @@ public class GraphXmlParser implements ProcessArchiveParser {
                     boolean minimizedView = Boolean.parseBoolean(nodeElement.attributeValue("minimizedView", "false"));
                     ((Node) graphElement).setGraphMinimizedView(minimizedView);
                     transitionSource = (Node) graphElement;
-                } else if (graphElement instanceof Action) {
-                    // in case of BPMN timer in task state
-                    transitionSource = (Node) graphElement.getParent();
                 } else {
                     LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
                     continue;

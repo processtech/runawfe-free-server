@@ -35,6 +35,9 @@ import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
 import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.graph.image.figure.bpmn.BpmnFigureFactory;
 import ru.runa.wfe.graph.image.figure.uml.UmlFigureFactory;
+import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.BoundaryEventContainer;
+import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -54,7 +57,7 @@ public class GraphImageBuilder {
     private Token highlightedToken;
     private final Map<String, AbstractFigure> allNodeFigures = Maps.newHashMap();
     private final Map<TransitionFigure, RenderHits> transitionFigures = Maps.newHashMap();
-    private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newHashMap();
+    private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newLinkedHashMap();
     private final boolean smoothTransitions;
 
     public GraphImageBuilder(ProcessDefinition processDefinition) {
@@ -104,15 +107,22 @@ public class GraphImageBuilder {
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(processDefinition);
             if (transition != null) {
+                RenderHits renderHits = new RenderHits(DrawProperties.getHighlightColor(), true);
                 // Mark 'from' block as PASSED
                 AbstractFigure nodeModelFrom = allNodeFigures.get(transition.getFrom().getTransitionNodeId(false));
-                nodeFigures.put(nodeModelFrom, new RenderHits(DrawProperties.getHighlightColor(), true));
+                nodeFigures.put(nodeModelFrom, renderHits);
                 // Mark 'to' block as PASSED
                 AbstractFigure nodeModelTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
-                nodeFigures.put(nodeModelTo, new RenderHits(DrawProperties.getHighlightColor(), true));
+                nodeFigures.put(nodeModelTo, renderHits);
+                if (nodeModelTo.getNode() instanceof BoundaryEventContainer) {
+                    for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) nodeModelTo.getNode()).getBoundaryEvents()) {
+                        AbstractFigure boundaryEventFigure = allNodeFigures.get(((GraphElement) boundaryEvent).getNodeId());
+                        nodeFigures.put(boundaryEventFigure, new RenderHits(DrawProperties.getHighlightColor(), false));
+                    }
+                }
                 // Mark transition as PASSED
                 TransitionFigure transitionFigure = nodeModelFrom.getTransition(transition.getName());
-                transitionFigures.put(transitionFigure, new RenderHits(DrawProperties.getHighlightColor(), true));
+                transitionFigures.put(transitionFigure, renderHits);
             }
         }
         fillActiveSubprocesses(process.getRootToken());

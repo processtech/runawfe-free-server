@@ -257,6 +257,7 @@ public class BpmnXmlReader {
                 }
                 ((BoundaryEvent) node).setBoundaryEventInterrupting(interrupting);
                 ((BoundaryEventContainer) parentNode).getBoundaryEvents().add((BoundaryEvent) node);
+                node.setParentElement(parentNode);
             }
             if (node != null) {
                 node.setProcessDefinition(processDefinition);
@@ -397,8 +398,6 @@ public class BpmnXmlReader {
             transition.setNodeId(id);
             GraphElement sourceElement = processDefinition.getGraphElementNotNull(from);
             Node source = (Node) sourceElement;
-            // TODO 212
-            transition.setTimerTransition(source instanceof TimerNode && source.getParent() instanceof BoundaryEventContainer);
             transition.setFrom(source);
             Node target = processDefinition.getNodeNotNull(to);
             transition.setTo(target);

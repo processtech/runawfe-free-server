@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.lang.jpdl.Action;
 import ru.runa.wfe.lang.jpdl.ActionEvent;
@@ -51,6 +52,8 @@ public abstract class GraphElement implements Serializable, Cloneable {
     protected String description;
     @XmlTransient
     protected ProcessDefinition processDefinition;
+    @XmlTransient
+    protected GraphElement parentElement;
     @XmlTransient
     protected Map<String, ActionEvent> actionEvents = Maps.newHashMap();
     private int[] graphConstraints;
@@ -98,22 +101,6 @@ public abstract class GraphElement implements Serializable, Cloneable {
         this.graphConstraints = new int[] { x, y, width, height };
     }
 
-    public int getGraphX() {
-        return graphConstraints[0];
-    }
-
-    public int getGraphY() {
-        return graphConstraints[1];
-    }
-
-    public int getGraphWidth() {
-        return graphConstraints[2];
-    }
-
-    public int getGraphHeight() {
-        return graphConstraints[3];
-    }
-
     /**
      * Checks all prerequisites needed for execution.
      */
@@ -154,15 +141,18 @@ public abstract class GraphElement implements Serializable, Cloneable {
     }
 
     public void fireEvent(ExecutionContext executionContext, String eventType) {
+        if (processDefinition.getDeployment().getLanguage() != Language.JPDL) {
+            return;
+        }
         log.debug("event '" + eventType + "' on '" + this + "' for '" + executionContext.getToken() + "'");
         // execute static actions
         ActionEvent actionEvent = getEventNotNull(eventType);
         // execute the static actions specified in the process definition
         executeActions(executionContext, actionEvent.getActions());
         // propagate the event to the parent element
-        GraphElement parent = getParent();
-        if (parent != null) {
-            parent.fireEvent(executionContext, eventType);
+        GraphElement parentElement = getParentElement();
+        if (parentElement != null) {
+            parentElement.fireEvent(executionContext, eventType);
         }
     }
 
@@ -172,8 +162,12 @@ public abstract class GraphElement implements Serializable, Cloneable {
         }
     }
 
-    public GraphElement getParent() {
-        return processDefinition;
+    public GraphElement getParentElement() {
+        return parentElement != null ? parentElement : processDefinition;
+    }
+
+    public void setParentElement(GraphElement parentElement) {
+        this.parentElement = parentElement;
     }
 
     @Override

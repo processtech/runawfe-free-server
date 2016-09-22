@@ -373,7 +373,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     }
 
     @Override
-    public GraphElement getParent() {
+    public GraphElement getParentElement() {
         return null;
     }
 

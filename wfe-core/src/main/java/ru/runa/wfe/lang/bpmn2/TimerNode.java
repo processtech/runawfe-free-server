@@ -3,6 +3,7 @@ package ru.runa.wfe.lang.bpmn2;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.audit.ActionLog;
+import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
@@ -34,7 +35,7 @@ public class TimerNode extends Node implements BoundaryEvent {
     private transient JobDAO jobDAO;
 
     @Override
-    public Boolean isBoundaryEventInterrupting() {
+    public Boolean getBoundaryEventInterrupting() {
         return boundaryEventInterrupting;
     }
 
@@ -46,6 +47,10 @@ public class TimerNode extends Node implements BoundaryEvent {
     @Override
     public NodeType getNodeType() {
         return NodeType.TIMER;
+    }
+
+    public String getDueDateExpression() {
+        return dueDateExpression;
     }
 
     public void setDueDateExpression(String dueDateExpression) {
@@ -61,17 +66,15 @@ public class TimerNode extends Node implements BoundaryEvent {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
-        log.debug("Executing " + this + " using " + executionContext);
+    protected void execute(ExecutionContext executionContext) throws Exception {
         TimerJob timerJob = new TimerJob(executionContext.getToken());
         timerJob.setName(getNodeId());
         timerJob.setDueDateExpression(dueDateExpression);
         timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDateExpression));
         timerJob.setRepeatDurationString(repeatDurationString);
         jobDAO.create(timerJob);
-        log.debug("Created " + timerJob + " for duration '" + dueDateExpression + "'");
-        // TODO 212
-        // executionContext.addLog(new CreateTimerActionLog(this, timerJob.getDueDate()));
+        log.info("Created " + timerJob);
+        executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
     }
 
     @Override
@@ -82,12 +85,17 @@ public class TimerNode extends Node implements BoundaryEvent {
         // executionContext.addLog(new ActionLog(this));
     }
 
+    @Override
+    public TaskCompletionInfo getTaskCompletionInfoIfInterrupting() {
+        return TaskCompletionInfo.createForTimer();
+    }
+
     public void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
         try {
             if (actionDelegation != null) {
                 try {
                     ActionHandler actionHandler = actionDelegation.getInstance();
-                    log.info("Executing " + this);
+                    log.info("Executing delegation in " + this);
                     actionHandler.execute(executionContext);
                     executionContext.addLog(new ActionLog(this));
                 } catch (Exception e) {
@@ -95,16 +103,7 @@ public class TimerNode extends Node implements BoundaryEvent {
                     throw Throwables.propagate(e);
                 }
             }
-            if (timerJob.getOutTransitionName() != null) {
-                log.warn("back compatibility " + timerJob);
-                cancelBoundaryEvent(executionContext.getToken());
-                leave(executionContext);
-                return;
-            }
             if (!getLeavingTransitions().isEmpty()) {
-                if (boundaryEventInterrupting == Boolean.TRUE) {
-                    executionContext.getToken().getParent().end(executionContext, null, TaskCompletionInfo.createForTimer(), false);
-                }
                 cancelBoundaryEvent(executionContext.getToken());
                 leave(executionContext);
             } else if (Boolean.TRUE == executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION)) {

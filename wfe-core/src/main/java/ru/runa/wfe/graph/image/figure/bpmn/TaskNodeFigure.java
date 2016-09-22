@@ -40,7 +40,6 @@ public class TaskNodeFigure extends AbstractBpmnFigure {
         Rectangle rect = getTextBoundsRectangle();
         graphics.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 20, 20);
         drawTextInfo(graphics, 1 + DrawProperties.GRID_SIZE / 2);
-        drawBoundaryEvents(graphics);
     }
 
     @Override

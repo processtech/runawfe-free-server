@@ -27,8 +27,7 @@ public class WaitNode extends Node {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
-        log.info("Waiting in " + this);
+    protected void execute(ExecutionContext executionContext) throws Exception {
     }
 
     public static void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {

@@ -36,6 +36,7 @@ public class Transition extends GraphElement {
 
     private Node from;
     private Node to;
+    // used only in jpdl
     private boolean timerTransition;
     private List<Bendpoint> bendpoints = Lists.newArrayList();
 
@@ -44,7 +45,7 @@ public class Transition extends GraphElement {
     }
 
     @Override
-    public GraphElement getParent() {
+    public GraphElement getParentElement() {
         return from;
     }
 

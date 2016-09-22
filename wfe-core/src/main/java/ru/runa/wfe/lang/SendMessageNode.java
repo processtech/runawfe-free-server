@@ -49,7 +49,7 @@ public class SendMessageNode extends BaseMessageNode {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(Variables.CURRENT_PROCESS_ID, executionContext.getProcess().getId());
         // back compatibility

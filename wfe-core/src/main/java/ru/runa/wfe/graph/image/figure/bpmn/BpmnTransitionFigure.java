@@ -15,22 +15,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.wfe.lang.jpdl;
+package ru.runa.wfe.graph.image.figure.bpmn;
 
-import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.lang.BaseMessageNode;
-import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
 
-public class ReceiveMessageNode extends BaseMessageNode {
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public NodeType getNodeType() {
-        return NodeType.RECEIVE_MESSAGE;
-    }
-
-    @Override
-    protected void execute(ExecutionContext executionContext) throws Exception {
-    }
+public class BpmnTransitionFigure extends TransitionFigure {
 
 }

@@ -101,7 +101,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
 
     /**
      * Returns {@link NodeType} for node. EXCLUSIVE_GATEWAY is replaced with DECISION and PARALLEL_GATEWAY replaced with FORK or JOIN
-     * 
+     *
      * @param nodeId
      *            Node id.
      * @return
@@ -126,7 +126,6 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
         Color color = hasOutTransition || isFinalNode ? DrawProperties.getHighlightColor() : DrawProperties.getBaseColor();
         RenderHits renderHits = new RenderHits(color, hasOutTransition, !hasOutTransition);
         nodeFigure.setRenderHits(renderHits);
-        // TODO 212
         // nodeFigure.setType(getNodeType(node));
         data.setFigure(nodeFigure);
     }

@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
@@ -126,7 +126,7 @@ public abstract class AbstractFigure {
         Rectangle r = getTextBoundsRectangle();
         Rectangle2D textBounds = graphics.getFontMetrics().getStringBounds(text, graphics);
         if (textBounds.getWidth() > r.getWidth() - 4) {
-            int y = node.getGraphConstraints()[1] + hOffset;
+            int y = coords[1] + hOffset;
             AttributedString attributedString = new AttributedString(text);
             attributedString.addAttribute(TextAttribute.FONT, graphics.getFont());
             AttributedCharacterIterator characterIterator = attributedString.getIterator();
@@ -138,10 +138,9 @@ public abstract class AbstractFigure {
                 textLayout.draw(graphics, x, y);
                 y += textLayout.getDescent() + textLayout.getLeading();
             }
-            return y - node.getGraphConstraints()[1];
+            return y - coords[1];
         } else {
-            graphics.drawString(text, (float) (r.getCenterX() + 2 - textBounds.getCenterX()),
-                    (float) (node.getGraphConstraints()[1] + textBounds.getHeight() + hOffset));
+            graphics.drawString(text, (float) (r.getCenterX() + 2 - textBounds.getCenterX()), (float) (coords[1] + textBounds.getHeight() + hOffset));
             return (int) (textBounds.getHeight() + hOffset + 3);
         }
     }
@@ -157,13 +156,11 @@ public abstract class AbstractFigure {
     public abstract void draw(Graphics2D graphics, boolean cleanMode);
 
     public Rectangle getRectangle() {
-        return new Rectangle(node.getGraphConstraints()[0], node.getGraphConstraints()[1], node.getGraphConstraints()[2],
-                node.getGraphConstraints()[3]);
+        return new Rectangle(coords[0], coords[1], coords[2], coords[3]);
     }
 
     public Rectangle getTextBoundsRectangle() {
-        return new Rectangle(node.getGraphConstraints()[0], node.getGraphConstraints()[1], node.getGraphConstraints()[2],
-                node.getGraphConstraints()[3]);
+        return new Rectangle(coords[0], coords[1], coords[2], coords[3]);
     }
 
     protected AngleInfo getTransitionAngle(double x, double y) {
@@ -171,7 +168,7 @@ public abstract class AbstractFigure {
         double cx = rect.getCenterX();
         double cy = rect.getCenterY();
         if (x == cx) {
-            return (y - cy > 0) ? new AngleInfo(Double.MAX_VALUE, AngleInfo.QUARTER_IV) : new AngleInfo(Double.MAX_VALUE, AngleInfo.QUARTER_II);
+            return y - cy > 0 ? new AngleInfo(Double.MAX_VALUE, AngleInfo.QUARTER_IV) : new AngleInfo(Double.MAX_VALUE, AngleInfo.QUARTER_II);
         } else {
             double critAngle = rect.getHeight() / rect.getWidth();
             AngleInfo angleInfo = new AngleInfo();

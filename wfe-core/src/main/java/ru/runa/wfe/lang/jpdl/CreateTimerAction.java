@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.audit.CreateTimerActionLog;
+import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.TimerJob;
@@ -54,7 +54,7 @@ public class CreateTimerAction extends Action {
         timerJob.setOutTransitionName(transitionName);
         jobDAO.create(timerJob);
         log.debug("Created " + timerJob + " for duration '" + dueDate + "'");
-        executionContext.addLog(new CreateTimerActionLog(this, timerJob.getDueDate()));
+        executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
     }
 
     public String getDueDate() {
@@ -82,7 +82,6 @@ public class CreateTimerAction extends Action {
         return Objects.toStringHelper(this).add("event", getEvent()).add("dueDate", dueDate).toString();
     }
 
-    // TODO 212 usage
     public static List<CreateTimerAction> getNodeTimerActions(GraphElement graphElement, boolean includeEscalation) {
         List<CreateTimerAction> list = Lists.newArrayList();
         for (ActionEvent actionEvent : graphElement.getEvents().values()) {

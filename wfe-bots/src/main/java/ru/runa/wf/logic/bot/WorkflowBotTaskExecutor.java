@@ -25,11 +25,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.runa.wfe.BusinessException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.CalendarInterval;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.extension.TaskHandler;
@@ -48,9 +50,9 @@ import com.google.common.base.Throwables;
 
 /**
  * Execute task handlers for particular bot.
- * 
+ *
  * Configures and executes task handler in same method.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -189,6 +191,11 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                 log.debug("Handled bot task " + task + ", " + bot + " by " + taskHandler.getClass());
             }
             ProcessExecutionErrors.removeProcessError(task.getProcessId(), task.getNodeId());
+        } catch (BusinessException be) {
+            log.warn(task + " failed", be);
+            // TODO 212
+            Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), be);
+            ProcessExecutionErrors.addProcessError(task, botTask, be);
         } catch (TaskDoesNotExistException e) {
             log.warn(task + " already handled");
             ProcessExecutionErrors.removeProcessError(task.getProcessId(), task.getNodeId());

@@ -6,7 +6,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.AdminActionLog;
-import ru.runa.wfe.audit.CreateTimerActionLog;
+import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessActivateLog;
@@ -121,7 +121,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onCreateTimerActionLog(CreateTimerActionLog createTimerActionLog) {
+    public void onCreateTimerLog(CreateTimerLog createTimerLog) {
     }
 
     @Override

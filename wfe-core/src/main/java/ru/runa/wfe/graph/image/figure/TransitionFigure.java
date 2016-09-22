@@ -34,7 +34,6 @@ import ru.runa.wfe.graph.image.util.GraphicsMath;
 import ru.runa.wfe.lang.Bendpoint;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
-import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -63,10 +62,6 @@ public class TransitionFigure {
         this.figureTo = figureTo;
         if (transition.getFrom().getProcessDefinition().isGraphActionsEnabled()) {
             this.actionsCount = GraphImageHelper.getNodeActionsCount(transition);
-        }
-        // TODO 212
-        if (transition.isTimerTransition()) {
-            timerInfo = CreateTimerAction.getNodeTimerActions(transition.getFrom(), false).get(0).getDueDate();
         }
         this.smoothLines = smoothLines;
         for (Bendpoint bendpoint : transition.getBendpoints()) {

@@ -27,6 +27,7 @@ import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
@@ -50,6 +51,7 @@ import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.var.VariableMapping;
@@ -125,6 +127,15 @@ public class ReceiveMessageBean implements MessageListener {
             Throwables.propagate(e);
         }
         if (handlers.size() == 0) {
+            try {
+                if (MessageEventType.error.name().equals(message.getStringProperty(BaseMessageNode.EVENT_TYPE))) {
+                    // TODO 212 find in token hierarchy?
+                    log.warn("not match tokens for errorEvent " + messageString);
+                    // ProcessExecutionErrors.addProcessError(message.getStringProperty("")task, botTask, th);
+                }
+            } catch (JMSException e) {
+                Throwables.propagate(e);
+            }
             throw new MessagePostponedException(messageString);
         }
         for (ReceiveMessageData data : handlers) {

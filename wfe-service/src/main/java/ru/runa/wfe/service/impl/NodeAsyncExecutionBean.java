@@ -83,7 +83,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     Node node = processDefinition.getNodeNotNull(token.getNodeId());
                     try {
                         ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
-                        node.execute(executionContext);
+                        node.handle(executionContext);
                         ProcessExecutionErrors.removeProcessError(processId, node.getNodeId());
                     } catch (Throwable th) {
                         log.error(processId + ":" + tokenId, th);

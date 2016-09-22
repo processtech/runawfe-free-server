@@ -35,6 +35,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
+import ru.runa.wfe.BusinessException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -68,16 +69,21 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
 
     @Override
     public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
-        Map<String, Object> outputVariables = Maps.newHashMap();
-        if (variableProvider.getVariable(DatabaseTask.INSTANCE_ID_VARIABLE_NAME) != null) {
-            outputVariables.put(DatabaseTask.INSTANCE_ID_VARIABLE_NAME, task.getProcessId());
+        try {
+            Map<String, Object> outputVariables = Maps.newHashMap();
+            if (variableProvider.getVariable(DatabaseTask.INSTANCE_ID_VARIABLE_NAME) != null) {
+                outputVariables.put(DatabaseTask.INSTANCE_ID_VARIABLE_NAME, task.getProcessId());
+            }
+            if (variableProvider.getVariable(DatabaseTask.CURRENT_DATE_VARIABLE_NAME) != null) {
+                outputVariables.put(DatabaseTask.CURRENT_DATE_VARIABLE_NAME, new Date());
+            }
+            DatabaseTask[] databaseTasks = DatabaseTaskXmlParser.parse(configuration, variableProvider);
+            executeDatabaseTasks(user, loadVariables(databaseTasks, variableProvider), task, outputVariables, databaseTasks);
+            return outputVariables;
+        } catch (Exception e) {
+            // TODO 212
+            throw new BusinessException(e);
         }
-        if (variableProvider.getVariable(DatabaseTask.CURRENT_DATE_VARIABLE_NAME) != null) {
-            outputVariables.put(DatabaseTask.CURRENT_DATE_VARIABLE_NAME, new Date());
-        }
-        DatabaseTask[] databaseTasks = DatabaseTaskXmlParser.parse(configuration, variableProvider);
-        executeDatabaseTasks(user, loadVariables(databaseTasks, variableProvider), task, outputVariables, databaseTasks);
-        return outputVariables;
     }
 
     private void executeDatabaseTasks(User user, IVariableProvider variableProvider, WfTask task, Map<String, Object> outputVariables,
@@ -122,15 +128,15 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
                             while (resultSet.next()) {
                                 Map<String, Object> result = extractResultsToProcessVariables(user, variableProvider,
                                         new Function<Integer, Object>() {
-                                            @Override
-                                            public Object apply(Integer input) {
-                                                try {
-                                                    return resultSet.getObject(input);
-                                                } catch (SQLException e) {
-                                                    throw new InternalApplicationException(e);
-                                                }
-                                            }
-                                        }, query);
+                                    @Override
+                                    public Object apply(Integer input) {
+                                        try {
+                                            return resultSet.getObject(input);
+                                        } catch (SQLException e) {
+                                            throw new InternalApplicationException(e);
+                                        }
+                                    }
+                                }, query);
                                 if (first) {
                                     outputVariables.putAll(result);
                                 } else {

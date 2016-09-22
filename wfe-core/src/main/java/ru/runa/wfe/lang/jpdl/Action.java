@@ -35,23 +35,13 @@ public class Action extends GraphElement {
     private static final long serialVersionUID = 1L;
     private Delegation delegation;
     private ActionEvent actionEvent;
-    private GraphElement parent;
-
-    @Override
-    public GraphElement getParent() {
-        return parent;
-    }
-
-    public void setParent(GraphElement parent) {
-        this.parent = parent;
-    }
 
     @Override
     public void validate() {
         super.validate();
         Preconditions.checkNotNull(delegation, "delegation in " + this);
         Preconditions.checkNotNull(actionEvent, "event in " + this);
-        Preconditions.checkNotNull(parent, "parent in " + this);
+        Preconditions.checkNotNull(parentElement, "parent in " + this);
     }
 
     public void execute(ExecutionContext executionContext) {

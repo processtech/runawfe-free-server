@@ -46,7 +46,7 @@ public class TaskNode extends BaseTaskNode implements BoundaryEventContainer {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         for (TaskDefinition taskDefinition : taskDefinitions) {
             Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
             // copy the swimlane assignment into the task

@@ -106,7 +106,7 @@ public class Token implements Serializable {
         setAbleToReactivateParent(true);
         setName(startNode.getNodeId());
         setChildren(new HashSet<Token>());
-        log.debug("Created new " + this);
+        log.info("Created " + this);
     }
 
     /**
@@ -122,7 +122,7 @@ public class Token implements Serializable {
         setChildren(new HashSet<Token>());
         setParent(parent);
         parent.addChild(this);
-        log.debug("Created new " + this);
+        log.info("Created " + this);
     }
 
     @Id
@@ -294,7 +294,7 @@ public class Token implements Serializable {
      */
     public void end(ExecutionContext executionContext, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
         if (endDate == null) {
-            log.debug("Ending " + this + " by " + canceller);
+            log.info("Ending " + this + " by " + canceller);
             setEndDate(new Date());
             Node node = executionContext.getNode();
             if (node instanceof SubprocessNode) {
@@ -304,7 +304,7 @@ public class Token implements Serializable {
             } else if (node instanceof BaseTaskNode) {
                 ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
             } else if (node instanceof BoundaryEvent) {
-                log.debug("Cancelling " + node + " with " + this);
+                log.info("Cancelling " + node + " with " + this);
                 ((BoundaryEvent) node).cancelBoundaryEvent(this);
             }
         }

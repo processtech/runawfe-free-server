@@ -4,6 +4,9 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.Node;
@@ -13,6 +16,7 @@ import ru.runa.wfe.lang.jpdl.WaitNode;
 @Entity
 @DiscriminatorValue(value = "T")
 public class TimerJob extends Job {
+    private static final Log log = LogFactory.getLog(TimerJob.class);
     public static final String ESCALATION_NAME = "__ESCALATION";
     public static final String STOP_RE_EXECUTION = "STOP_RE_EXECUTION";
 
@@ -47,6 +51,7 @@ public class TimerJob extends Job {
     @Override
     public void execute(ExecutionContext executionContext) {
         Node node = executionContext.getProcessDefinition().getNode(getName());
+        log.info("Triggered " + getName() + " in " + executionContext);
         if (node instanceof TimerNode) {
             ((TimerNode) node).onTimerJob(executionContext, this);
         } else {

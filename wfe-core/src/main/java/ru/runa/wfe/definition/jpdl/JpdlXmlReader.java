@@ -428,7 +428,7 @@ public class JpdlXmlReader {
 
     private void addAction(GraphElement graphElement, String eventType, Action action) {
         ActionEvent actionEvent = graphElement.getEventNotNull(eventType);
-        action.setParent(graphElement);
+        action.setParentElement(graphElement);
         actionEvent.addAction(action);
     }
 
@@ -483,7 +483,7 @@ public class JpdlXmlReader {
 
     /**
      * creates the transition object and configures it by the read attributes
-     * 
+     *
      * @return the created <code>ru.runa.wfe.lang.Transition</code> object (useful, if you want to override this method to read additional
      *         configuration properties)
      */

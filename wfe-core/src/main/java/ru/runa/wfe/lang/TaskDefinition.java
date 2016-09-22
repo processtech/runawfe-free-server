@@ -69,7 +69,7 @@ public class TaskDefinition extends GraphElement {
                 Action action = new Action();
                 action.setEvent(actionEvent);
                 action.setDelegation(new Delegation("ru.runa.wfe.service.handler.BotInvokerActionHandler", null));
-                action.setParent(this);
+                action.setParentElement(this);
                 actionEvent.addAction(action);
             }
         }
@@ -100,7 +100,7 @@ public class TaskDefinition extends GraphElement {
     }
 
     @Override
-    public GraphElement getParent() {
+    public GraphElement getParentElement() {
         return node;
     }
 

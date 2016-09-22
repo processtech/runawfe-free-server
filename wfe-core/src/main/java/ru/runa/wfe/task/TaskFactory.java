@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.TaskDefinition;
+import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.ActionEvent;
 import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 import ru.runa.wfe.task.dao.TaskDAO;
@@ -24,9 +28,19 @@ public class TaskFactory {
         if (taskDefinition.getDeadlineDuration() != null) {
             return taskDefinition.getDeadlineDuration();
         }
-        List<CreateTimerAction> timerActions = CreateTimerAction.getNodeTimerActions(taskDefinition.getNode(), true);
-        if (timerActions.size() > 0) {
-            return timerActions.get(0).getDueDate();
+        if (taskDefinition.getNode().getProcessDefinition().getDeployment().getLanguage() == Language.BPMN2) {
+            if (taskDefinition.getNode() instanceof BoundaryEventContainer) {
+                for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) taskDefinition.getNode()).getBoundaryEvents()) {
+                    if (boundaryEvent instanceof TimerNode) {
+                        return ((TimerNode) boundaryEvent).getDueDateExpression();
+                    }
+                }
+            }
+        } else {
+            List<CreateTimerAction> timerActions = CreateTimerAction.getNodeTimerActions(taskDefinition.getNode(), true);
+            if (timerActions.size() > 0) {
+                return timerActions.get(0).getDueDate();
+            }
         }
         return SystemProperties.getDefaultTaskDeadline();
     }
