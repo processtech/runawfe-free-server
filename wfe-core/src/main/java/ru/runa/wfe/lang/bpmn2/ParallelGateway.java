@@ -279,11 +279,15 @@ public class ParallelGateway extends Node {
                             break;
                         }
                         case BLOCKING: {
-                            log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
-                                    + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
-                            process.setExecutionStatus(ExecutionStatus.FAILED);
-                            Exception exception = new InternalApplicationException("no token can activate this node");
-                            ProcessExecutionErrors.addProcessError(processId, gateway.getNodeId(), gateway.getName(), null, exception);
+                            if (stateInfo.activeTokenNodeIds.contains(gateway.getNodeId())) {
+                                log.warn("leaving failed tokens " + failedTokens + " due to active token in this node");
+                            } else {
+                                log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
+                                        + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
+                                process.setExecutionStatus(ExecutionStatus.FAILED);
+                                Exception exception = new InternalApplicationException("no token can activate this node");
+                                ProcessExecutionErrors.addProcessError(processId, gateway.getNodeId(), gateway.getName(), null, exception);
+                            }
                             break;
                         }
                         }

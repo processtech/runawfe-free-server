@@ -21,6 +21,7 @@
  */
 package ru.runa.wfe.task.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
@@ -73,4 +74,19 @@ public class TaskDAO extends GenericDAO<Task> {
         return getHibernateTemplate().find("from Task where executor is null and token.executionStatus=?", ExecutionStatus.ACTIVE);
     }
 
+    /**
+     * @return tasks, opened by user.
+     */
+    public List<Long> getOpenedTasks(Long actorId, List<Long> tasksIds) {
+        if (tasksIds.isEmpty()) {
+            return new ArrayList<Long>();
+        }
+        return getHibernateTemplate().findByNamedParam("select id from Task where :actorId in elements(openedByExecutorIds) and id in (:tasksIds)",
+                new String[] { "actorId", "tasksIds" }, new Object[] { actorId, tasksIds });
+    }
+
+    public void deleteAll(Process process) {
+        log.debug("deleting tasks for process " + process.getId());
+        getHibernateTemplate().bulkUpdate("delete from Task where process=?", process);
+    }
 }

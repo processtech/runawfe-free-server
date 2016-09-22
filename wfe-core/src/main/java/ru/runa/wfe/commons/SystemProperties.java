@@ -132,7 +132,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     *
+     * 
      * @return max string value
      */
     public static int getStringVariableValueLength() {
@@ -168,6 +168,10 @@ public class SystemProperties {
 
     public static boolean isVariableAutoCastingEnabled() {
         return RESOURCES.getBooleanProperty("variables.autocast.enabled", true);
+    }
+
+    public static boolean isVariableTreatEmptyStringsAsNulls() {
+        return RESOURCES.getBooleanProperty("variables.treat.empty.strings.as.nulls", false);
     }
 
     public static boolean isEscalationEnabled() {
@@ -234,8 +238,8 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("base.process.id.variable.name");
     }
 
-    public static String getBaseProcessIdMappingVariablePrefix() {
-        return RESOURCES.getStringProperty("base.process.id.mapping.variable.prefix");
+    public static boolean isBaseProcessIdModeReadAllVariables() {
+        return RESOURCES.getBooleanProperty("base.process.id.variable.read.all", true);
     }
 
     public static int getDatabaseParametersCount() {

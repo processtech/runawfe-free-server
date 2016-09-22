@@ -48,4 +48,8 @@ public class SwimlaneDAO extends GenericDAO<Swimlane> {
         return swimlane;
     }
 
+    public void deleteAll(Process process) {
+        log.debug("deleting swimlanes for process " + process.getId());
+        getHibernateTemplate().bulkUpdate("delete from Swimlane where process=?", process);
+    }
 }

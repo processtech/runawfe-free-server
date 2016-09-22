@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
@@ -100,18 +101,24 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
         IVariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
         Map<String, Object> variables = Maps.newHashMap();
-        for (VariableMapping variableMapping : variableMappings) {
-            // if this variable mapping is readable
-            if (variableMapping.isReadable()) {
-                // the variable is copied from the super process variable
-                // name to the sub process mapped name
-                String variableName = variableMapping.getName();
-                Object value = variableProvider.getValue(variableName);
-                if (value != null) {
-                    String mappedName = variableMapping.getMappedName();
-                    log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value
-                            + (value != null ? " of " + value.getClass() : ""));
-                    variables.put(mappedName, value);
+        if (isInBaseIdProcessMode()) {
+            Long baseProcessId = variableProvider.getValueNotNull(Long.class, getBaseIdProcessVariableName());
+            log.debug("executing in base_process_id: " + baseProcessId);
+            variables.put(SystemProperties.getBaseProcessIdVariableName(), baseProcessId);
+        } else {
+            for (VariableMapping variableMapping : variableMappings) {
+                // if this variable mapping is readable
+                if (variableMapping.isReadable() || variableMapping.isSyncable()) {
+                    // the variable is copied from the super process variable
+                    // name to the sub process mapped name
+                    String variableName = variableMapping.getName();
+                    Object value = variableProvider.getValue(variableName);
+                    if (value != null) {
+                        String mappedName = variableMapping.getMappedName();
+                        log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value
+                                + (value != null ? " of " + value.getClass() : ""));
+                        variables.put(mappedName, value);
+                    }
                 }
             }
         }
@@ -130,7 +137,6 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             super.leave(subExecutionContext, transition);
             return;
         }
-
         if (getClass() == SubprocessNode.class) {
             Process subProcess = subExecutionContext.getProcess();
             ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);

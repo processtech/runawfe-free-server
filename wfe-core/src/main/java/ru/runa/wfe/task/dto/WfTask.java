@@ -37,7 +37,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Process task.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -169,7 +169,9 @@ public class WfTask implements Serializable {
     }
 
     public void addVariable(WfVariable variable) {
-        variables.add(variable);
+        if (variable != null) {
+            variables.add(variable);
+        }
     }
 
     public WfVariable getVariable(String name) {
