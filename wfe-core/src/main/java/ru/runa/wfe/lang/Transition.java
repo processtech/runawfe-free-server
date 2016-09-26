@@ -49,6 +49,11 @@ public class Transition extends GraphElement {
         return from;
     }
 
+    @Deprecated
+    public GraphElement getParent() {
+        return getParentElement();
+    }
+
     @Override
     public void validate() {
         Preconditions.checkNotNull(from, "from in " + this);
