@@ -51,6 +51,7 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
     private Long taskId;
     private Long actorId;
     private boolean buttonEnabled = false;
+    private boolean buttonVisible = true;
 
     private Long getTaskId() {
         return taskId;
@@ -82,8 +83,9 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
                 task.addVariable(variable);
             }
         }
+        buttonVisible = !task.isReadByOthersPermission();
+        buttonEnabled = task.isGroupAssigned();
         String isReadByOthersPermission = task.isReadByOthersPermission() ? "true" : "false";
-        this.buttonEnabled = task.isGroupAssigned() && !task.isReadByOthersPermission();
         String url = getReturnAction() + "?" + IdForm.ID_INPUT_NAME + "=" + taskId +
                 "&" + ProcessForm.ACTOR_ID_INPUT_NAME + "=" + actorId +
                 "&" + TaskIdForm.DELEGATION_PERMITTED + "=" + isReadByOthersPermission;
@@ -100,6 +102,11 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
     @Override
     protected boolean isFormButtonEnabled() {
         return buttonEnabled;
+    }
+    
+    @Override
+    protected boolean isFormButtonVisible() {
+        return buttonVisible;
     }
 
     @Override

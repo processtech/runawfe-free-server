@@ -83,6 +83,7 @@
 		<forward name="manage_processes"
 			path="/manage_processes.do?tabForwardName=manage_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
+        <forward name="manage_all_tasks" path="/manage_all_tasks.do" />
 		<forward name="configure_bot_station"
 			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
 		<forward name="bot_station_permission" path="/bot_station_permission.do" />
@@ -857,7 +858,10 @@
 			parameter="/WEB-INF/wf/submit_start_process.jsp" />
 
 		<action path="/manage_tasks" type="ru.runa.common.web.action.TabHeaderForwardAction"
-			parameter="/WEB-INF/wf/manage_tasks.jsp" />
+				parameter="/WEB-INF/wf/manage_tasks.jsp" />
+
+		<action path="/manage_all_tasks" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/wf/manage_all_tasks.jsp" />
 
 		<action path="/submit_task" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_task.jsp" />

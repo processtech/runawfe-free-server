@@ -15,7 +15,12 @@
 <table width="100%">
 	<tr>
 		<td align="right">
-			<wf:updatePermissionsOnIdentifiableLink identifiableId='<%=id %>' href='<%= "/manage_executor_permissions.do?" + parameterName+ "=" + id %>'  />
+			<wf:updatePermissionsOnIdentifiableLink identifiableId='<%=id %>' href='<%= "/manage_executor_permissions.do?" + parameterName + "=" + id %>'  />
+		</td>
+	</tr>
+	<tr>
+		<td align="right">
+			<wf:listExecutorTasksLink identifiableId='<%= id %>' href='<%= "/manage_all_tasks.do?" + parameterName + "=" + id %>'  />
 		</td>
 	</tr>
 </table>

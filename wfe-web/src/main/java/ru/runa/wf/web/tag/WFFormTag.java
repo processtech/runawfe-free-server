@@ -108,6 +108,10 @@ public abstract class WFFormTag extends TitledFormTag {
         return formButtonVisible;
     }
 
+    protected void setFormButtonVisible(boolean isVisible){
+        this.formButtonVisible = isVisible;
+    }
+
     @Override
     protected boolean isMultipleSubmit() {
         return getTransitionNames().size() > 1;

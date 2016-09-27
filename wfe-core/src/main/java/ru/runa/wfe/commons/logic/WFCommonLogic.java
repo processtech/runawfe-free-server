@@ -212,6 +212,8 @@ public class WFCommonLogic extends CommonLogic {
                     }
                 }
             }
+        } else { 
+            result = authorizationLogic.isAllowed(user, GroupPermission.READ_GROUPUSERS_TASKS, SecuredObjectType.GROUP, taskExecutor.getId());
         }
         return result;
     }

@@ -41,6 +41,16 @@ public interface TaskService {
     public List<WfTask> getTasks(User user, BatchPresentation batchPresentation);
 
     /**
+     * Gets tasks for specified Executor Id
+     *
+     * @param user User currently working (used to check rights only!)
+     * @param executorId Executor whose tasks are returned (for group - tasks of actors in group, not group itself).
+     * @param batchPresentation
+     * @return
+     */
+    public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation);
+
+    /**
      * Gets task by id.
      *
      * @param user

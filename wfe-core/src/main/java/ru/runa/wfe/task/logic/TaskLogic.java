@@ -1,10 +1,6 @@
 package ru.runa.wfe.task.logic;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,6 +8,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
+import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -191,9 +188,10 @@ public class TaskLogic extends WFCommonLogic {
     public WfTask getTask(User user, Long taskId) {
         Task task = taskDAO.getNotNull(taskId);
         boolean byOthers = false;
-        if (!canReadOthersTask(user, task)) {
+        if (!canReadOthersTask(user, task)) { // <<< TODO Pay attention here!  YES!!!! Defect!!!! 1. Groups of other actor are not marked 2. (even worse)  "others" regime will be set in normal case!!!
             if (!executorLogic.isAdministrator(user)) {
-                checkCanParticipate(user.getActor(), task);
+               // checkCanParticipate(user.getActor(), task);
+                byOthers = !canParticipate(user, task);
             }
         } else {
             byOthers = true;
@@ -228,6 +226,40 @@ public class TaskLogic extends WFCommonLogic {
         }
         return result;
     }
+
+    public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation){
+        List<WfTask> result = Lists.newArrayList();
+        Executor executor = executorLogic.getExecutor(user, executorId);
+        if (executor.getClass().getSimpleName().equals("Actor")) {
+            result = taskListBuilder.getTasks((Actor)executor, batchPresentation);
+            for (WfTask task : result) {
+                task.setReadByOthersPermission(true);
+            }
+        } else {
+            // Group users processing
+            List<Actor> actorsInGroup = executorLogic.getGroupActors(user, (Group)executor);
+            List<WfTask> grouMemberTasks = new ArrayList<WfTask>();
+            for(Actor actor : actorsInGroup) {
+                grouMemberTasks = taskListBuilder.getTasks(actor, batchPresentation);
+                // To prevent doubles in result - we'll test their id-s (so that twice-loaded Task will be considered different one)
+                for(WfTask task : grouMemberTasks){
+                    boolean notInResult = true;
+                    for (WfTask taskInResult : result) {
+                        if (taskInResult.getId().equals(task.getId())){
+                            notInResult = false;
+                            break;
+                        }
+                    }
+                    if(notInResult) {
+                        task.setReadByOthersPermission(true); // <<< TODO Does this matter? (to drop line?) 
+                       result.add(task);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
 
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();

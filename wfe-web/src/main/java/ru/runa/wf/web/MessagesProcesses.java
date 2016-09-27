@@ -17,7 +17,12 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_INSANCE_VARIABLE_LIST = new StrutsMessage("title.process_variable_list");
     public static final StrutsMessage TITLE_PROCESS = new StrutsMessage("title.process");
     public static final StrutsMessage TITLE_PROCESS_DEFINITION = new StrutsMessage("title.process_definition");
+    public static final StrutsMessage LABEL_SHOW_EXECUTOR_TASKS = new StrutsMessage("title.executor_tasks");
+    public static final StrutsMessage LABEL_SHOW_GROUP_TASKS = new StrutsMessage("title.group_tasks");
     public static final StrutsMessage TITLE_TASKS = new StrutsMessage("title.tasks");
+    public static final StrutsMessage TITLE_EXECUTOR_TASKS = new StrutsMessage("title.executor_tasks");
+    public static final StrutsMessage TITLE_GROUP_TASKS = new StrutsMessage("title.group_tasks");
+    public static final StrutsMessage TITLE_TASK_NO_RIGHTS = new StrutsMessage("title.task_no_rights");
     public static final StrutsMessage TITLE_PROCESS_GRAPH = new StrutsMessage("title.process_graph");
     public static final StrutsMessage TITLE_HISTORY = new StrutsMessage("title.history");
     public static final StrutsMessage LABEL_REDEPLOY_PROCESS_DEFINIION = new StrutsMessage("label.redeploy_process_definition");
@@ -82,5 +87,4 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_DURATION = new StrutsMessage("label.task_history_table_duration");
     public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage("batch_presentation.process_definition.update_current_version");
     public static final StrutsMessage TITLE_SUBPROCESSES_LIST = new StrutsMessage("title.process_subprocess_list");
-
 }
