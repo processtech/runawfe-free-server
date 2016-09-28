@@ -50,6 +50,10 @@ public class TaskClassPresentation extends ClassPresentation {
 
     private static final ClassPresentation INSTANCE = new TaskClassPresentation();
 
+    /**
+     * Inner class that provide special data retrieving for "other's" tasks
+     * As now it selects Tasks that are just initialised by Actors, not by groups of that actors
+     */
     private static class OthersPermissionsDBSource extends DefaultDBSource {
         public OthersPermissionsDBSource(Class<?> sourceObject) {
             super(sourceObject, null);
@@ -57,15 +61,15 @@ public class TaskClassPresentation extends ClassPresentation {
 
         @Override
         public String getValueDBPath(String alias) {
-            // Starting "((" are used in HibernateCompilerHQLBuider to detect such special comlicated case,
-            // and skip some parts of normal processing
             return "((" + classNameSQL + ".executor.id IN "
                     + "(SELECT pm.identifiableId FROM ru.runa.wfe.security.dao.PermissionMapping pm WHERE pm.executor.id in (:ownersIds) "
-                    + "AND :param_extra_case='' AND  pm.type=3 AND pm.mask=16) OR " + classNameSQL + ".executor.id IN  "
-                    + "(SELECT  gm.executor.id FROM ru.runa.wfe.user.ExecutorGroupMembership gm, "
+                    + "AND :param_extra_case='' AND  pm.type=3 AND pm.mask=16) "
+                    + "OR "
+                    + classNameSQL + ".executor.id IN  "
+                    + "(SELECT gm.executor.id FROM ru.runa.wfe.user.ExecutorGroupMembership gm, "
                     + " ru.runa.wfe.security.dao.PermissionMapping pm, ru.runa.wfe.user.Executor exec  "
-                    + "WHERE pm.identifiableId = gm.group.id AND exec.id=gm.group.id " + "AND pm.executor.id in (:ownersIds) "
-                    + "AND exec.name = :param_extra_case AND :param_extra_case!='' AND pm.type=4 AND pm.mask=64) ))";
+                    + "WHERE pm.identifiableId = gm.group.id AND exec.id=gm.group.id AND pm.executor.id in (:ownersIds) "
+                    + "AND :param_extra_case!='' AND exec.name = :param_extra_case AND pm.type=4 AND pm.mask=64) ))";
         }
     }
 
@@ -96,6 +100,8 @@ public class TaskClassPresentation extends ClassPresentation {
                         "ru.runa.wf.web.html.TaskOwnerTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
+
+                // Position below are responsible for data retrieving for other executor's tasks, or tasks of users in specified group
                 // Don't change this field position (6) - some logic in HibernateCompilerHQLBuider and TaskListBuilder are based on that!
                 new FieldDescriptor(TASK_OTHERS, String.class.getName(), new OthersPermissionsDBSource(Task.class), false, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}).setVisible(false),

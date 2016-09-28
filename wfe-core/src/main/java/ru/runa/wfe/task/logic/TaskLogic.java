@@ -188,9 +188,8 @@ public class TaskLogic extends WFCommonLogic {
     public WfTask getTask(User user, Long taskId) {
         Task task = taskDAO.getNotNull(taskId);
         boolean byOthers = false;
-        if (!canReadOthersTask(user, task)) { // <<< TODO Pay attention here!  YES!!!! Defect!!!! 1. Groups of other actor are not marked 2. (even worse)  "others" regime will be set in normal case!!!
+        if (!canReadOthersTask(user, task)) {
             if (!executorLogic.isAdministrator(user)) {
-               // checkCanParticipate(user.getActor(), task);
                 byOthers = !canParticipate(user, task);
             }
         } else {
@@ -228,6 +227,10 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation){
+        if (user.getActor().getId().equals(executorId)){
+            return getTasks(user, batchPresentation);
+        }
+
         List<WfTask> result = Lists.newArrayList();
         Executor executor = executorLogic.getExecutor(user, executorId);
         if (executor.getClass().getSimpleName().equals("Actor")) {
@@ -238,11 +241,11 @@ public class TaskLogic extends WFCommonLogic {
         } else {
             // Group users processing
             List<Actor> actorsInGroup = executorLogic.getGroupActors(user, (Group)executor);
-            List<WfTask> grouMemberTasks = new ArrayList<WfTask>();
+            List<WfTask> groupMemberTasks = new ArrayList<WfTask>();
             for(Actor actor : actorsInGroup) {
-                grouMemberTasks = taskListBuilder.getTasks(actor, batchPresentation);
-                // To prevent doubles in result - we'll test their id-s (so that twice-loaded Task will be considered different one)
-                for(WfTask task : grouMemberTasks){
+                groupMemberTasks = taskListBuilder.getTasks(actor, batchPresentation);
+                // To prevent doubles in result - we'll test their id-s (so that twice-loaded Tasks will be considered the same one)
+                for(WfTask task : groupMemberTasks){
                     boolean notInResult = true;
                     for (WfTask taskInResult : result) {
                         if (taskInResult.getId().equals(task.getId())){
@@ -251,7 +254,7 @@ public class TaskLogic extends WFCommonLogic {
                         }
                     }
                     if(notInResult) {
-                        task.setReadByOthersPermission(true); // <<< TODO Does this matter? (to drop line?) 
+                        task.setReadByOthersPermission(true);
                        result.add(task);
                     }
                 }

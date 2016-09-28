@@ -32,6 +32,7 @@ import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 
 import com.google.common.base.Strings;
+import ru.runa.wfe.task.TaskClassPresentation;
 
 import static ru.runa.wfe.task.TaskClassPresentation.TASK_OTHERS;
 
@@ -265,8 +266,11 @@ public class HibernateCompilerHQLBuider {
         if (!parameters.hasOwners()) {
             return result;
         }
-        // Very special case, in which [:ownersIds] will be used several times inside very complicated WHERE condition. So here - switched off.
-        if (batchPresentation.getCategory().equals("listTasksForm") && batchPresentation.getFilteredFields().containsKey(6)){
+        // Very special case, in which [:ownersIds] will be used several times inside complicated WHERE condition,
+        // in OthersPermissionsDBSource class in TaskClassPresentation. So here - some steps skipped.
+        if (batchPresentation.getCategory().equals("listTasksForm")
+                && batchPresentation.isFieldActuallyFiltered(TaskClassPresentation.TASK_OTHERS))
+        {
             placeholders.put("ownersIds", null);
             return result;
         }

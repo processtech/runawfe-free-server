@@ -36,6 +36,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.logic.ISubstitutionLogic;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskClassPresentation;
 import ru.runa.wfe.task.cache.TaskCache;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
@@ -209,8 +210,9 @@ public class TaskListBuilder implements ITaskListBuilder {
             return null;
         }
         if (executorsToGetTasksByMembership.contains(taskExecutor)
-        		// Key(6) means that others tasks are listed
-        		|| batchPresentation.getFilteredFields().containsKey(6)) {
+        		// Filtered TASK_OTHERS means that other executor's tasks are listed
+                || batchPresentation.isFieldActuallyFiltered(TaskClassPresentation.TASK_OTHERS))
+        {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return taskObjectFactory.create(task, actor, false, batchPresentation.getDynamicFieldsToDisplay(true));
         }
