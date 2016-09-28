@@ -25,12 +25,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.runa.wfe.BusinessException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.CalendarInterval;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
@@ -90,6 +90,8 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
 
     public void resetFailedDelay() {
         failedDelaySeconds = BotStationResources.getFailedExecutionInitialDelay();
+        log.info("resetFailedDelay for " + task);
+        started = Calendar.getInstance();
     }
 
     @Override
@@ -191,11 +193,6 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                 log.debug("Handled bot task " + task + ", " + bot + " by " + taskHandler.getClass());
             }
             ProcessExecutionErrors.removeProcessError(task.getProcessId(), task.getNodeId());
-        } catch (BusinessException be) {
-            log.warn(task + " failed", be);
-            // TODO 212
-            Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), be);
-            ProcessExecutionErrors.addProcessError(task, botTask, be);
         } catch (TaskDoesNotExistException e) {
             log.warn(task + " already handled");
             ProcessExecutionErrors.removeProcessError(task.getProcessId(), task.getNodeId());
@@ -221,9 +218,9 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             doHandle();
             executionStatus = WorkflowBotTaskExecutionStatus.COMPLETED;
             return;
-        } catch (Throwable e) {
-            log.error("Error execution " + this, e);
-            logBotError(task, e);
+        } catch (final Throwable th) {
+            log.error("Error execution " + this, th);
+            logBotError(task, th);
             executionStatus = WorkflowBotTaskExecutionStatus.FAILED;
             // Double delay if exists
             failedDelaySeconds *= 2;
@@ -233,6 +230,14 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             }
             log.info("FailedDelaySeconds = " + failedDelaySeconds + " for " + task);
             started.add(Calendar.SECOND, failedDelaySeconds);
+            new TransactionalExecutor() {
+
+                @Override
+                protected void doExecuteInTransaction() throws Exception {
+                    // TODO 212
+                    Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
+                }
+            }.executeInTransaction(false);
         } finally {
             executionThread.set(null);
         }
