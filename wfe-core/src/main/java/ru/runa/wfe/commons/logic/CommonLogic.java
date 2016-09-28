@@ -115,24 +115,19 @@ public class CommonLogic {
     }
 
     /**
-     * Load objects list according to {@linkplain BatchPresentation} with
-     * permission check for subject.
-     *
+     * Load objects list according to {@linkplain BatchPresentation} with permission check for subject.
+     * 
      * @param subject
      *            Current actor {@linkplain Subject}.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load objects.
      * @param permission
-     *            {@linkplain Permission}, which current actor must have on
-     *            loaded objects.
+     *            {@linkplain Permission}, which current actor must have on loaded objects.
      * @param securedObjectClasses
-     *            Classes, loaded by query. Must be subset of classes, loaded by
-     *            {@linkplain BatchPresentation}. For example {@linkplain Actor}
-     *            for {@linkplain BatchPresentation}, which loads
-     *            {@linkplain Executor}.
+     *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
+     *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
      * @param enablePaging
-     *            Flag, equals true, if paging must be enabled; false to load
-     *            all objects.
+     *            Flag, equals true, if paging must be enabled; false to load all objects.
      * @return Loaded according to {@linkplain BatchPresentation} objects list.
      */
     @SuppressWarnings("unchecked")
@@ -142,40 +137,32 @@ public class CommonLogic {
     }
 
     /**
-     * Load objects count according to {@linkplain BatchPresentation} with
-     * permission check for subject.
-     *
+     * Load objects count according to {@linkplain BatchPresentation} with permission check for subject.
+     * 
      * @param subject
      *            Current actor {@linkplain Subject}.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load objects count.
      * @param permission
-     *            {@linkplain Permission}, which current actor must have on
-     *            loaded objects.
+     *            {@linkplain Permission}, which current actor must have on loaded objects.
      * @param securedObjectClasses
-     *            Classes, loaded by query. Must be subset of classes, loaded by
-     *            {@linkplain BatchPresentation}. For example {@linkplain Actor}
-     *            for {@linkplain BatchPresentation}, which loads
-     *            {@linkplain Executor}.
-     * @return Objects count, which will be loaded according to
-     *         {@linkplain BatchPresentation}.
+     *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
+     *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
+     * @return Objects count, which will be loaded according to {@linkplain BatchPresentation}.
      */
     public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission, SecuredObjectType[] securedObjectTypes) {
         return permissionDAO.getPersistentObjectCount(user, batchPresentation, permission, securedObjectTypes);
     }
 
     public List<Localization> getLocalizations(User user) {
-        // TODO permissions
         return localizationDAO.getAll();
     }
 
     public String getLocalized(User user, String name) {
-        // TODO permissions
         return localizationDAO.getLocalized(name);
     }
 
     public void saveLocalizations(User user, List<Localization> localizations) {
-        // TODO permissions
         localizationDAO.saveLocalizations(localizations, true);
     }
 

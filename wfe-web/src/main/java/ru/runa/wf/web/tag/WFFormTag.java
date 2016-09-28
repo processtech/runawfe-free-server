@@ -17,6 +17,8 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.List;
+
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
@@ -39,13 +41,14 @@ import com.google.common.base.Charsets;
 public abstract class WFFormTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
     public static final String FORM_NAME = "processForm";
+    protected Interaction interaction;
 
     private boolean formButtonVisible;
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
         try {
-            Interaction interaction = getInteraction();
+            interaction = getInteraction();
             String form = buildForm(interaction);
             if (interaction.getCssData() != null) {
                 StringBuffer styles = new StringBuffer("<style>");
@@ -106,8 +109,22 @@ public abstract class WFFormTag extends TitledFormTag {
     }
 
     @Override
+    protected boolean isMultipleSubmit() {
+        return getTransitionNames().size() > 1;
+    }
+
+    @Override
     protected String getFormButtonName() {
         return MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
+    }
+
+    @Override
+    protected List<String> getFormButtonNames() {
+        return getTransitionNames();
+    }
+
+    protected List<String> getTransitionNames() {
+        return interaction.getOutputTransitionNames();
     }
 
     protected abstract Long getDefinitionId();

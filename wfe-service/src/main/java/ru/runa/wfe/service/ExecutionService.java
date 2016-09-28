@@ -27,6 +27,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
+import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -313,6 +314,20 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public List<WfJob> getProcessJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
+
+    /**
+     * Get all active tokens (recursively) by process id.
+     *
+     * @param user
+     *            authorized user
+     * @param processId
+     *            process id
+     * @param recursive
+     *            <code>true</code> for all sub processes
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public List<WfToken> getProcessTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException;
 
     /**
      * Activates suspended process by id.

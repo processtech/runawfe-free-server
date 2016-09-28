@@ -125,10 +125,10 @@ class AltSubstitutionCacheImpl extends BaseCacheImpl implements SubstitutionCach
                 loadCacheFor(actor.getId(), substitution);
             }
             if (change == Change.UPDATE) {
-                // TODO
+                // TODO implement additional logic
             }
             if (change == Change.DELETE) {
-                // TODO
+                // TODO implement additional logic
             }
         }
     }

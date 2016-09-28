@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.service.impl;
@@ -66,9 +66,9 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebResult(name = "result")
     public boolean isAllowed(@WebParam(name = "user") User user, @WebParam(name = "permission") Permission permission,
             @WebParam(name = "identifiable") Identifiable identifiable) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(permission != null);
-        Preconditions.checkArgument(identifiable != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(permission != null, "permission");
+        Preconditions.checkArgument(identifiable != null, "identifiable");
         return authorizationLogic.isPermissionAllowed(user, identifiable, permission);
     }
 
@@ -76,19 +76,19 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @Override
     public boolean isAllowed(@WebParam(name = "user") User user, @WebParam(name = "permission") Permission permission,
             @WebParam(name = "securedObjectType") SecuredObjectType securedObjectType, @WebParam(name = "identifiableId") Long identifiableId) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(permission != null);
-        Preconditions.checkArgument(securedObjectType != null);
-        Preconditions.checkArgument(identifiableId != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(permission != null, "permission");
+        Preconditions.checkArgument(securedObjectType != null, "securedObjectType");
+        Preconditions.checkArgument(identifiableId != null, "identifiableId");
         return authorizationLogic.isAllowed(user, permission, securedObjectType, identifiableId);
     }
 
     @WebMethod(exclude = true)
     @Override
     public <T extends Identifiable> boolean[] isAllowed(User user, Permission permission, List<T> identifiables) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(permission != null);
-        Preconditions.checkArgument(identifiables != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(permission != null, "permission");
+        Preconditions.checkArgument(identifiables != null, "identifiables");
         return authorizationLogic.isAllowed(user, permission, identifiables);
     }
 
@@ -96,19 +96,19 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebResult(name = "result")
     public List<Permission> getIssuedPermissions(@WebParam(name = "user") User user, @WebParam(name = "performer") Executor performer,
             @WebParam(name = "identifiable") Identifiable identifiable) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(performer != null);
-        Preconditions.checkArgument(identifiable != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(performer != null, "performer");
+        Preconditions.checkArgument(identifiable != null, "identifiable");
         return authorizationLogic.getIssuedPermissions(user, performer, identifiable);
     }
 
     @WebMethod(exclude = true)
     @Override
     public void setPermissions(User user, List<Long> executorIds, List<Collection<Permission>> permissions, Identifiable identifiable) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(executorIds != null);
-        Preconditions.checkArgument(permissions != null);
-        Preconditions.checkArgument(identifiable != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(executorIds != null, "executorIds");
+        Preconditions.checkArgument(permissions != null, "permissions");
+        Preconditions.checkArgument(identifiable != null, "identifiable");
         authorizationLogic.setPermissions(user, executorIds, permissions, identifiable);
     }
 
@@ -116,20 +116,20 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebResult(name = "result")
     public void setPermissions(@WebParam(name = "user") User user, @WebParam(name = "executorId") Long executorId,
             @WebParam(name = "permissions") Collection<Permission> permissions, @WebParam(name = "identifiable") Identifiable identifiable) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(executorId != null);
-        Preconditions.checkArgument(permissions != null);
-        Preconditions.checkArgument(identifiable != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(executorId != null, "executorId");
+        Preconditions.checkArgument(permissions != null, "permissions");
+        Preconditions.checkArgument(identifiable != null, "identifiable");
         authorizationLogic.setPermissions(user, executorId, permissions, identifiable);
     }
 
     @WebMethod(exclude = true)
     @Override
     public void setPermissions(User user, List<Long> executorsId, Collection<Permission> permissions, Identifiable identifiable) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(executorsId != null);
-        Preconditions.checkArgument(permissions != null);
-        Preconditions.checkArgument(identifiable != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(executorsId != null, "executorsId");
+        Preconditions.checkArgument(permissions != null, "permissions");
+        Preconditions.checkArgument(identifiable != null, "identifiable");
         authorizationLogic.setPermissions(user, executorsId, permissions, identifiable);
     }
 
@@ -137,8 +137,8 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebResult(name = "result")
     public List<Executor> getExecutorsWithPermission(@WebParam(name = "user") User user, @WebParam(name = "identifiable") Identifiable identifiable,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "withPermission") boolean withPermission) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(identifiable != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(identifiable != null, "identifiable");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         }
@@ -149,8 +149,8 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebResult(name = "result")
     public int getExecutorsWithPermissionCount(@WebParam(name = "user") User user, @WebParam(name = "identifiable") Identifiable identifiable,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "withPermission") boolean withPermission) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(identifiable != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(identifiable != null, "identifiable");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         }
@@ -164,11 +164,11 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "persistentClass") Class<T> persistentClass,
             @WebParam(name = "permission") Permission permission, @WebParam(name = "securedObjectTypes") SecuredObjectType[] securedObjectTypes,
             @WebParam(name = "enablePaging") boolean enablePaging) {
-        Preconditions.checkArgument(user != null, "User");
-        Preconditions.checkArgument(batchPresentation != null, "Batch presentation");
-        Preconditions.checkArgument(persistentClass != null, "Persistence class");
-        Preconditions.checkArgument(permission != null, "Permission");
-        Preconditions.checkArgument(securedObjectTypes != null, "Secured object class");
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(batchPresentation != null, "batchPresentation");
+        Preconditions.checkArgument(persistentClass != null, "persistenceClass");
+        Preconditions.checkArgument(permission != null, "permission");
+        Preconditions.checkArgument(securedObjectTypes != null, "securedObjectTypes");
         return (List<T>) authorizationLogic.getPersistentObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging);
     }
 
@@ -176,10 +176,10 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebResult(name = "result")
     public boolean isAllowedWS(@WebParam(name = "user") User user, @WebParam(name = "permission") Permission permission,
             @WebParam(name = "securedObjectType") SecuredObjectType securedObjectType, @WebParam(name = "identifiableId") Long identifiableId) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(permission != null);
-        Preconditions.checkArgument(securedObjectType != null);
-        Preconditions.checkArgument(identifiableId != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(permission != null, "permission");
+        Preconditions.checkArgument(securedObjectType != null, "securedObjectType");
+        Preconditions.checkArgument(identifiableId != null, "identifiableId");
         return authorizationLogic.isAllowed(user, permission, securedObjectType, identifiableId);
     }
 

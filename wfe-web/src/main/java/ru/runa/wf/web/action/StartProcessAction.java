@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.web.action;
@@ -34,12 +34,13 @@ import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Profile;
 
 /**
  * Created on 18.08.2004
- * 
+ *
  * @struts:action path="/startProcess" name="idForm" validate="true" input = "/WEB-INF/wf/manage_process_definitions.jsp"
  * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
  * @struts.action-forward name="failure" path="/manage_process_definitions.do" redirect = "true"
@@ -56,8 +57,8 @@ public class StartProcessAction extends ActionBase {
         ActionForward successForward = null;
         try {
             saveToken(request);
-            if (Delegates.getDefinitionService().getStartInteraction(getLoggedUser(request), definitionId).hasForm()
-                    || Delegates.getDefinitionService().getOutputTransitionNames(getLoggedUser(request), definitionId, null, false).size() > 1) {
+            Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getLoggedUser(request), definitionId);
+            if (interaction.hasForm() || interaction.getOutputTransitionNames().size() > 1) {
                 successForward = Commons.forward(mapping.findForward(ru.runa.common.WebResources.FORWARD_SUCCESS_DISPLAY_START_FORM),
                         IdForm.ID_INPUT_NAME, definitionId);
             } else {
@@ -66,8 +67,7 @@ public class StartProcessAction extends ActionBase {
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
 
                 ActionMessages messages = new ActionMessages();
-                messages.add(ActionMessages.GLOBAL_MESSAGE,
-                        new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
+                messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
                 saveMessages(request.getSession(), messages);
 
                 successForward = mapping.findForward(Resources.FORWARD_SUCCESS);

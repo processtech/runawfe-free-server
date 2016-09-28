@@ -36,7 +36,11 @@ public class ReportTimeFormatterImpl implements ReportTimeFormatter {
         int minutes = (int) ((intervalInSeconds / 60) % 60);
         int hours = (int) ((intervalInSeconds / (60 * 60)) % 24);
         int days = (int) ((intervalInSeconds / (60 * 60 * 24)));
-        return String.format("%d days%s%02d:%02d:%02d", days, multiline ? "\n" : " ", hours, minutes, seconds);
+        String sign = "";
+        if(interval.longValue() < 0) {
+            sign = "- ";
+        }        
+        return String.format("%s%d days%s%02d:%02d:%02d", sign, days, multiline ? "\n" : " ", hours, minutes, seconds);
     }
 
     @Override

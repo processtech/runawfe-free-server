@@ -19,7 +19,6 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
@@ -59,7 +58,6 @@ import ru.runa.wfe.var.dto.Variables;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/bpmMessages"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
@@ -69,7 +67,6 @@ import com.google.common.collect.Maps;
 @SuppressWarnings("unchecked")
 public class ReceiveMessageBean implements MessageListener {
     private static Log log = LogFactory.getLog(ReceiveMessageBean.class);
-    private static Map<Long, ReentrantLock> processLocks = Maps.newHashMap();
     @Autowired
     private TokenDAO tokenDAO;
     @Autowired
@@ -137,7 +134,6 @@ public class ReceiveMessageBean implements MessageListener {
 
     private void handleMessage(final ReceiveMessageData data, final ObjectMessage message) {
         try {
-            acquireLock(data.processId);
             ProcessExecutionErrors.removeProcessError(data.processId, data.node.getNodeId());
             new TransactionalExecutor(context.getUserTransaction()) {
 
@@ -165,43 +161,6 @@ public class ReceiveMessageBean implements MessageListener {
         } catch (Throwable th) {
             ProcessExecutionErrors.addProcessError(data.processId, data.node.getNodeId(), data.node.getName(), null, th);
             Throwables.propagate(th);
-        } finally {
-            releaseLock(data.processId);
-        }
-    }
-
-    private void acquireLock(Long processId) {
-        ReentrantLock lock;
-        synchronized (processLocks) {
-            lock = processLocks.get(processId);
-            if (lock != null) {
-                log.debug("acquiring existing " + lock + " for " + processId);
-            } else {
-                lock = new ReentrantLock();
-                log.debug("acquiring new " + lock + " for " + processId);
-                processLocks.put(processId, lock);
-            }
-        }
-        lock.lock();
-        if (!processLocks.containsKey(processId)) {
-            synchronized (processLocks) {
-                log.debug("adding " + lock + " to map for " + processId);
-                processLocks.put(processId, lock);
-            }
-        }
-        log.debug("acquired " + lock + " for " + processId);
-    }
-
-    private void releaseLock(Long processId) {
-        log.debug("releasing lock for " + processId);
-        synchronized (processLocks) {
-            ReentrantLock lock = processLocks.get(processId);
-            if (!lock.hasQueuedThreads()) {
-                log.debug("deleting " + lock + " for " + processId);
-                processLocks.remove(processId);
-            }
-            lock.unlock();
-            log.debug("released " + lock + " for " + processId);
         }
     }
 

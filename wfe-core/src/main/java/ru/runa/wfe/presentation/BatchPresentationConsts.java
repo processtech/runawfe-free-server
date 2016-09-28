@@ -22,8 +22,7 @@ package ru.runa.wfe.presentation;
  * 
  * @author Konstantinov Aleksey 11.02.2012
  */
-public class BatchPresentationConsts { // TODO move constants to
-                                       // BatchPresentation
+public class BatchPresentationConsts {
     /**
      * Allowed sizes for paged {@link BatchPresentation}. This sizes will be available in web interface.
      */

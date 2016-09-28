@@ -144,7 +144,6 @@ class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubs
                 }
                 for (HashSet<Long> substitutors : mapActorToSubstitutors.get(substitutedId).values()) {
                     if (substitutors == null) {
-                        // TODO terminators handling?
                         continue;
                     }
                     for (Long substitutor : substitutors) {

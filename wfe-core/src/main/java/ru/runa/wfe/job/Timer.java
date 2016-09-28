@@ -16,11 +16,10 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
-import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.Action;
+import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Event;
-import ru.runa.wfe.task.Task;
-import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.task.TaskCompletionInfo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
@@ -75,17 +74,10 @@ public class Timer extends Job {
                 }
             }
             if (outTransitionName != null) {
-                // CancelTimerAction should cancel this timer
-                Task task = executionContext.getTask();
-                if (task != null) {
-                    // mark task completed by timer [without history]
-                    Executor oldExecutor = task.getExecutor();
-                    task.setExecutor(null);
-                    AssignmentHelper.removeTemporaryGroupOnTaskEnd(oldExecutor);
-                } else {
-                    log.debug("Task is null in timer node '" + timerNodeId + "' when leaving by transition: " + outTransitionName);
+                if (executionContext.getNode() instanceof BaseTaskNode) {
+                    ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer());
                 }
-                log.info("Leaving " + this + " by transition " + outTransitionName);
+                log.info("Leaving " + this + " from " + executionContext.getNode() + " by transition " + outTransitionName);
                 getToken().signal(executionContext, executionContext.getNode().getLeavingTransitionNotNull(outTransitionName));
             } else if (Boolean.TRUE == executionContext.getTransientVariable(STOP_RE_EXECUTION)) {
                 log.info("Deleting " + this + " due to STOP_RE_EXECUTION");

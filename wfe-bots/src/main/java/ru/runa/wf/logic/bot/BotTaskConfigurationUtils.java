@@ -55,7 +55,6 @@ public class BotTaskConfigurationUtils {
     }
 
     private static Element getBotTaskElement(User user, WfTask task) {
-        // TODO temporary, use another way for embedded subprocess determining
         String fileName = IFileDataProvider.BOTS_XML_FILE;
         if (task.getNodeId().startsWith(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
             int index = task.getNodeId().indexOf(".");
@@ -151,7 +150,6 @@ public class BotTaskConfigurationUtils {
         return false;
     }
 
-    // TODO move to mechanism as for extended task.
     public static byte[] substituteParameterizedConfiguration(User user, WfTask task, byte[] configuration, IVariableProvider variableProvider) {
         Element taskElement = getBotTaskElement(user, task);
         if (taskElement == null) {
