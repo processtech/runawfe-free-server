@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.service.impl;
@@ -58,8 +58,8 @@ public class SubstitutionServiceBean implements SubstitutionServiceLocal, Substi
     @Override
     @WebResult(name = "result")
     public Substitution createSubstitution(@WebParam(name = "user") User user, @WebParam(name = "substitution") Substitution substitution) {
-        Preconditions.checkNotNull(user);
-        Preconditions.checkNotNull(substitution);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitution != null, "substitution");
         substitutionLogic.create(user, substitution);
         return substitution;
     }
@@ -67,81 +67,87 @@ public class SubstitutionServiceBean implements SubstitutionServiceLocal, Substi
     @Override
     @WebResult(name = "result")
     public List<Substitution> getSubstitutions(@WebParam(name = "user") User user, @WebParam(name = "actorId") Long actorId) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(actorId != null, "actorId");
         return substitutionLogic.getSubstitutions(user, actorId);
     }
 
     @Override
     @WebResult(name = "result")
     public void deleteSubstitutions(@WebParam(name = "user") User user, @WebParam(name = "substitutionIds") List<Long> substitutionIds) {
-        Preconditions.checkNotNull(user);
-        Preconditions.checkNotNull(substitutionIds);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitutionIds != null, "substitutionIds");
         substitutionLogic.delete(user, substitutionIds);
     }
 
     @Override
     @WebResult(name = "result")
     public Substitution getSubstitution(@WebParam(name = "user") User user, @WebParam(name = "substitutionId") Long substitutionId) {
-        Preconditions.checkNotNull(user);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitutionId != null, "substitutionId");
         return substitutionLogic.getSubstitution(user, substitutionId);
     }
 
     @Override
     @WebResult(name = "result")
     public void updateSubstitution(@WebParam(name = "user") User user, @WebParam(name = "substitution") Substitution substitution) {
-        Preconditions.checkNotNull(user);
-        Preconditions.checkNotNull(substitution);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitution != null, "substitution");
         substitutionLogic.update(user, substitution);
     }
 
     @Override
     @WebResult(name = "result")
     public void createCriteria(@WebParam(name = "user") User user, @WebParam(name = "substitutionCriteria") SubstitutionCriteria substitutionCriteria) {
-        Preconditions.checkNotNull(user);
-        Preconditions.checkNotNull(substitutionCriteria);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitutionCriteria != null, "substitutionCriteria");
         substitutionLogic.create(user, substitutionCriteria);
     }
 
     @Override
     @WebResult(name = "result")
     public SubstitutionCriteria getCriteria(@WebParam(name = "user") User user, @WebParam(name = "substitutionCriteriaId") Long substitutionCriteriaId) {
-        Preconditions.checkNotNull(user);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitutionCriteriaId != null, "substitutionCriteriaId");
         return substitutionLogic.getCriteria(user, substitutionCriteriaId);
     }
 
     @Override
     @WebResult(name = "result")
     public SubstitutionCriteria getCriteriaByName(@WebParam(name = "user") User user, @WebParam(name = "name") String name) {
-        Preconditions.checkNotNull(user);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(name != null, "name");
         return substitutionLogic.getCriteria(user, name);
     }
 
     @Override
     @WebResult(name = "result")
     public List<SubstitutionCriteria> getAllCriterias(@WebParam(name = "user") User user) {
-        Preconditions.checkNotNull(user);
+        Preconditions.checkArgument(user != null, "user");
         return substitutionLogic.getAllCriterias(user);
     }
 
     @Override
     @WebResult(name = "result")
     public void updateCriteria(@WebParam(name = "user") User user, @WebParam(name = "substitutionCriteria") SubstitutionCriteria substitutionCriteria) {
-        Preconditions.checkNotNull(user);
-        Preconditions.checkNotNull(substitutionCriteria);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitutionCriteria != null, "substitutionCriteria");
         substitutionLogic.update(user, substitutionCriteria);
     }
 
     @Override
     @WebResult(name = "result")
     public void deleteCriterias(@WebParam(name = "user") User user, @WebParam(name = "criterias") List<SubstitutionCriteria> criterias) {
-        Preconditions.checkNotNull(user);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(criterias != null, "criterias");
         substitutionLogic.deleteCriterias(user, criterias);
     }
 
     @Override
     @WebResult(name = "result")
     public void deleteCriteria(@WebParam(name = "user") User user, @WebParam(name = "substitutionCriteria") SubstitutionCriteria substitutionCriteria) {
-        Preconditions.checkNotNull(user);
-        Preconditions.checkNotNull(substitutionCriteria);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitutionCriteria != null, "substitutionCriteria");
         substitutionLogic.delete(user, substitutionCriteria);
     }
 
@@ -149,8 +155,8 @@ public class SubstitutionServiceBean implements SubstitutionServiceLocal, Substi
     @WebResult(name = "result")
     public List<Substitution> getSubstitutionsByCriteria(@WebParam(name = "user") User user,
             @WebParam(name = "substitutionCriteria") SubstitutionCriteria substitutionCriteria) {
-        Preconditions.checkNotNull(user);
-        Preconditions.checkNotNull(substitutionCriteria);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(substitutionCriteria != null, "substitutionCriteria");
         return substitutionLogic.getSubstitutionsByCriteria(user, substitutionCriteria);
     }
 

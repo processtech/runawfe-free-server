@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.service.impl;
@@ -80,8 +80,8 @@ public class AuthenticationServiceBean implements AuthenticationServiceLocal, Au
     @Override
     @WebResult(name = "result")
     public User authenticateByLoginPassword(@WebParam(name = "name") String name, @WebParam(name = "password") String password) {
-        Preconditions.checkArgument(name != null);
-        Preconditions.checkArgument(password != null);
+        Preconditions.checkArgument(name != null, "name");
+        Preconditions.checkArgument(password != null, "password");
         log.debug("Authenticating (login) " + name);
         User user = authenticationLogic.authenticate(name, password);
         log.debug("Authenticated (login): " + user);
@@ -91,8 +91,8 @@ public class AuthenticationServiceBean implements AuthenticationServiceLocal, Au
     @Override
     @WebResult(name = "result")
     public User authenticateByTrustedPrincipal(@WebParam(name = "serviceUser") User serviceUser, @WebParam(name = "login") String login) {
-        Preconditions.checkArgument(serviceUser != null);
-        Preconditions.checkArgument(login != null);
+        Preconditions.checkArgument(serviceUser != null, "serviceUser");
+        Preconditions.checkArgument(login != null, "login");
         log.debug("Authenticating (trusted) " + login);
         User user = authenticationLogic.authenticate(serviceUser, login);
         log.debug("Authenticated (trusted): " + user);

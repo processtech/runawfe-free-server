@@ -186,7 +186,7 @@ public abstract class Node extends GraphElement {
         executionContext.addLog(new NodeEnterLog(this));
         boolean async = getAsyncExecution(executionContext);
         if (async) {
-            ApplicationContextFactory.getNodeAsyncExecutor().execute(token.getProcess().getId(), token.getId());
+            ApplicationContextFactory.getNodeAsyncExecutor().execute(token.getProcess().getId(), token.getId(), token.getNodeId());
         } else {
             execute(executionContext);
         }

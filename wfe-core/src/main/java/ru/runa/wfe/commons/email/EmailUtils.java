@@ -211,7 +211,7 @@ public class EmailUtils {
         return emails;
     }
 
-    public static String concatenateEmails(List<String> emails) {
+    public static String concatenateEmails(Collection<String> emails) {
         return Joiner.on(", ").join(emails);
     }
 

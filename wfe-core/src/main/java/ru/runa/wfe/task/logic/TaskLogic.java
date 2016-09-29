@@ -119,7 +119,7 @@ public class TaskLogic extends WFCommonLogic {
                 }
             }
             IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
-            validateVariables(user, processDefinition, task.getNodeId(), variables, validationVariableProvider);
+            validateVariables(user, executionContext, validationVariableProvider, processDefinition, task.getNodeId(), variables);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
             Transition transition;
@@ -156,7 +156,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -170,9 +170,14 @@ public class TaskLogic extends WFCommonLogic {
             throw new InternalApplicationException("completion of " + task + " failed. Different node id in task and token: " + token.getNodeId());
         }
         InteractionNode node = (InteractionNode) executionContext.getNode();
-        if (node instanceof MultiTaskNode && !((MultiTaskNode) node).isCompletionTriggersSignal(task)) {
-            log.debug("!MultiTaskNode.isCompletionTriggersSignal in " + task);
-            return;
+        if (node instanceof MultiTaskNode) {
+            MultiTaskNode multiTaskNode = (MultiTaskNode) node;
+            if (multiTaskNode.isCompletionTriggersSignal(task)) {
+                multiTaskNode.endTokenTasks(executionContext, TaskCompletionInfo.createForHandler(multiTaskNode.getSynchronizationMode().name()));
+            } else {
+                log.debug("!MultiTaskNode.isCompletionTriggersSignal in " + task);
+                return;
+            }
         }
         log.debug("completion of " + task + " by " + transition);
         token.signal(executionContext, transition);
@@ -221,14 +226,14 @@ public class TaskLogic extends WFCommonLogic {
         List<WfTask> result = Lists.newArrayList();
         Process process = processDAO.getNotNull(processId);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
-        for (Task task : process.getTasks()) {
+        for (Task task : taskDAO.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
             List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
             for (Process subprocess : subprocesses) {
                 checkPermissionAllowed(user, subprocess, ProcessPermission.READ);
-                for (Task task : subprocess.getTasks()) {
+                for (Task task : taskDAO.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }
             }

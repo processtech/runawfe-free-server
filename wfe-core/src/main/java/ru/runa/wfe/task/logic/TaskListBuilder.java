@@ -178,7 +178,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         if (process == null || process.hasEnded()) {
             return;
         }
-        for (Task task : process.getTasks()) {
+        for (Task task : taskDAO.findByProcess(process)) {
             WfTask wfTask = taskObjectFactory.create(task, actor, true, null);
             if (!result.contains(wfTask)) {
                 result.add(wfTask);
@@ -186,7 +186,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
         List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
         for (Process subprocess : subprocesses) {
-            for (Task task : subprocess.getTasks()) {
+            for (Task task : taskDAO.findByProcess(subprocess)) {
                 WfTask wfTask = taskObjectFactory.create(task, actor, true, null);
                 if (!result.contains(wfTask)) {
                     result.add(wfTask);

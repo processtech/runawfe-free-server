@@ -7,6 +7,7 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 
@@ -14,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.report.ReportFileMissingException;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.report.dto.ReportDto;
 import ru.runa.wfe.report.dto.ReportParameterDto;
 import ru.runa.wfe.report.logic.ReportLogic;
@@ -37,47 +38,55 @@ public class ReportServiceBean implements ReportServiceLocal, ReportServiceRemot
     private ReportLogic reportLogic;
 
     @Override
+    @WebResult(name = "result")
     public List<ReportDto> getReportDefinitions(@WebParam(name = "user") User user,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "enablePaging") boolean enablePaging) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(batchPresentation != null);
+        Preconditions.checkArgument(user != null, "user");
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.REPORTS.createNonPaged();
+        }
         return reportLogic.getReportDefinitions(user, batchPresentation, enablePaging);
     }
 
     @Override
+    @WebResult(name = "result")
     public ReportDto getReportDefinition(@WebParam(name = "user") User user, @WebParam(name = "id") Long id) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(id != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(id != null, "id");
         return reportLogic.getReportDefinition(user, id);
     }
 
     @Override
+    @WebResult(name = "result")
     public List<ReportParameterDto> analyzeReportFile(@WebParam(name = "report") ReportDto report,
             @WebParam(name = "reportFileContent") byte[] reportFileContent) {
-        Preconditions.checkArgument(report != null);
-        Preconditions.checkArgument(reportFileContent != null);
+        Preconditions.checkArgument(report != null, "report");
+        Preconditions.checkArgument(reportFileContent != null, "reportFileContent");
         return reportLogic.analyzeReportFile(report, reportFileContent);
     }
 
     @Override
+    @WebResult(name = "result")
     public void deployReport(@WebParam(name = "user") User user, @WebParam(name = "report") ReportDto report, @WebParam(name = "file") byte[] file) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(report != null);
-        Preconditions.checkArgument(file != null);
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(report != null, "report");
+        Preconditions.checkArgument(file != null, "file");
         reportLogic.deployReport(user, report, file);
     }
 
     @Override
-    public void redeployReport(User user, ReportDto report, byte[] file) throws ReportFileMissingException {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(report != null);
+    @WebResult(name = "result")
+    public void redeployReport(@WebParam(name = "user") User user, @WebParam(name = "report") ReportDto report, @WebParam(name = "file") byte[] file) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(report != null, "report");
         reportLogic.redeployReport(user, report, file);
     }
 
     @Override
-    public void undeployReport(User user, Long reportId) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(reportId != null);
+    @WebResult(name = "result")
+    public void undeployReport(@WebParam(name = "user") User user, @WebParam(name = "reportId") Long reportId) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(reportId != null, "reportId");
         reportLogic.undeployReport(user, reportId);
     }
 }
