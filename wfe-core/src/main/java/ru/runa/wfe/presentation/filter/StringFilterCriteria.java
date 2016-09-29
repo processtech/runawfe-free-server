@@ -44,8 +44,8 @@ public class StringFilterCriteria extends FilterCriteria {
 
     @Override
     public String buildWhereCondition(String fieldName, String persistentObjectQueryAlias, Map<String, QueryParameter> placeholders) {
-        String searchFilter = getFilterTemplate(0);
-        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(searchFilter);
+        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
+        String searchValue = expression.getValue();
         String alias = persistentObjectQueryAlias + fieldName.replaceAll("\\.", "");
         String where = "";
         if (ignoreCase) {
@@ -54,12 +54,12 @@ public class StringFilterCriteria extends FilterCriteria {
         where += persistentObjectQueryAlias + "." + fieldName;
         if (ignoreCase) {
             where += ")";
-            searchFilter = searchFilter.toLowerCase();
+            searchValue = searchValue.toLowerCase();
         }
         where += " ";
         where += expression.getComparisonOperator();
         where += " :" + alias + " ";
-        placeholders.put(alias, new QueryParameter(alias, searchFilter));
+        placeholders.put(alias, new QueryParameter(alias, searchValue));
         return where;
     }
 }

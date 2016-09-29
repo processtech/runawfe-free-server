@@ -145,27 +145,9 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<String> getOutputTransitionNames(User user, Long definitionId, Long taskId, boolean withTimerTransitions) {
-        try {
-            return getDefinitionService().getOutputTransitionNames(user, definitionId, taskId, withTimerTransitions);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
     public Interaction getStartInteraction(User user, Long definitionId) {
         try {
             return getDefinitionService().getStartInteraction(user, definitionId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public Interaction getTaskInteraction(User user, Long taskId) {
-        try {
-            return getDefinitionService().getTaskInteraction(user, taskId);
         } catch (Exception e) {
             throw handleException(e);
         }

@@ -78,8 +78,8 @@ public class BuildReportFormTag extends IdentifiableFormTag {
             String paramHtmlName = "reportParam" + parameter.getPosition();
             String value = this.pageContext.getRequest().getParameter(paramHtmlName);
             if (model.isSimpleInputProperty()) {
-                Input input = HTMLUtils
-                        .createInput(model.getHtmlInputType(), paramHtmlName, !Strings.isNullOrEmpty(value) ? value : model.getValue());
+                Input input = HTMLUtils.createInput(model.getHtmlInputType(), paramHtmlName,
+                        !Strings.isNullOrEmpty(value) ? value : model.getValue());
                 input.setClass(model.getHtmlInputClass());
                 table.addElement(HTMLUtils.createRow(parameter.getUserName(), input));
             } else if (model.isFlagProperty()) {
@@ -99,7 +99,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
                     }
                 });
                 table.addElement(HTMLUtils.createSelectRow(parameter.getUserName(), paramHtmlName, options.toArray(new Option[options.size()]), true,
-                    model.isRequired()));
+                        model.isRequired()));
             }
         }
         table.addElement(HTMLUtils.createRow(MessagesReport.GENERATE_LABEL.message(pageContext), createBuildTypeSelect()));
@@ -111,7 +111,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
         int selected = 0;
         for (int i = 0; i < options.length; i++) {
             String description = ReportGenerationType.values()[i].processBy(new ReportGenerationTypeNameVisitor()).message(pageContext);
-            options[i] = new Option(description, ReportGenerationType.values()[i].toString());
+            options[i] = new Option(description, ReportGenerationType.values()[i].toString(), description);
             if (ReportGenerationType.values()[i].toString().equals(selectedValue)) {
                 options[i].setSelected(true);
             }
