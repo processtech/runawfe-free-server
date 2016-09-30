@@ -138,7 +138,8 @@ public class TabHeaderTag extends TagSupport {
 
     private boolean isMenuForwardVisible(MenuForward menuForward) {
         try {
-            if (menuForward.getMenuMessage().getKey().equals("manage_settings")) {
+            if (menuForward.getMenuMessage().getKey().equals("manage_settings")
+                    || menuForward.getMenuMessage().getKey().equals(MessagesCommon.MAIN_MENU_ADMINISTER_TASKS)) {
                 return Delegates.getExecutorService().isAdministrator(getUser());
             }
             if (menuForward.menuSecuredObject != null) {
