@@ -132,7 +132,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     * 
+     *
      * @return max string value
      */
     public static int getStringVariableValueLength() {
@@ -168,10 +168,6 @@ public class SystemProperties {
 
     public static boolean isVariableAutoCastingEnabled() {
         return RESOURCES.getBooleanProperty("variables.autocast.enabled", true);
-    }
-
-    public static boolean isVariableTreatEmptyStringsAsNulls() {
-        return RESOURCES.getBooleanProperty("variables.treat.empty.strings.as.nulls", false);
     }
 
     public static boolean isEscalationEnabled() {

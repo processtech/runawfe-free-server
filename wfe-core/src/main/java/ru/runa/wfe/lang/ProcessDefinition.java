@@ -195,6 +195,9 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
                 log.debug("Unable to build syntetic container variable by name '" + variableName + "'");
                 return null;
             }
+            if (containerVariableDefinition.getFormatComponentClassNames().length == 0) {
+                throw new InternalApplicationException("Not a list variable: " + containerVariableDefinition.getName());
+            }
             String format = containerVariableDefinition.getFormatComponentClassNames()[0];
             VariableDefinition variableDefinition = new VariableDefinition(variableName, null, format, getUserType(format));
             variableDefinition.initComponentUserTypes(this);

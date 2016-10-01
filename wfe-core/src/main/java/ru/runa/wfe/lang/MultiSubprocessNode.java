@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.SystemProperties;
@@ -84,29 +85,32 @@ public class MultiSubprocessNode extends SubprocessNode {
             log.debug("setting discriminator var '" + parameters.getDiscriminatorVariableName() + "' to sub process var '"
                     + parameters.getIteratorVariableName() + "': " + discriminatorValue);
             variables.put(parameters.getIteratorVariableName(), discriminatorValue);
-            if (isInBaseIdProcessMode()) {
-                Long baseProcessId = variableProvider.getValueNotNull(Long.class, getBaseIdProcessVariableName());
-                log.debug("executing in base_process_id: " + baseProcessId);
-                variables.put(SystemProperties.getBaseProcessIdVariableName(), baseProcessId);
-            } else {
-                for (VariableMapping variableMapping : variableMappings) {
-                    // if this variable access is readable
-                    String variableName = variableMapping.getName();
-                    if (variableMapping.isReadable() || variableMapping.isSyncable()) {
-                        Object value = variableProvider.getValue(variableName);
-                        String mappedName = variableMapping.getMappedName();
-                        if (value != null) {
-                            log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value + " of "
-                                    + value.getClass());
-                        } else {
-                            log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
-                            continue;
-                        }
+            boolean baseProcessIdMode = isInBaseProcessIdMode();
+            for (VariableMapping variableMapping : variableMappings) {
+                String variableName = variableMapping.getName();
+                String mappedName = variableMapping.getMappedName();
+                boolean isSwimlane = subProcessDefinition.getSwimlane(mappedName) != null;
+                if (isSwimlane && variableMapping.isSyncable()) {
+                    throw new InternalApplicationException("Sync mode does not supported for swimlane " + mappedName);
+                }
+                boolean copyValue;
+                if (baseProcessIdMode) {
+                    copyValue = variableMapping.isReadable() && (isSwimlane || SystemProperties.getBaseProcessIdVariableName().equals(mappedName));
+                } else {
+                    copyValue = variableMapping.isReadable() || variableMapping.isSyncable();
+                }
+                if (copyValue) {
+                    Object value = variableProvider.getValue(variableName);
+                    if (value != null) {
+                        log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value + " of "
+                                + value.getClass());
                         if (variableMapping.isMultiinstanceLink()) {
                             variables.put(mappedName, TypeConversionUtil.getListValue(value, index));
                         } else {
                             variables.put(mappedName, value);
                         }
+                    } else {
+                        log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
                     }
                 }
             }
@@ -133,7 +137,6 @@ public class MultiSubprocessNode extends SubprocessNode {
             super.leave(subExecutionContext, transition);
             return;
         }
-
         ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
         NodeProcess nodeProcess = subExecutionContext.getParentNodeProcess();
         if (nodeProcess.getIndex() == null) {
