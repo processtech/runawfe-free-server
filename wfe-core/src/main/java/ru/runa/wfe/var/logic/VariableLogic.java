@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -55,7 +56,7 @@ public class VariableLogic extends WFCommonLogic {
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
-            if (variable.getValue() != null) {
+            if (!Utils.isNullOrEmpty(variable.getValue())) {
                 result.add(variable);
             }
         }

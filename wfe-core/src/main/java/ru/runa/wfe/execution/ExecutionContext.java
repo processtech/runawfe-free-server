@@ -334,9 +334,12 @@ public class ExecutionContext {
         if (ListFormat.class.getName().equals(variableDefinition.getFormatClassName())) {
             int newSize = TypeConversionUtil.getListSize(value);
             String sizeVariableName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
+            WfVariable oldSizeVariable = getVariable(sizeVariableName, false);
+            int maxSize = newSize;
+            if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Integer) {
+                maxSize = Math.max((Integer) oldSizeVariable.getValue(), newSize);
+            }
             VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
-            Integer oldSize = (Integer) variableLoader.getVariableValue(getProcessDefinition(), getProcess(), sizeDefinition);
-            int maxSize = oldSize != null ? Math.max(oldSize, newSize) : newSize;
             setSimpleVariableValue(getProcessDefinition(), getToken(), sizeDefinition, value != null ? newSize : null);
             String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
             String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
