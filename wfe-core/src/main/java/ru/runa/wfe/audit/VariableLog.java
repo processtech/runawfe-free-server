@@ -48,12 +48,16 @@ public abstract class VariableLog extends ProcessLog {
     }
 
     public VariableLog(Variable<?> variable) {
-        addAttribute(ATTR_VARIABLE_NAME, variable.getName());
+        setVariableName(variable.getName());
     }
 
     @Transient
     public String getVariableName() {
         return getAttributeNotNull(ATTR_VARIABLE_NAME);
+    }
+
+    public void setVariableName(String variableName) {
+        addAttribute(ATTR_VARIABLE_NAME, variableName);
     }
 
     @Transient
