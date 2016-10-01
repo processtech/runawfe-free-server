@@ -17,7 +17,6 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
-import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.legacy.ComplexVariable;
 
@@ -145,12 +144,8 @@ public class VariableLoader {
                 Object value = variable.getValue();
                 value = processComplexVariablesPre430(processDefinition, variableDefinition, variableDefinition.getUserType(), value);
                 return value;
-            } else if (variableDefinition.getDefaultValue() != null) {
-                return variableDefinition.getDefaultValue();
-            } else if (SystemProperties.isVariableTreatEmptyStringsAsNulls() && variableDefinition.getFormatNotNull() instanceof StringFormat) {
-                return "";
             }
-            return null;
+            return variableDefinition.getDefaultValue();
         }
     }
 
@@ -216,7 +211,7 @@ public class VariableLoader {
             if (variable != null) {
                 return (List<Object>) processComplexVariablesPre430(processDefinition, variableDefinition, null, variable.getValue());
             }
-            return list;
+            return null;
         }
         String[] formatComponentClassNames = variableDefinition.getFormatComponentClassNames();
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;

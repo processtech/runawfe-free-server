@@ -26,7 +26,7 @@ public class WfVariable implements Serializable {
 
     public WfVariable(String name, Object value) {
         Preconditions.checkNotNull(name);
-        definition = new VariableDefinition(name, null, StringFormat.class.getName(), null);
+        this.definition = new VariableDefinition(name, null, StringFormat.class.getName(), null);
         this.value = value;
     }
 
