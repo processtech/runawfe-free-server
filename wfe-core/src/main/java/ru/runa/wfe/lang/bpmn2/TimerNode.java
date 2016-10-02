@@ -68,7 +68,7 @@ public class TimerNode extends Node implements BoundaryEvent {
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         TimerJob timerJob = new TimerJob(executionContext.getToken());
-        timerJob.setName(getNodeId());
+        timerJob.setName(getName());
         timerJob.setDueDateExpression(dueDateExpression);
         timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDateExpression));
         timerJob.setRepeatDurationString(repeatDurationString);
