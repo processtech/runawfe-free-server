@@ -202,7 +202,7 @@ public class Process extends IdentifiableBase {
 
     /**
      * Ends this process and all the tokens in it.
-     * 
+     *
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
@@ -337,9 +337,9 @@ public class Process extends IdentifiableBase {
                 }
 
                 String subProcessName = subProcessDefinition.getName();
-                SubprocessNode subprocessState = subProcessesStates.get(subProcessName);
+                SubprocessNode subprocessNode = subProcessesStates.get(subProcessName);
 
-                if (subprocessState.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
+                if (!subProcess.hasEnded() && subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
                     subProcess.end(subExecutionContext, canceller);
                 }
             }

@@ -298,9 +298,10 @@ public class Token implements Serializable {
             setEndDate(new Date());
             Node node = executionContext.getNode();
             if (node instanceof SubprocessNode) {
-                Process subProcess = executionContext.getChildNodeProcess().getSubProcess();
-                ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
-                subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                for (Process subProcess : executionContext.getTokenSubprocesses()) {
+                    ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                    subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                }
             } else if (node instanceof BaseTaskNode) {
                 ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
             } else if (node instanceof BoundaryEvent) {

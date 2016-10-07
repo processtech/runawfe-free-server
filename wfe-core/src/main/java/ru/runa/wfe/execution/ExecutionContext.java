@@ -174,8 +174,8 @@ public class ExecutionContext {
         return nodeProcessDAO.findBySubProcessId(getProcess().getId());
     }
 
-    public NodeProcess getChildNodeProcess() {
-        return nodeProcessDAO.findByParentToken(getToken());
+    public List<Process> getTokenSubprocesses() {
+        return nodeProcessDAO.getSubprocesses(getToken());
     }
 
     public List<Process> getSubprocesses() {

@@ -24,10 +24,6 @@ public class NodeProcessDAO extends GenericDAO<NodeProcess> {
         return findFirstOrNull("from NodeProcess where subProcess.id = ?", processId);
     }
 
-    public NodeProcess findByParentToken(Token parentToken) {
-        return findFirstOrNull("from NodeProcess where parentToken = ?", parentToken);
-    }
-
     public List<NodeProcess> getNodeProcesses(final Process process, final Token parentToken, final String nodeId, final Boolean finished) {
         return getHibernateTemplate().executeFind(new HibernateCallback<List<Process>>() {
 
@@ -86,6 +82,15 @@ public class NodeProcessDAO extends GenericDAO<NodeProcess> {
         for (Process subprocess : getSubprocesses(process)) {
             result.add(subprocess);
             result.addAll(getSubprocessesRecursive(subprocess));
+        }
+        return result;
+    }
+
+    public List<Process> getSubprocesses(Token token) {
+        List<NodeProcess> nodeProcesses = getNodeProcesses(token.getProcess(), token, null, null);
+        List<Process> result = Lists.newArrayListWithExpectedSize(nodeProcesses.size());
+        for (NodeProcess nodeProcess : nodeProcesses) {
+            result.add(nodeProcess.getSubProcess());
         }
         return result;
     }
