@@ -57,7 +57,7 @@ public interface DefinitionService {
      * @throws DefinitionArchiveFormatException
      */
     public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
-            DefinitionArchiveFormatException;
+    DefinitionArchiveFormatException;
 
     /**
      * Redeploys process definition by name.
@@ -94,7 +94,7 @@ public interface DefinitionService {
      * @throws DefinitionNameMismatchException
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
-            DefinitionArchiveFormatException, DefinitionNameMismatchException;
+    DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
      * Gets only last version from process definition by name.
@@ -133,7 +133,7 @@ public interface DefinitionService {
     public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
 
     /**
-     * Gets parsed process definition by id.
+     * Gets parsed process definition by id. TODO this method return too many data through references.
      *
      * @param user
      *            authorized user
@@ -158,7 +158,7 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      */
     public void undeployProcessDefinition(User user, String definitionName, Long version) throws DefinitionDoesNotExistException,
-            ParentProcessExistsException;
+    ParentProcessExistsException;
 
     /**
      * Retrieves file data from process definition archive.
