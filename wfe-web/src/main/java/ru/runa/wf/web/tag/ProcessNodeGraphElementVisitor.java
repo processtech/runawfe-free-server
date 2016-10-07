@@ -17,7 +17,6 @@
  */
 package ru.runa.wf.web.tag;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,8 +45,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 /**
- * Operation to create links to subprocesses and tool tips to minimized
- * elements.
+ * Operation to create links to subprocesses and tool tips to minimized elements.
  */
 public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     private static final Pattern ACTION_LOG_PATTERN = Pattern.compile(".*?class=(.*?), configuration.*?", Pattern.DOTALL);
@@ -63,8 +61,7 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     private final TD td;
 
     /**
-     * Creates operation to create links to subprocesses and tool tips to
-     * minimized elements.
+     * Creates operation to create links to subprocesses and tool tips to minimized elements.
      *
      * @param taskId
      *            Current task identity.
@@ -97,8 +94,7 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
         if (element.getData() != null) {
             Table table = new Table();
             table.setClass(Resources.CLASS_LIST_TABLE);
-            List<ProcessLog> logs = (List<ProcessLog>) element.getData();
-            for (ProcessLog log : logs) {
+            for (ProcessLog log : element.getData()) {
                 String description;
                 try {
                     String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);

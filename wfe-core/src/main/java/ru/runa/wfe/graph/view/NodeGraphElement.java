@@ -1,27 +1,29 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.graph.view;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 
@@ -38,11 +40,10 @@ public class NodeGraphElement implements Serializable {
     private int[] graphConstraints;
 
     /**
-     * Some additional data, assigned to graph element. This data is differs in
-     * graph elements, returned by different kinds of requests. May be null if
-     * not set.
+     * Process logs concerning this node, can be <code>null</code> if not entered yet.
      */
-    private Object data;
+    private List<ProcessLog> data;
+    private String label;
 
     /**
      * Initializes data.
@@ -73,8 +74,7 @@ public class NodeGraphElement implements Serializable {
     }
 
     /**
-     * Graph element position constraints. For rectangles represents upper-left
-     * and bottom-right corners.
+     * Graph element position constraints. For rectangles represents upper-left and bottom-right corners.
      */
     public int[] getGraphConstraints() {
         return graphConstraints;
@@ -83,15 +83,23 @@ public class NodeGraphElement implements Serializable {
     /**
      * Some additional data, assigned to graph element.
      */
-    public Object getData() {
+    public List<ProcessLog> getData() {
         return data;
     }
 
     /**
      * Some additional data, assigned to graph element.
      */
-    public void setData(Object data) {
+    public void setData(List<ProcessLog> data) {
         this.data = data;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     @Override
