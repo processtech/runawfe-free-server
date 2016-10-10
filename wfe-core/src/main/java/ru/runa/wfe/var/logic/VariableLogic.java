@@ -20,6 +20,9 @@ package ru.runa.wfe.var.logic;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
@@ -37,9 +40,6 @@ import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-
 /**
  * Process execution logic.
  *
@@ -53,12 +53,16 @@ public class VariableLogic extends WFCommonLogic {
         Process process = processDAO.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
+        Map<String, Object> values = variableDAO.getAll(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
             if (!Utils.isNullOrEmpty(variable.getValue())) {
                 result.add(variable);
             }
+        }
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            result.add(new WfVariable(entry.getKey(), entry.getValue()));
         }
         return result;
     }
