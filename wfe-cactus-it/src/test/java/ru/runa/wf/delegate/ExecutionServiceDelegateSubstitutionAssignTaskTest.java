@@ -142,7 +142,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
             actor2Tasks = checkTaskList(actor2SUser, 0);
             substituteTasks = checkTaskList(substituteUser, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null, null);
         {
             checkTaskList(actor1User, 1);
             checkTaskList(actor2SUser, 1);
@@ -190,7 +190,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
             actor2Tasks = checkTaskList(actor2SUser, 0);
             substituteTasks = checkTaskList(substituteUser, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null, null);
         {
             checkTaskList(actor1User, 1);
             checkTaskList(actor2SUser, 1);
@@ -236,7 +236,7 @@ public class ExecutionServiceDelegateSubstitutionAssignTaskTest extends ServletT
             actor2Tasks = checkTaskList(actor2SUser, 0);
             substituteTasks = checkTaskList(substituteUser, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null, null);
         {
             checkTaskList(actor1User, 1);
             checkTaskList(actor2SUser, 1);

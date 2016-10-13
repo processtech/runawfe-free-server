@@ -87,7 +87,7 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
 
     public void testStartProcessInstanceWithMapByUnauthorizedSubject() throws Exception {
         try {
-            executionService.startProcess(helper.getUnauthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+            executionService.startProcess(helper.getUnauthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, startVariables);
             fail("testStartProcessInstanceWithMapByUnauthorizedSubject(), no AuthorizationException");
         } catch (AuthorizationException e) {
         }
@@ -95,7 +95,7 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
 
     public void testStartProcessInstanceWithMapByFakeSubject() throws Exception {
         try {
-            executionService.startProcess(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+            executionService.startProcess(helper.getFakeUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, startVariables);
             fail("testStartProcessInstanceWithMapByFakeSubject(), no AuthenticationException");
         } catch (AuthenticationException e) {
         }
@@ -103,7 +103,7 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
 
     public void testStartProcessInstanceWithMapByNullSubject() throws Exception {
         try {
-            executionService.startProcess(null, WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+            executionService.startProcess(null, WfServiceTestHelper.VALID_PROCESS_NAME, null, startVariables);
             fail("testStartProcessInstanceWithMapByNullSubject(), no IllegalArgumentException");
         } catch (IllegalArgumentException e) {
         }
@@ -111,7 +111,7 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
 
     public void testStartProcessInstanceWithMapByAuthorizedSubjectWithInvalidProcessDefinitionName() throws Exception {
         try {
-            executionService.startProcess(helper.getAuthorizedPerformerUser(), "INVALID_PROCESS_NAME", startVariables);
+            executionService.startProcess(helper.getAuthorizedPerformerUser(), "INVALID_PROCESS_NAME", null, startVariables);
             assertTrue("testStartProcessInstanceWithMapByAuthorizedSubjectWithInvalidProcessDefinitionName(), no DefinitionDoesNotExistException",
                     false);
         } catch (DefinitionDoesNotExistException e) {
@@ -119,11 +119,11 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
     }
 
     public void testStartProcessInstanceWithMapByAuthorizedSubjectWithNullVariables() throws Exception {
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, null);
     }
 
     public void testStartProcessInstanceWithMapByAuthorizedSubject() throws Exception {
-        Long processId = executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+        Long processId = executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, startVariables);
 
         List<WfProcess> processInstances = executionService.getProcesses(helper.getAuthorizedPerformerUser(),
                 helper.getProcessInstanceBatchPresentation());
@@ -154,7 +154,7 @@ public class ExecutionServiceDelegateStartProcessInstanceWithMapTest extends Ser
         helper.getAuthorizationService().setPermissions(helper.getAuthorizedPerformerUser(), helper.getSubGroupActor().getId(), permissions,
                 defintiion);
 
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, startVariables);
+        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, startVariables);
 
         helper.getExecutionService().getProcesses(helper.getAuthorizedPerformerUser(), helper.getProcessInstanceBatchPresentation());
 

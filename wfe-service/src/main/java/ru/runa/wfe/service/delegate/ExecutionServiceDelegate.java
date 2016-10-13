@@ -49,9 +49,9 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public Long startProcess(User user, String definitionName, Map<String, Object> variablesMap) {
+    public Long startProcess(User user, String definitionName, Long definitionVersion, Map<String, Object> variablesMap) {
         try {
-            return getExecutionService().startProcess(user, definitionName, variablesMap);
+            return getExecutionService().startProcess(user, definitionName, definitionVersion, variablesMap);
         } catch (Exception e) {
             throw handleException(e);
         }

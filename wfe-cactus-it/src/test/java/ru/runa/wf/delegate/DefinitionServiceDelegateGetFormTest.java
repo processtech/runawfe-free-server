@@ -76,7 +76,7 @@ public class DefinitionServiceDelegateGetFormTest extends ServletTestCase {
         Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME);
 
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME, null);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.ONE_SWIMLANE_PROCESS_NAME, null, null);
         super.setUp();
     }
 

@@ -47,7 +47,7 @@ public class ExecutionServiceDelegateGetProcessInstanceStubTest extends ServletT
         helper.deployValidProcessDefinition();
 
         // processId =
-        executionService.startProcess(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
+        executionService.startProcess(helper.getAdminUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, null);
         processId = executionService.getProcesses(helper.getAuthorizedPerformerUser(), helper.getProcessInstanceBatchPresentation()).get(0).getId();
 
         super.setUp();

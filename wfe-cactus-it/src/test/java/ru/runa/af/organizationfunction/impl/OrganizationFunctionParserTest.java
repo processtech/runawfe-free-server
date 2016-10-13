@@ -74,7 +74,7 @@ public class OrganizationFunctionParserTest extends ServletTestCase {
     }
 
     public void testOrganizationFunction() throws Exception {
-        th.getExecutionService().startProcess(th.getAuthorizedPerformerUser(), PROCESS_NAME, null);
+        th.getExecutionService().startProcess(th.getAuthorizedPerformerUser(), PROCESS_NAME, null, null);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAdminUser(), th.getTaskBatchPresentation());
         assertEquals("tasks count differs from expected", 0, tasks.size());

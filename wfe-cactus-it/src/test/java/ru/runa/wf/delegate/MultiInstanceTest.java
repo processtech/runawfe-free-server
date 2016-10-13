@@ -74,7 +74,7 @@ public class MultiInstanceTest extends ServletTestCase {
         variables.put("discriminator", new String[] { "d1", "d2", "d3" });
         variables.put("discriminator_r", new String[] { "d1_r", "d2_r", "d3_r" });
         variables.put("discriminator_rw", new String[] { "d1_rw", "d2_rw", "d3_rw" });
-        long processId = executionService.startProcess(user, "multiinstance superprocess", variables);
+        long processId = executionService.startProcess(user, "multiinstance superprocess", null, variables);
         List<WfTask> tasks = th.getTaskService().getMyTasks(user, BatchPresentationFactory.TASKS.createDefault());
         assertEquals(3, tasks.size());
         for (WfTask task : tasks) {
@@ -99,7 +99,7 @@ public class MultiInstanceTest extends ServletTestCase {
         variables.put("discriminator", Lists.newArrayList("d1", "d2", "d3"));
         variables.put("discriminator_r", Lists.newArrayList("d1_r", "d2_r", "d3_r"));
         variables.put("discriminator_rw", Lists.newArrayList("d1_rw", "d2_rw", "d3_rw"));
-        long processId = executionService.startProcess(user, "multiinstance superprocess", variables);
+        long processId = executionService.startProcess(user, "multiinstance superprocess", null, variables);
         List<WfTask> tasks = th.getTaskService().getMyTasks(user, BatchPresentationFactory.TASKS.createDefault());
         assertEquals(3, tasks.size());
         for (WfTask task : tasks) {
@@ -123,7 +123,7 @@ public class MultiInstanceTest extends ServletTestCase {
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("discriminator", new String[] { "d1", "d2", "d3" });
         variables.put("discriminator_r", new String[] { "d1_r", "d2_r", "d3_r" });
-        long processId = executionService.startProcess(user, "multiinstance superprocess", variables);
+        long processId = executionService.startProcess(user, "multiinstance superprocess", null, variables);
         List<WfTask> tasks = th.getTaskService().getMyTasks(user, BatchPresentationFactory.TASKS.createDefault());
         assertEquals(3, tasks.size());
         for (WfTask task : tasks) {
@@ -147,7 +147,7 @@ public class MultiInstanceTest extends ServletTestCase {
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("discriminator", new String[] {});
         variables.put("discriminator_r", new String[] {});
-        Long processId = executionService.startProcess(user, "multiinstance superprocess", variables);
+        Long processId = executionService.startProcess(user, "multiinstance superprocess", null, variables);
         System.out.println("multiinstancesubprocesses=" + executionService.getSubprocesses(user, processId, true));
         assertTrue(executionService.getProcess(user, processId).isEnded());
     }
@@ -180,7 +180,7 @@ public class MultiInstanceTest extends ServletTestCase {
         variables.put("Variable1", "Variable for subprocess 1");
         variables.put("Variable2", "Variable for subprocess 2");
         variables.put("multi", new String[] { "sub-mult 1", "sub-mult 2", "sub-mult 3" });
-        long processId = executionService.startProcess(user, "MultiInstance - MainProcess", variables);
+        long processId = executionService.startProcess(user, "MultiInstance - MainProcess", null, variables);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(user, BatchPresentationFactory.TASKS.createDefault());
         assertEquals(1, tasks.size());
@@ -241,7 +241,7 @@ public class MultiInstanceTest extends ServletTestCase {
         variables.put("Variable2", "relation1");
         variables.put("Variable3", "relationparam1");
         variables.put("multi", new String[] { "sub-mult 1", "sub-mult 2", "sub-mult 3" });
-        executionService.startProcess(user, "MultiInstance - TypeMainProcess", variables);
+        executionService.startProcess(user, "MultiInstance - TypeMainProcess", null, variables);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(user, BatchPresentationFactory.TASKS.createDefault());
         assertEquals(3, tasks.size());
@@ -294,7 +294,7 @@ public class MultiInstanceTest extends ServletTestCase {
         variables.put("discriminator", new String[] { "d1", "d2", "d3" });
         variables.put("discriminator_r", new String[] { "d1_r", "d2_r", "d3_r" });
         variables.put("discriminator_rw", new String[] { "d1_rw", "d2_rw", "d3_rw" });
-        long processId = executionService.startProcess(user, "multiinstance superprocess", variables);
+        long processId = executionService.startProcess(user, "multiinstance superprocess", null, variables);
         List<WfTask> tasks = th.getTaskService().getMyTasks(user, BatchPresentationFactory.TASKS.createDefault());
         assertEquals(3, tasks.size());
         for (WfTask task : tasks) {

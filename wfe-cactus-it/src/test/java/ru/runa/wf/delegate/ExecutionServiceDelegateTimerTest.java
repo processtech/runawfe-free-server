@@ -72,7 +72,7 @@ public class ExecutionServiceDelegateTimerTest extends ServletTestCase {
     }
 
     private Long prolog() throws AuthorizationException, AuthenticationException, DefinitionDoesNotExistException, ValidationException {
-        Long pid = executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.TIMER_PROCESS_NAME, null);
+        Long pid = executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.TIMER_PROCESS_NAME, null, null);
         assertEquals(STATE_ALIFA, th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), BatchPresentationFactory.TASKS.createDefault())
                 .get(0).getName());
         checkTasksCount(th.getAuthorizedPerformerUser(), 1);

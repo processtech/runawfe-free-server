@@ -59,7 +59,7 @@ public class ExecutionServiceDelegateGetSwimlaneExecutorMapTest extends ServletT
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
         // instanceId =
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null, null);
 
         th.addExecutorToGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
         instanceId = executionService.getProcesses(th.getAdminUser(), th.getProcessInstanceBatchPresentation()).get(0).getId();
