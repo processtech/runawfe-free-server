@@ -82,7 +82,7 @@ public class Fork2Test extends ServletTestCase {
     public void testVariant1() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "false");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_2_PROCESS_NAME, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_2_PROCESS_NAME, null, startVariables);
 
         List<WfTask> hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -198,7 +198,7 @@ public class Fork2Test extends ServletTestCase {
     public void testVariant2() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_2_PROCESS_NAME, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_2_PROCESS_NAME, null, startVariables);
 
         List<WfTask> hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -357,7 +357,7 @@ public class Fork2Test extends ServletTestCase {
     public void testVariant3() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_2_PROCESS_NAME, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_2_PROCESS_NAME, null, startVariables);
 
         List<WfTask> hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());

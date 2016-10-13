@@ -109,6 +109,15 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
+    public WfDefinition getProcessDefinitionVersion(User user, String definitionName, Long definitionVersion) {
+        try {
+            return getDefinitionService().getProcessDefinitionVersion(user, definitionName, definitionVersion);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public WfDefinition getProcessDefinition(User user, Long definitionId) {
         try {
             return getDefinitionService().getProcessDefinition(user, definitionId);

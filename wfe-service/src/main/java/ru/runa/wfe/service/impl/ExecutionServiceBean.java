@@ -83,20 +83,20 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public Long startProcess(User user, String definitionName, Map<String, Object> variables) {
+    public Long startProcess(User user, String definitionName, Long definitionVersion, Map<String, Object> variables) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionName != null, "definitionName");
         FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
-        return executionLogic.startProcess(user, definitionName, variables);
+        return executionLogic.startProcess(user, definitionName, definitionVersion, variables);
     }
 
     @Override
     @WebResult(name = "result")
     public Long startProcessWS(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
-            @WebParam(name = "variables") List<Variable> variables) {
+            @WebParam(name = "definitionVersion") Long definitionVersion, @WebParam(name = "variables") List<Variable> variables) {
         WfDefinition definition = definitionLogic.getLatestProcessDefinition(user, definitionName);
         ProcessDefinition processDefinition = executionLogic.getDefinition(definition.getId());
-        return startProcess(user, definitionName, VariableConverter.unmarshal(processDefinition, variables));
+        return startProcess(user, definitionName, definitionVersion, VariableConverter.unmarshal(processDefinition, variables));
     }
 
     @Override

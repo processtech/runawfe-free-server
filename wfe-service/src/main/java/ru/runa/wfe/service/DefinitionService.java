@@ -109,6 +109,20 @@ public interface DefinitionService {
     public WfDefinition getLatestProcessDefinition(User user, String definitionName) throws DefinitionDoesNotExistException;
 
     /**
+     * Gets process definition by name and version.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionName
+     *            process definition name
+     * @param definitionVersion
+     *            process definition version
+     * @return not <code>null</code>
+     * @throws DefinitionDoesNotExistException
+     */
+    public WfDefinition getProcessDefinitionVersion(User user, String definitionName, Long definitionVersion) throws DefinitionDoesNotExistException;
+
+    /**
      * Gets process definition by id.
      *
      * @param user

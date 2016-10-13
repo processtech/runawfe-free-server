@@ -14,7 +14,7 @@ public interface ExecutionServiceRemoteWS {
 
     public List<Variable> getVariablesWS(User user, Long processId);
 
-    public Long startProcessWS(User user, String definitionName, List<Variable> variables);
+    public Long startProcessWS(User user, String definitionName, Long definitionVersion, List<Variable> variables);
 
     public void updateVariablesWS(User user, Long processId, List<Variable> variables);
 

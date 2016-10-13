@@ -141,7 +141,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null, null);
 
         {
             checkTaskList(substituted, 1);
@@ -211,7 +211,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null, null);
 
         {
             checkTaskList(substituted, 1);
@@ -281,7 +281,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null, null);
 
         {
             checkTaskList(substituted, 1);
@@ -352,7 +352,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null, null);
 
         {
             checkTaskList(substituted, 1);
@@ -424,7 +424,7 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
             checkTaskList(substitutor2, 0);
         }
 
-        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(substituted, PROCESS_NAME, null, null);
 
         {
             checkTaskList(substituted, 1);

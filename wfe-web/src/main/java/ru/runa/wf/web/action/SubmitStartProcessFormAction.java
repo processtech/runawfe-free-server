@@ -61,7 +61,7 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
         variables.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, definitionId);
         log.debug(user + " submitted start form for definition " + definition.getName());
-        Long processId = Delegates.getExecutionService().startProcess(user, definition.getName(), variables);
+        Long processId = Delegates.getExecutionService().startProcess(user, definition.getName(), null, variables);
         FormSubmissionUtils.getUploadedFilesMap(request).clear();
         return processId;
     }

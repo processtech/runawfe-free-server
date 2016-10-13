@@ -61,7 +61,7 @@ public class OrganizationFunctionFactoryTest extends ServletTestCase {
                 Lists.newArrayList(DefinitionPermission.READ, DefinitionPermission.START_PROCESS, DefinitionPermission.UNDEPLOY_DEFINITION),
                 WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        th.getExecutionService().startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
+        th.getExecutionService().startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null, null);
 
         legalVariables = new HashMap<String, Object>();
         legalVariables.put("approved", "true");

@@ -129,7 +129,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null, null);
         for (int i = 0; i < 3; ++i) {
             moveAssignAssigned();
         }
@@ -153,7 +153,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null, null);
         for (int i = 0; i < 3; ++i) {
             try {
                 moveAssignMoved();
@@ -183,7 +183,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null, null);
         for (int i = 0; i < 3; ++i) {
             moveMoveAssigned();
         }
@@ -207,7 +207,7 @@ public class ExecutionServiceDelegateAssignTaskTest extends ServletTestCase {
             checkTaskList(actor1User, 0);
             checkTaskList(actor2User, 0);
         }
-        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null);
+        testHelper.getExecutionService().startProcess(actor1User, PROCESS_NAME, null, null);
         moveExecuteExecuted();
     }
 
