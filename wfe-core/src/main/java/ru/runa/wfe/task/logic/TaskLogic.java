@@ -8,6 +8,12 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
 import ru.runa.wfe.commons.SystemProperties;
@@ -54,12 +60,6 @@ import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Task logic.
@@ -118,7 +118,8 @@ public class TaskLogic extends WFCommonLogic {
                     extraVariablesMap.put(mapping.getMappedName(), value);
                 }
             }
-            IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
+            IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap,
+                    executionContext.getVariableProvider());
             validateVariables(user, executionContext, validationVariableProvider, processDefinition, task.getNodeId(), variables);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
@@ -153,10 +154,8 @@ public class TaskLogic extends WFCommonLogic {
             Set<Map.Entry<String, Object>> entries = new HashSet<Map.Entry<String, Object>>(variables.entrySet());
             for (Map.Entry<String, Object> entry : entries) {
                 if (Objects.equal(mapping.getMappedName(), entry.getKey()) || entry.getKey().startsWith(mapping.getMappedName() + UserType.DELIM)) {
-                    String mappedVariableName = entry.getKey().replaceFirst(
-                            mapping.getMappedName(),
-                            mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                    String mappedVariableName = entry.getKey().replaceFirst(mapping.getMappedName(), mapping.getName()
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex() + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -254,11 +253,12 @@ public class TaskLogic extends WFCommonLogic {
         AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
     }
 
-    ///////////////////////////////
+    ///////// Block refactored in multiDelegation (144 RM 194 SF) feature - remove markers after QA pass ////////////
     /**
-     * Delegates the Task (by taskId) to new owners. (Rely on multiply tasks delegation function delegateTasks(), though usually are done conversely.
-     * Done here so, because SET is more common case than single ELEMENT, and it's right way to build more special cases on top of commons, not
-     * versa.)
+     * Delegates the Task (by taskId) to new owners. (Rely on multiply tasks delegation function delegateTaskInner(),
+     * though usually are done conversely.
+     * But we do it so, because SET is more common case than single ELEMENT,
+     * and it's right way to build more special cases on top of commons, not versa.)
      *
      * @param user
      *            - Current user
@@ -275,7 +275,10 @@ public class TaskLogic extends WFCommonLogic {
     public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners)
             throws TaskAlreadyAcceptedException {
         Task task = taskDAO.getNotNull(taskId);
-        DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task);
+        DelegationGroup delegationGroup = null;
+        if (newOwners.size() > 1 || keepCurrentOwners) {
+            delegationGroup = createTemporaryDelegationGroup(user, task);
+        }
         delegateTaskInner(user, task, currentOwner, keepCurrentOwners, newOwners, delegationGroup);
     }
 
@@ -283,7 +286,7 @@ public class TaskLogic extends WFCommonLogic {
      * Delegates the Tasks (by taskIds) to new owners.
      *
      * @param user
-     *            - Current user
+     *            - Currently working user
      * @param taskIds
      *            - Delegated Tasks (by taskIds)
      * @param keepCurrentOwners
@@ -294,18 +297,41 @@ public class TaskLogic extends WFCommonLogic {
      */
     public void delegateTasks(User user, Set<Long> taskIds, boolean keepCurrentOwners, List<? extends Executor> newOwners)
             throws TaskAlreadyAcceptedException {
+        // It's better to move to single delegationGroup somehow here.
+        // But impossible till now - due to Process link in temporary delegation group.
+        // So, placed here commented to illustrate intentions...
+        // DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task);
         for (Long taskId : taskIds) {
             Task task = taskDAO.getNotNull(taskId);
             // We get currentOwner just from task
             Executor currentOwner = task.getExecutor();
-            // TODO: Good thought - refactor to single Delegation Group (before cycle). Now impossible due to Process link in temporary delegation
-            // group.
-            DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task);
+            // TODO: Good thought - refactor to use single Delegation Group (before cycle). 
+            DelegationGroup delegationGroup = null;
+            if (newOwners.size() > 1 || keepCurrentOwners) {
+                delegationGroup = createTemporaryDelegationGroup(user, task);
+            }
             delegateTaskInner(user, task, currentOwner, keepCurrentOwners, newOwners, delegationGroup);
         }
     }
 
-    private void delegateTaskInner(User user, Task task, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors,
+    /**
+     * Function that provide real delegation - are not single, but set-based.
+     * 
+     * @param user
+     *            - Currently working user
+     * @param task
+     *            - Delegated Task
+     * @param currentOwner
+     *            - Current tasks Owner
+     * @param keepCurrentOwners
+     *            - Flag that current owners can still accept tasks
+     * @param newOwners
+     *            - new Owners for tasks
+     * @param delegationGroup
+     *            - Temporary group which gather all new owners
+     * @throws TaskAlreadyAcceptedException
+     */
+    private void delegateTaskInner(User user, Task task, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners,
             DelegationGroup delegationGroup) throws TaskAlreadyAcceptedException {
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
@@ -317,17 +343,21 @@ public class TaskLogic extends WFCommonLogic {
         }
         if (keepCurrentOwners) {
             if (currentOwner instanceof TemporaryGroup) {
-                ((List<Executor>) executors).addAll(executorDAO.getGroupChildren((Group) currentOwner));
+                ((List<Executor>) newOwners).addAll(executorDAO.getGroupChildren((Group) currentOwner));
             } else {
-                ((List<Executor>) executors).add(executorDAO.getExecutor(currentOwner.getId()));
+                ((List<Executor>) newOwners).add(executorDAO.getExecutor(currentOwner.getId()));
             }
         }
 
-        executorDAO.addExecutorsToGroup(executors, delegationGroup);
         ProcessDefinition processDefinition = getDefinition(task);
         final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
-        executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
-        AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
+        executionContext.addLog(new TaskDelegationLog(task, user.getActor(), newOwners));
+        if (delegationGroup != null) {
+            executorDAO.addExecutorsToGroup(newOwners, delegationGroup);
+            AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
+        } else {
+            AssignmentHelper.reassignTask(executionContext, task, newOwners.get(0), false);
+        }
     }
 
     private DelegationGroup createTemporaryDelegationGroup(User user, Task task) {
