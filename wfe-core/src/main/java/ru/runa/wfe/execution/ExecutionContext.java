@@ -286,8 +286,11 @@ public class ExecutionContext {
                 if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null
                         && baseVariable.getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
-                } else if (baseVariable != null && !Utils.isNullOrEmpty(baseVariable.getValue())) {
-                    return baseVariable;
+                } else if (baseVariable != null) {
+                    if (!Utils.isNullOrEmpty(baseVariable.getValue())) {
+                        return baseVariable;
+                    }
+                    return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, baseVariable);
                 }
                 return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, variable);
             }
