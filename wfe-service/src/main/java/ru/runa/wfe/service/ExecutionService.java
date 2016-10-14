@@ -52,16 +52,29 @@ public interface ExecutionService {
      *            authorized user
      * @param definitionName
      *            process definition name
-     * @param definitionVersion TODO
      * @param variables
      *            initial variable values
-     * @param definitionVersion
-     *            process definition version or <code>null</code> to use latest available
      * @return id of started process
      * @throws DefinitionDoesNotExistException
      * @throws ValidationException
      */
-    public Long startProcess(User user, String definitionName, Long definitionVersion, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+    public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+            ValidationException;
+
+    /**
+     * Starts new process by definition.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @param variables
+     *            initial variable values
+     * @return id of started process
+     * @throws DefinitionDoesNotExistException
+     * @throws ValidationException
+     */
+    public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
             ValidationException;
 
     /**

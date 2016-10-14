@@ -248,17 +248,15 @@ public class ExecutionLogic extends WFCommonLogic {
         return result;
     }
 
-    public Long startProcess(User user, String definitionName, Long version, Map<String, Object> variables) {
+    public Long startProcess(User user, String definitionName, Map<String, Object> variables) {
+        return startProcess(user, getLatestDefinition(definitionName).getId(), variables);
+    }
+
+    public Long startProcess(User user, Long definitionId, Map<String, Object> variables) {
         if (variables == null) {
             variables = Maps.newHashMap();
         }
-        ProcessDefinition processDefinition;
-        if (version == null) {
-            processDefinition = getLatestDefinition(definitionName);
-        } else {
-            Deployment deployment = deploymentDAO.findDeployment(definitionName, version);
-            processDefinition = getDefinition(deployment.getId());
-        }
+        ProcessDefinition processDefinition = getDefinition(definitionId);
         checkPermissionAllowed(user, processDefinition.getDeployment(), DefinitionPermission.START_PROCESS);
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         Map<String, Object> extraVariablesMap = Maps.newHashMap();

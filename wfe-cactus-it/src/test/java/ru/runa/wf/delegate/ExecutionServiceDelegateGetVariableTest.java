@@ -63,7 +63,7 @@ public class ExecutionServiceDelegateGetVariableTest extends ServletTestCase {
 
         HashMap<String, Object> variablesMap = new HashMap<String, Object>();
         variablesMap.put(variableName, variableValue);
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, variablesMap);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, variablesMap);
 
         // taskId = executionDelegate.getTasks(helper.getAdminUser(),
         // helper.getTaskBatchPresentation())[0].getId();

@@ -84,7 +84,7 @@ public class Fork1Test extends ServletTestCase {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable1", "true");
         startVariables.put("def_variable2", "false");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, startVariables);
 
         List<WfTask> hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -219,7 +219,7 @@ public class Fork1Test extends ServletTestCase {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable1", "false");
         startVariables.put("def_variable2", "false");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, startVariables);
 
         List<WfTask> hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -292,7 +292,7 @@ public class Fork1Test extends ServletTestCase {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable1", "false");
         startVariables.put("def_variable2", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, startVariables);
 
         List<WfTask> hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -403,7 +403,7 @@ public class Fork1Test extends ServletTestCase {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable1", "true");
         startVariables.put("def_variable2", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, startVariables);
 
         List<WfTask> hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());
@@ -548,7 +548,7 @@ public class Fork1Test extends ServletTestCase {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable1", "true");
         startVariables.put("def_variable2", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_JPDL_1_PROCESS_NAME, startVariables);
 
         List<WfTask> hrTasks = th.getTaskService().getMyTasks(th.getHrOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, hrTasks.size());

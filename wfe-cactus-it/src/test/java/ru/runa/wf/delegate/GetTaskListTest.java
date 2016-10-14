@@ -109,7 +109,7 @@ public class GetTaskListTest extends ServletTestCase {
 
     public void testEqualsFunctionTest() throws Exception {
 
-        th.getExecutionService().startProcess(th.getAuthorizedPerformerUser(), PROCESS_NAME, null, null);
+        th.getExecutionService().startProcess(th.getAuthorizedPerformerUser(), PROCESS_NAME, null);
         // assignment handler creates secured object for swimlane and grants
         // group2 permissions on it, so we have to update reference
         group2 = (Group) th.getExecutor(group2.getName());

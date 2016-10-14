@@ -77,7 +77,7 @@ public class WfScriptServiceTestHelper extends WfServiceTestHelper {
             DefinitionPermission.READ_STARTED_PROCESS);
         getAuthorizationService().setPermissions(adminUser, performer.getId(), validPermissions,
             getDefinitionService().getLatestProcessDefinition(adminUser, processDefinitionName));
-        getExecutionService().startProcess(adminUser, processDefinitionName, null, null);
+        getExecutionService().startProcess(adminUser, processDefinitionName, null);
         return getExecutionService().getProcesses(adminUser, getProcessInstanceBatchPresentation()).get(0);
     }
 

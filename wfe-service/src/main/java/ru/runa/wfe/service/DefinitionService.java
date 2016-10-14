@@ -57,7 +57,7 @@ public interface DefinitionService {
      * @throws DefinitionArchiveFormatException
      */
     public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
-    DefinitionArchiveFormatException;
+            DefinitionArchiveFormatException;
 
     /**
      * Redeploys process definition by name.
@@ -94,7 +94,7 @@ public interface DefinitionService {
      * @throws DefinitionNameMismatchException
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
-    DefinitionArchiveFormatException, DefinitionNameMismatchException;
+            DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
      * Gets only last version from process definition by name.
@@ -107,20 +107,6 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      */
     public WfDefinition getLatestProcessDefinition(User user, String definitionName) throws DefinitionDoesNotExistException;
-
-    /**
-     * Gets process definition by name and version.
-     *
-     * @param user
-     *            authorized user
-     * @param definitionName
-     *            process definition name
-     * @param definitionVersion
-     *            process definition version
-     * @return not <code>null</code>
-     * @throws DefinitionDoesNotExistException
-     */
-    public WfDefinition getProcessDefinitionVersion(User user, String definitionName, Long definitionVersion) throws DefinitionDoesNotExistException;
 
     /**
      * Gets process definition by id.
@@ -172,7 +158,7 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      */
     public void undeployProcessDefinition(User user, String definitionName, Long version) throws DefinitionDoesNotExistException,
-    ParentProcessExistsException;
+            ParentProcessExistsException;
 
     /**
      * Retrieves file data from process definition archive.

@@ -77,7 +77,7 @@ public class StartProcessTaskHandler extends TaskHandlerBase {
                 variables.put(to, value);
             }
             // Start process
-            Long startedProcessId = Delegates.getExecutionService().startProcess(user, processName, null, variables);
+            Long startedProcessId = Delegates.getExecutionService().startProcess(user, processName, variables);
             // add startedProcessId to variables
             if (startedProcessValueName != null) {
                 outputVariables.put(startedProcessValueName, startedProcessId);
