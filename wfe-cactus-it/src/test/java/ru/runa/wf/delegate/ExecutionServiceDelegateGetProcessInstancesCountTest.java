@@ -158,7 +158,7 @@ public class ExecutionServiceDelegateGetProcessInstancesCountTest extends Servle
 
     private void startInstances(int instanceCount) throws InternalApplicationException {
         for (int i = 0; i < instanceCount; i++) {
-            executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, null);
+            executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
         }
     }
 

@@ -83,7 +83,7 @@ public class DecisionTest extends ServletTestCase {
     public void testPath1() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "false");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -110,7 +110,7 @@ public class DecisionTest extends ServletTestCase {
     public void testPath2() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -139,7 +139,7 @@ public class DecisionTest extends ServletTestCase {
     public void testPath3() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -180,7 +180,7 @@ public class DecisionTest extends ServletTestCase {
     public void testPath4() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -221,7 +221,7 @@ public class DecisionTest extends ServletTestCase {
     public void testPath5() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -278,7 +278,7 @@ public class DecisionTest extends ServletTestCase {
         try {
             startVariables = new HashMap<String, Object>();
             startVariables.put("def_variable", "Error_Var");
-            executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, null, startVariables);
+            executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
 
             List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
             assertEquals("tasks length differs from expected", 0, tasks.size());
@@ -296,7 +296,7 @@ public class DecisionTest extends ServletTestCase {
     public void testPath7() throws Exception {
         startVariables = new HashMap<String, Object>();
         startVariables.put("def_variable", "true");
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, null, startVariables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.DECISION_JPDL_PROCESS_NAME, startVariables);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getErpOperatorUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 0, tasks.size());

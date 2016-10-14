@@ -56,7 +56,7 @@ public class ExecutionServiceDelegateCancelProcessInstanceTest extends ServletTe
 
         helper.deployValidProcessDefinition();
 
-        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, null);
+        executionService.startProcess(helper.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null);
 
         batchPresentation = helper.getProcessInstanceBatchPresentation();
 

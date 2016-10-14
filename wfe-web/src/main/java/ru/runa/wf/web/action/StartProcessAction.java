@@ -63,7 +63,7 @@ public class StartProcessAction extends ActionBase {
                         IdForm.ID_INPUT_NAME, definitionId);
             } else {
                 WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
-                Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null, null);
+                Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
 
                 ActionMessages messages = new ActionMessages();

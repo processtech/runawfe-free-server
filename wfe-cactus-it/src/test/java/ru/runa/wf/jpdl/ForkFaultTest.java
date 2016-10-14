@@ -79,7 +79,7 @@ public class ForkFaultTest extends ServletTestCase {
     }
 
     public void test1() throws Exception {
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME, null, null);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME, null);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());
@@ -122,7 +122,7 @@ public class ForkFaultTest extends ServletTestCase {
     }
 
     public void testFault1() throws Exception {
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME, null, null);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.FORK_FAULT_JPDL_PROCESS_NAME, null);
 
         List<WfTask> tasks = th.getTaskService().getMyTasks(th.getAuthorizedPerformerUser(), batchPresentation);
         assertEquals("tasks length differs from expected", 1, tasks.size());

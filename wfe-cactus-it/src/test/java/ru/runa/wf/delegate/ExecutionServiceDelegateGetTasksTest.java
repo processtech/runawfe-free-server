@@ -64,7 +64,7 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
         Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null, null);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
 
         batchPresentation = th.getTaskBatchPresentation();
 
@@ -124,9 +124,9 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
 
     public void testGetTasksByVariableFilterByAuthorizedSubjectWithExactMatch() throws Exception {
         Long proc1 = executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME,
-                null, WfServiceTestHelper.createVariablesMap("var1", "var1Value"));
+                WfServiceTestHelper.createVariablesMap("var1", "var1Value"));
         Long proc2 = executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME,
-                null, WfServiceTestHelper.createVariablesMap("var2", "var2Value"));
+                WfServiceTestHelper.createVariablesMap("var2", "var2Value"));
         FieldDescriptor[] fields = batchPresentation.getAllFields();
         for (int i = 0; i < fields.length; ++i) {
             if (fields[i].displayName.startsWith(ClassPresentation.editable_prefix)) {
@@ -148,9 +148,9 @@ public class ExecutionServiceDelegateGetTasksTest extends ServletTestCase {
 
     public void testGetTasksByVariableFilterByAuthorizedSubjectWithContainsMatch() throws Exception {
         Long proc1 = executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME,
-                null, WfServiceTestHelper.createVariablesMap("var1", "var1Value"));
+                WfServiceTestHelper.createVariablesMap("var1", "var1Value"));
         Long proc2 = executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME,
-                null, WfServiceTestHelper.createVariablesMap("var2", "var2Value"));
+                WfServiceTestHelper.createVariablesMap("var2", "var2Value"));
         FieldDescriptor[] fields = batchPresentation.getAllFields();
         for (int i = 0; i < fields.length; ++i) {
             if (fields[i].displayName.startsWith(ClassPresentation.editable_prefix)) {

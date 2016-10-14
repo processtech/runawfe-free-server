@@ -53,7 +53,7 @@ public class ExecutionServiceDelegateStringVariableTest extends ServletTestCase 
             }
             variables.put(varName, varValue);
         }
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, null, variables);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.VALID_PROCESS_NAME, variables);
         {
             String varName = "variable";
             String varValue = "";

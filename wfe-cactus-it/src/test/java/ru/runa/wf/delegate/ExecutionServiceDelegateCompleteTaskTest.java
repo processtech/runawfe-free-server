@@ -62,7 +62,7 @@ public class ExecutionServiceDelegateCompleteTaskTest extends ServletTestCase {
         Collection<Permission> permissions = Lists.newArrayList(DefinitionPermission.START_PROCESS, DefinitionPermission.READ_STARTED_PROCESS);
         th.setPermissionsToAuthorizedPerformerOnDefinitionByName(permissions, WfServiceTestHelper.SWIMLANE_PROCESS_NAME);
 
-        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null, null);
+        executionService.startProcess(th.getAuthorizedPerformerUser(), WfServiceTestHelper.SWIMLANE_PROCESS_NAME, null);
 
         th.addExecutorToGroup(th.getAuthorizedPerformerActor(), th.getBossGroup());
         // task =
