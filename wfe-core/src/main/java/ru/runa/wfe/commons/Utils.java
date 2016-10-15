@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -25,15 +26,15 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
@@ -261,6 +262,10 @@ public class Utils {
         }
         if (value instanceof Map) {
             Map s = (Map) value;
+            return s.isEmpty();
+        }
+        if (value instanceof Set) {
+            Set s = (Set) value;
             return s.isEmpty();
         }
         return false;
