@@ -1,6 +1,6 @@
 
 $(document).ready(function() {
-	initUNIQUENAME(null, null);
+	initUNIQUENAME(null);
 });
 
 function initUNIQUENAME(addButtonElement) {
@@ -14,7 +14,8 @@ function initUNIQUENAME(addButtonElement) {
 	addButton.each(function() {
 		$(this).click(function() {
 			var div = $(this).closest("div").parent().closest("div");
-			var rowIndex = div.find("div[row][current][name='VARIABLE']").length;
+			var rows = div.find("div[row][current][name='VARIABLE']");
+			var rowIndex = rows.length < 1 ? 0 : parseInt(rows.last().attr("row")) + 1;
 			console.log("Adding row " + rowIndex);
 			var copy = div.find("div[wfeContainerTemplate]").first().clone(true);
 			copy.find("[name]").each(function(){
