@@ -13,9 +13,28 @@ public class GenerateHtmlForVariableResult {
      */
     public final String scriptContent;
 
-    public GenerateHtmlForVariableResult(String htmlStructureContent, String scriptContent) {
+    static final boolean markStructureWithComments = false;
+    static final boolean markJsWithComments = false;
+
+    public GenerateHtmlForVariableResult(GenerateHtmlForVariableContext context, String htmlStructureContent, String scriptContent) {
         super();
-        this.htmlStructureContent = Strings.isNullOrEmpty(htmlStructureContent) ? "" : htmlStructureContent;
-        this.scriptContent = Strings.isNullOrEmpty(scriptContent) ? "" : scriptContent;
+        this.htmlStructureContent = Strings.isNullOrEmpty(htmlStructureContent) ? "" : markStructure(context, htmlStructureContent);
+        this.scriptContent = Strings.isNullOrEmpty(scriptContent) ? "" : markScript(context, scriptContent);
+    }
+
+    private static String markStructure(GenerateHtmlForVariableContext context, String structureContent) {
+        if (!markStructureWithComments) {
+            return structureContent;
+        }
+        String format = "<!-- HTML Content for %1$s -->\n%2$s<!-- End of HTML Content for %1$s -->";
+        return String.format(format, context.getVariableName(), structureContent);
+    }
+
+    private static String markScript(GenerateHtmlForVariableContext context, String scriptContent) {
+        if (!markJsWithComments) {
+            return scriptContent;
+        }
+        String format = "<!-- Script Content for %1$s -->\n%2$s<!-- End of Script Content for %1$s -->";
+        return String.format(format, context.getVariableName(), scriptContent);
     }
 }

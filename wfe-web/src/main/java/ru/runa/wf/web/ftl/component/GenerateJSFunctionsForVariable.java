@@ -23,6 +23,9 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 
+/**
+ * Component for generation javascript code, which must be called if new variable added on form (for example on list row add).
+ */
 public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<String, WfVariable> {
 
     private boolean onDateCalled;
@@ -101,16 +104,12 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
 
     @Override
     public String onList(ListFormat listFormat, WfVariable variable) {
-        VariableFormat componentFormat = FormatCommons.createComponent(listFormat, 0);
-        WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
-        String initListJs = "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);";
-        return initListJs;
+        return "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);";
     }
 
     @Override
     public String onMap(MapFormat mapFormat, WfVariable variable) {
-        String initListJs = "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);";
-        return initListJs;
+        return "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);";
     }
 
     @Override

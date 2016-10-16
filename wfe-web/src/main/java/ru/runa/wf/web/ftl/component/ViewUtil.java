@@ -105,10 +105,6 @@ public class ViewUtil {
         return createComponentVariable(mapVariable, nameSuffix + ".value", valueFormat, value);
     }
 
-    public static WfVariable createListSizeVariable(WfVariable containerVariable, Object value) {
-        return createComponentVariable(containerVariable, VariableFormatContainer.SIZE_SUFFIX, new StringFormat(), value);
-    }
-
     public static WfVariable createListIndexesVariable(WfVariable containerVariable, Object value) {
         return createComponentVariable(containerVariable, FormSubmissionUtils.INDEXES_SUFFIX, new StringFormat(), value);
     }
