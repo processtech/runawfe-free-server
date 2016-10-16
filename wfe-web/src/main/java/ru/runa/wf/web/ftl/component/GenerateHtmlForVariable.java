@@ -54,7 +54,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.format.VariableInputSupport;
 
-public class GenerateHtmlForVariable implements VariableFormatVisitor<String, GenerateHtmlForVariableContext> {
+public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHtmlForVariableResult, GenerateHtmlForVariableContext> {
 
     final User user;
     final WebHelper webHelper;
@@ -66,7 +66,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
     }
 
     @Override
-    public String onDate(DateFormat dateFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onDate(DateFormat dateFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
         StringBuilder html = new StringBuilder();
@@ -78,11 +78,11 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             html.append("value=\"").append(CalendarUtil.formatDate((Date) value)).append("\" ");
         }
         html.append("/>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), null);
     }
 
     @Override
-    public String onTime(TimeFormat timeFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onTime(TimeFormat timeFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
         StringBuilder html = new StringBuilder();
@@ -94,11 +94,11 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             html.append("value=\"").append(CalendarUtil.formatTime((Date) value)).append("\" ");
         }
         html.append("/>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), null);
     }
 
     @Override
-    public String onDateTime(DateTimeFormat dateTimeFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onDateTime(DateTimeFormat dateTimeFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
         StringBuilder html = new StringBuilder();
@@ -110,16 +110,17 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             html.append("value=\"").append(CalendarUtil.formatDateTime((Date) value)).append("\" ");
         }
         html.append("/>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), null);
     }
 
     @Override
-    public String OnExecutor(ExecutorFormat executorFormat, GenerateHtmlForVariableContext context) {
-        return createExecutorSelect(user, context.variable.getDefinition().getName(), executorFormat, context.variable.getValue(), true);
+    public GenerateHtmlForVariableResult OnExecutor(ExecutorFormat executorFormat, GenerateHtmlForVariableContext context) {
+        return new GenerateHtmlForVariableResult(
+                createExecutorSelect(user, context.variable.getDefinition().getName(), executorFormat, context.variable.getValue(), true), null);
     }
 
     @Override
-    public String onBoolean(BooleanFormat booleanFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onBoolean(BooleanFormat booleanFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
         StringBuilder html = new StringBuilder();
@@ -131,54 +132,57 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             html.append("checked=\"checked\" ");
         }
         html.append("/>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), null);
     }
 
     @Override
-    public String onBigDecimal(BigDecimalFormat bigDecimalFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onBigDecimal(BigDecimalFormat bigDecimalFormat, GenerateHtmlForVariableContext context) {
         return generateNumberHtml(context);
     }
 
     @Override
-    public String onDouble(DoubleFormat doubleFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onDouble(DoubleFormat doubleFormat, GenerateHtmlForVariableContext context) {
         return generateNumberHtml(context);
     }
 
     @Override
-    public String onLong(LongFormat longFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onLong(LongFormat longFormat, GenerateHtmlForVariableContext context) {
         return generateNumberHtml(context);
     }
 
     @Override
-    public String onFile(FileFormat fileFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onFile(FileFormat fileFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
-        return getFileComponent(webHelper, variableName, (IFileVariable) value, !context.isReadonly);
+        return new GenerateHtmlForVariableResult(getFileComponent(webHelper, variableName, (IFileVariable) value, !context.isReadonly), null);
     }
 
     @Override
-    public String onHidden(HiddenFormat hiddenFormat, GenerateHtmlForVariableContext context) {
-        return hiddenFormat.getInputHtml(user, webHelper, context.variable);
+    public GenerateHtmlForVariableResult onHidden(HiddenFormat hiddenFormat, GenerateHtmlForVariableContext context) {
+        return new GenerateHtmlForVariableResult(hiddenFormat.getInputHtml(user, webHelper, context.variable), null);
     }
 
     @Override
-    public String onList(ListFormat listFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onList(ListFormat listFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
-        Object value = context.variable.getValue();
         String scriptingVariableName = context.variable.getDefinition().getScriptingNameWithoutDots();
         VariableFormat componentFormat = FormatCommons.createComponent(context.variable, 0);
+        WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(context.variable, -1, componentFormat, null);
         StringBuffer html = new StringBuffer();
+        StringBuffer supportJs = new StringBuffer();
         if (!context.isReadonly) {
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);
             substitutions.put("UNIQUENAME", scriptingVariableName);
-            WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(context.variable, -1, componentFormat, null);
-            String componentHtml = componentFormat.processBy(this, context.CopyFor(templateComponentVariable));
+            GenerateHtmlForVariableResult generatedComponentHtmlData = componentFormat.processBy(this, context.CopyFor(templateComponentVariable));
+            String componentHtml = generatedComponentHtmlData.htmlStructureContent;
+            String componentJs = generatedComponentHtmlData.scriptContent;
             componentHtml = componentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\n", "");
             substitutions.put("COMPONENT_INPUT", componentHtml);
-            substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(context.variable));
+            substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(templateComponentVariable));
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
-            html.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
+            // html.append(componentHtml);
+            supportJs.append(componentJs).append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
         }
         List<Object> list = TypeConversionUtil.convertTo(List.class, context.variable.getValue());
         if (list == null) {
@@ -189,56 +193,73 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
         if (!context.isReadonly) {
             WfVariable indexesVariable = ViewUtil.createListIndexesVariable(context.variable, list.size());
             html.append(ViewUtil.getHiddenInput(indexesVariable));
+            html.append("<div wfeContainerTemplate style=\"display:none\" name=\"").append(variableName).append("\">");
+            GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.CopyFor(templateComponentVariable));
+            html.append(componentGeneratedHtml.htmlStructureContent);
+            html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
+            html.append("(this);\" style=\"width: 30px;\" /></div>");
         }
         for (int row = 0; row < list.size(); row++) {
             if (!context.isReadonly) {
                 Object o = list.get(row);
                 html.append("<div><div current row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
                 WfVariable componentVariable = ViewUtil.createListComponentVariable(context.variable, row, componentFormat, o);
-                html.append(componentFormat.processBy(this, context.CopyFor(componentVariable)));
+                GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.CopyFor(componentVariable));
+                html.append(componentGeneratedHtml.htmlStructureContent);
                 html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
                 html.append("(this);\" style=\"width: 30px;\" />");
                 html.append("</div></div>");
+                supportJs.append(componentGeneratedHtml.scriptContent);
             } else {
                 Object listValue = list.get(row);
                 html.append("<div row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
                 WfVariable componentVariable = ViewUtil.createListComponentVariable(context.variable, row, componentFormat, listValue);
-                html.append(componentFormat.processBy(this, context.CopyFor(componentVariable)));
+                GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.CopyFor(componentVariable));
+                html.append(componentGeneratedHtml.htmlStructureContent);
                 html.append("</div>");
+                supportJs.append(componentGeneratedHtml.scriptContent);
             }
         }
         if (!context.isReadonly) {
-            html.append("<div><input type=\"button\" id=\"btnAdd").append(scriptingVariableName);
-            html.append("\" value=\" + \" style=\"width: 30px;\" /></div>");
+            html.append("<div>");
+            html.append("<input type=\"button\" id=\"btnAdd").append(scriptingVariableName);
+            html.append("\" value=\" + \" style=\"width: 30px;\" />");
+            html.append("</div>");
         }
         html.append("</div>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), supportJs.toString());
     }
 
     @Override
-    public String onMap(MapFormat mapFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onMap(MapFormat mapFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
-        Object value = context.variable.getValue();
         String scriptingVariableName = context.variable.getDefinition().getScriptingNameWithoutDots();
         VariableFormat keyFormat = FormatCommons.createComponent(context.variable, 0);
         VariableFormat valueFormat = FormatCommons.createComponent(context.variable, 1);
+        WfVariable templateComponentVariableKey = ViewUtil.createMapKeyComponentVariable(context.variable, -1, null);
+        WfVariable templateComponentVariableValue = ViewUtil.createMapValueComponentVariable(context.variable, -1, null);
         StringBuffer html = new StringBuffer();
+        StringBuffer supportJs = new StringBuffer();
         if (!context.isReadonly) {
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);
             substitutions.put("UNIQUENAME", scriptingVariableName);
-            WfVariable templateComponentVariableKey = ViewUtil.createMapKeyComponentVariable(context.variable, -1, null);
-            String keyComponentHtml = keyFormat.processBy(this, context.CopyFor(templateComponentVariableKey));
+            GenerateHtmlForVariableResult generatedKeyHtmlData = keyFormat.processBy(this, context.CopyFor(templateComponentVariableKey));
+            String keyComponentHtml = generatedKeyHtmlData.htmlStructureContent;
+            String keyComponentJs = generatedKeyHtmlData.scriptContent;
             keyComponentHtml = keyComponentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\n", "");
             substitutions.put("COMPONENT_INPUT_KEY", keyComponentHtml);
-            WfVariable templateComponentVariableValue = ViewUtil.createMapValueComponentVariable(context.variable, -1, null);
-            String valueComponentHtml = valueFormat.processBy(this, context.CopyFor(templateComponentVariableValue));
+            GenerateHtmlForVariableResult generatedValueHtmlData = valueFormat.processBy(this, context.CopyFor(templateComponentVariableValue));
+            String valueComponentHtml = generatedValueHtmlData.htmlStructureContent;
+            String valueComponentJs = generatedValueHtmlData.scriptContent;
             valueComponentHtml = valueComponentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\n", "");
             substitutions.put("COMPONENT_INPUT_VALUE", valueComponentHtml);
-            String jsHandler = ViewUtil.getComponentJSFunction(keyFormat) + "\n" + ViewUtil.getComponentJSFunction(valueFormat);
+            String keyJsHandler = keyFormat.processBy(new GenerateJSFunctionsForVariable(), templateComponentVariableKey);
+            String valueJsHandler = valueFormat.processBy(new GenerateJSFunctionsForVariable(), templateComponentVariableValue);
+            String jsHandler = keyJsHandler + "\n" + valueJsHandler;
             substitutions.put("COMPONENT_JS_HANDLER", jsHandler);
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditMap.js", ViewUtil.class);
-            html.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
+            supportJs.append(keyComponentJs).append(valueComponentJs).append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
         }
         Map<Object, Object> map = TypeConversionUtil.convertTo(Map.class, context.variable.getValue());
         if (map == null) {
@@ -249,17 +270,28 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
         if (!context.isReadonly) {
             WfVariable indexesVariable = ViewUtil.createListIndexesVariable(context.variable, map.size());
             html.append(ViewUtil.getHiddenInput(indexesVariable));
+            html.append("<div wfeContainerTemplate style=\"display:none\" name=\"").append(variableName).append("\">");
+            GenerateHtmlForVariableResult componentGeneratedHtmlKey = keyFormat.processBy(this, context.CopyFor(templateComponentVariableKey));
+            html.append(componentGeneratedHtmlKey.htmlStructureContent);
+            GenerateHtmlForVariableResult componentGeneratedHtmlValue = valueFormat.processBy(this, context.CopyFor(templateComponentVariableValue));
+            html.append(componentGeneratedHtmlValue.htmlStructureContent);
+            html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
+            html.append("(this);\" style=\"width: 30px;\" /></div>");
             int row = -1;
             for (Object key : map.keySet()) {
                 row++;
                 html.append("<div><div current row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
                 WfVariable keyComponentVariable = ViewUtil.createMapKeyComponentVariable(context.variable, row, key);
-                html.append(keyFormat.processBy(this, context.CopyFor(keyComponentVariable)));
+                GenerateHtmlForVariableResult keyGeneratedHtml = keyFormat.processBy(this, context.CopyFor(keyComponentVariable));
+                html.append(keyGeneratedHtml.htmlStructureContent);
                 WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(context.variable, row, key);
-                html.append(valueFormat.processBy(this, context.CopyFor(valueComponentVariable)));
+                GenerateHtmlForVariableResult valueGeneratedHtml = valueFormat.processBy(this, context.CopyFor(valueComponentVariable));
+                html.append(valueGeneratedHtml.htmlStructureContent);
                 html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
                 html.append("(this);\" style=\"width: 30px;\" />");
                 html.append("</div></div>");
+                supportJs.append(keyGeneratedHtml.scriptContent);
+                supportJs.append(valueGeneratedHtml.scriptContent);
             }
             html.append("<div><input type=\"button\" id=\"btnAddMap").append(scriptingVariableName);
             html.append("\" value=\" + \" style=\"width: 30px;\" /></div>");
@@ -272,26 +304,30 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
                     html.append("<tr><td class=\"list\">");
                     html.append("<div row=\"").append(row).append("\" name=\"").append(variableName).append("\">");
                     WfVariable keyComponentVariable = ViewUtil.createMapKeyComponentVariable(context.variable, row, key);
-                    html.append(keyFormat.processBy(this, context.CopyFor(keyComponentVariable)));
+                    GenerateHtmlForVariableResult keyGeneratedHtml = keyFormat.processBy(this, context.CopyFor(keyComponentVariable));
+                    html.append(keyGeneratedHtml.htmlStructureContent);
                     html.append("</td><td class=\"list\">");
                     WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(context.variable, row, key);
-                    html.append(valueFormat.processBy(this, context.CopyFor(valueComponentVariable)));
+                    GenerateHtmlForVariableResult valueGeneratedHtml = valueFormat.processBy(this, context.CopyFor(valueComponentVariable));
+                    html.append(valueGeneratedHtml.htmlStructureContent);
                     html.append("</td></div></tr>");
+                    supportJs.append(keyGeneratedHtml.scriptContent);
+                    supportJs.append(valueGeneratedHtml.scriptContent);
                 }
             }
             html.append("</table>");
         }
         html.append("</div>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), supportJs.toString());
     }
 
     @Override
-    public String onProcessId(ProcessIdFormat processIdFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onProcessId(ProcessIdFormat processIdFormat, GenerateHtmlForVariableContext context) {
         return generateNumberHtml(context);
     }
 
     @Override
-    public String onString(StringFormat stringFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onString(StringFormat stringFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
         StringBuilder html = new StringBuilder();
@@ -303,11 +339,11 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             html.append("value=\"").append(stringFormat.formatHtml(user, webHelper, context.processId, variableName, value)).append("\" ");
         }
         html.append("/>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), null);
     }
 
     @Override
-    public String onTextString(TextFormat textFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onTextString(TextFormat textFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
         StringBuilder html = new StringBuilder();
@@ -319,12 +355,11 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             html.append(textFormat.formatHtml(user, webHelper, context.processId, variableName, value));
         }
         html.append("</textarea>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), null);
     }
 
     @Override
-    public String onUserType(UserTypeFormat userTypeFormat, GenerateHtmlForVariableContext context) {
-        String variableName = context.variable.getDefinition().getName();
+    public GenerateHtmlForVariableResult onUserType(UserTypeFormat userTypeFormat, GenerateHtmlForVariableContext context) {
         Object value = context.variable.getValue();
         UserType userType = userTypeFormat.getUserType();
         UserTypeMap userTypeMap = (UserTypeMap) value;
@@ -332,6 +367,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             userTypeMap = new UserTypeMap(userType);
         }
         StringBuffer html = new StringBuffer();
+        StringBuffer supportJs = new StringBuffer();
         html.append("<table class=\"list\">");
         for (VariableDefinition attributeDefinition : userType.getAttributes()) {
             html.append("<tr>");
@@ -339,28 +375,31 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             html.append("<td class=\"list\">");
             Object attributeValue = userTypeMap.get(attributeDefinition.getName());
             WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(context.variable, attributeDefinition, attributeValue);
-            html.append(componentVariable.getDefinition().getFormatNotNull().processBy(this,
-                    new GenerateHtmlForVariableContext(componentVariable, context.processId, context.isReadonly)));
+            GenerateHtmlForVariableResult attributeGeneratedHtml = componentVariable.getDefinition().getFormatNotNull().processBy(this,
+                    new GenerateHtmlForVariableContext(componentVariable, context.processId, context.isReadonly));
+            html.append(attributeGeneratedHtml.htmlStructureContent);
             html.append("</td>");
             html.append("</tr>");
+            supportJs.append(attributeGeneratedHtml.scriptContent);
         }
         html.append("</table>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), supportJs.toString());
     }
 
     @Override
-    public String onOther(VariableFormat variableFormat, GenerateHtmlForVariableContext context) {
+    public GenerateHtmlForVariableResult onOther(VariableFormat variableFormat, GenerateHtmlForVariableContext context) {
         WfVariable variable = context.variable;
         if (!context.isReadonly) {
             if (variableFormat instanceof VariableInputSupport) {
-                return ((VariableInputSupport) variableFormat).getInputHtml(user, webHelper, variable);
+                return new GenerateHtmlForVariableResult(((VariableInputSupport) variableFormat).getInputHtml(user, webHelper, variable), null);
             } else {
                 throw new InternalApplicationException("No input method implemented for " + variableFormat);
             }
         } else {
             if (variableFormat instanceof VariableDisplaySupport) {
                 VariableDisplaySupport displaySupport = (VariableDisplaySupport) variableFormat;
-                return displaySupport.formatHtml(user, webHelper, context.processId, variable.getDefinition().getName(), variable.getValue());
+                return new GenerateHtmlForVariableResult(
+                        displaySupport.formatHtml(user, webHelper, context.processId, variable.getDefinition().getName(), variable.getValue()), null);
             }
             throw new InternalApplicationException("No output method implemented for " + variableFormat);
         }
@@ -476,7 +515,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
         return html;
     }
 
-    private String generateNumberHtml(GenerateHtmlForVariableContext context) {
+    private GenerateHtmlForVariableResult generateNumberHtml(GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
         StringBuilder html = new StringBuilder();
@@ -488,6 +527,6 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<String, Ge
             html.append("value=\"").append(value).append("\" ");
         }
         html.append("/>");
-        return html.toString();
+        return new GenerateHtmlForVariableResult(html.toString(), null);
     }
 }

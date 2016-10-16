@@ -2,6 +2,7 @@ package ru.runa.wf.web.ftl.component;
 
 import ru.runa.common.WebResources;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.DateFormat;
@@ -22,7 +23,7 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 
-public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<String, Object> {
+public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<String, WfVariable> {
 
     private boolean onDateCalled;
     private boolean onTimeCalled;
@@ -30,112 +31,113 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
     private boolean onFileCalled;
 
     @Override
-    public String onDate(DateFormat dateFormat, Object variable) {
+    public String onDate(DateFormat dateFormat, WfVariable variable) {
         if (!onDateCalled) {
             onDateCalled = true;
-            return "$('.inputDate').datepicker({ dateFormat: 'dd.mm.yy', buttonImage: '/wfe/images/calendar.gif' });";
+            return "$('.inputDate').filter(filterTemplatesElements).datepicker({ dateFormat: 'dd.mm.yy', buttonImage: '/wfe/images/calendar.gif' });";
         }
         return "";
     }
 
     @Override
-    public String onTime(TimeFormat timeFormat, Object variable) {
+    public String onTime(TimeFormat timeFormat, WfVariable variable) {
         if (!onTimeCalled) {
             onTimeCalled = true;
-            return "$('.inputTime').timepicker({ ampm: false, seconds: false });";
+            return "$('.inputTime').filter(filterTemplatesElements).timepicker({ ampm: false, seconds: false });";
         }
         return "";
     }
 
     @Override
-    public String onDateTime(DateTimeFormat dateTimeFormat, Object variable) {
+    public String onDateTime(DateTimeFormat dateTimeFormat, WfVariable variable) {
         if (!onDateTimeCalled) {
             onDateTimeCalled = true;
-            return "$('.inputDateTime').datetimepicker({ dateFormat: 'dd.mm.yy' });";
+            return "$('.inputDateTime').filter(filterTemplatesElements).datetimepicker({ dateFormat: 'dd.mm.yy' });";
         }
         return "";
     }
 
     @Override
-    public String OnExecutor(ExecutorFormat executorFormat, Object variable) {
+    public String OnExecutor(ExecutorFormat executorFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onBoolean(BooleanFormat booleanFormat, Object variable) {
+    public String onBoolean(BooleanFormat booleanFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onBigDecimal(BigDecimalFormat bigDecimalFormat, Object variable) {
+    public String onBigDecimal(BigDecimalFormat bigDecimalFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onDouble(DoubleFormat doubleFormat, Object variable) {
+    public String onDouble(DoubleFormat doubleFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onLong(LongFormat longFormat, Object variable) {
+    public String onLong(LongFormat longFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onFile(FileFormat fileFormat, Object variable) {
+    public String onFile(FileFormat fileFormat, WfVariable variable) {
         if (!WebResources.isAjaxFileInputEnabled()) {
             return "";
         }
         if (!onFileCalled) {
             onFileCalled = true;
-            return "$('.dropzone').each(function () { initFileInput($(this)) });";
+            return "$('.dropzone').filter(filterTemplatesElements).each(function () { initFileInput($(this)) });";
         }
         return "";
     }
 
     @Override
-    public String onHidden(HiddenFormat hiddenFormat, Object variable) {
+    public String onHidden(HiddenFormat hiddenFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onList(ListFormat listFormat, Object variable) {
+    public String onList(ListFormat listFormat, WfVariable variable) {
         VariableFormat componentFormat = FormatCommons.createComponent(listFormat, 0);
-        return componentFormat.processBy(this, variable);
+        return "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);\n" + componentFormat.processBy(this, variable);
     }
 
     @Override
-    public String onMap(MapFormat mapFormat, Object variable) {
+    public String onMap(MapFormat mapFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onProcessId(ProcessIdFormat processIdFormat, Object variable) {
+    public String onProcessId(ProcessIdFormat processIdFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onString(StringFormat stringFormat, Object variable) {
+    public String onString(StringFormat stringFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onTextString(TextFormat textFormat, Object variable) {
+    public String onTextString(TextFormat textFormat, WfVariable variable) {
         return "";
     }
 
     @Override
-    public String onUserType(UserTypeFormat userTypeFormat, Object variable) {
+    public String onUserType(UserTypeFormat userTypeFormat, WfVariable variable) {
         String componentJsHandlers = "";
         for (VariableDefinition variableDefinition : userTypeFormat.getUserType().getAttributes()) {
             VariableFormat nestedFormat = FormatCommons.create(variableDefinition);
-            componentJsHandlers += nestedFormat.processBy(this, variable);
+            WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(variable, variableDefinition, null);
+            componentJsHandlers += nestedFormat.processBy(this, componentVariable);
         }
         return componentJsHandlers;
     }
 
     @Override
-    public String onOther(VariableFormat variableFormat, Object variable) {
+    public String onOther(VariableFormat variableFormat, WfVariable variable) {
         return "";
     }
 
