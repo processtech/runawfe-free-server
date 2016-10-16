@@ -195,7 +195,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             html.append(ViewUtil.getHiddenInput(indexesVariable));
             html.append("<div wfeContainerTemplate style=\"display:none\" name=\"").append(variableName).append("\">");
             GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.CopyFor(templateComponentVariable));
-            html.append(componentGeneratedHtml.htmlStructureContent);
+            html.append(componentGeneratedHtml.htmlStructureContent.replace("[]", "{}"));
             html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
             html.append("(this);\" style=\"width: 30px;\" /></div>");
         }
@@ -272,9 +272,9 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             html.append(ViewUtil.getHiddenInput(indexesVariable));
             html.append("<div wfeContainerTemplate style=\"display:none\" name=\"").append(variableName).append("\">");
             GenerateHtmlForVariableResult componentGeneratedHtmlKey = keyFormat.processBy(this, context.CopyFor(templateComponentVariableKey));
-            html.append(componentGeneratedHtmlKey.htmlStructureContent);
+            html.append(componentGeneratedHtmlKey.htmlStructureContent.replace("[]", "{}"));
             GenerateHtmlForVariableResult componentGeneratedHtmlValue = valueFormat.processBy(this, context.CopyFor(templateComponentVariableValue));
-            html.append(componentGeneratedHtmlValue.htmlStructureContent);
+            html.append(componentGeneratedHtmlValue.htmlStructureContent.replace("[]", "{}"));
             html.append("<input type='button' value=' - ' onclick=\"remove").append(scriptingVariableName);
             html.append("(this);\" style=\"width: 30px;\" /></div>");
             int row = -1;

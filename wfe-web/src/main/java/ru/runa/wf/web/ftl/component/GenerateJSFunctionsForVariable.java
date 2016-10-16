@@ -102,7 +102,9 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
     @Override
     public String onList(ListFormat listFormat, WfVariable variable) {
         VariableFormat componentFormat = FormatCommons.createComponent(listFormat, 0);
-        return "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);\n" + componentFormat.processBy(this, variable);
+        WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
+        String initListJs = "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);";
+        return initListJs + componentFormat.processBy(this, templateComponentVariable);
     }
 
     @Override
