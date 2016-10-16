@@ -254,11 +254,12 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             String valueComponentJs = generatedValueHtmlData.scriptContent;
             valueComponentHtml = valueComponentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\n", "");
             substitutions.put("COMPONENT_INPUT_VALUE", valueComponentHtml);
-            String keyJsHandler = keyFormat.processBy(new GenerateJSFunctionsForVariable(), templateComponentVariableKey);
-            String valueJsHandler = valueFormat.processBy(new GenerateJSFunctionsForVariable(), templateComponentVariableValue);
+            GenerateJSFunctionsForVariable generateJsForComponent = new GenerateJSFunctionsForVariable();
+            String keyJsHandler = keyFormat.processBy(generateJsForComponent, templateComponentVariableKey);
+            String valueJsHandler = valueFormat.processBy(generateJsForComponent, templateComponentVariableValue);
             String jsHandler = keyJsHandler + "\n" + valueJsHandler;
             substitutions.put("COMPONENT_JS_HANDLER", jsHandler);
-            InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditMap.js", ViewUtil.class);
+            InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
             supportJs.append(keyComponentJs).append(valueComponentJs).append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
         }
         Map<Object, Object> map = TypeConversionUtil.convertTo(Map.class, context.variable.getValue());
@@ -293,7 +294,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
                 supportJs.append(keyGeneratedHtml.scriptContent);
                 supportJs.append(valueGeneratedHtml.scriptContent);
             }
-            html.append("<div><input type=\"button\" id=\"btnAddMap").append(scriptingVariableName);
+            html.append("<div><input type=\"button\" id=\"btnAdd").append(scriptingVariableName);
             html.append("\" value=\" + \" style=\"width: 30px;\" /></div>");
         } else {
             html.append("<table class=\"list\">");

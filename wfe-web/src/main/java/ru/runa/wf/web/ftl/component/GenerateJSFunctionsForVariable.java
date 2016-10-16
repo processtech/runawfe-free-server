@@ -104,12 +104,13 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
         VariableFormat componentFormat = FormatCommons.createComponent(listFormat, 0);
         WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
         String initListJs = "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);";
-        return initListJs + componentFormat.processBy(this, templateComponentVariable);
+        return initListJs;
     }
 
     @Override
     public String onMap(MapFormat mapFormat, WfVariable variable) {
-        return "";
+        String initListJs = "init" + variable.getDefinition().getScriptingNameWithoutDots() + "(this);";
+        return initListJs;
     }
 
     @Override
