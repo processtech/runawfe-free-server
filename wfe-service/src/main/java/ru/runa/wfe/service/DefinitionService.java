@@ -20,6 +20,7 @@ package ru.runa.wfe.service;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
+import ru.runa.wfe.definition.DefinitionAlreadyLockedException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
@@ -56,8 +57,8 @@ public interface DefinitionService {
      * @throws DefinitionAlreadyExistException
      * @throws DefinitionArchiveFormatException
      */
-    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
-            DefinitionArchiveFormatException;
+    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories)
+            throws DefinitionAlreadyExistException, DefinitionArchiveFormatException;
 
     /**
      * Redeploys process definition by name.
@@ -93,8 +94,8 @@ public interface DefinitionService {
      * @throws DefinitionArchiveFormatException
      * @throws DefinitionNameMismatchException
      */
-    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
-            DefinitionArchiveFormatException, DefinitionNameMismatchException;
+    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive)
+            throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
      * Gets only last version from process definition by name.
@@ -157,8 +158,8 @@ public interface DefinitionService {
      *            version or <code>null</code>
      * @throws DefinitionDoesNotExistException
      */
-    public void undeployProcessDefinition(User user, String definitionName, Long version) throws DefinitionDoesNotExistException,
-            ParentProcessExistsException;
+    public void undeployProcessDefinition(User user, String definitionName, Long version)
+            throws DefinitionDoesNotExistException, ParentProcessExistsException;
 
     /**
      * Retrieves file data from process definition archive.
@@ -333,4 +334,37 @@ public interface DefinitionService {
      * @return not <code>null</code>
      */
     public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging);
+
+    /**
+     * Lock process definition.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @param archive
+     *            process definition archive (ZIP format)
+     * @return locked definition
+     *
+     * @throws DefinitionDoesNotExistException
+     * @throws DefinitionAlreadyLockedException
+     */
+    public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException;
+
+    /**
+     * Lock process definition for all.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @param archive
+     *            process definition archive (ZIP format)
+     * @return locked definition
+     *
+     * @throws DefinitionDoesNotExistException
+     * @throws DefinitionAlreadyLockedException
+     */
+    public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId)
+            throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException;
 }

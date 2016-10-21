@@ -23,12 +23,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
+import ru.runa.wfe.definition.DefinitionAlreadyLockedException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
@@ -56,10 +63,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Created on 15.03.2005
@@ -217,8 +220,8 @@ public class DefinitionLogic extends WFCommonLogic {
         List<Process> processes = processDAO.getProcesses(filter);
         for (Process process : processes) {
             if (nodeProcessDAO.getNodeProcessByChild(process.getId()) != null) {
-                throw new ParentProcessExistsException(definitionName, nodeProcessDAO.getNodeProcessByChild(process.getId()).getProcess()
-                        .getDeployment().getName());
+                throw new ParentProcessExistsException(definitionName,
+                        nodeProcessDAO.getNodeProcessByChild(process.getId()).getProcess().getDeployment().getName());
             }
         }
         if (version == null) {
@@ -370,6 +373,29 @@ public class DefinitionLogic extends WFCommonLogic {
             }
         });
         return definitionsWithPermission;
+    }
+
+    public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
+        Deployment deployment = deploymentDAO.get(definitionId);
+        if (StringUtils.isEmpty(deployment.getLockUserName())) {
+            deployment.setLockUserName(user.getName());
+            deployment.setLockDate(new Date());
+            return new WfDefinition(deploymentDAO.update(deployment));
+        } else {
+            throw new DefinitionAlreadyLockedException(deployment.getName());
+        }
+    }
+
+    public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId)
+            throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
+        Deployment deployment = deploymentDAO.get(definitionId);
+        if (StringUtils.isEmpty(deployment.getLockUserName()) || user.getName().equals(deployment.getLockUserName())) {
+            deployment.setLockUserName(WfDefinition.ALL_USERS);
+            deployment.setLockDate(new Date());
+            return new WfDefinition(deploymentDAO.update(deployment));
+        } else {
+            throw new DefinitionAlreadyLockedException(deployment.getName());
+        }
     }
 
     private final class DefinitionIdentifiable extends Identifiable {

@@ -30,6 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.timer.ScheduledTimerTask;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.DatabaseProperties;
@@ -47,6 +50,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnsToSubstituteEscalatedTasksPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddCreateDateColumns;
 import ru.runa.wfe.commons.dbpatch.impl.AddDeploymentAuditPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddDeploymentLockPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddDueDateExpressionToJobAndTask;
 import ru.runa.wfe.commons.dbpatch.impl.AddEmbeddedFileForBotTask;
 import ru.runa.wfe.commons.dbpatch.impl.AddHierarchyProcess;
@@ -77,9 +81,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
@@ -152,6 +153,7 @@ public class InitializerLogic {
         dbPatches.add(AddBatchPresentationIsSharedPatch.class);
         dbPatches.add(ExpandVarcharPatch.class);
         dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
+        dbPatches.add(AddDeploymentLockPatch.class);
     };
 
     @Autowired

@@ -445,7 +445,23 @@
 			<forward name="failure" path="/manage_process_definition.do"
 				redirect="false" />
 		</action>
-		<action path="/grantReadPermissionOnProcessDefinition"
+        <action path="/lockProcessDefinition"
+            type="ru.runa.wf.web.action.LockProcessDefinitionAction" name="idForm"
+            scope="request" unknown="false" validate="false">
+            <forward name="success" path="/manage_process_definition.do"
+                redirect="true" />
+            <forward name="failure" path="/manage_process_definition.do"
+                redirect="false" />
+        </action>
+        <action path="/lockProcessDefinitionForAll"
+            type="ru.runa.wf.web.action.LockProcessDefinitionForAllAction" name="idForm"
+            scope="request" unknown="false" validate="false">
+            <forward name="success" path="/manage_process_definition.do"
+                redirect="true" />
+            <forward name="failure" path="/manage_process_definition.do"
+                redirect="false" />
+        </action>
+    		<action path="/grantReadPermissionOnProcessDefinition"
 			type="ru.runa.wf.web.action.GrantPermissionsOnProcessDefinitionAction"
 			name="idsForm" scope="request" input="/WEB-INF/wf/manage_process_definition.jsp"
 			unknown="false" validate="true">

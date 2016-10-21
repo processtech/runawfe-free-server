@@ -32,6 +32,10 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+
+import ru.runa.wfe.definition.DefinitionAlreadyLockedException;
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.form.Interaction;
@@ -52,8 +56,6 @@ import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "DefinitionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -280,6 +282,24 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(name != null, "name");
         return definitionLogic.getProcessDefinitionHistory(user, name);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public WfDefinition lockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
+            throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        return definitionLogic.lockProcessDefinition(user, definitionId);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public WfDefinition lockProcessDefinitionForAll(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
+            throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        return definitionLogic.lockProcessDefinitionForAll(user, definitionId);
     }
 
 }

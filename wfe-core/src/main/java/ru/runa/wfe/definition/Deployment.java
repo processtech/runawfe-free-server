@@ -21,13 +21,13 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
+
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
 
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION")
@@ -45,6 +45,8 @@ public class Deployment extends Identifiable {
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private String lockUserName;
+    private Date lockDate;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -152,6 +154,24 @@ public class Deployment extends Identifiable {
 
     public void setUpdateActor(Actor updateActor) {
         this.updateActor = updateActor;
+    }
+
+    @Column(name = "LOCK_USER_NAME", nullable = true, length = 1024)
+    public String getLockUserName() {
+        return lockUserName;
+    }
+
+    public void setLockUserName(String lockUser) {
+        this.lockUserName = lockUser;
+    }
+
+    @Column(name = "LOCK_DATE", nullable = true)
+    public Date getLockDate() {
+        return lockDate;
+    }
+
+    public void setLockDate(Date lockDate) {
+        this.lockDate = lockDate;
     }
 
     @Transient
