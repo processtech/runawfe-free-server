@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.common.collect.Lists;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.UserType;
@@ -152,6 +153,9 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
     @Override
     public List<ConvertToSimpleVariablesResult> onUserType(UserTypeFormat userTypeFormat, ConvertToSimpleVariablesContext context) {
         UserTypeMap userTypeValue = (UserTypeMap) context.value;
+        if (!userTypeValue.getUserType().equals(userTypeFormat.getUserType())) {
+            throw new InternalApplicationException("Variable user type is not correct for " + context.variableDefinition.getName());
+        }
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         String namePrefix = context.variableDefinition.getName() + UserType.DELIM;
         String scriptingNamePrefix = context.variableDefinition.getScriptingName() + UserType.DELIM;
