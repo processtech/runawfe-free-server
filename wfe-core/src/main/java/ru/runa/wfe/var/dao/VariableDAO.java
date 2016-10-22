@@ -95,7 +95,7 @@ public class VariableDAO extends GenericDAO<Variable> {
     @Deprecated
     public Object processComplexVariablesPre430(ProcessDefinition processDefinition, VariableDefinition variableDefinition, UserType userType,
             Object value) {
-        return VariableLoader.processComplexVariablesPre430(processDefinition, variableDefinition, userType, value);
+        return LoadVariableOfType.processComplexVariablesPre430(processDefinition, variableDefinition, userType, value);
     }
 
     /**

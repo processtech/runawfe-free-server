@@ -176,8 +176,8 @@ public class UserTypeMap extends HashMap<String, Object> {
                 }
                 throw new IllegalArgumentException("Invalid key = '" + qualifier + "'; all values: " + map);
             }
-            throw new IllegalArgumentException(
-                    "Key '" + qualifier + "' was provided but variable format is " + variableDefinition.getFormatClassName());
+            throw new IllegalArgumentException("Key '" + qualifier + "' was provided but variable format is " + variableDefinition
+                    .getFormatClassName());
         }
         return new WfVariable(variableDefinition, variableValue);
     }

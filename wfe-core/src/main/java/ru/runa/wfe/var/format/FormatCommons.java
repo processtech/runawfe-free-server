@@ -18,6 +18,8 @@
 
 package ru.runa.wfe.var.format;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
@@ -29,7 +31,7 @@ public class FormatCommons {
         if (userType != null) {
             return new UserTypeFormat(userType);
         }
-        if (className == null) {
+        if (Strings.isNullOrEmpty(className)) {
             className = "ru.runa.wfe.var.format.StringFormat";
         }
         VariableFormat format = ClassLoaderUtil.instantiate(className);

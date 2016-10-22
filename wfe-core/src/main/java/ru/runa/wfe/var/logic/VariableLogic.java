@@ -53,16 +53,12 @@ public class VariableLogic extends WFCommonLogic {
         Process process = processDAO.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
-        Map<String, Object> values = variableDAO.getAll(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
             if (!Utils.isNullOrEmpty(variable.getValue())) {
                 result.add(variable);
             }
-        }
-        for (Map.Entry<String, Object> entry : values.entrySet()) {
-            result.add(new WfVariable(entry.getKey(), entry.getValue()));
         }
         return result;
     }

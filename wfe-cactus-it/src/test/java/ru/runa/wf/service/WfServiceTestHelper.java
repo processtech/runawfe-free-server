@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wf.service;
@@ -24,10 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
+
 import ru.runa.af.service.ServiceTestHelper;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -47,9 +51,6 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
 
 public class WfServiceTestHelper extends ServiceTestHelper {
 
@@ -239,9 +240,12 @@ public class WfServiceTestHelper extends ServiceTestHelper {
     }
 
     public void deployValidProcessDefinition() {
-        Collection<Permission> deployPermissions = Lists.newArrayList(WorkflowSystemPermission.DEPLOY_DEFINITION);
-        setPermissionsToAuthorizedPerformerOnSystem(deployPermissions);
-        definitionService.deployProcessDefinition(getAuthorizedPerformerUser(), getValidProcessDefinition(), Lists.newArrayList("testProcess"));
+        try {
+            Collection<Permission> deployPermissions = Lists.newArrayList(WorkflowSystemPermission.DEPLOY_DEFINITION);
+            setPermissionsToAuthorizedPerformerOnSystem(deployPermissions);
+            definitionService.deployProcessDefinition(getAuthorizedPerformerUser(), getValidProcessDefinition(), Lists.newArrayList("testProcess"));
+        } catch (DefinitionAlreadyExistException e) {
+        }
     }
 
     public void undeployValidProcessDefinition() throws InternalApplicationException {
@@ -251,10 +255,13 @@ public class WfServiceTestHelper extends ServiceTestHelper {
     }
 
     public void deployValidProcessDefinition(String parResourceName) throws IOException {
-        Collection<Permission> deployPermissions = Lists.newArrayList(WorkflowSystemPermission.DEPLOY_DEFINITION);
-        setPermissionsToAuthorizedPerformerOnSystem(deployPermissions);
-        definitionService
-                .deployProcessDefinition(getAuthorizedPerformerUser(), readBytesFromFile(parResourceName), Lists.newArrayList("testProcess"));
+        try {
+            Collection<Permission> deployPermissions = Lists.newArrayList(WorkflowSystemPermission.DEPLOY_DEFINITION);
+            setPermissionsToAuthorizedPerformerOnSystem(deployPermissions);
+            definitionService.deployProcessDefinition(getAuthorizedPerformerUser(), readBytesFromFile(parResourceName), Lists.newArrayList(
+                    "testProcess"));
+        } catch (DefinitionAlreadyExistException e) {
+        }
     }
 
     public void undeployValidProcessDefinition(String parDefinitionName) throws InternalApplicationException {

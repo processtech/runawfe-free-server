@@ -3,11 +3,11 @@ package ru.runa.wfe.commons;
 import java.util.Calendar;
 import java.util.List;
 
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
-import ru.runa.wfe.lang.NodeType;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.lang.NodeType;
 
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
@@ -156,10 +156,6 @@ public class SystemProperties {
 
     public static String getEARFileName() {
         return RESOURCES.getStringProperty("ear.filename", "runawfe.ear");
-    }
-
-    public static boolean isAllowedNotDefinedVariables() {
-        return RESOURCES.getBooleanProperty("undefined.variables.allowed", false);
     }
 
     public static boolean isStrongVariableFormatEnabled() {
