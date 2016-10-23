@@ -99,7 +99,7 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         int newSize = TypeConversionUtil.getListSize(context.value);
         String sizeVariableName = context.variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
-        WfVariable oldSizeVariable = context.variableLoader.getVariable(context.processDefinition, context.process, sizeVariableName);
+        WfVariable oldSizeVariable = context.executionContext.getVariable(sizeVariableName, false);
         int maxSize = newSize;
         if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Integer) {
             maxSize = Math.max((Integer) oldSizeVariable.getValue(), newSize);
@@ -121,7 +121,7 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         }
         if (SystemProperties.isV4ListVariableCompatibilityMode()) {
             // delete old list variables as blobs (pre 4.3.0)
-            Variable<?> variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
+            Variable<?> variable = context.variableDAO.get(context.process, context.variableDefinition.getName());
             if (variable != null) {
                 log.debug("Removing old-style list variable '" + context.variableDefinition.getName() + "'");
                 context.variableDAO.delete(variable);

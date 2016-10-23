@@ -3,7 +3,6 @@ package ru.runa.wfe.execution;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dao.VariableDAO;
-import ru.runa.wfe.var.dao.VariableLoader;
 
 /**
  * Context for {@link ConvertToSimpleVariables} operation.
@@ -18,9 +17,9 @@ public class ConvertToSimpleVariablesContext {
      */
     public final Object value;
     /**
-     * Loader for loading variables.
+     * Loading variables execution context.
      */
-    public final VariableLoader variableLoader;
+    public final ExecutionContext executionContext;
     /**
      * Process definition for process, which variables will be saved.
      */
@@ -46,18 +45,18 @@ public class ConvertToSimpleVariablesContext {
      * @param process
      *            Process instance for saving variables to.
      * @param variableLoader
-     *            Loader for loading variables.
+     *            Loading variables execution context.
      * @param variableDAO
      *            DAO instance for work with variables.
      */
     public ConvertToSimpleVariablesContext(VariableDefinition variableDefinition, Object value, ProcessDefinition processDefinition, Process process,
-            VariableLoader variableLoader, VariableDAO variableDAO) {
+            ExecutionContext executionContext, VariableDAO variableDAO) {
         super();
         this.variableDefinition = variableDefinition;
         this.value = value;
         this.processDefinition = processDefinition;
         this.process = process;
-        this.variableLoader = variableLoader;
+        this.executionContext = executionContext;
         this.variableDAO = variableDAO;
     }
 
@@ -71,6 +70,6 @@ public class ConvertToSimpleVariablesContext {
      * @return Returns context copy for converting value for specified variable.
      */
     public ConvertToSimpleVariablesContext createFor(VariableDefinition variableDefinition, Object variableValue) {
-        return new ConvertToSimpleVariablesContext(variableDefinition, variableValue, processDefinition, process, variableLoader, variableDAO);
+        return new ConvertToSimpleVariablesContext(variableDefinition, variableValue, processDefinition, process, executionContext, variableDAO);
     }
 }

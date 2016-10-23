@@ -292,7 +292,7 @@ public class ExecutionContext {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         value = convertValueForVariableType(variableDefinition, value);
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesContext(variableDefinition, value, processDefinition, getProcess(),
-                variableLoader, variableDAO);
+                this, variableDAO);
         for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull().processBy(new ConvertToSimpleVariables(),
                 context)) {
             setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, simpleVariables.value);
