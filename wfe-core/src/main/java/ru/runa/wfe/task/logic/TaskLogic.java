@@ -253,12 +253,10 @@ public class TaskLogic extends WFCommonLogic {
         AssignmentHelper.reassignTask(new ExecutionContext(processDefinition, task), task, newExecutor, false);
     }
 
-    ///////// Block refactored in multiDelegation (144 RM 194 SF) feature - remove markers after QA pass ////////////
     /**
-     * Delegates the Task (by taskId) to new owners. (Rely on multiply tasks delegation function delegateTaskInner(),
-     * though usually are done conversely.
-     * But we do it so, because SET is more common case than single ELEMENT,
-     * and it's right way to build more special cases on top of commons, not versa.)
+     * Delegates the Task (by taskId) to new owners. (Rely on multiply tasks delegation function delegateTaskInner(), though usually are done
+     * conversely. But we do it so, because SET is more common case than single ELEMENT, and it's right way to build more special cases on top of
+     * commons, not versa.)
      *
      * @param user
      *            - Current user
@@ -275,11 +273,21 @@ public class TaskLogic extends WFCommonLogic {
     public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners)
             throws TaskAlreadyAcceptedException {
         Task task = taskDAO.getNotNull(taskId);
+
+        // check assigned executor for the task
+        if (!Objects.equal(currentOwner, task.getExecutor())) {
+            throw new TaskAlreadyAcceptedException(task.getName());
+        }
+        // Check for user permissions, except for Administrators
+        if (SystemProperties.isTaskAssignmentStrictRulesEnabled() && !executorLogic.isAdministrator(user)) {
+            checkCanParticipate(user.getActor(), task);
+        }
+
         DelegationGroup delegationGroup = null;
         if (newOwners.size() > 1 || keepCurrentOwners) {
-            delegationGroup = createTemporaryDelegationGroup(user, task);
+            delegationGroup = createTemporaryDelegationGroup(user, task, keepCurrentOwners, newOwners);
         }
-        delegateTaskInner(user, task, currentOwner, keepCurrentOwners, newOwners, delegationGroup);
+        delegateTaskInner(user, task, keepCurrentOwners, newOwners, delegationGroup);
     }
 
     /**
@@ -297,20 +305,25 @@ public class TaskLogic extends WFCommonLogic {
      */
     public void delegateTasks(User user, Set<Long> taskIds, boolean keepCurrentOwners, List<? extends Executor> newOwners)
             throws TaskAlreadyAcceptedException {
-        // It's better to move to single delegationGroup somehow here.
-        // But impossible till now - due to Process link in temporary delegation group.
-        // So, placed here commented to illustrate intentions...
+        // It's better to move somehow to single delegationGroup for all tasks here.
+        // But it's impossible till now - due to Process link in temporary delegation group.
+        // So, is placed here and commented to illustrate intentions...
         // DelegationGroup delegationGroup = createTemporaryDelegationGroup(user, task);
+
         for (Long taskId : taskIds) {
             Task task = taskDAO.getNotNull(taskId);
-            // We get currentOwner just from task
-            Executor currentOwner = task.getExecutor();
-            // TODO: Good thought - refactor to use single Delegation Group (before cycle). 
+
+            // Check for user permissions, except for Administrators
+            if (SystemProperties.isTaskAssignmentStrictRulesEnabled() && !executorLogic.isAdministrator(user)) {
+                checkCanParticipate(user.getActor(), task);
+            }
+
+            // TODO: Good thought - refactor to use single Delegation Group (before cycle). But for now - let it be here.
             DelegationGroup delegationGroup = null;
             if (newOwners.size() > 1 || keepCurrentOwners) {
-                delegationGroup = createTemporaryDelegationGroup(user, task);
+                delegationGroup = createTemporaryDelegationGroup(user, task, keepCurrentOwners, newOwners);
             }
-            delegateTaskInner(user, task, currentOwner, keepCurrentOwners, newOwners, delegationGroup);
+            delegateTaskInner(user, task, keepCurrentOwners, newOwners, delegationGroup);
         }
     }
 
@@ -331,53 +344,62 @@ public class TaskLogic extends WFCommonLogic {
      *            - Temporary group which gather all new owners
      * @throws TaskAlreadyAcceptedException
      */
-    private void delegateTaskInner(User user, Task task, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners,
+    private void delegateTaskInner(User user, Task task, boolean keepCurrentOwners, List<? extends Executor> newOwners,
             DelegationGroup delegationGroup) throws TaskAlreadyAcceptedException {
-        // check assigned executor for the task
-        if (!Objects.equal(currentOwner, task.getExecutor())) {
-            throw new TaskAlreadyAcceptedException(task.getName());
-        }
-        // Check for user permissions, except for Administrators
-        if (SystemProperties.isTaskAssignmentStrictRulesEnabled() && !executorLogic.isAdministrator(user)) {
-            checkCanParticipate(user.getActor(), task);
-        }
-        if (keepCurrentOwners) {
-            if (currentOwner instanceof TemporaryGroup) {
-                ((List<Executor>) newOwners).addAll(executorDAO.getGroupChildren((Group) currentOwner));
-            } else {
-                ((List<Executor>) newOwners).add(executorDAO.getExecutor(currentOwner.getId()));
-            }
-        }
 
         ProcessDefinition processDefinition = getDefinition(task);
         final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
         executionContext.addLog(new TaskDelegationLog(task, user.getActor(), newOwners));
         if (delegationGroup != null) {
-            executorDAO.addExecutorsToGroup(newOwners, delegationGroup);
             AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
         } else {
             AssignmentHelper.reassignTask(executionContext, task, newOwners.get(0), false);
         }
     }
 
-    private DelegationGroup createTemporaryDelegationGroup(User user, Task task) {
+    /**
+     * Prepare temporary group for delegation tasks to se
+     */
+    private DelegationGroup createTemporaryDelegationGroup(User user, Task task, boolean keepCurrentOwners, List<? extends Executor> newOwners) {
         DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), task.getId());
         List<Permission> selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
+        Executor currentOwner = task.getExecutor();
+
+        Set<Executor> oldExecutors = null;
+        if (currentOwner instanceof Group) {
+            oldExecutors = executorDAO.getGroupChildren((Group) currentOwner);
+        }
+
         if (executorDAO.isExecutorExist(delegationGroup.getName())) {
             delegationGroup = (DelegationGroup) executorDAO.getExecutor(delegationGroup.getName());
-            Set<Executor> oldExecutors = executorDAO.getGroupChildren(delegationGroup);
-            executorDAO.deleteExecutorsFromGroup(delegationGroup, oldExecutors);
+            Set<Executor> oldDelegationExecutors = executorDAO.getGroupChildren(delegationGroup);
+            executorDAO.deleteExecutorsFromGroup(delegationGroup, oldDelegationExecutors);
         } else {
             executorDAO.create(delegationGroup);
         }
+
+        if (keepCurrentOwners) {
+            if (currentOwner instanceof TemporaryGroup) {
+                ((List<Executor>) newOwners).addAll(oldExecutors);
+            } else if (currentOwner instanceof Group) {
+                ((List<Executor>) newOwners).addAll(executorDAO.getGroupChildren((Group) currentOwner));
+            } else {
+                ((List<Executor>) newOwners).add(executorDAO.getExecutor(currentOwner.getId()));
+            }
+        }
+
         if (SystemProperties.setPermissionsToTemporaryGroups()) {
             Collection<Permission> p = delegationGroup.getSecuredObjectType().getNoPermission().getAllPermissions();
             permissionDAO.setPermissions(user.getActor(), p, delegationGroup);
             permissionDAO.setPermissions(delegationGroup, selfPermissions, delegationGroup);
         }
+
+        if (delegationGroup != null) {
+            executorDAO.addExecutorsToGroup(newOwners, delegationGroup);
+        }
+
         return delegationGroup;
     }
-    /////////////////////////////////////////////////////////////////////////
 
     public int reassignTasks(User user, BatchPresentation batchPresentation) {
         if (!executorLogic.isAdministrator(user)) {

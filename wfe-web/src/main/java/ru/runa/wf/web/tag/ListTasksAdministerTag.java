@@ -78,6 +78,7 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
             String tasksIds = JSONValue.toJSONString(ids);
             pageContext.setAttribute("tasksIds", tasksIds, PageContext.REQUEST_SCOPE);
         }
+        pageContext.setAttribute("returnAction", "/wfe/administer_tasks.do", PageContext.REQUEST_SCOPE);
     }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,

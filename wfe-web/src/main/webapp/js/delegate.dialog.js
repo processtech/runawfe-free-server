@@ -3,6 +3,7 @@ function delegateTaskDialog(btn) {
     var button = $(btn);
     var taskId = parseInt(button.attr("data-taskid"));
     var tasksIds = button.attr("data-tasksIds");
+    var returnAction = button.attr("returnAction");
     if($.delegateDialog == undefined) {
         var dialog = $("<div>", {id : "delegateDialog"});
         $('<input class="filter" placeholder="фильтр" />' +
@@ -267,11 +268,12 @@ function delegateTaskDialog(btn) {
 			dataType:"json", 
 			contentType:"application/json; charset=UTF-8",
 			success: function() {
-			        if (taskId !== -1) {
-                        window.location = "/wfe/manage_tasks.do";
-                    } else {
-                        window.location = "/wfe/administer_tasks.do";
-                    }
+                    // if (taskId !== -1 && !returnAction) {
+                    //     window.location = "/wfe/manage_tasks.do";
+                    // } else {
+                    //     window.location = returnAction;//"/wfe/administer_tasks.do";
+                    // }
+                window.location = returnAction;
 			}
 		});
 	}

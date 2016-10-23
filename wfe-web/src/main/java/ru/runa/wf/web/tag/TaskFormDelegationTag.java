@@ -40,6 +40,12 @@ public class TaskFormDelegationTag extends VisibleTag {
         button.addAttribute("data-taskid", taskId.intValue());
         button.setOnClick("delegateTaskDialog(this)");
 
+        String returnAction = (String) pageContext.getAttribute("returnAction", PageContext.REQUEST_SCOPE);
+        if (returnAction == null) {
+            returnAction = "/wfe/manage_tasks.do";
+        }
+        button.addAttribute("returnAction", returnAction);
+
         String tasksIds = (String) pageContext.getAttribute("tasksIds", PageContext.REQUEST_SCOPE);
         ExecutorService executorService = new ExecutorServiceDelegate();
         // taskId == -1 below - means multiple tasks delegation
