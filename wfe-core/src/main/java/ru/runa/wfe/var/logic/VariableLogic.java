@@ -53,6 +53,8 @@ import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.dao.VariableLoader;
+import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
@@ -74,13 +76,23 @@ public class VariableLogic extends WFCommonLogic {
         ProcessDefinition processDefinition = getDefinition(process);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-        /*
-         * Date date = user.date; if (date == null) { date = new Date(); } VariableLoader loader = new
-         * VariableLoaderFromMap(getProcessStateOnTime(user, process, date));
-         */
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
-            // WfVariable variable = loader.getVariable(processDefinition, process, variableDefinition.getName());
+            if (!Utils.isNullOrEmpty(variable.getValue())) {
+                result.add(variable);
+            }
+        }
+        return result;
+    }
+
+    public List<WfVariable> getHistoricalVariables(User user, Long processId, Date date) throws ProcessDoesNotExistException {
+        List<WfVariable> result = Lists.newArrayList();
+        Process process = processDAO.getNotNull(processId);
+        ProcessDefinition processDefinition = getDefinition(process);
+        checkPermissionAllowed(user, process, ProcessPermission.READ);
+        VariableLoader loader = new VariableLoaderFromMap(getProcessStateOnTime(user, process, date));
+        for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
+            WfVariable variable = loader.getVariable(processDefinition, process, variableDefinition.getName());
             if (!Utils.isNullOrEmpty(variable.getValue())) {
                 result.add(variable);
             }

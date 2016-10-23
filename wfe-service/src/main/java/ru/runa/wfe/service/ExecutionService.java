@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -179,6 +180,20 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public List<WfVariable> getVariables(User user, Long processId) throws ProcessDoesNotExistException;
+
+    /**
+     * Gets all process variables state on specified date.
+     *
+     * @param user
+     *            authorized user
+     * @param processId
+     *            process id
+     * @param date
+     *            Date to get history on.
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public List<WfVariable> getHistoricalVariables(User user, Long processId, Date date) throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process.

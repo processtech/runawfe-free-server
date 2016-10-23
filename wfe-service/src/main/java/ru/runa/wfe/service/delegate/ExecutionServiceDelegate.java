@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -124,6 +125,15 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     public List<WfVariable> getVariables(User user, Long processId) {
         try {
             return getExecutionService().getVariables(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<WfVariable> getHistoricalVariables(User user, Long processId, Date date) {
+        try {
+            return getExecutionService().getHistoricalVariables(user, processId, date);
         } catch (Exception e) {
             throw handleException(e);
         }
