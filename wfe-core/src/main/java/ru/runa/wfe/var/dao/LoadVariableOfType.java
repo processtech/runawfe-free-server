@@ -95,7 +95,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         List<Object> list = Lists.newArrayList();
         String sizeVariableName = context.variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
         VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
-        Integer size = (Integer) sizeDefinition.getFormatNotNull().processBy(this, context.сreateFor(sizeDefinition));
+        Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.сreateFor(sizeDefinition));
         if (size == null && SystemProperties.isV4ListVariableCompatibilityMode()) {
             Variable<?> variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
             if (variable != null) {
@@ -107,7 +107,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
         UserType[] formatComponentUserTypes = context.variableDefinition.getFormatComponentUserTypes();
         UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size.intValue(); i++) {
             String componentName = context.variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
                     + VariableFormatContainer.COMPONENT_QUALIFIER_END;
             VariableDefinition componentDefinition = new VariableDefinition(componentName, null, componentFormat, componentUserType);

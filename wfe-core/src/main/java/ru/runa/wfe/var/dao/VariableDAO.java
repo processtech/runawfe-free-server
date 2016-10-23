@@ -82,15 +82,15 @@ public class VariableDAO extends GenericDAO<Variable> {
     }
 
     /**
-     * @deprecated Use {@link VariableLoader} in case of mass variable loading.
+     * @deprecated Use {@link VariableLoaderDAOFallback} in case of mass variable loading.
      */
     @Deprecated
     public Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
-        return new VariableLoader(this, null).getVariableValue(processDefinition, process, variableDefinition);
+        return new VariableLoaderDAOFallback(this, null).getVariableValue(processDefinition, process, variableDefinition);
     }
 
     /**
-     * @deprecated Use {@link VariableLoader} in case of mass variable loading.
+     * @deprecated Use {@link VariableLoaderDAOFallback} in case of mass variable loading.
      */
     @Deprecated
     public Object processComplexVariablesPre430(ProcessDefinition processDefinition, VariableDefinition variableDefinition, UserType userType,
@@ -99,11 +99,11 @@ public class VariableDAO extends GenericDAO<Variable> {
     }
 
     /**
-     * @deprecated Use {@link VariableLoader} in case of mass variable loading.
+     * @deprecated Use {@link VariableLoaderDAOFallback} in case of mass variable loading.
      */
     @Deprecated
     public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
-        return new VariableLoader(this, null).getVariable(processDefinition, process, variableName);
+        return new VariableLoaderDAOFallback(this, null).getVariable(processDefinition, process, variableName);
     }
 
 }
