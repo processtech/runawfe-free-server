@@ -96,7 +96,8 @@ public class ExecutorFormat extends VariableFormat implements VariableDisplaySup
             html += ">" + executor.getLabel() + "</a>";
             return html;
         } else {
-            return executor.getLabel();
+            return executor.getLabel().replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\"", "&quot;").replaceAll("'", "&#39;")
+                    .replaceAll("`", "&apos;");
         }
     }
 }
