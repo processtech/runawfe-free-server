@@ -62,12 +62,6 @@ public class DefinitionCategoriesIterator implements Iterator<String[]> {
         return innerIterator.next();
     }
 
-    // TODO remove this method. Action must not use this iterator - iterator may
-    // be changed before action execution (wrong type will be set).
-    public String[] getItem(int idx) {
-        return innerIterator.getItem(idx);
-    }
-
     @Override
     public void remove() {
         innerIterator.remove();

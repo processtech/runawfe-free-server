@@ -35,6 +35,7 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 
@@ -77,6 +78,9 @@ public class ScriptingServiceBean implements ScriptingService {
     @Override
     @WebMethod(exclude = true)
     public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(configData != null, "configData");
+        Preconditions.checkArgument(externalResources != null, "externalResources");
         ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, null);
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
             @Override
@@ -95,6 +99,10 @@ public class ScriptingServiceBean implements ScriptingService {
     @WebMethod(exclude = true)
     public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
             String defaultPasswordValue) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(configData != null, "configData");
+        Preconditions.checkArgument(externalResources != null, "externalResources");
+        Preconditions.checkArgument(defaultPasswordValue != null, "defaultPasswordValue");
         ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue);
         final List<String> errors = new ArrayList<String>();
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
@@ -114,6 +122,8 @@ public class ScriptingServiceBean implements ScriptingService {
     @Override
     @WebResult(name = "result")
     public void executeGroovyScript(@WebParam(name = "user") User user, @WebParam(name = "script") String script) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(script != null, "script");
         if (!SystemProperties.isExecuteGroovyScriptInAPIEnabled()) {
             throw new ConfigurationException(
                     "In order to enable script execution set property 'scripting.groovy.enabled' to 'true' in system.properties or wfe.custom.system.properties");

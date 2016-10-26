@@ -25,6 +25,7 @@ import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
+import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -240,6 +241,15 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     public List<WfJob> getProcessJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
         try {
             return getExecutionService().getProcessJobs(user, processId, recursive);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<WfToken> getProcessTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
+        try {
+            return getExecutionService().getProcessTokens(user, processId, recursive);
         } catch (Exception e) {
             throw handleException(e);
         }

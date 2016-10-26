@@ -57,10 +57,10 @@ public class GetAcceptableTaskBoundConditionsTests extends AbstractTestNGSpringC
 
         TaskLogicMockFactory.getFactory().setContextRules(testCase);
 
-        WfTask res = taskListBuilder.getAcceptableTask(testCase.getTask(), testCase.getActor(), testCase.getBatchPresentation(),
-                testCase.getExecutorsToGetTasksByMembership());
+        TaskInListState res = taskListBuilder.getAcceptableTask(testCase.getTask(), testCase.getActor(), testCase.getBatchPresentation(),
+            testCase.getExecutorsToGetTasksByMembership());
 
-        Assert.assertEquals(res, testCase.getResult());
+        Assert.assertEquals(res.getTask().getId(), testCase.getResult().getId());
 
         TaskLogicMockFactory.getFactory().setContextRules(null);
     }

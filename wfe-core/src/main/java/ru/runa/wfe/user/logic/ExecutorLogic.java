@@ -240,12 +240,6 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     private void removeExecutorsFromGroupInternal(User user, List<? extends Executor> executors, Group group) {
-        // TODO this must be implemented by some mechanism
-        // if (executorDAO.getAdministrator().equals(executor) &&
-        // executorDAO.getAdministratorsGroup().equals(group)) {
-        // throw new AuthorizationException("Executor " + executor.getName()
-        // + " can not be removed from group " + group.getName());
-        // }
         checkPermissionsOnExecutor(user, group, GroupPermission.REMOVE_FROM_GROUP);
         checkPermissionsOnExecutors(user, executors, Permission.READ);
         executorDAO.removeExecutorsFromGroup(executors, group);

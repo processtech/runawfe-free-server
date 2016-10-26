@@ -203,7 +203,6 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
                 }
                 for (HashSet<Long> substitutors : mapActorToSubstitutors.get(substitutedId).values()) {
                     if (substitutors == null) {
-                        // TODO terminators handling?
                         continue;
                     }
                     for (Long substitutor : substitutors) {

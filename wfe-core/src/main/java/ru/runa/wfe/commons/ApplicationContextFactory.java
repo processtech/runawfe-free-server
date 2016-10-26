@@ -23,6 +23,7 @@ import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.relation.dao.RelationDAO;
@@ -64,6 +65,10 @@ public class ApplicationContextFactory {
 
     public static TaskDAO getTaskDAO() {
         return getContext().getBean(TaskDAO.class);
+    }
+
+    public static SwimlaneDAO getSwimlaneDAO() {
+        return getContext().getBean(SwimlaneDAO.class);
     }
 
     public static TokenDAO getTokenDAO() {
@@ -116,8 +121,6 @@ public class ApplicationContextFactory {
         String dsName = getConfiguration().getProperty("hibernate.connection.datasource");
         return (DataSource) new InitialContext().lookup(dsName);
     }
-
-    // TODO Environment
 
     public static Dialect getDialect() {
         return Dialect.getDialect(getConfiguration().getProperties());

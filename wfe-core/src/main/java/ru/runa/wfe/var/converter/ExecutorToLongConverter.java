@@ -1,13 +1,18 @@
 package ru.runa.wfe.var.converter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.var.Converter;
 import ru.runa.wfe.var.Variable;
 
 public class ExecutorToLongConverter implements Converter {
     private static final long serialVersionUID = 1L;
+    private static Log log = LogFactory.getLog(ExecutorToLongConverter.class);
 
     @Override
     public boolean supports(Object value) {
@@ -25,6 +30,11 @@ public class ExecutorToLongConverter implements Converter {
         if (executorId == null) {
             return null;
         }
-        return ApplicationContextFactory.getExecutorDAO().getExecutor(executorId);
+        try {
+            return ApplicationContextFactory.getExecutorDAO().getExecutor(executorId);
+        } catch (ExecutorDoesNotExistException e) {
+            log.warn(e);
+            return null;
+        }
     }
 }

@@ -41,7 +41,6 @@ public class RelationPermission extends Permission {
      */
     private static final List<Permission> RELATION_PERMISSIONS = fillPermissions();
 
-    // TODO constr
     public RelationPermission() {
         super();
     }

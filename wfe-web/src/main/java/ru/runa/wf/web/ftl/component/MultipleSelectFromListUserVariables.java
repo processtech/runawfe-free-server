@@ -37,6 +37,7 @@ public class MultipleSelectFromListUserVariables extends AbstractListUserVariabl
     public Map<String, ? extends Object> extractVariables(Interaction interaction, VariableDefinition variableDefinition,
             Map<String, ? extends Object> userInput, Map<String, String> formatErrors) throws Exception {
         Map<String, Object> result = Maps.newHashMap();
+        // TODO use index for submission
         Object raw = userInput.get(getVariableNameForSubmissionProcessing());
         String json = null;
         VariableFormat format = FormatCommons.create(variableDefinition);
@@ -49,9 +50,6 @@ public class MultipleSelectFromListUserVariables extends AbstractListUserVariabl
             try {
                 result.put(variableDefinition.getName(), format.parse(json));
             } catch (ClassCastException e) {
-                /*
-                 * FIXME: bad handle executor and file type variables in json
-                 */
                 log.error(String.format("%s", e));
                 throw e;
             }

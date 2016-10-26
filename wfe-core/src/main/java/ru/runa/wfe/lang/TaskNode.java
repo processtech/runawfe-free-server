@@ -25,8 +25,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 
 /**
- * is a node that relates to one or more tasks. Property <code>signal</code>
- * specifies how task completion triggers continuation of execution.
+ * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
  */
 public class TaskNode extends BaseTaskNode {
     private static final long serialVersionUID = 1L;
@@ -39,7 +38,7 @@ public class TaskNode extends BaseTaskNode {
     @Override
     public void execute(ExecutionContext executionContext) {
         for (TaskDefinition taskDefinition : taskDefinitions) {
-            Swimlane swimlane = executionContext.getProcess().getInitializedSwimlaneNotNull(executionContext, taskDefinition);
+            Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
             // copy the swimlane assignment into the task
             taskFactory.create(executionContext, taskDefinition, swimlane, swimlane.getExecutor(), null);
         }

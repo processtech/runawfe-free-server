@@ -53,7 +53,7 @@ public abstract class AbstractSelectFromList extends FormComponent implements Fo
             if (selectedValues != null && selectedValues.contains(option)) {
                 html.append(" checked=\"true\"");
             }
-            html.append("style=\"width: 30px;\">");
+            html.append(" style=\"width: 30px;\">");
             html.append("<label for=\"").append(id).append("\">");
             html.append(label);
             html.append("</label><br>");

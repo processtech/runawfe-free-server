@@ -43,6 +43,7 @@ public class VariableDefinition implements Serializable {
     private String format;
     private String formatLabel;
     private UserType userType;
+    // web-service serialization limitation
     private UserType[] formatComponentUserTypes;
     private boolean publicAccess;
     private Object defaultValue;
@@ -90,7 +91,6 @@ public class VariableDefinition implements Serializable {
     }
 
     public void initComponentUserTypes(ProcessDefinition processDefinition) {
-        // TODO List(List(UserType)) not supported
         String[] componentFormats = getFormatComponentClassNames();
         this.formatComponentUserTypes = new UserType[componentFormats.length];
         for (int i = 0; i < componentFormats.length; i++) {

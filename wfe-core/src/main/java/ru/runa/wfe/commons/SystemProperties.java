@@ -234,8 +234,8 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("base.process.id.variable.name");
     }
 
-    public static String getBaseProcessIdMappingVariablePrefix() {
-        return RESOURCES.getStringProperty("base.process.id.mapping.variable.prefix");
+    public static boolean isBaseProcessIdModeReadAllVariables() {
+        return RESOURCES.getBooleanProperty("base.process.id.variable.read.all", true);
     }
 
     public static int getDatabaseParametersCount() {
@@ -288,6 +288,10 @@ public class SystemProperties {
 
     public static boolean isProcessSuspensionEnabled() {
         return RESOURCES.getBooleanProperty("process.suspension.enabled", true);
+    }
+
+    public static boolean isSwimlaneAutoInitializationEnabled() {
+        return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", false);
     }
 
 }

@@ -272,6 +272,9 @@
 	<bean id="systemLogDAO" class="ru.runa.wfe.audit.dao.SystemLogDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
+	<bean id="swimlaneDAO" class="ru.runa.wfe.execution.dao.SwimlaneDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
 	<bean id="taskDAO" class="ru.runa.wfe.task.dao.TaskDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>

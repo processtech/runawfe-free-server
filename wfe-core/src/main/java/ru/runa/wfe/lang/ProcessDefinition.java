@@ -36,6 +36,7 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.ListFormat;
+import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Objects;
@@ -141,6 +142,15 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
                 return swimlaneDefinition.toVariableDefinition();
             }
         }
+        if (name.endsWith(VariableFormatContainer.SIZE_SUFFIX)) {
+            String listVariableName = name.substring(0, name.length() - VariableFormatContainer.SIZE_SUFFIX.length());
+            VariableDefinition listVariableDefinition = getVariable(listVariableName, false);
+            if (listVariableDefinition != null) {
+                return new VariableDefinition(name, null, LongFormat.class.getName(), null);
+            }
+            log.debug("Unable to build list size variable by name '" + name + "'");
+            return null;
+        }
         return buildVariable(name);
     }
 
@@ -180,6 +190,13 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         if (componentStartIndex != -1) {
             String containerVariableName = variableName.substring(0, componentStartIndex);
             VariableDefinition containerVariableDefinition = variablesMap.get(containerVariableName);
+            if (containerVariableDefinition == null) {
+                log.debug("Unable to build syntetic container variable by name '" + variableName + "'");
+                return null;
+            }
+            if (containerVariableDefinition.getFormatComponentClassNames().length == 0) {
+                throw new InternalApplicationException("Not a list variable: " + containerVariableDefinition.getName());
+            }
             String format = containerVariableDefinition.getFormatComponentClassNames()[0];
             VariableDefinition variableDefinition = new VariableDefinition(variableName, null, format, getUserType(format));
             variableDefinition.initComponentUserTypes(this);
@@ -214,10 +231,6 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
 
     public List<VariableDefinition> getVariables() {
         return variables;
-    }
-
-    public Interaction getInteraction(String nodeId) {
-        return interactions.get(nodeId);
     }
 
     public Interaction getInteractionNotNull(String nodeId) {

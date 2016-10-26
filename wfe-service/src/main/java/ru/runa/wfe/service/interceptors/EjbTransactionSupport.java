@@ -35,19 +35,19 @@ public class EjbTransactionSupport {
 
     @AroundInvoke
     public Object process(InvocationContext ic) throws Exception {
+        UserTransaction transaction = ejbContext.getUserTransaction();
         try {
             if (ic.getParameters() != null && ic.getParameters().length > 0 && ic.getParameters()[0] instanceof User) {
                 User user = (User) ic.getParameters()[0];
                 SubjectPrincipalsHelper.validateUser(user);
                 UserHolder.set(user);
             }
-            UserTransaction transaction = ejbContext.getUserTransaction();
             return invokeWithRetry(ic, transaction, ApiProperties.getRetriesCount());
         } finally {
             UserHolder.reset();
             for (ITransactionListener listener : TransactionListeners.get()) {
                 try {
-                    listener.onTransactionComplete();
+                    listener.onTransactionComplete(transaction);
                 } catch (Throwable th) {
                     log.error(th);
                 }
@@ -58,7 +58,7 @@ public class EjbTransactionSupport {
 
     /**
      * Make invocation with retry on optimistic lock failure exception.
-     * 
+     *
      * @param invocation
      *            current invocation
      * @param transaction
