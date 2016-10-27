@@ -202,7 +202,7 @@ public class Process extends IdentifiableBase {
 
     /**
      * Ends this process and all the tokens in it.
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */

@@ -282,7 +282,7 @@ public class Token implements Serializable {
 
     /**
      * ends this token and all of its children (if any).
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
