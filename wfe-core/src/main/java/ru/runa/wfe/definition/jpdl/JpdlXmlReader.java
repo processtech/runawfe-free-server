@@ -104,7 +104,9 @@ public class JpdlXmlReader {
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String CREATION_MODE = "creationMode";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
-
+    private static final String END_EVENT_BEHAVIOUR = "behavior";
+    private static final String END_EVENT_BEHAVIOUR_TERMINATE = "TERMINATE";
+    
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
         // nodeTypes.put("start-state", StartNode.class);
@@ -197,7 +199,8 @@ public class JpdlXmlReader {
                     node = ApplicationContextFactory.createAutowiredBean(StartNode.class);
                 }
             } else if ("end-token-state".equals(nodeName)) {
-                if (processDefinition instanceof SubprocessDefinition) {
+                if (processDefinition instanceof SubprocessDefinition 
+                        && !END_EVENT_BEHAVIOUR_TERMINATE.equals(element.attributeValue(END_EVENT_BEHAVIOUR))) {
                     node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessEndNode.class);
                 } else {
                     node = ApplicationContextFactory.createAutowiredBean(EndToken.class);
