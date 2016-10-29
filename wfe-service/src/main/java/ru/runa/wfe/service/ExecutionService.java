@@ -17,10 +17,10 @@
  */
 package ru.runa.wfe.service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -186,14 +186,12 @@ public interface ExecutionService {
      *
      * @param user
      *            authorized user
-     * @param processId
-     *            process id
-     * @param date
-     *            Date to get history on.
+     * @param filter
+     *            Criteria for filtering logs.
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<WfVariable> getHistoricalVariables(User user, Long processId, Date date) throws ProcessDoesNotExistException;
+    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process.

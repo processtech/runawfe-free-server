@@ -42,6 +42,7 @@ import ru.runa.common.web.html.StringsHeaderBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessVariablesRowBuilder;
+import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -77,13 +78,18 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
     @Override
     protected void fillFormData(TD tdFormElement) {
         User user = getUser();
-        Date historical = null;
+        ProcessLogFilter historyFilter = null;
         String date = pageContext.getRequest().getParameter("date");
         if (!Strings.isNullOrEmpty(date)) {
-            historical = CalendarUtil.convertToDate(date, DateFormat.getDateTimeInstance());
-            Calendar dateToCalendar = CalendarUtil.dateToCalendar(historical);
+            Date historicalDateTo = CalendarUtil.convertToDate(date, DateFormat.getDateTimeInstance());
+            Calendar dateToCalendar = CalendarUtil.dateToCalendar(historicalDateTo);
             dateToCalendar.add(Calendar.SECOND, 5);
-            historical = dateToCalendar.getTime();
+            historicalDateTo = dateToCalendar.getTime();
+            dateToCalendar.add(Calendar.SECOND, -10);
+            Date historicalDateFrom = dateToCalendar.getTime();
+            historyFilter = new ProcessLogFilter(getIdentifiableId());
+            historyFilter.setCreateDateTo(historicalDateTo);
+            historyFilter.setCreateDateFrom(historicalDateFrom);
         }
         if (SystemProperties.isUpdateProcessVariablesInAPIEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
             Table table = new Table();
@@ -100,8 +106,8 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
             updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
         }
 
-        List<WfVariable> variables = historical == null ? Delegates.getExecutionService().getVariables(user, getIdentifiableId())
-                : Delegates.getExecutionService().getHistoricalVariables(user, getIdentifiableId(), historical);
+        List<WfVariable> variables = historyFilter == null ? Delegates.getExecutionService().getVariables(user, getIdentifiableId())
+                : Delegates.getExecutionService().getHistoricalVariables(user, historyFilter);
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));

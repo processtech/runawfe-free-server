@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +36,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import com.google.common.base.Preconditions;
 
 import ru.runa.wfe.ConfigurationException;
+import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
@@ -168,10 +168,11 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public List<WfVariable> getHistoricalVariables(User user, Long processId, Date date) throws ProcessDoesNotExistException {
+    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException {
         Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        List<WfVariable> list = variableLogic.getHistoricalVariables(user, processId, date);
+        Preconditions.checkArgument(filter != null, "filter");
+        long processId = filter.getProcessId();
+        List<WfVariable> list = variableLogic.getHistoricalVariables(user, filter);
         for (WfVariable variable : list) {
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
         }

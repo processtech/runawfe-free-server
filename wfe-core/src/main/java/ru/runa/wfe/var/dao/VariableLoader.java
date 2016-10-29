@@ -45,8 +45,30 @@ public interface VariableLoader {
      */
     Map<String, Object> getAll(Process process);
 
+    /**
+     * Load variable.
+     *
+     * @param processDefinition
+     *            Process definition.
+     * @param process
+     *            Process instance for loading variable from.
+     * @param variableName
+     *            Loading variable name.
+     * @return Loaded variable or null if no such variable defined.
+     */
     WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName);
 
+    /**
+     * Load variable value.
+     * 
+     * @param processDefinition
+     *            Process definition.
+     * @param process
+     *            Process instance for loading variable from.
+     * @param variableName
+     *            Loading variable name.
+     * @return Loaded variable value or null.
+     */
     Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition);
 
 }
