@@ -40,7 +40,7 @@ public class TaskFormDelegationTag extends VisibleTag {
         button.addAttribute("data-taskid", taskId.intValue());
         button.setOnClick("delegateTaskDialog(this)");
 
-        String returnAction = (String) pageContext.getAttribute("returnAction", PageContext.REQUEST_SCOPE);
+        String returnAction = (String) pageContext.getAttribute("returnAction", PageContext.SESSION_SCOPE);
         if (returnAction == null) {
             returnAction = "/wfe/manage_tasks.do";
         }

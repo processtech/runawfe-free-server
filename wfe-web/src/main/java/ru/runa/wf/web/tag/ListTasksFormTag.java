@@ -59,6 +59,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
+        pageContext.setAttribute("returnAction", "/wfe/manage_tasks.do", PageContext.SESSION_SCOPE);
         BatchPresentation batchPresentation = getBatchPresentation();
         List<WfTask> tasks = Delegates.getTaskService().getMyTasks(getUser(), batchPresentation);
         Table table = buildTasksTable(pageContext, batchPresentation, tasks, getReturnAction(), false);
