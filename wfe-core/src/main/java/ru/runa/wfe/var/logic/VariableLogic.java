@@ -17,9 +17,11 @@
  */
 package ru.runa.wfe.var.logic;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -85,15 +87,18 @@ public class VariableLogic extends WFCommonLogic {
     }
 
     public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException {
+        if (filter.getCreateDateFrom() == null) {
+            return getHistoricalVariableOnDate(user, filter);
+        } else {
+            return getHistoricalVariableOnRange(user, filter);
+        }
+    }
+
+    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) throws ProcessDoesNotExistException {
         List<WfVariable> result = Lists.newArrayList();
-        Process process = processDAO.getNotNull(filter.getProcessId());
-        ProcessDefinition processDefinition = getDefinition(process);
-        checkPermissionAllowed(user, process, ProcessPermission.READ);
-        VariableLoader loader = new VariableLoaderFromMap(getProcessStateOnTime(user, process, filter));
-        for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
-            WfVariable variable = loader.getVariable(processDefinition, process, variableDefinition.getName());
-            if (!Utils.isNullOrEmpty(variable.getValue())) {
-                result.add(variable);
+        for (WfVariable wfVariable : getHistoricalVariables(user, filter)) {
+            if (variables.contains(wfVariable.getDefinition().getName())) {
+                result.add(wfVariable);
             }
         }
         return result;
@@ -137,6 +142,48 @@ public class VariableLogic extends WFCommonLogic {
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
         executionContext.setVariableValues(variables);
+    }
+
+    private List<WfVariable> getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {
+        List<WfVariable> result = Lists.newArrayList();
+        Map<String, WfVariable> toVariables = Maps.newHashMap();
+        Date dateFrom = filter.getCreateDateFrom();
+        filter.setCreateDateFrom(null);
+        for (WfVariable wfVariable : getHistoricalVariableOnDate(user, filter)) {
+            toVariables.put(wfVariable.getDefinition().getName(), wfVariable);
+        }
+        filter.setCreateDateTo(dateFrom);
+        for (WfVariable wfVariable : getHistoricalVariableOnDate(user, filter)) {
+            boolean variableIsStillDefined = toVariables.containsKey(wfVariable.getDefinition().getName());
+            if (variableIsStillDefined) {
+                if (!Objects.equal(wfVariable.getValue(), toVariables.get(wfVariable.getDefinition().getName()).getValue())) {
+                    result.add(toVariables.get(wfVariable.getDefinition().getName()));
+                }
+                toVariables.remove(wfVariable.getDefinition().getName());
+            } else {
+                wfVariable.setValue(null);
+                result.add(wfVariable);
+            }
+        }
+        for (WfVariable wfVariable : toVariables.values()) {
+            result.add(wfVariable);
+        }
+        return result;
+    }
+
+    private List<WfVariable> getHistoricalVariableOnDate(User user, ProcessLogFilter filter) {
+        List<WfVariable> result = Lists.newArrayList();
+        Process process = processDAO.getNotNull(filter.getProcessId());
+        ProcessDefinition processDefinition = getDefinition(process);
+        checkPermissionAllowed(user, process, ProcessPermission.READ);
+        VariableLoader loader = new VariableLoaderFromMap(getProcessStateOnTime(user, process, filter));
+        for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
+            WfVariable variable = loader.getVariable(processDefinition, process, variableDefinition.getName());
+            if (!Utils.isNullOrEmpty(variable.getValue())) {
+                result.add(variable);
+            }
+        }
+        return result;
     }
 
     public Map<Process, Map<String, Variable<?>>> getProcessStateOnTime(User user, Process process, ProcessLogFilter filter) {

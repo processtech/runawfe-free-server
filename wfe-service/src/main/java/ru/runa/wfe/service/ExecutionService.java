@@ -19,6 +19,7 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -192,6 +193,20 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
+
+    /**
+     * Gets specified process variables state on specified date.
+     *
+     * @param user
+     *            authorized user
+     * @param filter
+     *            Criteria for filtering logs.
+     * @param variables
+     *            Variables to load.
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process.

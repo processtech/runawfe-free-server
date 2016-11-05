@@ -19,6 +19,7 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -134,6 +135,15 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter) {
         try {
             return getExecutionService().getHistoricalVariables(user, filter);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) {
+        try {
+            return getExecutionService().getHistoricalVariables(user, filter, variables);
         } catch (Exception e) {
             throw handleException(e);
         }

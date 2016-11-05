@@ -74,6 +74,8 @@ public class WfServiceTestHelper extends ServiceTestHelper {
 
     public final static String SWIMLANE_PROCESS_NAME = "swimlaneProcess";
 
+    public final static String LONG_WITH_VARIABLES_PROCESS_NAME = "longProcessWithVariables";
+
     public final static String SWIMLANE_PROCESS_FILE_NAME = "swimlaneProcess.par";
 
     public final static String DECISION_JPDL_PROCESS_NAME = "jpdlDecisionTestProcess";
@@ -91,6 +93,8 @@ public class WfServiceTestHelper extends ServiceTestHelper {
     public final static String FORK_FAULT_JPDL_PROCESS_NAME = "jpdlForkFaultTestProcess";
 
     public final static String FORK_FAULT_JPDL_PROCESS_FILE_NAME = "jpdlForkFaultTestProcess.par";
+
+    public final static String LONG_WITH_VARIABLES_PROCESS_FILE_NAME = "longProcessWithVariables.par";
 
     public final static String TIMER_PROCESS_NAME = "timerProcess";
 
