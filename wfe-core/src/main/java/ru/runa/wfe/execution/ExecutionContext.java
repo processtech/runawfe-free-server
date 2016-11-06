@@ -206,6 +206,10 @@ public class ExecutionContext {
             variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
         }
         if (variable != null) {
+            if (Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue())
+                    || variable.getValue() instanceof UserTypeMap) {
+                variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
+            }
             return variable;
         }
         if (SystemProperties.isV3CompatibilityMode()) {
@@ -278,10 +282,12 @@ public class ExecutionContext {
                         .getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
                 } else if (baseVariable != null) {
-                    if (!Utils.isNullOrEmpty(baseVariable.getValue())) {
-                        return baseVariable;
+                    if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
+                        variable.setValue(baseVariable.getValue());
                     }
-                    return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, baseVariable);
+                    if (!Utils.isNullOrEmpty(variable.getValue())) {
+                        return variable;
+                    }
                 }
                 return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, variable);
             }
