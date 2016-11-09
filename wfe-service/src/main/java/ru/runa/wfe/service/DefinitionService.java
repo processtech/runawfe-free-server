@@ -134,7 +134,7 @@ public interface DefinitionService {
     public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
 
     /**
-     * Gets parsed process definition by id.
+     * Gets parsed process definition by id. TODO this method return too many data through references.
      *
      * @param user
      *            authorized user

@@ -108,7 +108,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
 
                 if (nodeLeaveLog == null) {
                     element.initialize(historyNode.getNode(), layoutData.getConstraints());
-                    element.setData("");
+                    element.setLabel("");
                     elements.add(element);
                     return;
                 }
@@ -135,7 +135,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
         String executionPeriodString = getPeriodDateString(nodeEnterLog, nodeLeaveLog);
 
         if (nodeType.equals(NodeType.SUBPROCESS) || nodeType.equals(NodeType.MULTI_SUBPROCESS)) {
-            element.setData("Time period is " + executionPeriodString);
+            element.setLabel("Time period is " + executionPeriodString);
         } else if (nodeType.equals(NodeType.TASK_STATE)) {
             StringBuffer str = new StringBuffer();
             TaskEndLog taskEndLog = historyNode.getNodeLog(TaskEndLog.class);
@@ -158,7 +158,7 @@ public class CreateGraphElementPresentation implements HistoryGraphNodeVisitor<C
             }
 
             str.append("Time period is " + executionPeriodString + ".");
-            element.setData(str.toString());
+            element.setLabel(str.toString());
         }
         elements.add(element);
     }
