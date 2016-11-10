@@ -40,19 +40,19 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @struts.action-forward name="failure" path="/manage_process.do" redirect = "true"
  * @struts.action-forward name="failure_process_does_not_exist" path="/manage_processes.do" redirect = "true"
  */
-public class LockProcessDefinitionForAllAction extends ActionBase {
-    public static final String ACTION_PATH = "/lockProcessDefinitionForAll";
+public class UnLockProcessDefinitionAction extends ActionBase {
+    public static final String ACTION_PATH = "/unLockProcessDefinition";
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse responce) {
         IdForm form = (IdForm) actionForm;
         try {
-            Delegates.getDefinitionService().lockProcessDefinitionForAll(getLoggedUser(request), form.getId());
+            Delegates.getDefinitionService().unLockProcessDefinition(getLoggedUser(request), form.getId());
         } catch (Exception e) {
             addError(request, e);
             return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), IdForm.ID_INPUT_NAME, form.getId());
         }
-        addMessage(request, new ActionMessage(MessagesProcesses.DEFINITION_LOCKED_FOR_ALL.getKey()));
+        addMessage(request, new ActionMessage(MessagesProcesses.DEFINITION_UNLOCKED.getKey()));
         return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, form.getId());
     }
 

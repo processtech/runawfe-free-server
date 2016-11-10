@@ -17,21 +17,35 @@
  */
 package ru.runa.wfe.definition;
 
+import java.util.Date;
+
 import ru.runa.wfe.InternalApplicationException;
 
 /**
- * Signals that process definition already locked.
+ * Signals that process definition locked.
  */
-public class DefinitionAlreadyLockedException extends InternalApplicationException {
+public class DefinitionLockedException extends InternalApplicationException {
     private static final long serialVersionUID = 1L;
     private final String name;
+    private final String userName;
+    private final Date date;
 
-    public DefinitionAlreadyLockedException(String name) {
-        super("Definition " + name + " already locked.");
+    public DefinitionLockedException(String name, String userName, Date date) {
+        super("Definition " + name + " locked by " + userName + " at " + date.toString() + ".");
         this.name = name;
+        this.userName = userName;
+        this.date = date;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public Date getDate() {
+        return date;
     }
 }

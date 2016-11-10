@@ -25,14 +25,19 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
+import com.google.common.base.Throwables;
+
 import ru.runa.wf.web.VariablesFormatException;
 import ru.runa.wf.web.action.DataFileNotPresentException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.LocalizableException;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
+import ru.runa.wfe.definition.DefinitionAlreadyLockedException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
+import ru.runa.wfe.definition.DefinitionLockedForAllException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -53,8 +58,6 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.ExecutorParticipatesInProcessesException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.validation.ValidationException;
-
-import com.google.common.base.Throwables;
 
 /**
  * Created 27.05.2005
@@ -125,8 +128,8 @@ public class ActionExceptionHelper {
                     ((InvalidDefinitionException) e).getDefinitionName(), e.getMessage());
         } else if (e instanceof DefinitionNameMismatchException) {
             DefinitionNameMismatchException exception = (DefinitionNameMismatchException) e;
-            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(),
-                    exception.getDeployedProcessDefinitionName(), exception.getGivenProcessDefinitionName());
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getDeployedProcessDefinitionName(),
+                    exception.getGivenProcessDefinitionName());
         } else if (e instanceof TaskDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.ERROR_TASK_DOES_NOT_EXIST.getKey());
         } else if (e instanceof SubstitutionDoesNotExistException) {
@@ -156,6 +159,15 @@ public class ActionExceptionHelper {
             actionMessage = new ActionMessage(e.getLocalizedMessage(), false);
         } else if (e instanceof InternalApplicationException) {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_UNKNOWN.getKey(), e.getMessage());
+        } else if (e instanceof DefinitionAlreadyLockedException) {
+            DefinitionAlreadyLockedException ex = (DefinitionAlreadyLockedException) e;
+            actionMessage = new ActionMessage(MessagesException.DEFINITION_ALREADY_LOCKED.getKey(), ex.getName());
+        } else if (e instanceof DefinitionLockedException) {
+            DefinitionLockedException ex = (DefinitionLockedException) e;
+            actionMessage = new ActionMessage(MessagesException.DEFINITION_LOCKED.getKey(), ex.getName(), ex.getUserName(), ex.getDate());
+        } else if (e instanceof DefinitionLockedForAllException) {
+            DefinitionLockedForAllException ex = (DefinitionLockedForAllException) e;
+            actionMessage = new ActionMessage(MessagesException.DEFINITION_LOCKED_FOR_ALL.getKey(), ex.getName(), ex.getDate());
         } else {
             String message = e.getMessage();
             if (message == null) {

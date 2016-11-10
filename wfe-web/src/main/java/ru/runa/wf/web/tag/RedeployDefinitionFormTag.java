@@ -44,6 +44,7 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.LockProcessDefinitionAction;
 import ru.runa.wf.web.action.LockProcessDefinitionForAllAction;
 import ru.runa.wf.web.action.RedeployProcessDefinitionAction;
+import ru.runa.wf.web.action.UnLockProcessDefinitionAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionPermission;
@@ -129,7 +130,9 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     private TD createUnLockElement(final Long definitionId) {
         final TD tdUnLock = new TD();
-        final A unLock = new A("", MessagesOther.LABEL_UNLOCK.message(pageContext));
+        final String unLockUrl = Commons.getActionUrl(UnLockProcessDefinitionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definitionId, pageContext,
+                PortletUrlType.Render);
+        final A unLock = new A(unLockUrl, MessagesOther.LABEL_UNLOCK.message(pageContext));
         unLock.setClass(Resources.CLASS_LINK);
         tdUnLock.addElement(unLock);
         return tdUnLock;

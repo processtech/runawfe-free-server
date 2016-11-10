@@ -38,6 +38,8 @@ import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionAlreadyLockedException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
+import ru.runa.wfe.definition.DefinitionLockedForAllException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.Deployment;
@@ -98,6 +100,7 @@ public class DefinitionLogic extends WFCommonLogic {
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
         Deployment oldDeployment = deploymentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, oldDeployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        checkLock(user, oldDeployment);
         if (processArchiveBytes == null) {
             Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
             oldDeployment.setCategories(categories);
@@ -137,6 +140,7 @@ public class DefinitionLogic extends WFCommonLogic {
         Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
         Deployment deployment = deploymentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        checkLock(user, deployment);
         ProcessDefinition uploadedDefinition;
         try {
             uploadedDefinition = parseProcessDefinition(processArchiveBytes);
@@ -154,6 +158,17 @@ public class DefinitionLogic extends WFCommonLogic {
         addUpdatedDefinitionInProcessLog(user, deployment);
         log.debug("Process definition " + deployment + " was successfully updated");
         return new WfDefinition(deployment);
+    }
+
+    private void checkLock(User user, Deployment deployment) {
+        if (StringUtils.isEmpty(deployment.getLockUserName()) || user.getName().equals(deployment.getLockUserName())) {
+            return;
+        }
+        if (WfDefinition.ALL_USERS.equals(deployment.getLockUserName())) {
+            throw new DefinitionLockedForAllException(deployment.getName(), deployment.getLockDate());
+        } else {
+            throw new DefinitionLockedException(deployment.getName(), deployment.getLockUserName(), deployment.getLockDate());
+        }
     }
 
     private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
@@ -377,6 +392,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
         Deployment deployment = deploymentDAO.get(definitionId);
+        checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
         if (StringUtils.isEmpty(deployment.getLockUserName())) {
             deployment.setLockUserName(user.getName());
             deployment.setLockDate(new Date());
@@ -389,6 +405,7 @@ public class DefinitionLogic extends WFCommonLogic {
     public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId)
             throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
         Deployment deployment = deploymentDAO.get(definitionId);
+        checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
         if (StringUtils.isEmpty(deployment.getLockUserName()) || user.getName().equals(deployment.getLockUserName())) {
             deployment.setLockUserName(WfDefinition.ALL_USERS);
             deployment.setLockDate(new Date());
@@ -396,6 +413,14 @@ public class DefinitionLogic extends WFCommonLogic {
         } else {
             throw new DefinitionAlreadyLockedException(deployment.getName());
         }
+    }
+
+    public WfDefinition unLockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException {
+        Deployment deployment = deploymentDAO.get(definitionId);
+        checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        deployment.setLockUserName(null);
+        deployment.setLockDate(null);
+        return new WfDefinition(deploymentDAO.update(deployment));
     }
 
     private final class DefinitionIdentifiable extends Identifiable {
