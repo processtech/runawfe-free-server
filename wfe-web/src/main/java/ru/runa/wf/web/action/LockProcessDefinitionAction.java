@@ -52,7 +52,7 @@ public class LockProcessDefinitionAction extends ActionBase {
             addError(request, e);
             return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), IdForm.ID_INPUT_NAME, form.getId());
         }
-        addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_CANCELED.getKey()));
+        addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_LOCKED.getKey()));
         return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, form.getId());
     }
 

@@ -302,4 +302,12 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return definitionLogic.lockProcessDefinitionForAll(user, definitionId);
     }
 
+    @Override
+    @WebResult(name = "result")
+    public WfDefinition unLockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
+            throws DefinitionDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        return definitionLogic.unLockProcessDefinition(user, definitionId);
+    }
 }

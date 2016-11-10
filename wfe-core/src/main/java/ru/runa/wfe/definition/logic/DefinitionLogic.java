@@ -398,6 +398,13 @@ public class DefinitionLogic extends WFCommonLogic {
         }
     }
 
+    public WfDefinition unLockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException {
+        Deployment deployment = deploymentDAO.get(definitionId);
+        deployment.setLockUserName(null);
+        deployment.setLockDate(null);
+        return new WfDefinition(deploymentDAO.update(deployment));
+    }
+
     private final class DefinitionIdentifiable extends Identifiable {
 
         private static final long serialVersionUID = 1L;
