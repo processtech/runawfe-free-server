@@ -102,7 +102,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @Override
     @WebResult(name = "result")
     public Long startProcessWS(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
-            @WebParam(name = "definitionVersion") Long definitionVersion, @WebParam(name = "variables") List<Variable> variables) {
+            @WebParam(name = "variables") List<Variable> variables) {
         WfDefinition definition = definitionLogic.getLatestProcessDefinition(user, definitionName);
         ProcessDefinition processDefinition = executionLogic.getDefinition(definition.getId());
         return startProcess(user, definitionName, VariableConverter.unmarshal(processDefinition, variables));
