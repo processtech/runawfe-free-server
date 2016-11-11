@@ -157,8 +157,6 @@ public class ActionExceptionHelper {
             actionMessage = new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey());
         } else if (e instanceof LocalizableException) {
             actionMessage = new ActionMessage(e.getLocalizedMessage(), false);
-        } else if (e instanceof InternalApplicationException) {
-            actionMessage = new ActionMessage(MessagesException.EXCEPTION_UNKNOWN.getKey(), e.getMessage());
         } else if (e instanceof DefinitionAlreadyLockedException) {
             DefinitionAlreadyLockedException ex = (DefinitionAlreadyLockedException) e;
             actionMessage = new ActionMessage(MessagesException.DEFINITION_ALREADY_LOCKED.getKey(), ex.getName());
@@ -168,6 +166,8 @@ public class ActionExceptionHelper {
         } else if (e instanceof DefinitionLockedForAllException) {
             DefinitionLockedForAllException ex = (DefinitionLockedForAllException) e;
             actionMessage = new ActionMessage(MessagesException.DEFINITION_LOCKED_FOR_ALL.getKey(), ex.getName(), ex.getDate());
+        } else if (e instanceof InternalApplicationException) {
+            actionMessage = new ActionMessage(MessagesException.EXCEPTION_UNKNOWN.getKey(), e.getMessage());
         } else {
             String message = e.getMessage();
             if (message == null) {

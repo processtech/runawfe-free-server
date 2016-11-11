@@ -32,8 +32,8 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_CANCELED = new StrutsMessage("process.canceled");
     public static final StrutsMessage DEFINITION_LOCKED = new StrutsMessage("definition.locked");
     public static final StrutsMessage DEFINITION_LOCKED_FOR_ALL = new StrutsMessage("definition.locked_for_all");
-    public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage DEFINITION_UNLOCKED = new StrutsMessage("definition.unlocked");
+    public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");
     public static final StrutsMessage PROCESS_UPGRADE_TO_DEFINITION_VERSION = new StrutsMessage("process.upgrade.to.definition.version");
     public static final StrutsMessage LABEL_SHOW_GRAPH_HISTORY = new StrutsMessage("label.manage_graph_history");
