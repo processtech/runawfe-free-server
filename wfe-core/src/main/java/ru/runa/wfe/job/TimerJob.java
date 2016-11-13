@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.WaitNode;
 
@@ -50,11 +49,11 @@ public class TimerJob extends Job {
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        Node node = executionContext.getProcessDefinition().getNode(getName());
         log.info("Triggered " + getName() + " in " + executionContext);
-        if (node instanceof TimerNode) {
-            ((TimerNode) node).onTimerJob(executionContext, this);
+        if (executionContext.getNode() instanceof TimerNode) {
+            ((TimerNode) executionContext.getNode()).onTimerJob(executionContext, this);
         } else {
+            log.info("Triggered " + getName() + " in " + executionContext);
             WaitNode.onTimerJob(executionContext, this);
         }
     }
