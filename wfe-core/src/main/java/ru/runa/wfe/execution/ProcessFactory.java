@@ -101,12 +101,6 @@ public class ProcessFactory {
             int index) {
         Process parentProcess = parentExecutionContext.getProcess();
         Node subProcessNode = parentExecutionContext.getNode();
-        Map<String, Object> defaultValues = processDefinition.getDefaultVariableValues();
-        for (Map.Entry<String, Object> entry : defaultValues.entrySet()) {
-            if (!variables.containsKey(entry.getKey())) {
-                variables.put(entry.getKey(), entry.getValue());
-            }
-        }
         ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null);
         nodeProcessDAO.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
         return subExecutionContext.getProcess();

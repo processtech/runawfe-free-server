@@ -33,6 +33,7 @@ import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionPermission;
@@ -76,12 +77,13 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
-import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.Variable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Process execution logic.
@@ -223,18 +225,16 @@ public class ExecutionLogic extends WFCommonLogic {
 
     private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
         for (Process process : processes) {
             WfProcess wfProcess = new WfProcess(process);
-            if (variableNamesToInclude != null) {
+            if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
                     for (String variableName : variableNamesToInclude) {
                         try {
-                            WfVariable variable = executionContext.getVariableProvider().getVariable(variableName);
-                            if (variable != null) {
-                                wfProcess.addVariable(variable);
-                            }
+                            wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));
                         } catch (Exception e) {
                             log.error("Unable to get '" + variableName + "' in " + process, e);
                         }
@@ -249,10 +249,14 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) {
+        return startProcess(user, getLatestDefinition(definitionName).getId(), variables);
+    }
+
+    public Long startProcess(User user, Long definitionId, Map<String, Object> variables) {
         if (variables == null) {
             variables = Maps.newHashMap();
         }
-        ProcessDefinition processDefinition = getLatestDefinition(definitionName);
+        ProcessDefinition processDefinition = getDefinition(definitionId);
         checkPermissionAllowed(user, processDefinition.getDeployment(), DefinitionPermission.START_PROCESS);
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         Map<String, Object> extraVariablesMap = Maps.newHashMap();

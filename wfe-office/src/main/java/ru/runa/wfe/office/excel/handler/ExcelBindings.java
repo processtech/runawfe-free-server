@@ -17,6 +17,13 @@ import com.google.common.net.MediaType;
 public class ExcelBindings extends FilesSupplierConfig {
     private final List<ExcelBinding> bindings = new ArrayList<ExcelBinding>();
 
+    public static boolean isFileNameBelongsToXLSX(String fileName, boolean defaultValue) {
+        if (fileName == null) {
+            return defaultValue;
+        }
+        return fileName.endsWith("xlsx");
+    }
+
     @Override
     protected MediaType getContentType() {
         if (isFileNameBelongsToXLSX(getOutputFileName(), false)) {
@@ -24,13 +31,6 @@ public class ExcelBindings extends FilesSupplierConfig {
         } else {
             return MediaType.MICROSOFT_EXCEL;
         }
-    }
-
-    public boolean isFileNameBelongsToXLSX(String fileName, boolean defaultValue) {
-        if (fileName == null) {
-            return defaultValue;
-        }
-        return fileName.endsWith("xlsx");
     }
 
     public boolean isInputFileXLSX(IVariableProvider variableProvider, boolean defaultValue) {
