@@ -15,15 +15,15 @@
  * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.wfe.graph.image.figure.bpmn;
+package ru.runa.wfe.graph.image.figure.uml;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.lang.Node;
 
-public class BPMNFigureFactory extends AbstractFigureFactory {
+public class UmlFigureFactory extends AbstractFigureFactory {
 
     @Override
     public AbstractFigure createFigure(Node node, boolean useEgdingOnly) {
@@ -33,43 +33,46 @@ public class BPMNFigureFactory extends AbstractFigureFactory {
             figure = new TaskNodeFigure();
             break;
         case MULTI_TASK_STATE:
-            figure = new TaskNodeFigure();
+            figure = new MultiTaskNodeFigure();
             break;
         case EXCLUSIVE_GATEWAY:
-            figure = new Rhomb("image/bpmn/decision.png");
+        case DECISION:
+            figure = new DecisionFigure();
+            break;
+        case MERGE:
+            figure = new ConjunctionFigure();
             break;
         case PARALLEL_GATEWAY:
-            figure = new Rhomb("image/bpmn/fork_join.png");
+        case FORK:
+        case JOIN:
+            figure = new ForkJoinFigure();
             break;
         case START_EVENT:
-            figure = new Circle("image/bpmn/start.png");
+            figure = new StartStateFigure();
             break;
         case END_PROCESS:
-            figure = new Circle("image/bpmn/end.png");
+            figure = new EndStateFigure();
             break;
         case END_TOKEN:
-            figure = new Circle("image/bpmn/endtoken.png");
+            figure = new EndTokenStateFigure();
             break;
         case SUBPROCESS:
-            figure = new SubprocessRect();
+            figure = new SubprocessFigure();
             break;
         case ACTION_NODE:
-            figure = new RoundedRect("image/bpmn/script.png");
+            figure = new ActionNodeFigure();
             break;
         case WAIT_STATE:
-            figure = new Circle("image/bpmn/waitstate.png");
+            figure = new WaitStateFigure();
             break;
         case MULTI_SUBPROCESS:
-            figure = new SubprocessRect();
+            figure = new MultiSubprocessFigure();
             break;
         case SEND_MESSAGE:
-            figure = new Circle("image/bpmn/sendmessage.png");
+            figure = new SendMessageNodeFigure();
             break;
         case RECEIVE_MESSAGE:
-            figure = new Circle("image/bpmn/receivemessage.png");
-            break;
-        case TEXT_ANNOTATION:
-            figure = new TextAnnotationFigure();
+            figure = new ReceiveMessageNodeFigure();
             break;
         default:
             throw new InternalApplicationException("Unexpected figure type found: " + node.getNodeType());
@@ -79,7 +82,7 @@ public class BPMNFigureFactory extends AbstractFigureFactory {
     }
 
     @Override
-    public TransitionFigureBase createTransitionFigure() {
-        return new TransitionFigureBase();
+    public TransitionFigure createTransitionFigure() {
+        return new UmlTransitionFigure();
     }
 }

@@ -39,7 +39,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class TransitionFigureBase {
+public class TransitionFigure {
     protected String timerInfo;
 
     protected AbstractFigure figureFrom;
@@ -62,9 +62,6 @@ public class TransitionFigureBase {
         this.figureTo = figureTo;
         if (transition.getFrom().getProcessDefinition().isGraphActionsEnabled()) {
             this.actionsCount = GraphImageHelper.getNodeActionsCount(transition);
-        }
-        if (transition.isTimerTransition()) {
-            timerInfo = transition.getFrom().getTimerActions(false).get(0).getDueDate();
         }
         this.smoothLines = smoothLines;
         for (Bendpoint bendpoint : transition.getBendpoints()) {
@@ -131,7 +128,8 @@ public class TransitionFigureBase {
             }
         }
         if (bendPoint == null) {
-            if (figureFrom.getType() == NodeType.FORK || figureFrom.getType() == NodeType.JOIN || transition.isTimerTransition()) {
+            if (figureFrom.getNode().getNodeType() == NodeType.FORK || figureFrom.getNode().getNodeType() == NodeType.JOIN
+                    || transition.isTimerTransition()) {
                 bendPoint = start;
             } else {
                 bendPoint = new Point((int) rectFrom.getCenterX(), (int) rectFrom.getCenterY());// start;
@@ -227,7 +225,7 @@ public class TransitionFigureBase {
             int padding = 1;
             int xStart = 0;
             int yStart = 0;
-            if (figureFrom.getType() == NodeType.FORK) {
+            if (figureFrom.getNode().getNodeType() == NodeType.FORK) {
                 xStart = (int) (xPoints[xPoints.length - 2] + xPoints[xPoints.length - 1] - textBounds.getWidth()) / 2;
                 yStart = (int) (yPoints[yPoints.length - 2] + yPoints[yPoints.length - 1] - textBounds.getHeight()) / 2;
             } else {

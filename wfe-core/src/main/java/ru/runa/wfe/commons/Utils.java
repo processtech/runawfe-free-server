@@ -26,15 +26,20 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.dto.Variables;
+
+import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
@@ -118,6 +123,7 @@ public class Utils {
         }
     }
 
+    // FIXME It is an anti-pattern to create new connections, sessions, producers and consumers for each message you produce or consume
     public static ObjectMessage sendBpmnMessage(List<VariableMapping> data, IVariableProvider variableProvider, long ttl) {
         Connection connection = null;
         Session session = null;
@@ -150,6 +156,21 @@ public class Utils {
         } finally {
             releaseJmsSession(connection, session, sender);
         }
+    }
+
+    public static void sendBpmnErrorMessage(Long processId, String nodeId, Throwable throwable) {
+        Map<String, Object> variables = Maps.newHashMap();
+        variables.put(BaseMessageNode.EVENT_TYPE, MessageEventType.error.name());
+        variables.put(BaseMessageNode.BUSINESS_EXCEPTION_MESSAGE, throwable.getMessage());
+        variables.put(Variables.CURRENT_PROCESS_ID, processId);
+        variables.put(Variables.CURRENT_NODE_ID, nodeId);
+        MapVariableProvider variableProvider = new MapVariableProvider(variables);
+        List<VariableMapping> variableMappings = Lists.newArrayList();
+        variableMappings.add(new VariableMapping(BaseMessageNode.EVENT_TYPE, "${" + BaseMessageNode.EVENT_TYPE + "}", "selector"));
+        variableMappings.add(new VariableMapping("processId", Variables.CURRENT_PROCESS_ID_WRAPPED, "selector"));
+        variableMappings.add(new VariableMapping("processNodeId", Variables.CURRENT_NODE_ID_WRAPPED, "selector"));
+        variableMappings.add(new VariableMapping(BaseMessageNode.BUSINESS_EXCEPTION_MESSAGE, BaseMessageNode.BUSINESS_EXCEPTION_MESSAGE, "read"));
+        Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
     }
 
     public static void sendNodeAsyncExecutionMessage(Long processId, Long tokenId, String nodeId) {

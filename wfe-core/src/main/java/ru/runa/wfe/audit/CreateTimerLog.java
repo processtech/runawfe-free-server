@@ -7,34 +7,32 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.job.CreateTimerAction;
 
 /**
  * Logging timer creation.
- * 
+ *
  * @author Dofs
  */
 @Entity
 @DiscriminatorValue(value = "C")
-public class CreateTimerActionLog extends ActionLog {
+public class CreateTimerLog extends ProcessLog {
     private static final long serialVersionUID = 1L;
 
-    public CreateTimerActionLog() {
+    public CreateTimerLog() {
     }
 
-    public CreateTimerActionLog(CreateTimerAction action, Date dueDate) {
-        super(action);
+    public CreateTimerLog(Date dueDate) {
         addAttribute(ATTR_DUE_DATE, CalendarUtil.formatDateTime(dueDate));
     }
 
     @Transient
     @Override
     public Object[] getPatternArguments() {
-        return new Object[] { getAttributeNotNull(ATTR_ACTION), getAttributeNotNull(ATTR_DUE_DATE) };
+        return new Object[] { getAttributeNotNull(ATTR_DUE_DATE) };
     }
 
     @Override
     public void processBy(ProcessLogVisitor visitor) {
-        visitor.onCreateTimerActionLog(this);
+        visitor.onCreateTimerLog(this);
     }
 }

@@ -1,20 +1,20 @@
 package ru.runa.wfe.graph.image;
 
-import ru.runa.wfe.job.CancelTimerAction;
-import ru.runa.wfe.job.CreateTimerAction;
-import ru.runa.wfe.job.Timer;
-import ru.runa.wfe.lang.Action;
-import ru.runa.wfe.lang.Event;
+import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
+import ru.runa.wfe.lang.jpdl.Action;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
+import ru.runa.wfe.lang.jpdl.CancelTimerAction;
+import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 
 public class GraphImageHelper {
-    public static int processActionsInEvent(Event event) {
+    public static int processActionsInEvent(ActionEvent actionEvent) {
         int result = 0;
-        for (Action action : event.getActions()) {
-            if (action instanceof CreateTimerAction || action instanceof CancelTimerAction || Timer.ESCALATION_NAME.equals(action.getName())) {
+        for (Action action : actionEvent.getActions()) {
+            if (action instanceof CreateTimerAction || action instanceof CancelTimerAction || TimerJob.ESCALATION_NAME.equals(action.getName())) {
                 continue;
             }
             result++;
@@ -24,8 +24,8 @@ public class GraphImageHelper {
 
     public static int getNodeActionsCount(GraphElement node) {
         int result = 0;
-        for (Event event : node.getEvents().values()) {
-            result += processActionsInEvent(event);
+        for (ActionEvent actionEvent : node.getEvents().values()) {
+            result += processActionsInEvent(actionEvent);
         }
         if (node instanceof TaskNode) {
             for (TaskDefinition taskDefinition : ((TaskNode) node).getTasks()) {
@@ -36,8 +36,8 @@ public class GraphImageHelper {
     }
 
     public static int getTransitionActionsCount(Transition transition) {
-        Event event = transition.getEventNotNull(Event.TRANSITION);
-        return event.getActions().size();
+        ActionEvent actionEvent = transition.getEventNotNull(ActionEvent.TRANSITION);
+        return actionEvent.getActions().size();
     }
 
 }

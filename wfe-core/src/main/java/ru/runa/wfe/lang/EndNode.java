@@ -32,7 +32,7 @@ public class EndNode extends Node {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         executionContext.getProcess().end(executionContext, null);
     }
 

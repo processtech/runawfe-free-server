@@ -15,17 +15,15 @@ import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.logic.SwimlaneUtils;
-import ru.runa.wfe.job.CancelTimerAction;
-import ru.runa.wfe.job.CreateTimerAction;
-import ru.runa.wfe.job.Timer;
-import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.AsyncCompletionMode;
+import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.BaseTaskNode;
+import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
 import ru.runa.wfe.lang.EmbeddedSubprocessStartNode;
 import ru.runa.wfe.lang.EndNode;
-import ru.runa.wfe.lang.Event;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.MultiSubprocessNode;
@@ -34,7 +32,6 @@ import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.MultiTaskSynchronizationMode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.ReceiveMessageNode;
 import ru.runa.wfe.lang.ScriptNode;
 import ru.runa.wfe.lang.SendMessageNode;
 import ru.runa.wfe.lang.StartNode;
@@ -45,14 +42,15 @@ import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.VariableContainerNode;
-import ru.runa.wfe.lang.WaitNode;
+import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.EndToken;
 import ru.runa.wfe.lang.bpmn2.ExclusiveGateway;
+import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.lang.bpmn2.ParallelGateway;
 import ru.runa.wfe.lang.bpmn2.TextAnnotation;
+import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.var.VariableMapping;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -98,6 +96,7 @@ public class BpmnXmlReader {
     private static final String SEND_TASK = "sendTask";
     private static final String RECEIVE_TASK = "receiveTask";
     private static final String BOUNDARY_EVENT = "boundaryEvent";
+    private static final String INTERMEDIATE_THROW_EVENT = "intermediateThrowEvent";
     private static final String INTERMEDIATE_CATCH_EVENT = "intermediateCatchEvent";
     private static final String ATTACHED_TO_REF = "attachedToRef";
     private static final String TIMER_EVENT_DEFINITION = "timerEventDefinition";
@@ -116,6 +115,8 @@ public class BpmnXmlReader {
     private static final String DISCRIMINATOR_VALUE = "discriminatorValue";
     private static final String DISCRIMINATOR_CONDITION = "discriminatorCondition";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
+    private static final String CANCEL_ACTIVITY = "cancelActivity";
+    private static final String TYPE = "type";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -126,15 +127,16 @@ public class BpmnXmlReader {
     static {
         nodeTypes.put(USER_TASK, TaskNode.class);
         nodeTypes.put(MULTI_TASK, MultiTaskNode.class);
-        nodeTypes.put(INTERMEDIATE_CATCH_EVENT, WaitNode.class);
-        nodeTypes.put(SEND_TASK, SendMessageNode.class);
-        nodeTypes.put(RECEIVE_TASK, ReceiveMessageNode.class);
-        // back compatibility v < 4.0.4
-        nodeTypes.put(SERVICE_TASK, ScriptNode.class);
+        nodeTypes.put(INTERMEDIATE_THROW_EVENT, SendMessageNode.class);
         nodeTypes.put(SCRIPT_TASK, ScriptNode.class);
         nodeTypes.put(EXCLUSIVE_GATEWAY, ExclusiveGateway.class);
         nodeTypes.put(PARALLEL_GATEWAY, ParallelGateway.class);
         nodeTypes.put(TEXT_ANNOTATION, TextAnnotation.class);
+        // back compatibility v < 4.3.0
+        nodeTypes.put(SEND_TASK, SendMessageNode.class);
+        nodeTypes.put(RECEIVE_TASK, CatchEventNode.class);
+        // back compatibility v < 4.0.4
+        nodeTypes.put(SERVICE_TASK, ScriptNode.class);
     }
 
     private String defaultTaskDeadline;
@@ -236,6 +238,26 @@ public class BpmnXmlReader {
                 } else {
                     node = ApplicationContextFactory.createAutowiredBean(SubprocessNode.class);
                 }
+            } else if (INTERMEDIATE_CATCH_EVENT.equals(nodeName)) {
+                Element timerEventDefinitionElement = element.element(TIMER_EVENT_DEFINITION);
+                if (timerEventDefinitionElement != null) {
+                    node = ApplicationContextFactory.createAutowiredBean(TimerNode.class);
+                } else {
+                    node = ApplicationContextFactory.createAutowiredBean(CatchEventNode.class);
+                }
+            } else if (BOUNDARY_EVENT.equals(nodeName)) {
+                String parentNodeId = element.attributeValue(ATTACHED_TO_REF);
+                Node parentNode = processDefinition.getNodeNotNull(parentNodeId);
+                boolean interrupting = Boolean.valueOf(element.attributeValue(CANCEL_ACTIVITY));
+                Element timerElement = element.element(TIMER_EVENT_DEFINITION);
+                if (timerElement != null) {
+                    node = ApplicationContextFactory.createAutowiredBean(TimerNode.class);
+                } else {
+                    node = ApplicationContextFactory.createAutowiredBean(CatchEventNode.class);
+                }
+                ((BoundaryEvent) node).setBoundaryEventInterrupting(interrupting);
+                ((BoundaryEventContainer) parentNode).getBoundaryEvents().add((BoundaryEvent) node);
+                node.setParentElement(parentNode);
             }
             if (node != null) {
                 node.setProcessDefinition(processDefinition);
@@ -259,7 +281,6 @@ public class BpmnXmlReader {
         if (node instanceof BaseTaskNode) {
             BaseTaskNode taskNode = (BaseTaskNode) node;
             readTask(processDefinition, element, properties, taskNode);
-            readBoundaryEvent(processDefinition, element, node);
             if (properties.containsKey(ASYNC)) {
                 taskNode.setAsync(Boolean.valueOf(properties.get(ASYNC)));
             }
@@ -288,21 +309,22 @@ public class BpmnXmlReader {
             ExclusiveGateway gateway = (ExclusiveGateway) node;
             gateway.setDelegation(readDelegation(element, properties, false));
         }
-        if (node instanceof WaitNode) {
-            WaitNode waitNode = (WaitNode) node;
-            readTimer(processDefinition, element, waitNode);
+        if (node instanceof TimerNode) {
+            TimerNode timerNode = (TimerNode) node;
+            readTimer(timerNode, element);
         }
         if (node instanceof ScriptNode) {
             ScriptNode serviceTask = (ScriptNode) node;
             serviceTask.setDelegation(readDelegation(element, properties, true));
         }
+        if (node instanceof BaseMessageNode) {
+            BaseMessageNode baseMessageNode = (BaseMessageNode) node;
+            baseMessageNode.setEventType(MessageEventType.valueOf(element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE),
+                    MessageEventType.message.name())));
+        }
         if (node instanceof SendMessageNode) {
             SendMessageNode sendMessageNode = (SendMessageNode) node;
             sendMessageNode.setTtlDuration(element.attributeValue(QName.get(TIME_DURATION, RUNA_NAMESPACE), "1 days"));
-        }
-        if (node instanceof ReceiveMessageNode) {
-            ReceiveMessageNode receiveMessageNode = (ReceiveMessageNode) node;
-            readBoundaryEvent(processDefinition, element, receiveMessageNode);
         }
         if (node instanceof TextAnnotation) {
             node.setName("TextAnnotation_" + node.getNodeId());
@@ -310,54 +332,12 @@ public class BpmnXmlReader {
         }
     }
 
-    private void readBoundaryEvent(ProcessDefinition processDefinition, Element element, GraphElement parent) {
-        List<Element> boundaryEventElements = element.getParent().elements(BOUNDARY_EVENT);
-        for (Element boundaryEventElement : boundaryEventElements) {
-            String parentNodeId = boundaryEventElement.attributeValue(ATTACHED_TO_REF);
-            if (Objects.equal(parentNodeId, parent.getNodeId())) {
-                readTimer(processDefinition, boundaryEventElement, parent);
-            }
-        }
-    }
-
-    private void readTimer(ProcessDefinition processDefinition, Element eventElement, GraphElement node) {
-        Element timerElement = eventElement.element(TIMER_EVENT_DEFINITION);
-        CreateTimerAction createTimerAction = ApplicationContextFactory.createAutowiredBean(CreateTimerAction.class);
-        createTimerAction.setNodeId(eventElement.attributeValue(ID));
-        String name = eventElement.attributeValue(NAME, node.getNodeId());
-        createTimerAction.setName(name);
-        String durationString = timerElement.elementTextTrim(TIME_DURATION);
-        if (Strings.isNullOrEmpty(durationString) && node instanceof TaskNode && Timer.ESCALATION_NAME.equals(name)) {
-            durationString = ((TaskNode) node).getFirstTaskNotNull().getDeadlineDuration();
-            if (Strings.isNullOrEmpty(durationString)) {
-                throw new InternalApplicationException("No '" + TIME_DURATION + "' specified for timer in " + node);
-            }
-        }
-        createTimerAction.setDueDate(durationString);
-        Map<String, String> properties = parseExtensionProperties(timerElement);
-        createTimerAction.setRepeatDurationString(properties.get(REPEAT));
-        String createEventType = node instanceof TaskNode ? Event.TASK_CREATE : Event.NODE_ENTER;
-        addAction(node, createEventType, createTimerAction);
-
-        Delegation timerDelegation = readDelegation(timerElement, properties, false);
-        if (timerDelegation != null) {
-            Action timerAction = new Action();
-            timerAction.setName(name);
-            timerAction.setDelegation(timerDelegation);
-            addAction(node, Event.TIMER, timerAction);
-        }
-
-        CancelTimerAction cancelTimerAction = ApplicationContextFactory.createAutowiredBean(CancelTimerAction.class);
-        cancelTimerAction.setNodeId(createTimerAction.getNodeId());
-        cancelTimerAction.setName(createTimerAction.getName());
-        String cancelEventType = node instanceof TaskDefinition ? Event.TASK_END : Event.NODE_LEAVE;
-        addAction(node, cancelEventType, cancelTimerAction);
-    }
-
-    private void addAction(GraphElement graphElement, String eventType, Action action) {
-        Event event = graphElement.getEventNotNull(eventType);
-        action.setParent(graphElement);
-        event.addAction(action);
+    private void readTimer(TimerNode timerNode, Element eventElement) {
+        Element timerEventDefinitionElement = eventElement.element(TIMER_EVENT_DEFINITION);
+        timerNode.setDueDateExpression(timerEventDefinitionElement.elementTextTrim(TIME_DURATION));
+        Map<String, String> properties = parseExtensionProperties(timerEventDefinitionElement);
+        timerNode.setRepeatDurationString(properties.get(REPEAT));
+        timerNode.setActionDelegation(readDelegation(timerEventDefinitionElement, properties, false));
     }
 
     private Map<String, String> parseExtensionProperties(Element element) {
@@ -417,21 +397,7 @@ public class BpmnXmlReader {
             Transition transition = new Transition();
             transition.setNodeId(id);
             GraphElement sourceElement = processDefinition.getGraphElementNotNull(from);
-            Node source;
-            if (sourceElement instanceof Node) {
-                source = (Node) sourceElement;
-                if (source instanceof WaitNode) {
-                    source.getTimerActions(false).get(0).setTransitionName(name);
-                    transition.setTimerTransition(true);
-                }
-            } else if (sourceElement instanceof CreateTimerAction) {
-                CreateTimerAction createTimerAction = (CreateTimerAction) sourceElement;
-                createTimerAction.setTransitionName(name);
-                source = (Node) createTimerAction.getParent();
-                transition.setTimerTransition(true);
-            } else {
-                throw new InternalApplicationException("Unexpected source element " + sourceElement);
-            }
+            Node source = (Node) sourceElement;
             transition.setFrom(source);
             Node target = processDefinition.getNodeNotNull(to);
             transition.setTo(target);

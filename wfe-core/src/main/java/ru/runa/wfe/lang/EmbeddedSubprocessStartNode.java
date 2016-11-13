@@ -2,10 +2,12 @@ package ru.runa.wfe.lang;
 
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.execution.ExecutionContext;
+
 import com.google.common.base.Preconditions;
 
 /**
  * Used for embedded subprocess merging.
+ *
  * @since 4.1.0
  * @author dofs
  */
@@ -34,7 +36,7 @@ public class EmbeddedSubprocessStartNode extends StartNode {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         leave(executionContext);
     }
 

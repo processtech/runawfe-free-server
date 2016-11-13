@@ -171,7 +171,11 @@ public class ExecutionContext {
     }
 
     public NodeProcess getParentNodeProcess() {
-        return nodeProcessDAO.getNodeProcessByChild(getProcess().getId());
+        return nodeProcessDAO.findBySubProcessId(getProcess().getId());
+    }
+
+    public List<Process> getTokenSubprocesses() {
+        return nodeProcessDAO.getSubprocesses(getToken());
     }
 
     public List<Process> getSubprocesses() {
@@ -490,7 +494,7 @@ public class ExecutionContext {
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
             if (!subprocessesInfoMap.containsKey(process)) {
-                NodeProcess nodeProcess = nodeProcessDAO.getNodeProcessByChild(process.getId());
+                NodeProcess nodeProcess = nodeProcessDAO.findBySubProcessId(process.getId());
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();

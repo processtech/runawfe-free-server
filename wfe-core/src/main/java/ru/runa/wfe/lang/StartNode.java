@@ -30,9 +30,8 @@ public class StartNode extends InteractionNode {
     public NodeType getNodeType() {
         return NodeType.START_EVENT;
     }
-    
-    @Override
-    public void execute(ExecutionContext executionContext) {
-    }
 
+    @Override
+    protected void execute(ExecutionContext executionContext) throws Exception {
+    }
 }

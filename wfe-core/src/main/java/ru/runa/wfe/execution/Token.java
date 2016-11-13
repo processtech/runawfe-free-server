@@ -54,11 +54,15 @@ import org.hibernate.annotations.Index;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.lang.BaseTaskNode;
+import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Transition;
+import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 
 import com.google.common.base.Objects;
@@ -102,6 +106,7 @@ public class Token implements Serializable {
         setAbleToReactivateParent(true);
         setName(startNode.getNodeId());
         setChildren(new HashSet<Token>());
+        log.info("Created " + this);
     }
 
     /**
@@ -117,6 +122,7 @@ public class Token implements Serializable {
         setChildren(new HashSet<Token>());
         setParent(parent);
         parent.addChild(this);
+        log.info("Created " + this);
     }
 
     @Id
@@ -281,23 +287,33 @@ public class Token implements Serializable {
     }
 
     /**
-     * ends this token and all of its children (if any).
-     * 
+     * ends this token and all of its children (if recursive).
+     *
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
-    public void end(ExecutionContext executionContext, Actor canceller) {
+    public void end(ExecutionContext executionContext, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
         if (endDate == null) {
-            log.debug("Ending " + this + " by " + canceller);
+            log.info("Ending " + this + " by " + canceller);
             setEndDate(new Date());
-            for (Process subProcess : executionContext.getNotEndedSubprocesses()) {
-                ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
-                subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+            Node node = executionContext.getNode();
+            if (node instanceof SubprocessNode) {
+                for (Process subProcess : executionContext.getTokenSubprocesses()) {
+                    ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                    subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                }
+            } else if (node instanceof BaseTaskNode) {
+                ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
+            } else if (node instanceof BoundaryEvent) {
+                log.info("Cancelling " + node + " with " + this);
+                ((BoundaryEvent) node).cancelBoundaryEvent(this);
             }
         }
         setExecutionStatus(ExecutionStatus.ENDED);
-        for (Token child : getChildren()) {
-            child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller);
+        if (recursive) {
+            for (Token child : getChildren()) {
+                child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller, taskCompletionInfo, recursive);
+            }
         }
     }
 

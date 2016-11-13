@@ -5,6 +5,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 
 /**
  * Used for embedded subprocess merging.
+ *
  * @since 4.1.0
  * @author dofs
  */
@@ -15,7 +16,7 @@ public class EmbeddedSubprocessEndNode extends Node {
     public void setSubProcessState(SubprocessNode subprocessNode) {
         this.subprocessNode = subprocessNode;
     }
-    
+
     @Override
     public NodeType getNodeType() {
         return NodeType.END_PROCESS;
@@ -28,9 +29,9 @@ public class EmbeddedSubprocessEndNode extends Node {
         }
         return subprocessNode.getNodeId();
     }
-    
+
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         leave(executionContext);
     }
 

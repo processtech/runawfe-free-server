@@ -27,6 +27,7 @@ import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
@@ -47,9 +48,10 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
+import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.ReceiveMessageNode;
+import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.var.VariableMapping;
@@ -86,7 +88,7 @@ public class ReceiveMessageBean implements MessageListener {
             List<Token> tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
             for (Token token : tokens) {
                 ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
-                ReceiveMessageNode receiveMessageNode = (ReceiveMessageNode) token.getNodeNotNull(processDefinition);
+                BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(processDefinition);
                 ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
                 boolean suitable = true;
                 for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
@@ -125,6 +127,15 @@ public class ReceiveMessageBean implements MessageListener {
             Throwables.propagate(e);
         }
         if (handlers.size() == 0) {
+            try {
+                if (MessageEventType.error.name().equals(message.getStringProperty(BaseMessageNode.EVENT_TYPE))) {
+                    // TODO 212 find in token hierarchy?
+                    log.warn("not match tokens for errorEvent " + messageString);
+                    // ProcessExecutionErrors.addProcessError(message.getStringProperty("")task, botTask, th);
+                }
+            } catch (JMSException e) {
+                Throwables.propagate(e);
+            }
             throw new MessagePostponedException(messageString);
         }
         for (ReceiveMessageData data : handlers) {
@@ -167,9 +178,9 @@ public class ReceiveMessageBean implements MessageListener {
     private static class ReceiveMessageData {
         private Long processId;
         private Long tokenId;
-        private ReceiveMessageNode node;
+        private BaseMessageNode node;
 
-        public ReceiveMessageData(ExecutionContext executionContext, ReceiveMessageNode node) {
+        public ReceiveMessageData(ExecutionContext executionContext, BaseMessageNode node) {
             this.processId = executionContext.getProcess().getId();
             this.tokenId = executionContext.getToken().getId();
             this.node = node;
