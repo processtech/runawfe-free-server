@@ -65,9 +65,7 @@ public class DefinitionClassPresentation extends ClassPresentation {
                 new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "updateDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTDBuilder", new Object[] {}),
                 new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "updateActor"), false,
-                        FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
-                new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDBSource(Deployment.class, "version"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {}) });
+                        FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}) });
     }
 
     public static final ClassPresentation getInstance() {
