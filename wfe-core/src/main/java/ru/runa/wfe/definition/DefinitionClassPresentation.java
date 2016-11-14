@@ -29,8 +29,7 @@ import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
 import ru.runa.wfe.user.Actor;
 
 /**
- * Class presentation for process definition. Shows only last deployed process
- * definition.
+ * Class presentation for process definition. Shows only last deployed process definition.
  *
  * @author Dofs
  * @since 4.0
@@ -53,8 +52,8 @@ public class DefinitionClassPresentation extends ClassPresentation {
                 // display name field type DB source isSort filter mode
                 // get value/show in web getter parameters
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), true, 1,
-                    BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
-                DefinitionPermission.START_PROCESS, "name" }),
+                        BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
+                                DefinitionPermission.START_PROCESS, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new SubstringDBSource(Deployment.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
                 new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(Deployment.class, "category"), true,
@@ -66,7 +65,9 @@ public class DefinitionClassPresentation extends ClassPresentation {
                 new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "updateDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTDBuilder", new Object[] {}),
                 new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "updateActor"), false,
-                        FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}) });
+                        FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
+                new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDBSource(Deployment.class, "version"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {}) });
     }
 
     public static final ClassPresentation getInstance() {
