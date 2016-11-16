@@ -174,7 +174,8 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         boolean enabled = super.isFormButtonEnabled();
         if (enabled) {
             final WfDefinition definition = getDefinition();
-            if (!StringUtils.isEmpty(definition.getLockUserName())) {
+            final String lockUserName = definition.getLockUserName();
+            if (!StringUtils.isEmpty(lockUserName) && !getUser().getName().equals(lockUserName)) {
                 enabled = false;
             }
         }
