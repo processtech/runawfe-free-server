@@ -93,13 +93,14 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         } else {
             if (WfDefinition.ALL_USERS.equals(lockUserName)) {
                 final TD tdLockedForAll = new TD();
-                tdLockedForAll.addElement(MessagesOther.LABEL_LOCKED_FOR_ALL.message(pageContext));
+                tdLockedForAll.addElement(MessageFormat.format(MessagesOther.LABEL_LOCKED_FOR_ALL.message(pageContext), definition.getLockDate()));
                 tr.addElement(tdLockedForAll);
             } else if (getUser().getName().equals(lockUserName)) {
                 tr.addElement(createLockAllElement(definitionId));
             } else {
                 final TD tdLocked = new TD();
-                tdLocked.addElement(MessageFormat.format(MessagesOther.LABEL_LOCKED_USER.message(pageContext), lockUserName));
+                tdLocked.addElement(
+                        MessageFormat.format(MessagesOther.LABEL_LOCKED_USER.message(pageContext), lockUserName, definition.getLockDate()));
                 tr.addElement(tdLocked);
             }
             tr.addElement(createUnLockElement(definitionId));
@@ -166,5 +167,17 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
     @Override
     protected boolean isVisible() {
         return Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.REDEPLOY_DEFINITION, getIdentifiable());
+    }
+
+    @Override
+    protected boolean isFormButtonEnabled() {
+        boolean enabled = super.isFormButtonEnabled();
+        if (enabled) {
+            final WfDefinition definition = getDefinition();
+            if (!StringUtils.isEmpty(definition.getLockUserName())) {
+                enabled = false;
+            }
+        }
+        return enabled;
     }
 }
