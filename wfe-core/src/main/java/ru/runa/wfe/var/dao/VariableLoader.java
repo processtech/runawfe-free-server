@@ -208,7 +208,7 @@ public class VariableLoader {
         Integer size = (Integer) getVariableValue(processDefinition, process, sizeDefinition);
         if (size == null && SystemProperties.isV4ListVariableCompatibilityMode()) {
             Variable<?> variable = get(process, variableDefinition.getName());
-            if (variable != null) {
+            if (variable != null && variable.getValue() instanceof List) {
                 return (List<Object>) processComplexVariablesPre430(processDefinition, variableDefinition, null, variable.getValue());
             }
             return null;

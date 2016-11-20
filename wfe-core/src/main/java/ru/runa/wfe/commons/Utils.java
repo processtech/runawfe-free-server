@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -282,6 +283,10 @@ public class Utils {
         }
         if (value instanceof Map) {
             Map s = (Map) value;
+            return s.isEmpty();
+        }
+        if (value instanceof Set) {
+            Set s = (Set) value;
             return s.isEmpty();
         }
         return false;

@@ -6,20 +6,20 @@ var lastIndexUNIQUENAME = -1;
 $(document).ready(function() {
 	updateIndexesUNIQUENAME();
 	lastIndexUNIQUENAME = $("#UNIQUENAME div[row][current]").length - 1;
-    $("#btnAddMapUNIQUENAME").click(function() {
-    	var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
-    	lastIndexUNIQUENAME = rowIndex;
+	$("#btnAddMapUNIQUENAME").click(function() {
+		var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
+		lastIndexUNIQUENAME = rowIndex;
 		console.log("Adding row " + rowIndex);
-        var e = "<div current row='" + rowIndex + "' name='VARIABLE' style='margin-bottom:4px;'>";
-        e += componentInputUNIQUENAMEKey.replace(/\[\]/g, "[" + rowIndex + "]");
-        e += componentInputUNIQUENAMEValue.replace(/\[\]/g, "[" + rowIndex + "]");
-        e += "<input type='button' value=' - ' onclick='removeUNIQUENAME(this);' style='width: 30px; margin-top: 6px;' />";
-        e += "</div>";
-        $("#btnAddMapUNIQUENAME").before(e);
-        updateIndexesUNIQUENAME();
-        COMPONENT_JS_HANDLER
-        $("#UNIQUENAME").trigger("onRowAdded", [rowIndex]);
-    });
+		var e = "<div current row='" + rowIndex + "' name='VARIABLE' style='margin-bottom:4px;'>";
+		e += componentInputUNIQUENAMEKey.replace(/\[\]/g, "[" + rowIndex + "]");
+		e += componentInputUNIQUENAMEValue.replace(/\[\]/g, "[" + rowIndex + "]");
+		e += "<input type='button' value=' - ' onclick='removeUNIQUENAME(this);' style='width: 30px; margin-top: 6px;' />";
+		e += "</div>";
+		$("#btnAddMapUNIQUENAME").before(e);
+		updateIndexesUNIQUENAME();
+		COMPONENT_JS_HANDLER
+		$("#UNIQUENAME").trigger("onRowAdded", [rowIndex]);
+	});
 });
 
 function getSizeUNIQUENAME() {
@@ -35,7 +35,7 @@ function removeUNIQUENAME(button) {
 	});
 	div.remove();
 	updateIndexesUNIQUENAME();
-    $("#UNIQUENAME").trigger("onRowRemoved", [rowIndex]);
+	$("#UNIQUENAME").trigger("onRowRemoved", [rowIndex]);
 }
 
 function removeAllUNIQUENAME() {
@@ -46,7 +46,7 @@ function removeAllUNIQUENAME() {
 		$(this).remove();
 	});
 	$("input[name='VARIABLE.indexes']").val("");
-    $("#UNIQUENAME").trigger("onAllRowsRemoved");
+	$("#UNIQUENAME").trigger("onAllRowsRemoved");
 	console.log("Removed all rows");
 }
 
