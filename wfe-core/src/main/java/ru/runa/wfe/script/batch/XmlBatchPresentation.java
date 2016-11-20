@@ -40,8 +40,8 @@ public class XmlBatchPresentation {
                 return BatchPresentationFactory.EXECUTORS.createDefault();
             case PROCESSES:
                 return BatchPresentationFactory.PROCESSES.createDefault();
-            case EXTENDED_PROCESSES:
-                return BatchPresentationFactory.EXTENDED_PROCESSES.createDefault();
+            case PROCESSES_WITH_TASKS:
+                return BatchPresentationFactory.PROCESSES_WITH_TASKS.createDefault();
             case RELATIONS:
                 return BatchPresentationFactory.RELATIONS.createDefault();
             case RELATION_PAIRS:
@@ -106,10 +106,10 @@ public class XmlBatchPresentation {
             }
         },
 
-        @XmlEnumValue(value = BatchPresentationConsts.ID_EXTENDED_PROCESSES) EXTENDED_PROCESSES {
+        @XmlEnumValue(value = BatchPresentationConsts.ID_PROCESSES_WITH_TASKS) PROCESSES_WITH_TASKS {
             @Override
             public String getPresentationId() {
-                return BatchPresentationConsts.ID_EXTENDED_PROCESSES;
+                return BatchPresentationConsts.ID_PROCESSES_WITH_TASKS;
             }
         },
 

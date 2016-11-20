@@ -121,31 +121,10 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public int getExtendedProcessesCount(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null);
-        if (batchPresentation == null) {
-            batchPresentation = BatchPresentationFactory.EXTENDED_PROCESSES.createNonPaged();
-        }
-        return executionLogic.getProcessesCount(user, batchPresentation);
-    }
-
-    @Override
-    @WebResult(name = "result")
-    public List<WfProcess> getExtendedProcesses(@WebParam(name = "user") User user,
-            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null);
-        if (batchPresentation == null) {
-            batchPresentation = BatchPresentationFactory.EXTENDED_PROCESSES.createNonPaged();
-        }
-        return executionLogic.getProcesses(user, batchPresentation);
-    }
-
-    @Override
-    @WebResult(name = "result")
     public List<WfProcess> getProcessesByFilter(@WebParam(name = "user") User user, @WebParam(name = "filter") ProcessFilter filter) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(filter != null, "filter");
-        return executionLogic.getWfProcesses(user, filter);
+        return executionLogic.getProcesses(user, filter);
     }
 
     @Override

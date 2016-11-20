@@ -28,12 +28,12 @@ public class UserOrGroupFilterTDFormatter extends FilterTDFormatter {
         Select select = new Select(TableViewSetupForm.FILTER_CRITERIA);
         Option falseOption = new Option();
         falseOption.setValue(0);
-        falseOption.addElement(Messages.getMessage("label.no_include_group", pageContext));
+        falseOption.addElement(Messages.getMessage("label.not_including_groups", pageContext));
         falseOption.setSelected(0 == selected);
         select.addElement(falseOption);
         Option trueOption = new Option();
         trueOption.setValue(1);
-        trueOption.addElement(Messages.getMessage("label.include_group", pageContext));
+        trueOption.addElement(Messages.getMessage("label.including_groups", pageContext));
         trueOption.setSelected(1 == selected);
         select.addElement(trueOption);
         td.addElement(select);

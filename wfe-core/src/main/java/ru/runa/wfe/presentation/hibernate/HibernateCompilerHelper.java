@@ -38,7 +38,7 @@ public final class HibernateCompilerHelper {
 
     /**
      * Check, if field must affects SQL query.
-     * 
+     *
      * @param field
      *            Filed to check.
      * @param batchPresentation
@@ -60,15 +60,17 @@ public final class HibernateCompilerHelper {
                 break;
             }
         }
-        return (batchPresentation.isFieldFiltered(idx) && field.filterMode == FieldFilterMode.DATABASE)
-                || ((batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) && field.sortable
-                        && (!field.displayName.startsWith(ClassPresentation.filterable_prefix)
-                                || field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx)));
+        return batchPresentation.isFieldFiltered(idx)
+                && field.filterMode == FieldFilterMode.DATABASE
+                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx))
+                && field.sortable
+                && (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || field.displayName
+                        .startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
     }
 
     /**
      * Parse identifier from string.
-     * 
+     *
      * @param sqlRequest
      *            String to parse identifier from.
      * @param tableName
@@ -83,7 +85,7 @@ public final class HibernateCompilerHelper {
 
     /**
      * Parse identifier from string.
-     * 
+     *
      * @param string
      *            String to parse identifier from.
      * @param idx
@@ -109,17 +111,16 @@ public final class HibernateCompilerHelper {
 
     /**
      * Get table name from Entity class.
-     * 
+     *
      * @param entityClass
      *            Class to parse table name from.
      * @return Parsed table name.
      */
     public static String getTableName(Class<?> entityClass) {
-        final ClassMetadata meta = ApplicationContextFactory.getSessionFactory().getClassMetadata(entityClass);
-        if (!(meta instanceof SingleTableEntityPersister)) {
-            throw new InternalApplicationException(
-                    "ClassMetadate for " + entityClass.getName() + " is not SingleTableEntityPersister. Please call to developer.");
+        final ClassMetadata classMetadata = ApplicationContextFactory.getSessionFactory().getClassMetadata(entityClass);
+        if (!(classMetadata instanceof SingleTableEntityPersister)) {
+            throw new InternalApplicationException("ClassMetadata for " + entityClass.getName() + " is not SingleTableEntityPersister");
         }
-        return ((SingleTableEntityPersister) meta).getTableName();
+        return ((SingleTableEntityPersister) classMetadata).getTableName();
     }
 }

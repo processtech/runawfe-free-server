@@ -67,7 +67,7 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
         // batchPresentation must be recalculated since the current page
         // number might changed
         batchPresentation = getBatchPresentation();
-        PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, instanceCount, getReturnAction(), true);
+        PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, instanceCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
 
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
@@ -86,7 +86,7 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
 
         ReflectionRowBuilder rowBuilder = isFilterable ? new ProcessRowBuilder(processes, batchPresentation, pageContext,
                 ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders) : new ReflectionRowBuilder(processes,
-                        batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders);
+                batchPresentation, pageContext, ShowGraphModeHelper.getManageProcessAction(), getReturnAction(), "id", builders);
         rowBuilder.setCssClassStrategy(new ProcessCssClassStrategy());
 
         tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder, isFilterable ? true : false));

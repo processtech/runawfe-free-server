@@ -115,11 +115,6 @@
 		<servlet-name>version</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.VersionServlet</servlet-class>
 	</servlet>
-
-    <servlet>
-        <servlet-name>download</servlet-name>            
-        <servlet-class>ru.runa.wf.web.servlet.FileDownloadServlet</servlet-class>
-    </servlet>
     
 	${enable.resteasy.start}
 	<context-param>
@@ -183,11 +178,6 @@
 		<url-pattern>/version</url-pattern>
 	</servlet-mapping>
 	
-    <servlet-mapping>
-        <servlet-name>download</servlet-name>
-        <url-pattern>/download</url-pattern>
-    </servlet-mapping>
-
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

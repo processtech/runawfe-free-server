@@ -82,8 +82,6 @@
 		<forward name="validate_definition" path="/validate_process_definition.do" />
 		<forward name="manage_processes"
 			path="/manage_processes.do?tabForwardName=manage_processes" />
-        <forward name="manage_extended_processes"
-            path="/manage_extended_processes.do?tabForwardName=manage_extended_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
 		<forward name="configure_bot_station"
 			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
@@ -208,9 +206,9 @@
 			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
 			<forward name="submitTask" path="/submit_task.do" redirect="false" />
 		</action>
-		<action path="/exportExcelTasks" type="ru.runa.wf.web.action.ExportExcelTasksAction" scope="request">
+		<action path="/exportExcelTasks" type="ru.runa.wf.web.action.ExportExcelTasksAction" name="batchPresentationForm" validate="false" scope="request">
 		</action>
-		<action path="/exportExcelProcesses" type="ru.runa.wf.web.action.ExportExcelProcessesAction" scope="request">
+		<action path="/exportExcelProcesses" type="ru.runa.wf.web.action.ExportExcelProcessesAction" name="batchPresentationForm" validate="false" scope="request">
 		</action>
 		<action path="/create_bot" type="ru.runa.af.web.action.CreateBotAction"
 			name="botForm" scope="request" input="/WEB-INF/wf/add_bot.jsp"
@@ -849,9 +847,6 @@
 		<action path="/manage_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_processes.jsp" />
 
-		<action path="/manage_extended_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
-			parameter="/WEB-INF/wf/manage_extended_processes.jsp" />
-			
 		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction"
 			parameter="/WEB-INF/wf/manage_process.jsp" />
 
