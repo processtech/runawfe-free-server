@@ -58,8 +58,8 @@ public interface ExecutionService {
      * @throws DefinitionDoesNotExistException
      * @throws ValidationException
      */
-    public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-            ValidationException;
+    public Long startProcess(User user, String definitionName, Map<String, Object> variables)
+            throws DefinitionDoesNotExistException, ValidationException;
 
     /**
      * Gets process count for {@link BatchPresentation}.
@@ -80,6 +80,26 @@ public interface ExecutionService {
      * @return not <code>null</code>
      */
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation);
+
+    /**
+     * Gets extended process count for {@link BatchPresentation}.
+     *
+     * @param user
+     *            authorized user
+     * @param batchPresentation
+     * @return not <code>null</code>
+     */
+    public int getExtendedProcessesCount(User user, BatchPresentation batchPresentation);
+
+    /**
+     * Gets extended processes for {@link BatchPresentation}.
+     *
+     * @param user
+     *            authorized user
+     * @param batchPresentation
+     * @return not <code>null</code>
+     */
+    public List<WfProcess> getExtendedProcesses(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets processes for {@link ProcessFilter}.

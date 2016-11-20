@@ -37,4 +37,12 @@ public class ProcessExecutionStatusTDBuilder implements TDBuilder {
         }
         return process.getExecutionStatus().name();
     }
+
+    public String getKey(Object object) {
+        WfProcess process = (WfProcess) object;
+        if (process.getExecutionStatus() == null) {
+            return "";
+        }
+        return process.getExecutionStatus().getLabelKey();
+    }
 }

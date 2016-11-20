@@ -9,6 +9,8 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_DEFINITIONS = new StrutsMessage("manage_definitions");
     // Forward menu (left main menu items) -> Started processes.
     public static final StrutsMessage MAIN_MENU_ITEM_PROCESSES = new StrutsMessage("manage_processes");
+    // Forward menu (left main menu items) -> Started processes (extended).
+    public static final StrutsMessage MAIN_MENU_ITEM_EXTENDED_PROCESSES = new StrutsMessage("manage_extended_processes");
     // Forward menu (left main menu items) -> Executors.
     public static final StrutsMessage MAIN_MENU_ITEM_EXECUTORS = new StrutsMessage("manage_executors");
     // Forward menu (left main menu items) -> Reports.

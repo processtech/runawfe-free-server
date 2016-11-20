@@ -17,6 +17,14 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.persister.entity.SingleTableEntityPersister;
+
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -41,7 +49,8 @@ public final class HibernateCompilerHelper {
         if (field.fieldState == FieldState.DISABLED) {
             return false;
         }
-        if (!field.isWeakJoin) {
+        final List<FieldDescriptor> dysplayFields = Arrays.asList(batchPresentation.getDisplayFields());
+        if (!field.isWeakJoin && dysplayFields.contains(field)) {
             return true;
         }
         FieldDescriptor[] allFields = batchPresentation.getAllFields();
@@ -51,11 +60,66 @@ public final class HibernateCompilerHelper {
                 break;
             }
         }
-        return batchPresentation.isFieldFiltered(idx)
-                && field.filterMode == FieldFilterMode.DATABASE
-                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx))
-                && field.sortable
-                && (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || field.displayName
-                        .startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
+        return (batchPresentation.isFieldFiltered(idx) && field.filterMode == FieldFilterMode.DATABASE)
+                || ((batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) && field.sortable
+                        && (!field.displayName.startsWith(ClassPresentation.filterable_prefix)
+                                || field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx)));
+    }
+
+    /**
+     * Parse identifier from string.
+     * 
+     * @param sqlRequest
+     *            String to parse identifier from.
+     * @param tableName
+     *            Table name to search identifier.
+     * @param forwardSearch
+     *            true, to search forward and false otherwise.
+     * @return Parsed identifier.
+     */
+    public static String getIdentifier(StringBuilder sqlRequest, String tableName, boolean forwardSearch) {
+        return getIdentifier(sqlRequest, sqlRequest.indexOf(" ", sqlRequest.indexOf(tableName)), forwardSearch);
+    }
+
+    /**
+     * Parse identifier from string.
+     * 
+     * @param string
+     *            String to parse identifier from.
+     * @param idx
+     *            Start index, to search identifier.
+     * @param forwardSearch
+     *            true, to search forward and false otherwise.
+     * @return Parsed identifier.
+     */
+    public static String getIdentifier(CharSequence string, int idx, boolean forwardSearch) {
+        while (Character.isWhitespace(string.charAt(idx))) {
+            idx = forwardSearch ? idx + 1 : idx - 1;
+        }
+        int idx1 = idx;
+        while (true) {
+            char character = string.charAt(idx);
+            if (!(Character.isLetter(character) || character == '_' || Character.isDigit(character))) {
+                break;
+            }
+            idx = forwardSearch ? idx + 1 : idx - 1;
+        }
+        return forwardSearch ? string.subSequence(idx1, idx).toString() : string.subSequence(idx + 1, idx1 + 1).toString();
+    }
+
+    /**
+     * Get table name from Entity class.
+     * 
+     * @param entityClass
+     *            Class to parse table name from.
+     * @return Parsed table name.
+     */
+    public static String getTableName(Class<?> entityClass) {
+        final ClassMetadata meta = ApplicationContextFactory.getSessionFactory().getClassMetadata(entityClass);
+        if (!(meta instanceof SingleTableEntityPersister)) {
+            throw new InternalApplicationException(
+                    "ClassMetadate for " + entityClass.getName() + " is not SingleTableEntityPersister. Please call to developer.");
+        }
+        return ((SingleTableEntityPersister) meta).getTableName();
     }
 }

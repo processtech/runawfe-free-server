@@ -30,7 +30,8 @@ public interface ScriptingService {
      */
     public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) throws AdminScriptException;
 
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue);
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
+            String defaultPasswordValue);
 
     /**
      * Executes Groovy script.
@@ -42,4 +43,11 @@ public interface ScriptingService {
      */
     public void executeGroovyScript(User user, String script);
 
+    public List<String> getScriptsNames();
+
+    public void saveScript(String fileName, byte[] script);
+
+    public boolean deleteScript(String fileName);
+
+    public byte[] getScriptSource(String fileName);
 }

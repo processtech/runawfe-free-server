@@ -50,6 +50,7 @@ import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.async.INodeAsyncExecutor;
+import ru.runa.wfe.execution.dto.ExtendedWfProcess;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
@@ -87,7 +88,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Process execution logic.
- * 
+ *
  * @author Dofs
  * @since 2.0
  */
@@ -226,8 +227,18 @@ public class ExecutionLogic extends WFCommonLogic {
     private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
         Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
-        for (Process process : processes) {
-            WfProcess wfProcess = new WfProcess(process);
+        for (Object wideProcess : processes) {
+            final Process process;
+            final Task task;
+            if (wideProcess instanceof Process) {
+                process = (Process) wideProcess;
+                task = null;
+            } else {
+                final Object[] entities = (Object[]) wideProcess;
+                process = (Process) entities[0];
+                task = (Task) entities[1];
+            }
+            WfProcess wfProcess = new ExtendedWfProcess(process, task);
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);

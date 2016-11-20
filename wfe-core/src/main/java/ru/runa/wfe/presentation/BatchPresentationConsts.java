@@ -88,6 +88,8 @@ public class BatchPresentationConsts {
     public static final String REPORTS = "listReportsForm";
 
     public static final String ID_PROCESSES = "listProcessesForm";
+    
+    public static final String ID_EXTENDED_PROCESSES = "listExtendedProcessesForm";
 
     public static final String ID_DEFINITIONS = "listProcessesDefinitionsForm";
 

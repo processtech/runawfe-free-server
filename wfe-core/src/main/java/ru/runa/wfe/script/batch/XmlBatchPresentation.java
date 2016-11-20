@@ -5,6 +5,8 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -13,8 +15,6 @@ import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.ScriptValidationException;
 import ru.runa.wfe.user.Profile;
-
-import com.google.common.base.Strings;
 
 @XmlType(name = "BatchPresentationReferenceType", namespace = AdminScriptConstants.NAMESPACE)
 public class XmlBatchPresentation {
@@ -40,6 +40,8 @@ public class XmlBatchPresentation {
                 return BatchPresentationFactory.EXECUTORS.createDefault();
             case PROCESSES:
                 return BatchPresentationFactory.PROCESSES.createDefault();
+            case EXTENDED_PROCESSES:
+                return BatchPresentationFactory.EXTENDED_PROCESSES.createDefault();
             case RELATIONS:
                 return BatchPresentationFactory.RELATIONS.createDefault();
             case RELATION_PAIRS:
@@ -63,61 +65,62 @@ public class XmlBatchPresentation {
                 return batch;
             }
         }
-        throw new ScriptValidationException(scriptOperation, "batch presentation with name " + batchName + " or actor " + actorName + " is not found");
+        throw new ScriptValidationException(scriptOperation,
+                "batch presentation with name " + batchName + " or actor " + actorName + " is not found");
     }
 
     @XmlEnum(value = String.class)
     enum BatchPresentationIdEnum {
-        @XmlEnumValue(value = BatchPresentationConsts.ID_ALL_EXECUTORS)
-        EXECUTORS {
+        @XmlEnumValue(value = BatchPresentationConsts.ID_ALL_EXECUTORS) EXECUTORS {
             @Override
             public String getPresentationId() {
                 return BatchPresentationConsts.ID_ALL_EXECUTORS;
             }
         },
 
-        @XmlEnumValue(value = BatchPresentationConsts.ID_RELATIONS)
-        RELATIONS {
+        @XmlEnumValue(value = BatchPresentationConsts.ID_RELATIONS) RELATIONS {
             @Override
             public String getPresentationId() {
                 return BatchPresentationConsts.ID_RELATIONS;
             }
         },
 
-        @XmlEnumValue(value = BatchPresentationConsts.ID_RELATION_PAIRS)
-        RELATION_PAIRS {
+        @XmlEnumValue(value = BatchPresentationConsts.ID_RELATION_PAIRS) RELATION_PAIRS {
             @Override
             public String getPresentationId() {
                 return BatchPresentationConsts.ID_RELATION_PAIRS;
             }
         },
 
-        @XmlEnumValue(value = BatchPresentationConsts.ID_DEFINITIONS)
-        DEFINITIONS {
+        @XmlEnumValue(value = BatchPresentationConsts.ID_DEFINITIONS) DEFINITIONS {
             @Override
             public String getPresentationId() {
                 return BatchPresentationConsts.ID_DEFINITIONS;
             }
         },
 
-        @XmlEnumValue(value = BatchPresentationConsts.ID_PROCESSES)
-        PROCESSES {
+        @XmlEnumValue(value = BatchPresentationConsts.ID_PROCESSES) PROCESSES {
             @Override
             public String getPresentationId() {
                 return BatchPresentationConsts.ID_PROCESSES;
             }
         },
 
-        @XmlEnumValue(value = BatchPresentationConsts.ID_TASKS)
-        TASKS {
+        @XmlEnumValue(value = BatchPresentationConsts.ID_EXTENDED_PROCESSES) EXTENDED_PROCESSES {
+            @Override
+            public String getPresentationId() {
+                return BatchPresentationConsts.ID_EXTENDED_PROCESSES;
+            }
+        },
+
+        @XmlEnumValue(value = BatchPresentationConsts.ID_TASKS) TASKS {
             @Override
             public String getPresentationId() {
                 return BatchPresentationConsts.ID_TASKS;
             }
         },
 
-        @XmlEnumValue(value = BatchPresentationConsts.REPORTS)
-        REPORTS {
+        @XmlEnumValue(value = BatchPresentationConsts.REPORTS) REPORTS {
             @Override
             public String getPresentationId() {
                 return BatchPresentationConsts.REPORTS;
@@ -129,10 +132,8 @@ public class XmlBatchPresentation {
 
     @XmlEnum(value = String.class)
     enum BatchPresentationReplicationType {
-        @XmlEnumValue(value = "source")
-        SOURCE,
+        @XmlEnumValue(value = "source") SOURCE,
 
-        @XmlEnumValue(value = "template")
-        TEMPLATE
+        @XmlEnumValue(value = "template") TEMPLATE
     }
 }
