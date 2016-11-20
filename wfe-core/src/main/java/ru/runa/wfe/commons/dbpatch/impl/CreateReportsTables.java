@@ -72,8 +72,7 @@ public class CreateReportsTables extends DBPatch {
         columns.add(new ColumnDef("VERSION", Types.BIGINT, false));
         columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("DESCRIPTION", dialect.getTypeName(Types.VARCHAR, 2048, 2048, 2048), true));
-        int fileLength = 128 * 1024 * 1024;
-        columns.add(new ColumnDef("COMPILED_REPORT", dialect.getTypeName(Types.VARBINARY, fileLength, fileLength, fileLength), false));
+        columns.add(new ColumnDef("COMPILED_REPORT", dialect.getTypeName(Types.BLOB), false));
         columns.add(new ColumnDef("CONFIG_TYPE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
         columns.add(new ColumnDef("CATEGORY", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), true));
         sql.add(getDDLCreateTable("REPORT", columns, null));

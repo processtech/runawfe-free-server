@@ -33,8 +33,6 @@ import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -44,19 +42,13 @@ import com.google.common.base.Objects;
  * Admin script.
  */
 @Entity
-@Table(name = "ADMIN_SCRIPT", indexes = { @Index(name = "IX_ADMIN_SCRIPT_NAME", unique = true, columnList = "NAME"),
-        @Index(name = "IX_ADMIN_SCRIPT_LOB_STORAGE", unique = false, columnList = "STORAGE_ID") })
+@Table(name = "ADMIN_SCRIPT", indexes = { @Index(name = "IX_ADMIN_SCRIPT_NAME", unique = true, columnList = "NAME") })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class AdminScript implements Serializable {
-    private static final long serialVersionUID = 2L;
-    private static final Log log = LogFactory.getLog(AdminScript.class);
-
+    private static final long serialVersionUID = 1L;
     private Long id;
     private String name;
-    private String content;
-
-    public AdminScript() {
-    }
+    private byte[] content;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -80,12 +72,12 @@ public class AdminScript implements Serializable {
     }
 
     @Lob
-    @Column(name = "CONTENT")
-    public String getContent() {
+    @Column(length = 16 * 1024 * 1024, name = "CONTENT")
+    public byte[] getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 

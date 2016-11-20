@@ -10,7 +10,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Service for remote script execution.
- * 
+ *
  * @author dofs
  * @since 4.0.4
  */
@@ -18,7 +18,7 @@ import ru.runa.wfe.user.User;
 public interface ScriptingService {
     /**
      * Executes administrative XML-based script.
-     * 
+     *
      * @param user
      *            authorized user
      * @param scriptData
@@ -30,12 +30,11 @@ public interface ScriptingService {
      */
     public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) throws AdminScriptException;
 
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
-            String defaultPasswordValue);
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue);
 
     /**
      * Executes Groovy script.
-     * 
+     *
      * @param user
      *            authorized user
      * @param script
@@ -47,7 +46,7 @@ public interface ScriptingService {
 
     public void saveScript(String fileName, byte[] script);
 
-    public boolean deleteScript(String fileName);
+    public void deleteScript(String fileName);
 
     public byte[] getScriptSource(String fileName);
 }

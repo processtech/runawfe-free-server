@@ -146,14 +146,14 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebMethod(exclude = true)
-    public boolean deleteScript(String fileName) {
-        return scriptLogic.delete(fileName);
+    public void deleteScript(String fileName) {
+        scriptLogic.delete(fileName);
     }
 
     @Override
     @WebResult(name = "result")
     public byte[] getScriptSource(String fileName) {
         AdminScript adminScript = scriptLogic.getScriptByName(fileName);
-        return adminScript.getContent().getBytes();
+        return adminScript.getContent();
     }
 }
