@@ -17,11 +17,11 @@
  */
 package ru.runa.wfe.script.logic;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.dao.AdminScriptDAO;
@@ -51,33 +51,27 @@ public class AdminScriptLogic extends CommonLogic {
     }
 
     public void deleteScript(Long scriptId) {
-        final AdminScript script = scriptDAO.get(scriptId);
-        scriptDAO.delete(script);
+        scriptDAO.delete(scriptId);
     }
 
     public void save(String name, byte[] script) {
-        try {
-            AdminScript adminScript = scriptDAO.getByName(name);
-            if (null == adminScript) {
-                adminScript = new AdminScript();
-                adminScript.setName(name);
-                adminScript.setContent(new String(script, "UTF-8"));
-                adminScript = scriptDAO.create(adminScript);
-            } else {
-                adminScript.setContent(new String(script, "UTF-8"));
-                scriptDAO.update(adminScript);
-            }
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+        AdminScript adminScript = scriptDAO.getByName(name);
+        if (null == adminScript) {
+            adminScript = new AdminScript();
+            adminScript.setName(name);
+            adminScript.setContent(script);
+            adminScript = scriptDAO.create(adminScript);
+        } else {
+            adminScript.setContent(script);
+            scriptDAO.update(adminScript);
         }
     }
 
-    public boolean delete(String name) {
+    public void delete(String name) {
         AdminScript adminScript = scriptDAO.getByName(name);
         if (null == adminScript) {
-            return false;
+            throw new InternalApplicationException("No admin script found by " + name);
         }
         scriptDAO.delete(adminScript);
-        return true;
     }
 }

@@ -100,13 +100,8 @@ public class AdminkitScriptsAction extends ActionBase {
             } else if ("delete".equals(action)) {
                 log.debug("Deleting script " + fileName);
                 final ScriptingService scriptingService = Delegates.getScriptingService();
-                final boolean deleted = scriptingService.deleteScript(fileName);
-                if (deleted) {
-                    log.info("Deleted script " + fileName);
-                } else {
-                    log.warn("Script does not deleted " + fileName);
-                }
-                if (!ajaxRequest && deleted) {
+                scriptingService.deleteScript(fileName);
+                if (!ajaxRequest) {
                     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.delete.success"));
                 }
             } else {

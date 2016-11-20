@@ -34,11 +34,9 @@ public class CreateAdminScriptTables extends DBPatch {
     private List<String> createAdminScriptTable() {
         List<String> sql = new LinkedList<String>();
         List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
-        ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
-        id.setPrimaryKey();
-        columns.add(id);
+        columns.add(new ColumnDef("ID", Types.BIGINT, false).setPrimaryKey());
         columns.add(new ColumnDef("NAME", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024), false));
-        columns.add(new ColumnDef("CONTENT", dialect.getTypeName(Types.CLOB), false));
+        columns.add(new ColumnDef("CONTENT", dialect.getTypeName(Types.BLOB), false));
         sql.add(getDDLCreateTable("ADMIN_SCRIPT", columns, null));
         sql.add(getDDLCreateSequence("SEQ_ADMIN_SCRIPT"));
         sql.add(getDDLCreateUniqueKey("ADMIN_SCRIPT", "IX_ADMIN_SCRIPT_NAME", "NAME"));
