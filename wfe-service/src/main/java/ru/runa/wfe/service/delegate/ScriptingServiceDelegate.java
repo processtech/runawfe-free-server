@@ -34,7 +34,8 @@ public class ScriptingServiceDelegate extends EJB3Delegate implements ScriptingS
     }
 
     @Override
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue) {
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
+            String defaultPasswordValue) {
         try {
             return getScriptingService().executeAdminScriptSkipError(user, configData, externalResources, defaultPasswordValue);
         } catch (Exception e) {
@@ -60,4 +61,39 @@ public class ScriptingServiceDelegate extends EJB3Delegate implements ScriptingS
         }
     }
 
+    @Override
+    public List<String> getScriptsNames() {
+        try {
+            return getScriptingService().getScriptsNames();
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void saveScript(String fileName, byte[] script) {
+        try {
+            getScriptingService().saveScript(fileName, script);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public boolean deleteScript(String fileName) {
+        try {
+            return getScriptingService().deleteScript(fileName);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public byte[] getScriptSource(String fileName) {
+        try {
+            return getScriptingService().getScriptSource(fileName);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
 }

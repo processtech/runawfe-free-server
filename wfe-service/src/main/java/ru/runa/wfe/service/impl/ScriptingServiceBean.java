@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import groovy.lang.GroovyShell;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +35,18 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
+
+import groovy.lang.GroovyShell;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
 import ru.runa.wfe.script.AdminScriptRunner;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
+import ru.runa.wfe.script.logic.AdminScriptLogic;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.interceptors.CacheReloader;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -50,10 +55,6 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Sets;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -64,6 +65,8 @@ import com.google.common.collect.Sets;
 public class ScriptingServiceBean implements ScriptingService {
     @Autowired
     private AdminScriptRunner runner;
+    @Autowired
+    private AdminScriptLogic scriptLogic;
     private static final Set<String> SYSTEM_EXECUTOR_NAMES = Sets.newHashSet();
     static {
         SYSTEM_EXECUTOR_NAMES.add(SystemProperties.getAdministratorName());
@@ -94,7 +97,8 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebMethod(exclude = true)
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue) {
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
+            String defaultPasswordValue) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(configData != null, "configData");
         Preconditions.checkArgument(externalResources != null, "externalResources");
@@ -126,5 +130,30 @@ public class ScriptingServiceBean implements ScriptingService {
         }
         GroovyShell shell = new GroovyShell();
         shell.evaluate(script);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public List<String> getScriptsNames() {
+        return scriptLogic.getScriptsNames();
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public void saveScript(String fileName, byte[] script) {
+        scriptLogic.save(fileName, script);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public boolean deleteScript(String fileName) {
+        return scriptLogic.delete(fileName);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public byte[] getScriptSource(String fileName) {
+        AdminScript adminScript = scriptLogic.getScriptByName(fileName);
+        return adminScript.getContent().getBytes();
     }
 }
