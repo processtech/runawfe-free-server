@@ -24,6 +24,8 @@ import java.util.Map;
 import ru.runa.wfe.presentation.SystemLogTypeFilterCriteria;
 import ru.runa.wfe.presentation.SystemLogTypeHelper;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
+import ru.runa.wfe.presentation.filter.TaskDurationFilterCriteria;
+import ru.runa.wfe.presentation.filter.UserOrGroupFilterCriteria;
 
 /**
  * Powered by Dofs
@@ -39,6 +41,8 @@ public class FilterFormatsFactory {
         formattersMap.put(Date.class.getName(), new DateFilterTDFormatter());
         formattersMap.put(AnywhereStringFilterCriteria.class.getName(), new StringFilterTDFormatter());
         formattersMap.put(SystemLogTypeFilterCriteria.class.getName(), new StringEnumerationFilterTDFormatter(SystemLogTypeHelper.getValues()));
+        formattersMap.put(UserOrGroupFilterCriteria.class.getName(), new UserOrGroupFilterTDFormatter());
+        formattersMap.put(TaskDurationFilterCriteria.class.getName(), new DurationFilterTDFormatter());
     }
 
     public static FilterTDFormatter getFormatter(String fieldType) {

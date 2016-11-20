@@ -28,12 +28,13 @@
 <tiles:put name="body" type="string">
 <%
 	String returnAction = "/manage_processes.do";
+	String batchPresentationId = ru.runa.common.WebResources.isProcessTaskFiltersEnabled() ? "listProcessesWithTasksForm" : "listProcessesForm";
 %>
 
-<wf:listProcessesForm batchPresentationId="listProcessesForm" returnAction="<%= returnAction %>">
+<wf:listProcessesForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>">
 	<div>
-		<wf:viewControlsHideableBlock hideableBlockId="listProcessesForm"  returnAction="<%= returnAction %>">
-			<wf:tableViewSetupForm batchPresentationId="listProcessesForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelProcesses" />
+		<wf:viewControlsHideableBlock hideableBlockId="<%= batchPresentationId %>"  returnAction="<%= returnAction %>">
+			<wf:tableViewSetupForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>" excelExportAction="/exportExcelProcesses" />
 		</wf:viewControlsHideableBlock>
 	</div>
 </wf:listProcessesForm>
