@@ -23,7 +23,6 @@ public final class MessagesException {
     public static final StrutsMessage ERROR_PROCESS_DOES_NOT_EXIST = new StrutsMessage("process.does.not.exist.error");
     public static final StrutsMessage ERROR_TASK_DOES_NOT_EXIST = new StrutsMessage("task.does.not.exist.error");
     public static final StrutsMessage ERROR_TASK_FORM_NOT_DEFINED = new StrutsMessage("task.form.not.defined.error");
-    public static final StrutsMessage DEFINITION_ALREADY_LOCKED = new StrutsMessage("definition.already.locked.error");
     public static final StrutsMessage DEFINITION_ARCHIVE_FORMAT_ERROR = new StrutsMessage("definition.archive.format.error");
     public static final StrutsMessage DEFINITION_FILE_FORMAT_ERROR = new StrutsMessage("definition.file.format.error");
     public static final StrutsMessage DEFINITION_FILE_DOES_NOT_EXIST_ERROR = new StrutsMessage("definition.file.does.not.exist.error");

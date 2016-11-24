@@ -23,12 +23,12 @@ package ru.runa.wfe.definition.dao;
 
 import java.util.List;
 
+import com.google.common.base.Objects;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
-
-import com.google.common.base.Objects;
 
 /**
  * DAO for {@link Deployment}.
@@ -43,9 +43,9 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
         if (previousLatestVersion != null) {
             Deployment latestDeployment = findLatestDeployment(previousLatestVersion.getName());
             if (!Objects.equal(latestDeployment.getId(), previousLatestVersion.getId())) {
-                throw new InternalApplicationException("Last deployed version of process definition '" + latestDeployment.getName() + "' is '"
-                        + latestDeployment.getVersion() + "'. You were provided process definition id for version '"
-                        + previousLatestVersion.getVersion() + "'");
+                throw new InternalApplicationException(
+                        "Last deployed version of process definition '" + latestDeployment.getName() + "' is '" + latestDeployment.getVersion()
+                                + "'. You were provided process definition id for version '" + previousLatestVersion.getVersion() + "'");
             }
             // take the next version number
             deployment.setVersion(previousLatestVersion.getVersion() + 1);
@@ -64,8 +64,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
-     * queries the database for the latest version of a process definition with
-     * the given name.
+     * queries the database for the latest version of a process definition with the given name.
      */
     public Deployment findLatestDeployment(String name) {
         Deployment deployment = findFirstOrNull("from Deployment where name=? order by version desc", name);
@@ -83,6 +82,14 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
         return deployment;
     }
 
+    public Deployment findPreviousDeployment(String name, Long version) {
+        Deployment deployment = findFirstOrNull("from Deployment where name=? and version<?  order by version desc", name, version);
+        if (deployment == null) {
+            throw new DefinitionDoesNotExistException(name);
+        }
+        return deployment;
+    }
+
     /**
      * queries the database for definition names.
      */
@@ -91,8 +98,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
-     * queries the database for all versions of process definitions with the
-     * given name, ordered by version (descending).
+     * queries the database for all versions of process definitions with the given name, ordered by version (descending).
      */
     public List<Deployment> findAllDeploymentVersions(String name) {
         return getHibernateTemplate().find("from Deployment where name=? order by version desc", name);

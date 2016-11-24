@@ -20,9 +20,9 @@ package ru.runa.wfe.service;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
-import ru.runa.wfe.definition.DefinitionAlreadyLockedException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -347,7 +347,7 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      * @throws DefinitionAlreadyLockedException
      */
-    public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException;
+    public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionLockedException;
 
     /**
      * Lock process definition for all.
@@ -361,8 +361,7 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      * @throws DefinitionAlreadyLockedException
      */
-    public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId)
-            throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException;
+    public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionLockedException;
 
     /**
      * UnLock process definition.

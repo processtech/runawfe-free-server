@@ -34,8 +34,8 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import com.google.common.base.Preconditions;
 
-import ru.runa.wfe.definition.DefinitionAlreadyLockedException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.form.Interaction;
@@ -287,7 +287,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @Override
     @WebResult(name = "result")
     public WfDefinition lockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
-            throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
+            throws DefinitionDoesNotExistException, DefinitionLockedException {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionId != null, "definitionId");
         return definitionLogic.lockProcessDefinition(user, definitionId);
@@ -296,7 +296,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @Override
     @WebResult(name = "result")
     public WfDefinition lockProcessDefinitionForAll(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
-            throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
+            throws DefinitionDoesNotExistException, DefinitionLockedException {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionId != null, "definitionId");
         return definitionLogic.lockProcessDefinitionForAll(user, definitionId);

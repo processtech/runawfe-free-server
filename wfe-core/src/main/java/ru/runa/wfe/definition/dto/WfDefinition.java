@@ -36,7 +36,6 @@ import ru.runa.wfe.user.Actor;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfDefinition extends Identifiable implements Comparable<WfDefinition>, EntityWithType {
 
-    public static final String ALL_USERS = "@all_users";
     private static final long serialVersionUID = -6032491529439317948L;
 
     private Long id;
@@ -53,8 +52,9 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
-    private String lockUserName;
+    private Actor lockActor;
     private Date lockDate;
+    private Boolean lockForAll;
 
     public WfDefinition() {
     }
@@ -78,8 +78,9 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         createActor = deployment.getCreateActor();
         updateDate = deployment.getUpdateDate();
         updateActor = deployment.getUpdateActor();
-        lockUserName = deployment.getLockUserName();
+        lockActor = deployment.getLockActor();
         lockDate = deployment.getLockDate();
+        lockForAll = deployment.getLockForAll();
     }
 
     @Override
@@ -153,12 +154,16 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         return updateActor;
     }
 
-    public String getLockUserName() {
-        return lockUserName;
+    public Actor getLockActor() {
+        return lockActor;
     }
 
     public Date getLockDate() {
         return lockDate;
+    }
+
+    public Boolean isLockForAll() {
+        return lockForAll;
     }
 
     @Override
