@@ -66,6 +66,7 @@ import ru.runa.wfe.service.utils.FileVariablesUtil;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.logic.VariableLogic;
@@ -169,29 +170,30 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException {
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(filter != null, "filter");
         long processId = filter.getProcessId();
-        List<WfVariable> list = variableLogic.getHistoricalVariables(user, filter);
-        for (WfVariable variable : list) {
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, filter);
+        for (WfVariable variable : result.getVariables()) {
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
         }
-        return list;
+        return result;
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) throws ProcessDoesNotExistException {
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
+            throws ProcessDoesNotExistException {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(filter != null, "filter");
         Preconditions.checkArgument(variables != null, "variables");
         long processId = filter.getProcessId();
-        List<WfVariable> list = variableLogic.getHistoricalVariables(user, filter, variables);
-        for (WfVariable variable : list) {
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, filter, variables);
+        for (WfVariable variable : result.getVariables()) {
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
         }
-        return list;
+        return result;
     }
 
     @Override

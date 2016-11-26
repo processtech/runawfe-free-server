@@ -37,6 +37,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
 
 /**
@@ -60,8 +61,8 @@ public interface ExecutionService {
      * @throws DefinitionDoesNotExistException
      * @throws ValidationException
      */
-    public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-            ValidationException;
+    public Long startProcess(User user, String definitionName, Map<String, Object> variables)
+            throws DefinitionDoesNotExistException, ValidationException;
 
     /**
      * Gets process count for {@link BatchPresentation}.
@@ -192,7 +193,7 @@ public interface ExecutionService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
 
     /**
      * Gets specified process variables state on specified date.
@@ -206,7 +207,8 @@ public interface ExecutionService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) throws ProcessDoesNotExistException;
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
+            throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process.

@@ -107,7 +107,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         }
 
         List<WfVariable> variables = historyFilter == null ? Delegates.getExecutionService().getVariables(user, getIdentifiableId())
-                : Delegates.getExecutionService().getHistoricalVariables(user, historyFilter);
+                : Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));

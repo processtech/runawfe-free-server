@@ -35,6 +35,7 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
 
 /**
@@ -132,7 +133,7 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter) {
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) {
         try {
             return getExecutionService().getHistoricalVariables(user, filter);
         } catch (Exception e) {
@@ -141,7 +142,7 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public List<WfVariable> getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) {
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) {
         try {
             return getExecutionService().getHistoricalVariables(user, filter, variables);
         } catch (Exception e) {

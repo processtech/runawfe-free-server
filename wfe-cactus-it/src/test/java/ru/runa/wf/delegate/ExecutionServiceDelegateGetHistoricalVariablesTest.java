@@ -44,6 +44,7 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.dto.WfVariableHistoryState;
 
 /**
  * Tests for getting historical state of process variables.
@@ -82,7 +83,8 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
         ProcessLogFilter filter = new ProcessLogFilter(processId);
         for (Stage stage : Stage.values()) {
             filter.setCreateDateTo(stage.stageTime);
-            List<WfVariable> variables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter);
+            WfVariableHistoryState historicalVariables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter);
+            List<WfVariable> variables = historicalVariables.getVariables();
             Map<String, Object> expected = Maps.newHashMap();
             expected.putAll(stage.afterExecuteVariables);
             for (WfVariable wfVariable : variables) {
@@ -97,6 +99,20 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             for (String notFoundVariable : expected.keySet()) {
                 Assert.assertNull(notFoundVariable + " is not null, but not found in variables on " + stage, expected.get(notFoundVariable));
             }
+            if (stage.simpleVariablesChangedFromStart != null && !stage.simpleVariablesChangedFromStart.isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Expected: { ");
+                for (String n : stage.simpleVariablesChangedFromStart) {
+                    builder.append(n).append(", ");
+                }
+                builder.append("} got : { ");
+                for (String n : historicalVariables.getSimpleVariablesChanged()) {
+                    builder.append(n).append(", ");
+                }
+                builder.append("}");
+                ArrayAssert.assertWeakEqualArrays(builder.toString(), stage.simpleVariablesChangedFromStart,
+                        historicalVariables.getSimpleVariablesChanged());
+            }
         }
     }
 
@@ -108,7 +124,8 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             }
             filter.setCreateDateFrom(stage.prevStage.stageTime);
             filter.setCreateDateTo(stage.stageTime);
-            List<WfVariable> variables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter);
+            WfVariableHistoryState historicalVariables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter);
+            List<WfVariable> variables = historicalVariables.getVariables();
             Map<String, Object> expected = Maps.newHashMap();
             expected.putAll(stage.changedVariables);
             for (WfVariable wfVariable : variables) {
@@ -123,6 +140,19 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             for (String notFoundVariable : expected.keySet()) {
                 Assert.assertNull(notFoundVariable + " is not null, but not found in variables on " + stage, expected.get(notFoundVariable));
             }
+            if (stage.simpleVariablesChanged != null && !stage.simpleVariablesChanged.isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Expected: { ");
+                for (String n : stage.simpleVariablesChanged) {
+                    builder.append(n).append(", ");
+                }
+                builder.append("} got : { ");
+                for (String n : historicalVariables.getSimpleVariablesChanged()) {
+                    builder.append(n).append(", ");
+                }
+                builder.append("}");
+                ArrayAssert.assertWeakEqualArrays(builder.toString(), stage.simpleVariablesChanged, historicalVariables.getSimpleVariablesChanged());
+            }
         }
     }
 
@@ -135,7 +165,8 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
         ProcessLogFilter filter = new ProcessLogFilter(processId);
         for (Stage stage : Stage.values()) {
             filter.setCreateDateTo(stage.stageTime);
-            List<WfVariable> variables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter, variableNames);
+            List<WfVariable> variables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter, variableNames)
+                    .getVariables();
             Map<String, Object> expected = Maps.newHashMap();
             expected.putAll(stage.afterExecuteVariables);
             for (String name : Sets.newHashSet(expected.keySet())) {
@@ -171,6 +202,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 User user = testInstance.th.getAuthorizedPerformerUser();
                 String processName = WfServiceTestHelper.LONG_WITH_VARIABLES_PROCESS_NAME;
                 changedVariables.put("varLong", 1L);
+                simpleVariablesChanged.add("varLong");
                 testInstance.processId = testInstance.executionService.startProcess(user, processName, changedVariables);
             }
         },
@@ -188,6 +220,12 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 HashMap<String, UserTypeMap> map = Maps.newHashMap();
                 map.put("11", createUserType(testInstance, 1L, null, Lists.newArrayList("123", "@34"), null));
                 changedVariables.put("varMapStringUT", map);
+                simpleVariablesChanged.add("varLong");
+                simpleVariablesChanged.add("varListString[0]");
+                simpleVariablesChanged.add("varListString[1]");
+                simpleVariablesChanged.add("varListString.size");
+                simpleVariablesChanged.add("varString");
+                simpleVariablesChanged.add("varMapStringUT");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
             }
         },
@@ -202,8 +240,17 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varLong", 3L);
                 changedVariables.put("varListString", Lists.newArrayList("str1", "str2", "str3"));
                 changedVariables.put("varString", "1243");
-                changedVariables.put("varListUT", Lists.newArrayList(createUserType(testInstance, 3L, "ss", null, null), createUserType(testInstance,
-                        6L, "ss", null, null)));
+                changedVariables.put("varListUT",
+                        Lists.newArrayList(createUserType(testInstance, 3L, "ss", null, null), createUserType(testInstance, 6L, "ss", null, null)));
+                simpleVariablesChanged.add("varLong");
+                simpleVariablesChanged.add("varListString[2]");
+                simpleVariablesChanged.add("varListString.size");
+                simpleVariablesChanged.add("varString");
+                simpleVariablesChanged.add("varListUT[0].fieldLong");
+                simpleVariablesChanged.add("varListUT[0].fieldString");
+                simpleVariablesChanged.add("varListUT[1].fieldLong");
+                simpleVariablesChanged.add("varListUT[1].fieldString");
+                simpleVariablesChanged.add("varListUT.size");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
             }
         },
@@ -218,6 +265,13 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varLong", 4L);
                 changedVariables.put("varListString", null);
                 changedVariables.put("varUT", createUserType(testInstance, 3L, "ss", null, null));
+                simpleVariablesChanged.add("varLong");
+                simpleVariablesChanged.add("varListString[0]");
+                simpleVariablesChanged.add("varListString[1]");
+                simpleVariablesChanged.add("varListString[2]");
+                simpleVariablesChanged.add("varListString.size");
+                simpleVariablesChanged.add("varUT.fieldLong");
+                simpleVariablesChanged.add("varUT.fieldString");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
             }
         },
@@ -232,6 +286,14 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varLong", 5L);
                 changedVariables.put("varListString", Lists.newArrayList("str4", "str5"));
                 changedVariables.put("varUT", createUserType(testInstance, null, "ss", Lists.newArrayList("s1", "s2"), null));
+                simpleVariablesChanged.add("varLong");
+                simpleVariablesChanged.add("varListString.size");
+                simpleVariablesChanged.add("varListString[0]");
+                simpleVariablesChanged.add("varListString[1]");
+                simpleVariablesChanged.add("varUT.fieldLong");
+                simpleVariablesChanged.add("varUT.fieldListString.size");
+                simpleVariablesChanged.add("varUT.fieldListString[0]");
+                simpleVariablesChanged.add("varUT.fieldListString[1]");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
             }
         },
@@ -251,6 +313,18 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varListUT", Lists.newArrayList(createUserType(testInstance, 5L, "ss", Lists.newArrayList("s2"), null),
                         createUserType(testInstance, 6L, "ss", Lists.newArrayList("s4"), null)));
                 changedVariables.put("varMapStringUT", null);
+                simpleVariablesChanged.add("varLong");
+                simpleVariablesChanged.add("varString");
+                simpleVariablesChanged.add("varUT.fieldString");
+                simpleVariablesChanged.add("varUT.fieldListString.size");
+                simpleVariablesChanged.add("varUT.fieldListString[1]");
+                simpleVariablesChanged.add("varUT.fieldMapStringString");
+                simpleVariablesChanged.add("varListUT[0].fieldLong");
+                simpleVariablesChanged.add("varListUT[0].fieldListString.size");
+                simpleVariablesChanged.add("varListUT[0].fieldListString[0]");
+                simpleVariablesChanged.add("varListUT[1].fieldListString.size");
+                simpleVariablesChanged.add("varListUT[1].fieldListString[0]");
+                simpleVariablesChanged.add("varMapStringUT");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
             }
         },
@@ -343,6 +417,10 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
 
         public final Map<String, Object> afterExecuteVariables = Maps.newHashMap();
 
+        public final Set<String> simpleVariablesChanged = Sets.newHashSet();
+
+        public final Set<String> simpleVariablesChangedFromStart = Sets.newHashSet();
+
         public Date stageTime;
 
         protected final Stage prevStage;
@@ -364,6 +442,12 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 afterExecuteVariables.putAll(prevStage.afterExecuteVariables);
             }
             afterExecuteVariables.putAll(changedVariables);
+            if (!simpleVariablesChanged.isEmpty()) {
+                simpleVariablesChangedFromStart.addAll(simpleVariablesChanged);
+                if (prevStage != null) {
+                    simpleVariablesChangedFromStart.addAll(prevStage.simpleVariablesChangedFromStart);
+                }
+            }
         }
 
         protected UserTypeMap createUserType(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance, Long longVal, String str,
