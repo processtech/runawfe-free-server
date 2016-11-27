@@ -201,12 +201,18 @@ public class UserTypeMap extends HashMap<String, Object> {
     }
 
     public Map<VariableDefinition, Object> expandAttributes(String prefix) {
+        return expandAttributes(prefix, false);
+    }
+
+    public Map<VariableDefinition, Object> expandAttributes(String prefix, boolean preserveUserTypes) {
         Map<VariableDefinition, Object> result = Maps.newHashMap();
         for (Map.Entry<String, Object> entry : entrySet()) {
             String name = prefix + UserType.DELIM + entry.getKey();
-            if (entry.getValue() instanceof UserTypeMap) {
+            boolean isUserType = entry.getValue() instanceof UserTypeMap;
+            if (isUserType) {
                 result.putAll(((UserTypeMap) entry.getValue()).expandAttributes(name));
-            } else {
+            }
+            if (preserveUserTypes || !isUserType) {
                 VariableDefinition definition;
                 VariableDefinition attributeDefinition = userType.getAttribute(entry.getKey());
                 if (attributeDefinition != null) {

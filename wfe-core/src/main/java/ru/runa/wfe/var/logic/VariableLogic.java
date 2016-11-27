@@ -35,6 +35,7 @@ import com.google.common.collect.Sets;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.logic.AuditLogic;
@@ -233,7 +234,9 @@ public class VariableLogic extends WFCommonLogic {
         processToVariables.put(process, processVariables);
         for (VariableLog variableLog : historyLogs.getLogs(VariableLog.class)) {
             String variableName = variableLog.getVariableName();
-            simpleVariablesChanged.add(variableName);
+            if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {
+                simpleVariablesChanged.add(variableName);
+            }
             if (variableLog instanceof VariableDeleteLog) {
                 processVariables.remove(variableName);
                 continue;
