@@ -206,8 +206,8 @@ public class ExecutionContext {
             variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
         }
         if (variable != null) {
-            if (Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue())
-                    || variable.getValue() instanceof UserTypeMap) {
+            if (Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue()) || variable
+                    .getValue() instanceof UserTypeMap) {
                 variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
             }
             return variable;
@@ -298,8 +298,7 @@ public class ExecutionContext {
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         value = convertValueForVariableType(variableDefinition, value);
-        ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesContext(variableDefinition, value, processDefinition, getProcess(),
-                this, variableDAO);
+        ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(), this, variableDAO);
         for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull().processBy(new ConvertToSimpleVariables(),
                 context)) {
             setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, simpleVariables.value);

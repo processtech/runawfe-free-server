@@ -5,6 +5,10 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.execution.ConvertToSimpleVariables;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesContext;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesResult;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesUnrollContext;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -14,6 +18,27 @@ public class MapVariableProvider extends AbstractVariableProvider {
     public MapVariableProvider(Map<String, ? extends Object> variables) {
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) variables).entrySet()) {
             add(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * Creates instance for specified variables. May unroll variables to database related (simple) values, stored to database.
+     * 
+     * @param variables
+     *            Variables, accessible from this instance.
+     * @param unroll
+     *            Flag? equals true, if variables must be unrolled to database related (simple) values and false otherwise.
+     */
+    public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll) {
+        for (Map.Entry<String, WfVariable> entry : variables.entrySet()) {
+            add(entry.getKey(), entry.getValue());
+            if (unroll) {
+                VariableDefinition definition = entry.getValue().getDefinition();
+                ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(definition, entry.getValue().getValue());
+                for (ConvertToSimpleVariablesResult unrolled : definition.getFormatNotNull().processBy(new ConvertToSimpleVariables(), context)) {
+                    add(new WfVariable(unrolled.variableDefinition, unrolled.value));
+                }
+            }
         }
     }
 

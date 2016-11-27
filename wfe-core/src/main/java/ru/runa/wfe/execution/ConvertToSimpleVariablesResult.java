@@ -25,8 +25,8 @@ public class ConvertToSimpleVariablesResult {
      *            {@link ConvertToSimpleVariables} operation context for creating result for simple variable.
      */
     public ConvertToSimpleVariablesResult(ConvertToSimpleVariablesContext context) {
-        variableDefinition = context.variableDefinition;
-        value = context.value;
+        variableDefinition = context.getVariableDefinition();
+        value = context.getValue();
     }
 
     /**
