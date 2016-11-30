@@ -17,10 +17,14 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.definition.dto.WfProcessDefinitionChange;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.lang.Node;
@@ -242,4 +246,32 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
             throw handleException(e);
         }
     }
+
+    @Override
+    public List<WfProcessDefinitionChange> getChanges(Long definitionId){
+        try {
+            return getDefinitionService().getChanges(definitionId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<WfProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
+        try {
+            return getDefinitionService().findChanges(definitionName, version1, version2);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<WfProcessDefinitionChange> findChanges(Date date1, Date date2){
+        try {
+            return getDefinitionService().findChanges(date1, date2);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }

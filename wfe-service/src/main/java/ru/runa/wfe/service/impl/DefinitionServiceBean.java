@@ -17,7 +17,9 @@
  */
 package ru.runa.wfe.service.impl;
 
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -32,7 +34,9 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.definition.dto.WfProcessDefinitionChange;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -282,4 +286,30 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return definitionLogic.getProcessDefinitionHistory(user, name);
     }
 
+    public List<WfProcessDefinitionChange> getChanges(Long definitionId){
+        List<WfProcessDefinitionChange> result = new ArrayList<>();
+        List<ProcessDefinitionChange> listOfChanges =  definitionLogic.getChanges(definitionId);
+        for (ProcessDefinitionChange processDefinitionChange : listOfChanges){
+            result.add(new WfProcessDefinitionChange(processDefinitionChange));
+        }
+        return result;
+    }
+
+    public List<WfProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
+        List<WfProcessDefinitionChange> result = new ArrayList<>();
+        List<ProcessDefinitionChange> listOfChanges =  definitionLogic.findChanges(definitionName, version1, version2);
+        for (ProcessDefinitionChange processDefinitionChange : listOfChanges){
+            result.add(new WfProcessDefinitionChange(processDefinitionChange));
+        }
+        return result;
+    }
+
+    public List<WfProcessDefinitionChange> findChanges(Date date1, Date date2){
+        List<WfProcessDefinitionChange> result = new ArrayList<>();
+        List<ProcessDefinitionChange> listOfChanges =  definitionLogic.findChanges(date1, date2);
+        for (ProcessDefinitionChange processDefinitionChange : listOfChanges){
+            result.add(new WfProcessDefinitionChange(processDefinitionChange));
+        }
+        return result;
+    }
 }

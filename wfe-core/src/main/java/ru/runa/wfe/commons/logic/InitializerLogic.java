@@ -43,6 +43,7 @@ import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddBatchPresentationIsSharedPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddChangesColumnsToDefinition;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnsToSubstituteEscalatedTasksPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddCreateDateColumns;
@@ -154,6 +155,7 @@ public class InitializerLogic {
         dbPatches.add(ExpandVarcharPatch.class);
         dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
         dbPatches.add(CreateAdminScriptTables.class);
+        dbPatches.add(AddChangesColumnsToDefinition.class);
     };
 
     @Autowired

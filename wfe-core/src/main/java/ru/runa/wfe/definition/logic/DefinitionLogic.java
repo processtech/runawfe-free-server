@@ -25,6 +25,7 @@ import java.util.Map;
 
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
+import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
@@ -35,8 +36,11 @@ import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.WorkflowSystemPermission;
+import ru.runa.wfe.definition.VersionInfo;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.definition.dto.WfProcessDefinitionChange;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
@@ -86,6 +90,13 @@ public class DefinitionLogic extends WFCommonLogic {
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
         deploymentDAO.deploy(definition.getDeployment(), null);
+        List<VersionInfo> versionInfoList = definition.getVersionInfoList();
+        if (versionInfoList.size() > 0) {
+            VersionInfo lastVersionInfoInList = versionInfoList.get(versionInfoList.size() - 1);
+            definition.getDeployment().setVersionDate(lastVersionInfoInList.getDate().getTime());
+            definition.getDeployment().setVersionAuthor(lastVersionInfoInList.getAuthor());
+            definition.getDeployment().setVersionComment(lastVersionInfoInList.getComment());
+        }
         Collection<Permission> allPermissions = new DefinitionPermission().getAllPermissions();
         permissionDAO.setPermissions(user.getActor(), allPermissions, definition.getDeployment());
         log.debug("Deployed process definition " + definition);
@@ -118,6 +129,24 @@ public class DefinitionLogic extends WFCommonLogic {
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
         deploymentDAO.deploy(definition.getDeployment(), oldDeployment);
+        List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definition.getName());
+        List<VersionInfo> versionInfoList = definition.getVersionInfoList();
+        if (versionInfoList.size() > 0) {
+            VersionInfo lastVersionInfoInList = versionInfoList.get(versionInfoList.size() - 1);
+            Date date = lastVersionInfoInList.getDate().getTime();
+            boolean isCommentExists = false;
+            for (Deployment curDeployment : deployments){
+                if (curDeployment.getVersionDate() != null && curDeployment.getVersionDate().equals(date)){
+                    isCommentExists = true;
+                    break;
+                }
+            }
+            if (isCommentExists != true){
+                definition.getDeployment().setVersionDate(date);
+                definition.getDeployment().setVersionAuthor(lastVersionInfoInList.getAuthor());
+                definition.getDeployment().setVersionComment(lastVersionInfoInList.getComment());
+            }
+        }
         log.debug("Process definition " + oldDeployment + " was successfully redeployed");
         return new WfDefinition(definition, true);
     }
@@ -147,6 +176,24 @@ public class DefinitionLogic extends WFCommonLogic {
         deployment.setContent(uploadedDefinition.getDeployment().getContent());
         deployment.setUpdateDate(new Date());
         deployment.setUpdateActor(user.getActor());
+        List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(uploadedDefinition.getName());
+        List<VersionInfo> versionInfoList = uploadedDefinition.getVersionInfoList();
+        if (versionInfoList.size() > 0) {
+            VersionInfo lastVersionInfoInList = versionInfoList.get(versionInfoList.size() - 1);
+            Date date = lastVersionInfoInList.getDate().getTime();
+            boolean isCommentExists = false;
+            for (Deployment curDeployment : deployments){
+                if (curDeployment.getVersionDate() != null && curDeployment.getVersionDate().equals(date)){
+                    isCommentExists = true;
+                    break;
+                }
+            }
+            if (isCommentExists != true){
+                deployment.setVersionDate(date);
+                deployment.setVersionAuthor(lastVersionInfoInList.getAuthor());
+                deployment.setVersionComment(lastVersionInfoInList.getComment());
+            }
+        }
         deploymentDAO.update(deployment);
         addUpdatedDefinitionInProcessLog(user, deployment);
         log.debug("Process definition " + deployment + " was successfully updated");
@@ -244,6 +291,38 @@ public class DefinitionLogic extends WFCommonLogic {
         }
         deploymentDAO.delete(deployment);
         systemLogDAO.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
+    }
+
+    public List<ProcessDefinitionChange> getChanges(Long definitionId){
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        String definitionName = deploymentDAO.get(definitionId).getName();
+        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        for (Deployment deployment : listOfDeployments){
+            result.add(new ProcessDefinitionChange(deployment));
+        }
+        return result;
+    }
+
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        for (Deployment deployment : listOfDeployments){
+            if (deployment.getVersion() >= version1 && deployment.getVersion() <= version2) {
+                result.add(new ProcessDefinitionChange(deployment));
+            }
+        }
+        return result;
+    }
+
+    public List<ProcessDefinitionChange> findChanges(Date date1, Date date2){
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        List<Deployment> listOfDeployments = deploymentDAO.getAll();
+        for (Deployment deployment : listOfDeployments){
+            if (deployment.getVersionDate().compareTo(date1) >= 0 && deployment.getVersionDate().compareTo(date2) <= 0) {
+                result.add(new ProcessDefinitionChange(deployment));
+            }
+        }
+        return result;
     }
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
