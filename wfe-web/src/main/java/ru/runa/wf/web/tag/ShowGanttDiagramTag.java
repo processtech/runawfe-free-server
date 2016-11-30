@@ -1,12 +1,18 @@
 package ru.runa.wf.web.tag;
 
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.Script;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
+
+import com.google.common.base.Objects;
 
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
@@ -17,19 +23,20 @@ import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
+import ru.runa.wfe.service.TaskService;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.base.Objects;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showGanttDiagram")
 public class ShowGanttDiagramTag extends ProcessBaseFormTag {
 
     private static final long serialVersionUID = 1L;
+
+    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private static final String GANTT_CHART_ITEM_DATA_FORMAT = "\n'{'id:{0},text:''{1}'',resource:''{2}'',start_date:''{3}'',end_date:''{4}'',progress:{5},open:{6},parent:{7},type:''{8}'''}'";
 
     @Override
     protected void fillFormData(TD tdFormElement) {
@@ -39,7 +46,9 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         filter.setIncludeSubprocessLogs(true);
         ProcessLogs logs = Delegates.getAuditService().getProcessLogs(getUser(), filter);
         Map<TaskCreateLog, TaskEndLog> taskLogs = logs.getTaskLogs();
-        String js = getBar(process.getId(), process.getName(), null, null, "444444", null, true, "0", null);
+        List<String> barList = new ArrayList<String>();
+        barList.add(getBar(process.getId(), process.getName(), new Date(), new Date(), "process", null, true, "0", null));
+        TaskService taskService = Delegates.getTaskService();
         for (ProcessLog log : logs.getLogs()) {
             if (log instanceof ProcessStartLog) {
                 TaskCreateLog createLog = null;
@@ -51,23 +60,29 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
                 }
                 if (createLog != null) {
                     TaskEndLog endLog = taskLogs.get(createLog);
-                    js += getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), endLog.getCreateDate(), "0ccc00",
-                            endLog.getActorName(), false, createLog.getProcessId(), null);
+                    barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), endLog.getCreateDate(), "task1",
+                            endLog.getActorName(), false, createLog.getProcessId(), null));
                 }
             }
             if (log instanceof TaskCreateLog) {
                 TaskCreateLog createLog = (TaskCreateLog) log;
                 TaskEndLog endLog = taskLogs.get(createLog);
                 Date end = (endLog != null) ? endLog.getCreateDate() : new Date();
-                String executorName = (endLog != null) ? endLog.getActorName() : null;
-                js += getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), end, "008880", executorName, false,
-                        createLog.getProcessId(), null);
+                String executorName = (endLog != null) ? endLog.getActorName()
+                        : taskService.getTask(getUser(), createLog.getTaskId()).getOwner().getName();
+                barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), end, "task2", executorName, false,
+                        createLog.getProcessId(), null));
             }
             if (log instanceof SubprocessStartLog) {
                 WfProcess subProcess = executionService.getProcess(getUser(), ((SubprocessStartLog) log).getSubprocessId());
-                js += getBar(subProcess.getId(), subProcess.getName(), null, null, "44ff44", null, true, process.getId(), null);
+                barList.add(getBar(subProcess.getId(), subProcess.getName(), null, null, "subprocess", null, true, process.getId(), null));
             }
         }
+        String js = "var tasks = {data:[";
+        for (int i = 0; i < barList.size(); i++) {
+            js += (i > 0 ? "," : "") + barList.get(i);
+        }
+        js += "\n]};";
 
         Script script = new Script();
         script.setLanguage("javascript");
@@ -76,26 +91,10 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         tdFormElement.addElement(script);
     }
 
-    private String getBar(Object id, String name, Date start, Date end, String color, String executorName, boolean group, Object parentId,
+    private String getBar(Object id, String name, Date start, Date end, String type, String executorName, boolean group, Object parentId,
             String depends) {
-        String js = "g.AddTaskItem(new JSGantt.TaskItem(" + id + ", '" + name + "', ";
-        if (group) {
-            js += "'', '', ";
-        } else {
-            js += "'" + CalendarUtil.formatDateTime(start) + "', '" + CalendarUtil.formatDateTime(end) + "', ";
-        }
-        js += "'" + color + "', 0, '";
-        if (executorName != null) {
-            js += executorName;
-        }
-        js += "', 0, ";
-        js += group ? "1" : "0";
-        js += ", " + parentId + ", 1";
-        if (depends != null) {
-            js += ", '" + depends + "'";
-        }
-        js += "));\n";
-        return js;
+        return MessageFormat.format(GANTT_CHART_ITEM_DATA_FORMAT, id, name, executorName != null ? executorName : "",
+                group ? "" : DATE_TIME_FORMAT.format(start), group ? "" : DATE_TIME_FORMAT.format(end), 1, true, parentId, type);
     }
 
     @Override
