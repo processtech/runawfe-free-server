@@ -362,5 +362,5 @@ public interface DefinitionService {
      * @param date2
      * @return not <code>null</code>
      */
-    public List<WfProcessDefinitionChange> findChanges(Date date1, Date date2);
+    public List<WfProcessDefinitionChange> findChangesWithin(Date date1, Date date2);
 }

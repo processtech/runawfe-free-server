@@ -266,9 +266,9 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<WfProcessDefinitionChange> findChanges(Date date1, Date date2){
+    public List<WfProcessDefinitionChange> findChangesWithin(Date date1, Date date2){
         try {
-            return getDefinitionService().findChanges(date1, date2);
+            return getDefinitionService().findChangesWithin(date1, date2);
         } catch (Exception e) {
             throw handleException(e);
         }

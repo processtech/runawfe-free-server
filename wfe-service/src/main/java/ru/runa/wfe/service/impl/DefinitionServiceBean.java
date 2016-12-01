@@ -304,7 +304,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return result;
     }
 
-    public List<WfProcessDefinitionChange> findChanges(Date date1, Date date2){
+    public List<WfProcessDefinitionChange> findChangesWithin(Date date1, Date date2){
         List<WfProcessDefinitionChange> result = new ArrayList<>();
         List<ProcessDefinitionChange> listOfChanges =  definitionLogic.findChanges(date1, date2);
         for (ProcessDefinitionChange processDefinitionChange : listOfChanges){
