@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.var.logic;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,13 +33,19 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.logic.AuditLogic;
+import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
@@ -107,7 +114,63 @@ public class VariableLogic extends WFCommonLogic {
                 result.add(wfVariable);
             }
         }
-        return new WfVariableHistoryState(result, historicalVariables.getSimpleVariablesChanged());
+        List<WfVariable> startDateRangeResult = Lists.newArrayList();
+        for (WfVariable wfVariable : historicalVariables.getStartDateRangeVariables()) {
+            if (variables.contains(wfVariable.getDefinition().getName())) {
+                startDateRangeResult.add(wfVariable);
+            }
+        }
+        return new WfVariableHistoryState(startDateRangeResult, result, historicalVariables.getSimpleVariablesChanged());
+    }
+
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
+        Date taskCreateDate = null;
+        Date taskCompletePressedDate = null;
+        Date taskEndDate = null;
+        ProcessLogFilter filter = new ProcessLogFilter();
+        filter.setProcessId(processId);
+        ProcessLogs processLogs = auditLogic.getProcessLogs(user, filter);
+        if (taskId == null || Objects.equal(taskId, 0L)) { // Start process form.
+            NodeLeaveLog leaveLog = processLogs.getFirstOrNull(NodeLeaveLog.class);
+            if (leaveLog != null) {
+                taskEndDate = leaveLog.getCreateDate();
+            }
+        } else {
+            Long tokenId = null;
+            for (TaskCreateLog createLog : processLogs.getLogs(TaskCreateLog.class)) {
+                if (Objects.equal(createLog.getTaskId(), taskId)) {
+                    tokenId = createLog.getTokenId();
+                    break;
+                }
+            }
+            filter.setTokenId(tokenId);
+            ProcessLogs tokenLogs = auditLogic.getProcessLogs(user, filter);
+            for (ProcessLog log : tokenLogs.getLogs()) {
+                if (log instanceof TaskCreateLog && Objects.equal(((TaskCreateLog) log).getTaskId(), taskId)) {
+                    taskCreateDate = log.getCreateDate();
+                }
+                if (log instanceof VariableLog && taskCreateDate != null && taskCompletePressedDate == null) {
+                    taskCompletePressedDate = log.getCreateDate();
+                }
+                if (log instanceof TaskEndLog && Objects.equal(((TaskEndLog) log).getTaskId(), taskId)) {
+                    taskEndDate = log.getCreateDate();
+                    break;
+                }
+            }
+            if (taskCreateDate == null) {
+                throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems started");
+            }
+        }
+        if (taskEndDate == null) {
+            throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
+        }
+        filter = new ProcessLogFilter(processId);
+        filter.setCreateDateTo(taskEndDate);
+        Calendar dateFrom = CalendarUtil.dateToCalendar(taskCompletePressedDate != null ? taskCompletePressedDate : taskCreateDate);
+        dateFrom.add(Calendar.MILLISECOND, -100);
+        filter.setCreateDateFrom(dateFrom.getTime());
+        WfVariableHistoryState completeTaskState = getHistoricalVariableOnRange(user, filter);
+        return completeTaskState;
     }
 
     public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
@@ -151,42 +214,25 @@ public class VariableLogic extends WFCommonLogic {
     }
 
     private WfVariableHistoryState getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {
-        HashSet<String> simpleVariablesChanged = Sets.<String>newHashSet();
+        HashSet<String> simpleVariablesChanged = Sets.<String> newHashSet();
         {
             Map<Process, Map<String, Object>> processToVariables = Maps.newHashMap();
-            for (Process loadingProcess = processDAO.getNotNull(filter.getProcessId()); loadingProcess != null; loadingProcess = getBaseProcess(user,
-                    loadingProcess)) {
+            Process process = processDAO.getNotNull(filter.getProcessId());
+            for (Process loadingProcess = process; loadingProcess != null; loadingProcess = getBaseProcess(user, loadingProcess)) {
                 loadVariablesForProcessFromLogs(user, loadingProcess, filter, processToVariables, simpleVariablesChanged);
             }
         }
-        List<WfVariable> result = Lists.newArrayList();
-        Map<String, WfVariable> toVariables = Maps.newHashMap();
         Date dateFrom = filter.getCreateDateFrom();
         filter.setCreateDateFrom(null);
-        for (WfVariable wfVariable : getHistoricalVariableOnDate(user, filter).getVariables()) {
-            toVariables.put(wfVariable.getDefinition().getName(), wfVariable);
-        }
+        WfVariableHistoryState toState = getHistoricalVariableOnDate(user, filter);
         filter.setCreateDateTo(dateFrom);
-        for (WfVariable wfVariable : getHistoricalVariableOnDate(user, filter).getVariables()) {
-            boolean variableIsStillDefined = toVariables.containsKey(wfVariable.getDefinition().getName());
-            if (variableIsStillDefined) {
-                if (!Objects.equal(wfVariable.getValue(), toVariables.get(wfVariable.getDefinition().getName()).getValue())) {
-                    result.add(toVariables.get(wfVariable.getDefinition().getName()));
-                }
-                toVariables.remove(wfVariable.getDefinition().getName());
-            } else {
-                wfVariable.setValue(null);
-                result.add(wfVariable);
-            }
-        }
-        for (WfVariable wfVariable : toVariables.values()) {
-            result.add(wfVariable);
-        }
-        return new WfVariableHistoryState(result, simpleVariablesChanged);
+        WfVariableHistoryState fromState = getHistoricalVariableOnDate(user, filter);
+        return new WfVariableHistoryState(fromState.getVariables(), toState.getVariables(), simpleVariablesChanged);
     }
 
     private WfVariableHistoryState getHistoricalVariableOnDate(User user, ProcessLogFilter filter) {
         List<WfVariable> result = Lists.newArrayList();
+        List<WfVariable> startDateRangeResult = Lists.newArrayList();
         Process process = processDAO.getNotNull(filter.getProcessId());
         ProcessDefinition processDefinition = getDefinition(process);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
@@ -198,7 +244,7 @@ public class VariableLogic extends WFCommonLogic {
                 result.add(variable);
             }
         }
-        return new WfVariableHistoryState(result, simpleVariablesChanged);
+        return new WfVariableHistoryState(startDateRangeResult, result, simpleVariablesChanged);
     }
 
     public Map<Process, Map<String, Variable<?>>> getProcessStateOnTime(User user, Process process, ProcessLogFilter filter,
@@ -211,7 +257,7 @@ public class VariableLogic extends WFCommonLogic {
         for (Process currentProcess : processToVariables.keySet()) {
             ProcessDefinition definition = getDefinition(currentProcess);
             Map<String, Object> processVariables = processToVariables.get(currentProcess);
-            result.put(currentProcess, Maps.<String, Variable<?>>newHashMap());
+            result.put(currentProcess, Maps.<String, Variable<?>> newHashMap());
             for (String variableName : processVariables.keySet()) {
                 VariableDefinition variableDefinition = definition.getVariable(variableName, false);
                 Object value = processVariables.get(variableName);
@@ -230,7 +276,7 @@ public class VariableLogic extends WFCommonLogic {
             Map<Process, Map<String, Object>> processToVariables, Set<String> simpleVariablesChanged) {
         filter.setProcessId(process.getId());
         ProcessLogs historyLogs = auditLogic.getProcessLogs(user, filter);
-        HashMap<String, Object> processVariables = Maps.<String, Object>newHashMap();
+        HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
         processToVariables.put(process, processVariables);
         for (VariableLog variableLog : historyLogs.getLogs(VariableLog.class)) {
             String variableName = variableLog.getVariableName();

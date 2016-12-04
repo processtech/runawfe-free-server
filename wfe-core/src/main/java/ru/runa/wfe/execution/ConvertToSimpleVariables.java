@@ -45,57 +45,60 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onDate(DateFormat dateFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onTime(TimeFormat timeFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onDateTime(DateTimeFormat dateTimeFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> OnExecutor(ExecutorFormat executorFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onBoolean(BooleanFormat booleanFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onBigDecimal(BigDecimalFormat bigDecimalFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onDouble(DoubleFormat doubleFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onLong(LongFormat longFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onFile(FileFormat fileFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onHidden(HiddenFormat hiddenFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onList(ListFormat listFormat, ConvertToSimpleVariablesContext context) {
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
+        if (context.isVirtualVariablesRequired()) {
+            results.add(new ConvertToSimpleVariablesResult(context, true));
+        }
         int newSize = TypeConversionUtil.getListSize(context.getValue());
         String sizeVariableName = context.getVariableDefinition().getName() + VariableFormatContainer.SIZE_SUFFIX;
         WfVariable oldSizeVariable = context.loadCurrentVariableStat(sizeVariableName);
@@ -104,7 +107,7 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
             maxSize = Math.max((Integer) oldSizeVariable.getValue(), newSize);
         }
         VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
-        results.add(new ConvertToSimpleVariablesResult(sizeDefinition, context.getValue() != null ? newSize : null));
+        results.add(new ConvertToSimpleVariablesResult(sizeDefinition, context.getValue() != null ? newSize : null, false));
 
         String[] formatComponentClassNames = context.getVariableDefinition().getFormatComponentClassNames();
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
@@ -127,22 +130,22 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onMap(MapFormat mapFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onProcessId(ProcessIdFormat processIdFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onString(StringFormat stringFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
     public List<ConvertToSimpleVariablesResult> onTextString(TextFormat textFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 
     @Override
@@ -152,6 +155,9 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
             throw new InternalApplicationException("Variable user type is not correct for " + context.getVariableDefinition().getName());
         }
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
+        if (context.isVirtualVariablesRequired()) {
+            results.add(new ConvertToSimpleVariablesResult(context, true));
+        }
         String namePrefix = context.getVariableDefinition().getName() + UserType.DELIM;
         String scriptingNamePrefix = context.getVariableDefinition().getScriptingName() + UserType.DELIM;
         for (VariableDefinition attribute : userTypeFormat.getUserType().getAttributes()) {
@@ -167,6 +173,6 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onOther(VariableFormat variableFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context));
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 }

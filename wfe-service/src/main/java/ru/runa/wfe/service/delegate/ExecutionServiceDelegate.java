@@ -151,6 +151,15 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
+        try {
+            return getExecutionService().getHistoricalVariables(user, processId, taskId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public WfVariable getVariable(User user, Long processId, String variableName) {
         try {
             return getExecutionService().getVariable(user, processId, variableName);
@@ -293,5 +302,4 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
             throw handleException(e);
         }
     }
-
 }

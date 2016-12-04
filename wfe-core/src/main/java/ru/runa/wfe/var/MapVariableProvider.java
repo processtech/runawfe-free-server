@@ -23,7 +23,7 @@ public class MapVariableProvider extends AbstractVariableProvider {
 
     /**
      * Creates instance for specified variables. May unroll variables to database related (simple) values, stored to database.
-     * 
+     *
      * @param variables
      *            Variables, accessible from this instance.
      * @param unroll
@@ -31,12 +31,12 @@ public class MapVariableProvider extends AbstractVariableProvider {
      */
     public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll) {
         for (Map.Entry<String, WfVariable> entry : variables.entrySet()) {
-            add(entry.getKey(), entry.getValue());
+            values.put(entry.getKey(), entry.getValue());
             if (unroll) {
                 VariableDefinition definition = entry.getValue().getDefinition();
                 ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(definition, entry.getValue().getValue());
                 for (ConvertToSimpleVariablesResult unrolled : definition.getFormatNotNull().processBy(new ConvertToSimpleVariables(), context)) {
-                    add(new WfVariable(unrolled.variableDefinition, unrolled.value));
+                    values.put(unrolled.variableDefinition.getName(), new WfVariable(unrolled.variableDefinition, unrolled.value));
                 }
             }
         }

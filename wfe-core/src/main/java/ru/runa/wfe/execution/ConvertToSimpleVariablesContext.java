@@ -48,4 +48,11 @@ public interface ConvertToSimpleVariablesContext {
      * @return Returns variable value.
      */
     Object getValue();
+
+    /**
+     * Returns true, if virtual (not storing to database) variables for UserType and so on must be generated.
+     *
+     * @return Returns true for generating virtual variables and false otherwise.
+     */
+    boolean isVirtualVariablesRequired();
 }

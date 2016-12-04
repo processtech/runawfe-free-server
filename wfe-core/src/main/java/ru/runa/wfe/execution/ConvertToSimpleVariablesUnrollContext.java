@@ -55,4 +55,9 @@ public class ConvertToSimpleVariablesUnrollContext implements ConvertToSimpleVar
     public Object getValue() {
         return value;
     }
+
+    @Override
+    public boolean isVirtualVariablesRequired() {
+        return true;
+    }
 }

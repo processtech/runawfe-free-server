@@ -84,4 +84,9 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
     public Object getValue() {
         return value;
     }
+
+    @Override
+    public boolean isVirtualVariablesRequired() {
+        return false;
+    }
 }
