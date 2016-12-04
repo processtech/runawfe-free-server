@@ -84,35 +84,8 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
         for (Stage stage : Stage.values()) {
             filter.setCreateDateTo(stage.stageTime);
             WfVariableHistoryState historicalVariables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter);
-            List<WfVariable> variables = historicalVariables.getVariables();
-            Map<String, Object> expected = Maps.newHashMap();
-            expected.putAll(stage.afterExecuteVariables);
-            for (WfVariable wfVariable : variables) {
-                String name = wfVariable.getDefinition().getName();
-                if (wfVariable.getValue() instanceof List) {
-                    ArrayAssert.assertEqualArrays((List) expected.get(name), (List) wfVariable.getValue());
-                } else {
-                    Assert.assertEquals(name + " value is not equals on " + stage, expected.get(name), wfVariable.getValue());
-                }
-                expected.remove(name);
-            }
-            for (String notFoundVariable : expected.keySet()) {
-                Assert.assertNull(notFoundVariable + " is not null, but not found in variables on " + stage, expected.get(notFoundVariable));
-            }
-            if (stage.simpleVariablesChangedFromStart != null && !stage.simpleVariablesChangedFromStart.isEmpty()) {
-                StringBuilder builder = new StringBuilder();
-                builder.append("Expected: { ");
-                for (String n : stage.simpleVariablesChangedFromStart) {
-                    builder.append(n).append(", ");
-                }
-                builder.append("} got : { ");
-                for (String n : historicalVariables.getSimpleVariablesChanged()) {
-                    builder.append(n).append(", ");
-                }
-                builder.append("}");
-                ArrayAssert.assertWeakEqualArrays(builder.toString(), stage.simpleVariablesChangedFromStart,
-                        historicalVariables.getSimpleVariablesChanged());
-            }
+            checkVariables(stage, historicalVariables);
+            checkChangedVariables(historicalVariables, stage.simpleVariablesChangedFromStart);
         }
     }
 
@@ -125,34 +98,23 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             filter.setCreateDateFrom(stage.prevStage.stageTime);
             filter.setCreateDateTo(stage.stageTime);
             WfVariableHistoryState historicalVariables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter);
-            List<WfVariable> variables = historicalVariables.getVariables();
-            Map<String, Object> expected = Maps.newHashMap();
-            expected.putAll(stage.changedVariables);
-            for (WfVariable wfVariable : variables) {
-                String name = wfVariable.getDefinition().getName();
-                if (wfVariable.getValue() instanceof List) {
-                    ArrayAssert.assertEqualArrays((List) expected.get(name), (List) wfVariable.getValue());
-                } else {
-                    Assert.assertEquals(name + " value is not equals on " + stage, expected.get(name), wfVariable.getValue());
-                }
-                expected.remove(name);
+            checkVariables(stage, historicalVariables);
+            checkChangedVariables(historicalVariables, stage.simpleVariablesChanged);
+        }
+    }
+
+    public void testGetVariablesChangedOnTask() throws Exception {
+        ProcessLogFilter filter = new ProcessLogFilter(processId);
+        for (Stage stage : Stage.values()) {
+            if (stage.prevStage == null) {
+                continue;
             }
-            for (String notFoundVariable : expected.keySet()) {
-                Assert.assertNull(notFoundVariable + " is not null, but not found in variables on " + stage, expected.get(notFoundVariable));
-            }
-            if (stage.simpleVariablesChanged != null && !stage.simpleVariablesChanged.isEmpty()) {
-                StringBuilder builder = new StringBuilder();
-                builder.append("Expected: { ");
-                for (String n : stage.simpleVariablesChanged) {
-                    builder.append(n).append(", ");
-                }
-                builder.append("} got : { ");
-                for (String n : historicalVariables.getSimpleVariablesChanged()) {
-                    builder.append(n).append(", ");
-                }
-                builder.append("}");
-                ArrayAssert.assertWeakEqualArrays(builder.toString(), stage.simpleVariablesChanged, historicalVariables.getSimpleVariablesChanged());
-            }
+            filter.setCreateDateFrom(stage.prevStage.stageTime);
+            filter.setCreateDateTo(stage.stageTime);
+            WfVariableHistoryState historicalVariables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), processId,
+                    stage.taskId);
+            checkVariables(stage, historicalVariables);
+            checkChangedVariables(historicalVariables, stage.simpleVariablesChanged);
         }
     }
 
@@ -189,28 +151,64 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
         }
     }
 
+    private void checkVariables(Stage stage, WfVariableHistoryState historicalVariables) {
+        List<WfVariable> variables = historicalVariables.getVariables();
+        Map<String, Object> expected = Maps.newHashMap();
+        expected.putAll(stage.afterExecuteVariables);
+        for (WfVariable wfVariable : variables) {
+            String name = wfVariable.getDefinition().getName();
+            if (wfVariable.getValue() instanceof List) {
+                ArrayAssert.assertEqualArrays((List) expected.get(name), (List) wfVariable.getValue());
+            } else {
+                Assert.assertEquals(name + " value is not equals on " + stage, expected.get(name), wfVariable.getValue());
+            }
+            expected.remove(name);
+        }
+        for (String notFoundVariable : expected.keySet()) {
+            Assert.assertNull(notFoundVariable + " is not null, but not found in variables on " + stage, expected.get(notFoundVariable));
+        }
+    }
+
+    private void checkChangedVariables(WfVariableHistoryState historicalVariables, Set<String> changedVariables) {
+        if (changedVariables != null && !changedVariables.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Expected: { ");
+            for (String n : changedVariables) {
+                builder.append(n).append(", ");
+            }
+            builder.append("} got : { ");
+            for (String n : historicalVariables.getSimpleVariablesChanged()) {
+                builder.append(n).append(", ");
+            }
+            builder.append("}");
+            ArrayAssert.assertWeakEqualArrays(builder.toString(), changedVariables, historicalVariables.getSimpleVariablesChanged());
+        }
+    }
+
     private enum Stage {
         NOT_STARTED(null) {
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+                return null;
             }
         },
 
         STARTED(NOT_STARTED) {
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 User user = testInstance.th.getAuthorizedPerformerUser();
                 String processName = WfServiceTestHelper.LONG_WITH_VARIABLES_PROCESS_NAME;
                 changedVariables.put("varLong", 1L);
                 simpleVariablesChanged.add("varLong");
                 testInstance.processId = testInstance.executionService.startProcess(user, processName, changedVariables);
+                return null;
             }
         },
 
         TASK1_COMPLETED(STARTED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -227,13 +225,14 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varString");
                 simpleVariablesChanged.add("varMapStringUT");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         TASK2_COMPLETED(TASK1_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -252,13 +251,14 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varListUT[1].fieldString");
                 simpleVariablesChanged.add("varListUT.size");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         TASK3_COMPLETED(TASK2_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -273,13 +273,14 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varUT.fieldLong");
                 simpleVariablesChanged.add("varUT.fieldString");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         TASK4_COMPLETED(TASK3_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -295,13 +296,14 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varUT.fieldListString[0]");
                 simpleVariablesChanged.add("varUT.fieldListString[1]");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         TASK5_COMPLETED(TASK4_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -326,13 +328,14 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 simpleVariablesChanged.add("varListUT[1].fieldListString[0]");
                 simpleVariablesChanged.add("varMapStringUT");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         TASK6_COMPLETED(TASK5_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -345,13 +348,14 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varListUT", Lists.newArrayList(createUserType(testInstance, 5L, "ss", Lists.newArrayList("s2"), map),
                         createUserType(testInstance, 6L, "ss", Lists.newArrayList("s4"), map)));
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         TASK7_COMPLETED(TASK6_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -361,13 +365,14 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 map.put("11", createUserType(testInstance, 1L, null, Lists.newArrayList("123", "4@34"), null));
                 changedVariables.put("varMapStringUT", map);
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         TASK8_COMPLETED(TASK7_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -376,26 +381,28 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                 changedVariables.put("varUT", null);
                 changedVariables.put("varString", "12553");
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         TASK9_COMPLETED(TASK8_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
                 changedVariables.put("varLong", 10L);
                 changedVariables.put("varListString", Lists.newArrayList("str8", "str9"));
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         },
 
         FINISHED(TASK9_COMPLETED) {
 
             @Override
-            protected void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
+            protected Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
                 WfServiceTestHelper th2 = testInstance.th;
                 User user = th2.getAuthorizedPerformerUser();
                 WfTask taskStub = th2.getTaskService().getMyTasks(user, th2.getTaskBatchPresentation()).get(0);
@@ -410,6 +417,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
                         createUserType(testInstance, 6L, "ss", Lists.newArrayList("s4"), map)));
                 changedVariables.put("varMapStringUT", null);
                 testInstance.th.getTaskService().completeTask(user, taskStub.getId(), changedVariables, null);
+                return taskStub.getId();
             }
         };
 
@@ -423,6 +431,8 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
 
         public Date stageTime;
 
+        public Long taskId;
+
         protected final Stage prevStage;
 
         private Stage(Stage prev) {
@@ -430,7 +440,7 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
         }
 
         public void DoStageAction(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception {
-            DoStageActionInternal(testInstance);
+            taskId = DoStageActionInternal(testInstance);
             Thread.sleep(testInstance.defaultDelayMs);
             stageTime = Calendar.getInstance().getTime();
             Thread.sleep(testInstance.defaultDelayMs);
@@ -463,6 +473,6 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             return type;
         }
 
-        protected abstract void DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception;
+        protected abstract Long DoStageActionInternal(ExecutionServiceDelegateGetHistoricalVariablesTest testInstance) throws Exception;
     }
 }

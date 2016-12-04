@@ -124,42 +124,43 @@ public class VariableLogic extends WFCommonLogic {
     }
 
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
-        Date taskCreateDate = null;
-        Date taskCompletePressedDate = null;
-        Date taskEndDate = null;
         ProcessLogFilter filter = new ProcessLogFilter();
         filter.setProcessId(processId);
         ProcessLogs processLogs = auditLogic.getProcessLogs(user, filter);
         if (taskId == null || Objects.equal(taskId, 0L)) { // Start process form.
             NodeLeaveLog leaveLog = processLogs.getFirstOrNull(NodeLeaveLog.class);
-            if (leaveLog != null) {
-                taskEndDate = leaveLog.getCreateDate();
+            if (leaveLog == null) {
+                throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
             }
-        } else {
-            Long tokenId = null;
-            for (TaskCreateLog createLog : processLogs.getLogs(TaskCreateLog.class)) {
-                if (Objects.equal(createLog.getTaskId(), taskId)) {
-                    tokenId = createLog.getTokenId();
-                    break;
-                }
+            filter.setCreateDateTo(leaveLog.getCreateDate());
+            return getHistoricalVariableOnDate(user, filter);
+        }
+        Date taskCreateDate = null;
+        Date taskCompletePressedDate = null;
+        Date taskEndDate = null;
+        Long tokenId = null;
+        for (TaskCreateLog createLog : processLogs.getLogs(TaskCreateLog.class)) {
+            if (Objects.equal(createLog.getTaskId(), taskId)) {
+                tokenId = createLog.getTokenId();
+                break;
             }
-            filter.setTokenId(tokenId);
-            ProcessLogs tokenLogs = auditLogic.getProcessLogs(user, filter);
-            for (ProcessLog log : tokenLogs.getLogs()) {
-                if (log instanceof TaskCreateLog && Objects.equal(((TaskCreateLog) log).getTaskId(), taskId)) {
-                    taskCreateDate = log.getCreateDate();
-                }
-                if (log instanceof VariableLog && taskCreateDate != null && taskCompletePressedDate == null) {
-                    taskCompletePressedDate = log.getCreateDate();
-                }
-                if (log instanceof TaskEndLog && Objects.equal(((TaskEndLog) log).getTaskId(), taskId)) {
-                    taskEndDate = log.getCreateDate();
-                    break;
-                }
+        }
+        filter.setTokenId(tokenId);
+        ProcessLogs tokenLogs = auditLogic.getProcessLogs(user, filter);
+        for (ProcessLog log : tokenLogs.getLogs()) {
+            if (log instanceof TaskCreateLog && Objects.equal(((TaskCreateLog) log).getTaskId(), taskId)) {
+                taskCreateDate = log.getCreateDate();
             }
-            if (taskCreateDate == null) {
-                throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems started");
+            if (log instanceof VariableLog && taskCreateDate != null && taskCompletePressedDate == null) {
+                taskCompletePressedDate = log.getCreateDate();
             }
+            if (log instanceof TaskEndLog && Objects.equal(((TaskEndLog) log).getTaskId(), taskId)) {
+                taskEndDate = log.getCreateDate();
+                break;
+            }
+        }
+        if (taskCreateDate == null) {
+            throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems started");
         }
         if (taskEndDate == null) {
             throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
