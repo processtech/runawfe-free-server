@@ -34,7 +34,7 @@ public class MapVariableProvider extends AbstractVariableProvider {
             values.put(entry.getKey(), entry.getValue());
             if (unroll) {
                 VariableDefinition definition = entry.getValue().getDefinition();
-                ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(definition, entry.getValue().getValue());
+                ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(definition, entry.getValue().getValueNoDefault());
                 for (ConvertToSimpleVariablesResult unrolled : definition.getFormatNotNull().processBy(new ConvertToSimpleVariables(), context)) {
                     values.put(unrolled.variableDefinition.getName(), new WfVariable(unrolled.variableDefinition, unrolled.value));
                 }
@@ -92,7 +92,7 @@ public class MapVariableProvider extends AbstractVariableProvider {
     public Object getValue(String variableName) {
         Object object = values.get(variableName);
         if (object instanceof WfVariable) {
-            return ((WfVariable) object).getValue();
+            return ((WfVariable) object).getValueNoDefault();
         }
         return object;
     }
