@@ -11,10 +11,10 @@ import com.google.common.base.Preconditions;
 
 /**
  * General DAO implementation (type-safe generic DAO pattern).
- * 
+ *
  * @author dofs
  * @since 4.0
- * 
+ *
  * @param <T>
  *            entity class
  */
@@ -40,7 +40,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Load entity from database by id.
-     * 
+     *
      * @return entity.
      */
     public T getNotNull(Long id) {
@@ -50,16 +50,14 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
     }
 
     /**
-     * Checks that entity is not null. Throws exception in that case. Used in
-     * *NotNull methods. Expected to be overriden in subclasses.
-     * 
+     * Checks that entity is not null. Throws exception in that case. Used in *NotNull methods. Expected to be overriden in subclasses.
+     *
      * @param entity
      *            test entity
      * @param identity
      *            search data
      * @throws Exception
-     *             or any of its subclass (NullPointerException in base
-     *             implementation)
+     *             or any of its subclass (NullPointerException in base implementation)
      */
     protected void checkNotNull(T entity, Object identity) {
         if (entity == null) {
@@ -69,7 +67,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Load all entities from database.
-     * 
+     *
      * @return entities list, not <code>null</code>.
      */
     public List<T> getAll() {
@@ -78,7 +76,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Finds entities.
-     * 
+     *
      * @param hql
      *            Hibernate query
      * @param parameters
@@ -93,7 +91,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Saves transient entity.
-     * 
+     *
      * @return saved entity.
      */
     public T create(T entity) {
@@ -103,7 +101,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Updates entity.
-     * 
+     *
      * @param entity
      *            detached entity
      */
@@ -115,6 +113,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      * Flush all pending saves, updates and deletes to the database.
      */
     public void flushPendingChanges() {
+        // TODO flush?
         getHibernateTemplate().flush();
     }
 

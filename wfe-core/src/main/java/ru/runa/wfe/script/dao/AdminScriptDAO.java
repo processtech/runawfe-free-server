@@ -19,33 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.lang;
+package ru.runa.wfe.script.dao;
 
-import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.script.AdminScript;
 
-/**
- * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
- */
-public class TaskNode extends BaseTaskNode {
-    private static final long serialVersionUID = 1L;
+@SuppressWarnings("unchecked")
+public class AdminScriptDAO extends GenericDAO<AdminScript> {
 
-    @Override
-    public NodeType getNodeType() {
-        return NodeType.TASK_STATE;
+    public AdminScript getByName(String name) {
+        return findFirstOrNull("from AdminScript where name = ?", name);
     }
-
-    @Override
-    public void execute(ExecutionContext executionContext) {
-        for (TaskDefinition taskDefinition : taskDefinitions) {
-            Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
-            // copy the swimlane assignment into the task
-            taskFactory.create(executionContext, taskDefinition, swimlane, swimlane.getExecutor(), null);
-        }
-        if (async) {
-            log.debug("continue execution in async " + this);
-            leave(executionContext);
-        }
-    }
-
 }

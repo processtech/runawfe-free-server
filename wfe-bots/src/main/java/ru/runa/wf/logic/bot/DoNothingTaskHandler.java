@@ -15,24 +15,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.wfe.commons.cache;
+package ru.runa.wf.logic.bot;
 
-import javax.transaction.UserTransaction;
-
-import ru.runa.wfe.commons.ITransactionListener;
-import ru.runa.wfe.commons.TransactionListeners;
+import ru.runa.wfe.extension.handler.DebugHandler;
 
 /**
- * Resets caches on transaction commit if registered in {@link TransactionListeners}.
- *
- * @author dofs
- *
+ * sf #1154
+ * 
+ * @deprecated
  */
-public class CacheResetTransactionListener implements ITransactionListener {
-
-    @Override
-    public void onTransactionComplete(UserTransaction transaction) {
-        CachingLogic.resetAllCaches();
-    }
+@Deprecated
+public class DoNothingTaskHandler extends DebugHandler {
 
 }

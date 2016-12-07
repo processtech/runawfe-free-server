@@ -76,8 +76,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 
 /**
- * is one task that can be assigned to an actor (read: put in someones task list) and that can trigger the coninuation of execution of the token upon
- * completion.
+ * is one task that can be assigned to an actor (read: put in someone's task list) and that can trigger the continuation of execution of the token
+ * upon completion.
  */
 @Entity
 @Table(name = "BPM_TASK")
@@ -332,9 +332,7 @@ public class Task implements Assignable {
     }
 
     public void delete() {
-        if (!getProcess().getTasks().remove(this)) {
-            log.warn(this + " is not deleted from " + getProcess().getTasks());
-        }
+        ApplicationContextFactory.getTaskDAO().delete(this);
         AssignmentHelper.removeTemporaryGroupOnTaskEnd(getExecutor());
     }
 

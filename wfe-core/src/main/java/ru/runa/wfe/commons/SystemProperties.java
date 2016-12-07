@@ -234,8 +234,8 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("base.process.id.variable.name");
     }
 
-    public static String getBaseProcessIdMappingVariablePrefix() {
-        return RESOURCES.getStringProperty("base.process.id.mapping.variable.prefix");
+    public static boolean isBaseProcessIdModeReadAllVariables() {
+        return RESOURCES.getBooleanProperty("base.process.id.variable.read.all", true);
     }
 
     public static int getDatabaseParametersCount() {

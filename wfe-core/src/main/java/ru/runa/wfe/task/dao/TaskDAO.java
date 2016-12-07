@@ -21,11 +21,14 @@
  */
 package ru.runa.wfe.task.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.user.Executor;
@@ -40,15 +43,28 @@ public class TaskDAO extends GenericDAO<Task> {
         }
     }
 
-    /**
-     * @return active tasks assigned to a given executor.
-     */
-    public List<Task> findTasks(Executor executor) {
+    public List<Task> findByExecutor(Executor executor) {
         return getHibernateTemplate().find("from Task where executor=?", executor);
     }
 
-    public List<Task> findTasksByProcessAndDeadlineExpressionContaining(Process process, String expression) {
+    public List<Task> findByProcess(Process process) {
+        return getHibernateTemplate().find("from Task where process=?", process);
+    }
+
+    public List<Task> findByProcessAndSwimlane(Process process, Swimlane swimlane) {
+        return getHibernateTemplate().find("from Task where process=? and swimlane=?", process, swimlane);
+    }
+
+    public List<Task> findByProcessAndNodeId(Process process, String nodeId) {
+        return getHibernateTemplate().find("from Task where process=? and nodeId=?", process, nodeId);
+    }
+
+    public List<Task> findByProcessAndDeadlineExpressionContaining(Process process, String expression) {
         return getHibernateTemplate().find("from Task where process=? and deadlineDateExpression like ?", process, "%" + expression + "%");
+    }
+
+    public List<Task> findByToken(Token token) {
+        return getHibernateTemplate().find("from Task where token=?", token);
     }
 
     /**
@@ -58,4 +74,19 @@ public class TaskDAO extends GenericDAO<Task> {
         return getHibernateTemplate().find("from Task where executor is null and token.executionStatus=?", ExecutionStatus.ACTIVE);
     }
 
+    /**
+     * @return tasks, opened by user.
+     */
+    public List<Long> getOpenedTasks(Long actorId, List<Long> tasksIds) {
+        if (tasksIds.isEmpty()) {
+            return new ArrayList<Long>();
+        }
+        return getHibernateTemplate().findByNamedParam("select id from Task where :actorId in elements(openedByExecutorIds) and id in (:tasksIds)",
+                new String[] { "actorId", "tasksIds" }, new Object[] { actorId, tasksIds });
+    }
+
+    public void deleteAll(Process process) {
+        log.debug("deleting tasks for process " + process.getId());
+        getHibernateTemplate().bulkUpdate("delete from Task where process=?", process);
+    }
 }
