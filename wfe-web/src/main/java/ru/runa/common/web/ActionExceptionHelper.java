@@ -25,6 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
+import com.google.common.base.Throwables;
+
 import ru.runa.wf.web.VariablesFormatException;
 import ru.runa.wf.web.action.DataFileNotPresentException;
 import ru.runa.wfe.InternalApplicationException;
@@ -35,6 +37,7 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.MaxSubversionDefinitionException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.presentation.filter.FilterFormatException;
@@ -53,8 +56,6 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.ExecutorParticipatesInProcessesException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.validation.ValidationException;
-
-import com.google.common.base.Throwables;
 
 /**
  * Created 27.05.2005
@@ -125,8 +126,8 @@ public class ActionExceptionHelper {
                     ((InvalidDefinitionException) e).getDefinitionName(), e.getMessage());
         } else if (e instanceof DefinitionNameMismatchException) {
             DefinitionNameMismatchException exception = (DefinitionNameMismatchException) e;
-            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(),
-                    exception.getDeployedProcessDefinitionName(), exception.getGivenProcessDefinitionName());
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getDeployedProcessDefinitionName(),
+                    exception.getGivenProcessDefinitionName());
         } else if (e instanceof TaskDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.ERROR_TASK_DOES_NOT_EXIST.getKey());
         } else if (e instanceof SubstitutionDoesNotExistException) {
@@ -151,6 +152,8 @@ public class ActionExceptionHelper {
         } else if (e instanceof DataFileNotPresentException) {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_DATAFILE_NOT_PRESENT.getKey());
         } else if (e instanceof ValidationException) {
+            actionMessage = new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey());
+        } else if (e instanceof MaxSubversionDefinitionException) {
             actionMessage = new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey());
         } else if (e instanceof LocalizableException) {
             actionMessage = new ActionMessage(e.getLocalizedMessage(), false);

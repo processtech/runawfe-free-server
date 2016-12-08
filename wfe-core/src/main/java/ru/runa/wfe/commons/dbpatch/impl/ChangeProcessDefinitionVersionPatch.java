@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
+import java.math.BigInteger;
 import java.sql.Types;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
 import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.definition.VersionUtils;
 
 public class ChangeProcessDefinitionVersionPatch extends DBPatch {
     @Override
@@ -28,7 +30,7 @@ public class ChangeProcessDefinitionVersionPatch extends DBPatch {
                 final Object[] row = (Object[]) results;
                 final SQLQuery query = session.createSQLQuery("UPDATE BPM_PROCESS_DEFINITION SET VERSION=:version WHERE ID=:id");
                 query.setParameter("id", row[0]);
-                query.setParameter("version", row[1].toString());
+                query.setParameter("version", VersionUtils.convertVersion(((BigInteger) row[1]).longValue()));
                 query.executeUpdate();
             }
         }
@@ -40,7 +42,7 @@ public class ChangeProcessDefinitionVersionPatch extends DBPatch {
                 final Object[] row = (Object[]) results;
                 final SQLQuery query = session.createSQLQuery("UPDATE SYSTEM_LOG SET PROCESS_DEFINITION_VERSION=:version WHERE ID=:id");
                 query.setParameter("id", row[0]);
-                query.setParameter("version", row[1].toString());
+                query.setParameter("version", VersionUtils.convertVersion(((BigInteger) row[1]).longValue()));
                 query.executeUpdate();
             }
         }
@@ -49,7 +51,7 @@ public class ChangeProcessDefinitionVersionPatch extends DBPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesBefore();
-        
+
         sql.add(getDDLRemoveColumn("SYSTEM_LOG", "PROCESS_DEFINITION_VERSION_"));
 
         sql.add(getDDLRemoveColumn("BPM_PROCESS_DEFINITION", "VERSION_"));

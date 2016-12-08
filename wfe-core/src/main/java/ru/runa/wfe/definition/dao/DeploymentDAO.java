@@ -27,10 +27,12 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Objects;
 
-import ru.runa.wfe.commons.VersionUtils;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.MaxSubversionDefinitionException;
+import ru.runa.wfe.definition.MaxSubversionExeption;
+import ru.runa.wfe.definition.VersionUtils;
 
 /**
  * DAO for {@link Deployment}.
@@ -50,16 +52,20 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
                 }
                 nextDeployment = deployment;
             }
-            newDeployment.setVersion(
-                    calcIncrementVersion(previousLatestVersion.getVersion(), null == nextDeployment ? null : nextDeployment.getVersion()));
+            try {
+                newDeployment.setVersion(
+                        calcIncrementVersion(previousLatestVersion.getVersion(), null == nextDeployment ? null : nextDeployment.getVersion()));
+            } catch (MaxSubversionExeption e) {
+                throw new MaxSubversionDefinitionException(previousLatestVersion.getName(), e);
+            }
         } else {
             // start from 1
-            newDeployment.setVersion("1");
+            newDeployment.setVersion(VersionUtils.convertVersion(1L));
         }
         create(newDeployment);
     }
 
-    private String calcIncrementVersion(String previousLatestVersion, String nextVersion) {
+    private String calcIncrementVersion(String previousLatestVersion, String nextVersion) throws MaxSubversionExeption {
         String[] previousSubversions = previousLatestVersion.split("\\.");
         if (null == nextVersion) {
             return VersionUtils.increment(previousSubversions[0]);
