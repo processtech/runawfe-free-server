@@ -87,37 +87,42 @@ public class ReceiveMessageBean implements MessageListener {
             transaction.begin();
             List<Token> tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
             for (Token token : tokens) {
-                ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
-                BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(processDefinition);
-                ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
-                boolean suitable = true;
-                for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
-                    if (mapping.isPropertySelector()) {
-                        String selectorValue = message.getStringProperty(mapping.getName());
-                        String testValue = mapping.getMappedName();
-                        String expectedValue;
-                        if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
-                            expectedValue = String.valueOf(token.getProcess().getId());
-                        } else if (Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED.equals(testValue)) {
-                            expectedValue = token.getProcess().getDeployment().getName();
-                        } else if (Variables.CURRENT_NODE_NAME_WRAPPED.equals(testValue)) {
-                            expectedValue = receiveMessageNode.getName();
-                        } else if (Variables.CURRENT_NODE_ID_WRAPPED.equals(testValue)) {
-                            expectedValue = receiveMessageNode.getNodeId();
-                        } else {
-                            Object value = ExpressionEvaluator.evaluateVariable(executionContext.getVariableProvider(), testValue);
-                            expectedValue = TypeConversionUtil.convertTo(String.class, value);
-                        }
-                        if (!Objects.equal(expectedValue, selectorValue)) {
-                            log.debug(message + " rejected in " + token + " due to diff in " + mapping.getName() + " (" + expectedValue + "!="
-                                    + selectorValue + ")");
-                            suitable = false;
-                            break;
+                try {
+
+                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
+                    BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(processDefinition);
+                    ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+                    boolean suitable = true;
+                    for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
+                        if (mapping.isPropertySelector()) {
+                            String selectorValue = message.getStringProperty(mapping.getName());
+                            String testValue = mapping.getMappedName();
+                            String expectedValue;
+                            if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
+                                expectedValue = String.valueOf(token.getProcess().getId());
+                            } else if (Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED.equals(testValue)) {
+                                expectedValue = token.getProcess().getDeployment().getName();
+                            } else if (Variables.CURRENT_NODE_NAME_WRAPPED.equals(testValue)) {
+                                expectedValue = receiveMessageNode.getName();
+                            } else if (Variables.CURRENT_NODE_ID_WRAPPED.equals(testValue)) {
+                                expectedValue = receiveMessageNode.getNodeId();
+                            } else {
+                                Object value = ExpressionEvaluator.evaluateVariable(executionContext.getVariableProvider(), testValue);
+                                expectedValue = TypeConversionUtil.convertTo(String.class, value);
+                            }
+                            if (!Objects.equal(expectedValue, selectorValue)) {
+                                log.debug(message + " rejected in " + token + " due to diff in " + mapping.getName() + " (" + expectedValue + "!="
+                                        + selectorValue + ")");
+                                suitable = false;
+                                break;
+                            }
                         }
                     }
-                }
-                if (suitable) {
-                    handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
+                    if (suitable) {
+                        handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
+                    }
+                } catch (Exception e) {
+                    log.error("Unable to handle " + token, e);
                 }
             }
             transaction.commit();
