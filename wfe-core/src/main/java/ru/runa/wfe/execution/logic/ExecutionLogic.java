@@ -87,7 +87,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Process execution logic.
- * 
+ *
  * @author Dofs
  * @since 2.0
  */
@@ -253,7 +253,9 @@ public class ExecutionLogic extends WFCommonLogic {
             variables = Maps.newHashMap();
         }
         ProcessDefinition processDefinition = getLatestDefinition(definitionName);
-        checkPermissionAllowed(user, processDefinition.getDeployment(), DefinitionPermission.START_PROCESS);
+        if (SystemProperties.isCheckProcessStartPermissions()) {
+            checkPermissionAllowed(user, processDefinition.getDeployment(), DefinitionPermission.START_PROCESS);
+        }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         Map<String, Object> extraVariablesMap = Maps.newHashMap();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
