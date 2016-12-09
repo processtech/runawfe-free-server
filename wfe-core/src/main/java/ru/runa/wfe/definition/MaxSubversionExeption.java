@@ -1,16 +1,10 @@
 package ru.runa.wfe.definition;
 
-public class MaxSubversionExeption extends Exception {
+import ru.runa.wfe.InternalApplicationException;
+
+public class MaxSubversionExeption extends InternalApplicationException {
 
     private static final long serialVersionUID = 1L;
-
-    public MaxSubversionExeption() {
-        super();
-    }
-
-    public MaxSubversionExeption(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 
     public MaxSubversionExeption(String message, Throwable cause) {
         super(message, cause);

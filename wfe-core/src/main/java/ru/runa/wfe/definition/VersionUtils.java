@@ -10,7 +10,7 @@ public class VersionUtils {
     public static String incrementSubversion(String subversion) throws MaxSubversionExeption {
         final int sv = Integer.parseInt(subversion);
         if (sv == 99) {
-            throw new MaxSubversionExeption();
+            throw new MaxSubversionExeption("Subversion can not be more than 99");
         }
         return String.format("%02d", sv + 1);
     }

@@ -37,7 +37,8 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.InvalidDefinitionException;
-import ru.runa.wfe.definition.MaxSubversionDefinitionException;
+import ru.runa.wfe.definition.MaxSubversionExeption;
+import ru.runa.wfe.definition.SmallDeltaSubversionExeption;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.presentation.filter.FilterFormatException;
@@ -153,8 +154,12 @@ public class ActionExceptionHelper {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_DATAFILE_NOT_PRESENT.getKey());
         } else if (e instanceof ValidationException) {
             actionMessage = new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey());
-        } else if (e instanceof MaxSubversionDefinitionException) {
-            actionMessage = new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey());
+        } else if (e instanceof MaxSubversionExeption) {
+            actionMessage = new ActionMessage(MessagesException.DEFINITION_MAX_SUBVERSION_ERROR.getKey());
+        } else if (e instanceof SmallDeltaSubversionExeption) {
+            SmallDeltaSubversionExeption exeption = (SmallDeltaSubversionExeption) e;
+            actionMessage = new ActionMessage(MessagesException.DEFINITION_SMALL_DELTA_SUBVERSION_ERROR.getKey(), exeption.getFirstVersion(),
+                    exeption.getSecondVersion());
         } else if (e instanceof LocalizableException) {
             actionMessage = new ActionMessage(e.getLocalizedMessage(), false);
         } else if (e instanceof InternalApplicationException) {

@@ -30,8 +30,8 @@ import com.google.common.base.Objects;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.MaxSubversionDefinitionException;
 import ru.runa.wfe.definition.MaxSubversionExeption;
+import ru.runa.wfe.definition.SmallDeltaSubversionExeption;
 import ru.runa.wfe.definition.VersionUtils;
 
 /**
@@ -52,12 +52,8 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
                 }
                 nextDeployment = deployment;
             }
-            try {
-                newDeployment.setVersion(
-                        calcIncrementVersion(previousLatestVersion.getVersion(), null == nextDeployment ? null : nextDeployment.getVersion()));
-            } catch (MaxSubversionExeption e) {
-                throw new MaxSubversionDefinitionException(previousLatestVersion.getName(), e);
-            }
+            newDeployment.setVersion(
+                    calcIncrementVersion(previousLatestVersion.getVersion(), null == nextDeployment ? null : nextDeployment.getVersion()));
         } else {
             // start from 1
             newDeployment.setVersion(VersionUtils.convertVersion(1L));
@@ -71,6 +67,10 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
             return VersionUtils.increment(previousSubversions[0]);
         }
         String[] nextSubversions = nextVersion.split("\\.");
+        if (previousSubversions.length < nextSubversions.length) {
+            throw new SmallDeltaSubversionExeption(previousLatestVersion, nextVersion,
+                    "Between versions '" + previousLatestVersion + "' and '" + nextVersion + "' insert impossible");
+        }
         int level = 0;
         while (previousSubversions.length > level && nextSubversions.length > level) {
             if (!previousSubversions[level].equals(nextSubversions[level])) {
