@@ -60,6 +60,7 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
+        pageContext.setAttribute("returnAction", "/wfe/administer_tasks.do", PageContext.SESSION_SCOPE);
         BatchPresentation batchPresentation = getBatchPresentation();
         List<WfTask> tasks = Delegates.getTaskService().getTasks(getUser(), batchPresentation);
         Table table = buildTasksTable(pageContext, batchPresentation, tasks, getReturnAction(), false);
@@ -78,7 +79,7 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
             String tasksIds = JSONValue.toJSONString(ids);
             pageContext.setAttribute("tasksIds", tasksIds, PageContext.REQUEST_SCOPE);
         }
-        pageContext.setAttribute("returnAction", "/wfe/administer_tasks.do", PageContext.SESSION_SCOPE);
+        // pageContext.setAttribute("returnAction", "/wfe/administer_tasks.do", PageContext.SESSION_SCOPE);
     }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
@@ -89,7 +90,7 @@ public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
 
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, returnAction, pageContext);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(tasks, batchPresentation, pageContext,
-                WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, null, new TaskUrlStrategy(pageContext), builders);
+                WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, returnAction, new TaskUrlStrategy(pageContext), builders);
         rowBuilder.setCssClassStrategy(new TasksCssClassStrategy());
         return new TableBuilder().build(headerBuilder, rowBuilder);
     }
