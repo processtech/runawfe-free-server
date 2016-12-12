@@ -62,6 +62,22 @@ public interface ExecutionService {
             ValidationException;
 
     /**
+     * Starts new process by definition.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @param variables
+     *            initial variable values
+     * @return id of started process
+     * @throws DefinitionDoesNotExistException
+     * @throws ValidationException
+     */
+    public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+            ValidationException;
+
+    /**
      * Gets process count for {@link BatchPresentation}.
      *
      * @param user

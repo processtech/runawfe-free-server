@@ -249,10 +249,14 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) {
+        return startProcess(user, getLatestDefinition(definitionName).getId(), variables);
+    }
+
+    public Long startProcess(User user, Long definitionId, Map<String, Object> variables) {
         if (variables == null) {
             variables = Maps.newHashMap();
         }
-        ProcessDefinition processDefinition = getLatestDefinition(definitionName);
+        ProcessDefinition processDefinition = getDefinition(definitionId);
         if (SystemProperties.isCheckProcessStartPermissions()) {
             checkPermissionAllowed(user, processDefinition.getDeployment(), DefinitionPermission.START_PROCESS);
         }
