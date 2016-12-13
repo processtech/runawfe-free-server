@@ -289,7 +289,8 @@ public class ExecutionContext {
                     if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
                         variable.setValue(baseVariable.getValue());
                     }
-                    if (!Utils.isNullOrEmpty(variable.getValue())) {
+                    if (!Utils.isNullOrEmpty(variable.getValue())
+                            && !Objects.equal(baseVariable.getDefinition().getDefaultValue(), variable.getValue())) {
                         return variable;
                     }
                 }

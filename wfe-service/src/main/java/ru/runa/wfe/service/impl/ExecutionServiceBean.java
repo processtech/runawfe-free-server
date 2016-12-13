@@ -90,6 +90,15 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return executionLogic.startProcess(user, definitionName, variables);
     }
 
+    @WebMethod(exclude = true)
+    @Override
+    public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
+        return executionLogic.startProcess(user, definitionId, variables);
+    }
+
     @Override
     @WebResult(name = "result")
     public Long startProcessWS(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,

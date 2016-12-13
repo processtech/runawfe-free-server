@@ -169,6 +169,13 @@ public class DefinitionLogic extends WFCommonLogic {
         return new WfDefinition(definition, isPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.START_PROCESS));
     }
 
+    public WfDefinition getProcessDefinitionVersion(User user, String name, Long version) {
+        Deployment deployment = deploymentDAO.findDeployment(name, version);
+        ProcessDefinition definition = getDefinition(deployment.getId());
+        checkPermissionAllowed(user, definition.getDeployment(), Permission.READ);
+        return new WfDefinition(definition, isPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.START_PROCESS));
+    }
+
     public WfDefinition getProcessDefinition(User user, Long definitionId) {
         try {
             ProcessDefinition definition = getDefinition(definitionId);
