@@ -230,14 +230,15 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             }
             log.info("FailedDelaySeconds = " + failedDelaySeconds + " for " + task);
             started.add(Calendar.SECOND, failedDelaySeconds);
-            new TransactionalExecutor() {
+            if (!(th instanceof ProcessExecutionException)) {
+                new TransactionalExecutor() {
 
-                @Override
-                protected void doExecuteInTransaction() throws Exception {
-                    // TODO 212
-                    Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
-                }
-            }.executeInTransaction(false);
+                    @Override
+                    protected void doExecuteInTransaction() throws Exception {
+                        Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
+                    }
+                }.executeInTransaction(false);
+            }
         } finally {
             executionThread.set(null);
         }

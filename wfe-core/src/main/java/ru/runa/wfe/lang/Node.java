@@ -23,18 +23,17 @@ package ru.runa.wfe.lang;
 
 import java.util.List;
 
-import ru.runa.wfe.BusinessException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.jpdl.ActionEvent;
+import ru.runa.wfe.task.TaskCompletionInfo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -186,7 +185,7 @@ public abstract class Node extends GraphElement {
         // fire the leave-node event for this node
         fireEvent(executionContext, ActionEvent.NODE_ENTER);
         executionContext.addLog(new NodeEnterLog(this));
-        if (this instanceof BoundaryEventContainer) {
+        if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessEndNode)) {
             for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
                 Node boundaryNode = (Node) boundaryEvent;
                 Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
@@ -221,24 +220,8 @@ public abstract class Node extends GraphElement {
         try {
             log.info("Executing " + this + " with " + executionContext);
             execute(executionContext);
-        } catch (BusinessException be) {
-            log.error(executionContext + " in " + this, be);
-            Utils.sendBpmnErrorMessage(executionContext.getProcess().getId(), executionContext.getNode().getNodeId(), be);
         } catch (Throwable th) {
-            // Throwables.propagate(th);
-            // TODO 212 temp error handling
-            // if (this instanceof BoundaryEventContainer) {
-            // List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
-            // for (Token childToken : executionContext.getToken().getActiveChildren()) {
-            // Node node = childToken.getNodeNotNull(getProcessDefinition());
-            // if (node instanceof CatchEventNode && ((CatchEventNode) node).getEventType() == MessageEventType.error) {
-            // log.warn("Failed " + this, e);
-            // ((CatchEventNode) node).leave(new ExecutionContext(getProcessDefinition(), childToken));
-            // return;
-            // }
-            // }
-            // }
-            log.error("Failed " + this);
+            log.error("Handling failed in " + this);
             throw Throwables.propagate(th);
         }
     }
@@ -260,26 +243,23 @@ public abstract class Node extends GraphElement {
      */
     public void leave(ExecutionContext executionContext, Transition transition) {
         log.info("Leaving " + this + " with " + executionContext);
-        if (this instanceof BoundaryEventContainer) {
+        if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
             for (Token token : executionContext.getToken().getActiveChildren()) {
-                Node node = token.getNodeNotNull(getProcessDefinition());
+                Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
                 if (boundaryEvents.contains(node)) {
-                    ExecutionContext childExecutionContext = new ExecutionContext(getProcessDefinition(), token);
-                    token.end(childExecutionContext, null, null, false);
+                    token.end(executionContext.getProcessDefinition(), null, null, false);
                 }
             }
         }
         if (this instanceof BoundaryEvent && ((BoundaryEvent) this).getBoundaryEventInterrupting() == Boolean.TRUE) {
             Token parentToken = executionContext.getToken().getParent();
-            ExecutionContext parentExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), parentToken);
-            parentToken.end(parentExecutionContext, null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), false);
+            parentToken.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), false);
             for (Token token : parentToken.getActiveChildren()) {
                 if (Objects.equal(token, executionContext.getToken())) {
                     continue;
                 }
-                ExecutionContext childExecutionContext = new ExecutionContext(getProcessDefinition(), token);
-                token.end(childExecutionContext, null, null, true);
+                token.end(executionContext.getProcessDefinition(), null, TaskCompletionInfo.createForHandler("boundary event " + getName()), true);
             }
         }
         Token token = executionContext.getToken();

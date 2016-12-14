@@ -292,7 +292,8 @@ public class Token implements Serializable {
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
-    public void end(ExecutionContext executionContext, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
+    public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
+        ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
         if (endDate == null) {
             log.info("Ending " + this + " by " + canceller);
             setEndDate(new Date());
@@ -312,7 +313,7 @@ public class Token implements Serializable {
         setExecutionStatus(ExecutionStatus.ENDED);
         if (recursive) {
             for (Token child : getChildren()) {
-                child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller, taskCompletionInfo, recursive);
+                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, recursive);
             }
         }
     }

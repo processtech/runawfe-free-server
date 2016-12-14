@@ -501,10 +501,10 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
                     for (Transition transition : subprocessNode.getArrivingTransitions()) {
                         startNode.addArrivingTransition(transition);
                     }
-                    startNode.setSubProcessState(subprocessNode);
+                    startNode.setSubprocessNode(subprocessNode);
                     for (EmbeddedSubprocessEndNode endNode : subprocessDefinition.getEndNodes()) {
                         endNode.addLeavingTransition(subprocessNode.getLeavingTransitions().get(0));
-                        endNode.setSubProcessState(subprocessNode);
+                        endNode.setSubprocessNode(subprocessNode);
                     }
                     subprocessDefinition.mergeWithEmbeddedSubprocesses();
                 }
