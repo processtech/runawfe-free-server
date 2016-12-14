@@ -59,7 +59,7 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-            ValidationException;
+    ValidationException;
 
     /**
      * Starts new process by definition.

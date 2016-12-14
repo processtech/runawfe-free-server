@@ -12,18 +12,17 @@ import com.google.common.collect.Maps;
 public class BusinessDurationParser {
     private static final Map<String, Integer> calendarFields = Maps.newHashMap();
     static {
-        calendarFields.put("seconds", Calendar.SECOND);
-        calendarFields.put("minutes", Calendar.MINUTE);
-        calendarFields.put("hours", Calendar.HOUR);
-        calendarFields.put("days", Calendar.DAY_OF_YEAR);
-        calendarFields.put("weeks", Calendar.WEEK_OF_YEAR);
-        calendarFields.put("months", Calendar.MONTH);
-        calendarFields.put("years", Calendar.YEAR);
+        calendarFields.put(DurationEnum.seconds.name(), Calendar.SECOND);
+        calendarFields.put(DurationEnum.minutes.name(), Calendar.MINUTE);
+        calendarFields.put(DurationEnum.hours.name(), Calendar.HOUR);
+        calendarFields.put(DurationEnum.days.name(), Calendar.DAY_OF_YEAR);
+        calendarFields.put(DurationEnum.weeks.name(), Calendar.WEEK_OF_YEAR);
+        calendarFields.put(DurationEnum.months.name(), Calendar.MONTH);
+        calendarFields.put(DurationEnum.years.name(), Calendar.YEAR);
     }
 
     /**
-     * Creates a duration from a textual description. Syntax: &lt;quantity&gt;
-     * [business] &lt;unit&gt; <br />
+     * Creates a duration from a textual description. Syntax: &lt;quantity&gt; [business] &lt;unit&gt; <br />
      * unit is one of
      * <ul>
      * <li>seconds</li>
