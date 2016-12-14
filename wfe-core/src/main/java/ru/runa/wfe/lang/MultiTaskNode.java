@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
@@ -36,9 +39,6 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 /**
  * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
@@ -174,11 +174,13 @@ public class MultiTaskNode extends BaseTaskNode {
             log.info("Ignored indexes: " + ignoredIndexes);
         }
         int tasksCounter = 0;
+        boolean discriminatorUsageIsGroup = discriminatorUsage.contains("group");
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, swimlane, swimlane.getExecutor(), index);
+            taskFactory.create(executionContext, taskDefinition, swimlane,
+                    discriminatorUsageIsGroup ? (Executor) data.get(index) : swimlane.getExecutor(), index);
             tasksCounter++;
         }
         return tasksCounter > 0;
