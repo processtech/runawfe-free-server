@@ -161,15 +161,15 @@ public class Utils {
     public static void sendBpmnErrorMessage(Long processId, String nodeId, Throwable throwable) {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(BaseMessageNode.EVENT_TYPE, MessageEventType.error.name());
-        variables.put(BaseMessageNode.BUSINESS_EXCEPTION_MESSAGE, throwable.getMessage());
+        variables.put(BaseMessageNode.ERROR_EVENT_MESSAGE, throwable.getMessage());
         variables.put(Variables.CURRENT_PROCESS_ID, processId);
         variables.put(Variables.CURRENT_NODE_ID, nodeId);
         MapVariableProvider variableProvider = new MapVariableProvider(variables);
         List<VariableMapping> variableMappings = Lists.newArrayList();
         variableMappings.add(new VariableMapping(BaseMessageNode.EVENT_TYPE, "${" + BaseMessageNode.EVENT_TYPE + "}", "selector"));
-        variableMappings.add(new VariableMapping("processId", Variables.CURRENT_PROCESS_ID_WRAPPED, "selector"));
-        variableMappings.add(new VariableMapping("processNodeId", Variables.CURRENT_NODE_ID_WRAPPED, "selector"));
-        variableMappings.add(new VariableMapping(BaseMessageNode.BUSINESS_EXCEPTION_MESSAGE, BaseMessageNode.BUSINESS_EXCEPTION_MESSAGE, "read"));
+        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_PROCESS_ID, Variables.CURRENT_PROCESS_ID_WRAPPED, "selector"));
+        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_NODE_ID, Variables.CURRENT_NODE_ID_WRAPPED, "selector"));
+        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, "read"));
         Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
     }
 
