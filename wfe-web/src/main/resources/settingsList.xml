@@ -189,6 +189,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="process.task.filters.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
 	</properties_file>
 	
 	<properties_file title="office.properties">

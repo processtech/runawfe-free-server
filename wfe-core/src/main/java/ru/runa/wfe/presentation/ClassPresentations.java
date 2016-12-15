@@ -8,6 +8,7 @@ import ru.runa.wfe.audit.SystemLogClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionChangesClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
+import ru.runa.wfe.execution.ProcessWithTasksClassPresentation;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.relation.RelationClassPresentation;
 import ru.runa.wfe.relation.RelationPairClassPresentation;
@@ -27,6 +28,7 @@ public class ClassPresentations {
         registerClassPresentation(ClassPresentationType.DEFINITION_CHANGES, DefinitionChangesClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.DEFINITION_HISTORY, DefinitionHistoryClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.PROCESS, ProcessClassPresentation.getInstance());
+        registerClassPresentation(ClassPresentationType.PROCESS_WITH_TASKS, ProcessWithTasksClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.TASK, TaskClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.RELATIONPAIR, RelationPairClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.RELATION, RelationClassPresentation.getInstance());

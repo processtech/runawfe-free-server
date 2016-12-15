@@ -42,6 +42,7 @@ public class BatchPresentations {
         map.put(BatchPresentationConsts.ID_RELATION_PAIRS, BatchPresentationFactory.RELATION_PAIRS);
         map.put(BatchPresentationConsts.REPORTS, BatchPresentationFactory.REPORTS);
         map.put(BatchPresentationConsts.ID_PROCESSES, BatchPresentationFactory.PROCESSES);
+        map.put(BatchPresentationConsts.ID_PROCESSES_WITH_TASKS, BatchPresentationFactory.PROCESSES_WITH_TASKS);
         map.put(BatchPresentationConsts.ID_DEFINITIONS, BatchPresentationFactory.DEFINITIONS);
         map.put(BatchPresentationConsts.ID_DEFINITION_CHANGES, BatchPresentationFactory.DEFINITION_CHANGES);
         map.put(BatchPresentationConsts.ID_DEFINITIONS_HISTORY, BatchPresentationFactory.DEFINITIONS_HISTORY);
