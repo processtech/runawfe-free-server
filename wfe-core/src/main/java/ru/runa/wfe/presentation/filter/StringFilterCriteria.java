@@ -56,6 +56,7 @@ public class StringFilterCriteria extends FilterCriteria {
             where += ")";
             searchValue = searchValue.toLowerCase();
         }
+        where += " ";
         where += expression.getComparisonOperator();
         where += " :" + alias + " ";
         placeholders.put(alias, new QueryParameter(alias, searchValue));

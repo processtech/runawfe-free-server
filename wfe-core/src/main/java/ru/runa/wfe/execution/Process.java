@@ -215,7 +215,7 @@ public class Process extends IdentifiableBase {
         ProcessExecutionErrors.removeProcessErrors(id);
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
         // end the main path of execution
-        rootToken.end(executionContext, canceller, taskCompletionInfo, true);
+        rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
         // mark this process as ended
         setEndDate(new Date());
         setExecutionStatus(ExecutionStatus.ENDED);
