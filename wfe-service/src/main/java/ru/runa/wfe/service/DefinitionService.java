@@ -26,7 +26,6 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.definition.dto.WfProcessDefinitionChange;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -357,7 +356,7 @@ public interface DefinitionService {
      * @param definitionId
      * @return not <code>null</code>
      */
-    public List<WfProcessDefinitionChange> getChanges(Long definitionId);
+    public List<ProcessDefinitionChange> getChanges(Long definitionId);
 
     /**
      * Gets changes between two versions of specified definition.
@@ -367,7 +366,7 @@ public interface DefinitionService {
      * @param version2
      * @return not <code>null</code>
      */
-    public List<WfProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2);
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2);
 
     /**
      * Gets changes in definitions between two dates.
@@ -376,5 +375,5 @@ public interface DefinitionService {
      * @param date2
      * @return not <code>null</code>
      */
-    public List<WfProcessDefinitionChange> findChangesWithin(Date date1, Date date2);
+    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2);
 }

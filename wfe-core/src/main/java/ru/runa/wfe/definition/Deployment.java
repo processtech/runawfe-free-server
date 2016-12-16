@@ -1,6 +1,5 @@
 package ru.runa.wfe.definition;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -46,9 +45,6 @@ public class Deployment extends Identifiable {
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
-    private Date versionDate;
-    private String versionAuthor;
-    private String versionComment;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -156,33 +152,6 @@ public class Deployment extends Identifiable {
 
     public void setUpdateActor(Actor updateActor) {
         this.updateActor = updateActor;
-    }
-
-    @Column(name = "VERSION_DATE")
-    public Date getVersionDate() {
-        return versionDate;
-    }
-
-    public void setVersionDate(Date versionDate) {
-        this.versionDate = versionDate;
-    }
-
-    @Column(name = "VERSION_AUTHOR")
-    public String getVersionAuthor() {
-        return versionAuthor;
-    }
-
-    public void setVersionAuthor(String versionAuthor) {
-        this.versionAuthor = versionAuthor;
-    }
-
-    @Column(name = "VERSION_COMMENT")
-    public String getVersionComment() {
-        return versionComment;
-    }
-
-    public void setVersionComment(String versionComment) {
-        this.versionComment = versionComment;
     }
 
     @Transient

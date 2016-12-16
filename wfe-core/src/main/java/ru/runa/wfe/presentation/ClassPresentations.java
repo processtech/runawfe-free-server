@@ -6,7 +6,6 @@ import java.util.Map;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SystemLogClassPresentation;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
-import ru.runa.wfe.definition.DefinitionChangesClassPresentation;
 import ru.runa.wfe.definition.DefinitionHistoryClassPresentation;
 import ru.runa.wfe.execution.ProcessWithTasksClassPresentation;
 import ru.runa.wfe.execution.ProcessClassPresentation;
@@ -25,7 +24,6 @@ public class ClassPresentations {
         registerClassPresentation(ClassPresentationType.ACTOR, ActorClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.GROUP, GroupClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.DEFINITION, DefinitionClassPresentation.getInstance());
-        registerClassPresentation(ClassPresentationType.DEFINITION_CHANGES, DefinitionChangesClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.DEFINITION_HISTORY, DefinitionHistoryClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.PROCESS, ProcessClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.PROCESS_WITH_TASKS, ProcessWithTasksClassPresentation.getInstance());

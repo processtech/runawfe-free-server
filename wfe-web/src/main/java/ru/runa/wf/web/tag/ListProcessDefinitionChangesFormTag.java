@@ -17,43 +17,25 @@
  */
 package ru.runa.wf.web.tag;
 
-import org.apache.ecs.html.A;
-import org.apache.ecs.html.TD;
-import org.apache.ecs.html.TR;
-import org.apache.ecs.html.Table;
+import org.apache.ecs.html.*;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
-import ru.runa.af.web.BatchPresentationUtils;
-import ru.runa.common.WebResources;
 import ru.runa.common.web.*;
-import ru.runa.common.web.form.IdForm;
-import ru.runa.common.web.html.*;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
-import ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction;
-import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
-import ru.runa.wf.web.html.DefinitionChangesHeaderBuilder;
-import ru.runa.wf.web.html.PropertiesProcessTDBuilder;
-import ru.runa.wf.web.html.UndeployProcessDefinitionTDBuilder;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.definition.dto.WfProcessDefinitionChange;
-import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.task.TaskClassPresentation;
 
 import java.util.List;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listProcessDefinitionChangesForm")
-public class ListProcessDefinitionChangesFormTag extends BatchReturningTitledFormTag {
+public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFormTag {
     private static final long serialVersionUID = 7128850164438509265L;
 
     private Long processDefinitionId;
@@ -78,18 +60,44 @@ public class ListProcessDefinitionChangesFormTag extends BatchReturningTitledFor
     }
 
     @Override
-    protected void fillFormElement(TD tdFormElement) {
-        DefinitionService definitionService = Delegates.getDefinitionService();
-        BatchPresentation batchPresentation = getBatchPresentation();
-        List<WfProcessDefinitionChange> changes = definitionService.getChanges(processDefinitionId);
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, new TDBuilder[] { });
-        DefinitionChangesHeaderBuilder headerBuilder = new DefinitionChangesHeaderBuilder(batchPresentation, pageContext);
-        RowBuilder rowBuilder = new ReflectionRowBuilder(changes, batchPresentation, pageContext, WebResources.ACTION_MAPPING_MANAGE_DEFINITION,
-                getReturnAction(), new DefinitionChangesUrlStrategy(pageContext), builders);
+    protected void fillFormData(TD tdFormElement) {
+        final String VERSION = "process_definition_changes.version";
+        final String DATE = "process_definition_changes.date";
+        final String AUTHOR = "process_definition_changes.author";
+        final String COMMENT = "process_definition_changes.comment";
 
-        tdFormElement.addElement(new TableBuilder().build(headerBuilder, rowBuilder));
-        tdFormElement.setNoWrap(false);
+        Table table = new Table();
+        tdFormElement.addElement(table);
+        table.setClass(Resources.CLASS_LIST_TABLE);
+        List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().getChanges(getProcessDefinitionId());
+        TR headerTR = new TR();
+        table.addElement(headerTR);
+        headerTR.addElement(new TH(Messages.getMessage(VERSION, pageContext)).setWidth("15%").setClass(Resources.CLASS_LIST_TABLE_TH));
+        headerTR.addElement(new TH(Messages.getMessage(DATE, pageContext)).setWidth("13%").setClass(Resources.CLASS_LIST_TABLE_TH));
+        headerTR.addElement(new TH(Messages.getMessage(AUTHOR, pageContext)).setWidth("13%").setClass(Resources.CLASS_LIST_TABLE_TH));
+        headerTR.addElement(new TH(Messages.getMessage(COMMENT, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
+
+        long curVersion = 0;
+        for (ProcessDefinitionChange change : changes){
+            TR row = new TR();
+            table.addElement(row);
+            if (curVersion == change.getVersion()){
+                row.addElement(new TD().setClass(Resources.CLASS_LIST_TABLE_TD));
+            }else {
+                row.addElement(new TD(change.getVersion().toString()).setClass(Resources.CLASS_LIST_TABLE_TD));
+                curVersion = change.getVersion();
+            }
+            row.addElement(new TD(CalendarUtil.formatDateTime(change.getDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
+            row.addElement(new TD(change.getAuthor()).setClass(Resources.CLASS_LIST_TABLE_TD));
+            row.addElement(new TD(change.getComment()).setNoWrap(false).setClass(Resources.CLASS_LIST_TABLE_TD));
+        }
     }
+
+    @Override
+    protected Permission getPermission() {
+        return DefinitionPermission.READ;
+    }
+
 
     @Override
     protected String getTitle() {

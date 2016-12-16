@@ -95,8 +95,6 @@ public class BatchPresentationConsts {
 
     public static final String ID_DEFINITIONS_HISTORY = "listProcessesDefinitionsHistoryForm";
 
-    public static final String ID_DEFINITION_CHANGES = "listProcessDefinitionChangesForm";
-
     public static final String ID_TASKS = "listTasksForm";
 
     public static final String ID_SYSTEM_LOGS = "listSystemLogsForm";

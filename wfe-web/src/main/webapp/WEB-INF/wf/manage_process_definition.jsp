@@ -27,7 +27,7 @@
 </table>
 </wf:processDefinitionInfoForm>
 
-<wf:listProcessDefinitionChangesForm processDefinitionId='<%= id %>' batchPresentationId="listProcessDefinitionChangesForm">
+<wf:listProcessDefinitionChangesForm processDefinitionId='<%= id %>'>
 </wf:listProcessDefinitionChangesForm>
 <wf:redeployDefinitionForm identifiableId='<%= id %>'  />
 <wf:definitionGraphForm identifiableId='<%= id %>' />	

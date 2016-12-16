@@ -11,10 +11,10 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.definition.VersionInfo;
 
 public class CommentsParser implements ProcessArchiveParser {
-    private static final String VERSION = "version";
-    private static final String VERSION_DATE = "date";
-    private static final String VERSION_AUTHOR = "author";
-    private static final String VERSION_COMMENT = "comment";
+    public static final String VERSION = "version";
+    public static final String VERSION_DATE = "date";
+    public static final String VERSION_AUTHOR = "author";
+    public static final String VERSION_COMMENT = "comment";
 
     @Override
     public boolean isApplicableToEmbeddedSubprocess() {
