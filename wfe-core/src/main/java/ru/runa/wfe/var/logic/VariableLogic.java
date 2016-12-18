@@ -167,7 +167,7 @@ public class VariableLogic extends WFCommonLogic {
         }
         filter = new ProcessLogFilter(processId);
         filter.setCreateDateTo(taskEndDate);
-        Calendar dateFrom = CalendarUtil.dateToCalendar(taskCompletePressedDate != null ? taskCompletePressedDate : taskCreateDate);
+        Calendar dateFrom = CalendarUtil.dateToCalendar(taskCompletePressedDate != null ? taskCompletePressedDate : taskEndDate);
         dateFrom.add(Calendar.MILLISECOND, -100);
         filter.setCreateDateFrom(dateFrom.getTime());
         WfVariableHistoryState completeTaskState = getHistoricalVariableOnRange(user, filter);
@@ -216,13 +216,8 @@ public class VariableLogic extends WFCommonLogic {
 
     private WfVariableHistoryState getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {
         HashSet<String> simpleVariablesChanged = Sets.<String> newHashSet();
-        {
-            Map<Process, Map<String, Object>> processToVariables = Maps.newHashMap();
-            Process process = processDAO.getNotNull(filter.getProcessId());
-            for (Process loadingProcess = process; loadingProcess != null; loadingProcess = getBaseProcess(user, loadingProcess)) {
-                loadVariablesForProcessFromLogs(user, loadingProcess, filter, processToVariables, simpleVariablesChanged);
-            }
-        }
+        // Next call is for filling simpleVariablesChanged structure.
+        loadSimpleVariablesState(user, processDAO.getNotNull(filter.getProcessId()), filter, simpleVariablesChanged);
         Date dateFrom = filter.getCreateDateFrom();
         filter.setCreateDateFrom(null);
         WfVariableHistoryState toState = getHistoricalVariableOnDate(user, filter);
@@ -233,62 +228,121 @@ public class VariableLogic extends WFCommonLogic {
 
     private WfVariableHistoryState getHistoricalVariableOnDate(User user, ProcessLogFilter filter) {
         List<WfVariable> result = Lists.newArrayList();
-        List<WfVariable> startDateRangeResult = Lists.newArrayList();
         Process process = processDAO.getNotNull(filter.getProcessId());
-        ProcessDefinition processDefinition = getDefinition(process);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
         Set<String> simpleVariablesChanged = Sets.newHashSet();
         VariableLoader loader = new VariableLoaderFromMap(getProcessStateOnTime(user, process, filter, simpleVariablesChanged));
-        for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
-            WfVariable variable = loader.getVariable(processDefinition, process, variableDefinition.getName());
-            if (!Utils.isNullOrEmpty(variable.getValue())) {
-                result.add(variable);
+        for (Process varProcess = process; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
+            ProcessDefinition processDefinition = getDefinition(varProcess);
+            for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
+                WfVariable variable = loader.getVariable(processDefinition, process, variableDefinition.getName());
+                if (!Utils.isNullOrEmpty(variable.getValue())) {
+                    result.add(variable);
+                }
             }
         }
-        return new WfVariableHistoryState(startDateRangeResult, result, simpleVariablesChanged);
+        return new WfVariableHistoryState(Lists.<WfVariable> newArrayList(), result, simpleVariablesChanged);
     }
 
-    public Map<Process, Map<String, Variable<?>>> getProcessStateOnTime(User user, Process process, ProcessLogFilter filter,
+    /**
+     * Load process and all base processes state from logs according to filter.
+     *
+     * @param user
+     *            Authorized user.
+     * @param process
+     *            Process for loading process state.
+     * @param filter
+     *            Filter for loaded process logs.
+     * @param simpleVariablesChanged
+     *            Simple variables (as it stored in database/logs) names, changed in process.
+     * @return Map from process to process variables, loaded according to process filter.
+     */
+    private Map<Process, Map<String, Variable<?>>> getProcessStateOnTime(User user, Process process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
-        Map<Process, Map<String, Object>> processToVariables = Maps.newHashMap();
-        for (Process loadingProcess = process; loadingProcess != null; loadingProcess = getBaseProcess(user, loadingProcess)) {
-            loadVariablesForProcessFromLogs(user, loadingProcess, filter, processToVariables, simpleVariablesChanged);
-        }
+        Map<Process, Map<String, Object>> processToVariables = loadSimpleVariablesState(user, process, filter, simpleVariablesChanged);
         Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
         for (Process currentProcess : processToVariables.keySet()) {
-            ProcessDefinition definition = getDefinition(currentProcess);
             Map<String, Object> processVariables = processToVariables.get(currentProcess);
+            for (Process baseProcess = getBaseProcess(user, currentProcess); baseProcess != null; baseProcess = getBaseProcess(user, baseProcess)) {
+                // All base process variables must be available in current process.
+                processVariables.putAll(processToVariables.get(baseProcess));
+            }
             result.put(currentProcess, Maps.<String, Variable<?>> newHashMap());
-            for (String variableName : processVariables.keySet()) {
-                VariableDefinition variableDefinition = definition.getVariable(variableName, false);
-                Object value = processVariables.get(variableName);
-                if (value instanceof String) {
-                    value = variableDefinition.getFormatNotNull().parse((String) value);
+            for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
+                ProcessDefinition definition = getDefinition(varProcess);
+                for (String variableName : processVariables.keySet()) {
+                    VariableDefinition variableDefinition = definition.getVariable(variableName, false);
+                    if (variableDefinition == null) {
+                        continue;
+                    }
+                    Object value = processVariables.get(variableName);
+                    if (value instanceof String) {
+                        value = variableDefinition.getFormatNotNull().parse((String) value);
+                    }
+                    Variable<?> variable = variableCreator.create(varProcess, variableDefinition, value);
+                    variable.setValue(new ExecutionContext(definition, varProcess), value, variableDefinition.getFormatNotNull());
+                    result.get(currentProcess).put(variableName, variable);
                 }
-                Variable<?> variable = variableCreator.create(currentProcess, variableDefinition, value);
-                variable.setValue(new ExecutionContext(definition, currentProcess), value, variableDefinition.getFormatNotNull());
-                result.get(currentProcess).put(variableName, variable);
             }
         }
         return result;
     }
 
-    private void loadVariablesForProcessFromLogs(User user, Process process, ProcessLogFilter filter,
-            Map<Process, Map<String, Object>> processToVariables, Set<String> simpleVariablesChanged) {
-        filter.setProcessId(process.getId());
-        ProcessLogs historyLogs = auditLogic.getProcessLogs(user, filter);
-        HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
-        processToVariables.put(process, processVariables);
-        for (VariableLog variableLog : historyLogs.getLogs(VariableLog.class)) {
-            String variableName = variableLog.getVariableName();
-            if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {
-                simpleVariablesChanged.add(variableName);
+    /**
+     * Load simple (as it stored in database/logs) variables state for process and all his base processes.
+     *
+     * @param user
+     *            Authorized user.
+     * @param process
+     *            Process for loading variables.
+     * @param filter
+     *            Filter for loading process logs.
+     * @param simpleVariablesChanged
+     *            Simple variables (as it stored in database/logs) names, changed in process.
+     * @return Map from process to it simple variables state.
+     */
+    private Map<Process, Map<String, Object>> loadSimpleVariablesState(User user, Process process, ProcessLogFilter filter,
+            Set<String> simpleVariablesChanged) {
+        Map<Process, Map<String, Object>> processToVariables = Maps.newHashMap();
+        for (Process loadingProcess = process; loadingProcess != null; loadingProcess = getBaseProcess(user, loadingProcess)) {
+            processToVariables.put(loadingProcess, loadVariablesForProcessFromLogs(user, loadingProcess, filter, simpleVariablesChanged));
+        }
+        return processToVariables;
+    }
+
+    /**
+     * Load simple variables (as it stored in database/logs) for process with specified filter parameters.
+     *
+     * @param user
+     *            Authorized user.
+     * @param process
+     *            Process for loading variables.
+     * @param filter
+     *            Filter for loading process logs.
+     * @param simpleVariablesChanged
+     *            Simple variables (as it stored in database/logs) names, changed in process.
+     * @return Map from simple process variable name to it last known value.
+     */
+    private Map<String, Object> loadVariablesForProcessFromLogs(User user, Process process, ProcessLogFilter filter,
+            Set<String> simpleVariablesChanged) {
+        Long processId = filter.getProcessId();
+        try {
+            filter.setProcessId(process.getId());
+            HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
+            for (VariableLog variableLog : auditLogic.getProcessLogs(user, filter).getLogs(VariableLog.class)) {
+                String variableName = variableLog.getVariableName();
+                if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {
+                    simpleVariablesChanged.add(variableName);
+                }
+                if (variableLog instanceof VariableDeleteLog) {
+                    processVariables.remove(variableName);
+                    continue;
+                }
+                processVariables.put(variableName, variableLog.getVariableNewValue());
             }
-            if (variableLog instanceof VariableDeleteLog) {
-                processVariables.remove(variableName);
-                continue;
-            }
-            processVariables.put(variableName, variableLog.getVariableNewValue());
+            return processVariables;
+        } finally {
+            filter.setProcessId(processId);
         }
     }
 

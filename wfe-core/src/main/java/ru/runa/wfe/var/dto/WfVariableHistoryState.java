@@ -28,7 +28,7 @@ public class WfVariableHistoryState implements Serializable {
     private List<WfVariable> startDateRangeVariables;
 
     /**
-     * Simple variables, stored in database, which changed from start process to date or in date range.
+     * Simple variables (as it stored in database\logs), which changed from start process to date or in date range.
      */
     private Set<String> simpleVariablesChanged;
 
