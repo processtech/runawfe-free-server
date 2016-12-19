@@ -4,20 +4,20 @@ function delegateTaskDialog(btn) {
     var taskId = parseInt(button.attr("data-taskid"));
     if($.delegateDialog == undefined) {
         var dialog = $("<div>", {id : "delegateDialog"});
-        $('<input class="filter" placeholder="filter" />' +
-        '<label><input class="keepCurrent" type="checkbox">Include existing executors</label>' +
+        $('<input class="filter" placeholder="фильтр" />' +
+        '<label><input class="keepCurrent" type="checkbox">Добавить текущих исполнителей</label>' +
         '<table><tr>' +
         '<td>' +
         '<fieldset class="set search">' +
-        '<legend>Choose executors</legend>' +
+        '<legend>Поиск исполнителей</legend>' +
         '<fieldset class="actor">' +
-        '<legend>Users</legend>' +
+        '<legend>Пользователи</legend>' +
         '<div class="paging"></div>' +
         '<ul class="actor">' +
         '</ul>' +
         '</fieldset>' +
         '<fieldset class="group">' +
-        '<legend>Groups</legend>' +
+        '<legend>Группы</legend>' +
         '<div class="paging"></div>' +
         '<ul class="group">' +
         '</ul>' +
@@ -26,14 +26,14 @@ function delegateTaskDialog(btn) {
         '</td>' +
         '<td>' +
         '<fieldset class="set selected">' +
-        '<legend>Executors selected</legend>' +
+        '<legend>Выбранные исполнители</legend>' +
         '<fieldset class="actor">' +
-        '<legend>Users selected</legend>' +
+        '<legend>Пользователи</legend>' +
         '<ul class="actor">' +
         '</ul>' +
         '</fieldset>' +
         '<fieldset class="group">' +
-        '<legend>Groups selected</legend>' +
+        '<legend>Группы</legend>' +
         '<ul class="group">' +
         '</ul>' +
         '</fieldset>' +
@@ -45,13 +45,13 @@ function delegateTaskDialog(btn) {
             height: 600,
             buttons: [
             	{
-                    text: "Discard selection",
+                    text: "Снять выделение",
                     click: function() {
                         reset();
                     }
                 },
                 {
-                    text: "Delegate",
+                    text: "Делегировать",
                     click: function() {
                         submitDelegateDialog();
                     }
