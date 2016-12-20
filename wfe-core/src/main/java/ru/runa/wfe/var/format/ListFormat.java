@@ -5,12 +5,12 @@ import java.util.List;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
-
-import com.google.common.collect.Lists;
 
 @SuppressWarnings({ "unchecked" })
 public class ListFormat extends VariableFormat implements VariableFormatContainer, VariableDisplaySupport {
@@ -126,6 +126,11 @@ public class ListFormat extends VariableFormat implements VariableFormatContaine
     public String toString() {
         VariableFormat componentFormat = FormatCommons.createComponent(this, 0);
         return getClass().getName() + COMPONENT_PARAMETERS_START + componentFormat.getName() + COMPONENT_PARAMETERS_END;
+    }
+
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onList(this, context);
     }
 
 }

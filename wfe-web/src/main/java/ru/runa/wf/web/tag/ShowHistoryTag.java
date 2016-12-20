@@ -17,6 +17,7 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,11 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
@@ -37,7 +43,6 @@ import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.TRRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
-import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.HistoryHeaderBuilder;
 import ru.runa.wfe.audit.ProcessLog;
@@ -49,10 +54,6 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showHistory")
 public class ShowHistoryTag extends ProcessBaseFormTag {
@@ -124,8 +125,12 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
                 if (mergedEventDateTD != null) {
                     mergedEventDateTD.setRowSpan(mergedRowsCount + 1);
                 }
+                HashMap<String, Object> params = Maps.newHashMap();
+                params.put(IdForm.ID_INPUT_NAME, getIdentifiableId());
+                params.put("date", eventDateString);
+                String url = Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, pageContext, PortletUrlType.Render);
                 mergedRowsCount = 0;
-                mergedEventDateTD = (TD) new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD);
+                mergedEventDateTD = (TD) new TD().addElement(new A(url, eventDateString)).setClass(Resources.CLASS_LIST_TABLE_TD);
                 mergedEventDateString = eventDateString;
                 tr.addElement(mergedEventDateTD);
             } else {
@@ -156,7 +161,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
 
     @Override
     public String getAction() {
-        return CancelProcessAction.ACTION_PATH;
+        return WebResources.ACTION_MAPPING_MANAGE_PROCESS;
     }
 
     @Override

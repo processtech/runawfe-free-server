@@ -6,12 +6,12 @@ import java.util.Set;
 
 import org.json.simple.JSONObject;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
-
-import com.google.common.collect.Maps;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MapFormat extends VariableFormat implements VariableFormatContainer, VariableDisplaySupport {
@@ -151,6 +151,11 @@ public class MapFormat extends VariableFormat implements VariableFormatContainer
         VariableFormat valueFormat = FormatCommons.createComponent(this, 1);
         return getClass().getName() + COMPONENT_PARAMETERS_START + keyFormat.getName() + COMPONENT_PARAMETERS_DELIM + valueFormat.getName()
                 + COMPONENT_PARAMETERS_END;
+    }
+
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onMap(this, context);
     }
 
 }

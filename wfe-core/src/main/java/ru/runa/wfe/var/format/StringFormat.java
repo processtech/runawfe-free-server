@@ -61,4 +61,9 @@ public class StringFormat extends VariableFormat implements VariableDisplaySuppo
         return String.valueOf(object).replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\"", "&quot;").replaceAll("'", "&#39;")
                 .replaceAll("`", "&apos;");
     }
+
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onString(this, context);
+    }
 }

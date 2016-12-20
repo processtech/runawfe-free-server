@@ -43,4 +43,9 @@ public class LongFormat extends VariableFormat {
         return obj.toString();
     }
 
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onLong(this, context);
+    }
+
 }

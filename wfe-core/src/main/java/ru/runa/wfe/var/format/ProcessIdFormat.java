@@ -2,18 +2,33 @@ package ru.runa.wfe.var.format;
 
 import java.util.HashMap;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Maps;
+public class ProcessIdFormat extends VariableFormat implements VariableDisplaySupport {
 
-public class ProcessIdFormat extends LongFormat implements VariableDisplaySupport {
+    @Override
+    public Class<? extends Number> getJavaClass() {
+        return Long.class;
+    }
 
     @Override
     public String getName() {
         return "processref";
+    }
+
+    @Override
+    protected Long convertFromStringValue(String source) {
+        return Long.valueOf(source);
+    }
+
+    @Override
+    protected String convertToStringValue(Object obj) {
+        return obj.toString();
     }
 
     @Override
@@ -28,6 +43,11 @@ public class ProcessIdFormat extends LongFormat implements VariableDisplaySuppor
         } catch (AuthorizationException e) {
             return "<span>" + processId + "</span>";
         }
+    }
+
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onProcessId(this, context);
     }
 
 }

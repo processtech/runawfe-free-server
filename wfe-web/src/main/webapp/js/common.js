@@ -10,10 +10,10 @@ $(document).ready(function() {
 	});
 	
 	// http://trentrichardson.com/examples/timepicker/
-	$(".inputTime").timepicker({ ampm: false, seconds: false });
+	$(".inputTime").filter(filterTemplatesElements).timepicker({ ampm: false, seconds: false });
 	// http://docs.jquery.com/UI/Datepicker
-	$(".inputDate").datepicker({ dateFormat: "dd.mm.yy", buttonImage: "/wfe/images/calendar.gif" });
-	$(".inputDateTime").datetimepicker({ dateFormat: "dd.mm.yy" });
+	$(".inputDate").filter(filterTemplatesElements).datepicker({ dateFormat: "dd.mm.yy", buttonImage: "/wfe/images/calendar.gif" });
+	$(".inputDateTime").filter(filterTemplatesElements).datetimepicker({ dateFormat: "dd.mm.yy" });
 	// confirmation dialog
 	$.confirmDialog = $("<div></div>").dialog({
 		minWidth: 400, minHeight: 200, modal: true, autoOpen: false
@@ -27,6 +27,10 @@ $(document).ready(function() {
 		}
 	});
 });
+
+function filterTemplatesElements() {
+	return $(this).parents('[wfeContainerTemplate]').length < 1;
+}
 
 // add timestamp to ajax queries
 function unify(url) {
