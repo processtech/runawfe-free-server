@@ -8,6 +8,11 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -51,11 +56,6 @@ import ru.runa.wfe.lang.bpmn2.ExclusiveGateway;
 import ru.runa.wfe.lang.bpmn2.ParallelGateway;
 import ru.runa.wfe.lang.bpmn2.TextAnnotation;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class BpmnXmlReader {
     private static final String RUNA_NAMESPACE = "http://runa.ru/wfe/xml";
@@ -284,6 +284,9 @@ public class BpmnXmlReader {
             }
             if (properties.containsKey(ASYNC_COMPLETION_MODE)) {
                 subprocessNode.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
+            }
+            if (node instanceof MultiSubprocessNode && properties.containsKey(DISCRIMINATOR_CONDITION)) {
+                ((MultiSubprocessNode) node).setDiscriminatorCondition(properties.get(DISCRIMINATOR_CONDITION));
             }
         }
         if (node instanceof ExclusiveGateway) {
