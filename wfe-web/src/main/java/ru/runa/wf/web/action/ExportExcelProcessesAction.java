@@ -31,11 +31,6 @@ import ru.runa.wfe.user.User;
 public class ExportExcelProcessesAction extends AbstractExportExcelAction<WfProcess> {
 
     @Override
-    protected String getBatchPresentationId() {
-        return "listProcessesForm";
-    }
-
-    @Override
     protected List<WfProcess> getData(User user, BatchPresentation batchPresentation) {
         int oldPageNumber = batchPresentation.getPageNumber();
         int oldRangeSize = batchPresentation.getRangeSize();

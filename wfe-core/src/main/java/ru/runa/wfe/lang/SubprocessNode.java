@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
@@ -86,6 +88,11 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     protected ProcessDefinition getSubProcessDefinition() {
+        Long version = getProcessDefinition().getDeployment().getVersion();
+        if (version < 0) {
+            Deployment deployment = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
+            return processDefinitionLoader.getDefinition(deployment.getId());
+        }
         return processDefinitionLoader.getLatestDefinition(subProcessName);
     }
 
