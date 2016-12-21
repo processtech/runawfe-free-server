@@ -174,13 +174,13 @@ public class MultiTaskNode extends BaseTaskNode {
             log.info("Ignored indexes: " + ignoredIndexes);
         }
         int tasksCounter = 0;
-        boolean discriminatorUsageIsGroup = discriminatorUsage.contains("group");
+        boolean discriminatorUsageIsVariable = discriminatorUsage.contains("variable");
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
             taskFactory.create(executionContext, taskDefinition, swimlane,
-                    discriminatorUsageIsGroup ? (Executor) data.get(index) : swimlane.getExecutor(), index);
+                    discriminatorUsageIsVariable ? swimlane.getExecutor() : (Executor) data.get(index), index);
             tasksCounter++;
         }
         return tasksCounter > 0;
