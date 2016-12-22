@@ -32,8 +32,6 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import com.google.common.base.Preconditions;
-
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -56,6 +54,8 @@ import ru.runa.wfe.service.jaxb.VariableConverter;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+
+import com.google.common.base.Preconditions;
 
 @Stateless(name = "DefinitionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -296,28 +296,19 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition lockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
-            throws DefinitionDoesNotExistException, DefinitionLockedException {
+    public WfDefinition lockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+            @WebParam(name = "forAll") boolean forAll) throws DefinitionDoesNotExistException, DefinitionLockedException {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionId != null, "definitionId");
-        return definitionLogic.lockProcessDefinition(user, definitionId);
+        return definitionLogic.lockProcessDefinition(user, definitionId, forAll);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition lockProcessDefinitionForAll(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
-            throws DefinitionDoesNotExistException, DefinitionLockedException {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
-        return definitionLogic.lockProcessDefinitionForAll(user, definitionId);
-    }
-
-    @Override
-    @WebResult(name = "result")
-    public WfDefinition unLockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
+    public WfDefinition unlockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
             throws DefinitionDoesNotExistException {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionId != null, "definitionId");
-        return definitionLogic.unLockProcessDefinition(user, definitionId);
+        return definitionLogic.unlockProcessDefinition(user, definitionId);
     }
 }

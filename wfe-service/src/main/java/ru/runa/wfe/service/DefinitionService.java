@@ -356,29 +356,18 @@ public interface DefinitionService {
      *            authorized user
      * @param definitionId
      *            process definition id
+     * @param forAll
+     *            for all executors including locker user
      * @return locked definition
      *
      * @throws DefinitionDoesNotExistException
      * @throws DefinitionAlreadyLockedException
      */
-    public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionLockedException;
+    public WfDefinition lockProcessDefinition(User user, Long definitionId, boolean forAll) throws DefinitionDoesNotExistException,
+    DefinitionLockedException;
 
     /**
-     * Lock process definition for all.
-     *
-     * @param user
-     *            authorized user
-     * @param definitionId
-     *            process definition id
-     * @return locked definition
-     *
-     * @throws DefinitionDoesNotExistException
-     * @throws DefinitionAlreadyLockedException
-     */
-    public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionLockedException;
-
-    /**
-     * UnLock process definition.
+     * Unlocks process definition.
      *
      * @param user
      *            authorized user
@@ -388,6 +377,6 @@ public interface DefinitionService {
      *
      * @throws DefinitionDoesNotExistException
      */
-    public WfDefinition unLockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
+    public WfDefinition unlockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
 
 }

@@ -23,12 +23,12 @@ package ru.runa.wfe.definition.dao;
 
 import java.util.List;
 
-import com.google.common.base.Objects;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
+
+import com.google.common.base.Objects;
 
 /**
  * DAO for {@link Deployment}.
@@ -43,9 +43,9 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
         if (previousLatestVersion != null) {
             Deployment latestDeployment = findLatestDeployment(previousLatestVersion.getName());
             if (!Objects.equal(latestDeployment.getId(), previousLatestVersion.getId())) {
-                throw new InternalApplicationException(
-                        "Last deployed version of process definition '" + latestDeployment.getName() + "' is '" + latestDeployment.getVersion()
-                                + "'. You were provided process definition id for version '" + previousLatestVersion.getVersion() + "'");
+                throw new InternalApplicationException("Last deployed version of process definition '" + latestDeployment.getName() + "' is '"
+                        + latestDeployment.getVersion() + "'. You were provided process definition id for version '"
+                        + previousLatestVersion.getVersion() + "'");
             }
             // take the next version number
             deployment.setVersion(previousLatestVersion.getVersion() + 1);
@@ -82,12 +82,11 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
         return deployment;
     }
 
+    /**
+     * @return previous deployment or <code>null</code>
+     */
     public Deployment findPreviousDeployment(String name, Long version) {
-        Deployment deployment = findFirstOrNull("from Deployment where name=? and version<?  order by version desc", name, version);
-        if (deployment == null) {
-            throw new DefinitionDoesNotExistException(name);
-        }
-        return deployment;
+        return findFirstOrNull("from Deployment where name=? and version<? order by version desc", name, version);
     }
 
     /**

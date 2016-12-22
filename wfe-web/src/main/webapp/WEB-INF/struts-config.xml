@@ -461,8 +461,8 @@
             <forward name="failure" path="/manage_process_definition.do"
                 redirect="false" />
         </action>
-        <action path="/unLockProcessDefinition"
-            type="ru.runa.wf.web.action.UnLockProcessDefinitionAction" name="idForm"
+        <action path="/unlockProcessDefinition"
+            type="ru.runa.wf.web.action.UnlockProcessDefinitionAction" name="idForm"
             scope="request" unknown="false" validate="false">
             <forward name="success" path="/manage_process_definition.do"
                 redirect="true" />

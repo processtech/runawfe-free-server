@@ -22,8 +22,6 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.google.common.base.Objects;
-
 import ru.runa.wfe.commons.EntityWithType;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
@@ -32,6 +30,8 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
+
+import com.google.common.base.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfDefinition extends Identifiable implements Comparable<WfDefinition>, EntityWithType {
@@ -54,7 +54,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
     private Actor updateActor;
     private Actor lockActor;
     private Date lockDate;
-    private Boolean lockForAll;
+    private boolean lockForAll;
 
     public WfDefinition() {
     }
@@ -80,7 +80,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         updateActor = deployment.getUpdateActor();
         lockActor = deployment.getLockActor();
         lockDate = deployment.getLockDate();
-        lockForAll = deployment.getLockForAll();
+        lockForAll = deployment.getLockForAll() == Boolean.TRUE;
     }
 
     @Override
@@ -162,7 +162,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         return lockDate;
     }
 
-    public Boolean isLockForAll() {
+    public boolean isLockForAll() {
         return lockForAll;
     }
 

@@ -254,27 +254,19 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionLockedException {
+    public WfDefinition lockProcessDefinition(User user, Long definitionId, boolean forAll) throws DefinitionDoesNotExistException,
+            DefinitionLockedException {
         try {
-            return getDefinitionService().lockProcessDefinition(user, definitionId);
+            return getDefinitionService().lockProcessDefinition(user, definitionId, forAll);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionLockedException {
+    public WfDefinition unlockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().lockProcessDefinitionForAll(user, definitionId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public WfDefinition unLockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException {
-        try {
-            return getDefinitionService().unLockProcessDefinition(user, definitionId);
+            return getDefinitionService().unlockProcessDefinition(user, definitionId);
         } catch (Exception e) {
             throw handleException(e);
         }

@@ -21,13 +21,13 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
-
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION")
@@ -177,7 +177,7 @@ public class Deployment extends Identifiable {
         this.lockDate = lockDate;
     }
 
-    @Column(name = "LOCK_FOR_ALL", nullable = false)
+    @Column(name = "LOCK_FOR_ALL")
     public Boolean getLockForAll() {
         return lockForAll;
     }
