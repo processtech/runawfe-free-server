@@ -23,11 +23,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.dom4j.Document;
+import org.dom4j.Element;
+
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
+import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
+import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -36,8 +41,11 @@ import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.VersionInfo;
 import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.definition.par.CommentsParser;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
@@ -142,7 +150,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     /**
      * Updates process definition.
-     * 
+     *
      * @param user
      * @param definitionId
      * @param processArchiveBytes
@@ -290,6 +298,151 @@ public class DefinitionLogic extends WFCommonLogic {
             moveLock(deployment, previousDeployment);
             deploymentDAO.update(previousDeployment);
         }
+    }
+
+    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        String definitionName = deploymentDAO.get(definitionId).getName();
+        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        int prevCount = 0;
+        int curVersion = 0;
+        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
+            Deployment deployment = listOfDeployments.get(m);
+            curVersion++;
+            String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
+            String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
+            VersionInfo versionInfoEmptyComment = new VersionInfo();
+            versionInfoEmptyComment.setDate(CalendarUtil.dateToCalendar(deployment.getUpdateDate() != null ? deployment.getUpdateDate() : deployment
+                    .getCreateDate()));
+            versionInfoEmptyComment.setAuthor(updateActorLabel.isEmpty() ? createActorLabel : updateActorLabel);
+            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
+            ProcessArchive archiveData = new ProcessArchive(deployment);
+            if (archiveData.getFileData().containsKey(fileName)) {
+                byte[] definitionXml = archiveData.getFileData().get(fileName);
+                Document document = XmlUtils.parseWithoutValidation(definitionXml);
+                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
+                List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (prevCount == versionList.size()) {
+                    versionInfos.add(versionInfoEmptyComment);
+                }
+                for (int j = prevCount; j < versionList.size(); j++) {
+                    Element versionInfoElement = versionList.get(j);
+                    VersionInfo versionInfo = new VersionInfo();
+                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
+                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
+                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
+                    versionInfos.add(versionInfo);
+                    prevCount++;
+                }
+
+                for (VersionInfo versionInfo : versionInfos) {
+                    result.add(new ProcessDefinitionChange(curVersion, versionInfo));
+                }
+            } else {
+                result.add(new ProcessDefinitionChange(curVersion, versionInfoEmptyComment));
+            }
+
+        }
+        return result;
+    }
+
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        int prevCount = 0;
+        int curVersion = 0;
+        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
+            Deployment deployment = listOfDeployments.get(m);
+            curVersion++;
+            String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
+            String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
+            VersionInfo versionInfoEmptyComment = new VersionInfo();
+            versionInfoEmptyComment.setDate(CalendarUtil.dateToCalendar(deployment.getUpdateDate() != null ? deployment.getUpdateDate() : deployment
+                    .getCreateDate()));
+            versionInfoEmptyComment.setAuthor(updateActorLabel.isEmpty() ? createActorLabel : updateActorLabel);
+            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
+            ProcessArchive archiveData = new ProcessArchive(deployment);
+            if (archiveData.getFileData().containsKey(fileName)) {
+                byte[] definitionXml = archiveData.getFileData().get(fileName);
+                Document document = XmlUtils.parseWithoutValidation(definitionXml);
+                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
+                List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (prevCount == versionList.size()) {
+                    versionInfos.add(versionInfoEmptyComment);
+                }
+                for (int j = prevCount; j < versionList.size(); j++) {
+                    Element versionInfoElement = versionList.get(j);
+                    VersionInfo versionInfo = new VersionInfo();
+                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
+                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
+                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
+                    versionInfos.add(versionInfo);
+                    prevCount++;
+                }
+
+                if (curVersion >= version1 && curVersion <= version2) {
+                    for (VersionInfo versionInfo : versionInfos) {
+                        result.add(new ProcessDefinitionChange(curVersion, versionInfo));
+                    }
+                }
+            } else {
+                if (curVersion >= version1 && curVersion <= version2) {
+                    result.add(new ProcessDefinitionChange(curVersion, versionInfoEmptyComment));
+                }
+            }
+
+        }
+        return result;
+    }
+
+    public List<ProcessDefinitionChange> findChanges(Date date1, Date date2) {
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        List<Deployment> listOfDeployments = deploymentDAO.getAll();
+        int prevCount = 0;
+        int curVersion = 0;
+        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
+            Deployment deployment = listOfDeployments.get(m);
+            curVersion++;
+            String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
+            String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
+            VersionInfo versionInfoEmptyComment = new VersionInfo();
+            versionInfoEmptyComment.setDate(CalendarUtil.dateToCalendar(deployment.getUpdateDate() != null ? deployment.getUpdateDate() : deployment
+                    .getCreateDate()));
+            versionInfoEmptyComment.setAuthor(updateActorLabel.isEmpty() ? createActorLabel : updateActorLabel);
+            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
+            ProcessArchive archiveData = new ProcessArchive(deployment);
+            if (archiveData.getFileData().containsKey(fileName)) {
+                byte[] definitionXml = archiveData.getFileData().get(fileName);
+                Document document = XmlUtils.parseWithoutValidation(definitionXml);
+                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
+                List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (prevCount == versionList.size()) {
+                    versionInfos.add(versionInfoEmptyComment);
+                }
+                for (int j = prevCount; j < versionList.size(); j++) {
+                    Element versionInfoElement = versionList.get(j);
+                    VersionInfo versionInfo = new VersionInfo();
+                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
+                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
+                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
+                    versionInfos.add(versionInfo);
+                    prevCount++;
+                }
+
+                for (VersionInfo versionInfo : versionInfos) {
+                    if (versionInfo.getDate().compareTo(CalendarUtil.dateToCalendar(date1)) >= 0
+                            && versionInfo.getDate().compareTo(CalendarUtil.dateToCalendar(date2)) <= 0) {
+                        result.add(new ProcessDefinitionChange(curVersion, versionInfo));
+                    }
+                }
+            } else {
+                if (versionInfoEmptyComment.getDate().compareTo(CalendarUtil.dateToCalendar(date1)) >= 0
+                        && versionInfoEmptyComment.getDate().compareTo(CalendarUtil.dateToCalendar(date2)) <= 0) {
+                    result.add(new ProcessDefinitionChange(curVersion, versionInfoEmptyComment));
+                }
+            }
+        }
+        return result;
     }
 
     public byte[] getFile(User user, Long definitionId, String fileName) {

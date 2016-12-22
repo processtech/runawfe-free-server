@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service;
 
+import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
@@ -24,6 +25,7 @@ import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.form.Interaction;
@@ -58,7 +60,7 @@ public interface DefinitionService {
      * @throws DefinitionArchiveFormatException
      */
     public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
-            DefinitionArchiveFormatException;
+    DefinitionArchiveFormatException;
 
     /**
      * Redeploys process definition by name.
@@ -95,7 +97,7 @@ public interface DefinitionService {
      * @throws DefinitionNameMismatchException
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
-            DefinitionArchiveFormatException, DefinitionNameMismatchException;
+    DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
      * Gets only last version from process definition by name.
@@ -173,7 +175,7 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      */
     public void undeployProcessDefinition(User user, String definitionName, Long version) throws DefinitionDoesNotExistException,
-            ParentProcessExistsException;
+    ParentProcessExistsException;
 
     /**
      * Retrieves file data from process definition archive.
@@ -364,7 +366,7 @@ public interface DefinitionService {
      * @throws DefinitionAlreadyLockedException
      */
     public WfDefinition lockProcessDefinition(User user, Long definitionId, boolean forAll) throws DefinitionDoesNotExistException,
-    DefinitionLockedException;
+            DefinitionLockedException;
 
     /**
      * Unlocks process definition.
@@ -378,5 +380,32 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      */
     public WfDefinition unlockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
+
+    /**
+     * Gets changes history for specified definition.
+     *
+     * @param definitionId
+     * @return not <code>null</code>
+     */
+    public List<ProcessDefinitionChange> getChanges(Long definitionId);
+
+    /**
+     * Gets changes between two versions of specified definition.
+     *
+     * @param definitionName
+     * @param version1
+     * @param version2
+     * @return not <code>null</code>
+     */
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2);
+
+    /**
+     * Gets changes in definitions between two dates.
+     *
+     * @param date1
+     * @param date2
+     * @return not <code>null</code>
+     */
+    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2);
 
 }
