@@ -55,17 +55,17 @@ function getVariableInfo(value) {
 			        }
 			    });
 				
-				$(".inputTime").timepicker({ ampm: false, seconds: false });
-				$(".inputDate").datepicker({ dateFormat: "dd.mm.yy", buttonImage: "/wfe/images/calendar.gif" });
-				$(".inputDateTime").datetimepicker({ dateFormat: "dd.mm.yy" });
+				$(".inputTime").filter(filterTemplatesElements).timepicker({ ampm: false, seconds: false });
+				$(".inputDate").filter(filterTemplatesElements).datepicker({ dateFormat: "dd.mm.yy", buttonImage: "/wfe/images/calendar.gif" });
+				$(".inputDateTime").filter(filterTemplatesElements).datetimepicker({ dateFormat: "dd.mm.yy" });
 				
-				$('.dropzone').each(function () {
+				$('.dropzone').filter(filterTemplatesElements).each(function () {
 					initFileInput($(this));
 				});
-				$(".dropzone").bind("dragleave dragend drop", function (e) {
+				$(".dropzone").filter(filterTemplatesElements).bind("dragleave dragend drop", function (e) {
 					$(this).removeClass("dropzonehover");
 				});
-				$(".dropzone").bind('dragover', function (e) {
+				$(".dropzone").filter(filterTemplatesElements).bind('dragover', function (e) {
 					$(this).addClass("dropzonehover");
 				});
 				if (ie6compatibility) {

@@ -19,6 +19,7 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -33,7 +34,10 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.ConfigurationException;
+import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
@@ -62,11 +66,10 @@ import ru.runa.wfe.service.utils.FileVariablesUtil;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.logic.VariableLogic;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "ExecutionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -120,7 +123,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public List<WfProcess> getProcesses(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+    public List<WfProcess> getProcesses(@WebParam(name = "user") User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         Preconditions.checkArgument(user != null, "user");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
@@ -171,6 +175,46 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
         }
         return list;
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(filter != null, "filter");
+        long processId = filter.getProcessId();
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, filter);
+        for (WfVariable variable : result.getVariables()) {
+            FileVariablesUtil.proxyFileVariables(user, processId, variable);
+        }
+        return result;
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
+            throws ProcessDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(filter != null, "filter");
+        Preconditions.checkArgument(variables != null, "variables");
+        long processId = filter.getProcessId();
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, filter, variables);
+        for (WfVariable variable : result.getVariables()) {
+            FileVariablesUtil.proxyFileVariables(user, processId, variable);
+        }
+        return result;
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(processId != null, "processId");
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId);
+        for (WfVariable variable : result.getVariables()) {
+            FileVariablesUtil.proxyFileVariables(user, processId, variable);
+        }
+        return result;
     }
 
     @Override
@@ -365,5 +409,4 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(processId != null, "processId");
         executionLogic.suspendProcess(user, processId);
     }
-
 }

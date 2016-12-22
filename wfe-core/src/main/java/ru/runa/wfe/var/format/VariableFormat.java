@@ -8,9 +8,8 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 
 /**
- * Variable format allows convertions between Strings and Objects. Each variable
- * in process definition bound to specific format.
- * 
+ * Variable format allows convertions between Strings and Objects. Each variable in process definition bound to specific format.
+ *
  * @author dofs
  * @since 4.0
  */
@@ -21,9 +20,8 @@ public abstract class VariableFormat {
     public abstract String getName();
 
     /**
-     * Parses variable object from strings. Array of strings here due to
-     * conversation from html form.
-     * 
+     * Parses variable object from strings. Array of strings here due to conversation from html form.
+     *
      * @param source
      *            serialized string.
      * @return object, can be <code>null</code>
@@ -43,7 +41,7 @@ public abstract class VariableFormat {
 
     /**
      * Formats given variable object.
-     * 
+     *
      * @param object
      *            object, can be <code>null</code>
      * @return formatted string or <code>null</code>
@@ -59,7 +57,7 @@ public abstract class VariableFormat {
 
     /**
      * Parses variable object from JSON string.
-     * 
+     *
      * @param source
      *            string in JSON format
      * @return object, can be <code>null</code>
@@ -89,7 +87,7 @@ public abstract class VariableFormat {
 
     /**
      * Formats given variable object to JSON format.
-     * 
+     *
      * @param object
      *            object, can be <code>null</code>
      * @return JSON string or <code>null</code>
@@ -103,6 +101,19 @@ public abstract class VariableFormat {
 
     protected Object convertToJSONValue(Object value) {
         return value;
+    }
+
+    /**
+     * Applies operation depends on variable format type.
+     *
+     * @param operation
+     *            Operation, applied to format.
+     * @param context
+     *            Operation call context. Contains additional data for operation.
+     * @return Returns operation result.
+     */
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onOther(this, context);
     }
 
     @Override
