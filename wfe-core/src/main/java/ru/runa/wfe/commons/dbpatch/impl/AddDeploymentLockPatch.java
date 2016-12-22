@@ -13,8 +13,8 @@ public class AddDeploymentLockPatch extends DBPatch {
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesBefore();
         sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("LOCK_USER_ID", dialect.getTypeName(Types.BIGINT))));
-        sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("LOCK_DATE", dialect.getTypeName(Types.DATE))));
-        sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("LOCK_FOR_ALL", dialect.getTypeName(Types.BOOLEAN))));
+        sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("LOCK_DATE", dialect.getTypeName(Types.TIMESTAMP))));
+        sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("LOCK_FOR_ALL", dialect.getTypeName(Types.BIT))));
         return sql;
     }
 
