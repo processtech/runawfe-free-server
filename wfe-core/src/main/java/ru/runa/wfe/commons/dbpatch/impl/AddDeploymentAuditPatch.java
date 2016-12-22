@@ -19,7 +19,7 @@ public class AddDeploymentAuditPatch extends DBPatch {
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesAfter();
         sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("CREATE_USER_ID", dialect.getTypeName(Types.BIGINT), true)));
-        sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("UPDATE_DATE", dialect.getTypeName(Types.TIMESTAMP), true)));
+        sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("UPDATE_DATE", dialect.getTypeName(Types.DATE), true)));
         sql.add(getDDLCreateColumn("BPM_PROCESS_DEFINITION", new ColumnDef("UPDATE_USER_ID", dialect.getTypeName(Types.BIGINT), true)));
         return sql;
     }
