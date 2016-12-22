@@ -45,8 +45,9 @@ public class Deployment extends Identifiable {
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
-    private String lockUserName;
+    private Actor lockActor;
     private Date lockDate;
+    private Boolean lockForAll;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -156,13 +157,15 @@ public class Deployment extends Identifiable {
         this.updateActor = updateActor;
     }
 
-    @Column(name = "LOCK_USER_NAME", nullable = true, length = 1024)
-    public String getLockUserName() {
-        return lockUserName;
+    @ManyToOne
+    @JoinColumn(name = "LOCK_USER_ID")
+    @ForeignKey(name = "FK_DEFINITION_LOCK_USER")
+    public Actor getLockActor() {
+        return lockActor;
     }
 
-    public void setLockUserName(String lockUser) {
-        this.lockUserName = lockUser;
+    public void setLockActor(Actor lockActor) {
+        this.lockActor = lockActor;
     }
 
     @Column(name = "LOCK_DATE", nullable = true)
@@ -172,6 +175,15 @@ public class Deployment extends Identifiable {
 
     public void setLockDate(Date lockDate) {
         this.lockDate = lockDate;
+    }
+
+    @Column(name = "LOCK_FOR_ALL", nullable = false)
+    public Boolean getLockForAll() {
+        return lockForAll;
+    }
+
+    public void setLockForAll(Boolean lockForAll) {
+        this.lockForAll = lockForAll;
     }
 
     @Transient

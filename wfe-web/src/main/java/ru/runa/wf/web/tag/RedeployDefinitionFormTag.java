@@ -21,7 +21,6 @@ import java.text.MessageFormat;
 
 import javax.servlet.jsp.PageContext;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
@@ -51,6 +50,7 @@ import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "redeployDefinitionForm")
@@ -85,22 +85,23 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         final TR tr = new TR();
 
         final WfDefinition definition = getDefinition();
-        final String lockUserName = definition.getLockUserName();
+        final Actor lockActor = definition.getLockActor();
         final Long definitionId = definition.getId();
-        if (StringUtils.isEmpty(lockUserName)) {
+        if (lockActor == null) {
             tr.addElement(createLockElement(definitionId));
             tr.addElement(createLockAllElement(definitionId));
         } else {
-            if (WfDefinition.ALL_USERS.equals(lockUserName)) {
+            if (definition.isLockForAll()) {
                 final TD tdLockedForAll = new TD();
-                tdLockedForAll.addElement(MessageFormat.format(MessagesOther.LABEL_LOCKED_FOR_ALL.message(pageContext), definition.getLockDate()));
+                tdLockedForAll.addElement(
+                        MessageFormat.format(MessagesOther.LABEL_LOCKED_FOR_ALL.message(pageContext), lockActor.getName(), definition.getLockDate()));
                 tr.addElement(tdLockedForAll);
-            } else if (getUser().getName().equals(lockUserName)) {
+            } else if (getUser().getActor().equals(lockActor)) {
                 tr.addElement(createLockAllElement(definitionId));
             } else {
                 final TD tdLocked = new TD();
                 tdLocked.addElement(
-                        MessageFormat.format(MessagesOther.LABEL_LOCKED_USER.message(pageContext), lockUserName, definition.getLockDate()));
+                        MessageFormat.format(MessagesOther.LABEL_LOCKED_USER.message(pageContext), lockActor.getName(), definition.getLockDate()));
                 tr.addElement(tdLocked);
             }
             tr.addElement(createUnLockElement(definitionId));
@@ -174,8 +175,8 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         boolean enabled = super.isFormButtonEnabled();
         if (enabled) {
             final WfDefinition definition = getDefinition();
-            final String lockUserName = definition.getLockUserName();
-            if (!StringUtils.isEmpty(lockUserName) && !getUser().getName().equals(lockUserName)) {
+            final Actor lockActor = definition.getLockActor();
+            if (definition.isLockForAll() || (lockActor != null && !getUser().getActor().equals(lockActor))) {
                 enabled = false;
             }
         }

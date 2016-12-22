@@ -27,6 +27,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.timer.ScheduledTimerTask;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
@@ -45,8 +47,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 14.03.2005
@@ -148,7 +148,8 @@ public class CommonLogic {
      *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
      * @return Objects count, which will be loaded according to {@linkplain BatchPresentation}.
      */
-    public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission, SecuredObjectType[] securedObjectTypes) {
+    public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission,
+            SecuredObjectType[] securedObjectTypes) {
         return permissionDAO.getPersistentObjectCount(user, batchPresentation, permission, securedObjectTypes);
     }
 

@@ -19,8 +19,8 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.List;
 
-import ru.runa.wfe.definition.DefinitionAlreadyLockedException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -245,7 +245,7 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
+    public WfDefinition lockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionLockedException {
         try {
             return getDefinitionService().lockProcessDefinition(user, definitionId);
         } catch (Exception e) {
@@ -254,8 +254,7 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId)
-            throws DefinitionDoesNotExistException, DefinitionAlreadyLockedException {
+    public WfDefinition lockProcessDefinitionForAll(User user, Long definitionId) throws DefinitionDoesNotExistException, DefinitionLockedException {
         try {
             return getDefinitionService().lockProcessDefinitionForAll(user, definitionId);
         } catch (Exception e) {

@@ -20,6 +20,7 @@ package ru.runa.wfe.definition;
 import java.util.Date;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.user.Actor;
 
 /**
  * Signals that process definition locked.
@@ -27,25 +28,32 @@ import ru.runa.wfe.InternalApplicationException;
 public class DefinitionLockedException extends InternalApplicationException {
     private static final long serialVersionUID = 1L;
     private final String name;
-    private final String userName;
+    private final Actor actor;
     private final Date date;
+    private final boolean isForAll;
 
-    public DefinitionLockedException(String name, String userName, Date date) {
-        super("Definition " + name + " locked by " + userName + " at " + date.toString() + ".");
-        this.name = name;
-        this.userName = userName;
-        this.date = date;
+    public DefinitionLockedException(Deployment deployment) {
+        super("Definition " + deployment.getName() + " locked by " + deployment.getLockActor().getName() + " at "
+                + deployment.getLockDate().toString() + (deployment.getLockForAll() ? " for all." : "."));
+        this.name = deployment.getName();
+        this.actor = deployment.getLockActor();
+        this.date = deployment.getLockDate();
+        this.isForAll = deployment.getLockForAll();
     }
 
     public String getName() {
         return name;
     }
 
-    public String getUserName() {
-        return userName;
+    public Actor getActor() {
+        return actor;
     }
 
     public Date getDate() {
         return date;
+    }
+
+    public boolean isForAll() {
+        return isForAll;
     }
 }
