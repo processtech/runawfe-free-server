@@ -105,6 +105,16 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
+    public WfDefinition getProcessDefinitionVersion(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
+            @WebParam(name = "definitionVersion") Long definitionVersion) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionName != null, "definitionName");
+        Preconditions.checkArgument(definitionVersion != null, "definitionVersion");
+        return definitionLogic.getProcessDefinitionVersion(user, definitionName, definitionVersion);
+    }
+
+    @Override
+    @WebResult(name = "result")
     public WfDefinition getProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionId != null, "definitionId");

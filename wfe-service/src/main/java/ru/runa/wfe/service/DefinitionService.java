@@ -57,8 +57,8 @@ public interface DefinitionService {
      * @throws DefinitionAlreadyExistException
      * @throws DefinitionArchiveFormatException
      */
-    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories)
-            throws DefinitionAlreadyExistException, DefinitionArchiveFormatException;
+    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
+            DefinitionArchiveFormatException;
 
     /**
      * Redeploys process definition by name.
@@ -94,8 +94,8 @@ public interface DefinitionService {
      * @throws DefinitionArchiveFormatException
      * @throws DefinitionNameMismatchException
      */
-    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive)
-            throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
+    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
+            DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
      * Gets only last version from process definition by name.
@@ -120,6 +120,20 @@ public interface DefinitionService {
      * @throws DefinitionDoesNotExistException
      */
     public WfDefinition getProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
+
+    /**
+     * Gets only last version from process definition by name.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionName
+     *            process definition name
+     * @param definitionVersion
+     *            process definition version
+     * @return not <code>null</code>
+     * @throws DefinitionDoesNotExistException
+     */
+    public WfDefinition getProcessDefinitionVersion(User user, String definitionName, Long definitionVersion) throws DefinitionDoesNotExistException;
 
     /**
      * Gets parsed process definition by id.
@@ -158,8 +172,8 @@ public interface DefinitionService {
      *            version or <code>null</code>
      * @throws DefinitionDoesNotExistException
      */
-    public void undeployProcessDefinition(User user, String definitionName, Long version)
-            throws DefinitionDoesNotExistException, ParentProcessExistsException;
+    public void undeployProcessDefinition(User user, String definitionName, Long version) throws DefinitionDoesNotExistException,
+            ParentProcessExistsException;
 
     /**
      * Retrieves file data from process definition archive.

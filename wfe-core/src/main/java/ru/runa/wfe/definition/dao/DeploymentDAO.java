@@ -77,7 +77,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     public Deployment findDeployment(String name, Long version) {
         Deployment deployment = findFirstOrNull("from Deployment where name=? and version=?", name, version);
         if (deployment == null) {
-            throw new DefinitionDoesNotExistException(name);
+            throw new DefinitionDoesNotExistException(name + " v" + version);
         }
         return deployment;
     }
