@@ -17,7 +17,10 @@
  */
 package ru.runa.wf.web.tag;
 
+import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
+import org.apache.ecs.html.Div;
+import org.apache.ecs.html.Span;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
@@ -30,7 +33,10 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction;
+import ru.runa.wf.web.action.LockProcessDefinitionAction;
+import ru.runa.wf.web.action.LockProcessDefinitionForAllAction;
 import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
+import ru.runa.wf.web.action.UnlockProcessDefinitionAction;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
@@ -120,6 +126,41 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
             updatedByTR.addElement(new TD(updatedBy).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
 
+        if (definition.getLockDate() != null) {
+            TR lockDateTR = new TR();
+            table.addElement(lockDateTR);
+            String lockDateMessage = Messages.getMessage(DefinitionClassPresentation.LOCK_DATE, pageContext);
+            lockDateTR.addElement(new TD(lockDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+            String s = CalendarUtil.formatDateTime(definition.getLockDate());
+            if (definition.isLockForAll()) {
+                s += " (" + MessagesOther.LABEL_FOR_ALL.message(pageContext) + ")";
+            }
+            lockDateTR.addElement(new TD(s).setClass(Resources.CLASS_LIST_TABLE_TD));
+
+            TR lockByTR = new TR();
+            table.addElement(lockByTR);
+            String updatedByMessage = Messages.getMessage(DefinitionClassPresentation.LOCK_ACTOR, pageContext);
+            lockByTR.addElement(new TD(updatedByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+            Div div = new Div();
+            div.addElement(new Span(definition.getLockActor().getLabel()));
+            if (!definition.isLockForAll()) {
+                div.addElement(Entities.NBSP);
+                div.addElement(createLockForAllLink(definition.getId()));
+            }
+            div.addElement(Entities.NBSP);
+            div.addElement(createUnlockLink(definition.getId()));
+            lockByTR.addElement(new TD(div).setClass(Resources.CLASS_LIST_TABLE_TD));
+        } else {
+            TR lockTR = new TR();
+            table.addElement(lockTR);
+            lockTR.addElement(new TD(MessagesOther.LABEL_LOCK.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+            Div div = new Div();
+            div.addElement(createLockLink(definition.getId()));
+            div.addElement(Entities.NBSP);
+            div.addElement(createLockForAllLink(definition.getId()));
+            lockTR.addElement(new TD(div).setClass(Resources.CLASS_LIST_TABLE_TD));
+        }
+
         TR descriptionTR = new TR();
         table.addElement(descriptionTR);
         String description = Messages.getMessage(DefinitionClassPresentation.DESCRIPTION, pageContext);
@@ -136,4 +177,30 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
     protected String getTitle() {
         return MessagesProcesses.TITLE_PROCESS_DEFINITION.message(pageContext);
     }
+
+    private A createLockLink(final Long definitionId) {
+        final String url = Commons.getActionUrl(LockProcessDefinitionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definitionId, pageContext,
+                PortletUrlType.Render);
+        final A a = new A(url, MessagesOther.LABEL_LOCK.message(pageContext));
+        a.setClass(Resources.CLASS_LINK);
+        return a;
+    }
+
+    private A createLockForAllLink(final Long definitionId) {
+        final String url = Commons.getActionUrl(LockProcessDefinitionForAllAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definitionId, pageContext,
+                PortletUrlType.Render);
+        String s = MessagesOther.LABEL_LOCK.message(pageContext) + " " + MessagesOther.LABEL_FOR_ALL.message(pageContext);
+        final A a = new A(url, s);
+        a.setClass(Resources.CLASS_LINK);
+        return a;
+    }
+
+    private A createUnlockLink(final Long definitionId) {
+        final String url = Commons.getActionUrl(UnlockProcessDefinitionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definitionId, pageContext,
+                PortletUrlType.Render);
+        final A a = new A(url, MessagesOther.LABEL_UNLOCK.message(pageContext));
+        a.setClass(Resources.CLASS_LINK);
+        return a;
+    }
+
 }

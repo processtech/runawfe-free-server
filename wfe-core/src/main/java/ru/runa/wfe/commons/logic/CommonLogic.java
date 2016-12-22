@@ -114,7 +114,7 @@ public class CommonLogic {
 
     /**
      * Load objects list according to {@linkplain BatchPresentation} with permission check for subject.
-     * 
+     *
      * @param subject
      *            Current actor {@linkplain Subject}.
      * @param batchPresentation
@@ -136,7 +136,7 @@ public class CommonLogic {
 
     /**
      * Load objects count according to {@linkplain BatchPresentation} with permission check for subject.
-     * 
+     *
      * @param subject
      *            Current actor {@linkplain Subject}.
      * @param batchPresentation

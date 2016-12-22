@@ -22,6 +22,7 @@ import java.util.List;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -347,4 +348,35 @@ public interface DefinitionService {
      * @return not <code>null</code>
      */
     public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging);
+
+    /**
+     * Lock process definition.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @param forAll
+     *            for all executors including locker user
+     * @return locked definition
+     *
+     * @throws DefinitionDoesNotExistException
+     * @throws DefinitionAlreadyLockedException
+     */
+    public WfDefinition lockProcessDefinition(User user, Long definitionId, boolean forAll) throws DefinitionDoesNotExistException,
+    DefinitionLockedException;
+
+    /**
+     * Unlocks process definition.
+     *
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @return unlocked definition
+     *
+     * @throws DefinitionDoesNotExistException
+     */
+    public WfDefinition unlockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
+
 }

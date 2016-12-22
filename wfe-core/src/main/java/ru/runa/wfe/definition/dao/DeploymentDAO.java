@@ -83,6 +83,13 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
+     * @return previous deployment or <code>null</code>
+     */
+    public Deployment findPreviousDeployment(String name, Long version) {
+        return findFirstOrNull("from Deployment where name=? and version<? order by version desc", name, version);
+    }
+
+    /**
      * queries the database for definition names.
      */
     public List<String> findDeploymentNames() {

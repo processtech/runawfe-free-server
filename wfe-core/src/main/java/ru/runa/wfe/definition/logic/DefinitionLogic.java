@@ -31,6 +31,7 @@ import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.Deployment;
@@ -95,6 +96,7 @@ public class DefinitionLogic extends WFCommonLogic {
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
         Deployment oldDeployment = deploymentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, oldDeployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        checkLock(user, oldDeployment);
         if (processArchiveBytes == null) {
             Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
             oldDeployment.setCategories(categories);
@@ -117,9 +119,25 @@ public class DefinitionLogic extends WFCommonLogic {
         }
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
+        if (oldDeployment.getLockActor() != null) {
+            moveLock(oldDeployment, definition.getDeployment());
+        }
         deploymentDAO.deploy(definition.getDeployment(), oldDeployment);
+        if (definition.getDeployment().getLockActor() != null) {
+            deploymentDAO.update(oldDeployment);
+        }
         log.debug("Process definition " + oldDeployment + " was successfully redeployed");
         return new WfDefinition(definition, true);
+    }
+
+    private void moveLock(Deployment from, Deployment to) {
+        // TODO may be extract definition attributes entity for shared through versions attributes (like locking)
+        to.setLockActor(from.getLockActor());
+        from.setLockActor(null);
+        to.setLockDate(from.getLockDate());
+        from.setLockDate(null);
+        to.setLockForAll(from.getLockForAll());
+        from.setLockForAll(null);
     }
 
     /**
@@ -134,6 +152,7 @@ public class DefinitionLogic extends WFCommonLogic {
         Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
         Deployment deployment = deploymentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        checkLock(user, deployment);
         ProcessDefinition uploadedDefinition;
         try {
             uploadedDefinition = parseProcessDefinition(processArchiveBytes);
@@ -151,6 +170,13 @@ public class DefinitionLogic extends WFCommonLogic {
         addUpdatedDefinitionInProcessLog(user, deployment);
         log.debug("Process definition " + deployment + " was successfully updated");
         return new WfDefinition(deployment);
+    }
+
+    private void checkLock(User user, Deployment deployment) {
+        if (deployment.getLockActor() == null || user.getActor().equals(deployment.getLockActor())) {
+            return;
+        }
+        throw new DefinitionLockedException(deployment);
     }
 
     private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
@@ -231,6 +257,7 @@ public class DefinitionLogic extends WFCommonLogic {
         if (version == null) {
             Deployment latestDeployment = deploymentDAO.findLatestDeployment(definitionName);
             checkPermissionAllowed(user, latestDeployment, DefinitionPermission.UNDEPLOY_DEFINITION);
+            checkLock(user, latestDeployment);
             permissionDAO.deleteAllPermissions(latestDeployment);
             List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definitionName);
             for (Deployment deployment : deployments) {
@@ -239,6 +266,7 @@ public class DefinitionLogic extends WFCommonLogic {
             log.info("Process definition " + latestDeployment + " successfully undeployed");
         } else {
             Deployment deployment = deploymentDAO.findDeployment(definitionName, version);
+            checkLock(user, deployment);
             removeDeployment(user, deployment);
             log.info("Process definition " + deployment + " successfully undeployed");
         }
@@ -249,8 +277,19 @@ public class DefinitionLogic extends WFCommonLogic {
         for (Process process : processes) {
             deleteProcess(user, process);
         }
+        if (deployment.getLockActor() != null) {
+            moveLockToPreviousDeployment(deployment);
+        }
         deploymentDAO.delete(deployment);
         systemLogDAO.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
+    }
+
+    private void moveLockToPreviousDeployment(Deployment deployment) {
+        final Deployment previousDeployment = deploymentDAO.findPreviousDeployment(deployment.getName(), deployment.getVersion());
+        if (previousDeployment != null) {
+            moveLock(deployment, previousDeployment);
+            deploymentDAO.update(previousDeployment);
+        }
     }
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
@@ -380,13 +419,34 @@ public class DefinitionLogic extends WFCommonLogic {
         return definitionsWithPermission;
     }
 
+    public WfDefinition lockProcessDefinition(User user, Long definitionId, boolean forAll) throws DefinitionDoesNotExistException,
+            DefinitionLockedException {
+        Deployment deployment = deploymentDAO.get(definitionId);
+        checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        if (deployment.getLockActor() != null && (!forAll || !user.getActor().equals(deployment.getLockActor()))) {
+            throw new DefinitionLockedException(deployment);
+        }
+        deployment.setLockActor(user.getActor());
+        deployment.setLockDate(new Date());
+        deployment.setLockForAll(forAll);
+        return new WfDefinition(deploymentDAO.update(deployment));
+    }
+
+    public WfDefinition unlockProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException {
+        Deployment deployment = deploymentDAO.get(definitionId);
+        checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        deployment.setLockActor(null);
+        deployment.setLockDate(null);
+        deployment.setLockForAll(null);
+        return new WfDefinition(deploymentDAO.update(deployment));
+    }
+
     private final class DefinitionIdentifiable extends Identifiable {
 
         private static final long serialVersionUID = 1L;
         private final String deploymentName;
 
         public DefinitionIdentifiable(String deploymentName) {
-            super();
             this.deploymentName = deploymentName;
         }
 

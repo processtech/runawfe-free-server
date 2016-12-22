@@ -32,6 +32,8 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.form.Interaction;
@@ -292,4 +294,21 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return definitionLogic.getProcessDefinitionHistory(user, name);
     }
 
+    @Override
+    @WebResult(name = "result")
+    public WfDefinition lockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+            @WebParam(name = "forAll") boolean forAll) throws DefinitionDoesNotExistException, DefinitionLockedException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        return definitionLogic.lockProcessDefinition(user, definitionId, forAll);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public WfDefinition unlockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId)
+            throws DefinitionDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        return definitionLogic.unlockProcessDefinition(user, definitionId);
+    }
 }

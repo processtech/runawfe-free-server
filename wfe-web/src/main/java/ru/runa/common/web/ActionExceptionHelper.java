@@ -33,6 +33,7 @@ import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -154,6 +155,13 @@ public class ActionExceptionHelper {
             actionMessage = new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey());
         } else if (e instanceof LocalizableException) {
             actionMessage = new ActionMessage(e.getLocalizedMessage(), false);
+        } else if (e instanceof DefinitionLockedException) {
+            DefinitionLockedException ex = (DefinitionLockedException) e;
+            if (ex.isForAll()) {
+                actionMessage = new ActionMessage(MessagesException.DEFINITION_LOCKED_FOR_ALL.getKey(), ex.getName(), ex.getActor(), ex.getDate());
+            } else {
+                actionMessage = new ActionMessage(MessagesException.DEFINITION_LOCKED.getKey(), ex.getName(), ex.getActor(), ex.getDate());
+            }
         } else if (e instanceof InternalApplicationException) {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_UNKNOWN.getKey(), e.getMessage());
         } else {

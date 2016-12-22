@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthenticationExpiredException;
 import ru.runa.wfe.security.AuthorizationException;
@@ -23,8 +24,7 @@ import ru.runa.wfe.validation.ValidationException;
 import com.google.common.base.Throwables;
 
 /**
- * Interceptor for logging and original exception extractor (from
- * {@link EJBException}).
+ * Interceptor for logging and original exception extractor (from {@link EJBException}).
  *
  * @author Dofs
  * @since RunaWFE 4.0
@@ -34,7 +34,7 @@ public class EjbExceptionSupport {
 
     public static final List<Class<? extends InternalApplicationException>> warnExceptionClasses = Arrays.asList(
             AuthenticationExpiredException.class, AuthenticationException.class, AuthorizationException.class, ExecutorDoesNotExistException.class,
-            ValidationException.class, TaskDoesNotExistException.class);
+            ValidationException.class, TaskDoesNotExistException.class, DefinitionLockedException.class);
 
     @AroundInvoke
     public Object process(InvocationContext ic) throws Exception {
