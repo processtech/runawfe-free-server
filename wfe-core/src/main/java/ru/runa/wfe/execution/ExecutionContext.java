@@ -205,14 +205,13 @@ public class ExecutionContext {
                 .getValue()) || variable.getValue() instanceof UserTypeMap) {
             variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
         }
-        if (variable != null) {
-            if (Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue()) || variable
-                    .getValue() instanceof UserTypeMap) {
-                variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
-            }
+        if (variable != null
+            && (Utils.isNullOrEmpty(variable.getValue())
+                || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue())
+                || variable.getValue() instanceof UserTypeMap)) {
+            variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
             return variable;
-        }
-        if (SystemProperties.isV3CompatibilityMode()) {
+        } else if (SystemProperties.isV3CompatibilityMode()) {
             Variable<?> dbVariable = variableLoader.get(getProcess(), name);
             return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
         }
