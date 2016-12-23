@@ -21,29 +21,19 @@
  */
 package ru.runa.wfe.execution;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
-import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.DBType;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.TypeConversionUtil;
-import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.commons.*;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
@@ -51,27 +41,21 @@ import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
-import ru.runa.wfe.lang.MultiSubprocessNode;
-import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.*;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.UserType;
-import ru.runa.wfe.var.UserTypeMap;
-import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.VariableCreator;
-import ru.runa.wfe.var.VariableDefinition;
-import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.*;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
@@ -281,10 +265,12 @@ public class ExecutionContext {
                         .getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
                 } else if (baseVariable != null) {
-                    if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
-                        variable.setValue(baseVariable.getValue());
-                    }
-                    if (!Utils.isNullOrEmpty(variable.getValue())) {
+                    if (Utils.isNullOrEmpty(variable)) {
+                        return baseVariable;
+                    } else {
+                        if (null == variable.getValue()) {
+                            variable.setValue(baseVariable.getValue());
+                        }
                         return variable;
                     }
                 }
