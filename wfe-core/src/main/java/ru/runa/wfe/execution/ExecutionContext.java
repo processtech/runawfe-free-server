@@ -205,10 +205,6 @@ public class ExecutionContext {
             }
         }
         WfVariable variable = variableLoader.getVariable(getProcessDefinition(), getProcess(), name);
-        if (variable == null || Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable
-                .getValue()) || variable.getValue() instanceof UserTypeMap) {
-            variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
-        }
         if (variable != null
             && (Utils.isNullOrEmpty(variable.getValue())
                 || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue())
