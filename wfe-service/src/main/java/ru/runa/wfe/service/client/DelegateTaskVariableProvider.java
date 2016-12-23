@@ -40,5 +40,4 @@ public class DelegateTaskVariableProvider extends DelegateProcessVariableProvide
     public String toString() {
         return Objects.toStringHelper(this).add("processId", processId).add("taskId", taskId).toString();
     }
-
 }
