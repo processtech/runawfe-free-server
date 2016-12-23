@@ -14,11 +14,13 @@ import ru.runa.wfe.var.dto.WfVariable;
 
 public class MapVariableProvider extends AbstractVariableProvider {
     protected final Map<String, Object> values = Maps.newHashMap();
+    private final ProcessDefinition processDefinition;
 
     public MapVariableProvider(Map<String, ? extends Object> variables) {
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) variables).entrySet()) {
             add(entry.getKey(), entry.getValue());
         }
+        processDefinition = null;
     }
 
     /**
@@ -29,7 +31,8 @@ public class MapVariableProvider extends AbstractVariableProvider {
      * @param unroll
      *            Flag? equals true, if variables must be unrolled to database related (simple) values and false otherwise.
      */
-    public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll) {
+    public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll, ProcessDefinition processDefinition) {
+        this.processDefinition = processDefinition;
         for (Map.Entry<String, WfVariable> entry : variables.entrySet()) {
             values.put(entry.getKey(), entry.getValue());
             if (unroll) {
@@ -65,17 +68,17 @@ public class MapVariableProvider extends AbstractVariableProvider {
 
     @Override
     public Long getProcessDefinitionId() {
-        return null;
+        return processDefinition == null ? null : processDefinition.getId();
     }
 
     @Override
     public String getProcessDefinitionName() {
-        return null;
+        return processDefinition == null ? null : processDefinition.getName();
     }
 
     @Override
     public ProcessDefinition getProcessDefinition() {
-        return null;
+        return processDefinition == null ? null : processDefinition;
     }
 
     @Override
@@ -85,7 +88,7 @@ public class MapVariableProvider extends AbstractVariableProvider {
 
     @Override
     public UserType getUserType(String name) {
-        return null;
+        return processDefinition == null ? null : processDefinition.getUserType(name);
     }
 
     @Override
@@ -113,5 +116,4 @@ public class MapVariableProvider extends AbstractVariableProvider {
     public AbstractVariableProvider getSameProvider(Long processId) {
         return new MapVariableProvider(values);
     }
-
 }
