@@ -209,14 +209,13 @@ public class ExecutionContext {
                 .getValue()) || variable.getValue() instanceof UserTypeMap) {
             variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
         }
-        if (variable != null) {
-            if (Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue()) || variable
-                    .getValue() instanceof UserTypeMap) {
-                variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
-            }
+        if (variable != null
+            && (Utils.isNullOrEmpty(variable.getValue())
+                || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue())
+                || variable.getValue() instanceof UserTypeMap)) {
+            variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
             return variable;
-        }
-        if (SystemProperties.isV3CompatibilityMode()) {
+        } else if (SystemProperties.isV3CompatibilityMode()) {
             Variable<?> dbVariable = variableLoader.get(getProcess(), name);
             return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
         }
@@ -286,11 +285,12 @@ public class ExecutionContext {
                         .getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
                 } else if (baseVariable != null) {
-                    if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
-                        variable.setValue(baseVariable.getValue());
-                    }
-                    if (!Utils.isNullOrEmpty(variable.getValue())
-                            && !Objects.equal(baseVariable.getDefinition().getDefaultValue(), variable.getValue())) {
+                    if (Utils.isNullOrEmpty(variable)) {
+                        return baseVariable;
+                    } else {
+                        if (null == variable.getValue()) {
+                            variable.setValue(baseVariable.getValue());
+                        }
                         return variable;
                     }
                 }
@@ -459,7 +459,7 @@ public class ExecutionContext {
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
             if (!subprocessesInfoMap.containsKey(process)) {
-                NodeProcess nodeProcess = nodeProcessDAO.findBySubProcessId(process.getId());
+                NodeProcess nodeProcess = nodeProcessDAO.getNodeProcessByChild(process.getId());
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();
