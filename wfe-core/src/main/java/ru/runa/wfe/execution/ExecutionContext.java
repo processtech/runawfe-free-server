@@ -281,12 +281,16 @@ public class ExecutionContext {
                         .getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
                 } else if (baseVariable != null) {
-                    if (Utils.isNullOrEmpty(variable) && !Utils.isNullOrEmpty(baseVariable.getValue())) {
-                        return baseVariable;
-                    } else if (null != variable && null == variable.getValue()
-                            && !Utils.isNullOrEmpty(baseVariable.getValue())) {
-                        variable.setValue(baseVariable.getValue());
+                    if (variable != null) {
+                        if (Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue()) || variable
+                                .getValue() instanceof UserTypeMap) {
+                            variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
+                        }
                         return variable;
+                    }
+                    if (SystemProperties.isV3CompatibilityMode()) {
+                        Variable<?> dbVariable = variableLoader.get(getProcess(), name);
+                        return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
                     }
                 }
                 return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, variable);
