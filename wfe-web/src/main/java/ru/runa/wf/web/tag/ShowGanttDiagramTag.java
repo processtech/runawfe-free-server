@@ -53,7 +53,7 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
             if (log instanceof ProcessStartLog) {
                 TaskCreateLog createLog = null;
                 for (TaskCreateLog key : taskLogs.keySet()) {
-                    if (Objects.equal(key.getId(), log.getId())) {
+                    if (Objects.equal(key.getId(), log.getId()) && Objects.equal(key.getProcessId(), log.getProcessId())) {
                         createLog = key;
                         break;
                     }
@@ -93,8 +93,13 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
 
     private String getBar(Object id, String name, Date start, Date end, String type, String executorName, boolean group, Object parentId,
             String depends) {
-        return MessageFormat.format(GANTT_CHART_ITEM_DATA_FORMAT, id, name, executorName != null ? executorName : "",
-                group ? "" : DATE_TIME_FORMAT.format(start), group ? "" : DATE_TIME_FORMAT.format(end), 1, true, parentId, type);
+        String _id = id.toString();
+        String _parentId = parentId.toString();
+        if (_id.equals(_parentId)) {
+            _id += ".5";
+        }
+        return MessageFormat.format(GANTT_CHART_ITEM_DATA_FORMAT, _id, name, executorName != null ? executorName : "",
+                group ? "" : DATE_TIME_FORMAT.format(start), group ? "" : DATE_TIME_FORMAT.format(end), 1, true, _parentId, type);
     }
 
     @Override

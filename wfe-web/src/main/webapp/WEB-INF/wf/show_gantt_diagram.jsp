@@ -27,7 +27,7 @@
 }
 
 .gantt-chart-gray .gantt_task_progress {
-	background: #707070;
+	background: #444444;
 }
 
 .gantt-chart-green {
@@ -37,7 +37,7 @@
 }
 
 .gantt-chart-green .gantt_task_progress {
-	background: #23964d;
+	background: #0ccc00;
 }
 
 .gantt-chart-blue {
@@ -47,7 +47,7 @@
 }
 
 .gantt-chart-blue .gantt_task_progress {
-	background: #547dab;
+	background: #008880;
 }
 
 .gantt-chart-bright-green {
@@ -57,7 +57,7 @@
 }
 
 .gantt-chart-bright-green .gantt_task_progress {
-	background: #23b64d;
+	background: #44ff44;
 }
 
 .weekend {
@@ -193,7 +193,7 @@
 			gantt.config.scale_unit = "quarter";
 			gantt.config.step = 1;
 			gantt.config.date_scale = null; //"%M";
-			gantt.config.duration_unit = "month";
+			gantt.config.duration_unit = "quarter";
 			gantt.config.duration_step = 1;
 			gantt.config.min_column_width = 40;
 			gantt.config.scale_height = 50;
@@ -256,12 +256,14 @@
 		}
 	};
 
-	gantt.config.grid_width = 550;
+	gantt.config.grid_width = 600;
 	gantt.config.date_grid = "%d.%m.%y %H:%i";
 	gantt.config.xml_date = "%Y-%m-%d %H:%i";
 	gantt.config.row_height = 25;
 	gantt.config.readonly = true;
 	gantt.config.autosize = "y";
+	gantt.config.work_time = false;
+	gantt.config.sort = true;
 
     gantt.templates.scale_cell_class = function(date) {
         if (".minute.hour.day.".indexOf("." + gantt.config.scale_unit + ".") > -1) {
