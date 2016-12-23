@@ -281,12 +281,11 @@ public class ExecutionContext {
                         .getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
                 } else if (baseVariable != null) {
-                    if (Utils.isNullOrEmpty(variable)) {
+                    if (Utils.isNullOrEmpty(variable) && !Utils.isNullOrEmpty(baseVariable.getValue())) {
                         return baseVariable;
-                    } else {
-                        if (null == variable.getValue()) {
-                            variable.setValue(baseVariable.getValue());
-                        }
+                    } else if (null != variable && null == variable.getValue()
+                            && !Utils.isNullOrEmpty(baseVariable.getValue())) {
+                        variable.setValue(baseVariable.getValue());
                         return variable;
                     }
                 }
