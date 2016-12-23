@@ -265,12 +265,10 @@ public class ExecutionContext {
                         .getValue() instanceof UserTypeMap) {
                     ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
                 } else if (baseVariable != null) {
-                    if (Utils.isNullOrEmpty(variable)) {
-                        return baseVariable;
-                    } else {
-                        if (null == variable.getValue()) {
-                            variable.setValue(baseVariable.getValue());
-                        }
+                    if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
+                        variable.setValue(baseVariable.getValue());
+                    }
+                    if (!Utils.isNullOrEmpty(variable.getValue())) {
                         return variable;
                     }
                 }
