@@ -32,7 +32,7 @@ import com.google.common.base.Objects;
 
 /**
  * DAO for {@link Deployment}.
- *
+ * 
  * @author dofs
  * @since 4.0
  */
@@ -80,13 +80,6 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
             throw new DefinitionDoesNotExistException(name + " v" + version);
         }
         return deployment;
-    }
-
-    /**
-     * @return previous deployment or <code>null</code>
-     */
-    public Deployment findPreviousDeployment(String name, Long version) {
-        return findFirstOrNull("from Deployment where name=? and version<? order by version desc", name, version);
     }
 
     /**

@@ -30,7 +30,7 @@ import ru.runa.wfe.user.Actor;
 
 /**
  * Class presentation for process definition. Shows only last deployed process definition.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -69,9 +69,9 @@ public class DefinitionClassPresentation extends ClassPresentation {
                 new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "updateActor"), false,
                         FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
                 new FieldDescriptor(LOCK_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "lockDate"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionLockDateTDBuilder", new Object[] {}),
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionLockDateTDBuilder", new Object[] {}).setVisible(false),
                 new FieldDescriptor(LOCK_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "lockActor"), false,
-                        FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionLockActorTDBuilder", new Object[] {}) });
+                        FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionLockActorTDBuilder", new Object[] {}).setVisible(false) });
     }
 
     public static final ClassPresentation getInstance() {
