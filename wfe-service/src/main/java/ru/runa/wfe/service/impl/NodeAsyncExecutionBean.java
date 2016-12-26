@@ -1,5 +1,7 @@
 package ru.runa.wfe.service.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -16,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.ITransactionListener;
@@ -33,6 +36,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 
 /**
@@ -65,26 +69,36 @@ public class NodeAsyncExecutionBean implements MessageListener {
             Long tokenId = message.getLongProperty("tokenId");
             String nodeId = message.getStringProperty("nodeId");
             log.debug("handling node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
-            handleMessage(processId, tokenId);
+            handleMessage(processId, tokenId, nodeId);
         } catch (Exception e) {
             log.error(jmsMessage, e);
             throw new MessagePostponedException(e.getMessage());
         }
     }
 
-    private void handleMessage(final Long processId, final Long tokenId) {
+    private void handleMessage(final Long processId, final Long tokenId, final String nodeId) {
         try {
             new TransactionalExecutor(context.getUserTransaction()) {
 
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
                     Token token = tokenDAO.getNotNull(tokenId);
+                    if (!Objects.equal(nodeId, token.getNodeId())) {
+                        throw new InternalApplicationException(token + " expected to be in node " + nodeId);
+                    }
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     Node node = processDefinition.getNodeNotNull(token.getNodeId());
                     try {
                         ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
                         node.handle(executionContext);
                         ProcessExecutionErrors.removeProcessError(processId, node.getNodeId());
+                        if (token.getExecutionStatus() == ExecutionStatus.FAILED) {
+                            token.setExecutionStatus(ExecutionStatus.ACTIVE);
+                            List<Token> failedTokens = tokenDAO.findByProcessAndExecutionStatus(token.getProcess(), ExecutionStatus.FAILED);
+                            if (failedTokens.isEmpty()) {
+                                token.getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
+                            }
+                        }
                     } catch (Throwable th) {
                         log.error(processId + ":" + tokenId, th);
                         ProcessExecutionErrors.addProcessError(processId, node.getNodeId(), node.getName(), null, th);
@@ -106,12 +120,15 @@ public class NodeAsyncExecutionBean implements MessageListener {
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
                     Token token = tokenDAO.getNotNull(tokenId);
-                    token.setExecutionStatus(ExecutionStatus.FAILED);
-                    ru.runa.wfe.execution.Process process = processDAO.getNotNull(processId);
-                    process.setExecutionStatus(ExecutionStatus.FAILED);
-                    processLogDAO.addLog(new ProcessSuspendLog(null), process, null);
+                    if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
+                        token.setExecutionStatus(ExecutionStatus.FAILED);
+                        ru.runa.wfe.execution.Process process = processDAO.getNotNull(processId);
+                        process.setExecutionStatus(ExecutionStatus.FAILED);
+                        processLogDAO.addLog(new ProcessSuspendLog(null), process, null);
+                    }
                 }
             }.executeInTransaction(true);
+            throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
         }
     }
 

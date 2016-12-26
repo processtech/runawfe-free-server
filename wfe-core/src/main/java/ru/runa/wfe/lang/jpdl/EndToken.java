@@ -25,7 +25,7 @@ public class EndToken extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().end(executionContext, null, null, false);
+        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
         if (!executionContext.getProcess().hasEnded() && executionContext.getProcess().getRootToken().hasEnded()) {
             executionContext.getProcess().end(executionContext, null);
         }
