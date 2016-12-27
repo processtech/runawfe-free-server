@@ -22,6 +22,7 @@ import java.util.List;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -37,7 +38,7 @@ import ru.runa.wfe.var.VariableDefinition;
 
 /**
  * Process definition service.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -45,7 +46,7 @@ public interface DefinitionService {
 
     /**
      * Deploys new process definition.
-     *
+     * 
      * @param user
      *            authorized user
      * @param archive
@@ -61,7 +62,7 @@ public interface DefinitionService {
 
     /**
      * Redeploys process definition by name.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -80,7 +81,7 @@ public interface DefinitionService {
 
     /**
      * Updates process definition.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -88,7 +89,7 @@ public interface DefinitionService {
      * @param archive
      *            process definition archive (ZIP format)
      * @return redeployed definition
-     *
+     * 
      * @throws DefinitionDoesNotExistException
      * @throws DefinitionArchiveFormatException
      * @throws DefinitionNameMismatchException
@@ -98,7 +99,7 @@ public interface DefinitionService {
 
     /**
      * Gets only last version from process definition by name.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionName
@@ -110,7 +111,7 @@ public interface DefinitionService {
 
     /**
      * Gets process definition by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -122,7 +123,7 @@ public interface DefinitionService {
 
     /**
      * Gets only last version from process definition by name.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionName
@@ -136,7 +137,7 @@ public interface DefinitionService {
 
     /**
      * Gets parsed process definition by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -148,7 +149,7 @@ public interface DefinitionService {
 
     /**
      * Gets parsed process definition by id. TODO this method return too many data through references.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -162,7 +163,7 @@ public interface DefinitionService {
 
     /**
      * Deletes process definition by name. If version is not specified all versions will be deleted.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionName
@@ -176,7 +177,7 @@ public interface DefinitionService {
 
     /**
      * Retrieves file data from process definition archive.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -190,7 +191,7 @@ public interface DefinitionService {
 
     /**
      * Retrieves processimage.png (or earlier equivalent) file data from process definition archive.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -204,7 +205,7 @@ public interface DefinitionService {
 
     /**
      * Gets start task user interaction.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -218,7 +219,7 @@ public interface DefinitionService {
 
     /**
      * Gets task node user interaction.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -232,7 +233,7 @@ public interface DefinitionService {
 
     /**
      * Gets all role definitions for process definition by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -244,7 +245,7 @@ public interface DefinitionService {
 
     /**
      * Gets all variable user types for process definition by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -256,7 +257,7 @@ public interface DefinitionService {
 
     /**
      * Gets variable user type for process definition by name.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -270,7 +271,7 @@ public interface DefinitionService {
 
     /**
      * Gets all variable definitions for process definition by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -282,7 +283,7 @@ public interface DefinitionService {
 
     /**
      * Gets variable definition for process definition by name.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -296,7 +297,7 @@ public interface DefinitionService {
 
     /**
      * Gets all graph elements for process definition by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -309,7 +310,7 @@ public interface DefinitionService {
 
     /**
      * Gets all versions of process definition specified by name.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionName
@@ -320,7 +321,7 @@ public interface DefinitionService {
 
     /**
      * Gets process definitions according to batch presentation.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -330,7 +331,7 @@ public interface DefinitionService {
 
     /**
      * Gets process definitions count.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -340,11 +341,38 @@ public interface DefinitionService {
 
     /**
      * Gets deployments according to batch presentation.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
      * @return not <code>null</code>
      */
     public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging);
+
+    /**
+     * Lock process definition.
+     * 
+     * @param user
+     *            authorized user
+     * @param definitionName
+     *            process definition name
+     * @param forAll
+     *            for all executors including locker user
+     * @throws DefinitionDoesNotExistException
+     * @throws DefinitionAlreadyLockedException
+     */
+    public void lockProcessDefinition(User user, String definitionName, boolean forAll) throws DefinitionDoesNotExistException,
+            DefinitionLockedException;
+
+    /**
+     * Unlocks process definition.
+     * 
+     * @param user
+     *            authorized user
+     * @param definitionName
+     *            process definition name
+     * @throws DefinitionDoesNotExistException
+     */
+    public void unlockProcessDefinition(User user, String definitionName) throws DefinitionDoesNotExistException;
+
 }
