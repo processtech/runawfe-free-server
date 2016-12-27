@@ -17,10 +17,12 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionLockedException;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -255,7 +257,7 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
 
     @Override
     public void lockProcessDefinition(User user, String definitionName, boolean forAll) throws DefinitionDoesNotExistException,
-            DefinitionLockedException {
+    DefinitionLockedException {
         try {
             getDefinitionService().lockProcessDefinition(user, definitionName, forAll);
         } catch (Exception e) {
@@ -271,4 +273,32 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
             throw handleException(e);
         }
     }
+
+    @Override
+    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
+        try {
+            return getDefinitionService().getChanges(definitionId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
+        try {
+            return getDefinitionService().findChanges(definitionName, version1, version2);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2) {
+        try {
+            return getDefinitionService().findChangesWithin(date1, date2);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }
