@@ -27,6 +27,7 @@ import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
@@ -37,13 +38,16 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.audit.ReceiveMessageLog;
+import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
@@ -73,6 +77,8 @@ public class ReceiveMessageBean implements MessageListener {
     private TokenDAO tokenDAO;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
+    @Autowired
+    private ProcessLogDAO processLogDAO;
     @Resource
     private MessageDrivenContext context;
 
@@ -82,10 +88,10 @@ public class ReceiveMessageBean implements MessageListener {
         ObjectMessage message = (ObjectMessage) jmsMessage;
         String messageString = Utils.toString(message, false);
         UserTransaction transaction = context.getUserTransaction();
-        boolean errorEvent = false;
+        ErrorEventData errorEventData = null;
         try {
             log.debug("Received " + messageString);
-            errorEvent = MessageEventType.error.name().equals(message.getStringProperty(BaseMessageNode.EVENT_TYPE));
+            errorEventData = ErrorEventData.match(message);
             transaction.begin();
             List<Token> tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
             for (Token token : tokens) {
@@ -93,13 +99,11 @@ public class ReceiveMessageBean implements MessageListener {
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
                     BaseMessageNode receiveMessageNode = (BaseMessageNode) token.getNodeNotNull(processDefinition);
                     ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
-                    if (errorEvent) {
+                    if (errorEventData != null) {
                         if (receiveMessageNode.getParentElement() instanceof Node) {
-                            String processIdString = message.getStringProperty(BaseMessageNode.ERROR_EVENT_PROCESS_ID);
-                            String nodeIdString = message.getStringProperty(BaseMessageNode.ERROR_EVENT_NODE_ID);
                             Long processId = token.getProcess().getId();
                             String nodeId = ((Node) receiveMessageNode.getParentElement()).getNodeId();
-                            if (processId.toString().equals(processIdString) && nodeId.equals(nodeIdString)) {
+                            if (processId.equals(errorEventData.processId) && nodeId.equals(errorEventData.nodeId)) {
                                 ProcessExecutionErrors.removeProcessError(processId, nodeId);
                                 handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
                                 break;
@@ -148,7 +152,25 @@ public class ReceiveMessageBean implements MessageListener {
             Throwables.propagate(e);
         }
         if (handlers.isEmpty()) {
-            throw new MessagePostponedException(messageString);
+            if (errorEventData != null) {
+                final Long tokenId = errorEventData.tokenId;
+                ProcessExecutionErrors.addProcessError(errorEventData.processId, errorEventData.nodeId, errorEventData.nodeId, null, new Exception(
+                        errorEventData.message));
+                new TransactionalExecutor(context.getUserTransaction()) {
+
+                    @Override
+                    protected void doExecuteInTransaction() throws Exception {
+                        Token token = tokenDAO.getNotNull(tokenId);
+                        if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
+                            token.setExecutionStatus(ExecutionStatus.FAILED);
+                            token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                            processLogDAO.addLog(new ProcessSuspendLog(null), token.getProcess(), null);
+                        }
+                    }
+                }.executeInTransaction(true);
+            } else {
+                throw new MessagePostponedException(messageString);
+            }
         }
         for (ReceiveMessageData data : handlers) {
             handleMessage(data, message);
@@ -204,4 +226,23 @@ public class ReceiveMessageBean implements MessageListener {
         }
     }
 
+    private static class ErrorEventData {
+        private Long processId;
+        private String nodeId;
+        private Long tokenId;
+        private String message;
+
+        public static ErrorEventData match(ObjectMessage message) throws JMSException {
+            if (MessageEventType.error.name().equals(message.getStringProperty(BaseMessageNode.EVENT_TYPE))) {
+                ErrorEventData data = new ErrorEventData();
+                data.processId = Long.valueOf(message.getStringProperty(BaseMessageNode.ERROR_EVENT_PROCESS_ID));
+                data.nodeId = message.getStringProperty(BaseMessageNode.ERROR_EVENT_NODE_ID);
+                Map<String, Object> map = (Map<String, Object>) message.getObject();
+                data.tokenId = (Long) map.get(BaseMessageNode.ERROR_EVENT_TOKEN_ID);
+                data.message = (String) map.get(BaseMessageNode.ERROR_EVENT_MESSAGE);
+                return data;
+            }
+            return null;
+        }
+    }
 }

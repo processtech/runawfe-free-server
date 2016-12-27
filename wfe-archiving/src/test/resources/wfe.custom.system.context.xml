@@ -1,0 +1,66 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jee="http://www.springframework.org/schema/jee" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+ http://www.springframework.org/schema/beans 
+ http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+ http://www.springframework.org/schema/tx 
+ http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+ http://www.springframework.org/schema/aop 
+ http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+ http://www.springframework.org/schema/jee 
+ http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+ http://www.springframework.org/schema/context
+ http://www.springframework.org/schema/context/spring-context-2.5.xsd
+ http://www.springframework.org/schema/task 
+ http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+	<bean id="hibernatePropertiesA" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:database-archive.properties</value>
+				<value>classpath*:wfe.custom.database-archive.properties</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="sessionFactoryA" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="hibernateProperties" ref="hibernatePropertiesA" />
+		<property name="entityInterceptor">
+			<bean class="ru.runa.wfe.commons.hibernate.CacheInterceptor" />
+		</property>
+		<property name="packagesToScan">
+			<list>
+				<value>ru.runa.wfe</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="hibernateTemplateA" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactoryA" />
+	</bean>
+	<bean id="archProcessDAO" class="ru.runa.wfe.execution.dao.ProcessDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplateA" />
+	</bean>
+	<bean id="archSwimlaneDAO" class="ru.runa.wfe.execution.dao.SwimlaneDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplateA" />
+	</bean>
+	<bean id="archDeploymentDAO" class="ru.runa.wfe.definition.dao.DeploymentDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplateA" />
+	</bean>
+	<bean id="archConstantDAO" class="ru.runa.wfe.commons.dao.ConstantDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplateA" />
+	</bean>
+	<bean id="archExecutorDAO" class="ru.runa.wfe.user.dao.ExecutorDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplateA" />
+	</bean>
+	<bean id="archPermissionDAO" class="ru.runa.wfe.security.dao.PermissionDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplateA" />
+	</bean>
+	<bean id="archLocalizationDAO" class="ru.runa.wfe.commons.dao.LocalizationDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplateA" />
+	</bean>
+	<bean id="archTokenDAO" class="ru.runa.wfe.execution.dao.TokenDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplateA" />
+	</bean>
+	<bean id="archivingInitLogic" class="ru.runa.wfe.service.logic.archiving.ArchivingInitializerLogic" />
+	<bean id="archivingLogic" class="ru.runa.wfe.service.logic.archiving.ArchivingLogic" />
+</beans>
