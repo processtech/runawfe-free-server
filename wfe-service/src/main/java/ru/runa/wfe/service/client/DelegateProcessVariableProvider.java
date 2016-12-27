@@ -102,5 +102,4 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     public String toString() {
         return Objects.toStringHelper(this).add("processId", processId).toString();
     }
-
 }

@@ -133,6 +133,7 @@ public class VariableLogic extends WFCommonLogic {
                 throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
             }
             filter.setCreateDateTo(leaveLog.getCreateDate());
+            filter.setIdTo(leaveLog.getId());
             return getHistoricalVariableOnDate(user, filter);
         }
         Date taskCreateDate = null;
@@ -232,12 +233,16 @@ public class VariableLogic extends WFCommonLogic {
         checkPermissionAllowed(user, process, ProcessPermission.READ);
         Set<String> simpleVariablesChanged = Sets.newHashSet();
         VariableLoader loader = new VariableLoaderFromMap(getProcessStateOnTime(user, process, filter, simpleVariablesChanged));
+        HashSet<String> createdVariables = Sets.newHashSet();
         for (Process varProcess = process; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
             ProcessDefinition processDefinition = getDefinition(varProcess);
             for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
-                WfVariable variable = loader.getVariable(processDefinition, process, variableDefinition.getName());
+                String name = variableDefinition.getName();
+                WfVariable variable = loader.getVariable(processDefinition, process, name);
                 if (!Utils.isNullOrEmpty(variable.getValue())) {
+                    // if (createdVariables.add(name)) {
                     result.add(variable);
+                    // }
                 }
             }
         }

@@ -23,20 +23,29 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.dom4j.Document;
+import org.dom4j.Element;
+
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
+import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
+import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.VersionInfo;
 import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.definition.par.CommentsParser;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
@@ -95,6 +104,7 @@ public class DefinitionLogic extends WFCommonLogic {
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
         Deployment oldDeployment = deploymentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, oldDeployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        checkLock(user, oldDeployment);
         if (processArchiveBytes == null) {
             Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
             oldDeployment.setCategories(categories);
@@ -117,7 +127,15 @@ public class DefinitionLogic extends WFCommonLogic {
         }
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
+        if (oldDeployment.getLockActor() != null) {
+            definition.getDeployment().setLockActor(oldDeployment.getLockActor());
+            definition.getDeployment().setLockDate(oldDeployment.getLockDate());
+            definition.getDeployment().setLockForAll(oldDeployment.getLockForAll());
+        }
         deploymentDAO.deploy(definition.getDeployment(), oldDeployment);
+        if (definition.getDeployment().getLockActor() != null) {
+            deploymentDAO.update(oldDeployment);
+        }
         log.debug("Process definition " + oldDeployment + " was successfully redeployed");
         return new WfDefinition(definition, true);
     }
@@ -134,6 +152,7 @@ public class DefinitionLogic extends WFCommonLogic {
         Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
         Deployment deployment = deploymentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        checkLock(user, deployment);
         ProcessDefinition uploadedDefinition;
         try {
             uploadedDefinition = parseProcessDefinition(processArchiveBytes);
@@ -151,16 +170,6 @@ public class DefinitionLogic extends WFCommonLogic {
         addUpdatedDefinitionInProcessLog(user, deployment);
         log.debug("Process definition " + deployment + " was successfully updated");
         return new WfDefinition(deployment);
-    }
-
-    private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
-        ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(deployment.getName());
-        filter.setDefinitionVersion(deployment.getVersion());
-        List<Process> processes = processDAO.getProcesses(filter);
-        for (Process process : processes) {
-            processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);
-        }
     }
 
     public WfDefinition getLatestProcessDefinition(User user, String definitionName) {
@@ -231,6 +240,7 @@ public class DefinitionLogic extends WFCommonLogic {
         if (version == null) {
             Deployment latestDeployment = deploymentDAO.findLatestDeployment(definitionName);
             checkPermissionAllowed(user, latestDeployment, DefinitionPermission.UNDEPLOY_DEFINITION);
+            checkLock(user, latestDeployment);
             permissionDAO.deleteAllPermissions(latestDeployment);
             List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definitionName);
             for (Deployment deployment : deployments) {
@@ -239,6 +249,7 @@ public class DefinitionLogic extends WFCommonLogic {
             log.info("Process definition " + latestDeployment + " successfully undeployed");
         } else {
             Deployment deployment = deploymentDAO.findDeployment(definitionName, version);
+            checkLock(user, deployment);
             removeDeployment(user, deployment);
             log.info("Process definition " + deployment + " successfully undeployed");
         }
@@ -251,6 +262,151 @@ public class DefinitionLogic extends WFCommonLogic {
         }
         deploymentDAO.delete(deployment);
         systemLogDAO.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
+    }
+
+    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        String definitionName = deploymentDAO.get(definitionId).getName();
+        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        int prevCount = 0;
+        int curVersion = 0;
+        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
+            Deployment deployment = listOfDeployments.get(m);
+            curVersion++;
+            String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
+            String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
+            VersionInfo versionInfoEmptyComment = new VersionInfo();
+            versionInfoEmptyComment.setDate(CalendarUtil.dateToCalendar(deployment.getUpdateDate() != null ? deployment.getUpdateDate() : deployment
+                    .getCreateDate()));
+            versionInfoEmptyComment.setAuthor(updateActorLabel.isEmpty() ? createActorLabel : updateActorLabel);
+            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
+            ProcessArchive archiveData = new ProcessArchive(deployment);
+            if (archiveData.getFileData().containsKey(fileName)) {
+                byte[] definitionXml = archiveData.getFileData().get(fileName);
+                Document document = XmlUtils.parseWithoutValidation(definitionXml);
+                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
+                List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (prevCount == versionList.size()) {
+                    versionInfos.add(versionInfoEmptyComment);
+                }
+                for (int j = prevCount; j < versionList.size(); j++) {
+                    Element versionInfoElement = versionList.get(j);
+                    VersionInfo versionInfo = new VersionInfo();
+                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
+                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
+                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
+                    versionInfos.add(versionInfo);
+                    prevCount++;
+                }
+
+                for (VersionInfo versionInfo : versionInfos) {
+                    result.add(new ProcessDefinitionChange(curVersion, versionInfo));
+                }
+            } else {
+                result.add(new ProcessDefinitionChange(curVersion, versionInfoEmptyComment));
+            }
+
+        }
+        return result;
+    }
+
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        int prevCount = 0;
+        int curVersion = 0;
+        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
+            Deployment deployment = listOfDeployments.get(m);
+            curVersion++;
+            String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
+            String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
+            VersionInfo versionInfoEmptyComment = new VersionInfo();
+            versionInfoEmptyComment.setDate(CalendarUtil.dateToCalendar(deployment.getUpdateDate() != null ? deployment.getUpdateDate() : deployment
+                    .getCreateDate()));
+            versionInfoEmptyComment.setAuthor(updateActorLabel.isEmpty() ? createActorLabel : updateActorLabel);
+            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
+            ProcessArchive archiveData = new ProcessArchive(deployment);
+            if (archiveData.getFileData().containsKey(fileName)) {
+                byte[] definitionXml = archiveData.getFileData().get(fileName);
+                Document document = XmlUtils.parseWithoutValidation(definitionXml);
+                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
+                List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (prevCount == versionList.size()) {
+                    versionInfos.add(versionInfoEmptyComment);
+                }
+                for (int j = prevCount; j < versionList.size(); j++) {
+                    Element versionInfoElement = versionList.get(j);
+                    VersionInfo versionInfo = new VersionInfo();
+                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
+                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
+                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
+                    versionInfos.add(versionInfo);
+                    prevCount++;
+                }
+
+                if (curVersion >= version1 && curVersion <= version2) {
+                    for (VersionInfo versionInfo : versionInfos) {
+                        result.add(new ProcessDefinitionChange(curVersion, versionInfo));
+                    }
+                }
+            } else {
+                if (curVersion >= version1 && curVersion <= version2) {
+                    result.add(new ProcessDefinitionChange(curVersion, versionInfoEmptyComment));
+                }
+            }
+
+        }
+        return result;
+    }
+
+    public List<ProcessDefinitionChange> findChanges(Date date1, Date date2) {
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        List<Deployment> listOfDeployments = deploymentDAO.getAll();
+        int prevCount = 0;
+        int curVersion = 0;
+        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
+            Deployment deployment = listOfDeployments.get(m);
+            curVersion++;
+            String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
+            String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
+            VersionInfo versionInfoEmptyComment = new VersionInfo();
+            versionInfoEmptyComment.setDate(CalendarUtil.dateToCalendar(deployment.getUpdateDate() != null ? deployment.getUpdateDate() : deployment
+                    .getCreateDate()));
+            versionInfoEmptyComment.setAuthor(updateActorLabel.isEmpty() ? createActorLabel : updateActorLabel);
+            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
+            ProcessArchive archiveData = new ProcessArchive(deployment);
+            if (archiveData.getFileData().containsKey(fileName)) {
+                byte[] definitionXml = archiveData.getFileData().get(fileName);
+                Document document = XmlUtils.parseWithoutValidation(definitionXml);
+                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
+                List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (prevCount == versionList.size()) {
+                    versionInfos.add(versionInfoEmptyComment);
+                }
+                for (int j = prevCount; j < versionList.size(); j++) {
+                    Element versionInfoElement = versionList.get(j);
+                    VersionInfo versionInfo = new VersionInfo();
+                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
+                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
+                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
+                    versionInfos.add(versionInfo);
+                    prevCount++;
+                }
+
+                for (VersionInfo versionInfo : versionInfos) {
+                    if (versionInfo.getDate().compareTo(CalendarUtil.dateToCalendar(date1)) >= 0
+                            && versionInfo.getDate().compareTo(CalendarUtil.dateToCalendar(date2)) <= 0) {
+                        result.add(new ProcessDefinitionChange(curVersion, versionInfo));
+                    }
+                }
+            } else {
+                if (versionInfoEmptyComment.getDate().compareTo(CalendarUtil.dateToCalendar(date1)) >= 0
+                        && versionInfoEmptyComment.getDate().compareTo(CalendarUtil.dateToCalendar(date2)) <= 0) {
+                    result.add(new ProcessDefinitionChange(curVersion, versionInfoEmptyComment));
+                }
+            }
+        }
+        return result;
     }
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
@@ -380,13 +536,67 @@ public class DefinitionLogic extends WFCommonLogic {
         return definitionsWithPermission;
     }
 
+    public void lockProcessDefinition(User user, String definitionName, boolean forAll) throws DefinitionDoesNotExistException,
+            DefinitionLockedException {
+        List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        if (deployments.isEmpty()) {
+            throw new DefinitionDoesNotExistException(definitionName);
+        }
+        Deployment firstDeployment = deployments.get(0);
+        checkPermissionAllowed(user, firstDeployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        if (firstDeployment.getLockActor() != null && (!forAll || !user.getActor().equals(firstDeployment.getLockActor()))) {
+            throw new DefinitionLockedException(firstDeployment);
+        }
+        // TODO may be extract definition attributes entity for shared through versions attributes (like locking)
+        for (Deployment deployment : deployments) {
+            deployment.setLockActor(user.getActor());
+            deployment.setLockDate(new Date());
+            deployment.setLockForAll(forAll);
+            deploymentDAO.update(deployment);
+        }
+    }
+
+    public void unlockProcessDefinition(User user, String definitionName) throws DefinitionDoesNotExistException {
+        List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        if (deployments.isEmpty()) {
+            throw new DefinitionDoesNotExistException(definitionName);
+        }
+        Deployment firstDeployment = deployments.get(0);
+        checkPermissionAllowed(user, firstDeployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        for (Deployment deployment : deployments) {
+            deployment.setLockActor(null);
+            deployment.setLockDate(null);
+            deployment.setLockForAll(null);
+            deploymentDAO.update(deployment);
+        }
+    }
+
+    private void checkLock(User user, Deployment deployment) {
+        if (deployment.getLockActor() == null) {
+            return;
+        }
+        if (deployment.getLockForAll() != Boolean.TRUE && user.getActor().equals(deployment.getLockActor())) {
+            return;
+        }
+        throw new DefinitionLockedException(deployment);
+    }
+
+    private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
+        ProcessFilter filter = new ProcessFilter();
+        filter.setDefinitionName(deployment.getName());
+        filter.setDefinitionVersion(deployment.getVersion());
+        List<Process> processes = processDAO.getProcesses(filter);
+        for (Process process : processes) {
+            processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);
+        }
+    }
+
     private final class DefinitionIdentifiable extends Identifiable {
 
         private static final long serialVersionUID = 1L;
         private final String deploymentName;
 
         public DefinitionIdentifiable(String deploymentName) {
-            super();
             this.deploymentName = deploymentName;
         }
 
