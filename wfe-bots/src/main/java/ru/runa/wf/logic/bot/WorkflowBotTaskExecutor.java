@@ -50,9 +50,9 @@ import com.google.common.base.Throwables;
 
 /**
  * Execute task handlers for particular bot.
- *
+ * 
  * Configures and executes task handler in same method.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -235,7 +235,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
 
                     @Override
                     protected void doExecuteInTransaction() throws Exception {
-                        Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
+                        Utils.sendBpmnErrorMessage(task.getProcessId(), task.getTokenId(), task.getNodeId(), th);
                     }
                 }.executeInTransaction(false);
             }

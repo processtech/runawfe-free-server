@@ -28,7 +28,6 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.lang.Node;
@@ -54,8 +53,6 @@ public class NodeAsyncExecutionBean implements MessageListener {
     private TokenDAO tokenDAO;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
-    private ProcessDAO processDAO;
     @Autowired
     private ProcessLogDAO processLogDAO;
     @Resource
@@ -85,6 +82,10 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     Token token = tokenDAO.getNotNull(tokenId);
                     if (!Objects.equal(nodeId, token.getNodeId())) {
                         throw new InternalApplicationException(token + " expected to be in node " + nodeId);
+                    }
+                    if (token.getProcess().getExecutionStatus() == ExecutionStatus.ENDED) {
+                        log.debug("Ignored " + token.getProcess() + " execution");
+                        return;
                     }
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     Node node = processDefinition.getNodeNotNull(token.getNodeId());
@@ -122,9 +123,8 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     Token token = tokenDAO.getNotNull(tokenId);
                     if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
                         token.setExecutionStatus(ExecutionStatus.FAILED);
-                        ru.runa.wfe.execution.Process process = processDAO.getNotNull(processId);
-                        process.setExecutionStatus(ExecutionStatus.FAILED);
-                        processLogDAO.addLog(new ProcessSuspendLog(null), process, null);
+                        token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                        processLogDAO.addLog(new ProcessSuspendLog(null), token.getProcess(), null);
                     }
                 }
             }.executeInTransaction(true);
