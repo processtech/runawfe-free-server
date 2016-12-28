@@ -147,11 +147,11 @@ public class HibernateCompilerHQLBuider {
      * Builds 'select' HQL clause and 'from' clause with root persistent object.
      */
     private void buildSelectClause() {
-        final String distinct = batchPresentation.getClassPresentation().isDistinct() ? "distinct " : "";
         if (parameters.isCountQuery()) {
+            final String distinct = batchPresentation.getClassPresentation().isDistinct() ? "distinct " : "";
             query.append("select count (").append(distinct).append(ClassPresentation.classNameSQL).append(")");
         } else {
-            query.append("select ").append(distinct).append(ClassPresentation.classNameSQL);
+            query.append("select ").append(ClassPresentation.classNameSQL);
             if (parameters.isOnlyIdentityLoad()) {
                 query.append(".id");
             } else {
@@ -281,8 +281,8 @@ public class HibernateCompilerHQLBuider {
     }
 
     /**
-     * Generates expressions to satisfy fields filtering restrictions. This function doesn't generates filtering for fields with inheritance. It
-     * must be handled in SQL translation stage.
+     * Generates expressions to satisfy fields filtering restrictions. This function doesn't generates filtering for fields with inheritance. It must
+     * be handled in SQL translation stage.
      *
      * @return List of string, represents expressions.
      */
@@ -372,7 +372,7 @@ public class HibernateCompilerHQLBuider {
 
     /**
      * Returns all entities in {@link BatchPresentation}.
-     * 
+     *
      * @return All {@link BatchPresentation} entities.
      */
     public Set<Class<?>> getVisibleJoinedClasses() {
