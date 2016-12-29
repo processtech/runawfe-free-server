@@ -45,6 +45,28 @@ public class MapVariableProvider extends AbstractVariableProvider {
         }
     }
 
+    /**
+     * Creates instance for specified variables. May unroll variables to database related (simple) values, stored to database.
+     *
+     * @param variables
+     *            Variables, accessible from this instance.
+     * @param unroll
+     *            Flag? equals true, if variables must be unrolled to database related (simple) values and false otherwise.
+     */
+    public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll) {
+        this.processDefinition = null;
+        for (Map.Entry<String, WfVariable> entry : variables.entrySet()) {
+            values.put(entry.getKey(), entry.getValue());
+            if (unroll) {
+                VariableDefinition definition = entry.getValue().getDefinition();
+                ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(definition, entry.getValue().getValueNoDefault());
+                for (ConvertToSimpleVariablesResult unrolled : definition.getFormatNotNull().processBy(new ConvertToSimpleVariables(), context)) {
+                    values.put(unrolled.variableDefinition.getName(), new WfVariable(unrolled.variableDefinition, unrolled.value));
+                }
+            }
+        }
+    }
+
     public void add(String variableName, Object object) {
         values.put(variableName, object);
         if (object instanceof UserTypeMap) {
