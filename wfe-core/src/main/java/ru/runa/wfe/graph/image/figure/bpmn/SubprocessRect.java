@@ -30,7 +30,7 @@ public class SubprocessRect extends RoundedRect {
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {
         super.draw(graphics, cleanMode);
-        if (!useEgdingOnly) {
+        if (!useEdgingOnly) {
             int d = 2;
             int xCenter = coords[0] + coords[2] / 2;
             int y = coords[1] + coords[3] - DrawProperties.GRID_SIZE;

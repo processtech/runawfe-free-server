@@ -148,7 +148,7 @@ public class TransitionFigureBase {
             xPoints[i] = points.get(i).x;
             yPoints[i] = points.get(i).y;
         }
-        if (figureFrom.useEgdingOnly) {
+        if (figureFrom.useEdgingOnly) {
             // Cleaning old transitions
             graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH));
             graphics.setColor(DrawProperties.getBackgroundColor());
@@ -221,7 +221,7 @@ public class TransitionFigureBase {
         int[] ySmPoints = new int[] { end.y, yLeft, yRight };
         graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
 
-        if (!figureFrom.useEgdingOnly && !transition.getName().startsWith("tr")) {
+        if (!figureFrom.useEdgingOnly && !transition.getName().startsWith("tr")) {
             String drawString = transition.isTimerTransition() ? timerInfo : transition.getName();
             Rectangle2D textBounds = graphics.getFontMetrics().getStringBounds(drawString, graphics);
             int padding = 1;

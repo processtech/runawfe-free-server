@@ -67,12 +67,12 @@ public abstract class AbstractFigure {
     protected boolean async;
     protected boolean minimized;
     protected boolean hasTimer;
-    protected boolean useEgdingOnly;
+    protected boolean useEdgingOnly;
 
     protected Map<String, TransitionFigureBase> transitions = new HashMap<String, TransitionFigureBase>();
     protected RenderHits renderHits;
 
-    public void initFigure(Node node, boolean useEgdingOnly) {
+    public void initFigure(Node node, boolean useEdgingOnly) {
         this.nodeName = node.getName();
         this.nodeType = node.getNodeType();
         this.coords = node.getGraphConstraints();
@@ -88,7 +88,7 @@ public abstract class AbstractFigure {
                 this.swimlane = taskDefinition.getSwimlane().getName();
             }
         }
-        this.useEgdingOnly = useEgdingOnly;
+        this.useEdgingOnly = useEdgingOnly;
     }
 
     public String getName() {
@@ -146,7 +146,7 @@ public abstract class AbstractFigure {
     protected void drawActions(Graphics2D graphics) {
         if (actionsCount > 0) {
             Color color = graphics.getColor();
-            if (useEgdingOnly) {
+            if (useEdgingOnly) {
                 int shiftX = (ActionUtils.ACTION_DELIM + 2) + actionsCount * (ActionUtils.ACTION_SIZE + (ActionUtils.ACTION_DELIM + 3));
                 int shiftY = ActionUtils.ACTION_SIZE + 6;
                 graphics.setColor(DrawProperties.getBackgroundColor());
@@ -163,7 +163,7 @@ public abstract class AbstractFigure {
     }
 
     protected void drawTextInfo(Graphics2D graphics, int hOffset) {
-        if (!useEgdingOnly) {
+        if (!useEdgingOnly) {
             Color color = graphics.getColor();
             graphics.setColor(DrawProperties.getTextColor());
             if (swimlane != null) {
@@ -204,7 +204,7 @@ public abstract class AbstractFigure {
     }
 
     protected void drawImage(Graphics2D graphics, String name, double x, double y) {
-        drawImage(graphics, name, x, y, !useEgdingOnly);
+        drawImage(graphics, name, x, y, !useEdgingOnly);
     }
 
     protected void drawImage(Graphics2D graphics, String name, double x, double y, boolean condition) {

@@ -73,10 +73,10 @@ public class TaskNodeFigure extends AbstractFigure {
             // Draw timer
             graphics.drawOval(coords[0], coords[1] + coords[3] - DrawProperties.GRID_SIZE * 2, DrawProperties.GRID_SIZE * 2,
                     DrawProperties.GRID_SIZE * 2);
-            graphics.drawLine(coords[0] + DrawProperties.GRID_SIZE, coords[1] + coords[3] - DrawProperties.GRID_SIZE, coords[0]
-                    + DrawProperties.GRID_SIZE, coords[1] + coords[3] - DrawProperties.GRID_SIZE + 5);
-            graphics.drawLine(coords[0] + DrawProperties.GRID_SIZE, coords[1] + coords[3] - DrawProperties.GRID_SIZE, coords[0]
-                    + DrawProperties.GRID_SIZE + 5, coords[1] + coords[3] - DrawProperties.GRID_SIZE - 5);
+            graphics.drawLine(coords[0] + DrawProperties.GRID_SIZE, coords[1] + coords[3] - DrawProperties.GRID_SIZE,
+                    coords[0] + DrawProperties.GRID_SIZE, coords[1] + coords[3] - DrawProperties.GRID_SIZE + 5);
+            graphics.drawLine(coords[0] + DrawProperties.GRID_SIZE, coords[1] + coords[3] - DrawProperties.GRID_SIZE,
+                    coords[0] + DrawProperties.GRID_SIZE + 5, coords[1] + coords[3] - DrawProperties.GRID_SIZE - 5);
         }
     }
 
@@ -87,11 +87,6 @@ public class TaskNodeFigure extends AbstractFigure {
 
     @Override
     public Rectangle getRectangle() {
-        if (minimized) {
-            return new Rectangle(coords[0] + DrawProperties.GRID_SIZE / 2, coords[1] + DrawProperties.GRID_SIZE / 2, DrawProperties.GRID_SIZE,
-                    DrawProperties.GRID_SIZE);
-        }
-        return new Rectangle(coords[0] + DrawProperties.GRID_SIZE, coords[1], coords[2] - DrawProperties.GRID_SIZE, coords[3]
-                - DrawProperties.GRID_SIZE);
+        return new Rectangle(coords[0], coords[1], coords[2], coords[3]);
     }
 }

@@ -23,6 +23,10 @@ package ru.runa.wfe.lang;
 
 import java.util.List;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -32,10 +36,6 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public abstract class Node extends GraphElement {
     private static final long serialVersionUID = 1L;
