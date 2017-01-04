@@ -72,16 +72,13 @@ public class EmptyCacheState<CacheImpl extends CacheImplementation> implements C
      * @return Return next state for state machine.
      */
     private StateCommandResultWithCache<CacheImpl> initiateCacheCreation(CacheStateMachineContext<CacheImpl> context) {
-        if (stateContext.isReinitializationRequired() || cache == null) {
-            if (context.getCacheFactory().hasDelayedInitialization()) {
-                CacheImpl cache = this.cache != null ? this.cache : context.getCacheFactory().createCache();
-                CacheState<CacheImpl> initializingState = context.getStateFactory().createInitializingState(cache, stateContext);
-                return new StateCommandResultWithCache<CacheImpl>(initializingState, cache);
-            }
-            CacheImpl cache = context.getCacheFactory().createCache();
-            cache.commitCache();
-            return new StateCommandResultWithCache<CacheImpl>(context.getStateFactory().createInitializedState(cache, stateContext), cache);
+        if (context.getCacheFactory().hasDelayedInitialization()) {
+            CacheImpl cache = this.cache != null ? this.cache : context.getCacheFactory().createCache();
+            CacheState<CacheImpl> initializingState = context.getStateFactory().createInitializingState(cache, stateContext);
+            return new StateCommandResultWithCache<CacheImpl>(initializingState, cache);
         }
+        CacheImpl cache = context.getCacheFactory().createCache();
+        cache.commitCache();
         return new StateCommandResultWithCache<CacheImpl>(context.getStateFactory().createInitializedState(cache, stateContext), cache);
     }
 
@@ -119,7 +116,7 @@ public class EmptyCacheState<CacheImpl extends CacheImplementation> implements C
 
     @Override
     public StateCommandResult<CacheImpl> dropCache(CacheStateMachineContext<CacheImpl> context) {
-        return new StateCommandResult<CacheImpl>(context.getStateFactory().createEmptyState(null, new NonRuntimeCacheContext(null)));
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createEmptyState(null, new NonRuntimeCacheContext()));
     }
 
     /**

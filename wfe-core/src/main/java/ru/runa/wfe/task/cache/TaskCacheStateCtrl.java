@@ -11,6 +11,7 @@ import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
+import ru.runa.wfe.ss.cache.SubstitutionCacheStateImpl;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
@@ -50,6 +51,8 @@ class TaskCacheStateCtrl extends BaseCacheCtrl<ManageableTaskCache> implements T
         result.add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
         result.add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
         result.add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.BECOME_DIRTY));
+        // Must be invalidated in case of non runtime substitution cache update.
+        result.add(new ListenObjectDefinition(SubstitutionCacheStateImpl.class, ListenObjectLogType.BECOME_DIRTY));
         return result;
     }
 

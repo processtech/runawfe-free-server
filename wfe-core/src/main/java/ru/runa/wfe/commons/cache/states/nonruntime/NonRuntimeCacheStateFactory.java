@@ -15,7 +15,7 @@ public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> 
     public CacheState<CacheImpl> createEmptyState(CacheImpl cache, Object context) {
         NonRuntimeCacheContext stateContext = (NonRuntimeCacheContext) context;
         if (stateContext == null) {
-            stateContext = new NonRuntimeCacheContext(null);
+            stateContext = new NonRuntimeCacheContext();
         }
         return EmptyCacheState.createEmptyState(cache, stateContext);
     }
@@ -24,7 +24,7 @@ public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> 
     public CacheState<CacheImpl> createInitializingState(CacheImpl cache, Object context) {
         NonRuntimeCacheContext stateContext = (NonRuntimeCacheContext) context;
         if (stateContext == null) {
-            stateContext = new NonRuntimeCacheContext(null);
+            stateContext = new NonRuntimeCacheContext();
         }
         return new CacheInitializingState<CacheImpl>(cache, stateContext);
     }
@@ -33,7 +33,7 @@ public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> 
     public CacheState<CacheImpl> createInitializedState(CacheImpl cache, Object context) {
         NonRuntimeCacheContext stateContext = (NonRuntimeCacheContext) context;
         if (stateContext == null) {
-            stateContext = new NonRuntimeCacheContext(null);
+            stateContext = new NonRuntimeCacheContext();
         }
         return new CompletedCacheState<CacheImpl>(cache, stateContext);
     }
@@ -42,7 +42,7 @@ public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> 
     public CacheState<CacheImpl> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions, Object context) {
         NonRuntimeCacheContext stateContext = (NonRuntimeCacheContext) context;
         if (stateContext == null) {
-            stateContext = new NonRuntimeCacheContext(null);
+            stateContext = new NonRuntimeCacheContext();
         }
         return new DirtyCacheState<CacheImpl>(cache, dirtyTransactions, stateContext);
     }

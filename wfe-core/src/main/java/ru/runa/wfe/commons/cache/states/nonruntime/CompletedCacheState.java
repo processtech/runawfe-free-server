@@ -51,28 +51,17 @@ public class CompletedCacheState<CacheImpl extends CacheImplementation> implemen
 
     @Override
     public CacheImpl getCacheQuickNoBuild(Transaction transaction) {
-        if (stateContext.isReinitializationRequired()) {
-            return null;
-        }
         return cache;
     }
 
     @Override
     public StateCommandResultWithCache<CacheImpl> getCache(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
-        if (stateContext.isReinitializationRequired()) {
-            return new StateCommandResultWithCache<CacheImpl>(EmptyCacheState.createEmptyState(cache, stateContext), cache);
-        } else {
-            return new StateCommandResultWithCache<CacheImpl>(null, cache);
-        }
+        return new StateCommandResultWithCache<CacheImpl>(null, cache);
     }
 
     @Override
     public StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
-        if (stateContext.isReinitializationRequired()) {
-            return new StateCommandResultWithCache<CacheImpl>(EmptyCacheState.createEmptyState(cache, stateContext), cache);
-        } else {
-            return new StateCommandResultWithCache<CacheImpl>(null, cache);
-        }
+        return new StateCommandResultWithCache<CacheImpl>(null, cache);
     }
 
     @Override
@@ -110,6 +99,6 @@ public class CompletedCacheState<CacheImpl extends CacheImplementation> implemen
 
     @Override
     public StateCommandResult<CacheImpl> dropCache(CacheStateMachineContext<CacheImpl> context) {
-        return new StateCommandResult<CacheImpl>(context.getStateFactory().createEmptyState(null, new NonRuntimeCacheContext(null)));
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createEmptyState(null, new NonRuntimeCacheContext()));
     }
 }

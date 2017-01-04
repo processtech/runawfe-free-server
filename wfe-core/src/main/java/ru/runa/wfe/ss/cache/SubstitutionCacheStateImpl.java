@@ -44,7 +44,7 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
+public class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
     private static final Log log = LogFactory.getLog(SubstitutionCacheStateImpl.class);
     public static final String substitutorsName = "ru.runa.wfe.ss.cache.substitutors";
     public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
@@ -171,6 +171,6 @@ class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubs
 
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        return false;
+        return true;
     }
 }

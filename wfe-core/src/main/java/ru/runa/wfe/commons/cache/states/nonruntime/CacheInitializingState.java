@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.cache.states.nonruntime;
 
-import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.transaction.Transaction;
@@ -94,10 +93,7 @@ class CacheInitializingState<CacheImpl extends CacheImplementation> implements C
     @Override
     public StateCommandResult<CacheImpl> commitCache(CacheStateMachineContext<CacheImpl> context, CacheImpl commitingCache) {
         commitingCache.commitCache();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, 1);
-        return new StateCommandResult<CacheImpl>(
-                context.getStateFactory().createInitializedState(commitingCache, new NonRuntimeCacheContext(calendar.getTime())));
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createInitializedState(commitingCache, new NonRuntimeCacheContext()));
     }
 
     @Override
@@ -112,7 +108,7 @@ class CacheInitializingState<CacheImpl extends CacheImplementation> implements C
 
     @Override
     public StateCommandResult<CacheImpl> dropCache(CacheStateMachineContext<CacheImpl> context) {
-        return new StateCommandResult<CacheImpl>(context.getStateFactory().createEmptyState(null, new NonRuntimeCacheContext(null)));
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createEmptyState(null, new NonRuntimeCacheContext()));
     }
 
     public boolean isInitializationStillRequired() {

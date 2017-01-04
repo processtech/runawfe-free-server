@@ -6,9 +6,11 @@ import javax.transaction.Transaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.type.Type;
 
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.CacheImplementation;
+import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
@@ -253,7 +255,10 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
             log.error("commitCache must lead to state switch. Incorrect behaviour on state " + currentState.getClass().getName());
         }
         // If state machine can't switch, when cache state is changed. Saving this cache is incorrect, so return without saving cache.
-        applyCommandResult(currentState, result, commandAudit);
+        if (applyCommandResult(currentState, result, commandAudit)) {
+            ru.runa.wfe.commons.cache.sm.CachingLogic.onChange(cache, Change.UPDATE, new Object[] {}, new Object[] {}, new String[] {},
+                    new Type[] {});
+        }
     }
 
     @Override
@@ -440,9 +445,9 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
                                 if (log.isDebugEnabled()) {
                                     log.debug("Created cache from " + factory + ": " + cache.get());
                                 }
+                                context.onComplete(cache.get());
                             }
                         });
-                        context.onComplete(cache.get());
                     } catch (Throwable e) {
                         context.onError(e);
                     }
@@ -510,9 +515,9 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
                                 if (log.isDebugEnabled()) {
                                     log.debug("Created cache from " + factory + ": " + cache.get());
                                 }
+                                context.onComplete(cache.get());
                             }
                         });
-                        context.onComplete(cache.get());
                     } catch (Throwable e) {
                         context.onError(e);
                     }

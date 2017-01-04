@@ -94,7 +94,7 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
             CacheState<CacheImpl> nextDirtyState = context.getStateFactory().createDirtyState(cache, dirtyTransactionAfterRemove, stateContext);
             return new StateCommandResultWithData<CacheImpl, Boolean>(nextDirtyState, false);
         }
-        return new StateCommandResultWithData<CacheImpl, Boolean>(context.getStateFactory().createInitializedState(cache, stateContext), true);
+        return new StateCommandResultWithData<CacheImpl, Boolean>(context.getStateFactory().createEmptyState(cache, stateContext), true);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
 
     @Override
     public StateCommandResult<CacheImpl> dropCache(CacheStateMachineContext<CacheImpl> context) {
-        CacheState<CacheImpl> dirtyState = context.getStateFactory().createDirtyState(null, dirtyTransactions, new NonRuntimeCacheContext(null));
+        CacheState<CacheImpl> dirtyState = context.getStateFactory().createDirtyState(null, dirtyTransactions, new NonRuntimeCacheContext());
         return new StateCommandResult<CacheImpl>(dirtyState);
     }
 }
