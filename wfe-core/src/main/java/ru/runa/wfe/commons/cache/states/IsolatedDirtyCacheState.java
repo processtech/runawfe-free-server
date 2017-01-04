@@ -62,7 +62,7 @@ public class IsolatedDirtyCacheState<CacheImpl extends CacheImplementation> impl
             } else {
                 readCache = currentCache;
             }
-            nextState = context.getStateFactory().createDirtyState(readCache, newDirty);
+            nextState = context.getStateFactory().createDirtyState(readCache, newDirty, null);
         }
         return new StateCommandResultWithCache<CacheImpl>(nextState, currentCache);
     }
@@ -77,22 +77,22 @@ public class IsolatedDirtyCacheState<CacheImpl extends CacheImplementation> impl
             ChangedObjectParameter changedObject) {
         CacheImpl currentCache = cache;
         DirtyTransactions<CacheImpl> newDirtyTransactions = dirtyTransactions.addDirtyTransactionAndClone(transaction, null);
-        return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(currentCache, newDirtyTransactions));
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(currentCache, newDirtyTransactions, null));
     }
 
     @Override
     public StateCommandResult<CacheImpl> beforeTransactionComplete(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
-        return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(null, dirtyTransactions));
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(null, dirtyTransactions, null));
     }
 
     @Override
     public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
         DirtyTransactions<CacheImpl> dirtyTransactionAfterRemove = dirtyTransactions.removeDirtyTransactionAndClone(transaction);
         if (dirtyTransactionAfterRemove.isLocked()) {
-            CacheState<CacheImpl> nextDirtyState = context.getStateFactory().createDirtyState(null, dirtyTransactionAfterRemove);
+            CacheState<CacheImpl> nextDirtyState = context.getStateFactory().createDirtyState(null, dirtyTransactionAfterRemove, null);
             return new StateCommandResultWithData<CacheImpl, Boolean>(nextDirtyState, false);
         }
-        return new StateCommandResultWithData<CacheImpl, Boolean>(context.getStateFactory().createEmptyState(), true);
+        return new StateCommandResultWithData<CacheImpl, Boolean>(context.getStateFactory().createEmptyState(null, null), true);
     }
 
     @Override
@@ -111,6 +111,6 @@ public class IsolatedDirtyCacheState<CacheImpl extends CacheImplementation> impl
 
     @Override
     public StateCommandResult<CacheImpl> dropCache(CacheStateMachineContext<CacheImpl> context) {
-        return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(null, dirtyTransactions));
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(null, dirtyTransactions, null));
     }
 }

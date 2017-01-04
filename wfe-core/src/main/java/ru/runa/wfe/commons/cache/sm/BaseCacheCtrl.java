@@ -24,16 +24,19 @@ import javax.transaction.Transaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
-import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import ru.runa.wfe.commons.cache.CacheImplementation;
+import ru.runa.wfe.commons.cache.Change;
+import ru.runa.wfe.commons.cache.ChangedObjectParameter;
+import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
+
 /**
  * Base implementation of cache control objects.
- * 
+ *
  * @author Konstantinov Aleksey
  * @param <CacheImpl>
  *            Controlled cache implementation.
@@ -61,6 +64,12 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> imple
     }
 
     public BaseCacheCtrl(StaticCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
+        super();
+        this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
+        this.listenObjects = listenObjects;
+    }
+
+    public BaseCacheCtrl(NonRuntimeCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
         super();
         this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
         this.listenObjects = listenObjects;
@@ -115,7 +124,7 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> imple
 
     /**
      * Get string description for current cache state (cache is empty or current cache implementation description).
-     * 
+     *
      * @param transaction
      *            Current transaction.
      * @return Return string description for current cache state.
@@ -184,7 +193,7 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> imple
 
         /**
          * Log cache invalidation event.
-         * 
+         *
          * @param stateMachine
          *            Cache lifetime control state machine.
          * @param transaction

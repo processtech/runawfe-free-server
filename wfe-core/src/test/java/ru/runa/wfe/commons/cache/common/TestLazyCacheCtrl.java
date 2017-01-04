@@ -7,7 +7,7 @@ import javax.transaction.Transaction;
 
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
-import ru.runa.wfe.commons.cache.sm.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
 import ru.runa.wfe.commons.cache.states.DefaultCacheStateFactory;

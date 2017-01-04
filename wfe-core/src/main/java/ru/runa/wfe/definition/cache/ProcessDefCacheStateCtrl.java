@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.DeploymentDAO;

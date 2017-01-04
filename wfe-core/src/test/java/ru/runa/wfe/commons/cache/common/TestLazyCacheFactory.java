@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
-import ru.runa.wfe.commons.cache.sm.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
 
 public final class TestLazyCacheFactory implements LazyInitializedCacheFactory<TestCacheIface> {
 

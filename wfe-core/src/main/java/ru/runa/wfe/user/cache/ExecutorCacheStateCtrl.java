@@ -8,7 +8,7 @@ import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;

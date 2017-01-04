@@ -9,22 +9,22 @@ public class DefaultCacheStateFactory<CacheImpl extends CacheImplementation> imp
     }
 
     @Override
-    public CacheState<CacheImpl> createEmptyState() {
+    public CacheState<CacheImpl> createEmptyState(CacheImpl cache, Object context) {
         return EmptyCacheState.createEmptyState();
     }
 
     @Override
-    public CacheState<CacheImpl> createInitializingState(CacheImpl cache) {
+    public CacheState<CacheImpl> createInitializingState(CacheImpl cache, Object context) {
         return new CacheInitializingState<CacheImpl>(cache);
     }
 
     @Override
-    public CacheState<CacheImpl> createInitializedState(CacheImpl cache) {
+    public CacheState<CacheImpl> createInitializedState(CacheImpl cache, Object context) {
         return new CompletedCacheState<CacheImpl>(cache);
     }
 
     @Override
-    public CacheState<CacheImpl> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions) {
+    public CacheState<CacheImpl> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions, Object context) {
         return new DirtyCacheState<CacheImpl>(cache, dirtyTransactions);
     }
 }

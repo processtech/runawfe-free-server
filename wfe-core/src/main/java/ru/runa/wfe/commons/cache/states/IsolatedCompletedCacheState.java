@@ -57,7 +57,7 @@ public class IsolatedCompletedCacheState<CacheImpl extends CacheImplementation> 
     public StateCommandResult<CacheImpl> onChange(CacheStateMachineContext<CacheImpl> context, Transaction transaction,
             ChangedObjectParameter changedObject) {
         DirtyTransactions<CacheImpl> dirtyTransaction = DirtyTransactions.createOneDirtyTransaction(transaction, null);
-        return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(cache, dirtyTransaction));
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(cache, dirtyTransaction, null));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class IsolatedCompletedCacheState<CacheImpl extends CacheImplementation> 
     @Override
     public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
         log.error("completeTransaction must not be called on " + this);
-        return new StateCommandResultWithData<CacheImpl, Boolean>(context.getStateFactory().createEmptyState(), true);
+        return new StateCommandResultWithData<CacheImpl, Boolean>(context.getStateFactory().createEmptyState(null, null), true);
     }
 
     @Override
@@ -88,6 +88,6 @@ public class IsolatedCompletedCacheState<CacheImpl extends CacheImplementation> 
 
     @Override
     public StateCommandResult<CacheImpl> dropCache(CacheStateMachineContext<CacheImpl> context) {
-        return new StateCommandResult<CacheImpl>(context.getStateFactory().createEmptyState());
+        return new StateCommandResult<CacheImpl>(context.getStateFactory().createEmptyState(null, null));
     }
 }

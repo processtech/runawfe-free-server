@@ -9,8 +9,10 @@ import javax.transaction.Transaction;
 
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.user.Actor;
@@ -20,7 +22,7 @@ import ru.runa.wfe.user.ExecutorGroupMembership;
 class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> implements SubstitutionCache {
 
     public SubstitutionCacheStateCtrl() {
-        super(new SubstitutionCacheFactory(), createListenObjectTypes());
+        super(new NonRuntimeSubstitutionCacheFactory(), createListenObjectTypes());
         CachingLogic.registerChangeListener(this);
     }
 
@@ -63,7 +65,20 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
 
         @Override
         public ManageableSubstitutionCache buildCache() {
-            return new SubstitutionCacheStateImpl();
+            return new SubstitutionCacheStateImpl(true);
+        }
+    }
+
+    private static class NonRuntimeSubstitutionCacheFactory implements NonRuntimeCacheFactory<ManageableSubstitutionCache> {
+
+        @Override
+        public ManageableSubstitutionCache createProxy() {
+            return new SubstitutionCacheStateImpl(false);
+        }
+
+        @Override
+        public ManageableSubstitutionCache buildCache(CacheInitializationContext<ManageableSubstitutionCache> context) {
+            return new SubstitutionCacheStateImpl(true);
         }
     }
 }
