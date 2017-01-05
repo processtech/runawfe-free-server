@@ -65,7 +65,7 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
 
         @Override
         public ManageableSubstitutionCache buildCache() {
-            return new SubstitutionCacheStateImpl(true);
+            return new SubstitutionCacheStateImpl(true, false, null);
         }
     }
 
@@ -73,12 +73,12 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
 
         @Override
         public ManageableSubstitutionCache createProxy() {
-            return new SubstitutionCacheStateImpl(false);
+            return new SubstitutionCacheStateImpl(false, true, null);
         }
 
         @Override
         public ManageableSubstitutionCache buildCache(CacheInitializationContext<ManageableSubstitutionCache> context) {
-            return new SubstitutionCacheStateImpl(true);
+            return new SubstitutionCacheStateImpl(true, true, context);
         }
     }
 }

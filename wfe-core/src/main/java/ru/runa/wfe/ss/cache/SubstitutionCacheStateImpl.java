@@ -34,6 +34,8 @@ import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContextStub;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
@@ -52,15 +54,23 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
     private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
     private final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
     private final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
+    private final boolean isNonRuntime;
 
-    public SubstitutionCacheStateImpl(boolean fullInitialization) {
+    public SubstitutionCacheStateImpl(boolean fullInitialization, boolean isNonRuntime, CacheInitializationProcessContext initializationContext) {
+        if (initializationContext == null) {
+            initializationContext = new CacheInitializationProcessContextStub();
+        }
+        this.isNonRuntime = isNonRuntime;
         actorToSubstitutorsCache = createCache(substitutorsName, true);
         actorToSubstitutedCache = createCache(substitutedName, true);
         if (!fullInitialization) {
             return;
         }
-        Map<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutors = getMapActorToSubstitutors();
-        Map<Long, HashSet<Long>> actorToSubstituted = getMapActorToSubstituted(actorToSubstitutors);
+        Map<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutors = getMapActorToSubstitutors(initializationContext);
+        Map<Long, HashSet<Long>> actorToSubstituted = getMapActorToSubstituted(actorToSubstitutors, initializationContext);
+        if (!initializationContext.isInitializationStillRequired()) {
+            return;
+        }
         actorToSubstitutorsCache.putAll(actorToSubstitutors);
         actorToSubstitutedCache.putAll(actorToSubstituted);
     }
@@ -91,10 +101,13 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
         return new HashSet<Long>();
     }
 
-    private Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors() {
+    private Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors(CacheInitializationProcessContext initializationContext) {
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
         try {
             for (Substitution substitution : substitutionDAO.getAll()) {
+                if (!initializationContext.isInitializationStillRequired()) {
+                    return result;
+                }
                 try {
                     Long actorId;
                     try {
@@ -137,9 +150,13 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
         return result;
     }
 
-    private Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors) {
+    private Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors,
+            CacheInitializationProcessContext initializationContext) {
         Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
         for (Long substitutedId : mapActorToSubstitutors.keySet()) {
+            if (!initializationContext.isInitializationStillRequired()) {
+                return result;
+            }
             try {
                 Actor substitutedActor = executorDAO.getActor(substitutedId);
                 if (substitutedActor.isActive()) {
@@ -171,6 +188,6 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
 
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        return true;
+        return isNonRuntime;
     }
 }
