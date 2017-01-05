@@ -36,8 +36,10 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.RedeployProcessDefinitionAction;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "redeployDefinitionForm")
@@ -94,5 +96,18 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
     @Override
     protected boolean isVisible() {
         return Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.REDEPLOY_DEFINITION, getIdentifiable());
+    }
+
+    @Override
+    protected boolean isFormButtonEnabled() {
+        boolean enabled = super.isFormButtonEnabled();
+        if (enabled) {
+            final WfDefinition definition = getDefinition();
+            final Actor lockActor = definition.getLockActor();
+            if (definition.isLockForAll() || lockActor != null && !getUser().getActor().equals(lockActor)) {
+                enabled = false;
+            }
+        }
+        return enabled;
     }
 }

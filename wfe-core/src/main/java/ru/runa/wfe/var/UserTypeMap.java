@@ -7,6 +7,11 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
@@ -15,11 +20,6 @@ import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.MapFormat;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 public class UserTypeMap extends HashMap<String, Object> {
     private static final long serialVersionUID = 1L;
@@ -176,8 +176,8 @@ public class UserTypeMap extends HashMap<String, Object> {
                 }
                 throw new IllegalArgumentException("Invalid key = '" + qualifier + "'; all values: " + map);
             }
-            throw new IllegalArgumentException("Key '" + qualifier + "' was provided but variable format is "
-                    + variableDefinition.getFormatClassName());
+            throw new IllegalArgumentException("Key '" + qualifier + "' was provided but variable format is " + variableDefinition
+                    .getFormatClassName());
         }
         return new WfVariable(variableDefinition, variableValue);
     }
@@ -201,12 +201,18 @@ public class UserTypeMap extends HashMap<String, Object> {
     }
 
     public Map<VariableDefinition, Object> expandAttributes(String prefix) {
+        return expandAttributes(prefix, false);
+    }
+
+    public Map<VariableDefinition, Object> expandAttributes(String prefix, boolean preserveUserTypes) {
         Map<VariableDefinition, Object> result = Maps.newHashMap();
         for (Map.Entry<String, Object> entry : entrySet()) {
             String name = prefix + UserType.DELIM + entry.getKey();
-            if (entry.getValue() instanceof UserTypeMap) {
+            boolean isUserType = entry.getValue() instanceof UserTypeMap;
+            if (isUserType) {
                 result.putAll(((UserTypeMap) entry.getValue()).expandAttributes(name));
-            } else {
+            }
+            if (preserveUserTypes || !isUserType) {
                 VariableDefinition definition;
                 VariableDefinition attributeDefinition = userType.getAttribute(entry.getKey());
                 if (attributeDefinition != null) {

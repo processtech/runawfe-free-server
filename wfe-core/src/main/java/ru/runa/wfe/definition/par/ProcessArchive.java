@@ -59,6 +59,7 @@ public class ProcessArchive {
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new InteractionsParser()));
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new TaskSubsitutionParser()));
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new GraphXmlParser()));
+        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new CommentsParser()));
     }
     private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)."
             + IFileDataProvider.PROCESSDEFINITION_XML_FILE_NAME);

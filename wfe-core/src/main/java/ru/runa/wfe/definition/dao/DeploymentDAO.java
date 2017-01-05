@@ -32,7 +32,7 @@ import com.google.common.base.Objects;
 
 /**
  * DAO for {@link Deployment}.
- *
+ * 
  * @author dofs
  * @since 4.0
  */

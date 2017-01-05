@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -32,6 +33,9 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.form.Interaction;
@@ -290,6 +294,39 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(name != null, "name");
         return definitionLogic.getProcessDefinitionHistory(user, name);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public void lockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
+            @WebParam(name = "forAll") boolean forAll) throws DefinitionDoesNotExistException, DefinitionLockedException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionName != null, "definitionId");
+        definitionLogic.lockProcessDefinition(user, definitionName, forAll);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public void unlockProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName)
+            throws DefinitionDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionName != null, "definitionId");
+        definitionLogic.unlockProcessDefinition(user, definitionName);
+    }
+
+    @Override
+    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
+        return definitionLogic.getChanges(definitionId);
+    }
+
+    @Override
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
+        return definitionLogic.findChanges(definitionName, version1, version2);
+    }
+
+    @Override
+    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2) {
+        return definitionLogic.findChanges(date1, date2);
     }
 
 }
