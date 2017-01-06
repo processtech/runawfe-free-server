@@ -77,7 +77,9 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
     @Override
     public StateCommandResult<CacheImpl> onChange(CacheStateMachineContext<CacheImpl> context, Transaction transaction,
             ChangedObjectParameter changedObject) {
-        cache.onChange(changedObject);
+        if (cache != null) {
+            cache.onChange(changedObject);
+        }
         DirtyTransactions<CacheImpl> newDirtyTransactions = dirtyTransactions.addDirtyTransactionAndClone(transaction, cache);
         return new StateCommandResult<CacheImpl>(context.getStateFactory().createDirtyState(cache, newDirtyTransactions, stateContext));
     }

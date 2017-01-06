@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.transaction.Transaction;
-
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
@@ -19,6 +16,9 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 
+/**
+ * Cache control object for substitutions.
+ */
 class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> implements SubstitutionCache {
 
     public SubstitutionCacheStateCtrl() {
@@ -34,16 +34,8 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
 
     @Override
     public TreeMap<Substitution, Set<Long>> tryToGetSubstitutors(Actor actor) {
-        Transaction transaction = Utils.getTransaction();
-        if (transaction == null) {
-            return null;
-        }
-        SubstitutionCache cache = stateMachine.getCacheQuick(transaction);
-        if (cache != null) {
-            return cache.getSubstitutors(actor, false);
-        } else {
-            return null;
-        }
+        SubstitutionCache cache = CachingLogic.getCacheImpl(stateMachine);
+        return cache.getSubstitutors(actor, false);
     }
 
     @Override
@@ -61,6 +53,10 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
         return result;
     }
 
+    /**
+     * Static factory. It creates on the fly by demand and it state is always equals to database state. May leads to high delay if many executors and
+     * substitutions is used. It's recommend to use {@link NonRuntimeSubstitutionCacheFactory}.
+     */
     private static class SubstitutionCacheFactory implements StaticCacheFactory<ManageableSubstitutionCache> {
 
         @Override
@@ -69,6 +65,9 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
         }
     }
 
+    /**
+     * Non runtime factory. It creates on background and cache state may differs from database state for some time.
+     */
     private static class NonRuntimeSubstitutionCacheFactory implements NonRuntimeCacheFactory<ManageableSubstitutionCache> {
 
         @Override

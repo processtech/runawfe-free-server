@@ -5,6 +5,12 @@ import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
 import ru.runa.wfe.commons.cache.states.DirtyTransactions;
 
+/**
+ * Cache state factory for non runtime caches. Cache content may differs from database state for some time.
+ *
+ * @param <CacheImpl>
+ *            Cache implementation type.
+ */
 public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> implements CacheStateFactory<CacheImpl> {
 
     public NonRuntimeCacheStateFactory() {

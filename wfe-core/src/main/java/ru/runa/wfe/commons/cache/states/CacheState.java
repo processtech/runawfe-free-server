@@ -13,14 +13,14 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
 
     /**
      * Check if dirty transactions exists for cache.
-     * 
+     *
      * @return Return true, if dirty transaction exists and false otherwise.
      */
     boolean isDirtyTransactionExists();
 
     /**
      * Check if transaction is dirty for cache.
-     * 
+     *
      * @param transaction
      *            Transaction to check.
      * @return Return true, if transaction is dirty and false otherwise.
@@ -29,17 +29,17 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
 
     /**
      * Fast attempt to get cache. State may return cache only if it already created. No building is allowed.
-     * 
+     *
      * @param transaction
      *            Transaction, which requested cache.
-     * 
+     *
      * @return Returns already builded cache or null, if no cache is builded yet.
      */
     CacheImpl getCacheQuickNoBuild(Transaction transaction);
 
     /**
      * Called to get cache. Cache must be created in all case.
-     * 
+     *
      * @param context
      *            Cache state machine context with common used data.
      * @param transaction
@@ -51,7 +51,7 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
     /**
      * Called to get cache. Must returns null (or already created cache) if cache is locked (has dirty transactions): no cache creation is allowed
      * (return as fast as possible). If cache is not locked, then creates cache.
-     * 
+     *
      * @param context
      *            Cache state machine context with common used data.
      * @param transaction
@@ -63,7 +63,7 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
     /**
      * Notification about changed object. This method MUST return new state; if new state not created then we have a rise condition: starting
      * initialize process after not completed changing transaction.
-     * 
+     *
      * @param context
      *            Cache state machine context with common used data.
      * @param transaction
@@ -72,11 +72,12 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
      *            Changed object description.
      * @return Returns next state is mandatory.
      */
-    StateCommandResult<CacheImpl> onChange(CacheStateMachineContext<CacheImpl> context, Transaction transaction, ChangedObjectParameter changedObject);
+    StateCommandResult<CacheImpl> onChange(CacheStateMachineContext<CacheImpl> context, Transaction transaction,
+            ChangedObjectParameter changedObject);
 
     /**
      * Notifies about prepare to transaction completion.
-     * 
+     *
      * @param context
      *            Cache state machine context with common used data.
      * @param transaction
@@ -88,7 +89,7 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
     /**
      * Notifies cache about transaction completion. This method MUST return new state. if new state not created then we have a rise condition:
      * changing transaction may switch to new state, where current transaction is not marked as completed.
-     * 
+     *
      * @param context
      *            Cache state machine context with common used data.
      * @param transaction
@@ -99,7 +100,7 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
 
     /**
      * Commits (accept) initialized cache.
-     * 
+     *
      * @param context
      *            Cache state machine context with common used data.
      * @param cache
@@ -115,7 +116,7 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
 
     /**
      * Accept this state. Called then state is accepted by state machine. Delayed initialization may be started.
-     * 
+     *
      * @param context
      *            Cache state machine context with common used data.
      */
@@ -123,7 +124,7 @@ public interface CacheState<CacheImpl extends CacheImplementation> {
 
     /**
      * Called to drop cache instance. It must be changed to empty.
-     * 
+     *
      * @param context
      *            Cache state machine context with common used data.
      */

@@ -46,16 +46,48 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
+/**
+ * Cache implementation for substitutions.
+ */
 public class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
     private static final Log log = LogFactory.getLog(SubstitutionCacheStateImpl.class);
+
+    /**
+     * EHCache name.
+     */
     public static final String substitutorsName = "ru.runa.wfe.ss.cache.substitutors";
+
+    /**
+     * EHCache name.
+     */
     public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
+
+    /**
+     * Maps from actor id to it substitution rules and actors, which may substitute key actor by rule.
+     */
     private final Cache<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutorsCache;
+
+    /**
+     * Map from actor id to all actors, which may be substituted by key actor. Only inactive substituted actors added as substituted (no need to check
+     * if it active).
+     */
     private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
-    private final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-    private final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
+
+    /**
+     * Flag, equals true, if cache is not runtime and it state may different from database state and false otherwise.
+     */
     private final boolean isNonRuntime;
 
+    /**
+     * Creates cache implementation for substitutions.
+     *
+     * @param fullInitialization
+     *            Flag, equals true, if cache must be fully initialized and false, if cache must be empty (no initialization).
+     * @param isNonRuntime
+     *            Flag, equals true, if cache is not runtime and it state may different from database state and false otherwise.
+     * @param initializationContext
+     *            Cache initialization context.
+     */
     public SubstitutionCacheStateImpl(boolean fullInitialization, boolean isNonRuntime, CacheInitializationProcessContext initializationContext) {
         if (initializationContext == null) {
             initializationContext = new CacheInitializationProcessContextStub();
@@ -101,9 +133,12 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
         return new HashSet<Long>();
     }
 
-    private Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors(CacheInitializationProcessContext initializationContext) {
+    private static Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors(
+            CacheInitializationProcessContext initializationContext) {
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
+        final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         try {
+            final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
             for (Substitution substitution : substitutionDAO.getAll()) {
                 if (!initializationContext.isInitializationStillRequired()) {
                     return result;
@@ -150,9 +185,10 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
         return result;
     }
 
-    private Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors,
+    private static Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors,
             CacheInitializationProcessContext initializationContext) {
         Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
+        final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         for (Long substitutedId : mapActorToSubstitutors.keySet()) {
             if (!initializationContext.isInitializationStillRequired()) {
                 return result;
