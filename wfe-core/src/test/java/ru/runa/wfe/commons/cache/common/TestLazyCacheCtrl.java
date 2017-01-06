@@ -11,10 +11,11 @@ import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
 import ru.runa.wfe.commons.cache.states.DefaultCacheStateFactory;
+import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
 
 public final class TestLazyCacheCtrl {
-    private final CacheStateMachine<TestCacheIface> stateMachine;
+    private final CacheStateMachine<TestCacheIface, DefaultStateContext> stateMachine;
     private final LazyInitializedCacheFactory<TestCacheIface> factory;
     private final TestCacheStateMachineAudit<TestCacheIface> audit;
     private final ThreadLocal<TestTransaction> transactions = new ThreadLocal<TestTransaction>();
@@ -22,10 +23,10 @@ public final class TestLazyCacheCtrl {
     public TestLazyCacheCtrl(LazyInitializedCacheFactory<TestCacheIface> factory, boolean isolated) {
         this.factory = factory;
         audit = new TestCacheStateMachineAudit<TestCacheIface>();
-        CacheStateFactory<TestCacheIface> stateFactory = isolated ? new IsolatedCacheStateFactory<TestCacheIface>()
-                : new DefaultCacheStateFactory<TestCacheIface>();
-        stateMachine = CacheStateMachine.createStateMachine(factory, stateFactory, TestLazyCacheCtrl.class, new TestCacheTransactionalExecutor(),
-                audit);
+        CacheStateFactory<TestCacheIface, DefaultStateContext> stateFactory =
+                isolated ? new IsolatedCacheStateFactory<TestCacheIface>() : new DefaultCacheStateFactory<TestCacheIface>();
+        stateMachine =
+                CacheStateMachine.createStateMachine(factory, stateFactory, TestLazyCacheCtrl.class, new TestCacheTransactionalExecutor(), audit);
     }
 
     public TestCacheIface getCacheWithChoise(boolean isWriteTransaction, boolean getCacheIfNotLocked) {
@@ -83,12 +84,13 @@ public final class TestLazyCacheCtrl {
         return getStateMachineState().getCacheQuickNoBuild(transactions.get());
     }
 
-    private CacheState<TestCacheIface> getStateMachineState() {
+    private CacheState<TestCacheIface, DefaultStateContext> getStateMachineState() {
         try {
 
             Field stateField = stateMachine.getClass().getDeclaredField("state");
             stateField.setAccessible(true);
-            AtomicReference<CacheState<TestCacheIface>> state = (AtomicReference<CacheState<TestCacheIface>>) stateField.get(stateMachine);
+            AtomicReference<CacheState<TestCacheIface, DefaultStateContext>> state =
+                    (AtomicReference<CacheState<TestCacheIface, DefaultStateContext>>) stateField.get(stateMachine);
             return state.get();
 
         } catch (Exception e) {

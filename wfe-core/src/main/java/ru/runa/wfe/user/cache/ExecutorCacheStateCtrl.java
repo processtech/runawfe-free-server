@@ -9,13 +9,14 @@ import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.user.Group;
 
-class ExecutorCacheStateCtrl extends BaseCacheCtrl<ManageableExecutorCache> implements ExecutorCache {
+class ExecutorCacheStateCtrl extends BaseCacheCtrl<ManageableExecutorCache, DefaultStateContext> implements ExecutorCache {
 
     ExecutorCacheStateCtrl() {
         super(new ExecutorCacheFactory(), createListenObjectTypes());

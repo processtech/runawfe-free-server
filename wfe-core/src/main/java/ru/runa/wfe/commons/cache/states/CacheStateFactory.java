@@ -7,8 +7,10 @@ import ru.runa.wfe.commons.cache.CacheImplementation;
  *
  * @param <CacheImpl>
  *            Cache implementation type.
+ * @param <StateContext>
+ *            States context type.
  */
-public interface CacheStateFactory<CacheImpl extends CacheImplementation> {
+public interface CacheStateFactory<CacheImpl extends CacheImplementation, StateContext> {
 
     /**
      * Creates empty cache state. No cache initialized or initializing. No dirty transactions exists.
@@ -19,7 +21,7 @@ public interface CacheStateFactory<CacheImpl extends CacheImplementation> {
      *            Optional context for state creation.
      * @return Return cache state machine state.
      */
-    public CacheState<CacheImpl> createEmptyState(CacheImpl cache, Object context);
+    public CacheState<CacheImpl, StateContext> createEmptyState(CacheImpl cache, StateContext context);
 
     /**
      * Creates cache state for cache lazy initialization.
@@ -30,7 +32,7 @@ public interface CacheStateFactory<CacheImpl extends CacheImplementation> {
      *            Optional context for state creation.
      * @return Return cache state machine state.
      */
-    public CacheState<CacheImpl> createInitializingState(CacheImpl cache, Object context);
+    public CacheState<CacheImpl, StateContext> createInitializingState(CacheImpl cache, StateContext context);
 
     /**
      * Creates cache state for initialized, fully operational cache.
@@ -41,7 +43,7 @@ public interface CacheStateFactory<CacheImpl extends CacheImplementation> {
      *            Optional context for state creation.
      * @return Return cache state machine state.
      */
-    public CacheState<CacheImpl> createInitializedState(CacheImpl cache, Object context);
+    public CacheState<CacheImpl, StateContext> createInitializedState(CacheImpl cache, StateContext context);
 
     /**
      * Creates dirty cache state. All dirty transactions is passed to state via {@link DirtyTransactions<T>} parameter.
@@ -54,5 +56,6 @@ public interface CacheStateFactory<CacheImpl extends CacheImplementation> {
      *            Optional context for state creation.
      * @return Return cache state machine state.
      */
-    public CacheState<CacheImpl> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions, Object context);
+    public CacheState<CacheImpl, StateContext> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions,
+            StateContext context);
 }

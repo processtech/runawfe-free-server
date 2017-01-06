@@ -10,6 +10,7 @@ import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.user.Actor;
@@ -19,7 +20,7 @@ import ru.runa.wfe.user.ExecutorGroupMembership;
 /**
  * Cache control object for substitutions.
  */
-class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> implements SubstitutionCache {
+class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCache, DefaultStateContext> implements SubstitutionCache {
 
     public SubstitutionCacheStateCtrl() {
         super(new NonRuntimeSubstitutionCacheFactory(), createListenObjectTypes());

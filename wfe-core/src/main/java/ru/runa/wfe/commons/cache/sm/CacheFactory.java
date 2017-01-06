@@ -16,7 +16,7 @@ public interface CacheFactory<CacheImpl extends CacheImplementation> {
 
     /**
      * Check if delayed (lazy) cache initialization is required.
-     * 
+     *
      * @param context
      *            Lazy initialization context.
      * @return Returns true, if delayed cache initialization required and false otherwise.
@@ -25,7 +25,7 @@ public interface CacheFactory<CacheImpl extends CacheImplementation> {
 
     /**
      * Start delayed (lazy) cache initialization.
-     * 
+     *
      * @param context
      *            Lazy initialization context.
      */

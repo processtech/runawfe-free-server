@@ -21,19 +21,19 @@ import java.util.List;
 
 import javax.transaction.Transaction;
 
-import ru.runa.wfe.commons.cache.CachingLogic;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 
 /**
- * Interface for components, receiving events on objects change and transaction complete. All methods from interface is called under
- * {@link CachingLogic} class synchronization. Components, receiving events must implement one or more sub interface of {@link ChangeListener} and
- * register self in {@link CachingLogic}.
+ * Interface for components, receiving events on objects change and transaction complete. Components, receiving events must register self in
+ * {@link CachingLogic}.
+ *
+ * All methods must be thread safe and may be called in many threads.
  */
 public interface ChangeListener {
 
     /**
-     * Called, then changed one of predefined object (e. q. specific sub interface exists).
+     * Called, then changed one of listened object type.
      *
      * @param transaction
      *            Transaction, changed object belongs to.
@@ -43,7 +43,9 @@ public interface ChangeListener {
     public void onChange(Transaction transaction, ChangedObjectParameter changedObject);
 
     /**
-     * Called, then transaction in current thread will be completed (commit or rollback).
+     * Called, before transaction in current thread will be completed (commit or rollback). This method called only if this listener was notified
+     * about changes in completed transaction. If no object changed in transaction, then method wasn't called. Cache controller must mark transaction
+     * as completed, but must not recreate cache.
      *
      * @param transaction
      *            Commit or rollback transaction.
@@ -51,12 +53,8 @@ public interface ChangeListener {
     public void beforeTransactionComplete(Transaction transaction);
 
     /**
-     * Called, then transaction in current thread is completed. Cache controller must mark transaction as completed, but must not recreate cache.
-     * <p/>
-     * Cache recreation may be done in {@link #onTransactionComplete()}, then all caches is marked transaction.
-     * <p/>
-     * {@link CachingLogic} guarantees, what all caches receive {@link #markTransactionComplete()}, and only after what all caches receive
-     * {@link #onTransactionComplete()}.
+     * Called, then transaction in current thread is completed. This method called only if this listener was notified about changes in completed
+     * transaction. If no object changed in transaction, then method wasn't called.
      *
      * @param transaction
      *            Commit or rollback transaction.
@@ -68,6 +66,8 @@ public interface ChangeListener {
      *
      * @param object
      *            Changed object, which leads to cache drop.
+     * @param change
+     *            Change type.
      */
     public void uninitialize(Object object, Change change);
 

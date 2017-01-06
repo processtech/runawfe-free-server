@@ -7,6 +7,7 @@ import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
@@ -18,7 +19,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.var.Variable;
 
-class TaskCacheStateCtrl extends BaseCacheCtrl<ManageableTaskCache> implements TaskCache {
+class TaskCacheStateCtrl extends BaseCacheCtrl<ManageableTaskCache, DefaultStateContext> implements TaskCache {
 
     TaskCacheStateCtrl() {
         super(new TaskCacheFactory(), createListenObjectTypes());

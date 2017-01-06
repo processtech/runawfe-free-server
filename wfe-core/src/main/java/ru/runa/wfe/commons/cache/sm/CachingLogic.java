@@ -223,7 +223,7 @@ public class CachingLogic {
     /**
      * Called, then thread transaction is completed. If thread transaction change nothing, when do nothing. If thread transaction change some objects,
      * when all related listeners is notified on transaction complete.
-     * 
+     *
      * @param transaction
      *            Transaction, which completed.
      */
@@ -244,7 +244,8 @@ public class CachingLogic {
      *            Cache lifetime state machine.
      * @return Return cache implementation (always not null).
      */
-    public static <CacheImpl extends CacheImplementation> CacheImpl getCacheImpl(CacheStateMachine<CacheImpl> stateMachine) {
+    public static <CacheImpl extends CacheImplementation, StateContext> CacheImpl getCacheImpl(
+            CacheStateMachine<CacheImpl, StateContext> stateMachine) {
         return stateMachine.getCache(getTransactionToGetCache(), isWriteTransaction());
     }
 
@@ -255,7 +256,8 @@ public class CachingLogic {
      *            Cache lifetime state machine.
      * @return Return cache implementation or null, if cache is locked (dirty transaction exists).
      */
-    public static <CacheImpl extends CacheImplementation> CacheImpl getCacheImplIfNotLocked(CacheStateMachine<CacheImpl> stateMachine) {
+    public static <CacheImpl extends CacheImplementation, StateContext> CacheImpl getCacheImplIfNotLocked(
+            CacheStateMachine<CacheImpl, StateContext> stateMachine) {
         return stateMachine.getCacheIfNotLocked(getTransactionToGetCache(), isWriteTransaction());
     }
 

@@ -11,45 +11,42 @@ import ru.runa.wfe.commons.cache.states.DirtyTransactions;
  * @param <CacheImpl>
  *            Cache implementation type.
  */
-public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> implements CacheStateFactory<CacheImpl> {
+public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> implements CacheStateFactory<CacheImpl, NonRuntimeCacheContext> {
 
     public NonRuntimeCacheStateFactory() {
         super();
     }
 
     @Override
-    public CacheState<CacheImpl> createEmptyState(CacheImpl cache, Object context) {
-        NonRuntimeCacheContext stateContext = (NonRuntimeCacheContext) context;
-        if (stateContext == null) {
-            stateContext = new NonRuntimeCacheContext();
+    public CacheState<CacheImpl, NonRuntimeCacheContext> createEmptyState(CacheImpl cache, NonRuntimeCacheContext context) {
+        if (context == null) {
+            context = new NonRuntimeCacheContext();
         }
-        return EmptyCacheState.createEmptyState(cache, stateContext);
+        return EmptyCacheState.createEmptyState(cache, context);
     }
 
     @Override
-    public CacheState<CacheImpl> createInitializingState(CacheImpl cache, Object context) {
-        NonRuntimeCacheContext stateContext = (NonRuntimeCacheContext) context;
-        if (stateContext == null) {
-            stateContext = new NonRuntimeCacheContext();
+    public CacheState<CacheImpl, NonRuntimeCacheContext> createInitializingState(CacheImpl cache, NonRuntimeCacheContext context) {
+        if (context == null) {
+            context = new NonRuntimeCacheContext();
         }
-        return new CacheInitializingState<CacheImpl>(cache, stateContext);
+        return new CacheInitializingState<CacheImpl>(cache, context);
     }
 
     @Override
-    public CacheState<CacheImpl> createInitializedState(CacheImpl cache, Object context) {
-        NonRuntimeCacheContext stateContext = (NonRuntimeCacheContext) context;
-        if (stateContext == null) {
-            stateContext = new NonRuntimeCacheContext();
+    public CacheState<CacheImpl, NonRuntimeCacheContext> createInitializedState(CacheImpl cache, NonRuntimeCacheContext context) {
+        if (context == null) {
+            context = new NonRuntimeCacheContext();
         }
-        return new CompletedCacheState<CacheImpl>(cache, stateContext);
+        return new CompletedCacheState<CacheImpl>(cache, context);
     }
 
     @Override
-    public CacheState<CacheImpl> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions, Object context) {
-        NonRuntimeCacheContext stateContext = (NonRuntimeCacheContext) context;
-        if (stateContext == null) {
-            stateContext = new NonRuntimeCacheContext();
+    public CacheState<CacheImpl, NonRuntimeCacheContext> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions,
+            NonRuntimeCacheContext context) {
+        if (context == null) {
+            context = new NonRuntimeCacheContext();
         }
-        return new DirtyCacheState<CacheImpl>(cache, dirtyTransactions, stateContext);
+        return new DirtyCacheState<CacheImpl>(cache, dirtyTransactions, context);
     }
 }

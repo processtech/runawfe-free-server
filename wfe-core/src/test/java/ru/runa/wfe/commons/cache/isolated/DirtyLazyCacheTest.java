@@ -15,6 +15,7 @@ import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheProxy;
 import ru.runa.wfe.commons.cache.common.TestTransaction;
 import ru.runa.wfe.commons.cache.states.CacheState;
+import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 
 public class DirtyLazyCacheTest {
 
@@ -28,7 +29,7 @@ public class DirtyLazyCacheTest {
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
         ctrl.getAudit().set_commitCacheAudit(new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
             @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
+            protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from, CacheState<TestCacheIface, DefaultStateContext> to) {
                 initializationCompleteEvent.setEvent();
             }
         });
