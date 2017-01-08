@@ -46,7 +46,7 @@ public class StringVariable extends Variable<String> {
         if (super.supports(value)) {
             return true;
         }
-        return value instanceof String && ((String) value).length() <= MAX_STRING_SIZE;
+        return value instanceof String && ((String) value).length() <= getMaxStringSize();
     }
 
 }

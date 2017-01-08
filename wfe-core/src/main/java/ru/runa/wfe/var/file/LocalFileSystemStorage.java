@@ -4,24 +4,30 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.google.common.io.Files;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.Variable;
 
-import com.google.common.io.Files;
-
 public class LocalFileSystemStorage implements IFileVariableStorage {
-    private static File storageDir = new File(SystemProperties.getLocalFileStoragePath());
 
-    static {
+    static File storageDir;
+
+    static synchronized File getLocalFileStorage() {
+        if (storageDir != null) {
+            return storageDir;
+        }
+        storageDir = new File(SystemProperties.getLocalFileStoragePath());
         if (SystemProperties.isLocalFileStorageEnabled()) {
             storageDir.mkdirs();
         }
+        return storageDir;
     }
 
     public static File getContentFile(String path, boolean create) {
-        File file = new File(storageDir, path);
+        File file = new File(getLocalFileStorage(), path);
         if (create) {
             file.getParentFile().mkdirs();
             try {
