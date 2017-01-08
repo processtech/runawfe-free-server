@@ -27,6 +27,11 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
         CachingLogic.registerChangeListener(this);
     }
 
+    public SubstitutionCacheStateCtrl(boolean fakeBooleanUseStaticCache) {
+        super(new SubstitutionCacheFactory(), createListenObjectTypes());
+        CachingLogic.registerChangeListener(this);
+    }
+
     @Override
     public TreeMap<Substitution, Set<Long>> getSubstitutors(Actor actor, boolean loadIfRequired) {
         SubstitutionCache cache = CachingLogic.getCacheImpl(stateMachine);

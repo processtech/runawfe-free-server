@@ -3,11 +3,11 @@ package ru.runa.wfe.commons;
 import java.util.Calendar;
 import java.util.List;
 
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
-import ru.runa.wfe.lang.NodeType;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.lang.NodeType;
 
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
@@ -66,6 +66,13 @@ public class SystemProperties {
      */
     public static boolean useIsolatedCacheStateMachine() {
         return NO_DATABASE_RESOURCES.getBooleanProperty("isolated.cache.state.machine", true);
+    }
+
+    /**
+     * Using non runtime substitution cache instead of static substitution cache.
+     */
+    public static boolean useNonRuntimeSubstitutionCache() {
+        return NO_DATABASE_RESOURCES.getBooleanProperty("nonruntime.susbstitution.cache", true);
     }
 
     /**
