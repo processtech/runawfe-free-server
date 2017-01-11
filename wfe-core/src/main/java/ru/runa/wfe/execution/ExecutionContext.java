@@ -211,7 +211,8 @@ public class ExecutionContext {
                 variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
             }
             return variable;
-        } else if (SystemProperties.isV3CompatibilityMode()) {
+        }
+        if (SystemProperties.isV3CompatibilityMode()) {
             Variable<?> dbVariable = variableLoader.get(getProcess(), name);
             return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
         }
@@ -284,7 +285,8 @@ public class ExecutionContext {
                     if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
                         variable.setValue(baseVariable.getValue());
                     }
-                    if (!Utils.isNullOrEmpty(variable.getValue())) {
+                    if (!Utils.isNullOrEmpty(variable.getValue())
+                            && !Objects.equal(baseVariable.getDefinition().getDefaultValue(), variable.getValue())) {
                         return variable;
                     }
                 }
