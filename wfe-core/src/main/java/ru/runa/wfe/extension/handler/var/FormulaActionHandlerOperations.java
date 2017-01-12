@@ -18,6 +18,8 @@
 package ru.runa.wfe.extension.handler.var;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -34,6 +36,8 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -46,8 +50,6 @@ import ru.runa.wfe.extension.function.GetListMismatchedIndexes;
 import ru.runa.wfe.extension.function.GetSize;
 import ru.runa.wfe.extension.function.ListToString;
 import ru.runa.wfe.extension.function.ToList;
-
-import com.google.common.collect.Maps;
 
 public class FormulaActionHandlerOperations {
     private static final Log log = LogFactory.getLog(FormulaActionHandlerOperations.class);
@@ -71,6 +73,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object sum(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).add(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).add((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() + ((Number) o2).doubleValue());
         }
@@ -100,6 +108,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object sub(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).subtract(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).subtract((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() - ((Number) o2).doubleValue());
         }
@@ -120,6 +134,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object mul(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).multiply(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).multiply((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() * ((Number) o2).doubleValue());
         }
@@ -134,6 +154,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object div(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).divide(asBigDecimal((Number) o2), MathContext.DECIMAL128);
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).divide((BigDecimal) o2, MathContext.DECIMAL128);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Double) o1).doubleValue() / ((Number) o2).doubleValue());
         }
@@ -145,6 +171,9 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object changeSign(Object o) {
+        if (BigDecimal.class.isInstance(o)) {
+            return ((BigDecimal) o).negate();
+        }
         if (Double.class.isInstance(o)) {
             return new Double(-((Double) o).doubleValue());
         }
@@ -164,6 +193,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object less(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).compareTo(asBigDecimal((Number) o2)) < 0;
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).compareTo((BigDecimal) o2) < 0;
+        }
         if (Double.class.isInstance(o1) && Double.class.isInstance(o2)) {
             return new Boolean(((Double) o1).doubleValue() < ((Double) o2).doubleValue());
         }
@@ -420,8 +455,8 @@ public class FormulaActionHandlerOperations {
                                 }
                             }
                         } else {
-                            boolean b3 = "ой ый".indexOf(suf2) >= 0 && wordType > 4 && !word.substring(len - 4, len).equals("опой") || zb > 10
-                                    && za > 16;
+                            boolean b3 = "ой ый".indexOf(suf2) >= 0 && wordType > 4 && !word.substring(len - 4, len).equals("опой")
+                                    || zb > 10 && za > 16;
                             if (b3) {
                                 zd = 8;
                             }
@@ -433,9 +468,13 @@ public class FormulaActionHandlerOperations {
 
         int ze = "лец вей бей дец пец мец нец рец вец аец иец ыец бер".indexOf(suf3) + 1;
 
-        String zf = zd == 8 && caseNumber != 5 ? zb > 15 || "жий ний".indexOf(suf3) >= 0 ? "е" : "о" : word.equals("лев") ? "ьв" : len - 4 >= 0
-                && "аеёийоуэюя".indexOf(word.substring(len - 4, len - 3)) < 0 && (zb > 11 || zb == 0) && ze != 45 ? "" : za == 7 ? "л"
-                : za == 10 ? "к" : za == 13 ? "йц" : ze == 0 ? "" : ze < 12 ? "ь" + (ze == 1 ? "ц" : "") : ze < 37 ? "ц" : ze < 49 ? "йц" : "р";
+        String zf = zd == 8 && caseNumber != 5 ? zb > 15 || "жий ний".indexOf(suf3) >= 0 ? "е" : "о"
+                : word.equals("лев") ? "ьв"
+                        : len - 4 >= 0 && "аеёийоуэюя".indexOf(word.substring(len - 4, len - 3)) < 0 && (zb > 11 || zb == 0) && ze != 45 ? ""
+                                : za == 7 ? "л"
+                                        : za == 10 ? "к"
+                                                : za == 13 ? "йц"
+                                                        : ze == 0 ? "" : ze < 12 ? "ь" + (ze == 1 ? "ц" : "") : ze < 37 ? "ц" : ze < 49 ? "йц" : "р";
 
         if (zd != 9) {
             int nm = len;
@@ -558,6 +597,16 @@ public class FormulaActionHandlerOperations {
         }
 
         return answer;
+    }
+
+    private BigDecimal asBigDecimal(Number n) {
+        if (BigDecimal.class.isInstance(n)) {
+            return (BigDecimal) n;
+        } else if (Double.class.isInstance(n)) {
+            return BigDecimal.valueOf((Double) n);
+        } else {
+            return BigDecimal.valueOf((Long) n);
+        }
     }
 
 }
