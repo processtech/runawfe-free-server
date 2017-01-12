@@ -124,7 +124,7 @@ public class HibernateCompilerQueryBuilder {
         new HibernateCompilerLeftJoinBuilder(batchPresentation).injectLeftJoin(sqlRequest);
         if (!parameters.isCountQuery() && batchPresentation.getClassPresentation().isDistinct()) {
             sqlRequest.insert(0, "SELECT DISTINCT SubQuery.* FROM (");
-            sqlRequest.append(") AS SubQuery");
+            sqlRequest.append(") SubQuery");
         }
         return sqlRequest.toString();
     }
