@@ -147,11 +147,11 @@ public class HibernateCompilerHQLBuider {
      * Builds 'select' HQL clause and 'from' clause with root persistent object.
      */
     private void buildSelectClause() {
+        final String distinct = batchPresentation.getClassPresentation().isDistinct() ? "distinct " : "";
         if (parameters.isCountQuery()) {
-            final String distinct = batchPresentation.getClassPresentation().isDistinct() ? "distinct " : "";
             query.append("select count (").append(distinct).append(ClassPresentation.classNameSQL).append(")");
         } else {
-            query.append("select ").append(ClassPresentation.classNameSQL);
+            query.append("select ").append(distinct).append(ClassPresentation.classNameSQL);
             if (parameters.isOnlyIdentityLoad()) {
                 query.append(".id");
             } else {
@@ -291,17 +291,29 @@ public class HibernateCompilerHQLBuider {
         Map<Integer, FilterCriteria> fieldsToFilter = batchPresentation.getFilteredFields();
         for (Map.Entry<Integer, FilterCriteria> entry : fieldsToFilter.entrySet()) {
             FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
-            if (field.fieldState == FieldState.DISABLED || field.filterMode != FieldFilterMode.DATABASE) {
+            if (field.fieldState == FieldState.DISABLED
+                    || (field.filterMode != FieldFilterMode.DATABASE && field.filterMode != FieldFilterMode.DATABASE_ID_RESTRICTION)) {
                 continue;
             }
             if (field.dbSources.length > 1) {
                 isFilterByInheritance = true;
                 continue; // Fields with inheritance will be processed later
             }
-            StringBuilder filter = new StringBuilder();
-            String condition = entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath(aliasMapping.getAlias(field)), placeholders);
-            filter.append("(").append(condition).append(")");
-            result.add(filter.toString());
+            if (field.filterMode == FieldFilterMode.DATABASE) {
+                StringBuilder filter = new StringBuilder();
+                String condition =
+                        entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath(aliasMapping.getAlias(field)), placeholders);
+                filter.append("(").append(condition).append(")");
+                result.add(filter.toString());
+            }
+            if (field.filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION) {
+                StringBuilder filter = new StringBuilder();
+                String condition = entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath("subQuery"), placeholders);
+                filter.append("(").append(ClassPresentation.classNameSQL).append(".id IN (SELECT ")
+                        .append(field.dbSources[0].getJoinExpression("subQuery")).append(" FROM ")
+                        .append(field.dbSources[0].getSourceObject().getName()).append(" AS subQuery WHERE ").append(condition).append("))");
+                result.add(filter.toString());
+            }
         }
         return result;
     }

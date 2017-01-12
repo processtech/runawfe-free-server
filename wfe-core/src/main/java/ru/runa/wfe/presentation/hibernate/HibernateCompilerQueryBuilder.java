@@ -122,10 +122,6 @@ public class HibernateCompilerQueryBuilder {
         new HibernateCompilerInheritanceFiltersBuilder(batchPresentation, hqlBuilder, queryTranslator).injectFiltersStatements(sqlRequest);
         new HibernateCompilerInheritanceOrderBuilder(batchPresentation, hqlBuilder, queryTranslator).injectOrderStatements(sqlRequest);
         new HibernateCompilerLeftJoinBuilder(batchPresentation).injectLeftJoin(sqlRequest);
-        if (!parameters.isCountQuery() && batchPresentation.getClassPresentation().isDistinct()) {
-            sqlRequest.insert(0, "SELECT DISTINCT SubQuery.* FROM (");
-            sqlRequest.append(") SubQuery");
-        }
         return sqlRequest.toString();
     }
 

@@ -24,11 +24,11 @@ import java.util.Calendar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Objects;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-
-import com.google.common.base.Objects;
 
 /**
  * Description for field, available via {@link ClassPresentation}. Contains almost all aspects of field behavior.
@@ -44,9 +44,8 @@ public class FieldDescriptor {
     public final String displayName;
 
     /**
-     * Field type as class name (i. e. String.class.getName()). Used to get appreciate {@link FilterCriteria} and FilterTDFormatter (see web
-     * project). So, filter representation is depends on this field. {@link Calendar} will be created for {@link Date}, editor field for String and
-     * so on.
+     * Field type as class name (i. e. String.class.getName()). Used to get appreciate {@link FilterCriteria} and FilterTDFormatter (see web project).
+     * So, filter representation is depends on this field. {@link Calendar} will be created for {@link Date}, editor field for String and so on.
      */
     public final String fieldType;
 
@@ -93,8 +92,8 @@ public class FieldDescriptor {
     public final Object[] tdBuilderParams;
 
     /**
-     * Components, to access field values from HQL/SQL. If more then one components supplied, then first component must describe access to base
-     * class and other components must describe access to inherited objects.
+     * Components, to access field values from HQL/SQL. If more then one components supplied, then first component must describe access to base class
+     * and other components must describe access to inherited objects.
      */
     public final DBSource[] dbSources;
 
@@ -105,8 +104,8 @@ public class FieldDescriptor {
     public final boolean isWeakJoin;
 
     /**
-     * Ordinal field index in {@link BatchPresentation}. All fields in {@link ClassPresentation} has -1, but {@link BatchPresentation} creates
-     * fields with indexes using createConcretteField.
+     * Ordinal field index in {@link BatchPresentation}. All fields in {@link ClassPresentation} has -1, but {@link BatchPresentation} creates fields
+     * with indexes using createConcretteField.
      */
     public final int fieldIdx;
 
@@ -185,8 +184,8 @@ public class FieldDescriptor {
      */
     public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, int defaultSortOrder, boolean defaultSortMode,
             FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams) {
-        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
-                tdBuilderParams, false, -1, null);
+        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams,
+                false, -1, null);
     }
 
     /**
@@ -233,8 +232,8 @@ public class FieldDescriptor {
      * @param tdBuilderParams
      *            Parameters, passed to tdBuilder constructor.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
-            String tdBuilder, Object[] tdBuilderParams) {
+    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
+            Object[] tdBuilderParams) {
         this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
                 false, -1, null);
     }
@@ -259,8 +258,8 @@ public class FieldDescriptor {
      * @param isWeakJoin
      *            If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
-            String tdBuilder, Object[] tdBuilderParams, boolean isWeakJoin) {
+    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
+            Object[] tdBuilderParams, boolean isWeakJoin) {
         this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
                 isWeakJoin, -1, null);
     }
@@ -304,6 +303,9 @@ public class FieldDescriptor {
         this.isWeakJoin = isWeakJoin;
         this.fieldIdx = fieldIdx;
         this.fieldState = fieldState == null ? loadFieldState(displayName) : fieldState;
+        if (filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION && sortable) {
+            throw new InternalApplicationException("DATABASE_ID_RESTRICTION must not be used on filterable fields.");
+        }
     }
 
     @Override
