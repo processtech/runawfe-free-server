@@ -90,9 +90,6 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     Node node = processDefinition.getNodeNotNull(token.getNodeId());
                     try {
-                        ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
-                        node.handle(executionContext);
-                        ProcessExecutionErrors.removeProcessError(processId, node.getNodeId());
                         if (token.getExecutionStatus() == ExecutionStatus.FAILED) {
                             token.setExecutionStatus(ExecutionStatus.ACTIVE);
                             List<Token> failedTokens = tokenDAO.findByProcessAndExecutionStatus(token.getProcess(), ExecutionStatus.FAILED);
@@ -100,6 +97,9 @@ public class NodeAsyncExecutionBean implements MessageListener {
                                 token.getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
                             }
                         }
+                        ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+                        node.handle(executionContext);
+                        ProcessExecutionErrors.removeProcessError(processId, node.getNodeId());
                     } catch (Throwable th) {
                         log.error(processId + ":" + tokenId, th);
                         ProcessExecutionErrors.addProcessError(processId, node.getNodeId(), node.getName(), null, th);
