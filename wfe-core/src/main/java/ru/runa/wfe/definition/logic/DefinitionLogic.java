@@ -268,7 +268,7 @@ public class DefinitionLogic extends WFCommonLogic {
         int curVersion = 0;
         for (int m=listOfDeployments.size()-1;m>=0;m--){
             Deployment deployment = listOfDeployments.get(m);
-            curVersion++;
+            curVersion = deployment.getVersion().intValue();
             String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
             String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
@@ -304,7 +304,7 @@ public class DefinitionLogic extends WFCommonLogic {
         int curVersion = 0;
         for (int m=listOfDeployments.size()-1;m>=0;m--){
             Deployment deployment = listOfDeployments.get(m);
-            curVersion++;
+            curVersion = deployment.getVersion().intValue();
             String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
             String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
             VersionInfo versionInfoEmptyComment = new VersionInfo();
@@ -353,7 +353,7 @@ public class DefinitionLogic extends WFCommonLogic {
         int curVersion = 0;
         for (int m=listOfDeployments.size()-1;m>=0;m--){
             Deployment deployment = listOfDeployments.get(m);
-            curVersion++;
+            curVersion = deployment.getVersion().intValue();
             String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
             String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
             VersionInfo versionInfoEmptyComment = new VersionInfo();
