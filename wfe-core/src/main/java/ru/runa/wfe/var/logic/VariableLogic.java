@@ -233,9 +233,9 @@ public class VariableLogic extends WFCommonLogic {
                 String name = variableDefinition.getName();
                 WfVariable variable = loader.getVariable(processDefinition, process, name);
                 if (!Utils.isNullOrEmpty(variable.getValue())) {
-                    // if (createdVariables.add(name)) {
-                    result.add(variable);
-                    // }
+                    if (createdVariables.add(name)) {
+                        result.add(variable);
+                    }
                 }
             }
         }
