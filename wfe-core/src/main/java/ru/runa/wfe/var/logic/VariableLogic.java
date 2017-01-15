@@ -59,6 +59,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
@@ -71,7 +72,7 @@ import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 /**
- * Process execution logic.
+ * Variables access logic.
  *
  * @author Dofs
  * @since 2.0
@@ -107,20 +108,7 @@ public class VariableLogic extends WFCommonLogic {
 
     public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
             throws ProcessDoesNotExistException {
-        List<WfVariable> result = Lists.newArrayList();
-        WfVariableHistoryState historicalVariables = getHistoricalVariables(user, filter);
-        for (WfVariable wfVariable : historicalVariables.getVariables()) {
-            if (variables.contains(wfVariable.getDefinition().getName())) {
-                result.add(wfVariable);
-            }
-        }
-        List<WfVariable> startDateRangeResult = Lists.newArrayList();
-        for (WfVariable wfVariable : historicalVariables.getStartDateRangeVariables()) {
-            if (variables.contains(wfVariable.getDefinition().getName())) {
-                startDateRangeResult.add(wfVariable);
-            }
-        }
-        return new WfVariableHistoryState(startDateRangeResult, result, historicalVariables.getSimpleVariablesChanged());
+        return filterHistoricalVariables(variables, getHistoricalVariables(user, filter));
     }
 
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
@@ -175,6 +163,11 @@ public class VariableLogic extends WFCommonLogic {
         return completeTaskState;
     }
 
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
+            throws ProcessDoesNotExistException {
+        return filterHistoricalVariables(variables, getHistoricalVariables(user, processId, taskId));
+    }
+
     public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
         Process process = processDAO.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
@@ -216,7 +209,7 @@ public class VariableLogic extends WFCommonLogic {
     }
 
     private WfVariableHistoryState getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {
-        HashSet<String> simpleVariablesChanged = Sets.<String> newHashSet();
+        HashSet<String> simpleVariablesChanged = Sets.<String>newHashSet();
         // Next call is for filling simpleVariablesChanged structure.
         loadSimpleVariablesState(user, processDAO.getNotNull(filter.getProcessId()), filter, simpleVariablesChanged);
         Date dateFrom = filter.getCreateDateFrom();
@@ -246,7 +239,34 @@ public class VariableLogic extends WFCommonLogic {
                 }
             }
         }
-        return new WfVariableHistoryState(Lists.<WfVariable> newArrayList(), result, simpleVariablesChanged);
+        return new WfVariableHistoryState(Lists.<WfVariable>newArrayList(), result, simpleVariablesChanged);
+    }
+
+    /**
+     * Filter historical variables result to return only specified variables.
+     *
+     * @param variables
+     *            Variables to return.
+     * @param historicalVariables
+     *            Full historical variables state.
+     * @return Returns specified variables historical state.
+     */
+    private WfVariableHistoryState filterHistoricalVariables(Set<String> variables, WfVariableHistoryState historicalVariables) {
+        IVariableProvider toDateProvider = new MapVariableProvider(historicalVariables.getVariables(), true);
+        IVariableProvider fromDateProvider = new MapVariableProvider(historicalVariables.getStartDateRangeVariables(), true);
+        List<WfVariable> toDateResult = Lists.newArrayList();
+        List<WfVariable> startDateRangeResult = Lists.newArrayList();
+        for (String variableName : variables) {
+            WfVariable toDateState = toDateProvider.getVariable(variableName);
+            WfVariable fromDateState = fromDateProvider.getVariable(variableName);
+            if (toDateState != null) {
+                toDateResult.add(toDateState);
+            }
+            if (fromDateState != null) {
+                startDateRangeResult.add(fromDateState);
+            }
+        }
+        return new WfVariableHistoryState(startDateRangeResult, toDateResult, historicalVariables.getSimpleVariablesChanged());
     }
 
     /**
@@ -272,7 +292,7 @@ public class VariableLogic extends WFCommonLogic {
                 // All base process variables must be available in current process.
                 processVariables.putAll(processToVariables.get(baseProcess));
             }
-            result.put(currentProcess, Maps.<String, Variable<?>> newHashMap());
+            result.put(currentProcess, Maps.<String, Variable<?>>newHashMap());
             for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
                 ProcessDefinition definition = getDefinition(varProcess);
                 for (String variableName : processVariables.keySet()) {
@@ -333,7 +353,7 @@ public class VariableLogic extends WFCommonLogic {
         Long processId = filter.getProcessId();
         try {
             filter.setProcessId(process.getId());
-            HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
+            HashMap<String, Object> processVariables = Maps.<String, Object>newHashMap();
             for (VariableLog variableLog : auditLogic.getProcessLogs(user, filter).getLogs(VariableLog.class)) {
                 String variableName = variableLog.getVariableName();
                 if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {

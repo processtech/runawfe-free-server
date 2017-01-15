@@ -208,6 +208,20 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return result;
     }
 
+    @WebMethod(exclude = true)
+    @Override
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
+            throws ProcessDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(processId != null, "processId");
+        Preconditions.checkArgument(variables != null, "variables");
+        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId, variables);
+        for (WfVariable variable : result.getVariables()) {
+            FileVariablesUtil.proxyFileVariables(user, processId, variable);
+        }
+        return result;
+    }
+
     @Override
     @WebResult(name = "result")
     public List<Variable> getVariablesWS(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
