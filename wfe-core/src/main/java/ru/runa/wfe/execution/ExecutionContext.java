@@ -45,6 +45,7 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
+import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.MultiSubprocessNode;
@@ -86,6 +87,8 @@ public class ExecutionContext {
     private VariableCreator variableCreator;
     @Autowired
     private ProcessDAO processDAO;
+    @Autowired
+    private TokenDAO tokenDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
     @Autowired
@@ -267,6 +270,16 @@ public class ExecutionContext {
 
     public void addLog(ProcessLog processLog) {
         processLogDAO.addLog(processLog, getProcess(), token);
+    }
+
+    public void activateTokenIfHasPreviousError() {
+        if (getToken().getExecutionStatus() == ExecutionStatus.FAILED) {
+            getToken().setExecutionStatus(ExecutionStatus.ACTIVE);
+            List<Token> failedTokens = tokenDAO.findByProcessAndExecutionStatus(getProcess(), ExecutionStatus.FAILED);
+            if (failedTokens.isEmpty()) {
+                getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
+            }
+        }
     }
 
     @Override

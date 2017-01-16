@@ -49,7 +49,7 @@ public class WaitNode extends Node {
                     ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer());
                 }
                 log.info("Leaving " + timerJob + " from " + executionContext.getNode() + " by transition " + timerJob.getOutTransitionName());
-                timerJob.getToken().signal(executionContext, transition);
+                executionContext.getNode().leave(executionContext, transition);
             } else if (Boolean.TRUE == executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION)) {
                 log.info("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
                 ApplicationContextFactory.getJobDAO().deleteTimersByName(timerJob.getToken(), timerJob.getName());

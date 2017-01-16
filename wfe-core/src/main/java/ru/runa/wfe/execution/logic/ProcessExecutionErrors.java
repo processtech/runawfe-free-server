@@ -18,7 +18,6 @@ import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 
@@ -77,10 +76,6 @@ public class ProcessExecutionErrors {
         if (!alreadyExists) {
             sendEmailNotification(throwable, null, processError);
         }
-    }
-
-    public static synchronized void addProcessError(WfTask task, BotTask botTask, Throwable throwable) {
-        addProcessError(task.getProcessId(), task.getNodeId(), task.getName(), botTask, throwable);
     }
 
     public static synchronized void addProcessError(Task task, Throwable throwable) {

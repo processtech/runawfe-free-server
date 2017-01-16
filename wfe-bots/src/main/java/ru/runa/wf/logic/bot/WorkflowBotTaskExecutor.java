@@ -192,12 +192,16 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                 Delegates.getTaskService().completeTask(user, task.getId(), variables, null);
                 log.debug("Handled bot task " + task + ", " + bot + " by " + taskHandler.getClass());
             }
-            ProcessExecutionErrors.removeProcessError(task.getProcessId(), task.getNodeId());
         } catch (TaskDoesNotExistException e) {
             log.warn(task + " already handled");
-            ProcessExecutionErrors.removeProcessError(task.getProcessId(), task.getNodeId());
-        } catch (Throwable th) {
-            ProcessExecutionErrors.addProcessError(task, botTask, th);
+        } catch (final Throwable th) {
+            new TransactionalExecutor() {
+
+                @Override
+                protected void doExecuteInTransaction() throws Exception {
+                    Utils.sendBpmnErrorMessage(task.getProcessId(), task.getTokenId(), task.getNodeId(), th);
+                }
+            }.executeInTransaction(false);
             if (taskHandler != null) {
                 try {
                     taskHandler.onRollback(user, variableProvider, task);
@@ -230,15 +234,6 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             }
             log.info("FailedDelaySeconds = " + failedDelaySeconds + " for " + task);
             started.add(Calendar.SECOND, failedDelaySeconds);
-            if (!(th instanceof ProcessExecutionException)) {
-                new TransactionalExecutor() {
-
-                    @Override
-                    protected void doExecuteInTransaction() throws Exception {
-                        Utils.sendBpmnErrorMessage(task.getProcessId(), task.getTokenId(), task.getNodeId(), th);
-                    }
-                }.executeInTransaction(false);
-            }
         } finally {
             executionThread.set(null);
         }

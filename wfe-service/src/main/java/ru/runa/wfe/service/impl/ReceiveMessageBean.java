@@ -38,7 +38,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.audit.ReceiveMessageLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.TransactionalExecutor;
@@ -47,10 +46,8 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -104,7 +101,6 @@ public class ReceiveMessageBean implements MessageListener {
                             Long processId = token.getProcess().getId();
                             String nodeId = ((Node) receiveMessageNode.getParentElement()).getNodeId();
                             if (processId.equals(errorEventData.processId) && nodeId.equals(errorEventData.nodeId)) {
-                                ProcessExecutionErrors.removeProcessError(processId, nodeId);
                                 handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
                                 break;
                             }
@@ -153,21 +149,7 @@ public class ReceiveMessageBean implements MessageListener {
         }
         if (handlers.isEmpty()) {
             if (errorEventData != null) {
-                final Long tokenId = errorEventData.tokenId;
-                ProcessExecutionErrors.addProcessError(errorEventData.processId, errorEventData.nodeId, errorEventData.nodeId, null, new Exception(
-                        errorEventData.message));
-                new TransactionalExecutor(context.getUserTransaction()) {
-
-                    @Override
-                    protected void doExecuteInTransaction() throws Exception {
-                        Token token = tokenDAO.getNotNull(tokenId);
-                        if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
-                            token.setExecutionStatus(ExecutionStatus.FAILED);
-                            token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                            processLogDAO.addLog(new ProcessSuspendLog(null), token.getProcess(), null);
-                        }
-                    }
-                }.executeInTransaction(true);
+                Utils.failProcessExecution(context.getUserTransaction(), errorEventData.tokenId, errorEventData.message);
             } else {
                 throw new MessagePostponedException(messageString);
             }
@@ -179,7 +161,6 @@ public class ReceiveMessageBean implements MessageListener {
 
     private void handleMessage(final ReceiveMessageData data, final ObjectMessage message) {
         try {
-            ProcessExecutionErrors.removeProcessError(data.processId, data.node.getNodeId());
             new TransactionalExecutor(context.getUserTransaction()) {
 
                 @Override
@@ -188,6 +169,7 @@ public class ReceiveMessageBean implements MessageListener {
                     Token token = tokenDAO.getNotNull(data.tokenId);
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
                     ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+                    executionContext.activateTokenIfHasPreviousError();
                     executionContext.addLog(new ReceiveMessageLog(data.node, Utils.toString(message, true)));
                     Map<String, Object> map = (Map<String, Object>) message.getObject();
                     for (VariableMapping variableMapping : data.node.getVariableMappings()) {
@@ -203,8 +185,8 @@ public class ReceiveMessageBean implements MessageListener {
                     data.node.leave(executionContext);
                 }
             }.executeInTransaction(true);
-        } catch (Throwable th) {
-            ProcessExecutionErrors.addProcessError(data.processId, data.node.getNodeId(), data.node.getName(), null, th);
+        } catch (final Throwable th) {
+            Utils.failProcessExecution(context.getUserTransaction(), data.tokenId, th.getLocalizedMessage());
             Throwables.propagate(th);
         }
     }

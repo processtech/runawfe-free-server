@@ -63,7 +63,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Task logic.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -134,7 +134,6 @@ public class TaskLogic extends WFCommonLogic {
                 signalToken(executionContext, task, transition);
             }
             log.info("Task '" + task.getName() + "' was done by " + user + " in process " + task.getProcess());
-            ProcessExecutionErrors.removeProcessError(task.getProcess().getId(), task.getNodeId());
         } catch (ValidationException ex) {
             throw Throwables.propagate(ex);
         } catch (Throwable th) {
@@ -156,7 +155,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -180,7 +179,7 @@ public class TaskLogic extends WFCommonLogic {
             }
         }
         log.debug("completion of " + task + " by " + transition);
-        token.signal(executionContext, transition);
+        executionContext.getNode().leave(executionContext, transition);
     }
 
     public void markTaskOpened(User user, Long taskId) {

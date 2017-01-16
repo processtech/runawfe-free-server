@@ -104,13 +104,13 @@ public class ErrorDetailsAction extends ActionBase {
                     Long botId = Long.parseLong(request.getParameter("botId"));
                     String botTaskName = request.getParameter("botTaskName");
                     BotTaskIdentifier botTaskIdentifier = ProcessExecutionErrors.getBotTaskIdentifierNotNull(botId, botTaskName);
-                    addBotTabError(request, tabs, supportFiles, botTaskIdentifier);
+                    addBotTaskError(request, tabs, supportFiles, botTaskIdentifier);
                 } else {
                     for (Long processId : ProcessExecutionErrors.getProcessErrors().keySet()) {
                         initProcessHierarchy(user, processHierarchies, processId);
                     }
                     for (BotTaskIdentifier botTaskIdentifier : ProcessExecutionErrors.getBotTaskConfigurationErrors().keySet()) {
-                        addBotTabError(request, tabs, supportFiles, botTaskIdentifier);
+                        addBotTaskError(request, tabs, supportFiles, botTaskIdentifier);
                     }
                 }
                 for (Entry<Long, List<Long>> processesEntry : processHierarchies.entrySet()) {
@@ -240,7 +240,7 @@ public class ErrorDetailsAction extends ActionBase {
         addSupportFileInfo(files, fileName + " (" + serverLogSizeInMb + " Mb)", logFileIncluded);
     }
 
-    private void addBotTabError(HttpServletRequest request, JSONArray tabs, Map<String, byte[]> supportFiles, BotTaskIdentifier botTaskIdentifier)
+    private void addBotTaskError(HttpServletRequest request, JSONArray tasks, Map<String, byte[]> supportFiles, BotTaskIdentifier botTaskIdentifier)
             throws IOException {
         JSONObject tab = new JSONObject();
         String type = botTaskIdentifier.getBotTask() != null ? "bottask" : "bot";
@@ -263,7 +263,7 @@ public class ErrorDetailsAction extends ActionBase {
         addSupportFileInfo(files, getResources(request).getMessage("support.file.exceptions"), true);
         supportFiles.put(type + "." + botTaskIdentifier.getUniqueId() + ".zip", createZip(botFiles));
         tab.put("files", files);
-        tabs.add(tab);
+        tasks.add(tab);
     }
 
     private void initProcessHierarchy(User user, Map<Long, List<Long>> processHierarchies, Long processId) {
@@ -354,8 +354,7 @@ public class ErrorDetailsAction extends ActionBase {
             mergedEventDateTD.setRowSpan(mergedRowsCount + 1);
         }
         HeaderBuilder tasksHistoryHeaderBuilder = new ru.runa.wf.web.html.HistoryHeaderBuilder(maxLevel, getResources(request).getMessage(
-                MessagesOther.LABEL_HISTORY_DATE.getKey()), getResources(request).getMessage(
-                MessagesOther.LABEL_HISTORY_EVENT.getKey()));
+                MessagesOther.LABEL_HISTORY_DATE.getKey()), getResources(request).getMessage(MessagesOther.LABEL_HISTORY_EVENT.getKey()));
         RowBuilder rowBuilder = new TRRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         return tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder).toString();

@@ -166,16 +166,6 @@ public class Process extends IdentifiableBase {
         this.endDate = endDate;
     }
 
-    @Column(name = "EXECUTION_STATUS", nullable = false)
-    @Enumerated(EnumType.STRING)
-    public ExecutionStatus getExecutionStatus() {
-        return executionStatus;
-    }
-
-    public void setExecutionStatus(ExecutionStatus executionStatus) {
-        this.executionStatus = executionStatus;
-    }
-
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
@@ -200,9 +190,19 @@ public class Process extends IdentifiableBase {
         this.rootToken = rootToken;
     }
 
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
+    }
+
     /**
      * Ends this process and all the tokens in it.
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
