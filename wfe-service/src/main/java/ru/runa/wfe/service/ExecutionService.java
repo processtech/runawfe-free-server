@@ -241,6 +241,23 @@ public interface ExecutionService {
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
 
     /**
+     * Get process variable state for completed task.
+     *
+     * @param user
+     *            Authorized user.
+     * @param processId
+     *            Process id to load variables.
+     * @param taskId
+     *            Task id or null, for loading start form state.
+     * @param variables
+     *            Variables to load.
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
+            throws ProcessDoesNotExistException;
+
+    /**
      * Gets variable by name from process.
      *
      * @param user

@@ -111,8 +111,8 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
             }
             filter.setCreateDateFrom(stage.prevStage.stageTime);
             filter.setCreateDateTo(stage.stageTime);
-            WfVariableHistoryState historicalVariables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), processId,
-                    stage.taskId);
+            WfVariableHistoryState historicalVariables =
+                    executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), processId, stage.taskId);
             checkVariables(stage, historicalVariables);
             checkChangedVariables(historicalVariables, stage.simpleVariablesChanged);
         }
@@ -127,8 +127,42 @@ public class ExecutionServiceDelegateGetHistoricalVariablesTest extends ServletT
         ProcessLogFilter filter = new ProcessLogFilter(processId);
         for (Stage stage : Stage.values()) {
             filter.setCreateDateTo(stage.stageTime);
-            List<WfVariable> variables = executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter, variableNames)
-                    .getVariables();
+            List<WfVariable> variables =
+                    executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), filter, variableNames).getVariables();
+            Map<String, Object> expected = Maps.newHashMap();
+            expected.putAll(stage.afterExecuteVariables);
+            for (String name : Sets.newHashSet(expected.keySet())) {
+                if (!variableNames.contains(name)) {
+                    expected.remove(name);
+                }
+            }
+            for (WfVariable wfVariable : variables) {
+                String name = wfVariable.getDefinition().getName();
+                if (wfVariable.getValue() instanceof List) {
+                    ArrayAssert.assertEqualArrays(name + " value is not equals on " + stage, (List) expected.get(name), (List) wfVariable.getValue());
+                } else {
+                    Assert.assertEquals(name + " value is not equals on " + stage, expected.get(name), wfVariable.getValue());
+                }
+                expected.remove(name);
+            }
+            for (String notFoundVariable : expected.keySet()) {
+                Assert.assertNull(notFoundVariable + " is not null, but not found in variables on " + stage, expected.get(notFoundVariable));
+            }
+        }
+    }
+
+    public void testGetVariablesChangedOnTaskWithFilter() throws Exception {
+        Set<String> variableNames = Sets.newHashSet();
+        variableNames.add("varLong");
+        variableNames.add("varString");
+        variableNames.add("varUT");
+        variableNames.add("varTemp");
+        for (Stage stage : Stage.values()) {
+            if (stage == Stage.NOT_STARTED) {
+                continue;
+            }
+            List<WfVariable> variables =
+                    executionService.getHistoricalVariables(th.getAuthorizedPerformerUser(), processId, stage.taskId, variableNames).getVariables();
             Map<String, Object> expected = Maps.newHashMap();
             expected.putAll(stage.afterExecuteVariables);
             for (String name : Sets.newHashSet(expected.keySet())) {
