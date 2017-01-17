@@ -10,10 +10,14 @@ public class Variables {
     public static final String CURRENT_PROCESS_DEFINITION_NAME = "currentDefinitionName";
     public static final String CURRENT_NODE_NAME = "currentNodeName";
     public static final String CURRENT_NODE_ID = "currentNodeId";
-    public static final String CURRENT_PROCESS_ID_WRAPPED = "${" + CURRENT_PROCESS_ID + "}";
-    public static final String CURRENT_PROCESS_DEFINITION_NAME_WRAPPED = "${" + CURRENT_PROCESS_DEFINITION_NAME + "}";
-    public static final String CURRENT_NODE_NAME_WRAPPED = "${" + CURRENT_NODE_NAME + "}";
-    public static final String CURRENT_NODE_ID_WRAPPED = "${" + CURRENT_NODE_ID + "}";
+    public static final String CURRENT_PROCESS_ID_WRAPPED = wrap(CURRENT_PROCESS_ID);
+    public static final String CURRENT_PROCESS_DEFINITION_NAME_WRAPPED = wrap(CURRENT_PROCESS_DEFINITION_NAME);
+    public static final String CURRENT_NODE_NAME_WRAPPED = wrap(CURRENT_NODE_NAME);
+    public static final String CURRENT_NODE_ID_WRAPPED = wrap(CURRENT_NODE_ID);
+
+    public static String wrap(String variableName) {
+        return "${" + variableName + "}";
+    }
 
     public static Map<String, Object> toMap(List<WfVariable> variables) {
         Map<String, Object> map = Maps.newHashMap();

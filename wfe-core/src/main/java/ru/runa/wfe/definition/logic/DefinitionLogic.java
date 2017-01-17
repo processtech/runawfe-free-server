@@ -275,10 +275,6 @@ public class DefinitionLogic extends WFCommonLogic {
             curVersion++;
             String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
             String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
-            VersionInfo versionInfoEmptyComment = new VersionInfo();
-            versionInfoEmptyComment.setDate(CalendarUtil.dateToCalendar(deployment.getUpdateDate() != null ? deployment.getUpdateDate() : deployment
-                    .getCreateDate()));
-            versionInfoEmptyComment.setAuthor(updateActorLabel.isEmpty() ? createActorLabel : updateActorLabel);
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
             ProcessArchive archiveData = new ProcessArchive(deployment);
             if (archiveData.getFileData().containsKey(fileName)) {
@@ -286,9 +282,6 @@ public class DefinitionLogic extends WFCommonLogic {
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
-                if (prevCount == versionList.size()) {
-                    versionInfos.add(versionInfoEmptyComment);
-                }
                 for (int j = prevCount; j < versionList.size(); j++) {
                     Element versionInfoElement = versionList.get(j);
                     VersionInfo versionInfo = new VersionInfo();
@@ -302,8 +295,6 @@ public class DefinitionLogic extends WFCommonLogic {
                 for (VersionInfo versionInfo : versionInfos) {
                     result.add(new ProcessDefinitionChange(curVersion, versionInfo));
                 }
-            } else {
-                result.add(new ProcessDefinitionChange(curVersion, versionInfoEmptyComment));
             }
 
         }

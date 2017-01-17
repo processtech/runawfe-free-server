@@ -134,14 +134,6 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public List<WfProcess> getProcessesByFilter(@WebParam(name = "user") User user, @WebParam(name = "filter") ProcessFilter filter) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(filter != null, "filter");
-        return executionLogic.getProcesses(user, filter);
-    }
-
-    @Override
-    @WebResult(name = "result")
     public WfProcess getProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");

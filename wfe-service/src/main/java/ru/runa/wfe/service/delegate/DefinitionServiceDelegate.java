@@ -300,4 +300,5 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
             throw handleException(e);
         }
     }
+
 }

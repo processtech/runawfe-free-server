@@ -97,15 +97,6 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public List<WfProcess> getProcessesByFilter(User user, ProcessFilter filter) {
-        try {
-            return getExecutionService().getProcessesByFilter(user, filter);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
     public WfProcess getProcess(User user, Long id) {
         try {
             return getExecutionService().getProcess(user, id);
