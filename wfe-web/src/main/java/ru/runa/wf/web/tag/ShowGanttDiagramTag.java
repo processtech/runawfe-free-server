@@ -14,6 +14,7 @@ import org.tldgen.annotations.BodyContent;
 
 import com.google.common.base.Objects;
 
+import ru.runa.common.web.MessagesOther;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wfe.audit.ProcessLog;
@@ -29,6 +30,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.TaskService;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.Executor;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showGanttDiagram")
 public class ShowGanttDiagramTag extends ProcessBaseFormTag {
@@ -68,8 +70,15 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
                 TaskCreateLog createLog = (TaskCreateLog) log;
                 TaskEndLog endLog = taskLogs.get(createLog);
                 Date end = (endLog != null) ? endLog.getCreateDate() : new Date();
-                String executorName = (endLog != null) ? endLog.getActorName()
-                        : taskService.getTask(getUser(), createLog.getTaskId()).getOwner().getName();
+                String executorName = MessagesOther.LABEL_RESOURCE_NOT_ASSIGNED.message(pageContext);
+                if (endLog != null) {
+                    executorName = endLog.getActorName();
+                } else {
+                    Executor owner = taskService.getTask(getUser(), createLog.getTaskId()).getOwner();
+                    if (owner != null) {
+                        executorName = owner.getName();
+                    }
+                }
                 barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), end, "task2", executorName, false,
                         createLog.getProcessId(), null));
             }

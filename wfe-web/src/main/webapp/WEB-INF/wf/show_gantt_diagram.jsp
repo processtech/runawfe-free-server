@@ -1,3 +1,5 @@
+<%@page import="java.io.IOException"%>
+<%@page import="java.net.URL"%>
 <%@page import="ru.runa.common.web.MessagesOther"%>
 <%@page import="ru.runa.common.web.MessagesTimeScale"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
@@ -88,6 +90,17 @@
 <div id="GanttChartDIV" style='position:relative; width:100%; height:600px'></div>
 </wf:showGanttDiagram>
 
+<%!
+private boolean isExportServiceAvailable() {
+	try {
+		new URL("http://export.dhtmlx.com/gantt").openConnection().connect();
+		return true;
+	} catch (IOException e) {
+		return false;
+	}
+}
+%>
+
 <table width="100%">
 	<tr>
 		<td align="left">
@@ -100,12 +113,14 @@
 			<input type="radio" name="gantt-chart-scale" id="scale-quarter" value="quarter"><label for="quarter"><%= MessagesTimeScale.LABEL_QUARTER.message(pageContext) %></label>
 			<input type="radio" name="gantt-chart-scale" id="scale-year" value="year"><label for="year"><%= MessagesTimeScale.LABEL_YEAR.message(pageContext) %></label>
 		</td>
+		<% if (isExportServiceAvailable()) { %>
 		<td align="right">
 			<%= MessagesOther.LABEL_EXPORT_TO.message(pageContext) %>:
 			<input value="PDF" type="button" onclick='gantt.exportToPDF()'/>
 			<input value="PNG" type="button" onclick='gantt.exportToPNG()'/>
 			<input value="Excel" type="button" onclick='gantt.exportToExcel()'/>
 		</td>
+		<% } %>
 	</tr>
 </table>
 
