@@ -158,8 +158,8 @@ private boolean isExportServiceAvailable() {
 			gantt.config.scale_unit = "day";
 			gantt.config.step = 1;
 			gantt.config.date_scale = "%j, %D";
-			gantt.config.duration_step = 1;
 			gantt.config.duration_unit = "day";
+			gantt.config.duration_step = 1;
 			gantt.config.min_column_width = 50;
 			gantt.config.scale_height = 50;
 			var weekScaleTemplate = function(date) {
@@ -278,6 +278,8 @@ private boolean isExportServiceAvailable() {
 	gantt.config.readonly = true;
 	gantt.config.autosize = "y";
 	gantt.config.work_time = false;
+	gantt.config.correct_work_time = false;
+	gantt.config.skip_off_time = false;
 	gantt.config.sort = true;
 
     gantt.templates.scale_cell_class = function(date) {
