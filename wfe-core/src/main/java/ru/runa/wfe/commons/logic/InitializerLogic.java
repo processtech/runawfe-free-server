@@ -56,6 +56,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddParentProcessIdPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
+import ru.runa.wfe.commons.dbpatch.impl.AddStartFromCommentColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
@@ -154,6 +155,7 @@ public class InitializerLogic {
         dbPatches.add(ExpandVarcharPatch.class);
         dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
         dbPatches.add(CreateAdminScriptTables.class);
+        dbPatches.add(AddStartFromCommentColumn.class);
     };
 
     @Autowired
