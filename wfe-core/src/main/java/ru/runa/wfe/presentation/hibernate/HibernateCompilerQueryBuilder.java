@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.presentation.hibernate;
@@ -56,7 +56,7 @@ public class HibernateCompilerQueryBuilder {
 
     /**
      * Creates instance of component, used to build {@link Query} for {@link BatchPresentation}.
-     * 
+     *
      * @param batchPresentation
      *            {@link BatchPresentation}, used to build SQL query.
      * @param parameters
@@ -70,7 +70,7 @@ public class HibernateCompilerQueryBuilder {
 
     /**
      * Builds {@link Query} for {@link BatchPresentation}.
-     * 
+     *
      * @return {@link Query} to load data from database.
      */
     public Query build() {
@@ -101,7 +101,7 @@ public class HibernateCompilerQueryBuilder {
 
     /**
      * Returns Map from SQL positional parameter name to parameter value, generated after build method call.
-     * 
+     *
      * @return Map from SQL positional parameter name to parameter value.
      */
     public Map<String, QueryParameter> getPlaceholders() {
@@ -110,7 +110,7 @@ public class HibernateCompilerQueryBuilder {
 
     /**
      * Translates HQL from hqlBuilder to SQL and makes ordering and filtering inheritance tuning.
-     * 
+     *
      * @return SQL query string.
      */
     private String translateToSQL() {
@@ -126,12 +126,12 @@ public class HibernateCompilerQueryBuilder {
     }
 
     /**
-     * Removes from SQL select clause all column names and 'as' statements. So it's converts SQL like 'select TABLE.ID as T_ID, TABLE.NAME as T_N'
-     * to 'select TABLE.*'. Actually only 'as' statements removing is required, but removing all columns is much simple and resulting request is
-     * much clever.
-     * 
+     * Removes from SQL select clause all column names and 'as' statements. So it's converts SQL like 'select TABLE.ID as T_ID, TABLE.NAME as T_N' to
+     * 'select TABLE.*'. Actually only 'as' statements removing is required, but removing all columns is much simple and resulting request is much
+     * clever.
+     *
      * But for joined table generate new aliases.
-     * 
+     *
      * @param sqlRequest
      *            SQL request to tune select clause.
      */
