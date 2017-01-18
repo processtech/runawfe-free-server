@@ -281,8 +281,8 @@ public class HibernateCompilerHQLBuider {
     }
 
     /**
-     * Generates expressions to satisfy fields filtering restrictions. This function doesn't generates filtering for fields with inheritance. It
-     * must be handled in SQL translation stage.
+     * Generates expressions to satisfy fields filtering restrictions. This function doesn't generates filtering for fields with inheritance. It must
+     * be handled in SQL translation stage.
      *
      * @return List of string, represents expressions.
      */
@@ -291,17 +291,29 @@ public class HibernateCompilerHQLBuider {
         Map<Integer, FilterCriteria> fieldsToFilter = batchPresentation.getFilteredFields();
         for (Map.Entry<Integer, FilterCriteria> entry : fieldsToFilter.entrySet()) {
             FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
-            if (field.fieldState == FieldState.DISABLED || field.filterMode != FieldFilterMode.DATABASE) {
+            if (field.fieldState == FieldState.DISABLED
+                    || (field.filterMode != FieldFilterMode.DATABASE && field.filterMode != FieldFilterMode.DATABASE_ID_RESTRICTION)) {
                 continue;
             }
             if (field.dbSources.length > 1) {
                 isFilterByInheritance = true;
                 continue; // Fields with inheritance will be processed later
             }
-            StringBuilder filter = new StringBuilder();
-            String condition = entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath(aliasMapping.getAlias(field)), placeholders);
-            filter.append("(").append(condition).append(")");
-            result.add(filter.toString());
+            if (field.filterMode == FieldFilterMode.DATABASE) {
+                StringBuilder filter = new StringBuilder();
+                String condition =
+                        entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath(aliasMapping.getAlias(field)), placeholders);
+                filter.append("(").append(condition).append(")");
+                result.add(filter.toString());
+            }
+            if (field.filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION) {
+                StringBuilder filter = new StringBuilder();
+                String condition = entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath("subQuery"), placeholders);
+                filter.append("(").append(ClassPresentation.classNameSQL).append(".id IN (SELECT ")
+                        .append(field.dbSources[0].getJoinExpression("subQuery")).append(" FROM ")
+                        .append(field.dbSources[0].getSourceObject().getName()).append(" AS subQuery WHERE ").append(condition).append("))");
+                result.add(filter.toString());
+            }
         }
         return result;
     }
@@ -372,7 +384,7 @@ public class HibernateCompilerHQLBuider {
 
     /**
      * Returns all entities in {@link BatchPresentation}.
-     * 
+     *
      * @return All {@link BatchPresentation} entities.
      */
     public Set<Class<?>> getVisibleJoinedClasses() {
