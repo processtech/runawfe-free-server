@@ -45,7 +45,6 @@ public class Deployment extends Identifiable {
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
-    private Long startFromComment;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -177,15 +176,6 @@ public class Deployment extends Identifiable {
 
     public void setCategories(List<String> categories) {
         category = Joiner.on(Utils.CATEGORY_DELIMITER).join(categories);
-    }
-
-    @Column(name = "START_FROM_COMMENT")
-    public Long getStartFromComment() {
-        return startFromComment;
-    }
-
-    public void setStartFromComment(Long startFromComment) {
-        this.startFromComment = startFromComment;
     }
 
     @Override

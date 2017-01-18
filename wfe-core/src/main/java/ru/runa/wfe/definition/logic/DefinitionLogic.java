@@ -29,6 +29,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
@@ -93,7 +94,6 @@ public class DefinitionLogic extends WFCommonLogic {
         definition.getDeployment().setCategories(categories);
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
-        definition.getDeployment().setStartFromComment(new Long(1));
         deploymentDAO.deploy(definition.getDeployment(), null);
         Collection<Permission> allPermissions = new DefinitionPermission().getAllPermissions();
         permissionDAO.setPermissions(user.getActor(), allPermissions, definition.getDeployment());
@@ -125,14 +125,22 @@ public class DefinitionLogic extends WFCommonLogic {
             definition.getDeployment().setCategory(oldDeployment.getCategory());
         }
         ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment.getContent());
-        if (definition.getVersionInfoList().size() < oldDefinition.getVersionInfoList().size()){
-            throw new InternalApplicationException("The new version of definition must contains more than " + oldDefinition
-                    .getVersionInfoList().size() + " version comments. Uploaded definition contains " + definition.getVersionInfoList().size()
-                    + " comments. Most likely you try to upload an old version of definition.");
+        boolean isContainsAllPreviousComments = definition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
+        if (SystemProperties.isDisallowOverwritingVersionCommentsInDefinition()) {
+            if (isContainsAllPreviousComments != true) {
+                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier " +
+                        "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
+            }
+        }
+        if (SystemProperties.isDisallowUploadingDefinitionsWithoutNewComments()) {
+            if (isContainsAllPreviousComments && definition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
+                throw new InternalApplicationException("The new version of definition must contains more than " + oldDefinition
+                        .getVersionInfoList().size() + " version comments. Uploaded definition contains " + definition.getVersionInfoList().size()
+                        + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
+            }
         }
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
-        definition.getDeployment().setStartFromComment(new Long(oldDefinition.getVersionInfoList().size()+1));
         deploymentDAO.deploy(definition.getDeployment(), oldDeployment);
         log.debug("Process definition " + oldDeployment + " was successfully redeployed");
         return new WfDefinition(definition, true);
@@ -160,10 +168,24 @@ public class DefinitionLogic extends WFCommonLogic {
             throw new DefinitionNameMismatchException("Expected definition name " + deployment.getName(), uploadedDefinition.getName(),
                     deployment.getName());
         }
+        ProcessDefinition oldDefinition = parseProcessDefinition(deployment.getContent());
+        boolean isContainsAllPreviousComments = uploadedDefinition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
+        if (SystemProperties.isDisallowOverwritingVersionCommentsInDefinition()) {
+            if (isContainsAllPreviousComments != true) {
+                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier " +
+                        "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
+            }
+        }
+        if (SystemProperties.isDisallowUploadingDefinitionsWithoutNewComments()) {
+            if (isContainsAllPreviousComments && uploadedDefinition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
+                throw new InternalApplicationException("The new version of definition must contains more than " + oldDefinition
+                        .getVersionInfoList().size() + " version comments. Uploaded definition contains " + uploadedDefinition.getVersionInfoList().size()
+                        + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
+            }
+        }
         deployment.setContent(uploadedDefinition.getDeployment().getContent());
         deployment.setUpdateDate(new Date());
         deployment.setUpdateActor(user.getActor());
-        deployment.setStartFromComment(deployment.getStartFromComment());
         deploymentDAO.update(deployment);
         addUpdatedDefinitionInProcessLog(user, deployment);
         log.debug("Process definition " + deployment + " was successfully updated");
@@ -288,11 +310,6 @@ public class DefinitionLogic extends WFCommonLogic {
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
-                if (deployment.getStartFromComment() != null) {
-                    prevCount = deployment.getStartFromComment().intValue() - 1;
-                }else{
-                    prevCount = versionList.size();
-                }
                 for (int j=prevCount;j<versionList.size();j++) {
                     Element versionInfoElement = versionList.get(j);
                     VersionInfo versionInfo = new VersionInfo();
@@ -300,6 +317,7 @@ public class DefinitionLogic extends WFCommonLogic {
                     versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
                     versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
                     versionInfos.add(versionInfo);
+                    prevCount++;
                 }
 
                 for (VersionInfo versionInfo : versionInfos) {
@@ -328,11 +346,6 @@ public class DefinitionLogic extends WFCommonLogic {
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
-                if (deployment.getStartFromComment() != null) {
-                    prevCount = deployment.getStartFromComment().intValue() - 1;
-                }else{
-                    prevCount = versionList.size();
-                }
                 for (int j=prevCount;j<versionList.size();j++) {
                     Element versionInfoElement = versionList.get(j);
                     VersionInfo versionInfo = new VersionInfo();
@@ -340,6 +353,7 @@ public class DefinitionLogic extends WFCommonLogic {
                     versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
                     versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
                     versionInfos.add(versionInfo);
+                    prevCount++;
                 }
 
                 if (curVersion >= version1 && curVersion <= version2) {
@@ -369,11 +383,6 @@ public class DefinitionLogic extends WFCommonLogic {
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
-                if (deployment.getStartFromComment() != null) {
-                    prevCount = deployment.getStartFromComment().intValue() - 1;
-                }else{
-                    prevCount = versionList.size();
-                }
                 for (int j=prevCount;j<versionList.size();j++) {
                     Element versionInfoElement = versionList.get(j);
                     VersionInfo versionInfo = new VersionInfo();
@@ -381,6 +390,7 @@ public class DefinitionLogic extends WFCommonLogic {
                     versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
                     versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
                     versionInfos.add(versionInfo);
+                    prevCount++;
                 }
 
                 for (VersionInfo versionInfo : versionInfos) {
