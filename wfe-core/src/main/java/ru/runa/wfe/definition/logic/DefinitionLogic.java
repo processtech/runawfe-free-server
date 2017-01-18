@@ -281,7 +281,6 @@ public class DefinitionLogic extends WFCommonLogic {
             curVersion = deployment.getVersion().intValue();
             String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
             String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
-            prevCount = deployment.getStartFromComment().intValue() - 1;
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
             ProcessArchive archiveData = new ProcessArchive(deployment);
             if (archiveData.getFileData().containsKey(fileName)) {
@@ -289,6 +288,11 @@ public class DefinitionLogic extends WFCommonLogic {
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (deployment.getStartFromComment() != null) {
+                    prevCount = deployment.getStartFromComment().intValue() - 1;
+                }else{
+                    prevCount = versionList.size();
+                }
                 for (int j=prevCount;j<versionList.size();j++) {
                     Element versionInfoElement = versionList.get(j);
                     VersionInfo versionInfo = new VersionInfo();
@@ -317,7 +321,6 @@ public class DefinitionLogic extends WFCommonLogic {
             curVersion = deployment.getVersion().intValue();
             String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
             String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
-            prevCount = deployment.getStartFromComment().intValue() - 1;
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
             ProcessArchive archiveData = new ProcessArchive(deployment);
             if (archiveData.getFileData().containsKey(fileName)) {
@@ -325,6 +328,11 @@ public class DefinitionLogic extends WFCommonLogic {
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (deployment.getStartFromComment() != null) {
+                    prevCount = deployment.getStartFromComment().intValue() - 1;
+                }else{
+                    prevCount = versionList.size();
+                }
                 for (int j=prevCount;j<versionList.size();j++) {
                     Element versionInfoElement = versionList.get(j);
                     VersionInfo versionInfo = new VersionInfo();
@@ -354,7 +362,6 @@ public class DefinitionLogic extends WFCommonLogic {
             curVersion = deployment.getVersion().intValue();
             String createActorLabel = deployment.getCreateActor() != null ? deployment.getCreateActor().getLabel() : "";
             String updateActorLabel = deployment.getUpdateActor() != null ? deployment.getUpdateActor().getLabel() : "";
-            prevCount = deployment.getStartFromComment().intValue() - 1;
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
             ProcessArchive archiveData = new ProcessArchive(deployment);
             if (archiveData.getFileData().containsKey(fileName)) {
@@ -362,6 +369,11 @@ public class DefinitionLogic extends WFCommonLogic {
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
+                if (deployment.getStartFromComment() != null) {
+                    prevCount = deployment.getStartFromComment().intValue() - 1;
+                }else{
+                    prevCount = versionList.size();
+                }
                 for (int j=prevCount;j<versionList.size();j++) {
                     Element versionInfoElement = versionList.get(j);
                     VersionInfo versionInfo = new VersionInfo();
