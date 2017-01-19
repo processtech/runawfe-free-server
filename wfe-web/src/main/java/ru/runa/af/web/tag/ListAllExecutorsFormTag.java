@@ -29,11 +29,12 @@ import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PagingNavigationHelper;
+import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.common.web.html.CssClassStrategy;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.IdentifiableCheckboxTDBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
-import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
@@ -42,6 +43,8 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorPermission;
+import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.User;
 
 /**
  * Created on 18.08.2004
@@ -68,8 +71,23 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
         TableBuilder tableBuilder = new TableBuilder();
         TDBuilder[] prefixBuilders = new TDBuilder[] { new IdentifiableCheckboxTDBuilder(ExecutorPermission.UPDATE) };
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
-        RowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
+        ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);
+        rowBuilder.setCssClassStrategy(new CssClassStrategy() {
+			
+			@Override
+			public String getCssStyle(Object item) {
+				return null;
+			}
+			
+			@Override
+			public String getClassName(Object item, User user) {
+				if (item instanceof Group){
+					return Resources.CLASS_EXECUTOR_GROUP;
+				}
+				return null;
+			}
+		});
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, getReturnAction(), pageContext);
         tdFormElement.addElement(tableBuilder.build(headerBuilder, rowBuilder));
         navigation.addPagingNavigationTable(tdFormElement);
