@@ -44,8 +44,9 @@ public class FieldDescriptor {
     public final String displayName;
 
     /**
-     * Field type as class name (i. e. String.class.getName()). Used to get appreciate {@link FilterCriteria} and FilterTDFormatter (see web project).
-     * So, filter representation is depends on this field. {@link Calendar} will be created for {@link Date}, editor field for String and so on.
+     * Field type as class name (i. e. String.class.getName()). Used to get appreciate {@link FilterCriteria} and FilterTDFormatter (see web
+     * project). So, filter representation is depends on this field. {@link Calendar} will be created for {@link Date}, editor field for String and
+     * so on.
      */
     public final String fieldType;
 
@@ -58,6 +59,11 @@ public class FieldDescriptor {
      * Flag, equals true, if this field can be grouped or sorted; false otherwise.
      */
     public final boolean sortable;
+
+    /**
+     * Flag, equals true, if this field can be showed; false otherwise.
+     */
+    public boolean showable = true;
 
     /**
      * The sort order, if the field is used for default batch sorting. Sorted fields indexes must start with 1 and be exactly sequential. Are set to
@@ -87,8 +93,8 @@ public class FieldDescriptor {
     public final Object[] tdBuilderParams;
 
     /**
-     * Components, to access field values from HQL/SQL. If more then one components supplied, then first component must describe access to base class
-     * and other components must describe access to inherited objects.
+     * Components, to access field values from HQL/SQL. If more then one components supplied, then first component must describe access to base
+     * class and other components must describe access to inherited objects.
      */
     public final DBSource[] dbSources;
 
@@ -99,8 +105,8 @@ public class FieldDescriptor {
     public final boolean isWeakJoin;
 
     /**
-     * Ordinal field index in {@link BatchPresentation}. All fields in {@link ClassPresentation} has -1, but {@link BatchPresentation} creates fields
-     * with indexes using createConcretteField.
+     * Ordinal field index in {@link BatchPresentation}. All fields in {@link ClassPresentation} has -1, but {@link BatchPresentation} creates
+     * fields with indexes using createConcretteField.
      */
     public final int fieldIdx;
 
@@ -327,7 +333,7 @@ public class FieldDescriptor {
      */
     public FieldDescriptor createConcreteField(int fieldIdx) {
         return new FieldDescriptor(displayName, fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
-                tdBuilderParams, isWeakJoin, fieldIdx, fieldState);
+                tdBuilderParams, isWeakJoin, fieldIdx, fieldState).setVisible(visible).setShowable(showable);
     }
 
     /**
@@ -368,6 +374,15 @@ public class FieldDescriptor {
 
     public FieldDescriptor setVisible(boolean visible) {
         this.visible = visible;
+        return this;
+    }
+
+    public boolean isShowable() {
+        return showable;
+    }
+
+    public FieldDescriptor setShowable(boolean showable) {
+        this.showable = showable;
         return this;
     }
 
