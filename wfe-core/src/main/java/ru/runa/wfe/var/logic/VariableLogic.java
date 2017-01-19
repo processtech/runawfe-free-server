@@ -290,7 +290,12 @@ public class VariableLogic extends WFCommonLogic {
             Map<String, Object> processVariables = processToVariables.get(currentProcess);
             for (Process baseProcess = getBaseProcess(user, currentProcess); baseProcess != null; baseProcess = getBaseProcess(user, baseProcess)) {
                 // All base process variables must be available in current process.
-                processVariables.putAll(processToVariables.get(baseProcess));
+                Map<String, Object> baseProcessVariables = processToVariables.get(baseProcess);
+                for (String baseVariableName : baseProcessVariables.keySet()) {
+                    if (!processVariables.containsKey(baseVariableName)) {
+                        processVariables.put(baseVariableName, baseProcessVariables.get(baseVariableName));
+                    }
+                }
             }
             result.put(currentProcess, Maps.<String, Variable<?>>newHashMap());
             for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
