@@ -81,7 +81,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
             headerTR.addElement(new TH(Messages.getMessage(COMMENT, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
 
             long curVersion = 0;
-            long tdCount = 0;
+            long rowCount = 0;
             for (int i = changes.size() - 1; i >= 0; i--) {
                 ProcessDefinitionChange change = changes.get(i);
                 if (change.getVersion() <= Delegates.getDefinitionService().getProcessDefinition(getUser(), getProcessDefinitionId()).getVersion()
@@ -91,7 +91,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
                     row.setStyle("border-top-style:hidden;" +
                             "border-left-style:hidden;" +
                             "border-right-style:hidden;");
-                    if (tdCount > 2) {
+                    if (rowCount > 2) {
                         row.addAttribute("class", "earlyComments");
                         row.setStyle(row.getAttribute("style") + "display:none;");
                     }
@@ -140,7 +140,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
                     row.addElement(dateTimeTD);
                     row.addElement(authorTD);
                     row.addElement(commentTD);
-                    tdCount++;
+                    rowCount++;
                 }
             }
 
