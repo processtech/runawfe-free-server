@@ -151,9 +151,6 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
     @Override
     public List<ConvertToSimpleVariablesResult> onUserType(UserTypeFormat userTypeFormat, ConvertToSimpleVariablesContext context) {
         UserTypeMap userTypeValue = (UserTypeMap) context.getValue();
-        if (userTypeValue != null && !userTypeValue.getUserType().equals(userTypeFormat.getUserType())) {
-            throw new InternalApplicationException("Variable user type is not correct for " + context.getVariableDefinition().getName());
-        }
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         if (context.isVirtualVariablesRequired()) {
             results.add(new ConvertToSimpleVariablesResult(context, true));
