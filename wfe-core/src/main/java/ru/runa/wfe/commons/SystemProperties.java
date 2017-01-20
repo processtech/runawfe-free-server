@@ -178,6 +178,14 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("trusted.authentication.enabled", false);
     }
 
+    public static boolean isDisallowOverwritingVersionCommentsInDefinition() {
+        return RESOURCES.getBooleanProperty("definition.disallowOverwritingVersionCommentsInDefinition", true);
+    }
+
+    public static boolean isDisallowUploadingDefinitionsWithoutNewComments() {
+        return RESOURCES.getBooleanProperty("definition.disallowUploadingDefinitionsWithoutNewComments", false);
+    }
+
     public static boolean isCheckProcessStartPermissions() {
         return RESOURCES.getBooleanProperty("check.process.start.permissions", true);
     }
