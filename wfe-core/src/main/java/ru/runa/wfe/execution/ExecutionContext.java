@@ -291,7 +291,9 @@ public class ExecutionContext {
         Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
         if (variable != null && !variable.supports(value)) {
-            log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess());
+            String converterStr = variable.getConverter() == null ? "" : " converter is " + variable.getConverter();
+            log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess()
+                    + " variable value is " + value + converterStr);
             variableDAO.delete(variable);
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
