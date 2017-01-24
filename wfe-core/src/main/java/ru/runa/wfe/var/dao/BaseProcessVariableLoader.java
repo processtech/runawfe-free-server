@@ -1,0 +1,245 @@
+package ru.runa.wfe.var.dao;
+
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
+
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.execution.NodeProcess;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.dao.NodeProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.lang.MultiSubprocessNode;
+import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
+import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.UserTypeMap;
+import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.VariableFormatContainer;
+
+public class BaseProcessVariableLoader {
+    private static Log log = LogFactory.getLog(BaseProcessVariableLoader.class);
+    private final VariableLoader variableLoader;
+    private final Process process;
+    private final ProcessDefinition processDefinition;
+    public final SubprocessSyncCache subprocessSyncCache = new SubprocessSyncCache();
+    @Autowired
+    private NodeProcessDAO nodeProcessDAO;
+    @Autowired
+    private IProcessDefinitionLoader processDefinitionLoader;
+    @Autowired
+    private ProcessDAO processDAO;
+
+    public BaseProcessVariableLoader(VariableLoader variableLoader, Process process, ProcessDefinition processDefinition) {
+        super();
+        this.variableLoader = variableLoader;
+        this.process = process;
+        this.processDefinition = processDefinition;
+        ApplicationContextFactory.getContext().getAutowireCapableBeanFactory().autowireBean(this);
+    }
+
+    public WfVariable get(String name) {
+        WfVariable variable = variableLoader.getVariable(processDefinition, process, name);
+        if (variable != null) {
+            if (Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue())
+                    || variable.getValue() instanceof UserTypeMap) {
+                variable = getVariableUsingBaseProcess(processDefinition, process, name, variable);
+            }
+            return variable;
+        }
+        if (SystemProperties.isV3CompatibilityMode()) {
+            Variable<?> dbVariable = variableLoader.get(process, name);
+            return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
+        }
+        log.debug("No variable defined by '" + name + "' in " + process + ", returning null");
+        return null;
+
+    }
+
+    private WfVariable getVariableUsingBaseProcess(ProcessDefinition processDefinition, Process process, String name, WfVariable variable) {
+        Long baseProcessId = subprocessSyncCache.getBaseProcessId(processDefinition, process);
+        if (baseProcessId != null) {
+            name = subprocessSyncCache.getBaseProcessReadVariableName(processDefinition, process, name);
+            if (name != null) {
+                log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
+                Process baseProcess = processDAO.getNotNull(baseProcessId);
+                ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
+                WfVariable baseVariable = variableLoader.getVariable(baseProcessDefinition, baseProcess, name);
+                if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null
+                        && baseVariable.getValue() instanceof UserTypeMap) {
+                    ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
+                } else if (baseVariable != null) {
+                    if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
+                        variable.setValue(baseVariable.getValue());
+                    }
+                    if (!Utils.isNullOrEmpty(variable.getValue())
+                            && !Objects.equal(baseVariable.getDefinition().getDefaultValue(), variable.getValue())) {
+                        return variable;
+                    }
+                }
+                return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, variable);
+            }
+        }
+        return variable;
+    }
+
+    public class SubprocessSyncCache {
+        private Map<Process, NodeProcess> subprocessesInfoMap = Maps.newHashMap();
+        private Map<Process, Boolean> baseProcessIdModesMap = Maps.newHashMap();
+        private Map<Process, Boolean> multiSubprocessFlagsMap = Maps.newHashMap();
+        private Map<Process, Map<String, String>> readVariableNamesMap = Maps.newHashMap();
+        private Map<Process, Map<String, String>> syncVariableNamesMap = Maps.newHashMap();
+        private Map<Process, Long> baseProcessIdsMap = Maps.newHashMap();
+
+        private Long getBaseProcessId(ProcessDefinition processDefinition, Process process) {
+            if (!baseProcessIdsMap.containsKey(process)) {
+                String baseProcessIdVariableName = SystemProperties.getBaseProcessIdVariableName();
+                if (baseProcessIdVariableName != null && processDefinition.getVariable(baseProcessIdVariableName, false) != null) {
+                    WfVariable baseProcessIdVariable = variableLoader.getVariable(processDefinition, process, baseProcessIdVariableName);
+                    Long baseProcessId = (Long) (baseProcessIdVariable != null ? baseProcessIdVariable.getValue() : null);
+                    if (Objects.equal(baseProcessId, process.getId())) {
+                        throw new InternalApplicationException(
+                                baseProcessIdVariableName + " reference should not point to current process id " + process.getId());
+                    }
+                    baseProcessIdsMap.put(process, baseProcessId);
+                }
+            }
+            return baseProcessIdsMap.get(process);
+        }
+
+        private NodeProcess getSubprocessNodeInfo(Process process) {
+            if (!subprocessesInfoMap.containsKey(process)) {
+                NodeProcess nodeProcess = nodeProcessDAO.getNodeProcessByChild(process.getId());
+                if (nodeProcess != null) {
+                    Map<String, String> readVariableNames = Maps.newHashMap();
+                    Map<String, String> syncVariableNames = Maps.newHashMap();
+                    ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(nodeProcess.getProcess());
+                    Node node = parentProcessDefinition.getNodeNotNull(nodeProcess.getParentToken().getNodeId());
+                    multiSubprocessFlagsMap.put(process, node instanceof MultiSubprocessNode);
+                    if (node instanceof SubprocessNode) {
+                        SubprocessNode subprocessNode = (SubprocessNode) node;
+                        boolean baseProcessIdMode = subprocessNode.isInBaseProcessIdMode();
+                        baseProcessIdModesMap.put(process, baseProcessIdMode);
+                        for (VariableMapping variableMapping : subprocessNode.getVariableMappings()) {
+                            if (variableMapping.isSyncable() || variableMapping.isReadable()) {
+                                readVariableNames.put(variableMapping.getMappedName(), variableMapping.getName());
+                            }
+                            if (variableMapping.isSyncable()) {
+                                syncVariableNames.put(variableMapping.getMappedName(), variableMapping.getName());
+                            }
+                        }
+                        log.debug("Caching for " + process.getId() + " [baseProcessId mode = " + baseProcessIdMode + "]: readVariableNames = "
+                                + readVariableNames + "syncVariableNames = " + syncVariableNames);
+                    }
+                    readVariableNamesMap.put(process, readVariableNames);
+                    syncVariableNamesMap.put(process, syncVariableNames);
+                }
+                log.debug("Caching " + nodeProcess + " for " + process);
+                subprocessesInfoMap.put(process, nodeProcess);
+            }
+            return subprocessesInfoMap.get(process);
+        }
+
+        private String getBaseProcessReadVariableName(ProcessDefinition processDefinition, Process process, String name) {
+            NodeProcess nodeProcess = getSubprocessNodeInfo(process);
+            if (nodeProcess != null) {
+                Map<String, String> readVariableNames = readVariableNamesMap.get(process);
+                if (!readVariableNames.isEmpty()) {
+                    String readVariableName = name;
+                    String readVariableNameRemainder = "";
+                    while (!readVariableNames.containsKey(readVariableName)) {
+                        if (readVariableName.contains(UserType.DELIM)) {
+                            int lastIndex = readVariableName.lastIndexOf(UserType.DELIM);
+                            readVariableNameRemainder = readVariableName.substring(lastIndex) + readVariableNameRemainder;
+                            readVariableName = readVariableName.substring(0, lastIndex);
+                        } else if (readVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)) {
+                            int lastIndex = readVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
+                            readVariableNameRemainder = readVariableName.substring(lastIndex) + readVariableNameRemainder;
+                            readVariableName = readVariableName.substring(0, lastIndex);
+                        } else {
+                            break;
+                        }
+                    }
+                    if (readVariableNames.containsKey(readVariableName)) {
+                        String parentProcessVariableName = readVariableNames.get(readVariableName);
+                        if (multiSubprocessFlagsMap.get(process)) {
+                            parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_START;
+                            parentProcessVariableName += nodeProcess.getIndex();
+                            parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
+                        }
+                        parentProcessVariableName += readVariableNameRemainder;
+                        return parentProcessVariableName;
+                    }
+                }
+            }
+            return SystemProperties.isBaseProcessIdModeReadAllVariables() ? name : null;
+        }
+
+        public Token getParentProcessToken(Process process) {
+            NodeProcess nodeProcess = getSubprocessNodeInfo(process);
+            if (nodeProcess != null) {
+                return nodeProcess.getParentToken();
+            }
+            return null;
+        }
+
+        public boolean isInBaseProcessIdMode(Process process) {
+            NodeProcess nodeProcess = getSubprocessNodeInfo(process);
+            if (nodeProcess != null) {
+                return baseProcessIdModesMap.get(process);
+            }
+            return false;
+        }
+
+        public VariableDefinition getParentProcessSyncVariableDefinition(ProcessDefinition processDefinition, Process process,
+                VariableDefinition variableDefinition) {
+            NodeProcess nodeProcess = getSubprocessNodeInfo(process);
+            if (nodeProcess != null) {
+                Map<String, String> syncVariableNames = syncVariableNamesMap.get(process);
+                if (!syncVariableNames.isEmpty()) {
+                    String syncVariableName = variableDefinition.getName();
+                    String syncVariableNameRemainder = "";
+                    while (!syncVariableNames.containsKey(syncVariableName)) {
+                        if (syncVariableName.contains(UserType.DELIM)) {
+                            int lastIndex = syncVariableName.lastIndexOf(UserType.DELIM);
+                            syncVariableNameRemainder = syncVariableName.substring(lastIndex) + syncVariableNameRemainder;
+                            syncVariableName = syncVariableName.substring(0, lastIndex);
+                        } else if (syncVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)) {
+                            int lastIndex = syncVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
+                            syncVariableNameRemainder = syncVariableName.substring(lastIndex) + syncVariableNameRemainder;
+                            syncVariableName = syncVariableName.substring(0, lastIndex);
+                        } else {
+                            break;
+                        }
+                    }
+                    if (syncVariableNames.containsKey(syncVariableName)) {
+                        String parentProcessVariableName = syncVariableNames.get(syncVariableName);
+                        if (multiSubprocessFlagsMap.get(process)) {
+                            parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_START;
+                            parentProcessVariableName += nodeProcess.getIndex();
+                            parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
+                        }
+                        parentProcessVariableName += syncVariableNameRemainder;
+                        ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(nodeProcess.getProcess());
+                        return parentProcessDefinition.getVariable(parentProcessVariableName, false);
+                    }
+                }
+            }
+            return null;
+        }
+    }
+}
