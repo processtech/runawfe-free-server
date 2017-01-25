@@ -395,7 +395,6 @@ public class ExecutionContext {
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
         }
     }
-<<<<<<< HEAD
 
     private class SubprocessSyncCache {
         private Map<Process, NodeProcess> subprocessesInfoMap = Maps.newHashMap();
