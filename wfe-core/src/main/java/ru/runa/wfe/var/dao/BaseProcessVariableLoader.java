@@ -2,6 +2,7 @@ package ru.runa.wfe.var.dao;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;
@@ -80,7 +81,7 @@ public class BaseProcessVariableLoader {
     private WfVariable getVariableUsingBaseProcess(ProcessDefinition processDefinition, Process process, String name, WfVariable variable) {
         Long baseProcessId = subprocessSyncCache.getBaseProcessId(processDefinition, process);
         if (baseProcessId != null) {
-            name = subprocessSyncCache.getBaseProcessReadVariableName(processDefinition, process, name);
+            name = subprocessSyncCache.getBaseProcessReadVariableName(process, name);
             if (name != null) {
                 log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
                 Process baseProcess = processDAO.getNotNull(baseProcessId);
@@ -105,21 +106,39 @@ public class BaseProcessVariableLoader {
     }
 
     public static class SubprocessSyncCache {
-        private final Map<Process, NodeProcess> subprocessesInfoMap = Maps.newHashMap();
         // TODO почему у подпроцесса нету NodeProcess
-        private final Set<Long> processesWithoutNodeProcess = Sets.newConcurrentHashSet();
-        private final Map<Process, Boolean> baseProcessIdModesMap = Maps.newHashMap();
-        private final Map<Process, Boolean> multiSubprocessFlagsMap = Maps.newHashMap();
-        private final Map<Process, Map<String, String>> readVariableNamesMap = Maps.newHashMap();
-        private final Map<Process, Map<String, String>> syncVariableNamesMap = Maps.newHashMap();
-        private final Map<Process, Long> baseProcessIdsMap = Maps.newHashMap();
+        private Map<Process, NodeProcess> subprocessesInfoMap;
+        private Map<Process, Boolean> baseProcessIdModesMap;
+        private Map<Process, Boolean> multiSubprocessFlagsMap;
+        private Map<Process, Map<String, String>> readVariableNamesMap;
+        private Map<Process, Map<String, String>> syncVariableNamesMap;
+        private Map<Process, Long> baseProcessIdsMap;
         private final BaseProcessVariableLoader baseProcessVariableLoader;
+        private final AtomicBoolean isInited = new AtomicBoolean(false);
 
         public SubprocessSyncCache(BaseProcessVariableLoader baseProcessVariableLoader) {
             this.baseProcessVariableLoader = baseProcessVariableLoader;
+            init();
+        }
+
+        private void init() {
+            if (!isInited.get()) {
+                synchronized (isInited) {
+                    if (!isInited.get()) {
+                        subprocessesInfoMap = Maps.newHashMap();
+                        baseProcessIdModesMap = Maps.newHashMap();
+                        multiSubprocessFlagsMap = Maps.newHashMap();
+                        readVariableNamesMap = Maps.newHashMap();
+                        syncVariableNamesMap = Maps.newHashMap();
+                        baseProcessIdsMap = Maps.newHashMap();
+                        isInited.compareAndSet(false, true);
+                    }
+                }
+            }
         }
 
         private Long getBaseProcessId(ProcessDefinition processDefinition, Process process) {
+            init();
             if (!baseProcessIdsMap.containsKey(process)) {
                 String baseProcessIdVariableName = SystemProperties.getBaseProcessIdVariableName();
                 if (baseProcessIdVariableName != null && processDefinition.getVariable(baseProcessIdVariableName, false) != null) {
@@ -136,9 +155,7 @@ public class BaseProcessVariableLoader {
         }
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
-            if (processesWithoutNodeProcess.contains(process.getId())) {
-                return null;
-            }
+            init();
             if (!subprocessesInfoMap.containsKey(process)) {
                 NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDAO.getNodeProcessByChild(process.getId());
                 if (nodeProcess != null) {
@@ -164,8 +181,6 @@ public class BaseProcessVariableLoader {
                     }
                     readVariableNamesMap.put(process, readVariableNames);
                     syncVariableNamesMap.put(process, syncVariableNames);
-                } else {
-                    processesWithoutNodeProcess.add(process.getId());
                 }
                 log.debug("Caching " + nodeProcess + " for " + process);
                 subprocessesInfoMap.put(process, nodeProcess);
@@ -173,7 +188,8 @@ public class BaseProcessVariableLoader {
             return subprocessesInfoMap.get(process);
         }
 
-        private String getBaseProcessReadVariableName(ProcessDefinition processDefinition, Process process, String name) {
+        private String getBaseProcessReadVariableName(Process process, String name) {
+            init();
             NodeProcess nodeProcess = getSubprocessNodeInfo(process);
             if (nodeProcess != null) {
                 Map<String, String> readVariableNames = readVariableNamesMap.get(process);
@@ -195,6 +211,7 @@ public class BaseProcessVariableLoader {
         }
 
         public Token getParentProcessToken(Process process) {
+            init();
             NodeProcess nodeProcess = getSubprocessNodeInfo(process);
             if (nodeProcess != null) {
                 return nodeProcess.getParentToken();
@@ -203,6 +220,7 @@ public class BaseProcessVariableLoader {
         }
 
         public boolean isInBaseProcessIdMode(Process process) {
+            init();
             NodeProcess nodeProcess = getSubprocessNodeInfo(process);
             if (nodeProcess != null) {
                 return baseProcessIdModesMap.get(process);
@@ -212,6 +230,7 @@ public class BaseProcessVariableLoader {
 
         public VariableDefinition getParentProcessSyncVariableDefinition(ProcessDefinition processDefinition, Process process,
                 VariableDefinition variableDefinition) {
+            init();
             NodeProcess nodeProcess = getSubprocessNodeInfo(process);
             if (nodeProcess != null) {
                 Map<String, String> syncVariableNames = syncVariableNamesMap.get(process);
