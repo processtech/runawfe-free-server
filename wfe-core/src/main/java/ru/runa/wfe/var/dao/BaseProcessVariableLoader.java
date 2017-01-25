@@ -223,6 +223,7 @@ public class BaseProcessVariableLoader {
             init();
             NodeProcess nodeProcess = getSubprocessNodeInfo(process);
             if (nodeProcess != null) {
+                log.debug("serious baseProcessIdModesMap: " + baseProcessIdModesMap);
                 return baseProcessIdModesMap.get(process);
             }
             return false;
