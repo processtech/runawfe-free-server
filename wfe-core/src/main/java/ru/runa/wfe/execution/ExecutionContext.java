@@ -298,7 +298,7 @@ public class ExecutionContext {
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
-        ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.subprocessSyncCache;
+        final ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
         if (variable == null) {
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
