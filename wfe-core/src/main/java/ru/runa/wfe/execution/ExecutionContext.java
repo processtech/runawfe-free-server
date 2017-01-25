@@ -47,7 +47,6 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
@@ -66,6 +65,7 @@ import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
@@ -79,13 +79,17 @@ public class ExecutionContext {
     private final Token token;
     private Task task;
     private final Map<String, Object> transientVariables = Maps.newHashMap();
-    private final SubprocessSyncCache subprocessSyncCache = new SubprocessSyncCache();
+
+    private final VariableLoader variableLoader;
+    /**
+     * This component is used for loading variables with subprocess variables state support.
+     */
+    private final BaseProcessVariableLoader baseProcessVariableLoader;
+
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private VariableCreator variableCreator;
-    @Autowired
-    private ProcessDAO processDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
     @Autowired
@@ -99,8 +103,6 @@ public class ExecutionContext {
     @Autowired
     private SwimlaneDAO swimlaneDAO;
 
-    private final VariableLoader variableLoader;
-
     protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
             Map<Process, Map<String, Variable<?>>> loadedVariables) {
         this.processDefinition = processDefinition;
@@ -108,6 +110,7 @@ public class ExecutionContext {
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
         this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
+        baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcess(), getProcessDefinition());
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
@@ -204,20 +207,7 @@ public class ExecutionContext {
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
         }
-        WfVariable variable = variableLoader.getVariable(getProcessDefinition(), getProcess(), name);
-        if (variable != null) {
-            if (Utils.isNullOrEmpty(variable.getValue()) || Objects.equal(variable.getDefinition().getDefaultValue(), variable.getValue())
-                    || variable.getValue() instanceof UserTypeMap) {
-                variable = getVariableUsingBaseProcess(getProcessDefinition(), getProcess(), name, variable);
-            }
-            return variable;
-        }
-        if (SystemProperties.isV3CompatibilityMode()) {
-            Variable<?> dbVariable = variableLoader.get(getProcess(), name);
-            return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
-        }
-        log.debug("No variable defined by '" + name + "' in " + getProcess() + ", returning null");
-        return null;
+        return baseProcessVariableLoader.get(name);
     }
 
     /**
@@ -269,37 +259,11 @@ public class ExecutionContext {
         return Objects.toStringHelper(this).add("processId", getToken().getProcess().getId()).add("tokenId", getToken().getId()).toString();
     }
 
-    private WfVariable getVariableUsingBaseProcess(ProcessDefinition processDefinition, Process process, String name, WfVariable variable) {
-        Long baseProcessId = subprocessSyncCache.getBaseProcessId(processDefinition, process);
-        if (baseProcessId != null) {
-            name = subprocessSyncCache.getBaseProcessReadVariableName(processDefinition, process, name);
-            if (name != null) {
-                log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
-                Process baseProcess = processDAO.getNotNull(baseProcessId);
-                ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
-                WfVariable baseVariable = variableLoader.getVariable(baseProcessDefinition, baseProcess, name);
-                if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null && baseVariable
-                        .getValue() instanceof UserTypeMap) {
-                    ((UserTypeMap) variable.getValue()).merge((UserTypeMap) baseVariable.getValue(), false);
-                } else if (baseVariable != null) {
-                    if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
-                        variable.setValue(baseVariable.getValue());
-                    }
-                    if (!Utils.isNullOrEmpty(variable.getValue())
-                            && !Objects.equal(baseVariable.getDefinition().getDefaultValue(), variable.getValue())) {
-                        return variable;
-                    }
-                }
-                return getVariableUsingBaseProcess(baseProcessDefinition, baseProcess, name, variable);
-            }
-        }
-        return variable;
-    }
-
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         value = convertValueForVariableType(variableDefinition, value);
-        ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(), this, variableDAO);
+        ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(),
+                baseProcessVariableLoader, variableDAO);
         for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull().processBy(new ConvertToSimpleVariables(),
                 context)) {
             setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, simpleVariables.value);
@@ -336,19 +300,22 @@ public class ExecutionContext {
         Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
         if (variable != null && !variable.supports(value)) {
-            log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess());
+            String converterStr = variable.getConverter() == null ? "" : " converter is " + variable.getConverter();
+            log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess()
+                    + " variable value is " + value + converterStr);
             variableDAO.delete(variable);
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
+        ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.subprocessSyncCache;
         if (variable == null) {
-            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition, token
-                    .getProcess(), variableDefinition);
+            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
+                    token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
                 Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
                 ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
-                log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process " + parentToken
-                        .getProcess().getId() + "." + syncVariableDefinition.getName());
+                log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
+                        + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
                 VariableLog parentVariableLog = setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
                 if (parentVariableLog != null) {
                     VariableLog markingVariableLog = parentVariableLog.getContentCopy();
@@ -363,16 +330,16 @@ public class ExecutionContext {
                     variableDAO.create(variable);
                     if (variableDefinition.getName().contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)) {
                         String autoExtendVariableName = variableDefinition.getName();
-                        while (autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_START) && autoExtendVariableName.contains(
-                                VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
+                        while (autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)
+                                && autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
                             int listIndexStart = autoExtendVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
                             int listIndexEnd = autoExtendVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END);
                             String listVariableName = autoExtendVariableName.substring(0, listIndexStart);
                             String sizeVariableName = listVariableName + VariableFormatContainer.SIZE_SUFFIX;
                             VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
                             Integer oldSize = (Integer) variableLoader.getVariableValue(processDefinition, token.getProcess(), sizeDefinition);
-                            int listIndex = Integer.parseInt(autoExtendVariableName.substring(listIndexStart
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
+                            int listIndex = Integer.parseInt(autoExtendVariableName
+                                    .substring(listIndexStart + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
                             int newSize = listIndex + 1;
                             if (oldSize == null || oldSize.intValue() < newSize) {
                                 log.debug("Auto-extending list " + listVariableName + " size: " + oldSize + " -> " + newSize);
@@ -392,16 +359,16 @@ public class ExecutionContext {
                 // ignore changes "" -> " " for Oracle
                 return null;
             }
-            log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'" + (value != null
-                    ? " of " + value.getClass() : ""));
+            log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'"
+                    + (value != null ? " of " + value.getClass() : ""));
             resultingVariableLog = variable.setValue(this, value, variableDefinition.getFormatNotNull());
-            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition, token
-                    .getProcess(), variableDefinition);
+            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
+                    token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
                 Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
                 ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
-                log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process " + parentToken
-                        .getProcess().getId() + "." + syncVariableDefinition.getName());
+                log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
+                        + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
                 setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
             }
         }
@@ -428,6 +395,7 @@ public class ExecutionContext {
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
         }
     }
+<<<<<<< HEAD
 
     private class SubprocessSyncCache {
         private Map<Process, NodeProcess> subprocessesInfoMap = Maps.newHashMap();

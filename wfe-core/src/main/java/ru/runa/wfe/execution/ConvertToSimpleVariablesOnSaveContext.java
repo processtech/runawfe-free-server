@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -20,9 +21,9 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
      */
     private final Object value;
     /**
-     * Loading variables execution context.
+     * Loading variables context.
      */
-    private final ExecutionContext executionContext;
+    private final BaseProcessVariableLoader baseProcessVariableLoader;
     /**
      * Process instance for saving variables to.
      */
@@ -41,29 +42,29 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
      *            Variable value.
      * @param process
      *            Process instance for saving variables to.
-     * @param variableLoader
-     *            Loading variables execution context.
+     * @param baseProcessVariableLoader
+     *            Loading variables context.
      * @param variableDAO
      *            DAO instance for work with variables.
      */
     public ConvertToSimpleVariablesOnSaveContext(VariableDefinition variableDefinition, Object value, Process process,
-            ExecutionContext executionContext, VariableDAO variableDAO) {
+            BaseProcessVariableLoader baseProcessVariableLoader, VariableDAO variableDAO) {
         super();
         this.variableDefinition = variableDefinition;
         this.value = value;
         this.process = process;
-        this.executionContext = executionContext;
+        this.baseProcessVariableLoader = baseProcessVariableLoader;
         this.variableDAO = variableDAO;
     }
 
     @Override
     public ConvertToSimpleVariablesContext createFor(VariableDefinition variableDefinition, Object variableValue) {
-        return new ConvertToSimpleVariablesOnSaveContext(variableDefinition, variableValue, process, executionContext, variableDAO);
+        return new ConvertToSimpleVariablesOnSaveContext(variableDefinition, variableValue, process, baseProcessVariableLoader, variableDAO);
     }
 
     @Override
     public WfVariable loadCurrentVariableStat(String variableName) {
-        return executionContext.getVariable(variableName, false);
+        return baseProcessVariableLoader.get(variableName);
     }
 
     @Override
