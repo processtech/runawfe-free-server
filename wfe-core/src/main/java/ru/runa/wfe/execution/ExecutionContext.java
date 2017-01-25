@@ -312,7 +312,7 @@ public class ExecutionContext {
                     resultingVariableLog = markingVariableLog;
                 }
             }
-            if (value != null) {
+            if (value != null && null != token && null != token.getProcess()) {
                 if (syncVariableDefinition == null || !subprocessSyncCache.isInBaseProcessIdMode(token.getProcess())) {
                     variable = variableCreator.create(token.getProcess(), variableDefinition, value);
                     resultingVariableLog = variable.setValue(this, value, variableDefinition.getFormatNotNull());
