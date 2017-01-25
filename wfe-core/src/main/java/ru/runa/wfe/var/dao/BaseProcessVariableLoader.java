@@ -107,7 +107,7 @@ public class BaseProcessVariableLoader {
     public static class SubprocessSyncCache {
         private final Map<Process, NodeProcess> subprocessesInfoMap = Maps.newHashMap();
         // TODO почему у подпроцесса нету NodeProcess
-        private final Set<Long> processesWithoutNodeProcess = Sets.newConcurrentHashSet();
+        private final Set<Long> processesWithoutNodeProcess = Sets.newHashSet();
         private final Map<Process, Boolean> baseProcessIdModesMap = Maps.newHashMap();
         private final Map<Process, Boolean> multiSubprocessFlagsMap = Maps.newHashMap();
         private final Map<Process, Map<String, String>> readVariableNamesMap = Maps.newHashMap();
@@ -123,7 +123,8 @@ public class BaseProcessVariableLoader {
             if (!baseProcessIdsMap.containsKey(process)) {
                 String baseProcessIdVariableName = SystemProperties.getBaseProcessIdVariableName();
                 if (baseProcessIdVariableName != null && processDefinition.getVariable(baseProcessIdVariableName, false) != null) {
-                    WfVariable baseProcessIdVariable = baseProcessVariableLoader.variableLoader.getVariable(processDefinition, process, baseProcessIdVariableName);
+                    WfVariable baseProcessIdVariable = baseProcessVariableLoader.variableLoader.getVariable(processDefinition, process,
+                            baseProcessIdVariableName);
                     Long baseProcessId = (Long) (baseProcessIdVariable != null ? baseProcessIdVariable.getValue() : null);
                     if (Objects.equal(baseProcessId, process.getId())) {
                         throw new InternalApplicationException(
@@ -144,7 +145,8 @@ public class BaseProcessVariableLoader {
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();
-                    ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(nodeProcess.getProcess());
+                    ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader
+                            .getDefinition(nodeProcess.getProcess());
                     Node node = parentProcessDefinition.getNodeNotNull(nodeProcess.getParentToken().getNodeId());
                     multiSubprocessFlagsMap.put(process, node instanceof MultiSubprocessNode);
                     if (node instanceof SubprocessNode) {
@@ -205,7 +207,8 @@ public class BaseProcessVariableLoader {
         public boolean isInBaseProcessIdMode(Process process) {
             NodeProcess nodeProcess = getSubprocessNodeInfo(process);
             if (nodeProcess != null) {
-                return baseProcessIdModesMap.get(process);
+                Boolean isInBaseProcessMode = baseProcessIdModesMap.get(process);
+                return isInBaseProcessMode == null ? false : isInBaseProcessMode;
             }
             return false;
         }
@@ -225,7 +228,8 @@ public class BaseProcessVariableLoader {
                             parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
                         }
                         parentProcessVariableName += syncVariableInfo.getVariableNameRemainder();
-                        ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(nodeProcess.getProcess());
+                        ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader
+                                .getDefinition(nodeProcess.getProcess());
                         return parentProcessDefinition.getVariable(parentProcessVariableName, false);
                     }
                 }
