@@ -261,12 +261,12 @@ public class VariableLogic extends WFCommonLogic {
             BaseProcessVariableLoader baseProcessVariableLoader) {
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
         for (Process process : processStateOnTime.keySet()) {
-            if (!baseProcessVariableLoader.subprocessSyncCache.isInBaseProcessIdMode(process)) {
+            if (!baseProcessVariableLoader.getSubprocessSyncCache().isInBaseProcessIdMode(process)) {
                 continue;
             }
             ProcessDefinition processDefinition = getDefinition(process);
             for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
-                if (baseProcessVariableLoader.subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition, process,
+                if (baseProcessVariableLoader.getSubprocessSyncCache().getParentProcessSyncVariableDefinition(processDefinition, process,
                         variableDefinition) == null) {
                     continue;
                 }
