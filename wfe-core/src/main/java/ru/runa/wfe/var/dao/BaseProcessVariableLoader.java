@@ -1,7 +1,9 @@
 package ru.runa.wfe.var.dao;
 
 import java.util.Map;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,6 +106,8 @@ public class BaseProcessVariableLoader {
 
     public static class SubprocessSyncCache {
         private final Map<Process, NodeProcess> subprocessesInfoMap = Maps.newConcurrentMap();
+        // TODO почему у подпроцесса нету NodeProcess
+        private final Set<Long> processesWithoutNodeProcess = Sets.newConcurrentHashSet();
         private final Map<Process, Boolean> baseProcessIdModesMap = Maps.newConcurrentMap();
         private final Map<Process, Boolean> multiSubprocessFlagsMap = Maps.newConcurrentMap();
         private final Map<Process, Map<String, String>> readVariableNamesMap = Maps.newConcurrentMap();
@@ -132,6 +136,9 @@ public class BaseProcessVariableLoader {
         }
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
+            if (processesWithoutNodeProcess.contains(process.getId())) {
+                return null;
+            }
             if (!subprocessesInfoMap.containsKey(process)) {
                 NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDAO.getNodeProcessByChild(process.getId());
                 if (nodeProcess != null) {
@@ -157,6 +164,8 @@ public class BaseProcessVariableLoader {
                     }
                     readVariableNamesMap.put(process, readVariableNames);
                     syncVariableNamesMap.put(process, syncVariableNames);
+                } else {
+                    processesWithoutNodeProcess.add(process.getId());
                 }
                 log.debug("Caching " + nodeProcess + " for " + process);
                 subprocessesInfoMap.put(process, nodeProcess);
