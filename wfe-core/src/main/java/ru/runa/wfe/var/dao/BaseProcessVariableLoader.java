@@ -105,14 +105,14 @@ public class BaseProcessVariableLoader {
     }
 
     public static class SubprocessSyncCache {
-        private final Map<Process, NodeProcess> subprocessesInfoMap = Maps.newConcurrentMap();
+        private final Map<Process, NodeProcess> subprocessesInfoMap = Maps.newHashMap();
         // TODO почему у подпроцесса нету NodeProcess
         private final Set<Long> processesWithoutNodeProcess = Sets.newConcurrentHashSet();
-        private final Map<Process, Boolean> baseProcessIdModesMap = Maps.newConcurrentMap();
-        private final Map<Process, Boolean> multiSubprocessFlagsMap = Maps.newConcurrentMap();
-        private final Map<Process, Map<String, String>> readVariableNamesMap = Maps.newConcurrentMap();
-        private final Map<Process, Map<String, String>> syncVariableNamesMap = Maps.newConcurrentMap();
-        private final Map<Process, Long> baseProcessIdsMap = Maps.newConcurrentMap();
+        private final Map<Process, Boolean> baseProcessIdModesMap = Maps.newHashMap();
+        private final Map<Process, Boolean> multiSubprocessFlagsMap = Maps.newHashMap();
+        private final Map<Process, Map<String, String>> readVariableNamesMap = Maps.newHashMap();
+        private final Map<Process, Map<String, String>> syncVariableNamesMap = Maps.newHashMap();
+        private final Map<Process, Long> baseProcessIdsMap = Maps.newHashMap();
         private final BaseProcessVariableLoader baseProcessVariableLoader;
 
         public SubprocessSyncCache(BaseProcessVariableLoader baseProcessVariableLoader) {
