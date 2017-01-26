@@ -162,6 +162,10 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
                 // If stored value has less attributes, then do not set null to attributes, which does't contained in stored value type.
                 continue;
             }
+            if (userTypeValue != null && !userTypeValue.containsKey(attribute.getName())) {
+                // Do not remove absent attributes. To reset attribute value set it to null, do not remove it.
+                continue;
+            }
             Object attributeValue = userTypeValue == null ? null : userTypeValue.get(attribute.getName());
             String name = namePrefix + attribute.getName();
             String scriptingName = scriptingNamePrefix + attribute.getScriptingName();
