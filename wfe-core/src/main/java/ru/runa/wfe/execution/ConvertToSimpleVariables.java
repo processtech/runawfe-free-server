@@ -7,7 +7,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.common.collect.Lists;
 
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.UserType;
@@ -151,9 +150,7 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
     @Override
     public List<ConvertToSimpleVariablesResult> onUserType(UserTypeFormat userTypeFormat, ConvertToSimpleVariablesContext context) {
         UserTypeMap userTypeValue = (UserTypeMap) context.getValue();
-        if (userTypeValue != null && !userTypeValue.getUserType().equals(userTypeFormat.getUserType())) {
-            throw new InternalApplicationException("Variable user type is not correct for " + context.getVariableDefinition().getName());
-        }
+        UserType valueUserType = userTypeValue == null ? null : userTypeValue.getUserType();
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         if (context.isVirtualVariablesRequired()) {
             results.add(new ConvertToSimpleVariablesResult(context, true));
@@ -161,6 +158,14 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String namePrefix = context.getVariableDefinition().getName() + UserType.DELIM;
         String scriptingNamePrefix = context.getVariableDefinition().getScriptingName() + UserType.DELIM;
         for (VariableDefinition attribute : userTypeFormat.getUserType().getAttributes()) {
+            if (valueUserType != null && valueUserType.getAttribute(attribute.getName()) == null) {
+                // If stored value has less attributes, then do not set null to attributes, which does't contained in stored value type.
+                continue;
+            }
+            if (userTypeValue != null && !userTypeValue.containsKey(attribute.getName())) {
+                // Do not remove absent attributes. To reset attribute value set it to null, do not remove it.
+                continue;
+            }
             Object attributeValue = userTypeValue == null ? null : userTypeValue.get(attribute.getName());
             String name = namePrefix + attribute.getName();
             String scriptingName = scriptingNamePrefix + attribute.getScriptingName();
