@@ -6,14 +6,15 @@ import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.bc.BusinessDuration;
 import ru.runa.wfe.commons.bc.BusinessDurationParser;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
-import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDAO;
@@ -91,6 +92,7 @@ public class TimerNode extends Node implements BoundaryEvent {
     }
 
     public void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
+        ProcessError processError = new ProcessError(ProcessErrorType.timer, timerJob.getProcess().getId(), getNodeId());
         try {
             if (actionDelegation != null) {
                 try {
@@ -124,16 +126,15 @@ public class TimerNode extends Node implements BoundaryEvent {
                 log.info("Deleting " + timerJob + " after execution");
                 cancelBoundaryEvent(executionContext.getToken());
             }
-            ProcessExecutionErrors.removeProcessError(timerJob.getProcess().getId(), getNodeId());
+            Errors.removeProcessError(processError);
         } catch (Throwable th) {
-            ProcessExecutionException pee = new ProcessExecutionException(ProcessExecutionException.TIMER_EXECUTION_FAILED, th, th.getMessage());
-            String taskName;
+            String nodeName;
             try {
-                taskName = executionContext.getProcessDefinition().getNodeNotNull(getNodeId()).getName();
+                nodeName = executionContext.getProcessDefinition().getNodeNotNull(getNodeId()).getName();
             } catch (Exception e) {
-                taskName = "Unknown due to " + e;
+                nodeName = "Unknown due to " + e;
             }
-            ProcessExecutionErrors.addProcessError(timerJob.getProcess().getId(), getNodeId(), taskName, null, pee);
+            Errors.addProcessError(processError, nodeName, th);
             throw Throwables.propagate(th);
         }
     }

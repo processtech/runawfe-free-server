@@ -33,7 +33,6 @@ import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-import ru.runa.wfe.var.dto.WfVariable;
 
 import com.google.common.base.Objects;
 

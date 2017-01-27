@@ -28,7 +28,11 @@ import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.var.IVariableProvider;
@@ -297,6 +301,22 @@ public class Utils {
             return s.isEmpty();
         }
         return false;
+    }
+
+    public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
+        new TransactionalExecutor(transaction) {
+
+            @Override
+            protected void doExecuteInTransaction() throws Exception {
+                Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
+                if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
+                    token.fail(throwable.getLocalizedMessage());
+                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                    ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
+                    Errors.sendEmailNotification(throwable, processError);
+                }
+            }
+        }.executeInTransaction(true);
     }
 
 }
