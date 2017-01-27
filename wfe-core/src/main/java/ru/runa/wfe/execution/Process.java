@@ -51,10 +51,10 @@ import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.AsyncCompletionMode;
@@ -166,16 +166,6 @@ public class Process extends IdentifiableBase {
         this.endDate = endDate;
     }
 
-    @Column(name = "EXECUTION_STATUS", nullable = false)
-    @Enumerated(EnumType.STRING)
-    public ExecutionStatus getExecutionStatus() {
-        return executionStatus;
-    }
-
-    public void setExecutionStatus(ExecutionStatus executionStatus) {
-        this.executionStatus = executionStatus;
-    }
-
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
@@ -200,9 +190,19 @@ public class Process extends IdentifiableBase {
         this.rootToken = rootToken;
     }
 
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
+    }
+
     /**
      * Ends this process and all the tokens in it.
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
@@ -212,7 +212,7 @@ public class Process extends IdentifiableBase {
             return;
         }
         log.info("Ending " + this + " by " + canceller);
-        ProcessExecutionErrors.removeProcessErrors(id);
+        Errors.removeProcessErrors(id);
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
         // end the main path of execution
         rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);

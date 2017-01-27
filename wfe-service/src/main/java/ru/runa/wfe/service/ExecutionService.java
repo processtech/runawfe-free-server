@@ -26,7 +26,6 @@ import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
-import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
@@ -354,11 +353,6 @@ public interface ExecutionService {
      * Removes processes by filter criterias.
      */
     public void removeProcesses(User user, ProcessFilter filter) throws ParentProcessExistsException;
-
-    /**
-     * Get process errors.
-     */
-    public List<ProcessError> getProcessErrors(User user, Long processId);
 
     /**
      * Upgrades running process to specified version of deployed definition. This is not safe operation, use it with caution.

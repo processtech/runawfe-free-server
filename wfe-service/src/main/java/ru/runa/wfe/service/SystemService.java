@@ -20,6 +20,8 @@ package ru.runa.wfe.service;
 import java.util.List;
 
 import ru.runa.wfe.commons.dao.Localization;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.user.User;
@@ -32,8 +34,7 @@ import ru.runa.wfe.user.User;
 public interface SystemService {
 
     /**
-     * Logins to the system. Acquires {@link SystemPermission#LOGIN_TO_SYSTEM}
-     * permission.
+     * Logins to the system. Acquires {@link SystemPermission#LOGIN_TO_SYSTEM} permission.
      * 
      * @param user
      * @throws AuthorizationException
@@ -64,7 +65,7 @@ public interface SystemService {
      * @param localizations
      */
     public void saveLocalizations(User user, List<Localization> localizations);
-    
+
     /**
      * Get property value with key (fileName, name) from database
      * 
@@ -73,7 +74,7 @@ public interface SystemService {
      * @return
      */
     public String getSetting(String fileName, String name);
-    
+
     /**
      * Get property value with key (fileName, name) in database
      * 
@@ -82,9 +83,25 @@ public interface SystemService {
      * @param value
      */
     public void setSetting(String fileName, String name, String value);
-    
+
     /**
      * Remove all properties from database
      */
     public void clearSettings();
+
+    /**
+     * Get all process errors.
+     */
+    public List<ProcessError> getAllProcessErrors(User user);
+
+    /**
+     * Get process errors.
+     */
+    public List<ProcessError> getProcessErrors(User user, Long processId);
+
+    /**
+     * Get system errors.
+     */
+    public List<SystemError> getSystemErrors(User user);
+
 }

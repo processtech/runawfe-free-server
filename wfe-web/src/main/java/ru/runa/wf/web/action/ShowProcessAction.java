@@ -10,10 +10,11 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.ForwardAction;
 
+import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.execution.dto.ProcessError;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.service.delegate.Delegates;
 
 public class ShowProcessAction extends ForwardAction {
 
@@ -22,16 +23,19 @@ public class ShowProcessAction extends ForwardAction {
             throws Exception {
         ActionForward forward = super.execute(mapping, actionForm, request, response);
         Long processId = Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME));
-        List<ProcessError> errorDetails = ProcessExecutionErrors.getProcessErrors(processId);
-        if (errorDetails != null) {
-            StringBuilder processErrors = new StringBuilder();
-            for (ProcessError detail : errorDetails) {
-                String url = "javascript:showProcessError(" + processId + ", '" + detail.getNodeId() + "')";
-                processErrors.append("<a href=\"").append(url).append("\">").append(detail.getTaskName()).append(" (");
-                processErrors.append(CalendarUtil.formatDateTime(detail.getOccurredDate())).append(")</a>");
-                processErrors.append("<br>");
+        List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(Commons.getUser(request.getSession()), processId);
+        if (!processErrors.isEmpty()) {
+            StringBuilder processErrorsStringBuilder = new StringBuilder();
+            for (ProcessError processError : processErrors) {
+                String type = processError.getType().name();
+                String url = "javascript:showProcessError('" + type + "', " + processId + ", '" + processError.getNodeId() + "')";
+                processErrorsStringBuilder.append("<a href=\"").append(url).append("\">");
+                processErrorsStringBuilder.append(processError.getNodeName()).append(" (");
+                processErrorsStringBuilder.append(CalendarUtil.formatDateTime(processError.getOccurredDate())).append(")");
+                processErrorsStringBuilder.append("</a>");
+                processErrorsStringBuilder.append("<br>");
             }
-            request.setAttribute("processErrors", processErrors.toString());
+            request.setAttribute("processErrors", processErrorsStringBuilder.toString());
         }
         return forward;
     }

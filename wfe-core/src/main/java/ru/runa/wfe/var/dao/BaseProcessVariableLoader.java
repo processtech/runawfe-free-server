@@ -1,10 +1,11 @@
 package ru.runa.wfe.var.dao;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
@@ -19,11 +20,16 @@ import ru.runa.wfe.lang.MultiSubprocessNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.var.*;
+import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.UserTypeMap;
+import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import java.util.Map;
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 
 public class BaseProcessVariableLoader {
     private static Log log = LogFactory.getLog(BaseProcessVariableLoader.class);
@@ -117,8 +123,8 @@ public class BaseProcessVariableLoader {
                             baseProcessIdVariableName);
                     Long baseProcessId = (Long) (baseProcessIdVariable != null ? baseProcessIdVariable.getValue() : null);
                     if (Objects.equal(baseProcessId, process.getId())) {
-                        throw new InternalApplicationException(
-                                baseProcessIdVariableName + " reference should not point to current process id " + process.getId());
+                        throw new InternalApplicationException(baseProcessIdVariableName + " reference should not point to current process id "
+                                + process.getId());
                     }
                     baseProcessIdsMap.put(process, baseProcessId);
                 }
@@ -132,8 +138,8 @@ public class BaseProcessVariableLoader {
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();
-                    ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader
-                            .getDefinition(nodeProcess.getProcess());
+                    ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(nodeProcess
+                            .getProcess());
                     Node node = parentProcessDefinition.getNodeNotNull(nodeProcess.getParentToken().getNodeId());
                     multiSubprocessFlagsMap.put(process, node instanceof MultiSubprocessNode);
                     if (node instanceof SubprocessNode) {
@@ -213,8 +219,8 @@ public class BaseProcessVariableLoader {
                             parentProcessVariableName += VariableFormatContainer.COMPONENT_QUALIFIER_END;
                         }
                         parentProcessVariableName += syncVariableInfo.getVariableNameRemainder();
-                        ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader
-                                .getDefinition(nodeProcess.getProcess());
+                        ProcessDefinition parentProcessDefinition = baseProcessVariableLoader.processDefinitionLoader.getDefinition(nodeProcess
+                                .getProcess());
                         return parentProcessDefinition.getVariable(parentProcessVariableName, false);
                     }
                 }

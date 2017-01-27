@@ -1,7 +1,5 @@
 package ru.runa.wfe.service.impl;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -19,17 +17,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.ProcessSuspendLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.ITransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -90,19 +87,10 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     Node node = processDefinition.getNodeNotNull(token.getNodeId());
                     try {
-                        if (token.getExecutionStatus() == ExecutionStatus.FAILED) {
-                            token.setExecutionStatus(ExecutionStatus.ACTIVE);
-                            List<Token> failedTokens = tokenDAO.findByProcessAndExecutionStatus(token.getProcess(), ExecutionStatus.FAILED);
-                            if (failedTokens.isEmpty()) {
-                                token.getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
-                            }
-                        }
                         ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
                         node.handle(executionContext);
-                        ProcessExecutionErrors.removeProcessError(processId, node.getNodeId());
                     } catch (Throwable th) {
                         log.error(processId + ":" + tokenId, th);
-                        ProcessExecutionErrors.addProcessError(processId, node.getNodeId(), node.getName(), null, th);
                         Throwables.propagate(th);
                     }
                 }
@@ -115,19 +103,8 @@ public class NodeAsyncExecutionBean implements MessageListener {
                 }
             }
             TransactionListeners.reset();
-        } catch (Throwable th) {
-            new TransactionalExecutor(context.getUserTransaction()) {
-
-                @Override
-                protected void doExecuteInTransaction() throws Exception {
-                    Token token = tokenDAO.getNotNull(tokenId);
-                    if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
-                        token.setExecutionStatus(ExecutionStatus.FAILED);
-                        token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                        processLogDAO.addLog(new ProcessSuspendLog(null), token.getProcess(), null);
-                    }
-                }
-            }.executeInTransaction(true);
+        } catch (final Throwable th) {
+            Utils.failProcessExecution(context.getUserTransaction(), tokenId, th);
             throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
         }
     }

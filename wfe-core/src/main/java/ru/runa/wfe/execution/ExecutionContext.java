@@ -21,23 +21,30 @@
  */
 package ru.runa.wfe.execution;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
-import ru.runa.wfe.commons.*;
+import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.DBType;
+import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
+import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.Node;
@@ -58,9 +65,9 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
@@ -79,6 +86,8 @@ public class ExecutionContext {
     private IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private VariableCreator variableCreator;
+    @Autowired
+    private TokenDAO tokenDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
     @Autowired
@@ -243,6 +252,18 @@ public class ExecutionContext {
         processLogDAO.addLog(processLog, getProcess(), token);
     }
 
+    public void activateTokenIfHasPreviousError() {
+        if (getToken().getExecutionStatus() == ExecutionStatus.FAILED) {
+            getToken().setExecutionStatus(ExecutionStatus.ACTIVE);
+            getToken().setErrorDate(null);
+            getToken().setErrorMessage(null);
+            List<Token> failedTokens = tokenDAO.findByProcessAndExecutionStatus(getProcess(), ExecutionStatus.FAILED);
+            if (failedTokens.isEmpty()) {
+                getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("processId", getToken().getProcess().getId()).add("tokenId", getToken().getId()).toString();
@@ -253,8 +274,8 @@ public class ExecutionContext {
         value = convertValueForVariableType(variableDefinition, value);
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(),
                 baseProcessVariableLoader, variableDAO);
-        for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull().processBy(new ConvertToSimpleVariables(),
-                context)) {
+        for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull()
+                .processBy(new ConvertToSimpleVariables(), context)) {
             setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, simpleVariables.value);
         }
     }
@@ -283,8 +304,7 @@ public class ExecutionContext {
         return value;
     }
 
-    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition,
-            Object value) {
+    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value) {
         VariableLog resultingVariableLog = null;
         Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
@@ -296,7 +316,8 @@ public class ExecutionContext {
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
-        final ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
+        final ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader
+                .getSubprocessSyncCache();
         if (variable == null) {
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
@@ -327,8 +348,8 @@ public class ExecutionContext {
                             String sizeVariableName = listVariableName + VariableFormatContainer.SIZE_SUFFIX;
                             VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
                             Integer oldSize = (Integer) variableLoader.getVariableValue(processDefinition, token.getProcess(), sizeDefinition);
-                            int listIndex = Integer.parseInt(autoExtendVariableName
-                                    .substring(listIndexStart + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
+                            int listIndex = Integer.parseInt(autoExtendVariableName.substring(listIndexStart
+                                    + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
                             int newSize = listIndex + 1;
                             if (oldSize == null || oldSize.intValue() < newSize) {
                                 log.debug("Auto-extending list " + listVariableName + " size: " + oldSize + " -> " + newSize);
@@ -384,5 +405,4 @@ public class ExecutionContext {
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
         }
     }
-
 }
