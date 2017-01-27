@@ -104,7 +104,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
             }
             TransactionListeners.reset();
         } catch (final Throwable th) {
-            Utils.failProcessExecution(context.getUserTransaction(), tokenId, th.getLocalizedMessage());
+            Utils.failProcessExecution(context.getUserTransaction(), tokenId, th);
             throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
         }
     }

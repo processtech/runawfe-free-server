@@ -117,11 +117,6 @@ public class ExecutionLogic extends WFCommonLogic {
         return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
-    public List<WfProcess> getProcesses(User user, ProcessFilter filter) {
-        List<Process> processes = getProcessesInternal(user, filter);
-        return toWfProcesses(processes, null);
-    }
-
     public void deleteProcesses(User user, final ProcessFilter filter) {
         List<Process> processes = getProcessesInternal(user, filter);
         // TODO add ProcessPermission.DELETE_PROCESS

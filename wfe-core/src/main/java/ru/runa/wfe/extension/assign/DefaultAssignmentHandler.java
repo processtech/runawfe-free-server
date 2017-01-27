@@ -23,8 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
-import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.AssignmentHandler;
@@ -48,17 +46,7 @@ public class DefaultAssignmentHandler implements AssignmentHandler {
 
     @Override
     public void assign(ExecutionContext executionContext, Assignable assignable) {
-        try {
-            List<? extends Executor> executors = calculateExecutors(executionContext, assignable);
-            if (AssignmentHelper.assign(executionContext, assignable, executors)) {
-                ProcessExecutionErrors.removeProcessError(executionContext.getProcess().getId(), assignable.getName());
-                // R779: previous error from swimlane assignment should gone on
-                // correct task assignment
-                ProcessExecutionErrors.removeProcessError(executionContext.getProcess().getId(), assignable.getSwimlaneName());
-            }
-        } catch (Exception e) {
-            ProcessExecutionException pee = new ProcessExecutionException(assignable.getErrorMessageKey(), e, assignable.getName());
-            ProcessExecutionErrors.addProcessError(executionContext.getProcess().getId(), assignable.getName(), assignable.getName(), null, pee);
-        }
+        List<? extends Executor> executors = calculateExecutors(executionContext, assignable);
+        AssignmentHelper.assign(executionContext, assignable, executors);
     }
 }

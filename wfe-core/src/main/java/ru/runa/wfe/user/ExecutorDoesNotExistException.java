@@ -29,7 +29,7 @@ public class ExecutorDoesNotExistException extends InternalApplicationException 
     private final Class<? extends Executor> executorClass;
 
     public ExecutorDoesNotExistException(String executorName, Class<? extends Executor> executorClass) {
-        super("Executor " + executorName + " of class " + executorClass.getName() + " does not exists");
+        super("Executor " + executorName + " of class " + executorClass.getName() + " does not exist");
         this.executorName = executorName;
         this.executorClass = executorClass;
     }

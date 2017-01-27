@@ -44,8 +44,12 @@ public class ScriptNode extends Node implements BoundaryEventContainer {
             actionHandler.execute(executionContext);
         } catch (Exception e) {
             log.error("Handling failed using " + executionContext + " in " + this, e);
-            Utils.sendBpmnErrorMessage(executionContext.getProcess().getId(), executionContext.getToken().getId(), getNodeId(), e);
-            return;
+            if (hasErrorEventHandler()) {
+                Utils.sendBpmnErrorMessage(executionContext.getProcess().getId(), executionContext.getToken().getId(), getNodeId(), e);
+                return;
+            } else {
+                throw e;
+            }
         }
         leave(executionContext);
     }

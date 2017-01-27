@@ -22,7 +22,6 @@ import java.util.Map;
 
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
-import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
@@ -196,15 +195,6 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     public void removeProcesses(User user, ProcessFilter filter) {
         try {
             getExecutionService().removeProcesses(user, filter);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public List<ProcessError> getProcessErrors(User user, Long processId) {
-        try {
-            return getExecutionService().getProcessErrors(user, processId);
         } catch (Exception e) {
             throw handleException(e);
         }

@@ -61,7 +61,6 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.InteractionNode;
@@ -262,12 +261,6 @@ public class Task implements Assignable {
     @Override
     public String getSwimlaneName() {
         return swimlane.getName();
-    }
-
-    @Transient
-    @Override
-    public String getErrorMessageKey() {
-        return ProcessExecutionException.TASK_ASSIGNMENT_FAILED;
     }
 
     @Override

@@ -89,6 +89,7 @@ public class Token implements Serializable {
     private NodeType nodeType;
     private String transitionId;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
+    private Date errorDate;
     private String errorMessage;
 
     public Token() {
@@ -256,7 +257,16 @@ public class Token implements Serializable {
         this.executionStatus = executionStatus;
     }
 
-    @Column(name = "ERROR_MESSAGE")
+    @Column(name = "ERROR_DATE")
+    public Date getErrorDate() {
+        return errorDate;
+    }
+
+    public void setErrorDate(Date errorDate) {
+        this.errorDate = errorDate;
+    }
+
+    @Column(name = "ERROR_MESSAGE", length = 1024)
     public String getErrorMessage() {
         return errorMessage;
     }
@@ -267,6 +277,7 @@ public class Token implements Serializable {
 
     public void fail(String errorMessage) {
         setExecutionStatus(ExecutionStatus.FAILED);
+        setErrorDate(new Date());
         setErrorMessage(errorMessage);
     }
 

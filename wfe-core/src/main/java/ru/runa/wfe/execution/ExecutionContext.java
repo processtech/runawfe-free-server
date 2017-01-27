@@ -275,6 +275,8 @@ public class ExecutionContext {
     public void activateTokenIfHasPreviousError() {
         if (getToken().getExecutionStatus() == ExecutionStatus.FAILED) {
             getToken().setExecutionStatus(ExecutionStatus.ACTIVE);
+            getToken().setErrorDate(null);
+            getToken().setErrorMessage(null);
             List<Token> failedTokens = tokenDAO.findByProcessAndExecutionStatus(getProcess(), ExecutionStatus.FAILED);
             if (failedTokens.isEmpty()) {
                 getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
