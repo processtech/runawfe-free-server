@@ -1,5 +1,6 @@
 
-var componentInputUNIQUENAME = "COMPONENT_INPUT";
+var tmpComponentInputUNIQUENAME = "COMPONENT_INPUT";
+var componentInputUNIQUENAME = tmpComponentInputUNIQUENAME.replace(/«»/g, '"').replace(/_»/g, '»').replace(/_script/g, 'script');
 var lastIndexUNIQUENAME = -1;
 
 $(document).ready(function() {
@@ -9,15 +10,16 @@ $(document).ready(function() {
 		var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
 		lastIndexUNIQUENAME = rowIndex;
 		console.log("Adding row " + rowIndex);
-		var e = "<div current row='" + rowIndex + "' name='VARIABLE' style='margin-bottom:4px;'>";
-		e += componentInputUNIQUENAME.replace(/\[\]/g, "[" + rowIndex + "]");
-		e += "<input type='button' value=' - ' onclick='removeUNIQUENAME(this);' style='width: 30px;' />";
-		e += "</div>";
-		$("#btnAddUNIQUENAME").before(e);
-		updateIndexesUNIQUENAME();
-		COMPONENT_JS_HANDLER
-		$("#UNIQUENAME").trigger("onRowAdded", [rowIndex]);
-	});
+        var e = "<div current row='" + rowIndex + "' name='VARIABLE' style='margin-bottom:4px;'>";
+        e += componentInputUNIQUENAME.replace(createListElementRegExp('VARIABLE'), 'VARIABLE[' + rowIndex + ']').replace(createDoubleSubLineRegExp(),'_'+rowIndex + '_');
+        e += "<input type='button' value=' - ' onclick='removeUNIQUENAME(this);' style='width: 30px;' />";
+        e += "</div>";
+        console.log("e: " + e);
+        $("#btnAddUNIQUENAME").before(e);
+        updateIndexesUNIQUENAME();
+        COMPONENT_JS_HANDLER
+        $("#UNIQUENAME").trigger("onRowAdded", [rowIndex]);
+    });
 });
 
 function getSizeUNIQUENAME() {
@@ -50,10 +52,10 @@ function removeAllUNIQUENAME() {
 
 function updateIndexesUNIQUENAME() {
 	var ids = "";
-	$("#UNIQUENAME div[row][current]").each(function() {
+	$("#UNIQUENAME div[row][current][name=VARIABLE]").each(function() {
 		ids == "" ? ids = $(this).attr('row') : ids += "," + $(this).attr('row') ; 
 	});
 	var indexesInput = $("input[name='VARIABLE.indexes']");
 	indexesInput.val(ids);
-	console.log("List size = " + getSizeUNIQUENAME());
+	console.log("UNIQUENAME size = " + getSizeUNIQUENAME());
 }

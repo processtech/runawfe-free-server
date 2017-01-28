@@ -3,6 +3,7 @@
 
 	<command name="getParamDialogData" class="ru.runa.wf.web.servlet.GetParamDialogDataAjaxCommand" />
 	<command name="ajaxActorsList" class="ru.runa.wf.web.servlet.AjaxActorsList" />
+	<command name="ajaxActorsListFromGroup" class="ru.runa.wf.web.servlet.AjaxActorsListFromGroup" />
 	<command name="ajaxDefinitionVersions" class="ru.runa.wf.web.servlet.AjaxProcessDefinitionVersionsList" />
 	<command name="ajaxSwimlaneCurrentExecutor" class="ru.runa.wf.web.servlet.AjaxSwimlaneCurrentExecutor" />
 

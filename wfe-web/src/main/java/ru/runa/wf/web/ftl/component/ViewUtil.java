@@ -12,7 +12,10 @@ import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Resources;
@@ -26,11 +29,9 @@ import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.commons.web.WebUtils;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.util.OrderedJSONObject;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
@@ -43,6 +44,7 @@ import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.DateFormat;
 import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
+import ru.runa.wfe.var.format.EditableCheckBoxFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
@@ -59,10 +61,6 @@ import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableInputSupport;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 public class ViewUtil {
     private static final Log log = LogFactory.getLog(ViewUtil.class);
@@ -93,7 +91,8 @@ public class ViewUtil {
         return createExecutorSelect(variableName, executors, value, javaSort, enabled);
     }
 
-    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort, boolean enabled) {
+    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort,
+            boolean enabled) {
         String html = "<select name=\"" + variableName + "\"";
         if (!enabled) {
             html += " disabled=\"true\"";
@@ -218,57 +217,69 @@ public class ViewUtil {
         return html;
     }
 
-    @SuppressWarnings("unchecked")
     public static final String getUserTypeListTable(User user, WebHelper webHelper, WfVariable variable, WfVariable dectSelectVariable,
-            Long processId, String sortFieldName, boolean isMultiDim) {
+            Long processId, UserTableColumns columns) {
+
         if (!(variable.getValue() instanceof List)) {
             return "";
         }
-        JSONArray objectsList = new JSONArray();
-        List<?> values = (List<?>) variable.getValue();
-        for (Object value : values) {
-            if (!(value instanceof UserTypeMap)) {
+
+        final String uniquename = String.format("%s_%x", variable.getDefinition().getScriptingNameWithoutDots(), random.nextInt());
+
+        final StringBuilder result = new StringBuilder(255);
+        result.append("<link rel='stylesheet' type='text/css' href='/wfe/css/tablesorter.css'>\n");
+        result.append("<script src='/wfe/js/jquery.tablesorter.min.js' type='text/javascript'></script>\n");
+
+        final InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.UserTypeListTables.js", ViewUtil.class);
+        final Map<String, String> substitutions = new HashMap<String, String>();
+        substitutions.put("UNIQUENAME", uniquename);
+        StringBuilder headers = new StringBuilder();
+        if (!columns.getNoSortableColumns().isEmpty()) {
+            headers.append("headers: {");
+            boolean noFirst = false;
+            for (Integer column : columns.getNoSortableColumns()) {
+                if (noFirst) {
+                    headers.append(",");
+                } else {
+                    noFirst = true;
+                }
+                headers.append(column).append(": {sorter: false}");
+            }
+            headers.append("},");
+        }
+        substitutions.put("HEADERS", headers.toString());
+        substitutions.put("SORTCOLUMN", columns.getSortColumn().toString());
+        result.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
+
+        result.append("<table id='").append(uniquename).append("' class='tablesorter'>\n");
+        result.append("\t<thead>\n\t\t<tr>\n");
+        for (final VariableDefinition attribute : columns.createAttributes()) {
+            final String attributeName;
+            if (attribute.getFormatClassName().equals(EditableCheckBoxFormat.class.getName())) {
+                attributeName = "<input type='checkBox' name='check_all' style='margin: 3px 3px 3px 4px; width: 30px;'";
+            } else {
+                attributeName = attribute.getName();
+            }
+            result.append("\t\t\t<th>").append(attributeName).append("</th>\n");
+        }
+        result.append("\t\t</tr>\n\t</thead>\n");
+
+        result.append("\t<tbody>\n");
+        for (final Object row : (List<?>) variable.getValue()) {
+            if (!(row instanceof UserTypeMap)) {
                 return "";
             }
-            UserTypeMap userTypeMap = (UserTypeMap) value;
-            OrderedJSONObject cvarObj = new OrderedJSONObject();
-            for (VariableDefinition varDef : userTypeMap.getUserType().getAttributes()) {
-                if (userTypeMap.get(varDef.getName()) == null) {
-                    cvarObj.put(varDef.getName(), "");
-                    continue;
-                }
-                VariableFormat format = FormatCommons.create(varDef);
-                if (dectSelectVariable == null) {
-                    if (format instanceof FileFormat) {
-                        FileVariableProxy proxy = (FileVariableProxy) userTypeMap.get(varDef.getName());
-                        cvarObj.put(varDef.getName(), getFileComponent(webHelper, proxy.getName(), proxy, false));
-                    } else {
-                        cvarObj.put(varDef.getName(), format.format(userTypeMap.get(varDef.getName())));
-                    }
-                } else {
-                    cvarObj.put(varDef.getName(), format.format(userTypeMap.get(varDef.getName())));
-                }
+            final UserTypeMap typedRow = (UserTypeMap) row;
+            result.append("\t\t<tr>");
+            for (final WfVariable col : columns.createValues(typedRow)) {
+                result.append("\t\t\t<td>").append(getOutput(user, webHelper, processId, col)).append("</td>\n");
             }
-            objectsList.add(cvarObj);
+            result.append("\t\t</tr>\n");
         }
-        String uniquename = String.format("%s_%x", variable.getDefinition().getScriptingNameWithoutDots(), random.nextInt());
-        String result = "<script src=\"/wfe/js/tidy-table.js\"></script>\n";
-        InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.UserTypeListTable.js", ViewUtil.class);
-        Map<String, String> substitutions = new HashMap<String, String>();
-        substitutions.put("UNIQUENAME", uniquename);
-        substitutions.put("JSONDATATEMPLATE", objectsList.toJSONString());
-        substitutions.put("SORTFIELDNAMEVALUE", String.format("%s", sortFieldName));
-        substitutions.put("DIMENTIONALVALUE", String.format("%s", isMultiDim));
-        substitutions.put("SELECTABLEVALUE", String.format("%s", dectSelectVariable != null));
-        if (dectSelectVariable != null) {
-            substitutions.put("DECTSELECTNAME", dectSelectVariable.getDefinition().getName());
-        } else {
-            substitutions.put("DECTSELECTNAME", "");
-        }
-        result += WebUtils.getFormComponentScript(javascriptStream, substitutions);
-        result += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/wfe/css/tidy-table.css\">\n";
-        result += String.format("<div id=\"container%s\"></div>", uniquename);
-        return result;
+        result.append("\t</tbody>\n");
+
+        result.append("</table>\n");
+        return result.toString();
     }
 
     public static String getComponentInput(User user, WebHelper webHelper, WfVariable variable) {
@@ -370,14 +381,19 @@ public class ViewUtil {
             return b.toString();
         }
         if (variableFormat instanceof ListFormat) {
-            String scriptingVariableName = variable.getDefinition().getScriptingNameWithoutDots();
             VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
+            if (componentFormat instanceof ActorFormat) {
+                final SelectEmployeeFromGroupRenderer renderer = new SelectEmployeeFromGroupRenderer(user, webHelper);
+                return renderer.getComponentInput(variable);
+            }
+            String scriptingVariableName = "var_" + variable.getDefinition().getScriptingNameWithoutDots();
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);
             substitutions.put("UNIQUENAME", scriptingVariableName);
             WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
             String componentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
-            componentHtml = componentHtml.replaceAll("\"", "'").replaceAll("\t", "").replaceAll("\n", "");
+            componentHtml = componentHtml.replaceAll("\t", "").replaceAll("\r", "").replaceAll("\n", "").replaceAll("script", "_script");
+            componentHtml = componentHtml.replaceAll("»", "_»").replaceAll("\"", "«»");
             substitutions.put("COMPONENT_INPUT", componentHtml);
             substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(variable));
             StringBuffer html = new StringBuffer();
