@@ -40,6 +40,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -64,7 +65,7 @@ import com.google.common.base.Objects;
  * Base class for classes that store variable values in the database.
  */
 @Entity
-@Table(name = "BPM_VARIABLE")
+@Table(name = "BPM_VARIABLE", uniqueConstraints = { @UniqueConstraint(name = "UK_VARIABLE_PROCESS", columnNames = { "PROCESS_ID", "NAME" }) })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")

@@ -17,16 +17,17 @@ import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.DateFilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.ArchivingService;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.service.AuthorizationService;
-import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.ArchivingServiceDelegate;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -84,20 +85,17 @@ public class ArchivingApplication {
                 c.setTime(new Date());
                 c.add(Calendar.DATE, (-1) * daysCount);
 
-                ProcessFilter processFilter = new ProcessFilter();
-                processFilter.setEndDateTo(c.getTime());
-                processFilter.setFinished(true);
+                BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+                int endDateFieldIndex = ProcessClassPresentation.getInstance().getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
+                batchPresentation.getFilteredFields().put(endDateFieldIndex, new DateFilterCriteria(null, c.getTime()));
 
                 long startTime = System.currentTimeMillis();
+                List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, batchPresentation);
 
-                ExecutionService executionService = Delegates.getExecutionService();
-                List<WfProcess> processes = executionService.getProcessesByFilter(user, processFilter);
-
-                ArchivingService archivingService = ArchivingServiceDelegate.getArchivingServiceStatic();
                 for (WfProcess wfProcess : processes) {
                     try {
                         log.info(String.format("start backup process with id = %s ...", wfProcess.getId()));
-                        archivingService.backupProcess(user, wfProcess.getId());
+                        ArchivingServiceDelegate.getArchivingServiceStatic().backupProcess(user, wfProcess.getId());
                         log.info(String.format(SUCCESS_RESULT));
                     } catch (Exception e) {
                         log.error(String.format("error execute backup process with id = %s", wfProcess.getId()));

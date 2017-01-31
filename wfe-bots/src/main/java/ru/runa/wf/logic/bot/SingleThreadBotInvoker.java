@@ -23,11 +23,13 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.invoker.BotInvoker;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
+import ru.runa.wfe.commons.CoreErrorProperties;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -66,6 +68,7 @@ public class SingleThreadBotInvoker implements BotInvoker {
     }
 
     private void configure() {
+        String botStationErrorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_STATION_CONFIGURATION_ERROR, botStation.getName());
         try {
             if (botStation.getVersion() != configurationVersion) {
                 botExecutors = Lists.newArrayList();
@@ -75,23 +78,26 @@ public class SingleThreadBotInvoker implements BotInvoker {
                 User botStationUser = Delegates.getAuthenticationService().authenticateByLoginPassword(username, password);
                 List<Bot> bots = Delegates.getBotService().getBots(botStationUser, botStation.getId());
                 for (Bot bot : bots) {
+                    String botErrorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_CONFIGURATION_ERROR, bot.getUsername());
                     try {
                         log.info("Configuring " + bot.getUsername());
                         User user = Delegates.getAuthenticationService().authenticateByLoginPassword(bot.getUsername(), bot.getPassword());
                         List<BotTask> tasks = Delegates.getBotService().getBotTasks(user, bot.getId());
                         botExecutors.add(new WorkflowBotExecutor(user, bot, tasks));
-                        ProcessExecutionErrors.removeBotTaskConfigurationError(bot, null);
-                    } catch (Exception e) {
-                        log.error("Unable to configure " + bot);
-                        ProcessExecutionErrors.addBotTaskConfigurationError(bot, null, e);
+                        Errors.removeSystemError(botErrorMessage);
+                    } catch (Throwable th) {
+                        log.error("Unable to configure " + bot, th);
+                        Errors.addSystemError(new ConfigurationException(botErrorMessage, th));
                     }
                 }
                 configurationVersion = botStation.getVersion();
             } else {
                 log.debug("bots configuration is up to date, version = " + botStation.getVersion());
             }
+            Errors.removeSystemError(botStationErrorMessage);
         } catch (Throwable th) {
-            log.error("Botstation configuration error. ", th);
+            log.error("Botstation configuration error", th);
+            Errors.addSystemError(new ConfigurationException(botStationErrorMessage, th));
         }
     }
 

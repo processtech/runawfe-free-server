@@ -40,7 +40,6 @@ import javax.sql.DataSource;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.BusinessException;
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.sqltask.AbstractQuery;
 import ru.runa.wfe.commons.sqltask.DatabaseTask;
@@ -124,9 +123,6 @@ public class SQLActionHandler extends ActionHandlerBase {
                         }
                     }
                 }
-            } catch (Exception e) {
-                // TODO 212 error
-                throw new BusinessException(e);
             } finally {
                 SQLCommons.releaseResources(conn);
             }

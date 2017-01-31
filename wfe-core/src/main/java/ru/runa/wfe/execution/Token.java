@@ -61,7 +61,6 @@ import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 
@@ -90,6 +89,8 @@ public class Token implements Serializable {
     private NodeType nodeType;
     private String transitionId;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
+    private Date errorDate;
+    private String errorMessage;
 
     public Token() {
     }
@@ -256,22 +257,36 @@ public class Token implements Serializable {
         this.executionStatus = executionStatus;
     }
 
+    @Column(name = "ERROR_DATE")
+    public Date getErrorDate() {
+        return errorDate;
+    }
+
+    public void setErrorDate(Date errorDate) {
+        this.errorDate = errorDate;
+    }
+
+    @Column(name = "ERROR_MESSAGE", length = 1024)
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public void fail(String errorMessage) {
+        setExecutionStatus(ExecutionStatus.FAILED);
+        setErrorDate(new Date());
+        setErrorMessage(errorMessage);
+    }
+
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
         return processDefinition.getNodeNotNull(nodeId);
     }
 
     private void addChild(Token token) {
         getChildren().add(token);
-    }
-
-    public void signal(ExecutionContext executionContext) {
-        signal(executionContext, null);
-    }
-
-    public void signal(ExecutionContext executionContext, Transition transition) {
-        if (!hasEnded()) {
-            executionContext.getNode().leave(executionContext, transition);
-        }
     }
 
     public void signalOnSubprocessEnd(ExecutionContext subExecutionContext) {
@@ -288,11 +303,12 @@ public class Token implements Serializable {
 
     /**
      * ends this token and all of its children (if recursive).
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
-    public void end(ExecutionContext executionContext, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
+    public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
+        ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
         if (endDate == null) {
             log.info("Ending " + this + " by " + canceller);
             setEndDate(new Date());
@@ -312,7 +328,7 @@ public class Token implements Serializable {
         setExecutionStatus(ExecutionStatus.ENDED);
         if (recursive) {
             for (Token child : getChildren()) {
-                child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller, taskCompletionInfo, recursive);
+                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, recursive);
             }
         }
     }

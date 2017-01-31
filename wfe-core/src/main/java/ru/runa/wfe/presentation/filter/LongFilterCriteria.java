@@ -22,7 +22,7 @@ import java.util.Map;
 import ru.runa.wfe.presentation.hibernate.QueryParameter;
 
 /**
- * Created on 01.09.2005
+ * Created on 01.09.2005 TODO add BETWEEN support
  */
 public class LongFilterCriteria extends FilterCriteria {
     private static final long serialVersionUID = 642103915780987672L;
@@ -32,7 +32,7 @@ public class LongFilterCriteria extends FilterCriteria {
     }
 
     public LongFilterCriteria(Long value) {
-        super(new String[]{ value != null ? value.toString() : ""});
+        super(new String[] { value != null ? value.toString() : "" });
     }
 
     @Override
@@ -46,12 +46,12 @@ public class LongFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String fieldName, String persistetObjectQueryAlias, Map<String, QueryParameter> placeholders) {
-        StringBuilder whereStringBuilder = new StringBuilder(persistetObjectQueryAlias);
-        whereStringBuilder.append(".").append(fieldName);
-        whereStringBuilder.append(" = :").append(fieldName.replaceAll("\\.", ""));
+    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+        final String placeHolderName = makePlaceHolderName(aliasedFieldName);
+        final StringBuilder whereStringBuilder = new StringBuilder(aliasedFieldName);
+        whereStringBuilder.append(" = :").append(placeHolderName);
         whereStringBuilder.append(" ");
-        placeholders.put(fieldName.replaceAll("\\.", ""), new QueryParameter(fieldName.replaceAll("\\.", ""), Long.valueOf(getFilterTemplate(0))));
+        placeholders.put(placeHolderName, new QueryParameter(placeHolderName, Long.valueOf(getFilterTemplate(0))));
         return whereStringBuilder.toString();
     }
 

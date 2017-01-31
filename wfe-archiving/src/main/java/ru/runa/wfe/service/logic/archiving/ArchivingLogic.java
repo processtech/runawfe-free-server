@@ -46,6 +46,7 @@ import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.service.ArchivingService;
 import ru.runa.wfe.service.exceptions.DefinitionHasProcessesException;
@@ -83,6 +84,12 @@ public class ArchivingLogic extends WFCommonLogic implements ArchivingService {
     @Autowired
     @Qualifier("archDeploymentDAO")
     private DeploymentDAO archDeploymentDAO;
+    @Autowired
+    @Qualifier("swimlaneDAO")
+    private SwimlaneDAO swimlaneDAO;
+    @Autowired
+    @Qualifier("archSwimlaneDAO")
+    private SwimlaneDAO archSwimlaneDAO;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -110,20 +117,22 @@ public class ArchivingLogic extends WFCommonLogic implements ArchivingService {
 
     private void processLogic(User user, Long processId, boolean toArchive) {
         try {
-            HibernateTemplate targetTemplate = null;
-            ProcessDAO targetProcessDAO = null;
-            ProcessDAO sourceProcessDAO = null;
-            DeploymentDAO targetDeploymentDAO = null;
-            Set<Swimlane> swimlanes = null;
+            HibernateTemplate targetTemplate;
+            ProcessDAO targetProcessDAO;
+            ProcessDAO sourceProcessDAO;
+            SwimlaneDAO sourceSwimlaneDAO;
+            DeploymentDAO targetDeploymentDAO;
 
             if (toArchive) {
                 targetProcessDAO = archProcessDAO;
                 targetDeploymentDAO = archDeploymentDAO;
                 sourceProcessDAO = processDAO;
+                sourceSwimlaneDAO = swimlaneDAO;
             } else {
                 targetProcessDAO = processDAO;
                 targetDeploymentDAO = deploymentDAO;
                 sourceProcessDAO = archProcessDAO;
+                sourceSwimlaneDAO = archSwimlaneDAO;
             }
             Process process = sourceProcessDAO.get(processId);
             if (process == null) {
@@ -160,7 +169,7 @@ public class ArchivingLogic extends WFCommonLogic implements ArchivingService {
             for (NodeProcess nodeProcess : nodeProcesses) {
                 replicateSubprocess(nodeProcess, toArchive, session, targetTemplate);
             }
-            swimlanes = sourceProcessDAO.get(processId).getSwimlanes();
+            List<Swimlane> swimlanes = sourceSwimlaneDAO.findByProcess(process);
             for (Swimlane swimlane : swimlanes) {
                 Executor executor = swimlane.getExecutor();
                 if (executor != null) {

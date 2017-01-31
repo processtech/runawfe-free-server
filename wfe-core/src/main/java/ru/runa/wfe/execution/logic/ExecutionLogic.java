@@ -79,6 +79,7 @@ import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -87,11 +88,12 @@ import com.google.common.collect.Sets;
 
 /**
  * Process execution logic.
- *
+ * 
  * @author Dofs
  * @since 2.0
  */
 public class ExecutionLogic extends WFCommonLogic {
+    private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = { SecuredObjectType.PROCESS };
     @Autowired
     private ProcessFactory processFactory;
     @Autowired
@@ -110,34 +112,13 @@ public class ExecutionLogic extends WFCommonLogic {
         return getPersistentObjectCount(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES);
     }
 
-    private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = { SecuredObjectType.PROCESS };
-
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation) {
-        List<Process> list = getPersistentObjects(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES, true);
-        return toWfProcesses(list, batchPresentation.getDynamicFieldsToDisplay(true));
-    }
-
-    public List<Process> getProcesses(User user, ProcessFilter filter) {
-        List<Process> processes;
-        if (filter.getFailedOnly()) {
-            processes = Lists.newArrayList();
-            for (Long processId : ProcessExecutionErrors.getProcessErrors().keySet()) {
-                processes.add(processDAO.get(processId));
-            }
-        } else {
-            processes = processDAO.getProcesses(filter);
-        }
-        processes = filterIdentifiable(user, processes, ProcessPermission.READ);
-        return processes;
-    }
-
-    public List<WfProcess> getWfProcesses(User user, ProcessFilter filter) {
-        List<Process> processes = getProcesses(user, filter);
-        return toWfProcesses(processes, null);
+        List<Object> data = getPersistentObjects(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES, true);
+        return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
     public void deleteProcesses(User user, final ProcessFilter filter) {
-        List<Process> processes = getProcesses(user, filter);
+        List<Process> processes = getProcessesInternal(user, filter);
         // TODO add ProcessPermission.DELETE_PROCESS
         processes = filterIdentifiable(user, processes, ProcessPermission.CANCEL_PROCESS);
         for (Process process : processes) {
@@ -146,7 +127,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public void cancelProcesses(User user, final ProcessFilter filter) {
-        List<Process> processes = getProcesses(user, filter);
+        List<Process> processes = getProcessesInternal(user, filter);
         processes = filterIdentifiable(user, processes, ProcessPermission.CANCEL_PROCESS);
         for (Process process : processes) {
             ProcessDefinition processDefinition = getDefinition(process);
@@ -209,41 +190,6 @@ public class ExecutionLogic extends WFCommonLogic {
             for (Process subProcess : subprocesses) {
                 result.addAll(getTokens(subProcess));
             }
-        }
-        return result;
-    }
-
-    private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
-        List<WfToken> result = Lists.newArrayList();
-        List<Token> tokens = tokenDAO.findByProcessAndExecutionStatusIsNotEnded(process);
-        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
-        for (Token token : tokens) {
-            result.add(new WfToken(token, processDefinition));
-        }
-        return result;
-    }
-
-    private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
-        List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
-        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
-        for (Process process : processes) {
-            WfProcess wfProcess = new WfProcess(process);
-            if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
-                try {
-                    ProcessDefinition processDefinition = getDefinition(process);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
-                    for (String variableName : variableNamesToInclude) {
-                        try {
-                            wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));
-                        } catch (Exception e) {
-                            log.error("Unable to get '" + variableName + "' in " + process, e);
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("Unable to get variables in " + process, e);
-                }
-            }
-            result.add(wfProcess);
         }
         return result;
     }
@@ -436,6 +382,69 @@ public class ExecutionLogic extends WFCommonLogic {
         log.info("Process " + processId + " activated");
     }
 
+    public void suspendProcess(User user, Long processId) {
+        if (!SystemProperties.isProcessSuspensionEnabled()) {
+            throw new InternalApplicationException("process suspension disabled in settings");
+        }
+        if (!executorLogic.isAdministrator(user)) {
+            throw new InternalApplicationException("Only administrator can suspend process");
+        }
+        suspendProcessWithSubprocesses(user, processDAO.getNotNull(processId));
+        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        log.info("Process " + processId + " suspended");
+    }
+
+    private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
+        List<WfToken> result = Lists.newArrayList();
+        List<Token> tokens = tokenDAO.findByProcessAndExecutionStatusIsNotEnded(process);
+        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
+        for (Token token : tokens) {
+            result.add(new WfToken(token, processDefinition));
+        }
+        return result;
+    }
+
+    private List<Process> getProcessesInternal(User user, ProcessFilter filter) {
+        List<Process> processes = processDAO.getProcesses(filter);
+        processes = filterIdentifiable(user, processes, ProcessPermission.READ);
+        return processes;
+    }
+
+    private List<WfProcess> toWfProcesses(List<? extends Object> data, List<String> variableNamesToInclude) {
+        List<Process> processes = Lists.transform(data, new Function<Object, Process>() {
+
+            @Override
+            public Process apply(Object input) {
+                if (input instanceof Process) {
+                    return (Process) input;
+                }
+                return (Process) ((Object[]) input)[0];
+            }
+        });
+        List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
+        for (Process process : processes) {
+            WfProcess wfProcess = new WfProcess(process);
+            if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
+                try {
+                    ProcessDefinition processDefinition = getDefinition(process);
+                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
+                    for (String variableName : variableNamesToInclude) {
+                        try {
+                            wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));
+                        } catch (Exception e) {
+                            log.error("Unable to get '" + variableName + "' in " + process, e);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Unable to get variables in " + process, e);
+                }
+            }
+            result.add(wfProcess);
+        }
+        return result;
+    }
+
     private void activateProcessWithSubprocesses(User user, Process process) {
         if (process.getExecutionStatus() == ExecutionStatus.ENDED) {
             return;
@@ -458,18 +467,6 @@ public class ExecutionLogic extends WFCommonLogic {
                 activateProcessWithSubprocesses(user, subprocess);
             }
         }
-    }
-
-    public void suspendProcess(User user, Long processId) {
-        if (!SystemProperties.isProcessSuspensionEnabled()) {
-            throw new InternalApplicationException("process suspension disabled in settings");
-        }
-        if (!executorLogic.isAdministrator(user)) {
-            throw new InternalApplicationException("Only administrator can suspend process");
-        }
-        suspendProcessWithSubprocesses(user, processDAO.getNotNull(processId));
-        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
-        log.info("Process " + processId + " suspended");
     }
 
     private void suspendProcessWithSubprocesses(User user, Process process) {

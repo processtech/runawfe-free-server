@@ -37,7 +37,7 @@ public class EndToken extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().end(executionContext, null, null, false);
+        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
         if (!executionContext.getProcess().hasEnded()) {
             int count = ApplicationContextFactory.getTokenDAO().findByProcessAndExecutionStatusIsNotEnded(executionContext.getProcess()).size();
             if (count == 0) {

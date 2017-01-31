@@ -14,6 +14,7 @@ import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 
 import com.google.common.base.Throwables;
@@ -55,7 +56,9 @@ public class GraphXmlParser implements ProcessArchiveParser {
                     ((Node) graphElement).setGraphMinimizedView(minimizedView);
                     transitionSource = (Node) graphElement;
                 } else {
-                    LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
+                    if (!(graphElement instanceof SwimlaneDefinition)) {
+                        LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
+                    }
                     continue;
                 }
                 List<Element> transitionElements = nodeElement.elements(TRANSITION_ELEMENT);

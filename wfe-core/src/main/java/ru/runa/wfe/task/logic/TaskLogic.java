@@ -10,8 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -21,7 +24,6 @@ import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.ProcessSuspendedException;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.MultiTaskNode;
@@ -63,7 +65,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Task logic.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -82,6 +84,7 @@ public class TaskLogic extends WFCommonLogic {
         if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new ProcessSuspendedException(task.getProcess().getId());
         }
+        ProcessError processError = new ProcessError(ProcessErrorType.system, task.getProcess().getId(), task.getNodeId());
         try {
             if (variables == null) {
                 variables = Maps.newHashMap();
@@ -134,11 +137,11 @@ public class TaskLogic extends WFCommonLogic {
                 signalToken(executionContext, task, transition);
             }
             log.info("Task '" + task.getName() + "' was done by " + user + " in process " + task.getProcess());
-            ProcessExecutionErrors.removeProcessError(task.getProcess().getId(), task.getNodeId());
+            Errors.removeProcessError(processError);
         } catch (ValidationException ex) {
             throw Throwables.propagate(ex);
         } catch (Throwable th) {
-            ProcessExecutionErrors.addProcessError(task, th);
+            Errors.addProcessError(processError, task.getName(), th);
             throw Throwables.propagate(th);
         }
     }
@@ -156,7 +159,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -180,7 +183,7 @@ public class TaskLogic extends WFCommonLogic {
             }
         }
         log.debug("completion of " + task + " by " + transition);
-        token.signal(executionContext, transition);
+        executionContext.getNode().leave(executionContext, transition);
     }
 
     public void markTaskOpened(User user, Long taskId) {

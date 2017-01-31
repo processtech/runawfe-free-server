@@ -115,7 +115,7 @@
 		<servlet-name>version</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.VersionServlet</servlet-class>
 	</servlet>
-
+    
 	${enable.resteasy.start}
 	<context-param>
 		<param-name>resteasy.jndi.resources</param-name>
@@ -177,7 +177,7 @@
 		<servlet-name>version</servlet-name>
 		<url-pattern>/version</url-pattern>
 	</servlet-mapping>
-
+	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

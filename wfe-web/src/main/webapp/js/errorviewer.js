@@ -18,14 +18,45 @@ $(document).ready(function() {
 	});
 });
 
-function showBotTaskConfigurationError(botId, botTaskName) {
+function showSystemError(message) {
 	$.ajax({
 		dataType: "json",
 	    url: "/wfe/error_details.do",
 	    data: {
-	    	action: "getBotTaskConfigurationError", 
-	    	id: botId, 
-	    	name: botTaskName
+	    	action: "getSystemError", 
+	    	name: message
+	    },
+	    success: function(data) {
+			$("#errorDetailsDiv").html("<pre>"+data.html+"</pre>");
+			$.errorDetailsDialog.dialog("open");
+			$(".ui-button:contains('" + buttonSupportMessage + "')").hide();
+	    }
+    });
+}
+
+function deleteSystemError(element, message) {
+	$.ajax({
+		dataType: "json",
+	    url: "/wfe/error_details.do",
+	    data: {
+	    	action: "deleteSystemError", 
+	    	name: message
+	    },
+	    success: function(data) {
+			$(element).closest("tr").hide();
+	    }
+    });
+}
+
+function showProcessError(type, processId, nodeId) {
+	$.ajax({
+		dataType: "json",
+	    url: "/wfe/error_details.do",
+	    data: {
+	    	action: "getProcessError",
+	    	type: type,
+	    	id: processId, 
+	    	name: nodeId
 	    },
 	    success: function(data) {
 			$("#errorDetailsDiv").html("<pre>"+data.html+"</pre>");
@@ -35,19 +66,18 @@ function showBotTaskConfigurationError(botId, botTaskName) {
     });
 }
 
-function showProcessError(processId, nodeId) {
+function deleteProcessError(element, type, processId, nodeId) {
 	$.ajax({
 		dataType: "json",
 	    url: "/wfe/error_details.do",
 	    data: {
-	    	action: "getProcessError", 
+	    	action: "deleteProcessError",
+	    	type: type,
 	    	id: processId, 
 	    	name: nodeId
 	    },
 	    success: function(data) {
-			$("#errorDetailsDiv").html("<pre>"+data.html+"</pre>");
-			$.errorDetailsDialog.dialog("open");
-			$(".ui-button:contains('" + buttonSupportMessage + "')").show();
+			$(element).closest("tr").hide();
 	    }
     });
 }

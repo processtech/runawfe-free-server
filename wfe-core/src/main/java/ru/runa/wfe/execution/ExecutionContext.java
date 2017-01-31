@@ -45,6 +45,7 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
+import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.MultiSubprocessNode;
@@ -86,6 +87,8 @@ public class ExecutionContext {
     private VariableCreator variableCreator;
     @Autowired
     private ProcessDAO processDAO;
+    @Autowired
+    private TokenDAO tokenDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
     @Autowired
@@ -269,6 +272,18 @@ public class ExecutionContext {
         processLogDAO.addLog(processLog, getProcess(), token);
     }
 
+    public void activateTokenIfHasPreviousError() {
+        if (getToken().getExecutionStatus() == ExecutionStatus.FAILED) {
+            getToken().setExecutionStatus(ExecutionStatus.ACTIVE);
+            getToken().setErrorDate(null);
+            getToken().setErrorMessage(null);
+            List<Token> failedTokens = tokenDAO.findByProcessAndExecutionStatus(getProcess(), ExecutionStatus.FAILED);
+            if (failedTokens.isEmpty()) {
+                getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("processId", getToken().getProcess().getId()).add("tokenId", getToken().getId()).toString();
@@ -289,7 +304,8 @@ public class ExecutionContext {
                     if (!Utils.isNullOrEmpty(baseVariable.getValue()) || variable.getValue() == null) {
                         variable.setValue(baseVariable.getValue());
                     }
-                    if (!Utils.isNullOrEmpty(variable.getValue())) {
+                    if (!Utils.isNullOrEmpty(variable.getValue())
+                            && !Objects.equal(baseVariable.getDefinition().getDefaultValue(), variable.getValue())) {
                         return variable;
                     }
                 }

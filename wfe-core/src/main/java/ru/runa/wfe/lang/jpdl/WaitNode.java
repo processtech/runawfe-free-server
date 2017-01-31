@@ -2,12 +2,13 @@ package ru.runa.wfe.lang.jpdl;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.bc.BusinessDuration;
 import ru.runa.wfe.commons.bc.BusinessDurationParser;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
-import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Node;
@@ -32,6 +33,7 @@ public class WaitNode extends Node {
 
     public static void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
         String timerNodeId = timerJob.getToken().getNodeId();
+        ProcessError processError = new ProcessError(ProcessErrorType.system, timerJob.getProcess().getId(), timerNodeId);
         try {
             ActionEvent actionEvent = executionContext.getNode().getEventNotNull(ActionEvent.TIMER);
             for (Action timerAction : actionEvent.getActions()) {
@@ -49,7 +51,7 @@ public class WaitNode extends Node {
                     ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer());
                 }
                 log.info("Leaving " + timerJob + " from " + executionContext.getNode() + " by transition " + timerJob.getOutTransitionName());
-                timerJob.getToken().signal(executionContext, transition);
+                executionContext.getNode().leave(executionContext, transition);
             } else if (Boolean.TRUE == executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION)) {
                 log.info("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
                 ApplicationContextFactory.getJobDAO().deleteTimersByName(timerJob.getToken(), timerJob.getName());
@@ -68,16 +70,15 @@ public class WaitNode extends Node {
                 log.info("Deleting " + timerJob + " after execution");
                 ApplicationContextFactory.getJobDAO().deleteTimersByName(timerJob.getToken(), timerJob.getName());
             }
-            ProcessExecutionErrors.removeProcessError(timerJob.getProcess().getId(), timerNodeId);
+            Errors.removeProcessError(processError);
         } catch (Throwable th) {
-            ProcessExecutionException pee = new ProcessExecutionException(ProcessExecutionException.TIMER_EXECUTION_FAILED, th, th.getMessage());
-            String taskName;
+            String nodeName;
             try {
-                taskName = executionContext.getProcessDefinition().getNodeNotNull(timerNodeId).getName();
+                nodeName = executionContext.getProcessDefinition().getNodeNotNull(timerNodeId).getName();
             } catch (Exception e) {
-                taskName = "Unknown due to " + e;
+                nodeName = "Unknown due to " + e;
             }
-            ProcessExecutionErrors.addProcessError(timerJob.getProcess().getId(), timerNodeId, taskName, null, pee);
+            Errors.addProcessError(processError, nodeName, th);
             throw Throwables.propagate(th);
         }
     }

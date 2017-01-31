@@ -28,6 +28,8 @@ import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
@@ -42,8 +44,6 @@ import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldState;
-
-import com.google.common.collect.Maps;
 
 /**
  *

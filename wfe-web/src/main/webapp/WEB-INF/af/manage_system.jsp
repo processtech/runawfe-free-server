@@ -7,8 +7,8 @@
 
 <tiles:put name="head" type="string">
 	<script>
-	var storageVisible = false;
-	var bottaskErrorsVisible = true;
+	var storageVisible = true;
+	var systemErrorsVisible = true;
 	var processErrorsVisible = true;
 	$(document).ready(function() {
 		$("#storageButton").click(function() {
@@ -22,15 +22,15 @@
 				storageVisible = true;
 			}
 		});
-		$("#bottaskErrorsButton").click(function() {
-			if (bottaskErrorsVisible) {
-				$("#bottaskErrorsContentDiv").hide();
-				$("#bottaskErrorsImg").attr("src", "/wfe/images/view_setup_hidden.gif");
-				bottaskErrorsVisible = false;
+		$("#systemErrorsButton").click(function() {
+			if (systemErrorsVisible) {
+				$("#systemErrorsContentDiv").hide();
+				$("#systemErrorsImg").attr("src", "/wfe/images/view_setup_hidden.gif");
+				systemErrorsVisible = false;
 			} else {
-				$("#bottaskErrorsContentDiv").show();
-				$("#bottaskErrorsImg").attr("src", "/wfe/images/view_setup_visible.gif");
-				bottaskErrorsVisible = true;
+				$("#systemErrorsContentDiv").show();
+				$("#systemErrorsImg").attr("src", "/wfe/images/view_setup_visible.gif");
+				systemErrorsVisible = true;
 			}
 		});
 		$("#processErrorsButton").click(function() {
@@ -48,6 +48,15 @@
 			$(this).click(function() {
 				editScript($(this).attr("fileName"), "<bean:message key="button.save" />", "<bean:message key="button.execute" />", "<bean:message key="button.cancel" />");
 			});
+		});
+		$("div.processErrorsFilter input").change(function() {
+			var typeLabel = $(this).closest("label").text();
+			var tds = $("#processErrorsContentDiv table tr").find("td:eq(0)").filter(":contains(" + typeLabel + ")");
+			if ($(this).prop("checked")) {
+				tds.closest("tr").show();
+			} else {
+				tds.closest("tr").hide();
+			}
 		});
 	});
 	</script>
@@ -94,7 +103,7 @@
 			<table><tbody><tr>
 				<td class="hideableblock">
 					<a id="storageButton" href="javascript:void(0)" class="link">
-						<img id="storageImg" class="hideableblock" src="/wfe/images/view_setup_hidden.gif">
+						<img id="storageImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
 						&nbsp;<bean:message key="adminkit.savedscripts" />
 					</a>
 				</td>
@@ -142,13 +151,13 @@
 <table class='box'><tr><th class='box'><bean:message key="title.errors" /></th></tr>
 <tr><td class='box'>
 	<div>
-		<a id="bottaskErrorsButton" href="javascript:void(0)" class="link">
-			<img id="bottaskErrorsImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
-			&nbsp;<bean:message key="errors.bottask" />
+		<a id="systemErrorsButton" href="javascript:void(0)" class="link">
+			<img id="systemErrorsImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
+			&nbsp;<bean:message key="errors.system" />
 		</a>
 	</div>
-	<div id="bottaskErrorsContentDiv">
-		<wf:viewBotTaskErrors />
+	<div id="systemErrorsContentDiv"> 
+		<wf:viewSystemErrors />
 	</div>
 	<br />
 	<div>

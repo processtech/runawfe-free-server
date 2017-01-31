@@ -25,18 +25,23 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.CalendarInterval;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.CoreErrorProperties;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
-import ru.runa.wfe.execution.logic.ProcessExecutionException;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.extension.TaskHandler;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.service.client.DelegateTaskVariableProvider;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDoesNotExistException;
@@ -50,9 +55,9 @@ import com.google.common.base.Throwables;
 
 /**
  * Execute task handlers for particular bot.
- *
+ * 
  * Configures and executes task handler in same method.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -124,17 +129,21 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
     }
 
     private void doHandle() throws Exception {
-        TaskHandler taskHandler = null;
         User user = botExecutor.getUser();
+        if (Delegates.getExecutionService().getProcess(user, task.getProcessId()).getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            log.warn("Ignored " + task + " execution due to suspended process execution status");
+            return;
+        }
         Bot bot = botExecutor.getBot();
         BotTask botTask = null;
         IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task.getProcessId(), task.getId());
+        TaskHandler taskHandler = null;
         try {
             String botTaskName = BotTaskConfigurationUtils.getBotTaskName(user, task);
             botTask = botExecutor.getBotTasks().get(botTaskName);
             if (botTask == null) {
                 log.error("No handler for bot task " + botTaskName + " in " + bot);
-                throw new ProcessExecutionException(ProcessExecutionException.BOT_TASK_MISSED, botTaskName, bot.getUsername());
+                throw new ConfigurationException(CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_MISSED, botTaskName, bot.getUsername()));
             }
             taskHandler = ClassLoaderUtil.instantiate(botTask.getTaskHandlerClassName());
             try {
@@ -151,13 +160,10 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     taskHandler.setConfiguration(botTask.getConfiguration(), botTask.getEmbeddedFile());
                 }
                 log.info("Configured taskHandler for " + botTask.getName());
-                ProcessExecutionErrors.removeBotTaskConfigurationError(bot, botTask);
             } catch (Throwable th) {
-                ProcessExecutionErrors.addBotTaskConfigurationError(bot, botTask, th);
                 log.error("Can't create handler for bot " + bot + " (task is " + botTask + ")", th);
-                throw new ProcessExecutionException(ProcessExecutionException.BOT_TASK_CONFIGURATION_ERROR, th, botTaskName, th.getMessage());
+                throw new ConfigurationException(CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_CONFIGURATION_ERROR, botTaskName), th);
             }
-
             log.info("Starting bot task " + task + " with config \n" + taskHandler.getConfiguration());
             Map<String, Object> variables = taskHandler.handle(user, variableProvider, task);
             if (variables == null) {
@@ -192,12 +198,9 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                 Delegates.getTaskService().completeTask(user, task.getId(), variables, null);
                 log.debug("Handled bot task " + task + ", " + bot + " by " + taskHandler.getClass());
             }
-            ProcessExecutionErrors.removeProcessError(task.getProcessId(), task.getNodeId());
         } catch (TaskDoesNotExistException e) {
             log.warn(task + " already handled");
-            ProcessExecutionErrors.removeProcessError(task.getProcessId(), task.getNodeId());
-        } catch (Throwable th) {
-            ProcessExecutionErrors.addProcessError(task, botTask, th);
+        } catch (final Throwable th) {
             if (taskHandler != null) {
                 try {
                     taskHandler.onRollback(user, variableProvider, task);
@@ -211,17 +214,30 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
 
     @Override
     public void run() {
+        ProcessError processError = new ProcessError(ProcessErrorType.bottask, task.getProcessId(), task.getNodeId());
         try {
             started = Calendar.getInstance();
             executionThread.set(Thread.currentThread());
             executionStatus = WorkflowBotTaskExecutionStatus.STARTED;
             doHandle();
             executionStatus = WorkflowBotTaskExecutionStatus.COMPLETED;
-            return;
+            Errors.removeProcessError(processError);
         } catch (final Throwable th) {
             log.error("Error execution " + this, th);
             logBotError(task, th);
             executionStatus = WorkflowBotTaskExecutionStatus.FAILED;
+            Node node = Delegates.getDefinitionService().getNode(botExecutor.getUser(), task.getDefinitionId(), task.getNodeId());
+            if (node != null && node.hasErrorEventHandler() && !(th instanceof ConfigurationException)) {
+                new TransactionalExecutor() {
+
+                    @Override
+                    protected void doExecuteInTransaction() throws Exception {
+                        Utils.sendBpmnErrorMessage(task.getProcessId(), task.getTokenId(), task.getNodeId(), th);
+                    }
+                }.executeInTransaction(false);
+            } else {
+                Errors.addProcessError(processError, task.getName(), th);
+            }
             // Double delay if exists
             failedDelaySeconds *= 2;
             int maxDelay = BotStationResources.getFailedExecutionMaxDelay();
@@ -230,14 +246,6 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             }
             log.info("FailedDelaySeconds = " + failedDelaySeconds + " for " + task);
             started.add(Calendar.SECOND, failedDelaySeconds);
-            new TransactionalExecutor() {
-
-                @Override
-                protected void doExecuteInTransaction() throws Exception {
-                    // TODO 212
-                    Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
-                }
-            }.executeInTransaction(false);
         } finally {
             executionThread.set(null);
         }
