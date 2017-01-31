@@ -49,7 +49,7 @@ public class Errors {
         systemErrors.remove(message);
     }
 
-    public static void addProcessError(ProcessError processError, String nodeName, Throwable throwable) {
+    public static boolean addProcessError(ProcessError processError, String nodeName, Throwable throwable) {
         processError.setNodeName(nodeName);
         processError.setThrowable(throwable);
         List<ProcessError> list = processErrors.get(processError.getProcessId());
@@ -62,6 +62,7 @@ public class Errors {
         if (!alreadyExists) {
             sendEmailNotification(throwable, processError);
         }
+        return !alreadyExists;
     }
 
     public static void removeProcessError(ProcessError processError) {

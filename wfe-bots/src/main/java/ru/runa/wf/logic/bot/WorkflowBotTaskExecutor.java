@@ -141,14 +141,11 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
         try {
             String botTaskName = BotTaskConfigurationUtils.getBotTaskName(user, task);
             botTask = botExecutor.getBotTasks().get(botTaskName);
-            String errorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_MISSED, botTaskName, bot.getUsername());
             if (botTask == null) {
                 log.error("No handler for bot task " + botTaskName + " in " + bot);
-                throw new ConfigurationException(errorMessage);
+                throw new ConfigurationException(CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_MISSED, botTaskName, bot.getUsername()));
             }
-            Errors.removeSystemError(errorMessage);
             taskHandler = ClassLoaderUtil.instantiate(botTask.getTaskHandlerClassName());
-            errorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_CONFIGURATION_ERROR, botTaskName);
             try {
                 if (BotTaskConfigurationUtils.isExtendedBotTaskConfiguration(botTask.getConfiguration())) {
                     byte[] configuration = BotTaskConfigurationUtils.getExtendedBotTaskConfiguration(botTask.getConfiguration());
@@ -163,10 +160,9 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     taskHandler.setConfiguration(botTask.getConfiguration(), botTask.getEmbeddedFile());
                 }
                 log.info("Configured taskHandler for " + botTask.getName());
-                Errors.removeSystemError(errorMessage);
             } catch (Throwable th) {
                 log.error("Can't create handler for bot " + bot + " (task is " + botTask + ")", th);
-                throw new ConfigurationException(errorMessage, th);
+                throw new ConfigurationException(CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_CONFIGURATION_ERROR, botTaskName), th);
             }
             log.info("Starting bot task " + task + " with config \n" + taskHandler.getConfiguration());
             Map<String, Object> variables = taskHandler.handle(user, variableProvider, task);
@@ -204,9 +200,6 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             }
         } catch (TaskDoesNotExistException e) {
             log.warn(task + " already handled");
-        } catch (ConfigurationException e) {
-            log.error("Configuration error", e);
-            Errors.addSystemError(e);
         } catch (final Throwable th) {
             if (taskHandler != null) {
                 try {
@@ -234,7 +227,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             logBotError(task, th);
             executionStatus = WorkflowBotTaskExecutionStatus.FAILED;
             Node node = Delegates.getDefinitionService().getNode(botExecutor.getUser(), task.getDefinitionId(), task.getNodeId());
-            if (node != null && node.hasErrorEventHandler()) {
+            if (node != null && node.hasErrorEventHandler() && !(th instanceof ConfigurationException)) {
                 new TransactionalExecutor() {
 
                     @Override

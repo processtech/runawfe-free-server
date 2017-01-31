@@ -92,7 +92,7 @@ public class TimerNode extends Node implements BoundaryEvent {
     }
 
     public void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
-        ProcessError processError = new ProcessError(ProcessErrorType.timer, timerJob.getProcess().getId(), getNodeId());
+        ProcessError processError = new ProcessError(ProcessErrorType.system, timerJob.getProcess().getId(), getNodeId());
         try {
             if (actionDelegation != null) {
                 try {

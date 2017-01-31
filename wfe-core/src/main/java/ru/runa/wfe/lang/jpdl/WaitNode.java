@@ -33,7 +33,7 @@ public class WaitNode extends Node {
 
     public static void onTimerJob(ExecutionContext executionContext, TimerJob timerJob) {
         String timerNodeId = timerJob.getToken().getNodeId();
-        ProcessError processError = new ProcessError(ProcessErrorType.timer, timerJob.getProcess().getId(), timerNodeId);
+        ProcessError processError = new ProcessError(ProcessErrorType.system, timerJob.getProcess().getId(), timerNodeId);
         try {
             ActionEvent actionEvent = executionContext.getNode().getEventNotNull(ActionEvent.TIMER);
             for (Action timerAction : actionEvent.getActions()) {
