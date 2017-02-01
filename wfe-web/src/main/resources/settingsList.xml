@@ -62,11 +62,11 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="definition.disallowOverwritingVersionCommentsInDefinition">
+		<property title="definition.comments.collisions.allowed">
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="definition.disallowUploadingDefinitionsWithoutNewComments">
+		<property title="definition.comments.empty.allowed">
 			<value>true</value>
 			<value>false</value>
 		</property>

@@ -42,11 +42,12 @@ public class TaskAssigner {
                 Errors.addProcessError(processError, task.getName(), new NoExecutorAssignedException());
             }
         } catch (Throwable th) {
-            log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "'", th);
             if (throwError) {
                 Throwables.propagate(th);
             } else {
-                Errors.addProcessError(processError, task.getName(), th);
+                if (Errors.addProcessError(processError, task.getName(), th)) {
+                    log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "'", th);
+                }
             }
         }
     }
