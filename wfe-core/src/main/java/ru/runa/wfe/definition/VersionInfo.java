@@ -1,10 +1,12 @@
 package ru.runa.wfe.definition;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import ru.runa.wfe.commons.CalendarUtil;
 
-public class VersionInfo {
+public class VersionInfo implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Calendar date = Calendar.getInstance();
     private String author = "";
     private String comment = "";
