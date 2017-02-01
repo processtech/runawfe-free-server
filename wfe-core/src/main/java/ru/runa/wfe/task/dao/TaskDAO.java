@@ -71,7 +71,11 @@ public class TaskDAO extends GenericDAO<Task> {
      * @return active tasks but not assigned.
      */
     public List<Task> findUnassignedTasksInActiveProcesses() {
-        return getHibernateTemplate().find("from Task where executor is null and token.executionStatus=?", ExecutionStatus.ACTIVE);
+        return getHibernateTemplate().find("from Task where executor is null and token.executionStatus != ?", ExecutionStatus.SUSPENDED);
+    }
+
+    public List<Task> findUnassignedTasks() {
+        return getHibernateTemplate().find("from Task where executor is null");
     }
 
     /**

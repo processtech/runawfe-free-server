@@ -5,7 +5,6 @@ import java.util.List;
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.extension.ActionHandler;
 
 import com.google.common.base.Objects;
@@ -45,9 +44,12 @@ public class ScriptNode extends Node implements BoundaryEventContainer {
             actionHandler.execute(executionContext);
         } catch (Exception e) {
             log.error("Handling failed using " + executionContext + " in " + this, e);
-            ProcessExecutionErrors.addProcessError(executionContext.getProcess().getId(), getNodeId(), getNodeId(), null, e);
-            Utils.sendBpmnErrorMessage(executionContext.getProcess().getId(), getNodeId(), e);
-            return;
+            if (hasErrorEventHandler()) {
+                Utils.sendBpmnErrorMessage(executionContext.getProcess().getId(), executionContext.getToken().getId(), getNodeId(), e);
+                return;
+            } else {
+                throw e;
+            }
         }
         leave(executionContext);
     }

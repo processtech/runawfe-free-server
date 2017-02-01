@@ -55,7 +55,14 @@ public class UserType implements Serializable {
                 throw new InternalApplicationException(String.format("Unable get attribute '%s' from non user type", name));
             }
             String nameRemainder = name.substring(firstDotIndex + 1);
-            return attributeDefinition.getUserType().getAttribute(nameRemainder);
+            VariableDefinition innerAttributeDefinition = attributeDefinition.getUserType().getAttributeExpanded(nameRemainder);
+            if (innerAttributeDefinition == null) {
+                return null;
+            }
+            VariableDefinition expandedDefinition = new VariableDefinition(attributeDefinition.getName() + UserType.DELIM
+                    + innerAttributeDefinition.getName(), attributeDefinition.getScriptingName() + UserType.DELIM
+                    + innerAttributeDefinition.getScriptingName(), innerAttributeDefinition);
+            return expandedDefinition;
         }
         int componentStartIndex = name.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
         String attributeName = componentStartIndex != -1 ? name.substring(0, componentStartIndex) : name;

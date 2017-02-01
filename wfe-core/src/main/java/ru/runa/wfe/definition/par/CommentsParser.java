@@ -7,8 +7,8 @@ import org.dom4j.Element;
 
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.definition.VersionInfo;
+import ru.runa.wfe.lang.ProcessDefinition;
 
 public class CommentsParser implements ProcessArchiveParser {
     public static final String VERSION = "version";

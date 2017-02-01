@@ -30,7 +30,7 @@ import ru.runa.wfe.user.Actor;
 
 /**
  * Logging process suspension.
- *
+ * 
  * @author Dofs
  */
 @Entity
@@ -42,7 +42,7 @@ public class ProcessSuspendLog extends ProcessLog {
     }
 
     public ProcessSuspendLog(Actor actor) {
-        addAttribute(ATTR_ACTOR_NAME, actor != null ? actor.getName() : "system");
+        addAttribute(ATTR_ACTOR_NAME, actor.getName());
         setSeverity(Severity.DEBUG);
     }
 

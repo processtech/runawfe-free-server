@@ -55,6 +55,12 @@ public class SystemProperties {
     }
 
     /**
+     * Map variable back compatibility mode with version 4.2.x.
+     */
+    public static boolean isV4MapVariableCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.map.variable.compatibility", true);
+    }
+    /**
      * Using cache state machine or old cache implementation.
      */
     public static boolean useCacheStateMachine() {
@@ -132,7 +138,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     *
+     * 
      * @return max string value
      */
     public static int getStringVariableValueLength() {
@@ -176,6 +182,14 @@ public class SystemProperties {
 
     public static boolean isTrustedAuthenticationEnabled() {
         return RESOURCES.getBooleanProperty("trusted.authentication.enabled", false);
+    }
+
+    public static boolean isDefinitionDeploymentWithCommentsCollisionsAllowed() {
+        return RESOURCES.getBooleanProperty("definition.comments.collisions.allowed", false);
+    }
+
+    public static boolean isDefinitionDeploymentWithEmptyCommentsAllowed() {
+        return RESOURCES.getBooleanProperty("definition.comments.empty.allowed", true);
     }
 
     public static boolean isCheckProcessStartPermissions() {

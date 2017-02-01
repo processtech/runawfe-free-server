@@ -28,7 +28,11 @@ import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.var.IVariableProvider;
@@ -158,18 +162,25 @@ public class Utils {
         }
     }
 
-    public static void sendBpmnErrorMessage(Long processId, String nodeId, Throwable throwable) {
+    public static void sendBpmnErrorMessage(Long processId, Long tokenId, String nodeId, Throwable throwable) {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(BaseMessageNode.EVENT_TYPE, MessageEventType.error.name());
         variables.put(BaseMessageNode.ERROR_EVENT_MESSAGE, throwable.getMessage());
-        variables.put(Variables.CURRENT_PROCESS_ID, processId);
-        variables.put(Variables.CURRENT_NODE_ID, nodeId);
+        variables.put(BaseMessageNode.ERROR_EVENT_PROCESS_ID, processId);
+        variables.put(BaseMessageNode.ERROR_EVENT_TOKEN_ID, tokenId);
+        variables.put(BaseMessageNode.ERROR_EVENT_NODE_ID, nodeId);
         MapVariableProvider variableProvider = new MapVariableProvider(variables);
         List<VariableMapping> variableMappings = Lists.newArrayList();
-        variableMappings.add(new VariableMapping(BaseMessageNode.EVENT_TYPE, "${" + BaseMessageNode.EVENT_TYPE + "}", "selector"));
-        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_PROCESS_ID, Variables.CURRENT_PROCESS_ID_WRAPPED, "selector"));
-        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_NODE_ID, Variables.CURRENT_NODE_ID_WRAPPED, "selector"));
-        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, "read"));
+        variableMappings.add(new VariableMapping(BaseMessageNode.EVENT_TYPE, Variables.wrap(BaseMessageNode.EVENT_TYPE),
+                VariableMapping.USAGE_SELECTOR));
+        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_PROCESS_ID, Variables.wrap(BaseMessageNode.ERROR_EVENT_PROCESS_ID),
+                VariableMapping.USAGE_SELECTOR));
+        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_NODE_ID, Variables.wrap(BaseMessageNode.ERROR_EVENT_NODE_ID),
+                VariableMapping.USAGE_SELECTOR));
+        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_TOKEN_ID, BaseMessageNode.ERROR_EVENT_TOKEN_ID,
+                VariableMapping.USAGE_READ));
+        variableMappings
+                .add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, VariableMapping.USAGE_READ));
         Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
     }
 
@@ -290,6 +301,22 @@ public class Utils {
             return s.isEmpty();
         }
         return false;
+    }
+
+    public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
+        new TransactionalExecutor(transaction) {
+
+            @Override
+            protected void doExecuteInTransaction() throws Exception {
+                Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
+                if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
+                    token.fail(throwable.getLocalizedMessage());
+                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                    ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
+                    Errors.sendEmailNotification(throwable, processError);
+                }
+            }
+        }.executeInTransaction(true);
     }
 
 }

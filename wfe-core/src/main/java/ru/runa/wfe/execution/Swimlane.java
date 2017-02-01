@@ -46,7 +46,6 @@ import org.hibernate.annotations.Index;
 
 import ru.runa.wfe.audit.SwimlaneAssignLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
@@ -147,12 +146,6 @@ public class Swimlane implements Serializable, Assignable {
     @Override
     public String getSwimlaneName() {
         return name;
-    }
-
-    @Transient
-    @Override
-    public String getErrorMessageKey() {
-        return ProcessExecutionException.SWIMLANE_ASSIGNMENT_FAILED;
     }
 
     @Override

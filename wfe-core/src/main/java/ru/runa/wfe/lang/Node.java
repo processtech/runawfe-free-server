@@ -32,6 +32,8 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
+import ru.runa.wfe.lang.bpmn2.CatchEventNode;
+import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.lang.jpdl.ActionEvent;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
@@ -86,7 +88,7 @@ public abstract class Node extends GraphElement {
 
     /**
      * creates a bidirection relation between this node and the given leaving transition.
-     *
+     * 
      * @throws IllegalArgumentException
      *             if leavingTransition is null.
      */
@@ -103,7 +105,7 @@ public abstract class Node extends GraphElement {
 
     /**
      * checks for the presence of a leaving transition with the given name.
-     *
+     * 
      * @return true if this node has a leaving transition with the given name, false otherwise.
      */
     public boolean hasLeavingTransition(String transitionName) {
@@ -213,12 +215,10 @@ public abstract class Node extends GraphElement {
         return SystemProperties.isProcessExecutionNodeAsyncEnabled(getNodeType());
     }
 
-    /**
-     * override this method to customize the node behavior.
-     */
-    public void handle(ExecutionContext executionContext) {
+    public final void handle(ExecutionContext executionContext) {
         try {
             log.info("Executing " + this + " with " + executionContext);
+            executionContext.activateTokenIfHasPreviousError();
             execute(executionContext);
         } catch (Throwable th) {
             log.error("Handling failed in " + this);
@@ -289,5 +289,16 @@ public abstract class Node extends GraphElement {
             clone.originalConstraints = originalConstraints.clone();
         }
         return clone;
+    }
+
+    public boolean hasErrorEventHandler() {
+        if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
+            for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
+                if (boundaryEvent instanceof CatchEventNode && ((CatchEventNode) boundaryEvent).getEventType() == MessageEventType.error) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

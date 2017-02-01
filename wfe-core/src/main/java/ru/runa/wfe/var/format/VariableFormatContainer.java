@@ -10,6 +10,8 @@ import ru.runa.wfe.var.UserType;
  */
 public interface VariableFormatContainer {
     public static final String SIZE_SUFFIX = ".size";
+    public static final String KEY_SUFFIX = ".key";
+    public static final String VALUE_SUFFIX = ".value";
     public static final String COMPONENT_QUALIFIER_START = "[";
     public static final String COMPONENT_QUALIFIER_END = "]";
     public static final String COMPONENT_PARAMETERS_START = "(";

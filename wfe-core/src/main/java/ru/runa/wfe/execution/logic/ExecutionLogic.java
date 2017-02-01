@@ -117,11 +117,6 @@ public class ExecutionLogic extends WFCommonLogic {
         return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
-    public List<WfProcess> getProcesses(User user, ProcessFilter filter) {
-        List<Process> processes = getProcessesInternal(user, filter);
-        return toWfProcesses(processes, null);
-    }
-
     public void deleteProcesses(User user, final ProcessFilter filter) {
         List<Process> processes = getProcessesInternal(user, filter);
         // TODO add ProcessPermission.DELETE_PROCESS
@@ -410,15 +405,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     private List<Process> getProcessesInternal(User user, ProcessFilter filter) {
-        List<Process> processes;
-        if (filter.getFailedOnly()) {
-            processes = Lists.newArrayList();
-            for (Long processId : ProcessExecutionErrors.getProcessErrors().keySet()) {
-                processes.add(processDAO.get(processId));
-            }
-        } else {
-            processes = processDAO.getProcesses(filter);
-        }
+        List<Process> processes = processDAO.getProcesses(filter);
         processes = filterIdentifiable(user, processes, ProcessPermission.READ);
         return processes;
     }

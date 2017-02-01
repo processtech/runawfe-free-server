@@ -1,5 +1,6 @@
 package ru.runa.wfe.var;
 
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -29,7 +30,9 @@ public class MapVariableProvider extends AbstractVariableProvider {
      * @param variables
      *            Variables, accessible from this instance.
      * @param unroll
-     *            Flag? equals true, if variables must be unrolled to database related (simple) values and false otherwise.
+     *            Flag, equals true, if variables must be unrolled to database related (simple) values and false otherwise.
+     * @param processDefinition
+     *            Process definition, for return process related info from variable provider.
      */
     public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll, ProcessDefinition processDefinition) {
         this.processDefinition = processDefinition;
@@ -43,6 +46,30 @@ public class MapVariableProvider extends AbstractVariableProvider {
                 }
             }
         }
+    }
+
+    /**
+     * Creates instance for specified variables. May unroll variables to database related (simple) values, stored to database.
+     *
+     * @param variables
+     *            Variables, accessible from this instance.
+     * @param unroll
+     *            Flag, equals true, if variables must be unrolled to database related (simple) values and false otherwise.
+     */
+    public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll) {
+        this(variables, unroll, null);
+    }
+
+    /**
+     * Creates instance for specified variables. May unroll variables to database related (simple) values, stored to database.
+     *
+     * @param variables
+     *            Variables, accessible from this instance.
+     * @param unroll
+     *            Flag, equals true, if variables must be unrolled to database related (simple) values and false otherwise.
+     */
+    public MapVariableProvider(List<WfVariable> variables, boolean unroll) {
+        this(convertVariablesListToMap(variables), unroll, null);
     }
 
     public void add(String variableName, Object object) {
@@ -115,5 +142,20 @@ public class MapVariableProvider extends AbstractVariableProvider {
     @Override
     public AbstractVariableProvider getSameProvider(Long processId) {
         return new MapVariableProvider(values);
+    }
+
+    /**
+     * Convert variables list to map from variable name to variable.
+     *
+     * @param variables
+     *            Variables list.
+     * @return Returns map from variable name to variable.
+     */
+    private static Map<String, WfVariable> convertVariablesListToMap(List<WfVariable> variables) {
+        Map<String, WfVariable> map = Maps.newHashMap();
+        for (WfVariable var : variables) {
+            map.put(var.getDefinition().getName(), var);
+        }
+        return map;
     }
 }

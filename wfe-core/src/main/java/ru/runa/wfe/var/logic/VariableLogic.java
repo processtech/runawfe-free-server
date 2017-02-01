@@ -49,6 +49,10 @@ import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
+import ru.runa.wfe.execution.ConvertToSimpleVariables;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesContext;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesResult;
+import ru.runa.wfe.execution.ConvertToSimpleVariablesUnrollContext;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionVariableProvider;
 import ru.runa.wfe.execution.Process;
@@ -59,11 +63,13 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -71,7 +77,7 @@ import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 /**
- * Process execution logic.
+ * Variables access logic.
  *
  * @author Dofs
  * @since 2.0
@@ -107,20 +113,7 @@ public class VariableLogic extends WFCommonLogic {
 
     public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
             throws ProcessDoesNotExistException {
-        List<WfVariable> result = Lists.newArrayList();
-        WfVariableHistoryState historicalVariables = getHistoricalVariables(user, filter);
-        for (WfVariable wfVariable : historicalVariables.getVariables()) {
-            if (variables.contains(wfVariable.getDefinition().getName())) {
-                result.add(wfVariable);
-            }
-        }
-        List<WfVariable> startDateRangeResult = Lists.newArrayList();
-        for (WfVariable wfVariable : historicalVariables.getStartDateRangeVariables()) {
-            if (variables.contains(wfVariable.getDefinition().getName())) {
-                startDateRangeResult.add(wfVariable);
-            }
-        }
-        return new WfVariableHistoryState(startDateRangeResult, result, historicalVariables.getSimpleVariablesChanged());
+        return filterHistoricalVariables(variables, getHistoricalVariables(user, filter));
     }
 
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
@@ -173,6 +166,11 @@ public class VariableLogic extends WFCommonLogic {
         filter.setCreateDateFrom(dateFrom.getTime());
         WfVariableHistoryState completeTaskState = getHistoricalVariableOnRange(user, filter);
         return completeTaskState;
+    }
+
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
+            throws ProcessDoesNotExistException {
+        return filterHistoricalVariables(variables, getHistoricalVariables(user, processId, taskId));
     }
 
     public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
@@ -232,21 +230,82 @@ public class VariableLogic extends WFCommonLogic {
         Process process = processDAO.getNotNull(filter.getProcessId());
         checkPermissionAllowed(user, process, ProcessPermission.READ);
         Set<String> simpleVariablesChanged = Sets.newHashSet();
-        VariableLoader loader = new VariableLoaderFromMap(getProcessStateOnTime(user, process, filter, simpleVariablesChanged));
-        HashSet<String> createdVariables = Sets.newHashSet();
-        for (Process varProcess = process; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
-            ProcessDefinition processDefinition = getDefinition(varProcess);
-            for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
-                String name = variableDefinition.getName();
-                WfVariable variable = loader.getVariable(processDefinition, process, name);
-                if (!Utils.isNullOrEmpty(variable.getValue())) {
-                    // if (createdVariables.add(name)) {
-                    result.add(variable);
-                    // }
+        Map<Process, Map<String, Variable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
+        VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
+        ProcessDefinition processDefinition = getDefinition(process);
+        BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, process, processDefinition);
+        removeSyncVariablesInBaseProcessMode(processStateOnTime, baseProcessVariableLoader);
+        ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
+        for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
+            String name = variableDefinition.getName();
+            WfVariable variable = baseProcessVariableLoader.get(name);
+            if (variable != null) {
+                ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(variableDefinition, variable.getValue());
+                for (ConvertToSimpleVariablesResult simpleVariable : variableDefinition.getFormatNotNull().processBy(operation, context)) {
+                    result.add(new WfVariable(simpleVariable.variableDefinition, simpleVariable.value));
                 }
             }
         }
         return new WfVariableHistoryState(Lists.<WfVariable> newArrayList(), result, simpleVariablesChanged);
+    }
+
+    /**
+     * Removes from processes state variables, which is in sync state with base process and BaseProcessMode is on.
+     *
+     * @param processStateOnTime
+     *            Loaded from history state for process and all it's base processes.
+     * @param baseProcessVariableLoader
+     *            Component for loading variables with base process variable state support.
+     */
+    private void removeSyncVariablesInBaseProcessMode(Map<Process, Map<String, Variable<?>>> processStateOnTime,
+            BaseProcessVariableLoader baseProcessVariableLoader) {
+        ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
+        for (Process process : processStateOnTime.keySet()) {
+            if (!baseProcessVariableLoader.getSubprocessSyncCache().isInBaseProcessIdMode(process)) {
+                continue;
+            }
+            ProcessDefinition processDefinition = getDefinition(process);
+            for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
+                if (baseProcessVariableLoader.getSubprocessSyncCache().getParentProcessSyncVariableDefinition(processDefinition, process,
+                        variableDefinition) == null) {
+                    continue;
+                }
+                WfVariable variable = baseProcessVariableLoader.get(variableDefinition.getName());
+                if (variable != null) {
+                    ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(variableDefinition, variable.getValue());
+                    for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull().processBy(operation, context)) {
+                        processStateOnTime.get(process).remove(simpleVariables.variableDefinition.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Filter historical variables result to return only specified variables.
+     *
+     * @param variables
+     *            Variables to return.
+     * @param historicalVariables
+     *            Full historical variables state.
+     * @return Returns specified variables historical state.
+     */
+    private WfVariableHistoryState filterHistoricalVariables(Set<String> variables, WfVariableHistoryState historicalVariables) {
+        IVariableProvider toDateProvider = new MapVariableProvider(historicalVariables.getVariables(), true);
+        IVariableProvider fromDateProvider = new MapVariableProvider(historicalVariables.getStartDateRangeVariables(), true);
+        List<WfVariable> toDateResult = Lists.newArrayList();
+        List<WfVariable> startDateRangeResult = Lists.newArrayList();
+        for (String variableName : variables) {
+            WfVariable toDateState = toDateProvider.getVariable(variableName);
+            WfVariable fromDateState = fromDateProvider.getVariable(variableName);
+            if (toDateState != null) {
+                toDateResult.add(toDateState);
+            }
+            if (fromDateState != null) {
+                startDateRangeResult.add(fromDateState);
+            }
+        }
+        return new WfVariableHistoryState(startDateRangeResult, toDateResult, historicalVariables.getSimpleVariablesChanged());
     }
 
     /**
@@ -268,10 +327,6 @@ public class VariableLogic extends WFCommonLogic {
         Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
         for (Process currentProcess : processToVariables.keySet()) {
             Map<String, Object> processVariables = processToVariables.get(currentProcess);
-            for (Process baseProcess = getBaseProcess(user, currentProcess); baseProcess != null; baseProcess = getBaseProcess(user, baseProcess)) {
-                // All base process variables must be available in current process.
-                processVariables.putAll(processToVariables.get(baseProcess));
-            }
             result.put(currentProcess, Maps.<String, Variable<?>> newHashMap());
             for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
                 ProcessDefinition definition = getDefinition(varProcess);
