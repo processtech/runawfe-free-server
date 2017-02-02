@@ -65,6 +65,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 /**
@@ -275,10 +276,13 @@ public class Token implements Serializable {
         this.errorMessage = errorMessage;
     }
 
-    public void fail(String errorMessage) {
+    public void fail(Throwable throwable) {
         setExecutionStatus(ExecutionStatus.FAILED);
         setErrorDate(new Date());
-        setErrorMessage(errorMessage);
+        this.errorMessage = throwable.getLocalizedMessage();
+        if (Strings.isNullOrEmpty(this.errorMessage)) {
+            this.errorMessage = throwable.getClass().getName();
+        }
     }
 
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
