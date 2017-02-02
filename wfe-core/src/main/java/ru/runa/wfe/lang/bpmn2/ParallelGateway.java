@@ -67,7 +67,7 @@ public class ParallelGateway extends Node {
             log.warn("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
                     + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
             token.fail(new ProcessExecutionException(ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION,
-                    stateInfo.unreachableTransition).getLocalizedMessage());
+                    stateInfo.unreachableTransition));
             TransactionListeners.addListener(new FailedCheck(this, executionContext.getProcess().getId()), false);
             break;
         }
