@@ -12,7 +12,7 @@
 
 <tiles:put name="body" type="string">
 <%
-	String returnAction = "/manage_all_tasks.do";
+	String returnAction = "/manage_tasks_simple.do";
 %>
 <%
 	String parameterName= IdForm.ID_INPUT_NAME;
@@ -21,7 +21,7 @@
 	pageContext.setAttribute("execId", executorId);
 %>
 
-<wf:listAllTasksForm batchPresentationId="listAllTasksForm" executorId="<%= executorIdValue %>" buttonAlignment="right" returnAction="<%= returnAction %>" >
+<wf:listTasksSimpleForm batchPresentationId="listTasksSimpleForm" executorId="<%= executorIdValue %>" buttonAlignment="right" returnAction="<%= returnAction %>" >
 	<script>
 	var helpVisible = false;
 	$().ready(function() {
@@ -48,8 +48,8 @@
 				</td>
 			</tr></tbody></table>
 		</div>
-		<wf:viewControlsHideableBlock hideableBlockId="listAllTasksForm"  returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listAllTasksForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
+		<wf:viewControlsHideableBlock hideableBlockId="listTasksSimpleForm"  returnAction="<%= returnAction %>" >
+			<wf:tableViewSetupForm batchPresentationId="listTasksSimpleForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
 		</wf:viewControlsHideableBlock>
 		<div id="helpContentDiv" style="display: none;">
 			<table>
@@ -72,10 +72,10 @@
 			</table>
 		</div>
 	</div>	
-</wf:listAllTasksForm>
+</wf:listTasksSimpleForm>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
 <tiles:put name="head" type="string">
-	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/manage_all_tasks.do?id=${execId}"/>' ">
+	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/manage_tasks_simple.do?id=${execId}"/>' ">
 </tiles:put>
 </tiles:insert>

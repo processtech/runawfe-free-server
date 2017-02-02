@@ -20,7 +20,7 @@
 	</tr>
 	<tr>
 		<td align="right">
-			<wf:listExecutorTasksLink identifiableId='<%= id %>' href='<%= "/manage_all_tasks.do?" + parameterName + "=" + id %>'  />
+			<wf:listExecutorTasksLink identifiableId='<%= id %>' href='<%= "/manage_tasks_simple.do?" + parameterName + "=" + id %>'  />
 		</td>
 	</tr>
 </table>

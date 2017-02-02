@@ -11,6 +11,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
@@ -47,13 +54,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.IExecutorDAO;
-
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Task list builder component.
@@ -210,9 +210,8 @@ public class TaskListBuilder implements ITaskListBuilder {
             return null;
         }
         if (executorsToGetTasksByMembership.contains(taskExecutor)
-        		// Filtered TASK_OTHERS means that other executor's tasks are listed
-                || batchPresentation.isFieldActuallyFiltered(TaskClassPresentation.TASK_OTHERS))
-        {
+                // Filtered TASK_OTHERS means that other executor's tasks are listed
+                || batchPresentation.isFieldActuallyFiltered(TaskClassPresentation.TASK_OTHERS)) {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return taskObjectFactory.create(task, actor, false, batchPresentation.getDynamicFieldsToDisplay(true));
         }
