@@ -67,6 +67,8 @@ public class BpmnXmlReader {
     private static final String SERVICE_TASK = "serviceTask";
     private static final String SCRIPT_TASK = "scriptTask";
     private static final String TOKEN = "token";
+    private static final String BEHAVIOUR = "behavior";
+    private static final String BEHAVIOUR_TERMINATE = "TERMINATE";
     private static final String VARIABLES = "variables";
     private static final String VARIABLE = "variable";
     private static final String SOURCE_REF = "sourceRef";
@@ -222,7 +224,7 @@ public class BpmnXmlReader {
                 }
             } else if (END_EVENT.equals(nodeName)) {
                 if (properties.containsKey(TOKEN)) {
-                    if (processDefinition instanceof SubprocessDefinition) {
+                    if (processDefinition instanceof SubprocessDefinition && !BEHAVIOUR_TERMINATE.equals(properties.get(BEHAVIOUR))) {
                         node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessEndNode.class);
                     } else {
                         node = ApplicationContextFactory.createAutowiredBean(EndToken.class);

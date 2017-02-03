@@ -21,6 +21,7 @@
  */
 package ru.runa.wfe.lang;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
+import ru.runa.wfe.definition.VersionInfo;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.var.UserType;
@@ -61,6 +63,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     protected Map<String, SubprocessDefinition> embeddedSubprocesses = Maps.newHashMap();
     private Boolean nodeAsyncExecution;
     private boolean graphActionsEnabled;
+    private final ArrayList<VersionInfo> versionInfoList = Lists.newArrayList();
 
     protected ProcessDefinition() {
     }
@@ -517,5 +520,13 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
             return deployment.toString();
         }
         return name;
+    }
+
+    public void addToVersionInfoList(VersionInfo versionInfo) {
+        this.versionInfoList.add(versionInfo);
+    }
+
+    public ArrayList<VersionInfo> getVersionInfoList() {
+        return versionInfoList;
     }
 }
