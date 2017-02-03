@@ -19,6 +19,7 @@ package ru.runa.common;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.LogFactory;
 
@@ -27,10 +28,12 @@ import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Created on 30.09.2004
- *
+ * 
  */
 public class WebResources {
     private static final PropertyResources RESOURCES = new PropertyResources("web.properties");
@@ -148,6 +151,13 @@ public class WebResources {
             LogFactory.getLog(WebResources.class).error("Unable to get additional links", e);
         }
         return "";
+    }
+
+    public static Set<String> getHtmlBlockElements() {
+        String[] blockElements = RESOURCES.getStringProperty("html.blockElements", "div").split(",");
+        Set<String> set = Sets.newHashSet();
+        set.addAll(Lists.newArrayList(blockElements));
+        return set;
     }
 
     public static int getViewLogsLimitLinesCount() {
