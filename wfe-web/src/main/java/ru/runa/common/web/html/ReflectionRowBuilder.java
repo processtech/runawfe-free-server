@@ -134,14 +134,9 @@ public class ReflectionRowBuilder implements RowBuilder {
     }
 
     /**
-     * <<<<<<< HEAD TODO This is temporary workaround. Fix should be made in authorization subsystem by refactoring executor permissions. Only 1
-     * SecuredObjectType should be introduced for identifiables hierarchy due to simplifying SQL quieries and non-crossing IDs.
+     * TODO This is temporary workaround. Fix should be made in authorization subsystem by refactoring executor permissions. Only 1 SecuredObjectType
+     * should be introduced for identifiables hierarchy due to simplifying SQL quieries and non-crossing IDs.
      *
-     * ======= TODO This is temporary workaround. Fix should be made in authorization subsystem by refactoring executor permissions. Only 1
-     * SecuredObjectType should be introduced for identifiables hierarchy due to simplifying SQL quieries and non-crossing IDs.
-     * 
-     * >>>>>>> cccc94e358152f69386e66af26e0958ae242dcdb
-     * 
      * @author dofs
      * @since 4.0.6
      */
@@ -252,16 +247,19 @@ public class ReflectionRowBuilder implements RowBuilder {
 
         td.addElement(link);
         link.addElement(Entities.NBSP);
-        final String displayName = batchPresentation.getAllFields()[currentState.getCurrentGrouppedColumnIdx()].displayName;
-        if (displayName.startsWith(ClassPresentation.removable_prefix)) {
-            int end = displayName.lastIndexOf(':');
-            int begin = displayName.lastIndexOf(':', end - 1) + 1;
-            link.addElement(Messages.getMessage(displayName.substring(begin, end), pageContext) + " '"
-                    + displayName.substring(displayName.lastIndexOf(':') + 1) + "':");
-        } else if (displayName.startsWith(ClassPresentation.filterable_prefix)) {
-            link.addElement(Messages.getMessage(displayName.substring(displayName.lastIndexOf(':') + 1), pageContext));
+        FieldDescriptor[] fieldsToDisplayNames = batchPresentation.getAllFields();
+        if (fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()].displayName.startsWith(ClassPresentation.removable_prefix)) {
+            FieldDescriptor field = fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()];
+            int end = fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()].displayName.lastIndexOf(':');
+            int begin = field.displayName.lastIndexOf(':', end - 1) + 1;
+            link.addElement(Messages.getMessage(field.displayName.substring(begin, end), pageContext) + " '"
+                    + field.displayName.substring(field.displayName.lastIndexOf(':') + 1) + "':");
+        } else if (fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()].displayName.startsWith(ClassPresentation.filterable_prefix)) {
+            FieldDescriptor field = fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()];
+            link.addElement(Messages.getMessage(field.displayName.substring(field.displayName.lastIndexOf(':') + 1), pageContext));
         } else {
-            link.addElement(ru.runa.common.web.Messages.getMessage(displayName, pageContext) + ":");
+            link.addElement(ru.runa.common.web.Messages.getMessage(fieldsToDisplayNames[currentState.getCurrentGrouppedColumnIdx()].displayName,
+                    pageContext) + ":");
         }
         link.addElement(Entities.NBSP);
         link.addElement(currentState.getCurrentGrouppedColumnValue());

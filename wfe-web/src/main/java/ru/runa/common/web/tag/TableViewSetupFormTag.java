@@ -17,8 +17,6 @@
  */
 package ru.runa.common.web.tag;
 
-import java.util.Map;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
@@ -44,7 +42,6 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.TableViewSetupFormAction;
-import ru.runa.common.web.form.BatchPresentationForm;
 import ru.runa.common.web.form.TableViewSetupForm;
 import ru.runa.common.web.html.format.FilterFormatsFactory;
 import ru.runa.common.web.html.format.FilterTDFormatter;
@@ -59,8 +56,6 @@ import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "tableViewSetupForm")
 public class TableViewSetupFormTag extends AbstractReturningTag implements BatchedTag {
@@ -77,8 +72,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
 
     @Attribute(required = true, rtexprvalue = true)
     @Override
-    public void setBatchPresentationId(String batchPresentationId) {
-        this.batchPresentationId = batchPresentationId;
+    public void setBatchPresentationId(String id) {
+        batchPresentationId = id;
     }
 
     public String getExcelExportAction() {
@@ -222,9 +217,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         }
         if (excelExportAction != null) {
             A exportLink = new A();
-            Map<String, String> parameters = Maps.newHashMap();
-            parameters.put(BatchPresentationForm.BATCH_PRESENTATION_ID, batchPresentationId);
-            exportLink.setHref(Commons.getActionUrl(excelExportAction, parameters, pageContext, PortletUrlType.Render));
+            exportLink.setHref(Commons.getActionUrl(excelExportAction, pageContext, PortletUrlType.Render));
             exportLink.setClass(Resources.CLASS_LINK);
             exportLink.setStyle("display: block; float: right;");
             IMG img = new IMG(Commons.getUrl(Resources.EXCEL_ICON, pageContext, PortletUrlType.Resource), 0);
@@ -315,17 +308,12 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             return tr;
         }
         { // field display position section
-            if (field.isShowable()) {
-                Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS, createPositionOptions(batchPresentation,
-                        fieldIdx));
-                tr.addElement(new TD(displayFieldPositionSelect));
-                if (fieldDisplayPosition >= 0 && !isEditable) {
-                    displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
-                } else {
-                    displayFieldPositionSelect.selectOption(noneOptionPosition);
-                }
+            Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS, createPositionOptions(batchPresentation, fieldIdx));
+            tr.addElement(new TD(displayFieldPositionSelect));
+            if (fieldDisplayPosition >= 0 && !isEditable) {
+                displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
             } else {
-                tr.addElement(new TD());
+                displayFieldPositionSelect.selectOption(noneOptionPosition);
             }
         }
         {// field sorting/groupping section
@@ -414,7 +402,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 MessagesBatch.SORTING_POSITION.message(pageContext),
                 MessagesBatch.GROUPING.message(pageContext),
                 MessagesBatch.FILTER_CRITERIA.message(pageContext)
-                        + " <a href='javascript:showFiltersHelp();' style='color: red; text-decoration: none;'>*</a>" };
+                + " <a href='javascript:showFiltersHelp();' style='color: red; text-decoration: none;'>*</a>" };
         for (int i = 0; i < headerNames.length; i++) {
             tr.addElement(new TH(headerNames[i]));
         }

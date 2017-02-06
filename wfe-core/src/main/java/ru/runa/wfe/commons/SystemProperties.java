@@ -132,7 +132,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     * 
+     *
      * @return max string value
      */
     public static int getStringVariableValueLength() {
@@ -180,18 +180,6 @@ public class SystemProperties {
 
     public static boolean isTrustedAuthenticationEnabled() {
         return RESOURCES.getBooleanProperty("trusted.authentication.enabled", false);
-    }
-
-    public static boolean isDefinitionDeploymentWithCommentsCollisionsAllowed() {
-        return RESOURCES.getBooleanProperty("definition.comments.collisions.allowed", false);
-    }
-
-    public static boolean isDefinitionDeploymentWithEmptyCommentsAllowed() {
-        return RESOURCES.getBooleanProperty("definition.comments.empty.allowed", true);
-    }
-
-    public static boolean isCheckProcessStartPermissions() {
-        return RESOURCES.getBooleanProperty("check.process.start.permissions", true);
     }
 
     public static boolean isTaskAssignmentStrictRulesEnabled() {
@@ -246,8 +234,8 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("base.process.id.variable.name");
     }
 
-    public static boolean isBaseProcessIdModeReadAllVariables() {
-        return RESOURCES.getBooleanProperty("base.process.id.variable.read.all", true);
+    public static String getBaseProcessIdMappingVariablePrefix() {
+        return RESOURCES.getStringProperty("base.process.id.mapping.variable.prefix");
     }
 
     public static int getDatabaseParametersCount() {

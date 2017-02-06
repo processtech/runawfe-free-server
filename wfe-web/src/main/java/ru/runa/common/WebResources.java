@@ -186,11 +186,4 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("process.swimlane.assignment.enabled", false);
     }
 
-    /**
-     * Used from JSP page
-     */
-    public static boolean isProcessTaskFiltersEnabled() {
-        return RESOURCES.getBooleanProperty("process.task.filters.enabled", true);
-    }
-
 }

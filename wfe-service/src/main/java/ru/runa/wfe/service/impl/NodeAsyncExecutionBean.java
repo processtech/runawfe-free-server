@@ -1,5 +1,8 @@
 package ru.runa.wfe.service.impl;
 
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -21,6 +24,7 @@ import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.ITransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -34,6 +38,7 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 
 /**
  * @since 4.3.0
@@ -46,6 +51,7 @@ import com.google.common.base.Throwables;
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
 public class NodeAsyncExecutionBean implements MessageListener {
     private static final Log log = LogFactory.getLog(NodeAsyncExecutionBean.class);
+    private static final Map<Long, ReentrantLock> processLocks = Maps.newHashMap();
     @Autowired
     private TokenDAO tokenDAO;
     @Autowired
@@ -59,21 +65,25 @@ public class NodeAsyncExecutionBean implements MessageListener {
 
     @Override
     public void onMessage(Message jmsMessage) {
+        ObjectMessage message = (ObjectMessage) jmsMessage;
+        if (log.isDebugEnabled()) {
+            log.debug(Utils.toString(message, false));
+        }
         try {
-            ObjectMessage message = (ObjectMessage) jmsMessage;
             Long processId = message.getLongProperty("processId");
             Long tokenId = message.getLongProperty("tokenId");
             String nodeId = message.getStringProperty("nodeId");
             log.debug("handling node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
             handleMessage(processId, tokenId);
         } catch (Exception e) {
-            log.error(jmsMessage, e);
-            throw new MessagePostponedException(e.getMessage());
+            log.error(message, e);
+            Throwables.propagate(e);
         }
     }
 
     private void handleMessage(final Long processId, final Long tokenId) {
         try {
+            acquireLock(processId);
             new TransactionalExecutor(context.getUserTransaction()) {
 
                 @Override
@@ -94,7 +104,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
             }.executeInTransaction(true);
             for (ITransactionListener listener : TransactionListeners.get()) {
                 try {
-                    listener.onTransactionComplete(context.getUserTransaction());
+                    listener.onTransactionComplete();
                 } catch (Throwable th) {
                     log.error(th);
                 }
@@ -112,7 +122,43 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     processLogDAO.addLog(new ProcessSuspendLog(null), process, null);
                 }
             }.executeInTransaction(true);
+        } finally {
+            releaseLock(processId);
         }
     }
 
+    private void acquireLock(Long processId) {
+        ReentrantLock lock;
+        synchronized (processLocks) {
+            lock = processLocks.get(processId);
+            if (lock != null) {
+                log.debug("acquiring existing " + lock + " for " + processId);
+            } else {
+                lock = new ReentrantLock();
+                log.debug("acquiring new " + lock + " for " + processId);
+                processLocks.put(processId, lock);
+            }
+        }
+        lock.lock();
+        if (!processLocks.containsKey(processId)) {
+            synchronized (processLocks) {
+                log.debug("adding " + lock + " to map for " + processId);
+                processLocks.put(processId, lock);
+            }
+        }
+        log.debug("acquired " + lock + " for " + processId);
+    }
+
+    private void releaseLock(Long processId) {
+        log.debug("releasing lock for " + processId);
+        synchronized (processLocks) {
+            ReentrantLock lock = processLocks.get(processId);
+            if (!lock.hasQueuedThreads()) {
+                log.debug("deleting " + lock + " for " + processId);
+                processLocks.remove(processId);
+            }
+            lock.unlock();
+            log.debug("released " + lock + " for " + processId);
+        }
+    }
 }

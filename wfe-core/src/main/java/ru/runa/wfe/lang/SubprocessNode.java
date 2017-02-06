@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
-import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
@@ -88,11 +85,6 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     protected ProcessDefinition getSubProcessDefinition() {
-        Long version = getProcessDefinition().getDeployment().getVersion();
-        if (version < 0) {
-            Deployment deployment = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
-            return processDefinitionLoader.getDefinition(deployment.getId());
-        }
         return processDefinitionLoader.getLatestDefinition(subProcessName);
     }
 
@@ -108,32 +100,22 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
         IVariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
         Map<String, Object> variables = Maps.newHashMap();
-        boolean baseProcessIdMode = isInBaseProcessIdMode();
-        ProcessDefinition subProcessDefinition = getSubProcessDefinition();
         for (VariableMapping variableMapping : variableMappings) {
-            String variableName = variableMapping.getName();
-            String mappedName = variableMapping.getMappedName();
-            boolean isSwimlane = subProcessDefinition.getSwimlane(mappedName) != null;
-            if (isSwimlane && variableMapping.isSyncable()) {
-                throw new InternalApplicationException("Sync mode does not supported for swimlane " + mappedName);
-            }
-            boolean copyValue;
-            if (baseProcessIdMode) {
-                copyValue = variableMapping.isReadable() && (isSwimlane || SystemProperties.getBaseProcessIdVariableName().equals(mappedName));
-            } else {
-                copyValue = variableMapping.isReadable() || variableMapping.isSyncable();
-            }
-            if (copyValue) {
+            // if this variable mapping is readable
+            if (variableMapping.isReadable()) {
+                // the variable is copied from the super process variable
+                // name to the sub process mapped name
+                String variableName = variableMapping.getName();
                 Object value = variableProvider.getValue(variableName);
                 if (value != null) {
+                    String mappedName = variableMapping.getMappedName();
                     log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value
                             + (value != null ? " of " + value.getClass() : ""));
                     variables.put(mappedName, value);
-                } else {
-                    log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
                 }
             }
         }
+        ProcessDefinition subProcessDefinition = getSubProcessDefinition();
         Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0);
         processFactory.startSubprocess(executionContext, new ExecutionContext(subProcessDefinition, subProcess));
         if (async) {
@@ -148,6 +130,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             super.leave(subExecutionContext, transition);
             return;
         }
+
         if (getClass() == SubprocessNode.class) {
             Process subProcess = subExecutionContext.getProcess();
             ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);

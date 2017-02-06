@@ -53,7 +53,7 @@ public class Fork extends Node {
             Token childToken = new Token(token, getNodeId() + "/" + leavingTransition.getNodeId());
             childTokens.put(childToken, leavingTransition);
         }
-        ApplicationContextFactory.getTokenDAO().flushPendingChanges();
+        ApplicationContextFactory.getCurrentSession().flush();
         log.debug("Child tokens created: " + childTokens.keySet());
         for (Map.Entry<Token, Transition> entry : childTokens.entrySet()) {
             ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), entry.getKey());

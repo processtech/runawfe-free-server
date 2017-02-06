@@ -59,6 +59,7 @@ import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.Transition;
+import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 
 import com.google.common.base.Objects;
@@ -127,17 +128,17 @@ public class Token implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
+    protected void setId(Long id) {
         this.id = id;
     }
 
     @Version
     @Column(name = "VERSION")
-    public Long getVersion() {
+    protected Long getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
+    protected void setVersion(Long version) {
         this.version = version;
     }
 
@@ -254,6 +255,11 @@ public class Token implements Serializable {
         return processDefinition.getNodeNotNull(nodeId);
     }
 
+    @Transient
+    public List<Task> getTasks() {
+        return getProcess().getTokenTasks(this);
+    }
+
     private void addChild(Token token) {
         getChildren().add(token);
     }
@@ -282,22 +288,27 @@ public class Token implements Serializable {
 
     /**
      * ends this token and all of its children (if any).
-     * 
+     *
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
     public void end(ExecutionContext executionContext, Actor canceller) {
-        if (endDate == null) {
-            log.debug("Ending " + this + " by " + canceller);
+        if (hasEnded()) {
+            log.debug(this + " already ended");
+        } else {
+            log.info("Ending " + this + " by " + canceller);
             setEndDate(new Date());
+            setExecutionStatus(ExecutionStatus.ENDED);
             for (Process subProcess : executionContext.getNotEndedSubprocesses()) {
                 ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
                 subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
             }
         }
-        setExecutionStatus(ExecutionStatus.ENDED);
+        // end all this token's children not depending from current token state
         for (Token child : getChildren()) {
-            child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller);
+            if (!child.hasEnded()) {
+                child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller);
+            }
         }
     }
 
@@ -323,8 +334,7 @@ public class Token implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("processId", getProcess().getId()).add("nodeId", nodeId).add("status", executionStatus)
-                .toString();
+        return Objects.toStringHelper(this).add("id", id).add("processId", getProcess().getId()).add("nodeId", nodeId).toString();
     }
 
 }

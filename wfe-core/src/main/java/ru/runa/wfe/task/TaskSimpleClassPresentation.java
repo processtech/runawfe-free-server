@@ -34,26 +34,21 @@ import ru.runa.wfe.var.Variable;
 /**
  * Created on 22.10.2005
  */
-public class TaskClassPresentation extends ClassPresentation {
+public class TaskSimpleClassPresentation extends ClassPresentation {
     public static final String NAME = "batch_presentation.task.name";
     public static final String DESCRIPTION = "batch_presentation.task.description";
     public static final String DEFINITION_NAME = "batch_presentation.task.definition_name";
     public static final String PROCESS_ID = "batch_presentation.task.process_id";
     public static final String OWNER = "batch_presentation.task.owner";
     public static final String TASK_SWIMLINE = "batch_presentation.task.swimlane";
-    public static final String TASK_OTHERS = "batch_presentation.task.others";
     public static final String TASK_VARIABLE = editable_prefix + "name:batch_presentation.task.variable";
     public static final String TASK_DEADLINE = "batch_presentation.task.deadline";
     public static final String TASK_CREATE_DATE = "batch_presentation.task.create_date";
     public static final String TASK_ASSIGN_DATE = "batch_presentation.task.assign_date";
     public static final String TASK_DURATION = "batch_presentation.task.duration";
 
-    private static final ClassPresentation INSTANCE = new TaskClassPresentation();
+    private static final ClassPresentation INSTANCE = new TaskSimpleClassPresentation();
 
-    /**
-     * Inner class that provide special data retrieving for "other's" tasks. As now it selects Tasks that are just initialised by other actors, not by
-     * groups of that actors.
-     */
     private static class OthersPermissionsDBSource extends DefaultDBSource {
         public OthersPermissionsDBSource(Class<?> sourceObject) {
             super(sourceObject, null);
@@ -61,15 +56,15 @@ public class TaskClassPresentation extends ClassPresentation {
 
         @Override
         public String getValueDBPath(String alias) {
-            return "((((" + classNameSQL + ".executor.id IN "
-                    + "(SELECT pm.identifiableId FROM ru.runa.wfe.security.dao.PermissionMapping pm WHERE ((pm.executor.id in (:ownersIds) AND  pm.type=3 AND pm.mask=16)) "
-                    + ") OR (SELECT e.id FROM ru.runa.wfe.user.Executor e WHERE e.name = 'Administrator') in (:ownersIds))"
-                    + "AND :param_extra_case='') " + " OR " + classNameSQL + ".executor.id IN  "
-                    + "(SELECT gm.executor.id FROM ru.runa.wfe.user.ExecutorGroupMembership gm, "
+            // Starting "((" are used in HibernateCompilerHQLBuider to detect such special comlicated case,
+            // and skip some parts of normal processing
+            return "((" + classNameSQL + ".executor.id IN "
+                    + "(SELECT pm.identifiableId FROM ru.runa.wfe.security.dao.PermissionMapping pm WHERE pm.executor.id in (:ownersIds) "
+                    + "AND :param_extra_case='' AND  pm.type=3 AND pm.mask=16) OR " + classNameSQL + ".executor.id IN  "
+                    + "(SELECT  gm.executor.id FROM ru.runa.wfe.user.ExecutorGroupMembership gm, "
                     + " ru.runa.wfe.security.dao.PermissionMapping pm, ru.runa.wfe.user.Executor exec  "
-                    + "WHERE pm.identifiableId = gm.group.id AND exec.id=gm.group.id AND ((pm.executor.id in (:ownersIds) AND pm.type=4 AND pm.mask=64) "
-                    + "OR (SELECT e.id FROM ru.runa.wfe.user.Executor e WHERE e.name = 'Administrator') in (:ownersIds)) "
-                    + "AND :param_extra_case!='' AND exec.name = :param_extra_case)))";
+                    + "WHERE pm.identifiableId = gm.group.id AND exec.id=gm.group.id " + "AND pm.executor.id in (:ownersIds) "
+                    + "AND exec.name = :param_extra_case AND :param_extra_case!='' AND pm.type=4 AND pm.mask=64) ))";
         }
     }
 
@@ -84,7 +79,7 @@ public class TaskClassPresentation extends ClassPresentation {
         }
     }
 
-    private TaskClassPresentation() {
+    private TaskSimpleClassPresentation() {
         super(Task.class, "", false, new FieldDescriptor[] {
                 // display name field type DB source isSort filter mode
                 // get value/show in web getter parameters
@@ -109,10 +104,7 @@ public class TaskClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_ASSIGN_DATE, Date.class.getName(), new DefaultDBSource(Task.class, null), false, FieldFilterMode.NONE,
                         "ru.runa.wf.web.html.TaskAssignmentDateTDBuilder", new Object[] {}).setVisible(false),
                 new FieldDescriptor(TASK_DURATION, String.class.getName(), new DefaultDBSource(Task.class, null), false, FieldFilterMode.NONE,
-                        "ru.runa.wf.web.html.TaskDurationTDBuilder", new Object[] {}).setVisible(false),
-                // Position below are responsible for data retrieving for other executor's tasks, or tasks of users in specified group
-                new FieldDescriptor(TASK_OTHERS, String.class.getName(), new OthersPermissionsDBSource(Task.class), false, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.TaskOthersTDBuilder", new Object[] {}).setVisible(false) });
+                        "ru.runa.wf.web.html.TaskDurationTDBuilder", new Object[] {}).setVisible(false) });
     }
 
     public static final ClassPresentation getInstance() {

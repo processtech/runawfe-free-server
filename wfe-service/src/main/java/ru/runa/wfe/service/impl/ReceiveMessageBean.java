@@ -19,6 +19,7 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
@@ -58,6 +59,7 @@ import ru.runa.wfe.var.dto.Variables;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/bpmMessages"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
@@ -67,6 +69,7 @@ import com.google.common.collect.Lists;
 @SuppressWarnings("unchecked")
 public class ReceiveMessageBean implements MessageListener {
     private static Log log = LogFactory.getLog(ReceiveMessageBean.class);
+    private static Map<Long, ReentrantLock> processLocks = Maps.newHashMap();
     @Autowired
     private TokenDAO tokenDAO;
     @Autowired
@@ -85,41 +88,37 @@ public class ReceiveMessageBean implements MessageListener {
             transaction.begin();
             List<Token> tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
             for (Token token : tokens) {
-                try {
-                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
-                    ReceiveMessageNode receiveMessageNode = (ReceiveMessageNode) token.getNodeNotNull(processDefinition);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
-                    boolean suitable = true;
-                    for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
-                        if (mapping.isPropertySelector()) {
-                            String selectorValue = message.getStringProperty(mapping.getName());
-                            String testValue = mapping.getMappedName();
-                            String expectedValue;
-                            if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
-                                expectedValue = String.valueOf(token.getProcess().getId());
-                            } else if (Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED.equals(testValue)) {
-                                expectedValue = token.getProcess().getDeployment().getName();
-                            } else if (Variables.CURRENT_NODE_NAME_WRAPPED.equals(testValue)) {
-                                expectedValue = receiveMessageNode.getName();
-                            } else if (Variables.CURRENT_NODE_ID_WRAPPED.equals(testValue)) {
-                                expectedValue = receiveMessageNode.getNodeId();
-                            } else {
-                                Object value = ExpressionEvaluator.evaluateVariable(executionContext.getVariableProvider(), testValue);
-                                expectedValue = TypeConversionUtil.convertTo(String.class, value);
-                            }
-                            if (!Objects.equal(expectedValue, selectorValue)) {
-                                log.debug(message + " rejected in " + token + " due to diff in " + mapping.getName() + " (" + expectedValue + "!="
-                                        + selectorValue + ")");
-                                suitable = false;
-                                break;
-                            }
+                ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
+                ReceiveMessageNode receiveMessageNode = (ReceiveMessageNode) token.getNodeNotNull(processDefinition);
+                ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+                boolean suitable = true;
+                for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
+                    if (mapping.isPropertySelector()) {
+                        String selectorValue = message.getStringProperty(mapping.getName());
+                        String testValue = mapping.getMappedName();
+                        String expectedValue;
+                        if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
+                            expectedValue = String.valueOf(token.getProcess().getId());
+                        } else if (Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED.equals(testValue)) {
+                            expectedValue = token.getProcess().getDeployment().getName();
+                        } else if (Variables.CURRENT_NODE_NAME_WRAPPED.equals(testValue)) {
+                            expectedValue = receiveMessageNode.getName();
+                        } else if (Variables.CURRENT_NODE_ID_WRAPPED.equals(testValue)) {
+                            expectedValue = receiveMessageNode.getNodeId();
+                        } else {
+                            Object value = ExpressionEvaluator.evaluateVariable(executionContext.getVariableProvider(), testValue);
+                            expectedValue = TypeConversionUtil.convertTo(String.class, value);
+                        }
+                        if (!Objects.equal(expectedValue, selectorValue)) {
+                            log.debug(message + " rejected in " + token + " due to diff in " + mapping.getName() + " (" + expectedValue + "!="
+                                    + selectorValue + ")");
+                            suitable = false;
+                            break;
                         }
                     }
-                    if (suitable) {
-                        handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
-                    }
-                } catch (Exception e) {
-                    log.error("Unable to handle " + token, e);
+                }
+                if (suitable) {
+                    handlers.add(new ReceiveMessageData(executionContext, receiveMessageNode));
                 }
             }
             transaction.commit();
@@ -138,6 +137,7 @@ public class ReceiveMessageBean implements MessageListener {
 
     private void handleMessage(final ReceiveMessageData data, final ObjectMessage message) {
         try {
+            acquireLock(data.processId);
             ProcessExecutionErrors.removeProcessError(data.processId, data.node.getNodeId());
             new TransactionalExecutor(context.getUserTransaction()) {
 
@@ -165,6 +165,43 @@ public class ReceiveMessageBean implements MessageListener {
         } catch (Throwable th) {
             ProcessExecutionErrors.addProcessError(data.processId, data.node.getNodeId(), data.node.getName(), null, th);
             Throwables.propagate(th);
+        } finally {
+            releaseLock(data.processId);
+        }
+    }
+
+    private void acquireLock(Long processId) {
+        ReentrantLock lock;
+        synchronized (processLocks) {
+            lock = processLocks.get(processId);
+            if (lock != null) {
+                log.debug("acquiring existing " + lock + " for " + processId);
+            } else {
+                lock = new ReentrantLock();
+                log.debug("acquiring new " + lock + " for " + processId);
+                processLocks.put(processId, lock);
+            }
+        }
+        lock.lock();
+        if (!processLocks.containsKey(processId)) {
+            synchronized (processLocks) {
+                log.debug("adding " + lock + " to map for " + processId);
+                processLocks.put(processId, lock);
+            }
+        }
+        log.debug("acquired " + lock + " for " + processId);
+    }
+
+    private void releaseLock(Long processId) {
+        log.debug("releasing lock for " + processId);
+        synchronized (processLocks) {
+            ReentrantLock lock = processLocks.get(processId);
+            if (!lock.hasQueuedThreads()) {
+                log.debug("deleting " + lock + " for " + processId);
+                processLocks.remove(processId);
+            }
+            lock.unlock();
+            log.debug("released " + lock + " for " + processId);
         }
     }
 

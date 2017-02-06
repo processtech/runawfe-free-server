@@ -1,7 +1,5 @@
 package ru.runa.wfe.commons;
 
-import javax.transaction.UserTransaction;
-
 /**
  * Interface for transaction event listeners
  *
@@ -13,6 +11,6 @@ public interface ITransactionListener {
     /**
      * Invoked when EJb transaction committed
      */
-    public void onTransactionComplete(UserTransaction transaction);
+    public void onTransactionComplete();
 
 }

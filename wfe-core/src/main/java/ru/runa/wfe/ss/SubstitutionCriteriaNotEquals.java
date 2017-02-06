@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public License 
+ * as published by the Free Software Foundation; version 2.1 
+ * of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public License 
+ * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.ss;
@@ -32,11 +32,13 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.dao.ExecutorDAO;
 
 import com.google.common.base.Strings;
 
 /**
- * Substitution with this criteria applies when substitutor not in actor list. Actor list contains executors from process variable with 'conf' name.
+ * Substitution with this criteria applies when substitutor not in actor list.
+ * Actor list contains executors from process variable with 'conf' name.
  */
 @Entity
 @DiscriminatorValue(value = "not_equals")
@@ -48,9 +50,10 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
     public boolean isSatisfied(ExecutionContext executionContext, Task task, Actor asActor, Actor substitutorActor) {
         String variableName = getConfiguration();
         Executor executor;
+        ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         if (variableName.startsWith(SWIMLANE_PREFIX)) {
             String swimlaneName = variableName.substring(SWIMLANE_PREFIX.length());
-            Swimlane swimlane = ApplicationContextFactory.getSwimlaneDAO().findByProcessAndName(executionContext.getProcess(), swimlaneName);
+            Swimlane swimlane = executionContext.getProcess().getSwimlane(swimlaneName);
             if (swimlane == null) {
                 return true;
             }
@@ -64,7 +67,7 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
         }
         Set<Executor> confActors = new HashSet<Executor>();
         if (executor instanceof Group) {
-            confActors.addAll(ApplicationContextFactory.getExecutorDAO().getGroupActors((Group) executor));
+            confActors.addAll(executorDAO.getGroupActors((Group) executor));
         } else {
             confActors.add(executor);
         }

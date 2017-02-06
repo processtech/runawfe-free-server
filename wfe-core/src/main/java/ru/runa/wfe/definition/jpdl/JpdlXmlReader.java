@@ -104,8 +104,6 @@ public class JpdlXmlReader {
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String CREATION_MODE = "creationMode";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
-    private static final String BEHAVIOUR = "behavior";
-    private static final String BEHAVIOUR_TERMINATE = "TERMINATE";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -199,7 +197,7 @@ public class JpdlXmlReader {
                     node = ApplicationContextFactory.createAutowiredBean(StartNode.class);
                 }
             } else if ("end-token-state".equals(nodeName)) {
-                if (processDefinition instanceof SubprocessDefinition && !BEHAVIOUR_TERMINATE.equals(element.attributeValue(BEHAVIOUR))) {
+                if (processDefinition instanceof SubprocessDefinition) {
                     node = ApplicationContextFactory.createAutowiredBean(EmbeddedSubprocessEndNode.class);
                 } else {
                     node = ApplicationContextFactory.createAutowiredBean(EndToken.class);
@@ -485,7 +483,7 @@ public class JpdlXmlReader {
 
     /**
      * creates the transition object and configures it by the read attributes
-     *
+     * 
      * @return the created <code>ru.runa.wfe.lang.Transition</code> object (useful, if you want to override this method to read additional
      *         configuration properties)
      */

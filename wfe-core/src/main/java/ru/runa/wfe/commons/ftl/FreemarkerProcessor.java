@@ -39,7 +39,7 @@ public class FreemarkerProcessor {
             out.flush();
             return out.toString();
         } catch (Exception e) {
-            log.warn(ftlTemplate + ": " + e);
+            log.warn(ftlTemplate);
             throw Throwables.propagate(e);
         }
     }

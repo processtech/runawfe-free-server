@@ -66,13 +66,14 @@ public class DateFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String fieldName, String persistetObjectQueryAlias, Map<String, QueryParameter> placeholders) {
         initDates();
 
-        String placeholderStart = makePlaceHolderName(aliasedFieldName + "Start");
-        String placeholderEnd = makePlaceHolderName(aliasedFieldName + "End");
+        String placeholderStart = (fieldName + "Start").replaceAll("\\.", "");
+        String placeholderEnd = (fieldName + "End").replaceAll("\\.", "");
 
-        StringBuilder whereStringBuilder = new StringBuilder(aliasedFieldName);
+        StringBuilder whereStringBuilder = new StringBuilder(persistetObjectQueryAlias);
+        whereStringBuilder.append(".").append(fieldName);
 
         if (dateStart == null) {
             if (dateEnd == null) {

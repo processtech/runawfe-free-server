@@ -35,5 +35,4 @@ public final class MessagesBatch {
     public static final StrutsMessage SHARED_SELECT_LABEL = new StrutsMessage("label.shared_type");
     public static final StrutsMessage SHARED_OPTION_NO = new StrutsMessage("option.shared_no");
     public static final StrutsMessage SHARED_OPTION_YES = new StrutsMessage("option.shared_yes");
-
 }

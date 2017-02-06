@@ -30,6 +30,7 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.form.ProcessForm;
+import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -50,6 +51,7 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
     private Long taskId;
     private Long actorId;
     private boolean buttonEnabled = false;
+    private boolean buttonVisible = true;
 
     private Long getTaskId() {
         return taskId;
@@ -81,10 +83,15 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
                 task.addVariable(variable);
             }
         }
-        this.buttonEnabled = task.isGroupAssigned();
-        String url = getReturnAction() + "?" + IdForm.ID_INPUT_NAME + "=" + taskId + "&" + ProcessForm.ACTOR_ID_INPUT_NAME + "=" + actorId;
+        buttonVisible = !task.isReadByOthersPermission();
+        buttonEnabled = task.isGroupAssigned();
+        String isReadByOthersPermission = task.isReadByOthersPermission() ? "true" : "false";
+        String url = getReturnAction() + "?" + IdForm.ID_INPUT_NAME + "=" + taskId +
+                "&" + ProcessForm.ACTOR_ID_INPUT_NAME + "=" + actorId +
+                "&" + TaskIdForm.DELEGATION_PERMITTED + "=" + isReadByOthersPermission;
         tdFormElement.addElement(ListTasksFormTag.buildTasksTable(pageContext, batchPresentation, Lists.newArrayList(task), url, true));
         tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(taskId)));
+        tdFormElement.addElement(new Input(Input.HIDDEN, TaskIdForm.DELEGATION_PERMITTED, isReadByOthersPermission));
         tdFormElement.addElement(new Input(Input.HIDDEN, ProcessForm.ACTOR_ID_INPUT_NAME, String.valueOf(actorId)));
         tdFormElement.addElement(new Input(Input.HIDDEN, WebResources.HIDDEN_ONE_TASK_INDICATOR, WebResources.HIDDEN_ONE_TASK_INDICATOR));
         if (task.getOwner() != null) {
@@ -95,6 +102,11 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
     @Override
     protected boolean isFormButtonEnabled() {
         return buttonEnabled;
+    }
+    
+    @Override
+    protected boolean isFormButtonVisible() {
+        return buttonVisible;
     }
 
     @Override

@@ -23,11 +23,14 @@ import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
+import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.TaskFormBuilder;
 import ru.runa.wf.web.TaskFormBuilderFactory;
 import ru.runa.wf.web.form.ProcessForm;
+import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -78,13 +81,32 @@ public class TaskFormTag extends WFFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         super.fillFormElement(tdFormElement);
+
+        WfTask task = Delegates.getTaskService().getTask(getUser(), getTaskId());
+        String isReadByOthersPermission = task.isReadByOthersPermission() ? "true" : "false";
+
         tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(taskId)));
+        tdFormElement.addElement(new Input(Input.HIDDEN, TaskIdForm.DELEGATION_PERMITTED, isReadByOthersPermission));
         tdFormElement.addElement(new Input(Input.HIDDEN, ProcessForm.ACTOR_ID_INPUT_NAME, String.valueOf(actorId)));
         tdFormElement.addElement(new Input(Input.HIDDEN, WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, "redirectEnabled"));
+        setFormButtonVisible(!task.isReadByOthersPermission());
+
     }
 
     @Override
     public String getConfirmationPopupParameter() {
         return ConfirmationPopupHelper.EXECUTE_TASK_PARAMETER;
     }
+
+    @Override
+    protected String getTitle() {
+        WfTask task = Delegates.getTaskService().getTask(getUser(), getTaskId());
+        if (task.isReadByOthersPermission()){
+            return Commons.getMessage("title.task_form", pageContext)
+                    + " " + MessagesProcesses.TITLE_TASK_NO_RIGHTS.message(pageContext);
+        }
+        return super.getTitle();
+    }
+
+
 }

@@ -25,7 +25,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.converter.FileVariableToByteArrayConverter;
@@ -48,16 +47,12 @@ public abstract class VariableLog extends ProcessLog {
     }
 
     public VariableLog(Variable<?> variable) {
-        setVariableName(variable.getName());
+        addAttribute(ATTR_VARIABLE_NAME, variable.getName());
     }
 
     @Transient
     public String getVariableName() {
         return getAttributeNotNull(ATTR_VARIABLE_NAME);
-    }
-
-    public void setVariableName(String variableName) {
-        addAttribute(ATTR_VARIABLE_NAME, variableName);
     }
 
     @Transient
@@ -96,22 +91,5 @@ public abstract class VariableLog extends ProcessLog {
             }
         }
         return getVariableNewValueAttribute();
-    }
-
-    @Transient
-    public VariableLog getContentCopy() {
-        VariableLog copyLog;
-        if (this instanceof VariableCreateLog) {
-            copyLog = new VariableCreateLog();
-        } else if (this instanceof VariableUpdateLog) {
-            copyLog = new VariableUpdateLog();
-        } else if (this instanceof VariableDeleteLog) {
-            copyLog = new VariableDeleteLog();
-        } else {
-            throw new InternalApplicationException("Unexpected " + this);
-        }
-        copyLog.setBytes(getBytes());
-        copyLog.setContent(getContent());
-        return copyLog;
     }
 }

@@ -430,7 +430,11 @@ public class StoreServiceImpl implements StoreService {
                 Cell cell = ExcelHelper.getCell(row, colIndex, true);
                 VariableFormat cellFormat = variableDefinition.getFormatNotNull();
                 String val = cellFormat.format(userTypeMap.get(variableDefinition.getName()));
-                ExcelHelper.setCellValue(cell, val);
+                if (val == null) {
+                    cell.setCellValue(val);
+                } else {
+                    ExcelHelper.setCellValue(cell, val);
+                }
                 colIndex++;
             }
         } else {

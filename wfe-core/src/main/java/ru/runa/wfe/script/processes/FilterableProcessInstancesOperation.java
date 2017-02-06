@@ -57,10 +57,10 @@ public abstract class FilterableProcessInstancesOperation extends ScriptOperatio
             filter.setId(id);
         } else {
             if (fromId != null) {
-                filter.setIdFrom(fromId);
+                filter.setIdFrom(id);
             }
             if (toId != null) {
-                filter.setIdTo(toId);
+                filter.setIdTo(id);
             }
         }
         if (version != null) {

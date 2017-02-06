@@ -11,6 +11,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.cache.TaskCache;
+import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
@@ -28,7 +29,7 @@ public class TaskListBuilderTestProvider extends TaskListBuilder implements ITas
     }
 
     @Override
-    public TaskInListState getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, Set<Executor> executorsToGetTasksByMembership) {
+    public WfTask getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, Set<Executor> executorsToGetTasksByMembership) {
         return super.getAcceptableTask(task, actor, batchPresentation, executorsToGetTasksByMembership);
     }
 

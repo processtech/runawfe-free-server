@@ -37,5 +37,4 @@ public class ProcessExecutionStatusTDBuilder implements TDBuilder {
         }
         return process.getExecutionStatus().name();
     }
-
 }

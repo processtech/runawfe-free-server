@@ -20,11 +20,7 @@ package ru.runa.wfe.var.logic;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.audit.AdminActionLog;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -35,14 +31,19 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 /**
  * Process execution logic.
- *
+ * 
  * @author Dofs
  * @since 2.0
  */
@@ -54,17 +55,74 @@ public class VariableLogic extends WFCommonLogic {
         ProcessDefinition processDefinition = getDefinition(process);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
         Map<String, Object> values = variableDAO.getAll(process);
-        ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
-            WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
-            if (!Utils.isNullOrEmpty(variable.getValue())) {
-                result.add(variable);
+            Object value = buildVariable(processDefinition, values, variableDefinition);
+            if (value != null) {
+                result.add(new WfVariable(variableDefinition, value));
             }
         }
         for (Map.Entry<String, Object> entry : values.entrySet()) {
             result.add(new WfVariable(entry.getKey(), entry.getValue()));
         }
         return result;
+    }
+
+    private Object buildVariable(ProcessDefinition processDefinition, Map<String, Object> values, VariableDefinition variableDefinition) {
+        if (variableDefinition.isUserType()) {
+            return buildUserTypeVariable(processDefinition, values, variableDefinition, variableDefinition.getName());
+        } else if (ListFormat.class.getName().equals(variableDefinition.getFormatClassName())) {
+            return buildListVariable(processDefinition, values, variableDefinition);
+        } else {
+            return values.remove(variableDefinition.getName());
+        }
+    }
+
+    private UserTypeMap buildUserTypeVariable(ProcessDefinition processDefinition, Map<String, Object> values, VariableDefinition variableDefinition,
+            String prefix) {
+        UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
+        for (VariableDefinition attributeDefinition : variableDefinition.getUserType().getAttributes()) {
+            String variableName = prefix + UserType.DELIM + attributeDefinition.getName();
+            VariableDefinition componentDefinition = new VariableDefinition(variableName, null, attributeDefinition);
+            Object value = buildVariable(processDefinition, values, componentDefinition);
+            if (value != null) {
+                userTypeMap.put(attributeDefinition.getName(), value);
+            }
+        }
+        if (userTypeMap.isEmpty()) {
+            return null;
+        }
+        return userTypeMap;
+    }
+
+    private List<Object> buildListVariable(ProcessDefinition processDefinition, Map<String, Object> values, VariableDefinition variableDefinition) {
+        List<Object> list = Lists.newArrayList();
+        String sizeVariableName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
+        Integer size = (Integer) values.remove(sizeVariableName);
+        if (size == null) {
+            if (values.containsKey(variableDefinition.getName())) {
+                Object value = values.remove(variableDefinition.getName());
+                if (value instanceof List) {
+                    log.debug("Handling back compatibility list value for " + variableDefinition);
+                    list = (List<Object>) value;
+                    variableDAO.processComplexVariablesPre430(processDefinition, variableDefinition, null, list);
+                } else {
+                    log.debug(variableDefinition + " can be changed due to incompatible process definition update");
+                    list.add(value);
+                }
+                return list;
+            }
+            return null;
+        }
+        String componentFormat = variableDefinition.getFormatComponentClassNames()[0];
+        UserType componentUserType = variableDefinition.getFormatComponentUserTypes()[0];
+        for (int i = 0; i < size; i++) {
+            String componentName = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
+                    + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+            VariableDefinition componentDefinition = new VariableDefinition(componentName, null, componentFormat, componentUserType);
+            Object componentValue = buildVariable(processDefinition, values, componentDefinition);
+            list.add(componentValue);
+        }
+        return list;
     }
 
     public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException {

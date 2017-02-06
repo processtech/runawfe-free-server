@@ -41,7 +41,7 @@ public class HibernateCompilerInheritanceFiltersBuilder {
     private static Log log = LogFactory.getLog(HibernateCompilerInheritanceFiltersBuilder.class);
 
     /**
-     * {@link BatchPresentation}, used to build query.
+     * {@link BatchPresentation}, used to build query. 
      */
     private final BatchPresentation batchPresentation;
 
@@ -57,13 +57,9 @@ public class HibernateCompilerInheritanceFiltersBuilder {
 
     /**
      * Constructs instance for building filter SQL statements for fields with inheritance.
-     * 
-     * @param batchPresentation
-     *            {@link BatchPresentation}, used to build query.
-     * @param hqlBuilder
-     *            Component to build HQL query for {@link BatchPresentation}.
-     * @param queryTranslator
-     *            Translator, used to translate HQL query to SQL.
+     * @param batchPresentation {@link BatchPresentation}, used to build query.
+     * @param hqlBuilder Component to build HQL query for {@link BatchPresentation}.
+     * @param queryTranslator Translator, used to translate HQL query to SQL.
      */
     public HibernateCompilerInheritanceFiltersBuilder(BatchPresentation batchPresentation, HibernateCompilerHQLBuider hqlBuilder,
             HibernateCompilerTranslator queryTranslator) {
@@ -74,9 +70,7 @@ public class HibernateCompilerInheritanceFiltersBuilder {
 
     /**
      * Injects SQL statements to filter by fields with inheritance into SQL query.
-     * 
-     * @param sqlQuery
-     *            SQL query to inject filter statements.
+     * @param sqlQuery SQL query to inject filter statements.
      */
     public void injectFiltersStatements(StringBuilder sqlQuery) {
         if (!hqlBuilder.isFilterByInheritance()) {
@@ -104,7 +98,6 @@ public class HibernateCompilerInheritanceFiltersBuilder {
 
     /**
      * Creates SQL statements to filter by fields with inheritance.
-     * 
      * @return List of SQL statements for fields with inheritance.
      */
     private List<String> buildFiltersStatements() {
@@ -138,11 +131,8 @@ public class HibernateCompilerInheritanceFiltersBuilder {
 
     /**
      * Creates SQL statements to filter by field. This statements must be joined with OR operation.
-     * 
-     * @param field
-     *            Field, to create SQL statements.
-     * @param criteria
-     *            Filter criteria for field.
+     * @param field Field, to create SQL statements.
+     * @param criteria Filter criteria for field.
      * @return SQL statements to filter by field.
      */
     private List<String> buildFiltersForField(FieldDescriptor field, FilterCriteria criteria) {
@@ -172,13 +162,9 @@ public class HibernateCompilerInheritanceFiltersBuilder {
 
     /**
      * Creates HQL condition string to filter by database source.
-     * 
-     * @param field
-     *            Field, to create filter statements.
-     * @param dbSource
-     *            Components to access field value by HQL statement.
-     * @param filterTemplates
-     *            Filter templates.
+     * @param field Field, to create filter statements.
+     * @param dbSource Components to access field value by HQL statement.
+     * @param filterTemplates Filter templates.
      * @return HQL condition string to filter by database source.
      */
     private String createDbSourceFilterCriteria(FieldDescriptor field, DBSource dbSource, String[] filterTemplates) {
@@ -188,8 +174,8 @@ public class HibernateCompilerInheritanceFiltersBuilder {
         }
         try {
             fieldsToFilterCriteria.applyFilterTemplates(filterTemplates);
-            return fieldsToFilterCriteria.buildWhereCondition(dbSource.getValueDBPath(hqlBuilder.getAliasMapping().getAlias(field)),
-                    hqlBuilder.getPlaceholders());
+            return fieldsToFilterCriteria.buildWhereCondition(dbSource.getValueDBPath(null), hqlBuilder.getAliasMapping().getAlias(field), hqlBuilder
+                    .getPlaceholders());
         } catch (Exception e) {
             log.error("Filter can't be applied to field with inheritance. Field name is " + field.displayName + ", database source is "
                     + dbSource.getSourceObject().getName(), e);

@@ -64,7 +64,8 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
-     * queries the database for the latest version of a process definition with the given name.
+     * queries the database for the latest version of a process definition with
+     * the given name.
      */
     public Deployment findLatestDeployment(String name) {
         Deployment deployment = findFirstOrNull("from Deployment where name=? order by version desc", name);
@@ -77,7 +78,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     public Deployment findDeployment(String name, Long version) {
         Deployment deployment = findFirstOrNull("from Deployment where name=? and version=?", name, version);
         if (deployment == null) {
-            throw new DefinitionDoesNotExistException(name + " v" + version);
+            throw new DefinitionDoesNotExistException(name);
         }
         return deployment;
     }
@@ -90,7 +91,8 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
-     * queries the database for all versions of process definitions with the given name, ordered by version (descending).
+     * queries the database for all versions of process definitions with the
+     * given name, ordered by version (descending).
      */
     public List<Deployment> findAllDeploymentVersions(String name) {
         return getHibernateTemplate().find("from Deployment where name=? order by version desc", name);

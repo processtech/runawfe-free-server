@@ -6,19 +6,19 @@ var lastIndexUNIQUENAME = -1;
 $(document).ready(function() {
 	ellUNIQUENAMEUpdateIndexes(0);
 	lastIndexUNIQUENAME = parseInt(ellUNIQUENAMEGetSize()) - 1;
-	$('#ellUNIQUENAMEButtonAdd').click(function() {
-		var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
+    $('#ellUNIQUENAMEButtonAdd').click(function() {
+        var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
 	lastIndexUNIQUENAME = rowIndex;
 		console.log("UNIQUENAME: Adding row " + rowIndex);
-		var e = "<tr row='" + rowIndex + "'>";
-		e += ellUNIQUENAMERowTemplate.replace(/\[\]/g, "[" + rowIndex + "]");
-		e += "<td><input type='button' value=' - ' onclick='ellUNIQUENAMERemoveRow(this);' /></td>";
-		e += "</tr>";
-		$('#ellUNIQUENAME').append(e);
-		ellUNIQUENAMEUpdateIndexes(1);
-		JS_HANDLERS
-		$("#ellUNIQUENAME").trigger("onRowAdded", [rowIndex]);
-	});
+        var e = "<tr row='" + rowIndex + "'>";
+        e += ellUNIQUENAMERowTemplate.replace(/\[\]/g, "[" + rowIndex + "]");
+        e += "<td><input type='button' value=' - ' onclick='ellUNIQUENAMERemoveRow(this);' /></td>";
+        e += "</tr>";
+        $('#ellUNIQUENAME').append(e);
+        ellUNIQUENAMEUpdateIndexes(1);
+        JS_HANDLERS
+        $("#ellUNIQUENAME").trigger("onRowAdded", [rowIndex]);
+    });
 });
 
 function ellUNIQUENAMEGetSize() {
@@ -34,7 +34,7 @@ function ellUNIQUENAMERemoveRow(button) {
 	});
 	tr.remove();
 	ellUNIQUENAMEUpdateIndexes(-1);
-	$("#ellUNIQUENAME").trigger("onRowRemoved", [rowIndex]);
+    $("#ellUNIQUENAME").trigger("onRowRemoved", [rowIndex]);
 }
 
 function ellUNIQUENAMEUpdateIndexes(delta) {
@@ -42,7 +42,7 @@ function ellUNIQUENAMEUpdateIndexes(delta) {
 	$("#ellUNIQUENAME tr[row]").each(function() {
 		ids == "" ? ids = $(this).attr('row') : ids += "," + $(this).attr('row') ; 
 	});
-	for (i in ellUNIQUENAMEVariableNames) {
+    for (i in ellUNIQUENAMEVariableNames) {
 		var indexesInput = $("input[name='" + ellUNIQUENAMEVariableNames[i] + ".indexes']");
 		indexesInput.val(ids);
 	}

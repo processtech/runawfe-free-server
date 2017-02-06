@@ -43,24 +43,34 @@ public class StringFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String fieldName, String persistentObjectQueryAlias, Map<String, QueryParameter> placeholders) {
         StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
         String searchValue = expression.getValue();
-        String alias = makePlaceHolderName(aliasedFieldName);
+        String alias = persistentObjectQueryAlias + fieldName.replaceAll("\\.", "");
         String where = "";
         if (ignoreCase) {
             where += "lower(";
         }
-        where += aliasedFieldName;
+        // Let "((" be the mark of very special case, in which [field] is complicated expression, which holds parameter inside, and not here.
+        if (!fieldName.startsWith("((")) {
+            where += persistentObjectQueryAlias + "." + fieldName;
+        } else {
+            // So, we simply add expression to query
+            where += fieldName;
+            // Set parameter with predefined name here
+            alias = "param_extra_case";
+        }
         if (ignoreCase) {
             where += ")";
             searchValue = searchValue.toLowerCase();
         }
         where += " ";
-        where += expression.getComparisonOperator();
-        where += " :" + alias + " ";
+     // Ordinal case - not special noted above. For that case - skip this.
+        if (!fieldName.startsWith("((")) {
+            where += expression.getComparisonOperator();
+            where += " :" + alias + " ";
+        }
         placeholders.put(alias, new QueryParameter(alias, searchValue));
         return where;
     }
-
 }

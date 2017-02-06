@@ -32,7 +32,6 @@ public class NodeProcess {
     private Token parentToken;
     private String nodeId;
     private Process subProcess;
-    // TODO why = 0 for subprocess?
     private Integer index;
     private Date createDate;
 
@@ -109,8 +108,8 @@ public class NodeProcess {
         return index;
     }
 
-    public void setIndex(Integer index) {
-        this.index = index;
+    public void setIndex(Integer order) {
+        this.index = order;
     }
 
     @Column(name = "CREATE_DATE", nullable = false)

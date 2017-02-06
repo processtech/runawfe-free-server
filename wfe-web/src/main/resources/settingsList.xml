@@ -62,14 +62,6 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="definition.comments.collisions.allowed">
-			<value>true</value>
-			<value>false</value>
-		</property>
-		<property title="definition.comments.empty.allowed">
-			<value>true</value>
-			<value>false</value>
-		</property>
 	</properties_file>
 	
 	<properties_file title="class.presentation.properties">
@@ -194,10 +186,6 @@
 			<value>false</value>
 		</property>
 		<property title="process.swimlane.assignment.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
-		<property title="process.task.filters.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>

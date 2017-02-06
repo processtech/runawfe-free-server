@@ -54,7 +54,7 @@ public final class IdentifiebleSetConvertions {
         for (String definitionName : processDefinitionNames) {
             ProcessFilter filter = new ProcessFilter();
             filter.setDefinitionName(definitionName);
-            processInstances.addAll(context.getExecutionLogic().getProcesses(context.getUser(), filter));
+            processInstances.addAll(context.getExecutionLogic().getWfProcesses(context.getUser(), filter));
         }
         return processInstances;
     }

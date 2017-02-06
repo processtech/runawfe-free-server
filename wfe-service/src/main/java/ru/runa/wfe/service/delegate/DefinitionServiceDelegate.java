@@ -17,12 +17,9 @@
  */
 package ru.runa.wfe.service.delegate;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -106,15 +103,6 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     public WfDefinition getLatestProcessDefinition(User user, String definitionName) {
         try {
             return getDefinitionService().getLatestProcessDefinition(user, definitionName);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public WfDefinition getProcessDefinitionVersion(User user, String definitionName, Long definitionVersion) throws DefinitionDoesNotExistException {
-        try {
-            return getDefinitionService().getProcessDefinitionVersion(user, definitionName, definitionVersion);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -254,32 +242,4 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
             throw handleException(e);
         }
     }
-
-    @Override
-    public List<ProcessDefinitionChange> getChanges(Long definitionId){
-        try {
-            return getDefinitionService().getChanges(definitionId);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
-        try {
-            return getDefinitionService().findChanges(definitionName, version1, version2);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
-    @Override
-    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2){
-        try {
-            return getDefinitionService().findChangesWithin(date1, date2);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
 }

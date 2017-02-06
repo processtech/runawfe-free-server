@@ -29,7 +29,7 @@ import ru.runa.wfe.var.Variable;
 
 /**
  * Created on 22.10.2005
- *
+ * 
  */
 public class ProcessClassPresentation extends ClassPresentation {
     public static final String PROCESS_ID = "batch_presentation.process.id";

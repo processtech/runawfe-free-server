@@ -1,10 +1,6 @@
 package ru.runa.wfe.task.logic;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,6 +8,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
+import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -190,10 +187,17 @@ public class TaskLogic extends WFCommonLogic {
 
     public WfTask getTask(User user, Long taskId) {
         Task task = taskDAO.getNotNull(taskId);
-        if (!executorLogic.isAdministrator(user)) {
-            checkCanParticipate(user.getActor(), task);
+        boolean byOthers = false;
+        if (!canReadOthersTask(user, task)) {
+            if (!executorLogic.isAdministrator(user)) {
+                byOthers = !canParticipate(user, task);
+            }
+        } else {
+            byOthers = true;
         }
-        return taskObjectFactory.create(task, user.getActor(), false, null);
+        WfTask wftask = taskObjectFactory.create(task, user.getActor(), false, null);
+        wftask.setReadByOthersPermission(byOthers);
+        return wftask;
     }
 
     public Long getProcessId(User user, Long taskId) {
@@ -222,18 +226,56 @@ public class TaskLogic extends WFCommonLogic {
         return result;
     }
 
+    public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation){
+        if (user.getActor().getId().equals(executorId)){
+            return getTasks(user, batchPresentation);
+        }
+
+        List<WfTask> result = Lists.newArrayList();
+        Executor executor = executorLogic.getExecutor(user, executorId);
+        if (executor.getClass().getSimpleName().equals("Actor")) {
+            result = taskListBuilder.getTasks((Actor)executor, batchPresentation);
+            for (WfTask task : result) {
+                task.setReadByOthersPermission(true);
+            }
+        } else {
+            // Group users processing
+            List<Actor> actorsInGroup = executorLogic.getGroupActors(user, (Group)executor);
+            List<WfTask> groupMemberTasks = new ArrayList<WfTask>();
+            for(Actor actor : actorsInGroup) {
+                groupMemberTasks = taskListBuilder.getTasks(actor, batchPresentation);
+                // To prevent doubles in result - we'll test their id-s (so that twice-loaded Tasks will be considered the same one)
+                for(WfTask task : groupMemberTasks){
+                    boolean notInResult = true;
+                    for (WfTask taskInResult : result) {
+                        if (taskInResult.getId().equals(task.getId())){
+                            notInResult = false;
+                            break;
+                        }
+                    }
+                    if(notInResult) {
+                        task.setReadByOthersPermission(true);
+                       result.add(task);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
         Process process = processDAO.getNotNull(processId);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
-        for (Task task : taskDAO.findByProcess(process)) {
+        for (Task task : process.getTasks()) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
             List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
             for (Process subprocess : subprocesses) {
                 checkPermissionAllowed(user, subprocess, ProcessPermission.READ);
-                for (Task task : taskDAO.findByProcess(subprocess)) {
+                for (Task task : subprocess.getTasks()) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }
             }

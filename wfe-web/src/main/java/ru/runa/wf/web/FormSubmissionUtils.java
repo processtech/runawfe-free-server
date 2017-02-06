@@ -390,12 +390,10 @@ public class FormSubmissionUtils {
                     }
                     return format.parse(valueToFormat);
                 } catch (Exception e) {
+                    log.warn(e);
                     if (valueToFormat.length() > 0) {
-                        log.warn(e);
                         // in other case we put validation in logic
                         errors.put(inputName, e.getMessage());
-                    } else {
-                        log.debug(e);
                     }
                 }
             } else if (value == null) {

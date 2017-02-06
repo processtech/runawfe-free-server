@@ -29,7 +29,6 @@ public class VariableMapping implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final String USAGE_READ = "read";
     private static final String USAGE_WRITE = "write";
-    private static final String USAGE_SYNC = "sync";
     private static final String USAGE_MULTIINSTANCE_LINK = "multiinstancelink";
     private static final String USAGE_SELECTOR = "selector";
     private static final String USAGE_TEXT = "text";
@@ -53,10 +52,6 @@ public class VariableMapping implements Serializable {
 
     public boolean isWritable() {
         return hasUsage(USAGE_WRITE);
-    }
-
-    public boolean isSyncable() {
-        return hasUsage(USAGE_SYNC);
     }
 
     public boolean isMultiinstanceLink() {

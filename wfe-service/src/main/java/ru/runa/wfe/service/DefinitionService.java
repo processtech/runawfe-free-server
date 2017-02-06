@@ -18,13 +18,11 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-import java.util.Date;
 
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
-import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.form.Interaction;
@@ -123,20 +121,6 @@ public interface DefinitionService {
     public WfDefinition getProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
 
     /**
-     * Gets only last version from process definition by name.
-     *
-     * @param user
-     *            authorized user
-     * @param definitionName
-     *            process definition name
-     * @param definitionVersion
-     *            process definition version
-     * @return not <code>null</code>
-     * @throws DefinitionDoesNotExistException
-     */
-    public WfDefinition getProcessDefinitionVersion(User user, String definitionName, Long definitionVersion) throws DefinitionDoesNotExistException;
-
-    /**
      * Gets parsed process definition by id.
      *
      * @param user
@@ -149,7 +133,7 @@ public interface DefinitionService {
     public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException;
 
     /**
-     * Gets parsed process definition by id. TODO this method return too many data through references.
+     * Gets parsed process definition by id.
      *
      * @param user
      *            authorized user
@@ -349,31 +333,4 @@ public interface DefinitionService {
      * @return not <code>null</code>
      */
     public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging);
-
-    /**
-     * Gets changes history for specified definition.
-     *
-     * @param definitionId
-     * @return not <code>null</code>
-     */
-    public List<ProcessDefinitionChange> getChanges(Long definitionId);
-
-    /**
-     * Gets changes between two versions of specified definition.
-     *
-     * @param definitionName
-     * @param version1
-     * @param version2
-     * @return not <code>null</code>
-     */
-    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2);
-
-    /**
-     * Gets changes in definitions between two dates.
-     *
-     * @param date1
-     * @param date2
-     * @return not <code>null</code>
-     */
-    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2);
 }

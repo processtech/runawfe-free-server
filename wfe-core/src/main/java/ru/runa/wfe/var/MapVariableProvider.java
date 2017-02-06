@@ -2,11 +2,11 @@ package ru.runa.wfe.var;
 
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+
+import com.google.common.collect.Maps;
 
 public class MapVariableProvider extends AbstractVariableProvider {
     protected final Map<String, Object> values = Maps.newHashMap();
@@ -75,7 +75,7 @@ public class MapVariableProvider extends AbstractVariableProvider {
     @Override
     public WfVariable getVariable(String variableName) {
         if (values.containsKey(variableName)) {
-            Object object = values.get(variableName);
+            Object object = getValue(variableName);
             if (object instanceof WfVariable) {
                 return (WfVariable) object;
             }

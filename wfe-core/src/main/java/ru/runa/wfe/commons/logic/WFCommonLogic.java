@@ -35,7 +35,6 @@ import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -43,16 +42,18 @@ import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.AuthorizationException;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.logic.AuthorizationLogic;
 import ru.runa.wfe.ss.logic.SubstitutionLogic;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionBy;
 import ru.runa.wfe.task.dao.TaskDAO;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.*;
+import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.validation.ValidatorContext;
 import ru.runa.wfe.validation.ValidatorManager;
@@ -71,6 +72,10 @@ public class WFCommonLogic extends CommonLogic {
     @Autowired
     protected ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
+    protected ExecutorLogic executornLogic;
+    @Autowired
+    protected AuthorizationLogic authorizationLogic;
+    @Autowired
     protected SubstitutionLogic substitutionLogic;
 
     @Autowired
@@ -85,8 +90,6 @@ public class WFCommonLogic extends CommonLogic {
     protected ProcessLogDAO processLogDAO;
     @Autowired
     protected JobDAO jobDAO;
-    @Autowired
-    protected SwimlaneDAO swimlaneDAO;
     @Autowired
     protected TokenDAO tokenDAO;
     @Autowired
@@ -170,6 +173,51 @@ public class WFCommonLogic extends CommonLogic {
         throw new AuthorizationException(actor + " has no pemission to participate as " + taskExecutor + " in " + task);
     }
 
+    /**
+     *  Test User permissions to execute Task
+     *  (Unlike checkCanParticipate() - it gives us an answer, not exception)
+     * @param user User whose permissions to test
+     * @param task Task on which permissions to test
+     * @return boolean result
+     */
+    protected boolean canParticipate(User user, Task task){
+        try {
+            checkCanParticipate(user.getActor(), task);
+        } catch (AuthorizationException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Does User has permission to read other's task
+     * @param user User whose permissions to read other's task are tested
+     * @param task Task on which permission to test
+     * @return boolean result
+     */
+    protected boolean canReadOthersTask(User user, Task task) {
+        Executor taskExecutor = task.getExecutor();
+        boolean result = false;
+        if (taskExecutor.getClass().getSimpleName().equals("Actor")) {
+            // Checks for direct (by Actor) right
+            result = authorizationLogic.isAllowed(user, ActorPermission.READ_USER_TASKS, SecuredObjectType.ACTOR, taskExecutor.getId());
+            // Checks for right by group
+            if (!result) {
+                BatchPresentation batchPresentation = BatchPresentationFactory.GROUPS.createNonPaged();
+                List<Group> groups = executornLogic.getExecutorGroups(user, taskExecutor, batchPresentation, false);
+                for (Group group : groups){
+                    result = authorizationLogic.isAllowed(user, GroupPermission.READ_GROUPUSERS_TASKS, SecuredObjectType.GROUP, group.getId());
+                    if (result) {
+                        break;
+                    }
+                }
+            }
+        } else { 
+            result = authorizationLogic.isAllowed(user, GroupPermission.READ_GROUPUSERS_TASKS, SecuredObjectType.GROUP, taskExecutor.getId());
+        }
+        return result;
+    }
+
     private Set<Actor> getAssignedActors(Task task) {
         if (task.getExecutor() == null) {
             throw new InternalApplicationException("Unassigned tasks can't be in processing");
@@ -194,8 +242,6 @@ public class WFCommonLogic extends CommonLogic {
         jobDAO.deleteAll(process);
         variableDAO.deleteAll(process);
         processDAO.delete(process);
-        taskDAO.deleteAll(process);
-        swimlaneDAO.deleteAll(process);
         systemLogDAO.create(new ProcessDeleteLog(user.getActor().getId(), process.getDeployment().getName(), process.getId()));
     }
 
@@ -204,7 +250,7 @@ public class WFCommonLogic extends CommonLogic {
      *
      * @param user
      *            Current user.
-     * @param id
+     * @param definition
      *            Identity of process definition, which presentation elements must be loaded.
      * @param visitor
      *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.

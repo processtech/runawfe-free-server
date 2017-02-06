@@ -24,14 +24,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Strings;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
+
+import com.google.common.base.Strings;
+import ru.runa.wfe.task.TaskClassPresentation;
+
+import static ru.runa.wfe.task.TaskClassPresentation.TASK_OTHERS;
 
 /**
  * Builds HQL query for {@link BatchPresentation}.
@@ -147,17 +150,12 @@ public class HibernateCompilerHQLBuider {
      * Builds 'select' HQL clause and 'from' clause with root persistent object.
      */
     private void buildSelectClause() {
-        final String distinct = batchPresentation.getClassPresentation().isDistinct() ? "distinct " : "";
         if (parameters.isCountQuery()) {
-            query.append("select count (").append(distinct).append(ClassPresentation.classNameSQL).append(")");
+            query.append("select count (").append(ClassPresentation.classNameSQL).append(")");
         } else {
-            query.append("select ").append(distinct).append(ClassPresentation.classNameSQL);
+            query.append("select ").append(ClassPresentation.classNameSQL);
             if (parameters.isOnlyIdentityLoad()) {
                 query.append(".id");
-            } else {
-                for (String alias : aliasMapping.getVisibleJoinedAliases()) {
-                    query.append(", ").append(alias);
-                }
             }
         }
         query.append(" from ");
@@ -176,24 +174,21 @@ public class HibernateCompilerHQLBuider {
         Set<String> multiSource = new HashSet<String>();
         Set<String> singleSource = new HashSet<String>();
         for (String alias : aliasMapping.getAliases()) {
-            final List<FieldDescriptor> fields = aliasMapping.getFields(alias);
-            for (final FieldDescriptor field : fields) {
-                if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation) || alias.equals(ClassPresentation.classNameSQL)) {
-                    continue;
-                }
-                if (field.dbSources.length == 1) {
-                    singleSource.add(alias);
-                } else {
-                    multiSource.add(alias);
-                }
-                break;
+            FieldDescriptor field = aliasMapping.getField(alias);
+            if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation) || alias.equals(ClassPresentation.classNameSQL)) {
+                continue;
+            }
+            if (field.dbSources.length == 1) {
+                singleSource.add(alias);
+            } else {
+                multiSource.add(alias);
             }
         }
         for (String alias : multiSource) {
-            query.append(", ").append(aliasMapping.getFields(alias).get(0).dbSources[0].getSourceObject().getName()).append(" as ").append(alias);
+            query.append(", ").append(aliasMapping.getField(alias).dbSources[0].getSourceObject().getName()).append(" as ").append(alias);
         }
         for (String alias : singleSource) {
-            query.append(", ").append(aliasMapping.getFields(alias).get(0).dbSources[0].getSourceObject().getName()).append(" as ").append(alias);
+            query.append(", ").append(aliasMapping.getField(alias).dbSources[0].getSourceObject().getName()).append(" as ").append(alias);
         }
     }
 
@@ -236,30 +231,27 @@ public class HibernateCompilerHQLBuider {
     private List<String> addJoinFieldRestrictions() {
         List<String> result = new LinkedList<String>();
         for (String alias : aliasMapping.getAliases()) {
-
-            final List<FieldDescriptor> fields = aliasMapping.getFields(alias);
-            for (final FieldDescriptor field : fields) {
-                if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation) || alias.equals(ClassPresentation.classNameSQL)) {
-                    continue;
-                }
-                String joinExpr = field.dbSources[0].getJoinExpression(alias);
-                if (joinExpr == null || joinExpr.equals("")) {
-                    continue;
-                }
-                StringBuilder joinRestriction = new StringBuilder();
-                joinRestriction.append("((").append(joinExpr).append(")");
-                if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
-                    String propertyDBPath = field.displayName.substring(ClassPresentation.removable_prefix.length(),
-                            field.displayName.indexOf(':', ClassPresentation.removable_prefix.length()));
-                    joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:")
-                            .append("removableUserValue" + field.fieldIdx).append(")");
-                    placeholders.put("removableUserValue" + field.fieldIdx, new QueryParameter("removableUserValue" + field.fieldIdx,
-                            field.displayName.substring(field.displayName.lastIndexOf(':') + 1)));
-                }
-                joinRestriction.append(")");
-                result.add(joinRestriction.toString());
-                break;
+            FieldDescriptor field = aliasMapping.getField(alias);
+            if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation)) {
+                continue;
             }
+            String joinExpr = field.dbSources[0].getJoinExpression(alias);
+            if (joinExpr == null || joinExpr.equals("")) {
+                continue;
+            }
+            StringBuilder joinRestriction = new StringBuilder();
+            joinRestriction.append("((").append(joinExpr).append(")");
+            if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
+                int endIndex = field.displayName.indexOf(':', ClassPresentation.removable_prefix.length());
+                String propertyDBPath = field.displayName.substring(ClassPresentation.removable_prefix.length(), endIndex);
+                joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:");
+                joinRestriction.append("removableUserValue" + field.fieldIdx).append(")");
+                String parameterValue = field.displayName.substring(field.displayName.lastIndexOf(':') + 1);
+                QueryParameter parameter = new QueryParameter("removableUserValue" + field.fieldIdx, parameterValue);
+                placeholders.put("removableUserValue" + field.fieldIdx, parameter);
+            }
+            joinRestriction.append(")");
+            result.add(joinRestriction.toString());
         }
         return result;
     }
@@ -272,6 +264,14 @@ public class HibernateCompilerHQLBuider {
     private List<String> addOwners() {
         List<String> result = new LinkedList<String>();
         if (!parameters.hasOwners()) {
+            return result;
+        }
+        // Very special case, in which [:ownersIds] will be used several times inside complicated WHERE condition,
+        // in OthersPermissionsDBSource class in TaskClassPresentation. So here - some steps skipped.
+        if (batchPresentation.getCategory().equals("listTasksForm")
+                && batchPresentation.isFieldActuallyFiltered(TaskClassPresentation.TASK_OTHERS))
+        {
+            placeholders.put("ownersIds", null);
             return result;
         }
         String owners = "(" + ClassPresentation.classNameSQL + "." + parameters.getOwnerDBPath() + " in (:ownersIds) )";
@@ -291,29 +291,18 @@ public class HibernateCompilerHQLBuider {
         Map<Integer, FilterCriteria> fieldsToFilter = batchPresentation.getFilteredFields();
         for (Map.Entry<Integer, FilterCriteria> entry : fieldsToFilter.entrySet()) {
             FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
-            if (field.fieldState == FieldState.DISABLED
-                    || (field.filterMode != FieldFilterMode.DATABASE && field.filterMode != FieldFilterMode.DATABASE_ID_RESTRICTION)) {
+            if (field.fieldState == FieldState.DISABLED || field.filterMode != FieldFilterMode.DATABASE) {
                 continue;
             }
             if (field.dbSources.length > 1) {
                 isFilterByInheritance = true;
                 continue; // Fields with inheritance will be processed later
             }
-            if (field.filterMode == FieldFilterMode.DATABASE) {
-                StringBuilder filter = new StringBuilder();
-                String condition =
-                        entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath(aliasMapping.getAlias(field)), placeholders);
-                filter.append("(").append(condition).append(")");
-                result.add(filter.toString());
-            }
-            if (field.filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION) {
-                StringBuilder filter = new StringBuilder();
-                String condition = entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath("subQuery"), placeholders);
-                filter.append("(").append(ClassPresentation.classNameSQL).append(".id IN (SELECT ")
-                        .append(field.dbSources[0].getJoinExpression("subQuery")).append(" FROM ")
-                        .append(field.dbSources[0].getSourceObject().getName()).append(" AS subQuery WHERE ").append(condition).append("))");
-                result.add(filter.toString());
-            }
+            StringBuilder filter = new StringBuilder();
+            String condition = entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath(null), aliasMapping.getAlias(field),
+                    placeholders);
+            filter.append("(").append(condition).append(")");
+            result.add(filter.toString());
         }
         return result;
     }
@@ -326,8 +315,7 @@ public class HibernateCompilerHQLBuider {
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<String>();
         if (parameters.getExecutorIdsToCheckPermission() != null) {
-            result.add(
-                    "(instance.id in (select pm.identifiableId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.type in (:securedTypes) and pm.mask=:securedPermission))");
+            result.add("(instance.id in (select pm.identifiableId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.type in (:securedTypes) and pm.mask=:securedPermission))");
             placeholders.put("securedOwnersIds", null);
             placeholders.put("securedPermission", null);
             placeholders.put("securedTypes", null);
@@ -380,14 +368,5 @@ public class HibernateCompilerHQLBuider {
             query.append(fieldsToSortModes[i] ? " asc" : " desc");
             needComma = true;
         }
-    }
-
-    /**
-     * Returns all entities in {@link BatchPresentation}.
-     *
-     * @return All {@link BatchPresentation} entities.
-     */
-    public Set<Class<?>> getVisibleJoinedClasses() {
-        return aliasMapping.getVisibleJoinedClasses();
     }
 }

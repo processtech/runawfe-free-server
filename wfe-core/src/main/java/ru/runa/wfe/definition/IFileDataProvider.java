@@ -19,7 +19,6 @@ public interface IFileDataProvider {
     public static final String PROCESS_FILE_PROTOCOL = "processfile://";
     public static final String BOT_TASK_FILE_PROTOCOL = "botfile://";
     public static final String SUBPROCESS_DEFINITION_PREFIX = "sub";
-    public static final String COMMENTS_XML_FILE_NAME = "comments.xml";
 
     byte[] getFileData(String fileName);
 

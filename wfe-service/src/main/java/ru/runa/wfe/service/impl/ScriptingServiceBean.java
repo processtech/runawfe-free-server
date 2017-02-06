@@ -39,11 +39,9 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.AdminScriptOperationErrorHandler;
 import ru.runa.wfe.script.AdminScriptRunner;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
-import ru.runa.wfe.script.logic.AdminScriptLogic;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.service.interceptors.CacheReloader;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -60,14 +58,12 @@ import com.google.common.collect.Sets;
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, CacheReloader.class, PerformanceObserver.class, EjbTransactionSupport.class,
-    SpringBeanAutowiringInterceptor.class })
+        SpringBeanAutowiringInterceptor.class })
 @WebService(name = "ScriptingAPI", serviceName = "ScriptingWebService")
 @SOAPBinding
 public class ScriptingServiceBean implements ScriptingService {
     @Autowired
     private AdminScriptRunner runner;
-    @Autowired
-    private AdminScriptLogic scriptLogic;
     private static final Set<String> SYSTEM_EXECUTOR_NAMES = Sets.newHashSet();
     static {
         SYSTEM_EXECUTOR_NAMES.add(SystemProperties.getAdministratorName());
@@ -130,30 +126,5 @@ public class ScriptingServiceBean implements ScriptingService {
         }
         GroovyShell shell = new GroovyShell();
         shell.evaluate(script);
-    }
-
-    @Override
-    @WebResult(name = "result")
-    public List<String> getScriptsNames() {
-        return scriptLogic.getScriptsNames();
-    }
-
-    @Override
-    @WebMethod(exclude = true)
-    public void saveScript(String fileName, byte[] script) {
-        scriptLogic.save(fileName, script);
-    }
-
-    @Override
-    @WebMethod(exclude = true)
-    public void deleteScript(String fileName) {
-        scriptLogic.delete(fileName);
-    }
-
-    @Override
-    @WebResult(name = "result")
-    public byte[] getScriptSource(String fileName) {
-        AdminScript adminScript = scriptLogic.getScriptByName(fileName);
-        return adminScript.getContent();
     }
 }

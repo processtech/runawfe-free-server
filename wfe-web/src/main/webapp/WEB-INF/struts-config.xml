@@ -83,6 +83,7 @@
 		<forward name="manage_processes"
 			path="/manage_processes.do?tabForwardName=manage_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
+        <forward name="manage_tasks_simple" path="/manage_tasks_simple.do" />
 		<forward name="configure_bot_station"
 			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
 		<forward name="bot_station_permission" path="/bot_station_permission.do" />
@@ -206,9 +207,9 @@
 			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
 			<forward name="submitTask" path="/submit_task.do" redirect="false" />
 		</action>
-		<action path="/exportExcelTasks" type="ru.runa.wf.web.action.ExportExcelTasksAction" name="batchPresentationForm" validate="false" scope="request">
+		<action path="/exportExcelTasks" type="ru.runa.wf.web.action.ExportExcelTasksAction" scope="request">
 		</action>
-		<action path="/exportExcelProcesses" type="ru.runa.wf.web.action.ExportExcelProcessesAction" name="batchPresentationForm" validate="false" scope="request">
+		<action path="/exportExcelProcesses" type="ru.runa.wf.web.action.ExportExcelProcessesAction" scope="request">
 		</action>
 		<action path="/create_bot" type="ru.runa.af.web.action.CreateBotAction"
 			name="botForm" scope="request" input="/WEB-INF/wf/add_bot.jsp"
@@ -857,7 +858,10 @@
 			parameter="/WEB-INF/wf/submit_start_process.jsp" />
 
 		<action path="/manage_tasks" type="ru.runa.common.web.action.TabHeaderForwardAction"
-			parameter="/WEB-INF/wf/manage_tasks.jsp" />
+				parameter="/WEB-INF/wf/manage_tasks.jsp" />
+
+		<action path="/manage_tasks_simple" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/wf/manage_tasks_simple.jsp" />
 
 		<action path="/submit_task" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_task.jsp" />

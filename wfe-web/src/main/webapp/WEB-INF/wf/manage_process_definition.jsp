@@ -14,7 +14,7 @@
 <tiles:put name="body" type="string" >
 <%
 	String parameterName = IdForm.ID_INPUT_NAME;
-	Long id = Long.parseLong(request.getParameter(parameterName));
+	long id = Long.parseLong(request.getParameter(parameterName));
 %>
 
 <wf:processDefinitionInfoForm identifiableId='<%= id %>'>	
@@ -27,8 +27,6 @@
 </table>
 </wf:processDefinitionInfoForm>
 
-<wf:listProcessDefinitionChangesForm processDefinitionId='<%= id %>'>
-</wf:listProcessDefinitionChangesForm>
 <wf:redeployDefinitionForm identifiableId='<%= id %>'  />
 <wf:definitionGraphForm identifiableId='<%= id %>' />	
 

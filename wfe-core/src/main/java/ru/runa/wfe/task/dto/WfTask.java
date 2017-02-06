@@ -37,7 +37,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Process task.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -63,6 +63,7 @@ public class WfTask implements Serializable {
     private boolean escalated;
     private boolean firstOpen;
     private boolean acquiredBySubstitution;
+    private boolean readByOthersPermission;
     private Integer multitaskIndex;
 
     // map is not usable in web services
@@ -164,14 +165,20 @@ public class WfTask implements Serializable {
         return acquiredBySubstitution;
     }
 
+    public boolean isReadByOthersPermission() {
+        return readByOthersPermission;
+    }
+
+    public void setReadByOthersPermission(boolean readByOthersPermission) {
+        this.readByOthersPermission = readByOthersPermission;
+    }
+
     public Integer getMultitaskIndex() {
         return multitaskIndex;
     }
 
     public void addVariable(WfVariable variable) {
-        if (variable != null) {
-            variables.add(variable);
-        }
+        variables.add(variable);
     }
 
     public WfVariable getVariable(String name) {

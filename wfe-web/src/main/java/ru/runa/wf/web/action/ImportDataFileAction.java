@@ -39,7 +39,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 
 /**
@@ -104,8 +103,6 @@ public class ImportDataFileAction extends ActionBase {
                 List<WfProcess> processes = Delegates.getExecutionService().getProcesses(user, BatchPresentationFactory.PROCESSES.createNonPaged());
                 ProcessFilter processFilter = new ProcessFilter();
                 for (WfProcess process : processes) {
-                	if (!Strings.isNullOrEmpty(process.getHierarchyIds()))
-                		continue;
                     processFilter.setId(process.getId());
                     Delegates.getExecutionService().removeProcesses(user, processFilter);
                 }

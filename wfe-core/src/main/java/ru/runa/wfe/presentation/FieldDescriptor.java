@@ -24,11 +24,11 @@ import java.util.Calendar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Objects;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
+
+import com.google.common.base.Objects;
 
 /**
  * Description for field, available via {@link ClassPresentation}. Contains almost all aspects of field behavior.
@@ -58,11 +58,6 @@ public class FieldDescriptor {
      * Flag, equals true, if this field can be grouped or sorted; false otherwise.
      */
     public final boolean sortable;
-
-    /**
-     * Flag, equals true, if this field can be showed; false otherwise.
-     */
-    public boolean showable = true;
 
     /**
      * The sort order, if the field is used for default batch sorting. Sorted fields indexes must start with 1 and be exactly sequential. Are set to
@@ -184,8 +179,8 @@ public class FieldDescriptor {
      */
     public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, int defaultSortOrder, boolean defaultSortMode,
             FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams) {
-        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams,
-                false, -1, null);
+        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
+                tdBuilderParams, false, -1, null);
     }
 
     /**
@@ -232,8 +227,8 @@ public class FieldDescriptor {
      * @param tdBuilderParams
      *            Parameters, passed to tdBuilder constructor.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
-            Object[] tdBuilderParams) {
+    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
+            String tdBuilder, Object[] tdBuilderParams) {
         this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
                 false, -1, null);
     }
@@ -258,8 +253,8 @@ public class FieldDescriptor {
      * @param isWeakJoin
      *            If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
-            Object[] tdBuilderParams, boolean isWeakJoin) {
+    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
+            String tdBuilder, Object[] tdBuilderParams, boolean isWeakJoin) {
         this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
                 isWeakJoin, -1, null);
     }
@@ -303,9 +298,6 @@ public class FieldDescriptor {
         this.isWeakJoin = isWeakJoin;
         this.fieldIdx = fieldIdx;
         this.fieldState = fieldState == null ? loadFieldState(displayName) : fieldState;
-        if (filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION && sortable) {
-            throw new InternalApplicationException("DATABASE_ID_RESTRICTION must not be used on filterable fields.");
-        }
     }
 
     @Override
@@ -335,7 +327,7 @@ public class FieldDescriptor {
      */
     public FieldDescriptor createConcreteField(int fieldIdx) {
         return new FieldDescriptor(displayName, fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
-                tdBuilderParams, isWeakJoin, fieldIdx, fieldState).setVisible(visible).setShowable(showable);
+                tdBuilderParams, isWeakJoin, fieldIdx, fieldState);
     }
 
     /**
@@ -376,15 +368,6 @@ public class FieldDescriptor {
 
     public FieldDescriptor setVisible(boolean visible) {
         this.visible = visible;
-        return this;
-    }
-
-    public boolean isShowable() {
-        return showable;
-    }
-
-    public FieldDescriptor setShowable(boolean showable) {
-        this.showable = showable;
         return this;
     }
 

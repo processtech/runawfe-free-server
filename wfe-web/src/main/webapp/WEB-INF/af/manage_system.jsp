@@ -7,7 +7,7 @@
 
 <tiles:put name="head" type="string">
 	<script>
-	var storageVisible = true;
+	var storageVisible = false;
 	var bottaskErrorsVisible = true;
 	var processErrorsVisible = true;
 	$(document).ready(function() {
@@ -94,7 +94,7 @@
 			<table><tbody><tr>
 				<td class="hideableblock">
 					<a id="storageButton" href="javascript:void(0)" class="link">
-						<img id="storageImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
+						<img id="storageImg" class="hideableblock" src="/wfe/images/view_setup_hidden.gif">
 						&nbsp;<bean:message key="adminkit.savedscripts" />
 					</a>
 				</td>

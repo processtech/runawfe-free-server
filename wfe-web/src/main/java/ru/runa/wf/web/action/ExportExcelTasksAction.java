@@ -31,6 +31,11 @@ import ru.runa.wfe.user.User;
 public class ExportExcelTasksAction extends AbstractExportExcelAction<WfTask> {
 
     @Override
+    protected String getBatchPresentationId() {
+        return "listTasksForm";
+    }
+
+    @Override
     protected List<WfTask> getData(User user, BatchPresentation batchPresentation) {
         return Delegates.getTaskService().getMyTasks(user, batchPresentation);
     }

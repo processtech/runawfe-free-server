@@ -37,7 +37,6 @@ import org.apache.struts.action.ActionMapping;
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.ProfileHttpSessionHelper;
-import ru.runa.common.web.form.BatchPresentationForm;
 import ru.runa.common.web.html.EnvBaseImpl;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -56,6 +55,8 @@ import com.google.common.net.MediaType;
  */
 public abstract class AbstractExportExcelAction<T extends Object> extends ActionBase {
 
+    protected abstract String getBatchPresentationId();
+
     protected abstract List<T> getData(User user, BatchPresentation batchPresentation);
 
     protected abstract String getFileNamePrefix();
@@ -64,9 +65,8 @@ public abstract class AbstractExportExcelAction<T extends Object> extends Action
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         try {
             User user = getLoggedUser(request);
-            String batchPresentationId = ((BatchPresentationForm) form).getBatchPresentationId();
             Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
-            BatchPresentation batchPresentation = profile.getActiveBatchPresentation(batchPresentationId);
+            BatchPresentation batchPresentation = profile.getActiveBatchPresentation(getBatchPresentationId());
             List<T> data = getData(user, batchPresentation);
             HSSFWorkbook workbook = new HSSFWorkbook();
             Sheet dataSheet = workbook.createSheet("data");

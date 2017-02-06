@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation; version 2.1
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU Lesser General Public License 
+ * as published by the Free Software Foundation; version 2.1 
+ * of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU Lesser General Public License for more details. 
+ * 
+ * You should have received a copy of the GNU Lesser General Public License 
+ * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web;
@@ -38,7 +38,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Helper class to create paging navigation elements.
- *
+ * 
  * @author Konstantinov Aleksey 04.03.2012
  */
 public final class PagingNavigationHelper {
@@ -71,7 +71,7 @@ public final class PagingNavigationHelper {
 
     /**
      * Create helper for adding paging navigation and instances count.
-     *
+     * 
      * @param pageContext
      *            Processing request page context.
      * @param batchPresentation
@@ -82,27 +82,29 @@ public final class PagingNavigationHelper {
      *            Return action (current page).
      */
     public PagingNavigationHelper(PageContext pageContext, BatchPresentation batchPresentation, int instanceCount, String returnAction) {
+        super();
         this.pageContext = pageContext;
         this.batchPresentation = batchPresentation;
         this.instanceCount = instanceCount;
         this.returnAction = returnAction;
-        this.onlyCount = false;
+        onlyCount = false;
     }
 
     /**
      * Create helper for adding only instances count.
-     *
+     * 
      * @param pageContext
      *            Processing request page context.
      * @param instanceCount
      *            All instances count (not only shown, but all available for {@linkplain BatchPresentation}).
      */
     public PagingNavigationHelper(PageContext pageContext, int instanceCount) {
+        super();
         this.pageContext = pageContext;
         this.batchPresentation = null;
         this.instanceCount = instanceCount;
         this.returnAction = null;
-        this.onlyCount = true;
+        onlyCount = true;
     }
 
     public void addPagingNavigationTable(TD pagingTableToBeAddedTD) {

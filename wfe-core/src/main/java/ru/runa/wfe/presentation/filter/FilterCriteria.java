@@ -74,7 +74,7 @@ public abstract class FilterCriteria implements Serializable {
         this.filterTemplates = filterTemplates;
     }
 
-    public abstract String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders);
+    public abstract String buildWhereCondition(String fieldName, String persistetObjectQueryAlias, Map<String, QueryParameter> placeholders);
 
     @Override
     public boolean equals(Object obj) {
@@ -91,10 +91,6 @@ public abstract class FilterCriteria implements Serializable {
             return true;
         }
         return false;
-    }
-
-    public String makePlaceHolderName(final String aliasedFieldName) {
-        return aliasedFieldName.replaceAll("[\\.|\\,|\\(|\\)|\\s|\\-|\\+|\\*\\:|']", "");
     }
 
     @Override

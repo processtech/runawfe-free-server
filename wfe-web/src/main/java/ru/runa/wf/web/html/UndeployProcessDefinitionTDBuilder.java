@@ -24,8 +24,6 @@ import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 
-import com.google.common.collect.Maps;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.IdVersionForm;
@@ -38,9 +36,10 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.presentation.filter.LongFilterCriteria;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
+
+import com.google.common.collect.Maps;
 
 /**
  * @since 4.3.0
@@ -58,7 +57,7 @@ public class UndeployProcessDefinitionTDBuilder extends BaseTDBuilder {
         int definitionNameFieldIndex = presentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
         int definitionVersionFieldIndex = presentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.DEFINITION_VERSION);
         presentation.getFilteredFields().put(definitionNameFieldIndex, new StringFilterCriteria(definition.getName()));
-        presentation.getFilteredFields().put(definitionVersionFieldIndex, new LongFilterCriteria(definition.getVersion()));
+        presentation.getFilteredFields().put(definitionVersionFieldIndex, new StringFilterCriteria(String.valueOf(definition.getVersion())));
         int allCount = Delegates.getExecutionService().getProcessesCount(env.getUser(), presentation);
         ConcreteElement element;
         if (isEnabled(object, env) && allCount == 0) {
