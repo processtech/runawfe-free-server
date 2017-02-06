@@ -118,6 +118,7 @@ public class BpmnXmlReader {
     private static final String DISCRIMINATOR_VALUE = "discriminatorValue";
     private static final String DISCRIMINATOR_CONDITION = "discriminatorCondition";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
+    private static final String ESCALATION_EVENT_DEFINITION = "escalationEventDefinition";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -323,13 +324,16 @@ public class BpmnXmlReader {
     }
 
     private void readTimer(ProcessDefinition processDefinition, Element eventElement, GraphElement node) {
-        Element timerElement = eventElement.element(TIMER_EVENT_DEFINITION);
+        Element timerElement = eventElement.element(ESCALATION_EVENT_DEFINITION);
+        if (timerElement == null) {
+            timerElement = eventElement.element(TIMER_EVENT_DEFINITION);
+        }
         CreateTimerAction createTimerAction = ApplicationContextFactory.createAutowiredBean(CreateTimerAction.class);
         createTimerAction.setNodeId(eventElement.attributeValue(ID));
         String name = eventElement.attributeValue(NAME, node.getNodeId());
         createTimerAction.setName(name);
         String durationString = timerElement.elementTextTrim(TIME_DURATION);
-        if (Strings.isNullOrEmpty(durationString) && node instanceof TaskNode && Timer.ESCALATION_NAME.equals(name)) {
+        if (Strings.isNullOrEmpty(durationString) && node instanceof TaskNode && ESCALATION_EVENT_DEFINITION.equals(timerElement.getName())) {
             durationString = ((TaskNode) node).getFirstTaskNotNull().getDeadlineDuration();
             if (Strings.isNullOrEmpty(durationString)) {
                 throw new InternalApplicationException("No '" + TIME_DURATION + "' specified for timer in " + node);
