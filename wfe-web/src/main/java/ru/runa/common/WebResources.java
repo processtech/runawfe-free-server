@@ -28,7 +28,6 @@ import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -154,9 +153,9 @@ public class WebResources {
     }
 
     public static Set<String> getHtmlBlockElements() {
-        String[] blockElements = RESOURCES.getStringProperty("html.blockElements", "div").split(",");
+        List<String> blockElements = RESOURCES.getMultipleStringProperty("html.blockElements");
         Set<String> set = Sets.newHashSet();
-        set.addAll(Lists.newArrayList(blockElements));
+        set.addAll(blockElements);
         return set;
     }
 
