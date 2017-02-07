@@ -310,7 +310,7 @@ public class Utils {
             protected void doExecuteInTransaction() throws Exception {
                 Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
                 if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
-                    token.fail(throwable.getLocalizedMessage());
+                    token.fail(throwable);
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
                     ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
                     Errors.sendEmailNotification(throwable, processError);
