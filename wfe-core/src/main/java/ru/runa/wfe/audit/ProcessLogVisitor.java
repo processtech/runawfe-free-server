@@ -26,7 +26,7 @@ public interface ProcessLogVisitor {
 
     void onActionLog(ActionLog actionLog);
 
-    void onCreateTimerActionLog(CreateTimerActionLog createTimerActionLog);
+    void onCreateTimerLog(CreateTimerLog createTimerLog);
 
     void onTaskCreateLog(TaskCreateLog taskCreateLog);
 

@@ -29,7 +29,6 @@ public class HiddenFormat extends VariableFormat implements VariableInputSupport
     @Override
     public String getInputHtml(User user, WebHelper webHelper, WfVariable variable) {
         return getHtml(user, webHelper, variable, false);
-
     }
 
     @Override
@@ -49,6 +48,11 @@ public class HiddenFormat extends VariableFormat implements VariableInputSupport
         }
         html += "/>";
         return html;
+    }
+
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onHidden(this, context);
     }
 
 }

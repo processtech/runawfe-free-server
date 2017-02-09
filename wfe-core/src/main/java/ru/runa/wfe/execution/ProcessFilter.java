@@ -3,11 +3,13 @@ package ru.runa.wfe.execution;
 import java.io.Serializable;
 import java.util.Date;
 
+import ru.runa.wfe.presentation.BatchPresentation;
+
 /**
  * Filter for process search.
  * 
  * @author Dofs
- * @since 4.0
+ * @since 4.0 TODO use {@link BatchPresentation} instead
  */
 public class ProcessFilter implements Serializable {
     private static final long serialVersionUID = 1L;

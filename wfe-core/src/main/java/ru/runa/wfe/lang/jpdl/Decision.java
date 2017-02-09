@@ -29,7 +29,6 @@ import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 
 /**
  * decision node.
@@ -56,17 +55,13 @@ public class Decision extends Node {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
-        try {
-            DecisionHandler decisionHandler = delegation.getInstance();
-            String transitionName = decisionHandler.decide(executionContext);
-            Preconditions.checkNotNull(transitionName, "Null transition name by condition");
-            Transition transition = getLeavingTransitionNotNull(transitionName);
-            log.debug("decision " + name + " is taking '" + transition + "'");
-            leave(executionContext, transition);
-        } catch (Exception exception) {
-            throw Throwables.propagate(exception);
-        }
+    protected void execute(ExecutionContext executionContext) throws Exception {
+        DecisionHandler decisionHandler = delegation.getInstance();
+        String transitionName = decisionHandler.decide(executionContext);
+        Preconditions.checkNotNull(transitionName, "Null transition name by condition");
+        Transition transition = getLeavingTransitionNotNull(transitionName);
+        log.debug("decision " + name + " is taking '" + transition + "'");
+        leave(executionContext, transition);
     }
 
 }

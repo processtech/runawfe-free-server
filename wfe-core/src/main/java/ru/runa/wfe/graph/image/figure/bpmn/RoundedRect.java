@@ -21,9 +21,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import ru.runa.wfe.graph.DrawProperties;
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
 
-public class RoundedRect extends AbstractFigure {
+public class RoundedRect extends AbstractBpmnFigure {
     private final String imageName;
 
     public RoundedRect(String imageName) {
@@ -43,7 +42,7 @@ public class RoundedRect extends AbstractFigure {
         if (imageName == null) {
             drawTextInfo(graphics, 1 + DrawProperties.GRID_SIZE / 2);
         } else {
-            drawImage(graphics, imageName);
+            drawImageIfNoEdgingOnly(graphics, imageName);
         }
         if (renderHits.isPassed()) {
             Rectangle rect = getTextBoundsRectangle();
@@ -54,7 +53,7 @@ public class RoundedRect extends AbstractFigure {
     @Override
     public Rectangle getTextBoundsRectangle() {
         Rectangle r = getRectangle();
-        if (!minimized) {
+        if (!node.isGraphMinimizedView()) {
             r.grow(-DrawProperties.GRID_SIZE / 2, -DrawProperties.GRID_SIZE / 2);
         }
         return r;

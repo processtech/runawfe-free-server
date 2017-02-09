@@ -47,6 +47,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnsToSubstituteEscalatedTasksPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddCreateDateColumns;
 import ru.runa.wfe.commons.dbpatch.impl.AddDeploymentAuditPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddDeploymentLockPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddDueDateExpressionToJobAndTask;
 import ru.runa.wfe.commons.dbpatch.impl.AddEmbeddedFileForBotTask;
 import ru.runa.wfe.commons.dbpatch.impl.AddHierarchyProcess;
@@ -57,6 +58,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
+import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
@@ -84,7 +86,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
- *
+ * 
  * @author Dofs
  */
 public class InitializerLogic {
@@ -154,6 +156,9 @@ public class InitializerLogic {
         dbPatches.add(ExpandVarcharPatch.class);
         dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
         dbPatches.add(CreateAdminScriptTables.class);
+        dbPatches.add(AddDeploymentLockPatch.class);
+        // dbPatches.add(AddVariableUniqueKeyPatch.class);
+        dbPatches.add(AddTokenErrorDataPatch.class);
     };
 
     @Autowired
@@ -224,7 +229,7 @@ public class InitializerLogic {
 
     /**
      * Initialize database.
-     *
+     * 
      * @param daoHolder
      *            Helper object for getting DAO's.
      */

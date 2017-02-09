@@ -1,15 +1,25 @@
 package ru.runa.wfe.lang;
 
+import java.util.List;
+
 import ru.runa.wfe.audit.ActionLog;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
-public class ScriptNode extends Node {
+public class ScriptNode extends Node implements BoundaryEventContainer {
     private static final long serialVersionUID = 1L;
     private Delegation delegation;
+    private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
+
+    @Override
+    public List<BoundaryEvent> getBoundaryEvents() {
+        return boundaryEvents;
+    }
 
     @Override
     public NodeType getNodeType() {
@@ -27,15 +37,19 @@ public class ScriptNode extends Node {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
-        log.debug("Executing " + this);
+    protected void execute(ExecutionContext executionContext) throws Exception {
+        executionContext.addLog(new ActionLog(this));
+        ActionHandler actionHandler = delegation.getInstance();
         try {
-            executionContext.addLog(new ActionLog(this));
-            ActionHandler actionHandler = delegation.getInstance();
             actionHandler.execute(executionContext);
         } catch (Exception e) {
-            log.error("Failed " + this);
-            throw Throwables.propagate(e);
+            log.error("Handling failed using " + executionContext + " in " + this, e);
+            if (hasErrorEventHandler()) {
+                Utils.sendBpmnErrorMessage(executionContext.getProcess().getId(), executionContext.getToken().getId(), getNodeId(), e);
+                return;
+            } else {
+                throw e;
+            }
         }
         leave(executionContext);
     }

@@ -26,6 +26,9 @@ import org.apache.ecs.html.Area;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.wfe.audit.NodeLog;
+import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.presentation.ProcessIdValue;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
@@ -53,7 +56,7 @@ public class GraphElementPresentationHelper {
 
     /**
      * Creates instance of helper class to create links to subprocesses in graph elements.
-     *
+     * 
      * @param taskId
      *            Current task identity. May be <= 0 if not applicable.
      * @param pageContext
@@ -81,7 +84,7 @@ public class GraphElementPresentationHelper {
 
     /**
      * Creates links to subprocesses, forked in given multiple instance graph element.
-     *
+     * 
      * @param element
      *            Multiple instance graph element to create links.
      */
@@ -122,7 +125,7 @@ public class GraphElementPresentationHelper {
 
     /**
      * Create link to subprocess, forked in given subprocess graph element.
-     *
+     * 
      * @param element
      *            Subprocess graph element to create link.
      * @return
@@ -136,7 +139,7 @@ public class GraphElementPresentationHelper {
             url = jsFunction + "(" + element.getSubprocessId() + ", '" + element.getEmbeddedSubprocessId() + "', "
                     + element.getEmbeddedSubprocessGraphWidth() + ", " + element.getEmbeddedSubprocessGraphHeight() + ");";
         } else {
-            url = getSubprocessUrl(action, element.getSubprocessId());
+            url = getSubprocessUrl(action, getLargeSubprocessId(element));
         }
         Area area = new Area("RECT", element.getGraphConstraints());
         area.setHref(url);
@@ -146,8 +149,43 @@ public class GraphElementPresentationHelper {
     }
 
     /**
+     * Look log writes to return last active(ended) subprocess instance id by large value
+     * 
+     * @param element
+     * @return
+     */
+    private Long getLargeSubprocessId(SubprocessNodeGraphElement element) {
+        Long result = element.getSubprocessId();
+        if (element.getData() == null) {
+            return result;
+        }
+        for (ProcessLog log : element.getData()) {
+            if (!(log instanceof NodeLog)) {
+                continue;
+            }
+            Object[] arguments = log.getPatternArguments();
+            if (arguments == null) {
+                continue;
+            }
+            Long currId = null;
+            for (int i = 0; i < arguments.length; i++) {
+                if (!(arguments[i] instanceof ProcessIdValue)) {
+                    continue;
+                }
+                currId = ((ProcessIdValue) arguments[i]).getId();
+                break;
+            }
+            if (currId == null || result >= currId) {
+                continue;
+            }
+            result = currId;
+        }
+        return result;
+    }
+
+    /**
      * Creates URL to subprocess with given identity.
-     *
+     * 
      * @param id
      *            Identity of subprocess.
      * @return URL to subprocess.
@@ -178,7 +216,7 @@ public class GraphElementPresentationHelper {
 
     /**
      * Creates tool tip for given task graph element.
-     *
+     * 
      * @param element
      *            Graph element, to create tool tip.
      * @return {@link Area} instance with tool tip or null, if {@link Area} not created.

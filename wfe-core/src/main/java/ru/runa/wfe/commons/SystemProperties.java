@@ -3,11 +3,11 @@ package ru.runa.wfe.commons;
 import java.util.Calendar;
 import java.util.List;
 
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
-import ru.runa.wfe.lang.NodeType;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.lang.NodeType;
 
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
@@ -54,6 +54,12 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("v4.2.list.variable.compatibility", true);
     }
 
+    /**
+     * Map variable back compatibility mode with version 4.2.x.
+     */
+    public static boolean isV4MapVariableCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.map.variable.compatibility", true);
+    }
     /**
      * Using cache state machine or old cache implementation.
      */
@@ -156,10 +162,6 @@ public class SystemProperties {
 
     public static String getEARFileName() {
         return RESOURCES.getStringProperty("ear.filename", "runawfe.ear");
-    }
-
-    public static boolean isAllowedNotDefinedVariables() {
-        return RESOURCES.getBooleanProperty("undefined.variables.allowed", false);
     }
 
     public static boolean isStrongVariableFormatEnabled() {

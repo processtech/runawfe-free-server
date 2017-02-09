@@ -115,7 +115,7 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         TaskDefinition taskDefinition = getFirstTaskNotNull();
         MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
         List<?> data = (List<?>) parameters.getDiscriminatorValue();

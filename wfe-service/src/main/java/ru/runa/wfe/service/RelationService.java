@@ -36,8 +36,7 @@ import ru.runa.wfe.user.User;
  */
 public interface RelationService {
     /**
-     * Creates {@link Relation} with specified name and description or throws
-     * {@link RelationAlreadyExistException} if relation with such name is
+     * Creates {@link Relation} with specified name and description or throws {@link RelationAlreadyExistException} if relation with such name is
      * already exists.
      * 
      * @param user
@@ -59,13 +58,12 @@ public interface RelationService {
      *            Relation to update.
      * @return Updated relation.
      * @throws RelationDoesNotExistException
-     *             Relation does not exists with such id.
+     *             Relation does not exist with such id.
      */
     public Relation updateRelation(User user, Relation relation) throws RelationDoesNotExistException;
 
     /**
-     * Return list of {@link Relation}, according to specified
-     * {@link BatchPresentation}.
+     * Return list of {@link Relation}, according to specified {@link BatchPresentation}.
      * 
      * @param user
      *            User, which perform operation.
@@ -76,9 +74,7 @@ public interface RelationService {
     public List<Relation> getRelations(User user, BatchPresentation batchPresentation);
 
     /**
-     * Return {@link Relation} with specified name or throws
-     * {@link RelationDoesNotExistException} if relation with such name does not
-     * exists.
+     * Return {@link Relation} with specified name or throws {@link RelationDoesNotExistException} if relation with such name does not exists.
      * 
      * @param user
      *            User, which perform operation.
@@ -91,9 +87,7 @@ public interface RelationService {
     public Relation getRelationByName(User user, String name) throws RelationDoesNotExistException;
 
     /**
-     * Return {@link Relation} with specified identity or throws
-     * {@link RelationDoesNotExistException} if relation with such identity does
-     * not exists.
+     * Return {@link Relation} with specified identity or throws {@link RelationDoesNotExistException} if relation with such identity does not exists.
      * 
      * @param user
      *            User, which perform operation.
@@ -113,7 +107,7 @@ public interface RelationService {
      * @param id
      *            Relation identity.
      * @throws RelationDoesNotExistException
-     *             Relation with specified identity does not exists.
+     *             Relation with specified identity does not exist.
      */
     public void removeRelation(User user, Long id) throws RelationDoesNotExistException;
 
@@ -130,7 +124,7 @@ public interface RelationService {
      *            Right part of relation pair.
      * @return Created relation pair.
      * @throws RelationDoesNotExistException
-     *             Relation with specified name does not exists.
+     *             Relation with specified name does not exist.
      */
     public RelationPair addRelationPair(User user, Long relationId, Executor left, Executor right) throws RelationDoesNotExistException;
 
@@ -142,7 +136,7 @@ public interface RelationService {
      * @param id
      *            {@link RelationPair} identity.
      * @throws RelationPairDoesnotExistException
-     *             {@link RelationPair} does not exists.
+     *             {@link RelationPair} does not exist.
      */
     public void removeRelationPair(User user, Long id) throws RelationPairDoesNotExistException;
 
@@ -154,13 +148,12 @@ public interface RelationService {
      * @param ids
      *            {@link RelationPair} identity.
      * @throws RelationPairDoesnotExistException
-     *             {@link RelationPair} does not exists.
+     *             {@link RelationPair} does not exist.
      */
     public void removeRelationPairs(User user, List<Long> ids) throws RelationPairDoesNotExistException;
 
     /**
-     * Return {@link RelationPair} for specified {@link Relation}, according to
-     * specified {@link BatchPresentation}.
+     * Return {@link RelationPair} for specified {@link Relation}, according to specified {@link BatchPresentation}.
      * 
      * @param user
      *            User, which perform operation.
@@ -174,37 +167,33 @@ public interface RelationService {
     public List<RelationPair> getRelationPairs(User user, String name, BatchPresentation batchPresentation) throws RelationDoesNotExistException;
 
     /**
-     * Return {@link RelationPair} for specified {@link Relation}, which right
-     * part contains executor from 'right' parameter.
+     * Return {@link RelationPair} for specified {@link Relation}, which right part contains executor from 'right' parameter.
      * 
      * @param user
      *            User, which perform operation.
      * @param name
      *            {@link Relation} name.
      * @param right
-     *            Collection of {@link Executor}, which contains in right part
-     *            of {@link RelationPair}.
+     *            Collection of {@link Executor}, which contains in right part of {@link RelationPair}.
      * @return List of {@link RelationPair}.
      * @throws RelationDoesNotExistException
-     *             {@link Relation} with specified name does not exists.
+     *             {@link Relation} with specified name does not exist.
      */
     public List<RelationPair> getExecutorsRelationPairsRight(User user, String name, List<? extends Executor> right)
             throws RelationDoesNotExistException;
 
     /**
-     * Return {@link RelationPair} for specified {@link Relation}, which left
-     * part contains executor from 'left' parameter.
+     * Return {@link RelationPair} for specified {@link Relation}, which left part contains executor from 'left' parameter.
      * 
      * @param user
      *            User, which perform operation.
      * @param name
      *            {@link Relation} name.
      * @param right
-     *            Collection of {@link Executor}, which contains in left part of
-     *            {@link RelationPair}.
+     *            Collection of {@link Executor}, which contains in left part of {@link RelationPair}.
      * @return List of {@link RelationPair}.
      * @throws RelationDoesNotExistException
-     *             {@link Relation} with specified name does not exists.
+     *             {@link Relation} with specified name does not exist.
      */
     public List<RelationPair> getExecutorsRelationPairsLeft(User user, String name, List<? extends Executor> left)
             throws RelationDoesNotExistException;

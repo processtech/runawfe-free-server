@@ -14,7 +14,7 @@ import ru.runa.wfe.validation.ValidationException;
 
 /**
  * Task service.
- *
+ * 
  * @author gbax
  * @since 4.2.1
  */
@@ -22,7 +22,7 @@ public interface TaskService {
 
     /**
      * Gets tasks for authenticated user by {@link BatchPresentation}.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -32,7 +32,7 @@ public interface TaskService {
 
     /**
      * Gets tasks by {@link BatchPresentation}.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -42,7 +42,7 @@ public interface TaskService {
 
     /**
      * Gets task by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param taskId
@@ -54,7 +54,7 @@ public interface TaskService {
 
     /**
      * Gets all process tasks.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -68,7 +68,7 @@ public interface TaskService {
 
     /**
      * Reassigns task to another executor.
-     *
+     * 
      * @param previousOwner
      *            old executor (check for multi-threaded change)
      * @param newOwner
@@ -80,7 +80,7 @@ public interface TaskService {
 
     /**
      * Reassigns tasks using TaskAssigner.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -90,7 +90,7 @@ public interface TaskService {
 
     /**
      * Reassigns task using TaskAssigner.
-     *
+     * 
      * @param user
      *            authorized user
      */
@@ -98,17 +98,15 @@ public interface TaskService {
 
     /**
      * Completes task by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param taskId
      *            task id
      * @param variables
-     *            variable values, can contain transition name by key
-     *            ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
+     *            variable values, can contain transition name by key ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
      * @param swimlaneActorId
-     *            actor id who will be assigned to task swimlane, can be
-     *            <code>null</code>
+     *            actor id who will be assigned to task swimlane, can be <code>null</code>
      * @throws TaskDoesNotExistException
      * @throws ValidationException
      */
@@ -117,7 +115,7 @@ public interface TaskService {
 
     /**
      * Marks task as read.
-     *
+     * 
      * @param user
      *            authorized user
      * @param taskId
@@ -128,7 +126,7 @@ public interface TaskService {
 
     /**
      * Delegate task to another users or groups.
-     *
+     * 
      * @param user
      *            authorized user
      * @param taskId
@@ -141,5 +139,10 @@ public interface TaskService {
      *            new executor list
      */
     public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners);
+
+    /**
+     * temporary method for #2151
+     */
+    public List<WfTask> getUnassignedTasks(User user);
 
 }

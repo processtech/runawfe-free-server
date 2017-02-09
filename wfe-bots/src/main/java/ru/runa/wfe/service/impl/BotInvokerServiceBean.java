@@ -97,7 +97,7 @@ public class BotInvokerServiceBean implements BotInvokerService {
 
     private static void invokeBotsImpl(BotStation botStation, boolean resetFailedDelay) {
         try {
-            log.debug("Invoking bots...");
+            log.debug("Invoking bots... resetFailedDelay = " + resetFailedDelay);
             BotInvokerFactory.getBotInvoker().invokeBots(botStation, resetFailedDelay);
         } catch (Throwable th) {
             log.error("Unable to invoke bots", th);
