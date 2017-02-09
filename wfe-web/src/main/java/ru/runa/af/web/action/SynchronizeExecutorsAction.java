@@ -32,8 +32,7 @@ import ru.runa.wfe.service.delegate.Delegates;
  * Created on 18.08.2004
  * 
  * @struts:action path="/synchronizeExecutors" validate="false"
- * @struts.action-forward name="success" path="/manage_executors.do" redirect =
- *                        "true"
+ * @struts.action-forward name="success" path="/manage_executors.do" redirect = "true"
  */
 public class SynchronizeExecutorsAction extends ActionBase {
 
@@ -42,7 +41,8 @@ public class SynchronizeExecutorsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse responce) {
         try {
-            Delegates.getSynchronizationService().synchronizeExecutorsWithLDAP(getLoggedUser(request), WebResources.isLDAPSynchronizationFull());
+            Delegates.getSynchronizationService().synchronizeExecutorsWithLDAP(getLoggedUser(request), WebResources.isLDAPSynchronizationCreate(),
+                    WebResources.isLDAPSynchronizationUpdate(), WebResources.isLDAPSynchronizationDelete());
         } catch (Exception e) {
             addError(request, e);
         }

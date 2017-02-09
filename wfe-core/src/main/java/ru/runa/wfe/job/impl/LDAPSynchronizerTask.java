@@ -6,7 +6,7 @@ public class LDAPSynchronizerTask extends JobTask<LDAPLogic> {
 
     @Override
     protected void execute() throws Exception {
-        getTransactionalExecutor().synchronizeExecutors(true, false);
+        getTransactionalExecutor().synchronizeExecutors(true, false, false, false);
     }
 
 }

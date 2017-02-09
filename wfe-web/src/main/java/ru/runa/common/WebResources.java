@@ -22,11 +22,11 @@ import java.util.List;
 
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
-
-import com.google.common.base.Strings;
 
 /**
  * Created on 30.09.2004
@@ -170,8 +170,16 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("synchronization.ldap.link.enabled", false);
     }
 
-    public static boolean isLDAPSynchronizationFull() {
+    public static boolean isLDAPSynchronizationCreate() {
         return RESOURCES.getBooleanProperty("synchronization.ldap.create.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationUpdate() {
+        return RESOURCES.getBooleanProperty("synchronization.ldap.update.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationDelete() {
+        return RESOURCES.getBooleanProperty("synchronization.ldap.delete.executors", false);
     }
 
     public static boolean isAjaxFileInputEnabled() {
