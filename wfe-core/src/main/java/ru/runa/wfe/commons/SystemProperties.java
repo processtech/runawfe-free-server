@@ -178,6 +178,10 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("trusted.authentication.enabled", false);
     }
 
+    public static boolean isCheckProcessStartPermissions() {
+        return RESOURCES.getBooleanProperty("check.process.start.permissions", true);
+    }
+
     public static boolean isTaskAssignmentStrictRulesEnabled() {
         return RESOURCES.getBooleanProperty("task.assignment.strict.rules.enabled", true);
     }
