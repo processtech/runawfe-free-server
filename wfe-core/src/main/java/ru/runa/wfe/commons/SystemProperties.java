@@ -3,11 +3,11 @@ package ru.runa.wfe.commons;
 import java.util.Calendar;
 import java.util.List;
 
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
-import ru.runa.wfe.lang.NodeType;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.lang.NodeType;
 
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
@@ -152,6 +152,18 @@ public class SystemProperties {
 
     public static boolean isLDAPSynchronizationEnabled() {
         return RESOURCES.getBooleanProperty("ldap.synchronizer.enabled", false);
+    }
+
+    public static boolean isLDAPSynchronizationCreate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.create.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationUpdate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.update.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationDelete() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.delete.executors", false);
     }
 
     public static String getEARFileName() {
