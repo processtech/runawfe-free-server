@@ -27,12 +27,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -75,6 +69,12 @@ import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.format.VariableFormatContainer;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Variables access logic.
@@ -233,7 +233,7 @@ public class VariableLogic extends WFCommonLogic {
         Map<Process, Map<String, Variable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
         VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
         ProcessDefinition processDefinition = getDefinition(process);
-        BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, process, processDefinition);
+        BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, processDefinition, process);
         removeSyncVariablesInBaseProcessMode(processStateOnTime, baseProcessVariableLoader);
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
@@ -389,6 +389,7 @@ public class VariableLogic extends WFCommonLogic {
         try {
             filter.setProcessId(process.getId());
             HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
+            // TODO 2505 load from db only VariableLogs?
             for (VariableLog variableLog : auditLogic.getProcessLogs(user, filter).getLogs(VariableLog.class)) {
                 String variableName = variableLog.getVariableName();
                 if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {

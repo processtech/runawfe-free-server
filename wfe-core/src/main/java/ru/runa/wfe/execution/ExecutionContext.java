@@ -30,10 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
@@ -67,6 +63,10 @@ import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
@@ -105,7 +105,7 @@ public class ExecutionContext {
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
         this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
-        baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcess(), getProcessDefinition());
+        baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
@@ -255,8 +255,8 @@ public class ExecutionContext {
         value = convertValueForVariableType(variableDefinition, value);
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(),
                 baseProcessVariableLoader, variableDAO);
-        for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull().processBy(new ConvertToSimpleVariables(),
-                context)) {
+        for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull()
+                .processBy(new ConvertToSimpleVariables(), context)) {
             setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, simpleVariables.value);
         }
     }
@@ -285,8 +285,7 @@ public class ExecutionContext {
         return value;
     }
 
-    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition,
-            Object value) {
+    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value) {
         VariableLog resultingVariableLog = null;
         Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
@@ -298,7 +297,7 @@ public class ExecutionContext {
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
-        final ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
+        final BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
         if (variable == null) {
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
@@ -329,8 +328,8 @@ public class ExecutionContext {
                             String sizeVariableName = listVariableName + VariableFormatContainer.SIZE_SUFFIX;
                             VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
                             Integer oldSize = (Integer) variableLoader.getVariableValue(processDefinition, token.getProcess(), sizeDefinition);
-                            int listIndex = Integer.parseInt(autoExtendVariableName
-                                    .substring(listIndexStart + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
+                            int listIndex = Integer.parseInt(autoExtendVariableName.substring(listIndexStart
+                                    + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
                             int newSize = listIndex + 1;
                             if (oldSize == null || oldSize.intValue() < newSize) {
                                 log.debug("Auto-extending list " + listVariableName + " size: " + oldSize + " -> " + newSize);

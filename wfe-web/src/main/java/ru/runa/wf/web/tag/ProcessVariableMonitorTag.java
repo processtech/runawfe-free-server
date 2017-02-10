@@ -17,7 +17,6 @@
  */
 package ru.runa.wf.web.tag;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -29,10 +28,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
@@ -51,6 +46,10 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processVariableMonitor")
 public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
@@ -81,7 +80,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
         ProcessLogFilter historyFilter = null;
         String date = pageContext.getRequest().getParameter("date");
         if (!Strings.isNullOrEmpty(date)) {
-            Date historicalDateTo = CalendarUtil.convertToDate(date, DateFormat.getDateTimeInstance());
+            Date historicalDateTo = CalendarUtil.convertToDate(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
             Calendar dateToCalendar = CalendarUtil.dateToCalendar(historicalDateTo);
             dateToCalendar.add(Calendar.SECOND, 5);
             historicalDateTo = dateToCalendar.getTime();
@@ -106,8 +105,8 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
             updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
         }
 
-        List<WfVariable> variables = historyFilter == null ? Delegates.getExecutionService().getVariables(user, getIdentifiableId())
-                : Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
+        List<WfVariable> variables = historyFilter == null ? Delegates.getExecutionService().getVariables(user, getIdentifiableId()) : Delegates
+                .getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));

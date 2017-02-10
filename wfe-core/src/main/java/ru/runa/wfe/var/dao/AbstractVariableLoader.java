@@ -16,20 +16,19 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 /**
  * Base implementation for {@link VariableLoader}. Contains common methods implementation.
  */
-public abstract class BaseVariableLoaderImpl implements VariableLoader {
-
-    public BaseVariableLoaderImpl() {
-        super();
-    }
+public abstract class AbstractVariableLoader implements VariableLoader {
+    /**
+     * Logging support.
+     */
+    protected final Log log = LogFactory.getLog(getClass());
 
     @Override
     public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
         VariableDefinition variableDefinition = processDefinition.getVariable(variableName, false);
-        Log log = LogFactory.getLog(this.getClass());
         if (variableDefinition != null) {
             Object variableValue = getVariableValue(processDefinition, process, variableDefinition);
-            if (variableValue == null && SystemProperties.isV4ListVariableCompatibilityMode() && variableName.endsWith(
-                    VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
+            if (variableValue == null && SystemProperties.isV4ListVariableCompatibilityMode()
+                    && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
                 int startQualifierIndex = variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
                 int endQualifierIndex = variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END);
                 String listVariableName = variableName.substring(0, startQualifierIndex);

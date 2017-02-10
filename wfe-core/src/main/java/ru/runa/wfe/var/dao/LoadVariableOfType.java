@@ -3,10 +3,8 @@ package ru.runa.wfe.var.dao;
 import java.util.List;
 import java.util.Map;
 
-import org.jfree.util.Log;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -35,10 +33,17 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.legacy.ComplexVariable;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 /**
  * Load variable value depends of variable type.
  */
 public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVariableOfTypeContext> {
+    /**
+     * Logging support.
+     */
+    private static Log log = LogFactory.getLog(LoadVariableOfType.class);
 
     @Override
     public Object onDate(DateFormat dateFormat, LoadVariableOfTypeContext context) {
@@ -56,7 +61,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
     }
 
     @Override
-    public Object OnExecutor(ExecutorFormat executorFormat, LoadVariableOfTypeContext context) {
+    public Object onExecutor(ExecutorFormat executorFormat, LoadVariableOfTypeContext context) {
         return loadSimpleVariable(executorFormat, context);
     }
 
@@ -99,7 +104,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         if (size == null && SystemProperties.isV4ListVariableCompatibilityMode()) {
             Variable<?> variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
             if (variable != null) {
-                return processComplexVariablesPre430(context.processDefinition, context.variableDefinition, null, variable.getValue());
+                return processComplexVariables(context.processDefinition, context.variableDefinition, null, variable.getValue());
             }
             return null;
         }
@@ -125,7 +130,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             return variableDefinition.getDefaultValue();
         }
         Object value = variable.getValue();
-        value = processComplexVariablesPre430(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
+        value = processComplexVariables(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
         return value;
     }
 
@@ -148,27 +153,29 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
     public Object onUserType(UserTypeFormat userTypeFormat, LoadVariableOfTypeContext context) {
         VariableDefinition variableDefinition = context.variableDefinition;
         UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
-        Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
-        if (variable != null) {
-            // Back compatibility for variables stored as blob.
-            if (variable.getValue() == null) {
-                return variableDefinition.getDefaultValue();
-            }
-            if (!(variable.getValue() instanceof ComplexVariable)) {
-                Log.error("User type variable " + variableDefinition.getName() + " has unexpected value of type " + variable.getValue().getClass()
-                        + ". Returning default.");
-                return variableDefinition.getDefaultValue();
-            }
-            UserTypeMap map = new UserTypeMap(userTypeFormat.getUserType());
-            // limitation: embedded complex variables
-            map.putAll((ComplexVariable) variable.getValue());
-            return map;
-        }
         for (VariableDefinition attributeDefinition : variableDefinition.getUserType().getAttributes()) {
             String fullName = variableDefinition.getName() + UserType.DELIM + attributeDefinition.getName();
             VariableDefinition definition = new VariableDefinition(fullName, null, attributeDefinition);
             Object value = definition.getFormatNotNull().processBy(this, context.сreateFor(definition));
             userTypeMap.put(attributeDefinition.getName(), value);
+        }
+        if (userTypeMap.isEmpty()) {
+            Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            if (variable != null) {
+                // Back compatibility for variables stored as blob.
+                if (variable.getValue() == null) {
+                    return variableDefinition.getDefaultValue();
+                }
+                if (!(variable.getValue() instanceof ComplexVariable)) {
+                    log.error("User type variable " + variableDefinition.getName() + " has unexpected value of type "
+                            + variable.getValue().getClass() + ". Returning default.");
+                    return variableDefinition.getDefaultValue();
+                }
+                UserTypeMap map = new UserTypeMap(userTypeFormat.getUserType());
+                // limitation: embedded complex variables
+                map.putAll((ComplexVariable) variable.getValue());
+                return map;
+            }
         }
         return userTypeMap;
     }
@@ -194,16 +201,13 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             return variableDefinition.getDefaultValue();
         }
         Object value = variable.getValue();
-        // TODO: Есть сильные подозрения, что для простых переменных даже в какие то мохнатые года не использовалась замена значения типа переменной.
-        // То есть в переменной всегда находится тот тип, который и прописан для переменной и вызов processComplexVariablesPre430 имеет смысл только
-        // для переменных составного типа. Если же в старых процессах используются переменные, которые вместо простого типа, определенного в процессе,
-        // хранят значение составного типа, то не судьба им посмотреть такую переменную.
-        // value = processComplexVariablesPre430(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
         return value;
     }
 
-    public static Object processComplexVariablesPre430(ProcessDefinition processDefinition, VariableDefinition variableDefinition, UserType userType,
-            Object value) {
+    /**
+     * ComplexVariable -> UserTypeMap conversion was made before v4.3.0
+     */
+    private Object processComplexVariables(ProcessDefinition processDefinition, VariableDefinition variableDefinition, UserType userType, Object value) {
         if (value instanceof ComplexVariable) {
             UserTypeMap map = new UserTypeMap(userType);
             // limitation: embedded complex variables
@@ -218,12 +222,12 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             Map<Object, Object> map = (Map<Object, Object>) value;
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
-                    map.put(entry.getKey(), processComplexVariablesPre430(processDefinition, null, variableDefinition
-                            .getFormatComponentUserTypes()[0], entry.getValue()));
+                    map.put(entry.getKey(),
+                            processComplexVariables(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], entry.getValue()));
                 }
                 if (variableDefinition.getFormatComponentUserTypes()[1] != null) {
-                    map.put(entry.getKey(), processComplexVariablesPre430(processDefinition, null, variableDefinition
-                            .getFormatComponentUserTypes()[1], entry.getValue()));
+                    map.put(entry.getKey(),
+                            processComplexVariables(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[1], entry.getValue()));
                 }
             }
         }
@@ -232,8 +236,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             List<Object> list = (List<Object>) value;
             for (int i = 0; i < list.size(); i++) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
-                    list.set(i, processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], list.get(
-                            i)));
+                    list.set(i, processComplexVariables(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0], list.get(i)));
                 }
             }
         }

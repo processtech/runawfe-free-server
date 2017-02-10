@@ -3,18 +3,20 @@ package ru.runa.wfe.var;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.ConvertToSimpleVariables;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesContext;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesResult;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesUnrollContext;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.var.dto.Variables;
 import ru.runa.wfe.var.dto.WfVariable;
+
+import com.google.common.collect.Maps;
 
 public class MapVariableProvider extends AbstractVariableProvider {
     protected final Map<String, Object> values = Maps.newHashMap();
+    // TODO 2505 seems ugly; try to extract ProcessDefinitionMapVariableProvider for that case
     private final ProcessDefinition processDefinition;
 
     public MapVariableProvider(Map<String, ? extends Object> variables) {
@@ -69,7 +71,7 @@ public class MapVariableProvider extends AbstractVariableProvider {
      *            Flag, equals true, if variables must be unrolled to database related (simple) values and false otherwise.
      */
     public MapVariableProvider(List<WfVariable> variables, boolean unroll) {
-        this(convertVariablesListToMap(variables), unroll, null);
+        this(Variables.toMap(variables), unroll, null);
     }
 
     public void add(String variableName, Object object) {
@@ -144,18 +146,4 @@ public class MapVariableProvider extends AbstractVariableProvider {
         return new MapVariableProvider(values);
     }
 
-    /**
-     * Convert variables list to map from variable name to variable.
-     *
-     * @param variables
-     *            Variables list.
-     * @return Returns map from variable name to variable.
-     */
-    private static Map<String, WfVariable> convertVariablesListToMap(List<WfVariable> variables) {
-        Map<String, WfVariable> map = Maps.newHashMap();
-        for (WfVariable var : variables) {
-            map.put(var.getDefinition().getName(), var);
-        }
-        return map;
-    }
 }
