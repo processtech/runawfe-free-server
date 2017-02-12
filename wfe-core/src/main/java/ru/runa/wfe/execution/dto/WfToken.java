@@ -56,6 +56,8 @@ public class WfToken implements Serializable {
         endDate = token.getEndDate();
         node = token.getNodeNotNull(processDefinition);
         executionStatus = token.getExecutionStatus();
+        // TODO
+//        transitionId?
     }
 
     public Long getParentId() {

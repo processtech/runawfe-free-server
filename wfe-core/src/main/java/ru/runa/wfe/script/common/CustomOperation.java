@@ -32,7 +32,7 @@ public class CustomOperation extends ScriptOperation {
     @Override
     public void validate(ScriptExecutionContext context) {
         try {
-            CustomAdminScriptJob job = ClassLoaderUtil.instantiate(jobClass);
+            ClassLoaderUtil.instantiate(jobClass);
         } catch (Exception e) {
             throw new ScriptValidationException(this, e);
         }

@@ -524,7 +524,7 @@ public class DefinitionLogic extends WFCommonLogic {
         return definitionsWithPermission;
     }
 
-    private final class DefinitionIdentifiable extends Identifiable {
+    private static final class DefinitionIdentifiable extends Identifiable {
 
         private static final long serialVersionUID = 1L;
         private final String deploymentName;
@@ -536,7 +536,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
         @Override
         public Long getIdentifiableId() {
-            return new Long(deploymentName.hashCode());
+            return Long.valueOf(deploymentName.hashCode());
         }
 
         @Override
@@ -549,7 +549,7 @@ public class DefinitionLogic extends WFCommonLogic {
         }
     }
 
-    private final class StartProcessPermissionCheckCallback implements CheckMassPermissionCallback {
+    private static final class StartProcessPermissionCheckCallback implements CheckMassPermissionCallback {
         private final List<WfDefinition> result;
         private final Map<Deployment, ProcessDefinition> processDefinitions;
 

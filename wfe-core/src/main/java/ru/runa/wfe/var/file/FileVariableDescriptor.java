@@ -24,6 +24,7 @@ public class FileVariableDescriptor extends FileVariable {
     @Override
     public byte[] getData() {
         if (localData == null) {
+            // TODO variablePath == null всегда
             File file = LocalFileSystemStorage.getContentFile(variablePath, false);
             try {
                 localData = Files.toByteArray(file);

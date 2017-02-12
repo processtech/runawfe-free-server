@@ -71,26 +71,26 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
             filter.addSeverity(Severity.valueOf(severityName));
         }
         // filter
-        String filterHtml = "\n";
-        filterHtml += "<form action=\"" + Commons.getActionUrl("/show_history", pageContext, PortletUrlType.Action) + "\" method=\"get\">\n";
-        filterHtml += "<input type=\"hidden\" name=\"id\" value=\"" + filter.getProcessId() + "\">\n";
-        filterHtml += "<table class=\"box\"><tr><th class=\"box\">" + MessagesBatch.FILTER_CRITERIA.message(pageContext) + "</th></tr>\n";
-        filterHtml += "<tr><td>\n";
-        filterHtml += "<input type=\"checkbox\" name=\"withSubprocesses\" value=\"true\"";
+        StringBuilder filterHtml = new StringBuilder("\n");
+        filterHtml.append("<form action=\"").append(Commons.getActionUrl("/show_history", pageContext, PortletUrlType.Action)).append("\" method=\"get\">\n");
+        filterHtml.append("<input type=\"hidden\" name=\"id\" value=\"").append(filter.getProcessId()).append("\">\n");
+        filterHtml.append("<table class=\"box\"><tr><th class=\"box\">").append(MessagesBatch.FILTER_CRITERIA.message(pageContext)).append("</th></tr>\n");
+        filterHtml.append("<tr><td>\n");
+        filterHtml.append("<input type=\"checkbox\" name=\"withSubprocesses\" value=\"true\"");
         if (filter.isIncludeSubprocessLogs()) {
-            filterHtml += " checked=\"true\"";
+            filterHtml.append(" checked=\"true\"");
         }
-        filterHtml += ">" + MessagesProcesses.TITLE_SUBPROCESSES_LIST.message(pageContext) + "\n";
+        filterHtml.append(">").append(MessagesProcesses.TITLE_SUBPROCESSES_LIST.message(pageContext)).append("\n");
         for (Severity severity : Severity.values()) {
-            filterHtml += "<input type=\"checkbox\" name=\"severities\" value=\"" + severity.name() + "\"";
+            filterHtml.append("<input type=\"checkbox\" name=\"severities\" value=\"").append(severity.name()).append("\"");
             if (filter.getSeverities().contains(severity)) {
-                filterHtml += " checked=\"true\"";
+                filterHtml.append(" checked=\"true\"");
             }
-            filterHtml += "> " + severity.name() + "\n";
+            filterHtml.append("> " + severity.name() + "\n");
         }
-        filterHtml += "<button type=\"submit\">" + MessagesProcesses.BUTTON_FORM.message(pageContext) + "</button>\n";
-        filterHtml += "</td></tr></table>\n";
-        tdFormElement.addElement(filterHtml);
+        filterHtml.append("<button type=\"submit\">").append(MessagesProcesses.BUTTON_FORM.message(pageContext)).append("</button>\n");
+        filterHtml.append("</td></tr></table>\n");
+        tdFormElement.addElement(filterHtml.toString());
         // content
         ProcessLogs logs = Delegates.getAuditService().getProcessLogs(getUser(), filter);
         int maxLevel = logs.getMaxSubprocessLevel();

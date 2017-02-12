@@ -51,7 +51,7 @@ public class ConvertMapsToListsHandler extends CommonHandler {
         return output;
     }
 
-    private class SortingKey implements Comparable<SortingKey> {
+    private static class SortingKey implements Comparable<SortingKey> {
         private final Comparable sortedValue;
         private final Object key;
 

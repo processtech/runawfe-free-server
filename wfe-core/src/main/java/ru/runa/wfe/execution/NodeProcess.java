@@ -124,14 +124,14 @@ public class NodeProcess {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return id.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BotStation) {
+        if (obj instanceof NodeProcess) {
             NodeProcess b = (NodeProcess) obj;
-            return Objects.equal(id, b.id);
+            return id.equals(b.id);
         }
         return super.equals(obj);
     }

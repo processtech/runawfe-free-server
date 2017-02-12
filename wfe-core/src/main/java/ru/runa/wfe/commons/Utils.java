@@ -39,7 +39,7 @@ import ru.runa.wfe.var.VariableMapping;
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
     private static Log log = LogFactory.getLog(Utils.class);
-    private static InitialContext initialContext;
+    private static volatile InitialContext initialContext;
     private static TransactionManager transactionManager;
     private static ConnectionFactory connectionFactory;
     private static Queue bpmMessageQueue;

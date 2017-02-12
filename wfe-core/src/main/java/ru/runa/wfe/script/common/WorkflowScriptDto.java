@@ -82,8 +82,6 @@ public class WorkflowScriptDto extends OperationsListContainer {
     }
 
     public static class MySchemaOutputResolver extends SchemaOutputResolver {
-        int idx = 0;
-
         MySchemaOutputResolver() {
         }
 

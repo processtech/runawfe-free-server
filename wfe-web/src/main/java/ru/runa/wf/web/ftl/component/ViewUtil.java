@@ -94,24 +94,24 @@ public class ViewUtil {
     }
 
     public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort, boolean enabled) {
-        String html = "<select name=\"" + variableName + "\"";
+        StringBuilder html = new StringBuilder("<select name=\"").append(variableName).append("\"");
         if (!enabled) {
-            html += " disabled=\"true\"";
+            html.append(" disabled=\"true\"");
         }
-        html += ">";
+        html.append(">");
         if (javaSort) {
             Collections.sort(executors);
         }
-        html += "<option value=\"\"> ------------------------- </option>";
+        html.append("<option value=\"\"> ------------------------- </option>");
         for (Executor executor : executors) {
-            html += "<option value=\"ID" + executor.getId() + "\"";
+            html.append("<option value=\"ID").append(executor.getId()).append("\"");
             if (Objects.equal(executor, value)) {
-                html += " selected";
+                html.append(" selected");
             }
-            html += ">" + executor.getLabel() + "</option>";
+            html.append(">").append(executor.getLabel()).append("</option>");
         }
-        html += "</select>";
-        return html;
+        html.append("</select>");
+        return html.toString();
     }
 
     public static WfVariable createVariable(String variableName, String scriptingName, VariableFormat componentFormat, Object value) {
@@ -595,20 +595,20 @@ public class ViewUtil {
             boolean hasTime = false;
             boolean hasDateTime = false;
             boolean hasFile = false;
-            String componentJsHandlers = "";
+            StringBuilder componentJsHandlers = new StringBuilder();
             String componentClassName = ((ListFormat) variableFormat).getComponentClassName(0);
             if (DateFormat.class.getName().equals(componentClassName) && !hasDate) {
                 hasDate = true;
-                componentJsHandlers += "$('.inputDate').datepicker({ dateFormat: 'dd.mm.yy', buttonImage: '/wfe/images/calendar.gif' });\n";
+                componentJsHandlers.append("$('.inputDate').datepicker({ dateFormat: 'dd.mm.yy', buttonImage: '/wfe/images/calendar.gif' });\n");
             } else if (TimeFormat.class.getName().equals(componentClassName) && !hasTime) {
                 hasTime = true;
-                componentJsHandlers += "$('.inputTime').timepicker({ ampm: false, seconds: false });\n";
+                componentJsHandlers.append("$('.inputTime').timepicker({ ampm: false, seconds: false });\n");
             } else if (DateTimeFormat.class.getName().equals(componentClassName) && !hasDateTime) {
                 hasDateTime = true;
-                componentJsHandlers += "$('.inputDateTime').datetimepicker({ dateFormat: 'dd.mm.yy' });\n";
+                componentJsHandlers.append("$('.inputDateTime').datetimepicker({ dateFormat: 'dd.mm.yy' });\n");
             } else if (FileFormat.class.getName().equals(componentClassName) && !hasFile && WebResources.isAjaxFileInputEnabled()) {
                 hasFile = true;
-                componentJsHandlers += "$('.dropzone').each(function () { initFileInput($(this)) });\n";
+                componentJsHandlers.append("$('.dropzone').each(function () { initFileInput($(this)) });\n");
             } else if (ListFormat.class.getName().equals(componentClassName)) {
                 throw new InternalApplicationException("Embedded lists does not supported");
             } else if (UserTypeFormat.class.getName().equals(componentClassName)) {
@@ -616,22 +616,22 @@ public class ViewUtil {
                     VariableFormat nestedFormat = FormatCommons.create(variableDefinition);
                     if (DateFormat.class == nestedFormat.getClass() && !hasDate) {
                         hasDate = true;
-                        componentJsHandlers += getComponentJSFunction(nestedFormat);
+                        componentJsHandlers.append(getComponentJSFunction(nestedFormat));
                     } else if (TimeFormat.class == nestedFormat.getClass() && !hasTime) {
                         hasTime = true;
-                        componentJsHandlers += getComponentJSFunction(nestedFormat);
+                        componentJsHandlers.append(getComponentJSFunction(nestedFormat));
                     } else if (DateTimeFormat.class == nestedFormat.getClass() && !hasDateTime) {
                         hasDateTime = true;
-                        componentJsHandlers += getComponentJSFunction(nestedFormat);
+                        componentJsHandlers.append(getComponentJSFunction(nestedFormat));
                     } else if (FileFormat.class == nestedFormat.getClass() && !hasFile) {
                         hasFile = true;
-                        componentJsHandlers += getComponentJSFunction(nestedFormat);
+                        componentJsHandlers.append(getComponentJSFunction(nestedFormat));
                     } else if (ListFormat.class == nestedFormat.getClass()) {
                         throw new InternalApplicationException("Embedded lists does not supported");
                     }
                 }
             }
-            return componentJsHandlers;
+            return componentJsHandlers.toString();
         }
         return "";
     }

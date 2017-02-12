@@ -39,7 +39,7 @@ public class ViewLogsTag extends TagSupport {
     @Override
     public int doStartTag() {
         try {
-            String html = "";
+            StringBuilder html = new StringBuilder();
             File dirFile = new File(logDirPath);
             if (dirFile.exists() && dirFile.isDirectory()) {
                 if (Delegates.getAuthorizationService().isAllowed(getUser(), SystemPermission.VIEW_LOGS, ASystem.INSTANCE)) {
@@ -51,20 +51,20 @@ public class ViewLogsTag extends TagSupport {
                             Map<String, String> params = new HashMap<String, String>();
                             params.put("fileName", file.getName());
                             String href = Commons.getActionUrl(ViewLogsAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
-                            html += "<a href=\"" + href + "\">" + file.getName() + " (" + kiloBytes + "KB)</a>&nbsp;&nbsp;&nbsp;";
+                            html.append("<a href=\"").append(href).append("\">").append(file.getName()).append(" (").append(kiloBytes).append("KB)</a>&nbsp;&nbsp;&nbsp;");
                         }
                     }
                 } else {
-                    html += "<ul>";
+                    html.append("<ul>");
                     for (File file : dirFile.listFiles()) {
-                        html += "<li>" + file.getName() + "</li>";
+                        html.append("<li>").append(file.getName()).append("</li>");
                     }
-                    html += "</ul>";
+                    html.append("</ul>");
                 }
             } else {
-                html += "unknown " + logDirPath;
+                html.append("unknown ").append(logDirPath);
             }
-            pageContext.getOut().write(html);
+            pageContext.getOut().write(html.toString());
             return Tag.SKIP_BODY;
         } catch (IOException e) {
             throw Throwables.propagate(e);

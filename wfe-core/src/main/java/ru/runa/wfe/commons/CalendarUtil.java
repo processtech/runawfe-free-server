@@ -19,13 +19,19 @@ import ru.runa.wfe.InternalApplicationException;
  * @since 4.0
  */
 public class CalendarUtil {
+    @Deprecated
     public static final DateFormat DATE_WITHOUT_TIME_FORMAT = new SimpleDateFormat(SystemProperties.getDateFormatPattern());
+    @Deprecated
     public static final DateFormat DATE_WITH_HOUR_MINUTES_FORMAT = new SimpleDateFormat(SystemProperties.getDateFormatPattern() + " HH:mm");
+    @Deprecated
     public static final DateFormat DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT = new SimpleDateFormat(SystemProperties.getDateFormatPattern() + " HH:mm:ss");
+    @Deprecated
     public static final DateFormat HOURS_MINUTES_FORMAT = new SimpleDateFormat("HH:mm");
+    @Deprecated
     public static final DateFormat HOURS_MINUTES_SECONDS_FORMAT = new SimpleDateFormat("HH:mm:ss");
-
+    @Deprecated
     private static final Calendar UNLIMITED_DATE = getZeroTimeCalendar(Calendar.getInstance());
+    @Deprecated
     private static final Calendar ZERO_DATE = getZeroTimeCalendar(Calendar.getInstance());
     static {
         ZERO_DATE.set(Calendar.YEAR, 1970);

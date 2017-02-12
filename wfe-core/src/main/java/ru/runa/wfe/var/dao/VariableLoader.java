@@ -217,12 +217,14 @@ public class VariableLoader {
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
         UserType[] formatComponentUserTypes = variableDefinition.getFormatComponentUserTypes();
         UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
-        for (int i = 0; i < size; i++) {
-            String componentName = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
-                    + VariableFormatContainer.COMPONENT_QUALIFIER_END;
-            VariableDefinition componentDefinition = new VariableDefinition(componentName, null, componentFormat, componentUserType);
-            Object componentValue = getVariableValue(processDefinition, process, componentDefinition);
-            list.add(componentValue);
+        if (null != size) {
+            for (int i = 0; i < size; i++) {
+                String componentName = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
+                        + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+                VariableDefinition componentDefinition = new VariableDefinition(componentName, null, componentFormat, componentUserType);
+                Object componentValue = getVariableValue(processDefinition, process, componentDefinition);
+                list.add(componentValue);
+            }
         }
         return list;
     }

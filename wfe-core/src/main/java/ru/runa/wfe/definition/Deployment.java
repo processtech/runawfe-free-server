@@ -157,7 +157,7 @@ public class Deployment extends Identifiable {
     @Transient
     @Override
     public Long getIdentifiableId() {
-        return new Long(getName().hashCode());
+        return Long.valueOf(getName().hashCode());
     }
 
     @Transient

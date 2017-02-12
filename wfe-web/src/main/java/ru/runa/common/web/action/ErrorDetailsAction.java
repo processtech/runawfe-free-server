@@ -123,15 +123,14 @@ public class ErrorDetailsAction extends ActionBase {
                     Map<String, byte[]> processFiles = Maps.newHashMap();
                     JSONArray files = new JSONArray();
                     for (Long processId : processesEntry.getValue()) {
-                        String exceptions = "";
+                        StringBuilder exceptions = new StringBuilder();
                         List<ProcessError> errorDetails = ProcessExecutionErrors.getProcessErrors().get(processId);
                         for (ProcessError detail : errorDetails) {
-                            exceptions += "\r\n---------------------------------------------------------------";
-                            exceptions += "\r\n" + CalendarUtil.formatDateTime(detail.getOccurredDate()) + " " + detail.getNodeId() + "/"
-                                    + detail.getTaskName();
+                            exceptions.append("\r\n---------------------------------------------------------------");
+                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(detail.getOccurredDate())).append(" ").append(detail.getNodeId()).append("/").append(detail.getTaskName());
                             if (detail.getBotTask() != null) {
                                 String botTaskIdentifier = detail.getBotTask().getId() + "." + detail.getBotTask().getName();
-                                exceptions += "\r\nbot task = " + detail.getBotTask().getTaskHandlerClassName() + "/" + botTaskIdentifier;
+                                exceptions.append("\r\nbot task = ").append(detail.getBotTask().getTaskHandlerClassName()).append("/").append(botTaskIdentifier);
                                 if (!processFiles.containsKey(botTaskIdentifier)) {
                                     processFiles.put(botTaskIdentifier, detail.getBotTask().getConfiguration());
                                     addSupportFileInfo(files, MessageFormat.format(
@@ -139,9 +138,9 @@ public class ErrorDetailsAction extends ActionBase {
                                             true);
                                 }
                             }
-                            exceptions += "\r\n" + detail.getThrowableDetails();
+                            exceptions.append("\r\n").append(detail.getThrowableDetails());
                         }
-                        processFiles.put("exceptions." + processId + ".txt", exceptions.getBytes(Charsets.UTF_8));
+                        processFiles.put("exceptions." + processId + ".txt", exceptions.toString().getBytes(Charsets.UTF_8));
                     }
                     addSupportFileInfo(files, getResources(request).getMessage("support.file.exceptions"), true);
                     for (WfProcess process : processes) {

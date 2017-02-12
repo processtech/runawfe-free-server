@@ -299,7 +299,7 @@ public class ExecutionContext {
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         if (!SystemProperties.isV3CompatibilityMode()) {
-            if (value != null && variableDefinition != null && SystemProperties.isStrongVariableFormatEnabled()) {
+            if (value != null && SystemProperties.isStrongVariableFormatEnabled()) {
                 Class<?> definedClass = variableDefinition.getFormatNotNull().getJavaClass();
                 if (!definedClass.isAssignableFrom(value.getClass())) {
                     if (SystemProperties.isVariableAutoCastingEnabled()) {

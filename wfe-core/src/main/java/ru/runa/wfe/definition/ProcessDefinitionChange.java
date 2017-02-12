@@ -11,7 +11,7 @@ public class ProcessDefinitionChange implements Serializable {
     private String comment;
 
     public ProcessDefinitionChange() {
-        this.version = new Long(-1);
+        this.version = Long.valueOf(-1);
         this.date = Calendar.getInstance();
         this.author = "";
         this.comment = "";

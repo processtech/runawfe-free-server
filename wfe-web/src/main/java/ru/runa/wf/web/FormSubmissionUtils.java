@@ -103,14 +103,14 @@ public class FormSubmissionUtils {
     private static Map<String, String[]> extractAllAvailableVariables(ActionForm actionForm) {
         Hashtable<String, Object> hashtable = actionForm.getMultipartRequestHandler().getAllElements();
         Map<String, String[]> variablesMap = new HashMap<String, String[]>();
-        for (String varName : hashtable.keySet()) {
-            Object value = hashtable.get(varName);
+        for (Map.Entry<String, Object> entry : hashtable.entrySet()) {
+            Object value = entry.getValue();
             if (value instanceof FormFile) {
                 // we could not fulfill in future this type of the input on the
                 // web page (access restriction), so discard it
                 continue;
             } else {
-                variablesMap.put(varName, (String[]) value);
+                variablesMap.put(entry.getKey(), (String[]) value);
             }
         }
         return variablesMap;

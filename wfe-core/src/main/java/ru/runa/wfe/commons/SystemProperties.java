@@ -19,6 +19,7 @@ public class SystemProperties {
 
     public static final String RESOURCE_EXTENSION_PREFIX = "wfe.custom.";
     public static final String DEPRECATED_PREFIX = "deprecated.";
+    @Deprecated
     public static final Calendar SYSTEM_STARTUP_CALENDAR = Calendar.getInstance();
 
     public static final String TIMERTASK_START_MILLIS_JOB_EXECUTION_NAME = "timertask.start.millis.job.execution";
