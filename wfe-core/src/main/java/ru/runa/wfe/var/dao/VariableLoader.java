@@ -7,6 +7,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -19,9 +22,6 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.legacy.ComplexVariable;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 /**
  * Supports variable loading via {@link VariableDAO} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component in
@@ -49,6 +49,11 @@ public class VariableLoader {
     private final Map<Process, Map<String, Variable<?>>> loadedVariables;
 
     /**
+     * Flag, equals true, if loading from dao is disabled (return null) and false for loading variable from dao if it absent in loadedVariables.
+     */
+    private boolean disableDaoFallback;
+
+    /**
      * Supports variable loading via {@link VariableDAO} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component
      * in case of mass variables loading.
      *
@@ -56,11 +61,15 @@ public class VariableLoader {
      *            {@link VariableDAO} for loading variables if no preloaded variable is available.
      * @param loadedVariables
      *            Preloaded variables. For each process contains map from variable name to variable. May be null.
+     * @param disableDaoFallback
+     *            Flag, equals true, if loading from dao is disabled (return null) and false for loading variable from dao if it absent in
+     *            loadedVariables.
      */
-    public VariableLoader(VariableDAO dao, Map<Process, Map<String, Variable<?>>> loadedVariables) {
+    public VariableLoader(VariableDAO dao, Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableDaoFallback) {
         super();
         this.dao = dao;
         this.loadedVariables = loadedVariables == null ? new HashMap<Process, Map<String, Variable<?>>>() : loadedVariables;
+        this.disableDaoFallback = disableDaoFallback;
     }
 
     /**
@@ -165,14 +174,12 @@ public class VariableLoader {
             Map<Object, Object> map = (Map<Object, Object>) value;
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
-                    map.put(entry.getKey(),
-                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0],
-                                    entry.getValue()));
+                    map.put(entry.getKey(), processComplexVariablesPre430(processDefinition, null,
+                            variableDefinition.getFormatComponentUserTypes()[0], entry.getValue()));
                 }
                 if (variableDefinition.getFormatComponentUserTypes()[1] != null) {
-                    map.put(entry.getKey(),
-                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[1],
-                                    entry.getValue()));
+                    map.put(entry.getKey(), processComplexVariablesPre430(processDefinition, null,
+                            variableDefinition.getFormatComponentUserTypes()[1], entry.getValue()));
                 }
             }
         }
