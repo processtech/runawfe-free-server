@@ -393,6 +393,7 @@ public class ExecutionContext {
         if (variable != null && !variable.supports(value)) {
             log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess());
             variableDAO.delete(variable);
+            variableDAO.flushPendingChanges();
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
