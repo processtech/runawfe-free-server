@@ -30,6 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
@@ -70,10 +74,6 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
     private final ProcessDefinition processDefinition;
@@ -105,24 +105,25 @@ public class ExecutionContext {
     private final VariableLoader variableLoader;
 
     protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
-            Map<Process, Map<String, Variable<?>>> loadedVariables) {
+            Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
-        this.variableLoader = new VariableLoader(variableDAO, loadedVariables);
+        this.variableLoader = new VariableLoader(variableDAO, loadedVariables, disableVariableDaoLoading);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, null);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(processDefinition, process.getRootToken(), loadedVariables);
+    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables,
+            boolean disableVariableDaoLoading) {
+        this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Process process) {
@@ -248,8 +249,8 @@ public class ExecutionContext {
             if (SystemProperties.isAllowedNotDefinedVariables()) {
                 variableDefinition = new VariableDefinition(name, null);
             } else {
-                throw new InternalApplicationException("Variable '" + name
-                        + "' is not defined in process definition and setting 'undefined.variables.allowed'=false");
+                throw new InternalApplicationException(
+                        "Variable '" + name + "' is not defined in process definition and setting 'undefined.variables.allowed'=false");
             }
         }
         setVariableValue(variableDefinition, value);
@@ -386,7 +387,8 @@ public class ExecutionContext {
         setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value);
     }
 
-    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value) {
+    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition,
+            Object value) {
         VariableLog resultingVariableLog = null;
         Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
@@ -397,8 +399,8 @@ public class ExecutionContext {
             variable = null;
         }
         if (variable == null) {
-            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
-                    token.getProcess(), variableDefinition);
+            VariableDefinition syncVariableDefinition =
+                    subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition, token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
                 Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
                 ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
@@ -426,8 +428,8 @@ public class ExecutionContext {
                             String sizeVariableName = listVariableName + VariableFormatContainer.SIZE_SUFFIX;
                             VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
                             Integer oldSize = (Integer) variableLoader.getVariableValue(processDefinition, token.getProcess(), sizeDefinition);
-                            int listIndex = Integer.parseInt(autoExtendVariableName.substring(listIndexStart
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
+                            int listIndex = Integer.parseInt(autoExtendVariableName
+                                    .substring(listIndexStart + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
                             int newSize = listIndex + 1;
                             if (oldSize == null || oldSize.intValue() < newSize) {
                                 log.debug("Auto-extending list " + listVariableName + " size: " + oldSize + " -> " + newSize);
@@ -450,8 +452,8 @@ public class ExecutionContext {
             log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'"
                     + (value != null ? " of " + value.getClass() : ""));
             resultingVariableLog = variable.setValue(this, value, variableDefinition.getFormatNotNull());
-            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
-                    token.getProcess(), variableDefinition);
+            VariableDefinition syncVariableDefinition =
+                    subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition, token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
                 Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
                 ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
@@ -499,8 +501,8 @@ public class ExecutionContext {
                     WfVariable baseProcessIdVariable = variableLoader.getVariable(processDefinition, process, baseProcessIdVariableName);
                     Long baseProcessId = (Long) (baseProcessIdVariable != null ? baseProcessIdVariable.getValue() : null);
                     if (Objects.equal(baseProcessId, process.getId())) {
-                        throw new InternalApplicationException(baseProcessIdVariableName + " reference should not point to current process id "
-                                + process.getId());
+                        throw new InternalApplicationException(
+                                baseProcessIdVariableName + " reference should not point to current process id " + process.getId());
                     }
                     baseProcessIdsMap.put(process, baseProcessId);
                 }

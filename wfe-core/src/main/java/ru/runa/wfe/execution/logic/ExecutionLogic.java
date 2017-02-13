@@ -22,6 +22,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -78,13 +85,6 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
-
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Process execution logic.
@@ -338,8 +338,9 @@ public class ExecutionLogic extends WFCommonLogic {
         Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newDeploymentVersion);
         process.setDeployment(nextDeployment);
         processDAO.update(process);
-        processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
-                newDeploymentVersion), process, null);
+        processLogDAO.addLog(
+                new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(), newDeploymentVersion),
+                process, null);
         return true;
     }
 
@@ -428,7 +429,7 @@ public class ExecutionLogic extends WFCommonLogic {
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
+                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                     for (String variableName : variableNamesToInclude) {
                         try {
                             wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));
