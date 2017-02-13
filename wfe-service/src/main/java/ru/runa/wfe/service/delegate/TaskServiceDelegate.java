@@ -56,9 +56,9 @@ public class TaskServiceDelegate extends EJB3Delegate implements TaskService {
     }
 
     @Override
-    public void reassignTask(User user, Long taskId) {
+    public boolean reassignTask(User user, Long taskId) {
         try {
-            getTaskService().reassignTask(user, taskId);
+            return getTaskService().reassignTask(user, taskId);
         } catch (Exception e) {
             throw handleException(e);
         }

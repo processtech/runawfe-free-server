@@ -313,6 +313,7 @@ public class ExecutionContext {
             log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess()
                     + " variable value is " + value + converterStr);
             variableDAO.delete(variable);
+            variableDAO.flushPendingChanges();
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
