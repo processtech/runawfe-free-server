@@ -65,7 +65,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Task logic.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -159,7 +159,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -299,25 +299,28 @@ public class TaskLogic extends WFCommonLogic {
             throw new AuthorizationException(user + " is not Administrator");
         }
         List<Task> tasks = new PresentationCompiler<Task>(batchPresentation).getBatch(CompilerParameters.createNonPaged());
+        int result = 0;
         for (Task task : tasks) {
             try {
                 TimeMeasurer measurer = new TimeMeasurer(log, 100);
                 measurer.jobStarted();
-                taskAssigner.assignTask(task, true);
+                if (taskAssigner.assignTask(task)) {
+                    result++;
+                }
                 measurer.jobEnded("reassignment " + task);
             } catch (Exception e) {
                 log.error("Unable to reassign " + task, e);
             }
         }
-        return tasks.size();
+        return result;
     }
 
-    public void reassignTask(User user, Long taskId) {
+    public boolean reassignTask(User user, Long taskId) {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");
         }
         Task task = taskDAO.getNotNull(taskId);
-        taskAssigner.assignTask(task, true);
+        return taskAssigner.assignTask(task);
     }
 
     public List<WfTask> getUnassignedTasks(User user) {

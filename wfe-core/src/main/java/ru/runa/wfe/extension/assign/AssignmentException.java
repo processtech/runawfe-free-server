@@ -17,14 +17,16 @@
  */
 package ru.runa.wfe.extension.assign;
 
+import ru.runa.wfe.LocalizableException;
+
 /**
- * Indicates task assignment failure caused by no executors found
+ * Indicates task assignment failure
  */
-public class NoExecutorAssignedException extends AssignmentException {
+public class AssignmentException extends LocalizableException {
     private static final long serialVersionUID = 1L;
 
-    public NoExecutorAssignedException() {
-        super("error.assignment.executors.empty");
+    public AssignmentException(String messageKey) {
+        super(messageKey);
     }
 
     @Override
