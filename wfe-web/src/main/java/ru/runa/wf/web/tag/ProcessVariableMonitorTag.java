@@ -77,18 +77,21 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
     @Override
     protected void fillFormData(TD tdFormElement) {
         User user = getUser();
-        ProcessLogFilter historyFilter = null;
+        List<WfVariable> variables;
         String date = pageContext.getRequest().getParameter("date");
-        if (!Strings.isNullOrEmpty(date)) {
+        if (Strings.isNullOrEmpty(date)) {
+            variables = Delegates.getExecutionService().getVariables(user, getIdentifiableId());
+        } else {
             Date historicalDateTo = CalendarUtil.convertToDate(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
             Calendar dateToCalendar = CalendarUtil.dateToCalendar(historicalDateTo);
             dateToCalendar.add(Calendar.SECOND, 5);
             historicalDateTo = dateToCalendar.getTime();
             dateToCalendar.add(Calendar.SECOND, -10);
             Date historicalDateFrom = dateToCalendar.getTime();
-            historyFilter = new ProcessLogFilter(getIdentifiableId());
+            ProcessLogFilter historyFilter = new ProcessLogFilter(getIdentifiableId());
             historyFilter.setCreateDateTo(historicalDateTo);
             historyFilter.setCreateDateFrom(historicalDateFrom);
+            variables = Delegates.getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
         }
         if (SystemProperties.isUpdateProcessVariablesInAPIEnabled() && Delegates.getExecutorService().isAdministrator(user)) {
             Table table = new Table();
@@ -105,8 +108,6 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
             updateVariableTR.addElement(new TD(a).addAttribute("align", "right"));
         }
 
-        List<WfVariable> variables = historyFilter == null ? Delegates.getExecutionService().getVariables(user, getIdentifiableId()) : Delegates
-                .getExecutionService().getHistoricalVariables(user, historyFilter).getVariables();
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_NAME.message(pageContext));
         headerNames.add(MessagesProcesses.LABEL_VARIABLE_TYPE.message(pageContext));
