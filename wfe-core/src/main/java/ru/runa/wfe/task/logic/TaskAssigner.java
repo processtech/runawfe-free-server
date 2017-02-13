@@ -11,13 +11,12 @@ import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.AssignmentHandler;
+import ru.runa.wfe.extension.assign.AssignmentException;
 import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDAO;
-
-import com.google.common.base.Throwables;
 
 public class TaskAssigner {
     private static final Log log = LogFactory.getLog(TaskAssigner.class);
@@ -27,7 +26,7 @@ public class TaskAssigner {
     private TaskDAO taskDAO;
 
     @Transactional
-    public void assignTask(Task task, boolean throwError) {
+    public boolean assignTask(Task task) {
         ProcessError processError = new ProcessError(ProcessErrorType.assignment, task.getProcess().getId(), task.getNodeId());
         try {
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(task.getProcess());
@@ -38,18 +37,21 @@ public class TaskAssigner {
             }
             if (task.getExecutor() != null) {
                 Errors.removeProcessError(processError);
+                return true;
             } else {
                 Errors.addProcessError(processError, task.getName(), new NoExecutorAssignedException());
             }
         } catch (Throwable th) {
-            if (throwError) {
-                Throwables.propagate(th);
-            } else {
-                if (Errors.addProcessError(processError, task.getName(), th)) {
+            if (Errors.addProcessError(processError, task.getName(), th)) {
+                if (th instanceof AssignmentException) {
+                    log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "': "
+                            + th.getMessage());
+                } else {
                     log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "'", th);
                 }
             }
         }
+        return false;
     }
 
 }
