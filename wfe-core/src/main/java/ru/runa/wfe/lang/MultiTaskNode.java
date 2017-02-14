@@ -32,7 +32,6 @@ import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.utils.MultiNodeParameters;
 import ru.runa.wfe.task.Task;
@@ -153,7 +152,6 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     private boolean createTasksByDiscriminator(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
-        Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
         String script = discriminatorCondition;
         if (Utils.isNullOrEmpty(script)) {
             // TODO temporary
@@ -174,13 +172,11 @@ public class MultiTaskNode extends BaseTaskNode {
             log.info("Ignored indexes: " + ignoredIndexes);
         }
         int tasksCounter = 0;
-        boolean discriminatorUsageIsVariable = discriminatorUsage.contains("variable");
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, swimlane,
-                    discriminatorUsageIsVariable ? swimlane.getExecutor() : (Executor) data.get(index), index);
+            taskFactory.create(executionContext, taskDefinition, null, (Executor) data.get(index), index);
             tasksCounter++;
         }
         return tasksCounter > 0;

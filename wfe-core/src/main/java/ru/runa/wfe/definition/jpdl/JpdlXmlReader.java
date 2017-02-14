@@ -252,18 +252,6 @@ public class JpdlXmlReader {
             taskDefinition.setReassignSwimlane(Boolean.valueOf(element.attributeValue(REASSIGN, "false")));
             taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.valueOf(element.attributeValue(REASSIGN_SWIMLANE_TO_TASK_PERFORMER, "true")));
             taskDefinition.setIgnoreSubsitutionRules(Boolean.valueOf(element.attributeValue(IGNORE_SUBSTITUTION_RULES, "false")));
-        } else {
-            if (node instanceof MultiTaskNode && ((MultiTaskNode) node).getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
-            } else if (waitStateCompatibility) {
-                processDefinition.removeNode(node);
-                WaitNode waitNode = new WaitNode();
-                waitNode.setProcessDefinition(processDefinition);
-                readNode(processDefinition, element.getParent(), waitNode);
-                return;
-            } else {
-                throw new InvalidDefinitionException(processDefinition.getName(),
-                        "process xml information: no swimlane or assignment specified for task '" + taskDefinition + "'");
-            }
         }
     }
 

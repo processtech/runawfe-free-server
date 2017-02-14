@@ -40,7 +40,7 @@ public class MultiSubprocessFigure extends TaskNodeFigure {
         Color orig = graphics.getColor();
         graphics.setColor(DrawProperties.getBackgroundColor());
         if (useEgdingOnly) {
-            graphics.fillRect(b.x + b.width - 20, b.y + b.height - 10, 10, 10);
+            graphics.fillRect(b.x + b.width - 20, b.y + b.height - 11, 10, 10);
         }
         graphics.fillRect(b.x - DrawProperties.GRID_SIZE / 2, yCenter - 3 * DrawProperties.GRID_SIZE / 2, DrawProperties.GRID_SIZE,
                 3 * DrawProperties.GRID_SIZE);
