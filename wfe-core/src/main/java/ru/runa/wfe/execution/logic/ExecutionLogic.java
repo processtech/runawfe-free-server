@@ -338,8 +338,9 @@ public class ExecutionLogic extends WFCommonLogic {
         Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newDeploymentVersion);
         process.setDeployment(nextDeployment);
         processDAO.update(process);
-        processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
-                newDeploymentVersion), process, null);
+        processLogDAO.addLog(
+                new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(), newDeploymentVersion),
+                process, null);
         return true;
     }
 
@@ -428,7 +429,7 @@ public class ExecutionLogic extends WFCommonLogic {
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
+                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                     for (String variableName : variableNamesToInclude) {
                         try {
                             wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));

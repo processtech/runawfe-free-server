@@ -60,7 +60,7 @@ public interface VariableLoader {
 
     /**
      * Load variable value.
-     * 
+     *
      * @param processDefinition
      *            Process definition.
      * @param process

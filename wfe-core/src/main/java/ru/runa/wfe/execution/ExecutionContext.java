@@ -102,25 +102,26 @@ public class ExecutionContext {
     private SwimlaneDAO swimlaneDAO;
 
     protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
-            Map<Process, Map<String, Variable<?>>> loadedVariables) {
+            Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
-        this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
+        this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables, disableVariableDaoLoading);
         baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcess(), getProcessDefinition());
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, null);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(processDefinition, process.getRootToken(), loadedVariables);
+    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables,
+            boolean disableVariableDaoLoading) {
+        this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Process process) {
@@ -406,4 +407,5 @@ public class ExecutionContext {
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
         }
     }
+
 }
