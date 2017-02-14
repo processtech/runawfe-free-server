@@ -1,10 +1,9 @@
 package ru.runa.wfe.var.dao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Maps;
 
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
@@ -16,6 +15,8 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+
+import com.google.common.collect.Maps;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class VariableDAO extends GenericDAO<Variable> {
@@ -44,6 +45,28 @@ public class VariableDAO extends GenericDAO<Variable> {
             }
         }
         return variables;
+    }
+
+    /**
+     * Load all variables for given processes.
+     *
+     * @param processes
+     *            Processes, which variables must be loaded.
+     * @return for each given process: map from variable name to loaded variable.
+     */
+    public Map<Process, Map<String, Variable<?>>> getVariables(Collection<Process> processes) {
+        Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
+        if (Utils.isNullOrEmpty(processes)) {
+            return result;
+        }
+        for (Process process : processes) {
+            result.put(process, Maps.<String, Variable<?>> newHashMap());
+        }
+        List<Variable<?>> list = getHibernateTemplate().findByNamedParam("from Variable where process in (:processes)", "processes", processes);
+        for (Variable<?> variable : list) {
+            result.get(variable.getProcess()).put(variable.getName(), variable);
+        }
+        return result;
     }
 
     /**
@@ -86,7 +109,7 @@ public class VariableDAO extends GenericDAO<Variable> {
      */
     @Deprecated
     public Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
-        return new VariableLoaderDAOFallback(this, null).getVariableValue(processDefinition, process, variableDefinition);
+        return new VariableLoaderDAOFallback(this, null, false).getVariableValue(processDefinition, process, variableDefinition);
     }
 
     /**
@@ -103,7 +126,6 @@ public class VariableDAO extends GenericDAO<Variable> {
      */
     @Deprecated
     public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
-        return new VariableLoaderDAOFallback(this, null).getVariable(processDefinition, process, variableName);
+        return new VariableLoaderDAOFallback(this, null, false).getVariable(processDefinition, process, variableName);
     }
-
 }

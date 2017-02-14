@@ -34,8 +34,6 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import com.google.common.base.Preconditions;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.SystemProperties;
@@ -68,6 +66,8 @@ import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.logic.VariableLogic;
+
+import com.google.common.base.Preconditions;
 
 @Stateless(name = "ExecutionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -121,8 +121,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public List<WfProcess> getProcesses(@WebParam(name = "user") User user,
-            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+    public List<WfProcess> getProcesses(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         Preconditions.checkArgument(user != null, "user");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
@@ -165,6 +164,20 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
         }
         return list;
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(processIds != null, "processIds");
+        Map<Long, List<WfVariable>> result = variableLogic.getVariables(user, processIds);
+        for (Map.Entry<Long, List<WfVariable>> entry : result.entrySet()) {
+            for (WfVariable variable : entry.getValue()) {
+                FileVariablesUtil.proxyFileVariables(user, entry.getKey(), variable);
+            }
+        }
+        return result;
     }
 
     @WebMethod(exclude = true)
