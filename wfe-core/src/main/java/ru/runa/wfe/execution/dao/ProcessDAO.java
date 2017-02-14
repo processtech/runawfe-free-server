@@ -37,6 +37,13 @@ public class ProcessDAO extends GenericDAO<Process> {
         return getHibernateTemplate().find("from Process where deployment.id=? order by startDate desc", definitionId);
     }
 
+    public List<Process> find(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return Lists.newArrayList();
+        }
+        return getHibernateTemplate().findByNamedParam("from Process where id in (:ids)", "ids", ids);
+    }
+
     public Set<Number> getDependentProcessIds(Executor executor) {
         Set<Number> processes = Sets.newHashSet();
         processes.addAll(getHibernateTemplate().find("select process.id from Swimlane where executor=?", executor));

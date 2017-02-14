@@ -104,6 +104,26 @@ public class VariableLogic extends WFCommonLogic {
         return result;
     }
 
+    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) throws ProcessDoesNotExistException {
+        Map<Long, List<WfVariable>> result = Maps.newHashMap();
+        List<Process> processes = processDAO.find(processIds);
+        processes = filterIdentifiable(user, processes, ProcessPermission.READ);
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(processes);
+        for (Process process : processes) {
+            List<WfVariable> list = Lists.newArrayList();
+            ProcessDefinition processDefinition = getDefinition(process);
+            ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
+            for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
+                WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
+                if (variable != null && !Utils.isNullOrEmpty(variable.getValue())) {
+                    list.add(variable);
+                }
+            }
+            result.put(process.getId(), list);
+        }
+        return result;
+    }
+
     public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException {
         if (filter.getCreateDateFrom() == null) {
             return getHistoricalVariableOnDate(user, filter);

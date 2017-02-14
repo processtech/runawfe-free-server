@@ -62,7 +62,7 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-    ValidationException;
+            ValidationException;
 
     /**
      * Starts new process by definition.
@@ -78,7 +78,7 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-            ValidationException;
+    ValidationException;
 
     /**
      * Gets process count for {@link BatchPresentation}.
@@ -198,6 +198,17 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public List<WfVariable> getVariables(User user, Long processId) throws ProcessDoesNotExistException;
+
+    /**
+     * Gets all process variables in batch mode.
+     *
+     * @param user
+     *            authorized user
+     * @param processIds
+     *            process ids
+     * @return not <code>null</code>
+     */
+    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds);
 
     /**
      * Gets all process variables state on specified date.
