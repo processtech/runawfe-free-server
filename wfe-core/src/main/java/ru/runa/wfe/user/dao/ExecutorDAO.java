@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.user.dao;
@@ -57,7 +57,7 @@ import com.google.common.collect.Sets;
 
 /**
  * DAO for managing executors.
- * 
+ *
  * @since 2.0
  */
 @SuppressWarnings("unchecked")
@@ -71,7 +71,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Check if executor with given name exists.
-     * 
+     *
      * @param executorName
      *            Executor name to check.
      * @return Returns true, if executor with given name exists; false otherwise.
@@ -82,7 +82,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Check if {@linkplain Actor} with given code exists.
-     * 
+     *
      * @param code
      *            {@linkplain Actor} code to check.
      * @return Returns true, if {@linkplain Actor} with given name exists; false otherwise.
@@ -104,7 +104,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load {@linkplain Executor} by name. Throws exception if load is impossible.
-     * 
+     *
      * @param name
      *            Loaded executor name.
      * @return Executor with specified name.
@@ -116,7 +116,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load {@linkplain Executor} by identity. Throws exception if load is impossible.
-     * 
+     *
      * @param name
      *            Loaded executor identity.
      * @return {@linkplain Executor} with specified identity.
@@ -134,7 +134,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Load {@linkplain Actor} by name without case check. This method is a big shame for us. It should never have its way out of DAO! It only purpose
      * is to use with stupid Microsoft Active Directory authentication, which is case insensitive. <b>Never use it! </b>
-     * 
+     *
      * @param name
      *            Loaded actor name.
      * @return {@linkplain Actor} with specified name (case insensitive).
@@ -159,7 +159,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load {@linkplain Actor} by code. Throws exception if load is impossible.
-     * 
+     *
      * @param name
      *            Loaded actor code.
      * @return {@linkplain Actor} with specified code.
@@ -172,7 +172,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load {@linkplain Group} by name. Throws exception if load is impossible, or exist actor with same name.
-     * 
+     *
      * @param name
      *            Loaded group name.
      * @return {@linkplain Group} with specified name.
@@ -184,7 +184,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load {@linkplain Group} by identity. Throws exception if load is impossible, or exist actor with same identity.
-     * 
+     *
      * @param name
      *            Loaded group identity.
      * @return {@linkplain Group} with specified identity.
@@ -195,7 +195,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load {@linkplain Executor}'s with given identities.
-     * 
+     *
      * @param ids
      *            Loading {@linkplain Executor}'s identities.
      * @return Loaded executors in same order, as identities.
@@ -206,7 +206,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load {@linkplain Actor}'s with given identities.
-     * 
+     *
      * @param executorIds
      *            Loading {@linkplain Actor}'s identities.
      * @return Loaded actors in same order, as identities.
@@ -217,7 +217,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Returns Actors by array of executor identities. If id element belongs to group it is replaced by all actors in group recursively.
-     * 
+     *
      * @param ids
      *            Executors identities, to load actors.
      * @return Loaded actors, belongs to executor identities.
@@ -236,7 +236,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load {@linkplain Actor}'s with given codes.
-     * 
+     *
      * @param executorIds
      *            Loading {@linkplain Actor}'s codes.
      * @return Loaded actors in same order, as codes.
@@ -249,7 +249,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
      * Returns identities of {@linkplain Actor} and all his groups recursively. Actor identity is always result[0], but groups identities order is not
      * specified. </br> For example G1 contains A1 and G2 contains G1. In this case:</br>
      * <code>getActorAndGroupsIds(A1) == {A1.id, G1.id, G2.id}.</code>
-     * 
+     *
      * @param actor
      *            {@linkplain Actor}, which identity and groups must be loaded.
      * @return Returns identities of {@linkplain Actor} and all his groups recursively.
@@ -265,19 +265,8 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     /**
-     * Load available {@linkplain Actor}'s with given codes. If actor with some code not available, it will be ignored. Result order is not specified.
-     * 
-     * @param executorIds
-     *            Loading {@linkplain Actor}'s codes.
-     * @return Loaded actors.
-     */
-    public List<Actor> getAvailableActorsByCodes(List<Long> codes) {
-        return getHibernateTemplate().find("select actor from Actor as actor where actor.code in ?", codes);
-    }
-
-    /**
      * Load {@linkplain Group}'s with given identities.
-     * 
+     *
      * @param executorIds
      *            Loading {@linkplain Group}'s identities.
      * @return Loaded groups in same order, as identities.
@@ -297,7 +286,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
             }
         });
     }
-    
+
     public List<TemporaryGroup> getTemporaryGroups() {
         return getHibernateTemplate().executeFind(new HibernateCallback<List<TemporaryGroup>>() {
             @Override
@@ -310,7 +299,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Create executor (save it to database). Generate code property for {@linkplain Actor} with code == 0.
-     * 
+     *
      * @param <T>
      *            Creating executor class.
      * @param executor
@@ -330,7 +319,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Updates password for {@linkplain Actor}.
-     * 
+     *
      * @param actor
      *            {@linkplain Actor} to update password.
      * @param password
@@ -350,7 +339,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Check if password is valid for user.
-     * 
+     *
      * @param actor
      *            {@linkplain Actor}, which password is checking.
      * @param password
@@ -366,7 +355,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Set {@linkplain Actor} active state.
-     * 
+     *
      * @param actor
      *            {@linkplain Actor}, which active state is set.
      * @param isActive
@@ -379,7 +368,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Update executor.
-     * 
+     *
      * @param <T>
      *            Updated executor class.
      * @param newExecutor
@@ -408,7 +397,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Remove children's from group.
-     * 
+     *
      * @param group
      *            Group from which removal will be executed.
      * @param executors
@@ -425,7 +414,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Load all {@linkplain Executor}s according to {@linkplain BatchPresentation}.</br> <b>Paging is not enabled. Really ALL executors is
      * loading.</b>
-     * 
+     *
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load executors.
      * @return {@linkplain Executor}s, loaded according to {@linkplain BatchPresentation}.
@@ -436,7 +425,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load all {@linkplain Actor}s according to {@linkplain BatchPresentation} .</br> <b>Paging is not enabled. Really ALL actors is loading.</b>
-     * 
+     *
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load actors.
      * @return {@linkplain Actor}s, loaded according to {@linkplain BatchPresentation}.
@@ -447,7 +436,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Load all {@linkplain Group}s.</br> <b>Paging is not enabled. Really ALL groups is loading.</b>
-     * 
+     *
      * @return {@linkplain Group}s.
      */
     public List<Group> getAllGroups() {
@@ -457,7 +446,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Add {@linkplain Executor}'s to {@linkplain Group}.
-     * 
+     *
      * @param executors
      *            {@linkplain Executor}'s, added to {@linkplain Group}.
      * @param group
@@ -471,7 +460,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Add {@linkplain Executor} to {@linkplain Group}'s.
-     * 
+     *
      * @param executors
      *            {@linkplain Executor}, added to {@linkplain Group}'s.
      * @param group
@@ -494,7 +483,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Remove {@linkplain Executor}'s from {@linkplain Group}.
-     * 
+     *
      * @param executors
      *            {@linkplain Executor}'s, removed from {@linkplain Group}.
      * @param group
@@ -508,7 +497,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Remove {@linkplain Executor} from {@linkplain Group}'s.
-     * 
+     *
      * @param executors
      *            {@linkplain Executor}, removed from {@linkplain Group}'s.
      * @param group
@@ -533,7 +522,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Returns true if executor belongs to group recursively or false in any other case.</br> For example G1 contains G2, G2 contains A1. In this
      * case:</br> <code>isExecutorInGroup(A1,G2) == true;</code>
-     * 
+     *
      * @param executor
      *            An executor to check if it in group.
      * @param group
@@ -548,7 +537,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
      * Returns group children (first level children, not recursively).</br> For example G1 contains G2, G2 contains A1 and A2. In this case:</br>
      * <code> getGroupChildren(G2) == {A1, A2}</code><br/>
      * <code> getGroupChildren(G1) == {G2} </code>
-     * 
+     *
      * @param group
      *            A group to load children's from.
      * @param batchPresentation
@@ -619,7 +608,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
      * Returns an array of actors from group (first level children, not recursively).</br> For example G1 contains G2 and A0, G2 contains A1 and A2.
      * In this case: Only actor (non-group) executors are returned.</br> <code> getAllNonGroupExecutorsFromGroup(G2) returns {A1, A2}</code>;
      * <code> getAllNonGroupExecutorsFromGroup(G1) returns {A0} </code>
-     * 
+     *
      * @param group
      *            {@linkplain Group}, to load actor children's.
      * @return Array of executors from group.
@@ -653,7 +642,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Generates code for actor, if code not set (equals 0). If code is already set, when throws {@linkplain ExecutorAlreadyExistsException} if
      * executor with what code exists in database.
-     * 
+     *
      * @param actor
      *            Actor to generate code if not set.
      */
@@ -737,7 +726,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         visited.add(executor);
         Set<Group> result = new HashSet<Group>();
         for (Group group : getExecutorGroups(executor)) {
-            if (!group.isTemporary() || (group.isTemporary() && includeTemporaryGroups)) {
+            if (!group.isTemporary() || group.isTemporary() && includeTemporaryGroups) {
                 result.add(group);
                 result.addAll(getExecutorGroupsAll(group, visited, includeTemporaryGroups));
             }
@@ -747,7 +736,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Loads executors by id or code (for {@link Actor}).
-     * 
+     *
      * @param clazz
      *            Loaded executors class.
      * @param identifiers
@@ -788,7 +777,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Loads executors by id or code (for {@link Actor}) from caches.
-     * 
+     *
      * @param clazz
      *            Loaded executors class.
      * @param identifiers

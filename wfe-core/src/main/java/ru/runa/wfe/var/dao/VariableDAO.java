@@ -1,10 +1,9 @@
 package ru.runa.wfe.var.dao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Maps;
 
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
@@ -16,6 +15,8 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+
+import com.google.common.collect.Maps;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class VariableDAO extends GenericDAO<Variable> {
@@ -53,16 +54,15 @@ public class VariableDAO extends GenericDAO<Variable> {
      *            Processes, which variables must be loaded.
      * @return for each given process: map from variable name to loaded variable.
      */
-    public Map<Process, Map<String, Variable<?>>> getVariables(Set<Process> processes) {
-        if (Utils.isNullOrEmpty(processes)) {
-            return null;
-        }
+    public Map<Process, Map<String, Variable<?>>> getVariables(Collection<Process> processes) {
         Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
-        for (Process process : processes) {
-            result.put(process, Maps.<String, Variable<?>>newHashMap());
+        if (Utils.isNullOrEmpty(processes)) {
+            return result;
         }
-        List<Variable<?>> list = getHibernateTemplate().findByNamedParam("from Variable where process in (:processes)", new String[] { "processes" },
-                new Object[] { processes });
+        for (Process process : processes) {
+            result.put(process, Maps.<String, Variable<?>> newHashMap());
+        }
+        List<Variable<?>> list = getHibernateTemplate().findByNamedParam("from Variable where process in (:processes)", "processes", processes);
         for (Variable<?> variable : list) {
             result.get(variable.getProcess()).put(variable.getName(), variable);
         }

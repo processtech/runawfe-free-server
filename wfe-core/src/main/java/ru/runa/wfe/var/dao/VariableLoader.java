@@ -7,9 +7,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -23,6 +20,9 @@ import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.legacy.ComplexVariable;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 /**
  * Supports variable loading via {@link VariableDAO} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component in
  * case of mass variables loading.
@@ -31,7 +31,6 @@ import ru.runa.wfe.var.legacy.ComplexVariable;
  */
 @SuppressWarnings({ "unchecked" })
 public class VariableLoader {
-
     /**
      * Logging support.
      */
@@ -66,7 +65,6 @@ public class VariableLoader {
      *            loadedVariables.
      */
     public VariableLoader(VariableDAO dao, Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableDaoFallback) {
-        super();
         this.dao = dao;
         this.loadedVariables = loadedVariables == null ? new HashMap<Process, Map<String, Variable<?>>>() : loadedVariables;
         this.disableDaoFallback = disableDaoFallback;
@@ -83,34 +81,13 @@ public class VariableLoader {
      */
     public Variable<?> get(Process process, String name) {
         Map<String, Variable<?>> loadedProcessVariables = loadedVariables.get(process);
-        if (loadedProcessVariables == null || !loadedProcessVariables.containsKey(name)) {
-            return dao.get(process, name);
+        if (disableDaoFallback || loadedProcessVariables != null && loadedProcessVariables.containsKey(name)) {
+            if (loadedProcessVariables != null) {
+                return loadedProcessVariables.get(name);
+            }
+            return null;
         }
-        return loadedProcessVariables.get(name);
-    }
-
-    /**
-     * Find all variables in all processes, which name is like namePattern and value is equals to stringValue.
-     *
-     * @param variableNamePattern
-     *            Variable name pattern, which may be exact match or contains wildcards for like search.
-     * @param stringValue
-     *            Exact string variable value.
-     * @return all variable, found by criteria.
-     */
-    public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
-        return dao.findByNameLikeAndStringValueEqualTo(variableNamePattern, stringValue);
-    }
-
-    /**
-     * Load all variables for given process.
-     *
-     * @param process
-     *            Process, which variables must be loaded.
-     * @return all process variables.
-     */
-    public Map<String, Object> getAll(Process process) {
-        return dao.getAll(process);
+        return dao.get(process, name);
     }
 
     public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
@@ -174,12 +151,14 @@ public class VariableLoader {
             Map<Object, Object> map = (Map<Object, Object>) value;
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 if (variableDefinition.getFormatComponentUserTypes()[0] != null) {
-                    map.put(entry.getKey(), processComplexVariablesPre430(processDefinition, null,
-                            variableDefinition.getFormatComponentUserTypes()[0], entry.getValue()));
+                    map.put(entry.getKey(),
+                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[0],
+                                    entry.getValue()));
                 }
                 if (variableDefinition.getFormatComponentUserTypes()[1] != null) {
-                    map.put(entry.getKey(), processComplexVariablesPre430(processDefinition, null,
-                            variableDefinition.getFormatComponentUserTypes()[1], entry.getValue()));
+                    map.put(entry.getKey(),
+                            processComplexVariablesPre430(processDefinition, null, variableDefinition.getFormatComponentUserTypes()[1],
+                                    entry.getValue()));
                 }
             }
         }

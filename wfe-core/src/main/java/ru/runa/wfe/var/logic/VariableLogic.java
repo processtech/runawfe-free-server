@@ -40,6 +40,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
@@ -62,6 +63,26 @@ public class VariableLogic extends WFCommonLogic {
             if (variable != null && !Utils.isNullOrEmpty(variable.getValue())) {
                 result.add(variable);
             }
+        }
+        return result;
+    }
+
+    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) throws ProcessDoesNotExistException {
+        Map<Long, List<WfVariable>> result = Maps.newHashMap();
+        List<Process> processes = processDAO.find(processIds);
+        processes = filterIdentifiable(user, processes, ProcessPermission.READ);
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(processes);
+        for (Process process : processes) {
+            List<WfVariable> list = Lists.newArrayList();
+            ProcessDefinition processDefinition = getDefinition(process);
+            ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
+            for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
+                WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
+                if (variable != null && !Utils.isNullOrEmpty(variable.getValue())) {
+                    list.add(variable);
+                }
+            }
+            result.put(process.getId(), list);
         }
         return result;
     }

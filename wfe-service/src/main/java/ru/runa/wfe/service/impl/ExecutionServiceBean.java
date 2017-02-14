@@ -163,6 +163,20 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return list;
     }
 
+    @WebMethod(exclude = true)
+    @Override
+    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(processIds != null, "processIds");
+        Map<Long, List<WfVariable>> result = variableLogic.getVariables(user, processIds);
+        for (Map.Entry<Long, List<WfVariable>> entry : result.entrySet()) {
+            for (WfVariable variable : entry.getValue()) {
+                FileVariablesUtil.proxyFileVariables(user, entry.getKey(), variable);
+            }
+        }
+        return result;
+    }
+
     @Override
     @WebResult(name = "result")
     public List<Variable> getVariablesWS(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
