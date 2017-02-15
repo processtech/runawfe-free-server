@@ -129,6 +129,7 @@ public class NodeProcess {
 
     @Override
     public boolean equals(Object obj) {
+        // TODO strange types
         if (obj instanceof NodeProcess) {
             NodeProcess b = (NodeProcess) obj;
             return id.equals(b.id);
