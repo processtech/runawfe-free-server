@@ -760,23 +760,23 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return Boolean.FALSE;
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
+            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
         } catch (Exception e) {
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
         } catch (Exception e) {
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
         } catch (Exception e) {
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT);
+            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT_STR);
         } catch (Exception e) {
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT);
+            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
         } catch (Exception e) {
         }
         return null;

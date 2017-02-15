@@ -16,16 +16,19 @@ public class LocalFileSystemStorage implements IFileVariableStorage {
 
     static {
         if (SystemProperties.isLocalFileStorageEnabled()) {
-            storageDir.mkdirs();
+            if(!storageDir.mkdirs()) {
+                throw new RuntimeException("Storage dirs: " + storageDir + " is not created.");
+            }
         }
     }
 
     public static File getContentFile(String path, boolean create) {
         File file = new File(storageDir, path);
         if (create) {
-            file.getParentFile().mkdirs();
             try {
-                file.createNewFile();
+                if (!file.getParentFile().mkdirs() || !file.createNewFile()) {
+                    throw new IOException();
+                }
             } catch (IOException e) {
                 throw new InternalApplicationException("Unable to create file '" + file + "'");
             }

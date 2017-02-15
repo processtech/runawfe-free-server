@@ -25,7 +25,7 @@ public class ReportParameterValidateOperation implements ReportParameterTypeVisi
     @Override
     public ParameterValidationResult onDate(ReportParameterModel parameterModel) {
         try {
-            CalendarUtil.convertToDate(parameterModel.getValue(), CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+            CalendarUtil.convertToDate(parameterModel.getValue(), CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
             return ParameterValidationResult.correctValidationResult();
         } catch (Exception e) {
             return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Value " + parameterModel.getValue()

@@ -66,7 +66,7 @@ public class JpdlXmlReader {
     private LocalizationDAO localizationDAO;
 
     private final Document document;
-    private final boolean waitStateCompatibility = true;
+    private static final boolean waitStateCompatibility = true;
 
     private static final String INVALID_ATTR = "invalid";
     private static final String ACCESS_ATTR = "access";

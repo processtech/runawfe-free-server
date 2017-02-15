@@ -159,19 +159,19 @@ public class TypeConversionUtil {
                 Date date;
                 String formattedDate = (String) object;
                 try {
-                    date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
+                    date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
                 } catch (Exception e1) {
                     try {
-                        date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                        date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
                     } catch (Exception e2) {
                         try {
-                            date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+                            date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
                         } catch (Exception e3) {
                             try {
-                                date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT);
+                                date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT_STR);
                             } catch (Exception e4) {
                                 try {
-                                    date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.HOURS_MINUTES_FORMAT);
+                                    date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
                                 } catch (Exception e5) {
                                     throw new InternalApplicationException("Unable to find datetime format for '" + formattedDate + "'");
                                 }

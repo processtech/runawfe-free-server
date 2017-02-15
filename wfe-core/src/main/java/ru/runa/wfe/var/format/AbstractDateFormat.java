@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.var.format;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ru.runa.wfe.commons.CalendarUtil;
@@ -26,6 +27,10 @@ public abstract class AbstractDateFormat extends VariableFormat {
 
     public AbstractDateFormat(java.text.DateFormat dateTimeFormat) {
         this.dateTimeFormat = dateTimeFormat;
+    }
+
+    public AbstractDateFormat(String dateTimeFormat) {
+        this.dateTimeFormat = new SimpleDateFormat(dateTimeFormat);
     }
 
     @Override

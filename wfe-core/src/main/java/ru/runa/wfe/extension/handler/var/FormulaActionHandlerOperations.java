@@ -236,12 +236,12 @@ public class FormulaActionHandlerOperations {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(date);
             if (calendar.get(Calendar.YEAR) == 1970 && calendar.get(Calendar.MONTH) == Calendar.JANUARY && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-                return CalendarUtil.format(date, CalendarUtil.HOURS_MINUTES_FORMAT);
+                return CalendarUtil.format(date, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
             }
             if (calendar.get(Calendar.HOUR) == 0 && calendar.get(Calendar.MINUTE) == 0 && calendar.get(Calendar.SECOND) == 0) {
-                return CalendarUtil.format(date, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+                return CalendarUtil.format(date, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
             }
-            return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+            return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
         }
         if (Date.class.isAssignableFrom(c) && Date.class.isInstance(o)) {
             return o;
@@ -268,8 +268,8 @@ public class FormulaActionHandlerOperations {
         }
         Date d = (Date) p;
         try {
-            String s = CalendarUtil.format(d, CalendarUtil.HOURS_MINUTES_FORMAT);
-            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT);
+            String s = CalendarUtil.format(d, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
         } catch (Exception e) {
             log.warn("Unparseable time", e);
         }

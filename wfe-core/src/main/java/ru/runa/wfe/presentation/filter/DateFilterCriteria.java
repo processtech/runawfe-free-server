@@ -42,10 +42,10 @@ public class DateFilterCriteria extends FilterCriteria {
         super.validate(newTemplates);
         try {
             if (newTemplates[0].length() > 0) {
-                CalendarUtil.convertToDate(newTemplates[0], CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                CalendarUtil.convertToDate(newTemplates[0], CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
             }
             if (newTemplates[1].length() > 0) {
-                CalendarUtil.convertToDate(newTemplates[1], CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                CalendarUtil.convertToDate(newTemplates[1], CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
             }
         } catch (Exception e) {
             throw new FilterFormatException(e.getMessage());
@@ -55,10 +55,10 @@ public class DateFilterCriteria extends FilterCriteria {
     private void initDates() {
         try {
             if (getFilterTemplate(0).length() > 0) {
-                dateStart = CalendarUtil.convertToDate(getFilterTemplate(0), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                dateStart = CalendarUtil.convertToDate(getFilterTemplate(0), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
             }
             if (getFilterTemplate(1).length() > 0) {
-                dateEnd = CalendarUtil.convertToDate(getFilterTemplate(1), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                dateEnd = CalendarUtil.convertToDate(getFilterTemplate(1), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
             }
         } catch (Exception e) {
             log.error("date parsing error: " + e);

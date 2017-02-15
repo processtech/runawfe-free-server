@@ -95,8 +95,8 @@ public class DocxFileChangerTest extends Assert {
                 createVariable(
                         "dateList",
                         ListFormat.class.getName() + "(" + DateFormat.class.getName() + ")",
-                        Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT),
-                                CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT))));
+                        Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR),
+                                CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR))));
         Map<String, Actor> actors = Maps.newHashMap();
         actors.put("1", new Actor("adamov_a", "", "Adamov A.A.", 444L));
         actors.put("2", new Actor("borisov", "", "Borisov B.B", 333L));
@@ -144,8 +144,8 @@ public class DocxFileChangerTest extends Assert {
                 createVariable(
                         "dateList",
                         ListFormat.class.getName() + "(" + DateFormat.class.getName() + ")",
-                        Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT),
-                                CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT))));
+                        Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR),
+                                CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR))));
         Map<String, Actor> actors = Maps.newHashMap();
         actors.put("1", new Actor("adamov_a", "", "Adamov A.A.", 444L));
         actors.put("2", new Actor("borisov", "", "Borisov B.B", 333L));
@@ -167,8 +167,8 @@ public class DocxFileChangerTest extends Assert {
         data.put("stringList", Lists.newArrayList("Ivanov", "Petrov", "Sidorov"));
         data.put(
                 "dateList",
-                Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT),
-                        CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT)));
+                Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR),
+                        CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR)));
         data.put("currentDate", createVariable("currentDate", DateFormat.class.getName(), new Date()));
         data.put("currentDateTime", createVariable("currentDateTime", DateTimeFormat.class.getName(), new Date()));
         data.put("currentTime", createVariable("currentTime", TimeFormat.class.getName(), new Date()));

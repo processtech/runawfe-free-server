@@ -79,7 +79,7 @@ public class Timer extends Job {
                 }
                 log.info("Leaving " + this + " from " + executionContext.getNode() + " by transition " + outTransitionName);
                 getToken().signal(executionContext, executionContext.getNode().getLeavingTransitionNotNull(outTransitionName));
-            } else if (Boolean.TRUE == executionContext.getTransientVariable(STOP_RE_EXECUTION)) {
+            } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(STOP_RE_EXECUTION))) {
                 log.info("Deleting " + this + " due to STOP_RE_EXECUTION");
                 ApplicationContextFactory.getJobDAO().deleteTimersByName(getName(), getToken());
             } else if (repeatDurationString != null) {
