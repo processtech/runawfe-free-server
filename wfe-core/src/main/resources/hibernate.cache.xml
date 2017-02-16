@@ -1,11 +1,22 @@
 <ehcache updateCheck="false">
+	
+	<defaultCache
+		maxElementsInMemory="15000"
+		eternal="false"
+		timeToIdleSeconds="17000"
+		overflowToDisk="false"
+		statistics="true"
+	/>
 
-  <defaultCache
-    maxElementsInMemory="15000"
-    eternal="false"
-    timeToIdleSeconds="17000"
-    overflowToDisk="false"
-    statistics="true"
-    />
+	<cache
+		name="ru.runa.wfe.definition.cache.definitionIdToDefinition"
+		maxElementsInMemory="100"
+		overflowToDisk="true"
+	/>
+	
+	<cache
+		name="ru.runa.wfe.definition.Deployment"
+		maxElementsInMemory="100"
+	/>
 
 </ehcache>
