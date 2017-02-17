@@ -77,13 +77,13 @@ public class GraphImage {
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
-        for (TransitionFigure transitionFigure : transitions.keySet()) {
-            RenderHits hits = transitions.get(transitionFigure);
-            transitionFigure.setRenderHits(hits);
-            transitionFigure.draw(graphics, hits.getColor());
+        for (Map.Entry<TransitionFigure, RenderHits> entry : transitions.entrySet()) {
+            RenderHits hits = entry.getValue();
+            entry.getKey().setRenderHits(hits);
+            entry.getKey().draw(graphics, hits.getColor());
         }
-        for (AbstractFigure nodeFigure : nodes.keySet()) {
-            RenderHits hits = nodes.get(nodeFigure);
+        for (Map.Entry<AbstractFigure, RenderHits> entry : nodes.entrySet()) {
+            RenderHits hits = entry.getValue();
             int lineWidth = 1;
             if (hits.isActive()) {
                 lineWidth *= 2;
@@ -91,8 +91,8 @@ public class GraphImage {
             if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
                 lineWidth *= 2;
             }
-            nodeFigure.setRenderHits(hits);
-            drawAbstractFigure(graphics, nodeFigure, hits, new BasicStroke(lineWidth));
+            entry.getKey().setRenderHits(hits);
+            drawAbstractFigure(graphics, entry.getKey(), hits, new BasicStroke(lineWidth));
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -75,7 +75,7 @@ public class EditSettingsTag extends TitledFormTag {
         List<Setting> settings = new ArrayList<Setting>();
     }
 
-    public static TreeMap<String, SettingsFile> settingsList = new TreeMap<String, SettingsFile>();
+    public static final TreeMap<String, SettingsFile> settingsList = new TreeMap<String, SettingsFile>();
 
     static {
         readSettingsList("settingsList.xml");

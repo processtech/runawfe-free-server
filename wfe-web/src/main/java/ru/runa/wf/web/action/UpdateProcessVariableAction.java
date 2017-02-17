@@ -84,13 +84,13 @@ public class UpdateProcessVariableAction extends ActionBase {
         if (value == null) {
             return true;
         }
-        if (value instanceof String && ((String) value).length() == 0) {
+        if (value instanceof String && String.valueOf(value).isEmpty()) {
             return true;
         }
-        if (value instanceof Boolean && (Boolean) value == Boolean.FALSE) {
+        if (Boolean.FALSE.equals(value)) {
             return true;
         }
-        if (TypeConversionUtil.isList(value) && TypeConversionUtil.getListSize(value) == 0) {
+        if (TypeConversionUtil.isList(value) && TypeConversionUtil.isEmptyList(value)) {
             return true;
         }
         return false;

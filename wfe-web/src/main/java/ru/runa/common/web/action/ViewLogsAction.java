@@ -1,41 +1,33 @@
 package ru.runa.common.web.action;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.collect.ContiguousSet;
+import com.google.common.collect.DiscreteDomain;
+import com.google.common.collect.Range;
+import com.google.common.io.Closeables;
+import com.google.common.io.Files;
+import com.google.common.primitives.Ints;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.ViewLogForm;
 import ru.runa.wfe.commons.IOCommons;
 
-import com.google.common.io.Closeables;
-import com.google.common.io.Files;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * @author dofs
- *
  * @struts:action path="/viewLogs" name="viewLogForm" validate="false"
  * @struts.action-forward name="success" path="/displayLogs.do" redirect =
- *                        "false"
+ * "false"
  */
 public class ViewLogsAction extends ActionBase {
     public static final String ACTION_PATH = "/viewLogs";
@@ -71,7 +63,7 @@ public class ViewLogsAction extends ActionBase {
                 if (form.getMode() == ViewLogForm.MODE_SEARCH) {
                     List<Integer> lineNumbers = new ArrayList<Integer>();
                     String lines = searchLines(file, form, lineNumbers);
-                    StringBuffer b = new StringBuffer(lines.length() + 200);
+                    StringBuilder b = new StringBuilder(lines.length() + 200);
                     b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
                     for (Integer num : lineNumbers) {
                         b.append(num).append("<br>");
@@ -83,7 +75,7 @@ public class ViewLogsAction extends ActionBase {
                 } else if (form.getMode() == ViewLogForm.MODE_ERRORS_AND_WARNS) {
                     List<Integer> lineNumbers = new ArrayList<Integer>();
                     String lines = searchErrorsAndWarns(file, lineNumbers);
-                    StringBuffer b = new StringBuffer(lines.length() + 200);
+                    StringBuilder b = new StringBuilder(lines.length() + 200);
                     b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
                     for (Integer num : lineNumbers) {
                         b.append(num).append("<br>");
@@ -94,7 +86,7 @@ public class ViewLogsAction extends ActionBase {
                     logFileContent = b.toString();
                 } else {
                     String lines = readLines(file, form);
-                    StringBuffer b = new StringBuffer(lines.length() + 200);
+                    StringBuilder b = new StringBuilder(lines.length() + 200);
                     b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
                     for (int i = form.getStartLine(); i <= form.getEndLine(); i++) {
                         b.append(i).append("<br>");
@@ -140,7 +132,7 @@ public class ViewLogsAction extends ActionBase {
 
     private String createPagingToolbar(ViewLogForm form) {
         if (form.getAllLinesCount() > limitLinesCount) {
-            StringBuffer b = new StringBuffer();
+            StringBuilder b = new StringBuilder();
             int n = form.getAllLinesCount() / limitLinesCount;
             if (form.getAllLinesCount() % limitLinesCount != 0) {
                 n++;
@@ -170,16 +162,17 @@ public class ViewLogsAction extends ActionBase {
         int startLineNumber = form.getStartLine();
         int endLineNumber = form.getEndLine();
         InputStream is = null;
+        LineNumberReader lnReader = null;
         try {
             int initialSize = (endLineNumber - startLineNumber) * 100;
             if (initialSize <= 0) {
                 initialSize = 1000;
             }
-            StringBuffer b = new StringBuffer(initialSize);
+            StringBuilder b = new StringBuilder(initialSize);
             is = new FileInputStream(file);
-            LineNumberReader lnReader = new LineNumberReader(new InputStreamReader(is));
-            String line = lnReader.readLine();
-            while (line != null) {
+            lnReader = new LineNumberReader(new InputStreamReader(is));
+            String line;
+            while (null != (line = lnReader.readLine())) {
                 if (lnReader.getLineNumber() >= startLineNumber) {
                     if (endLineNumber != 0 && lnReader.getLineNumber() > endLineNumber) {
                         break;
@@ -188,26 +181,27 @@ public class ViewLogsAction extends ActionBase {
                     line = line.replaceAll("\\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
                     b.append(line).append("<br>");
                 }
-                line = lnReader.readLine();
             }
             for (int i = lnReader.getLineNumber() + 1; i <= endLineNumber; i++) {
                 b.append("<br>");
             }
             return b.toString();
         } finally {
+            Closeables.closeQuietly(lnReader);
             Closeables.closeQuietly(is);
         }
     }
 
     private String searchLines(File file, ViewLogForm form, List<Integer> lineNumbers) throws IOException {
         InputStream is = null;
+        LineNumberReader lnReader = null;
         try {
-            StringBuffer b = new StringBuffer(1000);
+            StringBuilder b = new StringBuilder(1000);
             is = new FileInputStream(file);
-            LineNumberReader lnReader = new LineNumberReader(new InputStreamReader(is));
-            String line = lnReader.readLine();
+            lnReader = new LineNumberReader(new InputStreamReader(is));
             int i = 1;
-            while (line != null) {
+            String line;
+            while (null != (line = lnReader.readLine())) {
                 boolean result;
                 if (form.isSearchCaseSensitive()) {
                     result = StringUtils.contains(line, form.getSearch());
@@ -223,27 +217,28 @@ public class ViewLogsAction extends ActionBase {
                         break;
                     }
                 }
-                line = lnReader.readLine();
                 i++;
             }
             return b.toString();
         } finally {
             Closeables.closeQuietly(is);
+            Closeables.closeQuietly(lnReader);
         }
     }
 
     private String searchErrorsAndWarns(File file, List<Integer> lineNumbers) throws IOException {
         InputStream is = null;
+        LineNumberReader lnReader = null;
         try {
             // TODO may be use more structured parsing
             // http://logging.apache.org/log4j/companions/receivers/apidocs/org/apache/log4j/varia/LogFilePatternReceiver.html
-            StringBuffer b = new StringBuffer(1000);
+            StringBuilder b = new StringBuilder(1000);
             is = new FileInputStream(file);
-            LineNumberReader lnReader = new LineNumberReader(new InputStreamReader(is));
-            String line = lnReader.readLine();
+            lnReader = new LineNumberReader(new InputStreamReader(is));
             int i = 1;
+            String line;
             boolean found = false;
-            while (line != null) {
+            while (null != (line = lnReader.readLine())) {
                 if (found && line.length() > 0 && (Character.isWhitespace(line.charAt(0)) || Character.isLetter(line.charAt(0)))) {
                     line = StringEscapeUtils.escapeHtml(line);
                     line = line.replaceAll("\\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -258,11 +253,11 @@ public class ViewLogsAction extends ActionBase {
                         lineNumbers.add(i);
                     }
                 }
-                line = lnReader.readLine();
                 i++;
             }
             return b.toString();
         } finally {
+            Closeables.closeQuietly(lnReader);
             Closeables.closeQuietly(is);
         }
     }

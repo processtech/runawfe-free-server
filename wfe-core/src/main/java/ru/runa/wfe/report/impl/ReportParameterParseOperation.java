@@ -23,7 +23,7 @@ public class ReportParameterParseOperation implements ReportParameterTypeVisitor
     @Override
     public Object onDate(String data) {
         try {
-            return CalendarUtil.convertToDate(data, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+            return CalendarUtil.convertToDate(data, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
         } catch (Exception e) {
             throw new InternalApplicationException("Value " + data + " is not correct date", e);
         }

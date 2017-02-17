@@ -19,16 +19,16 @@ public class ChooseRelationName extends FormComponent {
         Object value = variableProvider.getValue(variableName);
         BatchPresentation batchPresentation = BatchPresentationFactory.RELATIONS.createNonPaged();
         List<Relation> relations = Delegates.getRelationService().getRelations(user, batchPresentation);
-        String html = "<select name=\"" + variableName + "\">";
-        html += "<option value=\"\"> ------------------------- </option>";
+        StringBuilder html = new StringBuilder("<select name=\"").append(variableName).append("\">");
+        html.append("<option value=\"\"> ------------------------- </option>");
         for (Relation relation : relations) {
-            html += "<option";
+            html.append("<option");
             if (Objects.equal(relation.getName(), value)) {
-                html += " selected";
+                html.append(" selected");
             }
-            html += ">" + relation.getName() + "</option>";
+            html.append(">").append(relation.getName()).append("</option>");
         }
-        html += "</select>";
+        html.append("</select>");
         return html;
     }
 

@@ -113,7 +113,7 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
                     description = log.toString();
                 }
                 TR tr = new TR();
-                String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
+                String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
                 tr.addElement(new TD().addElement(eventDateString).setClass(Resources.CLASS_LIST_TABLE_TD));
                 tr.addElement(new TD().addElement(description).setClass(Resources.CLASS_LIST_TABLE_TD));
                 table.addElement(tr);

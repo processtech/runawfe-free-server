@@ -123,15 +123,15 @@ public class ErrorDetailsAction extends ActionBase {
                     Map<String, byte[]> processFiles = Maps.newHashMap();
                     JSONArray files = new JSONArray();
                     for (Long processId : processesEntry.getValue()) {
-                        String exceptions = "";
+                        StringBuilder exceptions = new StringBuilder();
                         List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(getLoggedUser(request), processId);
                         for (ProcessError processError : processErrors) {
-                            exceptions += "\r\n---------------------------------------------------------------";
-                            exceptions += "\r\n" + CalendarUtil.formatDateTime(processError.getOccurredDate()) + " " + processError.getNodeId() + "/"
-                                    + processError.getNodeName();
-                            exceptions += "\r\n" + processError.getStackTrace();
+                            exceptions.append("\r\n---------------------------------------------------------------");
+                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(processError.getOccurredDate())).append(" ").append(processError.getNodeId()).append("/")
+                                    .append(processError.getNodeName())
+                                    .append("\r\n").append(processError.getStackTrace());
                         }
-                        processFiles.put("exceptions." + processId + ".txt", exceptions.getBytes(Charsets.UTF_8));
+                        processFiles.put("exceptions." + processId + ".txt", exceptions.toString().getBytes(Charsets.UTF_8));
                     }
                     addSupportFileInfo(files, getResources(request).getMessage("support.file.exceptions"), true);
                     for (WfProcess process : processes) {
@@ -311,7 +311,7 @@ public class ErrorDetailsAction extends ActionBase {
             for (int i = processIds.size(); i < maxLevel; i++) {
                 tr.addElement(new TD().addElement("").setClass(Resources.CLASS_EMPTY20_TABLE_TD));
             }
-            String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
+            String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
             if (!Objects.equal(mergedEventDateString, eventDateString)) {
                 if (mergedEventDateTD != null) {
                     mergedEventDateTD.setRowSpan(mergedRowsCount + 1);

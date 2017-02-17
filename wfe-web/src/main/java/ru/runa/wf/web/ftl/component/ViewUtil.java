@@ -134,21 +134,22 @@ public class ViewUtil {
             loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
             loadingMessage = webHelper.getMessage("message.loading");
         }
-        String hideStyle = "style=\"display: none;\"";
-        String html = "<div class=\"inputFileContainer\">";
-        html += "<div class=\"dropzone\" >";
-        html += "<label class=\"inputFileAttach\">";
-        html += "<div class=\"inputFileAttachButtonDiv\"><img src=\"" + attachImageUrl + "\" />" + uploadFileTitle + "</div>";
-        html += "<input class=\"inputFile inputFileAjax \" name=\"" + variableName + "\" type=\"file\" " + multiple + ">";
-        html += "</label></div>";
-        html += "<div class=\"progressbar\" " + hideStyle + ">";
-        html += "<div class=\"line\" style=\"width: 0%;\"></div>";
-        html += "<div class=\"status\">";
-        html += "<img src=\"" + loadingImageUrl + "\" inputId=\"" + variableName + "\">";
-        html += "<span class=\"statusText\">";
-        html += loadingMessage;
-        html += "</span></div></div></div>";
-        return html;
+        final String hideStyle = "style=\"display: none;\"";
+        StringBuilder html = new StringBuilder();
+        html.append("<div class=\"inputFileContainer\">")
+                .append("<div class=\"dropzone\" >")
+                .append("<label class=\"inputFileAttach\">")
+                .append("<div class=\"inputFileAttachButtonDiv\"><img src=\"").append(attachImageUrl).append("\" />").append(uploadFileTitle).append("</div>")
+                .append("<input class=\"inputFile inputFileAjax \" name=\"").append(variableName).append("\" type=\"file\" ").append(multiple).append(">")
+                .append("</label></div>")
+                .append("<div class=\"progressbar\" ").append(hideStyle).append(">")
+                .append("<div class=\"line\" style=\"width: 0%;\"></div>")
+                .append("<div class=\"status\">")
+                .append("<img src=\"").append(loadingImageUrl).append("\" inputId=\"").append(variableName).append("\">")
+                .append("<span class=\"statusText\">")
+                .append(loadingMessage)
+                .append("</span></div></div></div>");
+        return html.toString();
     }
 
     @SuppressWarnings("unchecked")

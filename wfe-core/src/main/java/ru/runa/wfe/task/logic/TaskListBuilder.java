@@ -210,7 +210,7 @@ public class TaskListBuilder implements ITaskListBuilder {
                 tasksState.add(acceptable);
             } catch (Exception e) {
                 if (taskDAO.get(task.getId()) == null) {
-                    log.debug(String.format("getTasks: task: %s has been completed", task, e));
+                    log.debug(String.format("getTasks: task: %s has been completed", task), e);
                     continue;
                 }
                 log.error(String.format("getTasks: task: %s unable to build ", task), e);

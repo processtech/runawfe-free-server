@@ -660,7 +660,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
                     criteria.addOrder(Order.asc(CODE_PROPERTY_NAME));
                     List<Actor> actors = criteria.list();
                     if (actors.size() > 0) {
-                        return new Long(actors.get(0).getCode().longValue() - 1);
+                        return Long.valueOf(actors.get(0).getCode().longValue() - 1);
                     }
                     return -1L;
                 }

@@ -145,9 +145,9 @@ public class ConditionProcessor {
         source = source.replaceAll("'", "");
         Date date = null;
         try {
-            date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+            date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
         } catch (InternalApplicationException e) {
-            date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+            date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
         } catch (Exception e) {
             log.error(String.format("error parse date [%s]", source));
             throw Throwables.propagate(e);

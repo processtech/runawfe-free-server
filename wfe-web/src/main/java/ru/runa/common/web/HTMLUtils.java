@@ -267,19 +267,18 @@ public class HTMLUtils {
                     result[i] = "null";
                     continue;
                 }
-                String executors = "{ ";
+                final StringBuilder executors = new StringBuilder("{ ");
                 for (Long id : ids) {
                     try {
                         Executor executor = Delegates.getExecutorService().getExecutor(user, id);
-                        executors += pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString();
-                        executors += "&nbsp;";
+                        executors.append(pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString()).append("&nbsp;");
                     } catch (Exception e) {
                         log.debug("could not get executor by " + id + ": " + e.getMessage());
-                        executors += id + "&nbsp;";
+                        executors.append(id).append("&nbsp;");
                     }
                 }
-                executors += "}";
-                result[i] = executors;
+                executors.append("}");
+                result[i] = executors.toString();
             } else if (arguments[i] instanceof ProcessIdValue) {
                 Long processId = ((ProcessIdValue) arguments[i]).getId();
                 if (processId == null) {

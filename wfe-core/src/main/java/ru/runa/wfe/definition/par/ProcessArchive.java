@@ -23,9 +23,7 @@ package ru.runa.wfe.definition.par;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -44,11 +42,11 @@ import com.google.common.io.ByteStreams;
 
 public class ProcessArchive {
     private final Deployment deployment;
-    public static final List<String> UNSECURED_FILE_NAMES = Lists.newArrayList();
+    public static final List<String> UNSECURED_FILE_NAMES;
     static {
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.START_IMAGE_FILE_NAME);
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.BOTS_XML_FILE);
+        UNSECURED_FILE_NAMES = Collections.unmodifiableList(Arrays.asList(IFileDataProvider.START_IMAGE_FILE_NAME,
+                IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME,
+                IFileDataProvider.BOTS_XML_FILE));
     }
 
     static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<ProcessArchiveParser>();
