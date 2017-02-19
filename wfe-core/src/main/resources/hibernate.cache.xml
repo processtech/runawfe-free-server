@@ -8,7 +8,7 @@
 		statistics="true"
 	/>
 
-	<cache
+	<!-- cache
 		name="ru.runa.wfe.definition.cache.definitionIdToDefinition"
 		maxElementsInMemory="100"
 		overflowToDisk="true"
@@ -16,7 +16,7 @@
 	
 	<cache
 		name="ru.runa.wfe.definition.Deployment"
-		maxElementsInMemory="100"
-	/>
+		maxElementsInMemory="1000"
+	/ -->
 
 </ehcache>
