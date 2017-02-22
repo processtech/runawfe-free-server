@@ -49,13 +49,13 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
-import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.BatchPresentations;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentations;
 
 /**
  * Created on 17.01.2005
@@ -147,14 +147,13 @@ public final class Profile implements Serializable {
     }
 
     /**
-     * @return all (including shared) batch presentations for specified
-     *         batchPresentationId
+     * @return all (including shared) batch presentations for specified batchPresentationId
      */
     public List<BatchPresentation> getBatchPresentations(String batchPresentationId) {
         List<BatchPresentation> result = Lists.newArrayList();
         result.add(BatchPresentations.createDefault(batchPresentationId));
         for (BatchPresentation batch : batchPresentations) {
-            if (Objects.equal(batch.getCategory(), batchPresentationId)) {
+            if (Objects.equal(batch.getCategory(), batchPresentationId) && !batch.getName().startsWith(BatchPresentation.REFERENCE_SIGN)) {
                 result.add(batch);
             }
         }
@@ -167,6 +166,10 @@ public final class Profile implements Serializable {
     }
 
     public void setActiveBatchPresentation(String batchPresentationId, String batchPresentationName) {
+        setActiveBatchPresentation(batchPresentationId, batchPresentationName, true);
+    }
+
+    public void setActiveBatchPresentation(String batchPresentationId, String batchPresentationName, boolean administrator) {
         boolean found = false;
         for (BatchPresentation batch : batchPresentations) {
             if (Objects.equal(batch.getCategory(), batchPresentationId)) {
@@ -176,7 +179,7 @@ public final class Profile implements Serializable {
                 }
             }
         }
-        if (!found) {
+        if (!found && administrator) {
             for (BatchPresentation batch : sharedBatchPresentations) {
                 if (Objects.equal(batch.getCategory(), batchPresentationId)) {
                     batch.setActive(batch.getName().equals(batchPresentationName));
@@ -188,7 +191,17 @@ public final class Profile implements Serializable {
     public BatchPresentation getActiveBatchPresentation(String batchPresentationId) {
         for (BatchPresentation batch : batchPresentations) {
             if (batch.getCategory().equals(batchPresentationId) && batch.isActive()) {
-                return batch;
+                String batchName = batch.getName();
+                if (batchName.startsWith(BatchPresentation.REFERENCE_SIGN)) {
+                    batchName = batchName.substring(BatchPresentation.REFERENCE_SIGN.length());
+                    for (BatchPresentation sharedBatch : sharedBatchPresentations) {
+                        if (sharedBatch.getCategory().equals(batchPresentationId) && sharedBatch.getName().equals(batchName)) {
+                            return sharedBatch;
+                        }
+                    }
+                } else {
+                    return batch;
+                }
             }
         }
         for (BatchPresentation batch : sharedBatchPresentations) {
@@ -209,4 +222,5 @@ public final class Profile implements Serializable {
     public void addSharedBatchPresentation(BatchPresentation batchPresentation) {
         sharedBatchPresentations.add(batchPresentation);
     }
+
 }
