@@ -20,11 +20,7 @@ package ru.runa.wf.web.html;
 import org.apache.ecs.html.TD;
 
 import ru.runa.common.web.html.TDBuilder;
-import ru.runa.wfe.audit.ProcessLogFilter;
-import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
@@ -45,15 +41,10 @@ public class TaskAssignmentDateTDBuilder implements TDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
+        String result = "";
         WfTask task = (WfTask) object;
-        ProcessLogFilter filter = new ProcessLogFilter(task.getProcessId());
-        filter.setNodeId(task.getNodeId());
-        ProcessLogs logs = Delegates.getAuditService().getProcessLogs(env.getUser(), filter);
-        TaskAssignLog taskAssignLog = logs.getLastOrNull(TaskAssignLog.class);
-        if (taskAssignLog != null) {
-            return CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
-        }
-        return "";
+        result = CalendarUtil.formatDateTime(task.getAssignDate());
+        return result;
     }
 
     @Override
