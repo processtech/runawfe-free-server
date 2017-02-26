@@ -265,6 +265,15 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n){
+        try {
+            return getDefinitionService().getLastChanges(definitionId, n);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
         try {
             return getDefinitionService().findChanges(definitionName, version1, version2);
