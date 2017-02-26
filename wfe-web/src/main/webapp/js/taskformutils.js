@@ -31,6 +31,13 @@ $(function() {
 			$(".jqte_toolbar").show(true);
 		}
 	});
+
+//	this required for visible toolbar when editor is switched to source mode, becouse up code 
+//	hack jqte plugin
+//	.jqte_tool_21 is source button of toolbar in v. 1.4.0 jqte plugin
+	$('.jqte_tool_21').click(function(){
+		$(".jqte_toolbar").show(true);
+	});
 	$(".jqte_toolbar").hide(true);
 });
 
