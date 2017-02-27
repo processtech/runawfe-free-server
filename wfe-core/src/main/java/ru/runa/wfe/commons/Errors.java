@@ -41,7 +41,7 @@ public class Errors {
         SystemError systemError = new SystemError(throwable);
         boolean alreadyExists = systemErrors.add(systemError);
         if (!alreadyExists) {
-            sendEmailNotification(throwable, null);
+            sendEmailNotification(systemError);
         }
     }
 
@@ -60,7 +60,7 @@ public class Errors {
         boolean alreadyExists = list.remove(processError);
         list.add(processError);
         if (!alreadyExists) {
-            sendEmailNotification(throwable, processError);
+            sendEmailNotification(processError);
         }
         return !alreadyExists;
     }
@@ -93,43 +93,21 @@ public class Errors {
         }
     }
 
-    public static void sendEmailNotification(final Throwable exception, final ProcessError processError) {
+    public static void sendEmailNotification(final SystemError error) {
         // non-blocking usage for surrounding transaction
         new Thread() {
             @Override
             public void run() {
                 try {
                     if (emailNotificationConfigBytes != null) {
-                        boolean matches = false;
                         EmailConfig config = EmailConfigParser.parse(emailNotificationConfigBytes);
-                        List<String> includes = Utils.splitString(config.getCommonProperties().get("exception.includes"), ";");
-                        for (String className : includes) {
-                            if (ClassLoaderUtil.loadClass(className).isInstance(exception)) {
-                                matches = true;
-                                break;
-                            }
-                        }
-                        if (matches) {
-                            List<String> excludes = Utils.splitString(config.getCommonProperties().get("exception.excludes"), ";");
-                            for (String className : excludes) {
-                                if (ClassLoaderUtil.loadClass(className).isInstance(exception)) {
-                                    matches = false;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!matches) {
-                            return;
-                        }
                         Map<String, Object> map = Maps.newHashMap();
-                        map.put("exceptionClassName", exception.getClass().getName());
-                        map.put("exceptionMessage", exception.getLocalizedMessage());
-                        map.put("processError", processError);
+                        map.put("error", error);
                         IVariableProvider variableProvider = new MapVariableProvider(map);
                         config.applySubstitutions(variableProvider);
                         String formMessage = ExpressionEvaluator.process(null, config.getMessage(), variableProvider, null);
                         config.setMessage(formMessage);
-                        config.setMessageId("Error: " + exception.toString());
+                        config.setMessageId("Error: " + error.getMessage());
                         // does not work EmailUtils.sendMessageRequest(config);
                         EmailUtils.sendMessage(config);
                     }
