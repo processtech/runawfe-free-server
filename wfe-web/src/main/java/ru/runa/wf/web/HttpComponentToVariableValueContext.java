@@ -3,9 +3,9 @@ package ru.runa.wf.web;
 import ru.runa.wfe.InternalApplicationException;
 
 /**
- * {@link ObjectToVariableValue} operation context.
+ * {@link HttpComponentToVariableValue} operation context.
  */
-public class ObjectToVariableValueContext {
+public class HttpComponentToVariableValueContext {
 
     /**
      * Variable or input field name.
@@ -17,8 +17,7 @@ public class ObjectToVariableValueContext {
      */
     public final Object value;
 
-    public ObjectToVariableValueContext(String variableName, Object value) {
-        super();
+    public HttpComponentToVariableValueContext(String variableName, Object value) {
         this.variableName = variableName;
         this.value = value;
     }

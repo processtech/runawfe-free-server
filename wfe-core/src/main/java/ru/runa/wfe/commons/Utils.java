@@ -180,7 +180,7 @@ public class Utils {
         variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_TOKEN_ID, BaseMessageNode.ERROR_EVENT_TOKEN_ID,
                 VariableMapping.USAGE_READ));
         variableMappings
-                .add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, VariableMapping.USAGE_READ));
+        .add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, VariableMapping.USAGE_READ));
         Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
     }
 
@@ -313,7 +313,8 @@ public class Utils {
                     token.fail(throwable);
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
                     ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
-                    Errors.sendEmailNotification(throwable, processError);
+                    processError.setThrowable(throwable);
+                    Errors.sendEmailNotification(processError);
                 }
             }
         }.executeInTransaction(true);

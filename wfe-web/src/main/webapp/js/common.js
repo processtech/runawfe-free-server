@@ -29,7 +29,7 @@ $(document).ready(function() {
 });
 
 function filterTemplatesElements() {
-	return $(this).parents('[wfeContainerTemplate]').length < 1;
+	return $(this).parents('[template]').length < 1;
 }
 
 // add timestamp to ajax queries

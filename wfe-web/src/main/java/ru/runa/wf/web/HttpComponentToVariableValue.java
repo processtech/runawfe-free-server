@@ -6,8 +6,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
 
-import com.google.common.base.Throwables;
-
 import ru.runa.common.WebResources;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.commons.SystemProperties;
@@ -34,12 +32,13 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 
+import com.google.common.base.Throwables;
+
 /**
  * Try to convert simple object to variable value.
  */
-public class ObjectToVariableValue implements VariableFormatVisitor<Object, ObjectToVariableValueContext> {
-
-    private static final Log log = LogFactory.getLog(ObjectToVariableValue.class);
+public class HttpComponentToVariableValue implements VariableFormatVisitor<Object, HttpComponentToVariableValueContext> {
+    private static final Log log = LogFactory.getLog(HttpComponentToVariableValue.class);
 
     /**
      * Component for loading executors.
@@ -51,29 +50,28 @@ public class ObjectToVariableValue implements VariableFormatVisitor<Object, Obje
      */
     private final Map<String, String> errors;
 
-    public ObjectToVariableValue(IExecutorLoader executorLoader, Map<String, String> errors) {
-        super();
+    public HttpComponentToVariableValue(IExecutorLoader executorLoader, Map<String, String> errors) {
         this.executorLoader = executorLoader;
         this.errors = errors;
     }
 
     @Override
-    public Object onDate(DateFormat dateFormat, ObjectToVariableValueContext context) {
+    public Object onDate(DateFormat dateFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(dateFormat, context);
     }
 
     @Override
-    public Object onTime(TimeFormat timeFormat, ObjectToVariableValueContext context) {
+    public Object onTime(TimeFormat timeFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(timeFormat, context);
     }
 
     @Override
-    public Object onDateTime(DateTimeFormat dateTimeFormat, ObjectToVariableValueContext context) {
+    public Object onDateTime(DateTimeFormat dateTimeFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(dateTimeFormat, context);
     }
 
     @Override
-    public Object OnExecutor(ExecutorFormat executorFormat, ObjectToVariableValueContext context) {
+    public Object onExecutor(ExecutorFormat executorFormat, HttpComponentToVariableValueContext context) {
         if (context.value == null) {
             return null;
         }
@@ -87,32 +85,32 @@ public class ObjectToVariableValue implements VariableFormatVisitor<Object, Obje
     }
 
     @Override
-    public Object onBoolean(BooleanFormat booleanFormat, ObjectToVariableValueContext context) {
+    public Object onBoolean(BooleanFormat booleanFormat, HttpComponentToVariableValueContext context) {
         Object value = context.value;
         if (value == null) {
             // HTTP FORM doesn't pass unchecked checkbox value
             value = Boolean.FALSE.toString();
         }
-        return convertDefault(booleanFormat, new ObjectToVariableValueContext(context.variableName, value));
+        return convertDefault(booleanFormat, new HttpComponentToVariableValueContext(context.variableName, value));
     }
 
     @Override
-    public Object onBigDecimal(BigDecimalFormat bigDecimalFormat, ObjectToVariableValueContext context) {
+    public Object onBigDecimal(BigDecimalFormat bigDecimalFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(bigDecimalFormat, context);
     }
 
     @Override
-    public Object onDouble(DoubleFormat doubleFormat, ObjectToVariableValueContext context) {
+    public Object onDouble(DoubleFormat doubleFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(doubleFormat, context);
     }
 
     @Override
-    public Object onLong(LongFormat longFormat, ObjectToVariableValueContext context) {
+    public Object onLong(LongFormat longFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(longFormat, context);
     }
 
     @Override
-    public Object onFile(FileFormat fileFormat, ObjectToVariableValueContext context) {
+    public Object onFile(FileFormat fileFormat, HttpComponentToVariableValueContext context) {
         if (context.value == null) {
             return FormSubmissionUtils.IGNORED_VALUE;
         }
@@ -148,42 +146,42 @@ public class ObjectToVariableValue implements VariableFormatVisitor<Object, Obje
     }
 
     @Override
-    public Object onHidden(HiddenFormat hiddenFormat, ObjectToVariableValueContext context) {
+    public Object onHidden(HiddenFormat hiddenFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(hiddenFormat, context);
     }
 
     @Override
-    public Object onList(ListFormat listFormat, ObjectToVariableValueContext context) {
+    public Object onList(ListFormat listFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(listFormat, context);
     }
 
     @Override
-    public Object onMap(MapFormat mapFormat, ObjectToVariableValueContext context) {
+    public Object onMap(MapFormat mapFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(mapFormat, context);
     }
 
     @Override
-    public Object onProcessId(ProcessIdFormat processIdFormat, ObjectToVariableValueContext context) {
+    public Object onProcessId(ProcessIdFormat processIdFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(processIdFormat, context);
     }
 
     @Override
-    public Object onString(StringFormat stringFormat, ObjectToVariableValueContext context) {
+    public Object onString(StringFormat stringFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(stringFormat, context);
     }
 
     @Override
-    public Object onTextString(TextFormat textFormat, ObjectToVariableValueContext context) {
+    public Object onTextString(TextFormat textFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(textFormat, context);
     }
 
     @Override
-    public Object onUserType(UserTypeFormat userTypeFormat, ObjectToVariableValueContext context) {
+    public Object onUserType(UserTypeFormat userTypeFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(userTypeFormat, context);
     }
 
     @Override
-    public Object onOther(VariableFormat variableFormat, ObjectToVariableValueContext context) {
+    public Object onOther(VariableFormat variableFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(variableFormat, context);
     }
 
@@ -196,7 +194,7 @@ public class ObjectToVariableValue implements VariableFormatVisitor<Object, Obje
      *            Operation context.
      * @return Returns variable value.
      */
-    private Object convertDefault(VariableFormat format, ObjectToVariableValueContext context) {
+    private Object convertDefault(VariableFormat format, HttpComponentToVariableValueContext context) {
         if (context.value == null) {
             return null;
         }
@@ -219,7 +217,7 @@ public class ObjectToVariableValue implements VariableFormatVisitor<Object, Obje
      * @param e
      *            Exception, occurred on value conversation.
      */
-    private void saveErrorAndContinue(ObjectToVariableValueContext context, final String valueToFormat, Exception e) {
+    private void saveErrorAndContinue(HttpComponentToVariableValueContext context, final String valueToFormat, Exception e) {
         if (valueToFormat.length() > 0) {
             log.warn(e);
             // in other case we put validation in logic

@@ -44,8 +44,7 @@ public class BaseProcessVariableLoader {
     @Autowired
     private ProcessDAO processDAO;
 
-    public BaseProcessVariableLoader(VariableLoader variableLoader, Process process, ProcessDefinition processDefinition) {
-        super();
+    public BaseProcessVariableLoader(VariableLoader variableLoader, ProcessDefinition processDefinition, Process process) {
         this.variableLoader = variableLoader;
         this.process = process;
         this.processDefinition = processDefinition;
@@ -68,7 +67,6 @@ public class BaseProcessVariableLoader {
         }
         log.debug("No variable defined by '" + name + "' in " + process + ", returning null");
         return null;
-
     }
 
     public SubprocessSyncCache getSubprocessSyncCache() {
@@ -229,20 +227,20 @@ public class BaseProcessVariableLoader {
         }
 
         private static class VariableNameInfo {
-            private final String readVariableName;
-            private final String readVariableNameRemainder;
+            private final String variableName;
+            private final String variableNameRemainder;
 
-            private VariableNameInfo(String readVariableName, String readVariableNameRemainder) {
-                this.readVariableName = readVariableName;
-                this.readVariableNameRemainder = readVariableNameRemainder;
+            private VariableNameInfo(String variableName, String variableNameRemainder) {
+                this.variableName = variableName;
+                this.variableNameRemainder = variableNameRemainder;
             }
 
             public String getVariableName() {
-                return readVariableName;
+                return variableName;
             }
 
             public String getVariableNameRemainder() {
-                return readVariableNameRemainder;
+                return variableNameRemainder;
             }
 
             public static VariableNameInfo createFrom(String name, Map<String, String> variableNames) {

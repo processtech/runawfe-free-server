@@ -61,6 +61,7 @@ import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
+import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -107,8 +108,12 @@ public class ExecutionContext {
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
-        this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables, disableVariableDaoLoading);
-        baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcess(), getProcessDefinition());
+        if (disableVariableDaoLoading) {
+            this.variableLoader = new VariableLoaderFromMap(loadedVariables);
+        } else {
+            this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
+        }
+        this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
@@ -318,8 +323,7 @@ public class ExecutionContext {
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
-        final ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader
-                .getSubprocessSyncCache();
+        final BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
         if (variable == null) {
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
@@ -407,5 +411,4 @@ public class ExecutionContext {
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
         }
     }
-
 }

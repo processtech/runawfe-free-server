@@ -21,20 +21,20 @@ public class ConvertToSimpleVariablesResult {
     /**
      * Is this variable virtual (created for UserTypes, Maps and so on elements).
      */
-    public final boolean isVirtual;
+    public final boolean virtual;
 
     /**
      * Creates result for {@link ConvertToSimpleVariables} operation.
      *
      * @param context
      *            {@link ConvertToSimpleVariables} operation context for creating result for simple variable.
-     * @param isVirtual
+     * @param virtual
      *            Is this variable virtual (created for UserTypes, Maps and so on elements).
      */
-    public ConvertToSimpleVariablesResult(ConvertToSimpleVariablesContext context, boolean isVirtual) {
+    public ConvertToSimpleVariablesResult(ConvertToSimpleVariablesContext context, boolean virtual) {
         variableDefinition = context.getVariableDefinition();
         value = context.getValue();
-        this.isVirtual = isVirtual;
+        this.virtual = virtual;
     }
 
     /**
@@ -44,12 +44,12 @@ public class ConvertToSimpleVariablesResult {
      *            Saving variable definition.
      * @param value
      *            Saving variable value.
-     * @param isVirtual
+     * @param virtual
      *            Is this variable virtual (created for UserTypes, Maps and so on elements).
      */
-    public ConvertToSimpleVariablesResult(VariableDefinition variableDefinition, Object value, boolean isVirtual) {
+    public ConvertToSimpleVariablesResult(VariableDefinition variableDefinition, Object value, boolean virtual) {
         this.variableDefinition = variableDefinition;
         this.value = value;
-        this.isVirtual = isVirtual;
+        this.virtual = virtual;
     }
 }

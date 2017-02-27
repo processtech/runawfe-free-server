@@ -17,13 +17,12 @@ public class GenerateHtmlForVariableContext {
     /**
      * HTML code generation mode: for user input (false) or for display (true).
      */
-    public final boolean isReadonly;
+    public final boolean readonly;
 
-    public GenerateHtmlForVariableContext(WfVariable variable, Long processId, boolean isReadonly) {
-        super();
+    public GenerateHtmlForVariableContext(WfVariable variable, Long processId, boolean readonly) {
         this.variable = variable;
         this.processId = processId;
-        this.isReadonly = isReadonly;
+        this.readonly = readonly;
     }
 
     /**
@@ -34,7 +33,7 @@ public class GenerateHtmlForVariableContext {
      * @return Returns HTML code generation operation context for variable.
      */
     public GenerateHtmlForVariableContext CopyFor(WfVariable newVariable) {
-        return new GenerateHtmlForVariableContext(newVariable, processId, isReadonly);
+        return new GenerateHtmlForVariableContext(newVariable, processId, readonly);
     }
 
     /**

@@ -65,7 +65,6 @@ import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 /**
@@ -279,10 +278,7 @@ public class Token implements Serializable {
     public void fail(Throwable throwable) {
         setExecutionStatus(ExecutionStatus.FAILED);
         setErrorDate(new Date());
-        this.errorMessage = throwable.getLocalizedMessage();
-        if (Strings.isNullOrEmpty(this.errorMessage)) {
-            this.errorMessage = throwable.getClass().getName();
-        }
+        this.errorMessage = throwable.toString();
     }
 
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
@@ -307,7 +303,7 @@ public class Token implements Serializable {
 
     /**
      * ends this token and all of its children (if recursive).
-     * 
+     *
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */

@@ -49,7 +49,7 @@ import com.google.common.collect.Maps;
 
 public class ProcessDefinition extends GraphElement implements IFileDataProvider {
     private static final long serialVersionUID = 1L;
-
+    // TODO remove association for efficiency
     protected Deployment deployment;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;

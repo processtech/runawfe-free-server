@@ -61,7 +61,7 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
     }
 
     @Override
-    public String OnExecutor(ExecutorFormat executorFormat, WfVariable variable) {
+    public String onExecutor(ExecutorFormat executorFormat, WfVariable variable) {
         return "";
     }
 

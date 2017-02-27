@@ -6,8 +6,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.UserType;
@@ -34,6 +32,8 @@ import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 
+import com.google.common.collect.Lists;
+
 /**
  * Operation for converting variable to simple variables, which may be stored to database without additional transformations.
  */
@@ -41,7 +41,7 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
     /**
      * Logging support.
      */
-    private static Log log = LogFactory.getLog(ExecutionContext.class);
+    private static Log log = LogFactory.getLog(ConvertToSimpleVariables.class);
 
     @Override
     public List<ConvertToSimpleVariablesResult> onDate(DateFormat dateFormat, ConvertToSimpleVariablesContext context) {
@@ -59,7 +59,7 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
     }
 
     @Override
-    public List<ConvertToSimpleVariablesResult> OnExecutor(ExecutorFormat executorFormat, ConvertToSimpleVariablesContext context) {
+    public List<ConvertToSimpleVariablesResult> onExecutor(ExecutorFormat executorFormat, ConvertToSimpleVariablesContext context) {
         return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 

@@ -7,10 +7,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.user.IExecutorLoader;
 import ru.runa.wfe.var.UserTypeMap;
@@ -36,12 +32,15 @@ import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 /**
  * Extract variable value for variable definition, passed as operation context.
  */
-public class UserInputsToVariableValue implements VariableFormatVisitor<Object, VariableDefinition> {
-
-    private static final Log log = LogFactory.getLog(UserInputsToVariableValue.class);
+public class HttpFormToVariableValue implements VariableFormatVisitor<Object, VariableDefinition> {
+    private static final Log log = LogFactory.getLog(HttpFormToVariableValue.class);
 
     /**
      * User inputs. Map from field name to field value.
@@ -56,12 +55,11 @@ public class UserInputsToVariableValue implements VariableFormatVisitor<Object, 
     /**
      * Component for converting object to variable value.
      */
-    private final ObjectToVariableValue objectConverter;
+    private final HttpComponentToVariableValue componentToVariableValue;
 
-    public UserInputsToVariableValue(Map<String, ? extends Object> userInput, IExecutorLoader executorLoader) {
-        super();
+    public HttpFormToVariableValue(Map<String, ? extends Object> userInput, IExecutorLoader executorLoader) {
         this.userInput = userInput;
-        objectConverter = new ObjectToVariableValue(executorLoader, errors);
+        componentToVariableValue = new HttpComponentToVariableValue(executorLoader, errors);
     }
 
     @Override
@@ -80,7 +78,7 @@ public class UserInputsToVariableValue implements VariableFormatVisitor<Object, 
     }
 
     @Override
-    public Object OnExecutor(ExecutorFormat executorFormat, VariableDefinition variableDefinition) {
+    public Object onExecutor(ExecutorFormat executorFormat, VariableDefinition variableDefinition) {
         return defaultFormatProcessing(variableDefinition);
     }
 
@@ -107,7 +105,7 @@ public class UserInputsToVariableValue implements VariableFormatVisitor<Object, 
     @Override
     public Object onFile(FileFormat fileFormat, VariableDefinition variableDefinition) {
         Object value = userInput.get(variableDefinition.getName());
-        return fileFormat.processBy(objectConverter, new ObjectToVariableValueContext(variableDefinition.getName(), value));
+        return fileFormat.processBy(componentToVariableValue, new HttpComponentToVariableValueContext(variableDefinition.getName(), value));
     }
 
     @Override
@@ -167,8 +165,9 @@ public class UserInputsToVariableValue implements VariableFormatVisitor<Object, 
                 }
                 list = Lists.newArrayListWithExpectedSize(strings.length);
                 for (String componentValue : strings) {
-                    ObjectToVariableValueContext context = new ObjectToVariableValueContext(variableDefinition.getName(), componentValue);
-                    list.add(componentFormat.processBy(objectConverter, context));
+                    HttpComponentToVariableValueContext context = new HttpComponentToVariableValueContext(variableDefinition.getName(),
+                            componentValue);
+                    list.add(componentFormat.processBy(componentToVariableValue, context));
                 }
                 return list;
             }
@@ -302,7 +301,7 @@ public class UserInputsToVariableValue implements VariableFormatVisitor<Object, 
     private Object defaultFormatProcessing(VariableDefinition variableDefinition) {
         VariableFormat format = FormatCommons.create(variableDefinition);
         Object value = userInput.get(variableDefinition.getName());
-        Object result = format.processBy(objectConverter, new ObjectToVariableValueContext(variableDefinition.getName(), value));
+        Object result = format.processBy(componentToVariableValue, new HttpComponentToVariableValueContext(variableDefinition.getName(), value));
         if (value != null) {
             return result;
         } else {
