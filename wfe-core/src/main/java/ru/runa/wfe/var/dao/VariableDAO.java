@@ -43,6 +43,29 @@ public class VariableDAO extends GenericDAO<Variable> {
     }
 
     /**
+     * Load all variables for given processes.
+     *
+     * @param processes
+     *            Processes, which variables must be loaded.
+     * @return for each given process: map from variable name to loaded variable.
+     */
+    public Map<Process, Map<String, Variable<?>>> getVariables(Set<Process> processes) {
+        if (Utils.isNullOrEmpty(processes)) {
+            return null;
+        }
+        Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
+        for (Process process : processes) {
+            result.put(process, Maps.<String, Variable<?>> newHashMap());
+        }
+        List<Variable<?>> list = getHibernateTemplate().findByNamedParam("from Variable where process in (:processes)", new String[] { "processes" },
+                new Object[] { processes });
+        for (Variable<?> variable : list) {
+            result.get(variable.getProcess()).put(variable.getName(), variable);
+        }
+        return result;
+    }
+
+    /**
      * Load variables with given names for given processes.
      *
      * @param processes

@@ -60,6 +60,7 @@ import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
+import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -99,25 +100,30 @@ public class ExecutionContext {
     private SwimlaneDAO swimlaneDAO;
 
     protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
-            Map<Process, Map<String, Variable<?>>> loadedVariables) {
+            Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
-        this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
-        baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
+        if (disableVariableDaoLoading) {
+            this.variableLoader = new VariableLoaderFromMap(loadedVariables);
+        } else {
+            this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
+        }
+        this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, null);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(processDefinition, process.getRootToken(), loadedVariables);
+    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables,
+            boolean disableVariableDaoLoading) {
+        this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Process process) {

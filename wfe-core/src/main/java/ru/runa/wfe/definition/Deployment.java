@@ -3,10 +3,12 @@ package ru.runa.wfe.definition;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -106,6 +108,7 @@ public class Deployment extends Identifiable {
 
     @Lob
     @Column(length = 16777216, name = "BYTES")
+    @Basic(fetch = FetchType.LAZY)
     public byte[] getContent() {
         return content;
     }
