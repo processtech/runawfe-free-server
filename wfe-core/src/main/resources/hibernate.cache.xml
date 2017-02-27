@@ -11,12 +11,10 @@
 	<!-- cache
 		name="ru.runa.wfe.definition.cache.definitionIdToDefinition"
 		maxElementsInMemory="100"
-		overflowToDisk="true"
-	/ -->
+		overflowToDisk="true" / -->
 	
-	<cache
+	<!--cache
 		name="ru.runa.wfe.definition.Deployment"
-		maxElementsInMemory="1000"
-	/ -->
+		maxElementsInMemory="1000" / -->
 
 </ehcache>
