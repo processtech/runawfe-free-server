@@ -167,7 +167,7 @@ public class FormSubmissionUtils {
     private static Object extractVariable(HttpServletRequest request, Map<String, ? extends Object> userInput, VariableDefinition variableDefinition,
             Map<String, String> errors) throws Exception {
         VariableFormat format = FormatCommons.create(variableDefinition);
-        return format.processBy(new UserInputsToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request.getSession()))),
+        return format.processBy(new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request.getSession()))),
                 variableDefinition);
     }
 

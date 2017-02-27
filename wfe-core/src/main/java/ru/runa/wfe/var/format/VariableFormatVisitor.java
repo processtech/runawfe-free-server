@@ -52,7 +52,7 @@ public interface VariableFormatVisitor<TResult, TContext> {
      *            Operation call context. Contains additional data, passed to operation.
      * @return Result of operation.
      */
-    TResult OnExecutor(ExecutorFormat executorFormat, TContext context);
+    TResult onExecutor(ExecutorFormat executorFormat, TContext context);
 
     /**
      * Called to apply operation to boolean format.

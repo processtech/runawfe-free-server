@@ -16,7 +16,7 @@
 	
 	<cache
 		name="ru.runa.wfe.definition.Deployment"
-		maxElementsInMemory="100"
-	/>
+		maxElementsInMemory="1000"
+	/ -->
 
 </ehcache>

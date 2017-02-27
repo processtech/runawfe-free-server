@@ -254,7 +254,7 @@ public class VariableLogic extends WFCommonLogic {
         Map<Process, Map<String, Variable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
         VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
         ProcessDefinition processDefinition = getDefinition(process);
-        BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, process, processDefinition);
+        BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, processDefinition, process);
         removeSyncVariablesInBaseProcessMode(processStateOnTime, baseProcessVariableLoader);
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
@@ -410,6 +410,7 @@ public class VariableLogic extends WFCommonLogic {
         try {
             filter.setProcessId(process.getId());
             HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
+            // TODO 2505 load from db only VariableLogs?
             for (VariableLog variableLog : auditLogic.getProcessLogs(user, filter).getLogs(VariableLog.class)) {
                 String variableName = variableLog.getVariableName();
                 if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {

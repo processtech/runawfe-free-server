@@ -102,6 +102,6 @@ public class ExecutorFormat extends VariableFormat implements VariableDisplaySup
 
     @Override
     public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
-        return operation.OnExecutor(this, context);
+        return operation.onExecutor(this, context);
     }
 }

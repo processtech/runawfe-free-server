@@ -4,26 +4,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dto.WfVariable;
+
+import com.google.common.collect.Maps;
 
 /**
  * All variables must be preloaded and passed to this component.
  *
  * @author AL
  */
-public class VariableLoaderFromMap extends BaseVariableLoaderImpl {
-
-    /**
-     * Logging support.
-     */
-    static final Log log = LogFactory.getLog(VariableLoaderFromMap.class);
+public class VariableLoaderFromMap extends AbstractVariableLoader {
 
     /**
      * Preloaded variables. For each process contains map from variable name to variable. If no entry for variable name exists in preloaded variables,
@@ -39,7 +31,6 @@ public class VariableLoaderFromMap extends BaseVariableLoaderImpl {
      *            Preloaded variables. For each process contains map from variable name to variable. May be null.
      */
     public VariableLoaderFromMap(Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        super();
         this.loadedVariables = loadedVariables == null ? new HashMap<Process, Map<String, Variable<?>>>() : loadedVariables;
     }
 

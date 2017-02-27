@@ -19,11 +19,19 @@ public class Variables {
         return "${" + variableName + "}";
     }
 
-    public static Map<String, Object> toMap(List<WfVariable> variables) {
-        Map<String, Object> map = Maps.newHashMap();
+    /**
+     * Convert variables list to map from variable name to variable.
+     *
+     * @param variables
+     *            Variables list.
+     * @return map from variable name to variable.
+     */
+    public static Map<String, WfVariable> toMap(List<WfVariable> variables) {
+        Map<String, WfVariable> map = Maps.newHashMap();
         for (WfVariable variable : variables) {
-            map.put(variable.getDefinition().getName(), variable.getValue());
+            map.put(variable.getDefinition().getName(), variable);
         }
         return map;
     }
+
 }

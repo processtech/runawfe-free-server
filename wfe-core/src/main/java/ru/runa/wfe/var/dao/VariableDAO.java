@@ -10,11 +10,7 @@ import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.VariableDefinition;
-import ru.runa.wfe.var.dto.WfVariable;
 
 import com.google.common.collect.Maps;
 
@@ -104,28 +100,4 @@ public class VariableDAO extends GenericDAO<Variable> {
         getHibernateTemplate().bulkUpdate("delete from Variable where process=?", process);
     }
 
-    /**
-     * @deprecated Use {@link VariableLoaderDAOFallback} in case of mass variable loading.
-     */
-    @Deprecated
-    public Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
-        return new VariableLoaderDAOFallback(this, null, false).getVariableValue(processDefinition, process, variableDefinition);
-    }
-
-    /**
-     * @deprecated Use {@link VariableLoaderDAOFallback} in case of mass variable loading.
-     */
-    @Deprecated
-    public Object processComplexVariablesPre430(ProcessDefinition processDefinition, VariableDefinition variableDefinition, UserType userType,
-            Object value) {
-        return LoadVariableOfType.processComplexVariablesPre430(processDefinition, variableDefinition, userType, value);
-    }
-
-    /**
-     * @deprecated Use {@link VariableLoaderDAOFallback} in case of mass variable loading.
-     */
-    @Deprecated
-    public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
-        return new VariableLoaderDAOFallback(this, null, false).getVariable(processDefinition, process, variableName);
-    }
 }

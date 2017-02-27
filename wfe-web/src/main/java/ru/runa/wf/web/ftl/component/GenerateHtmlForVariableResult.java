@@ -17,7 +17,6 @@ public class GenerateHtmlForVariableResult {
     static final boolean markJsWithComments = false;
 
     public GenerateHtmlForVariableResult(GenerateHtmlForVariableContext context, String htmlStructureContent, String scriptContent) {
-        super();
         this.htmlStructureContent = Strings.isNullOrEmpty(htmlStructureContent) ? "" : markStructure(context, htmlStructureContent);
         this.scriptContent = Strings.isNullOrEmpty(scriptContent) ? "" : markScript(context, scriptContent);
     }
