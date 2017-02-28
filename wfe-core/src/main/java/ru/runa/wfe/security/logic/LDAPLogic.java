@@ -36,6 +36,13 @@ import javax.naming.directory.SearchResult;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -48,13 +55,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Imports users and group from LDAP directory.
@@ -71,6 +71,8 @@ public class LDAPLogic extends TransactionalExecutor {
     private static final String DISPLAY_NAME = "name";
     private static final String SAM_ACCOUNT_NAME = "sAMAccountName";
     private static final String TITLE = "title";
+    private static final String DEPARTMENT = "department";
+    private static final String DESCRIPTION = "description";
     private static final String EMAIL = "mail";
     private static final String MEMBER = "member";
     private static final String PHONE = "telephoneNumber";
@@ -169,8 +171,9 @@ public class LDAPLogic extends TransactionalExecutor {
             } catch (SizeLimitExceededException e) {
                 resultList.clear();
                 for (String y : ALPHABETS) {
-                    NamingEnumeration<SearchResult> list = dirContext.search(ou, "(&(|(" + SAM_ACCOUNT_NAME + "=" + y + "*)(" + SAM_ACCOUNT_NAME
-                            + "=" + y.toLowerCase() + "*))(objectclass=user))", controls);
+                    NamingEnumeration<SearchResult> list = dirContext.search(ou,
+                            "(&(|(" + SAM_ACCOUNT_NAME + "=" + y + "*)(" + SAM_ACCOUNT_NAME + "=" + y.toLowerCase() + "*))(objectclass=user))",
+                            controls);
                     while (list.hasMore()) {
                         SearchResult searchResult = list.next();
                         resultList.add(searchResult);
@@ -181,7 +184,9 @@ public class LDAPLogic extends TransactionalExecutor {
                 String name = getStringAttribute(searchResult, SAM_ACCOUNT_NAME);
                 String fullName = getStringAttribute(searchResult, DISPLAY_NAME);
                 String email = getStringAttribute(searchResult, EMAIL);
-                String description = getStringAttribute(searchResult, TITLE);
+                String title = getStringAttribute(searchResult, TITLE);
+                String description = title; // getStringAttribute(searchResult, DESCRIPTION);
+                String department = getStringAttribute(searchResult, DEPARTMENT);
                 String phone = getStringAttribute(searchResult, PHONE);
                 if (phone != null && phone.length() > 32) {
                     phone = phone.substring(0, 31);
@@ -191,7 +196,7 @@ public class LDAPLogic extends TransactionalExecutor {
                     if (!createExecutors) {
                         continue;
                     }
-                    actor = new Actor(name, description, fullName, null, email, phone);
+                    actor = new Actor(name, description, fullName, null, email, phone, title, department);
                     log.info("Importing " + actor);
                     executorDAO.create(actor);
                     executorDAO.addExecutorsToGroup(Lists.newArrayList(actor), wfeImportFromLdapGroup);

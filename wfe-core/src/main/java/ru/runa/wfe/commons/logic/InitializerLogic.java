@@ -30,6 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.timer.ScheduledTimerTask;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.DatabaseProperties;
@@ -57,6 +60,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
+import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
@@ -78,9 +82,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
@@ -154,6 +155,7 @@ public class InitializerLogic {
         dbPatches.add(ExpandVarcharPatch.class);
         dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
         dbPatches.add(CreateAdminScriptTables.class);
+        dbPatches.add(AddTitleAndDepartmentColumnsToActorPatch.class);
     };
 
     @Autowired

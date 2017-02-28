@@ -38,14 +38,10 @@ import ru.runa.wfe.user.Group;
 /**
  * Created on 19.08.2004
  * 
- * @struts:action path="/updateExecutorDetails" name="updateExecutorDetailsForm"
- *                validate="true" input = "/WEB-INF/af/manage_executor.jsp"
- * @struts.action-forward name="success" path="/manage_executor.do" redirect =
- *                        "true"
- * @struts.action-forward name="failure" path="/manage_executor.do" redirect =
- *                        "true"
- * @struts.action-forward name="failure_executor_does_not_exist"
- *                        path="/manage_executors.do" redirect = "true"
+ * @struts:action path="/updateExecutorDetails" name="updateExecutorDetailsForm" validate="true" input = "/WEB-INF/af/manage_executor.jsp"
+ * @struts.action-forward name="success" path="/manage_executor.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/manage_executor.do" redirect = "true"
+ * @struts.action-forward name="failure_executor_does_not_exist" path="/manage_executors.do" redirect = "true"
  */
 public class UpdateExecutorDetailsAction extends ActionBase {
 
@@ -65,6 +61,8 @@ public class UpdateExecutorDetailsAction extends ActionBase {
                 actor.setCode(form.getCode());
                 actor.setPhone(form.getPhone());
                 actor.setEmail(form.getEmail());
+                actor.setTitle(form.getTitle());
+                actor.setDepartment(form.getDepartment());
             } else {
                 Group group = (Group) executor;
                 group.setLdapGroupName(form.getEmail());
