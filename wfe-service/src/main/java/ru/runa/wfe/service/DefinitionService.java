@@ -359,6 +359,15 @@ public interface DefinitionService {
     public List<ProcessDefinitionChange> getChanges(Long definitionId);
 
     /**
+     * Gets last n changes for specified definition.
+     *
+     * @param definitionId
+     * @param n number of the last changes
+     * @return not <code>null</code>
+     */
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n);
+
+    /**
      * Gets changes between two versions of specified definition.
      *
      * @param definitionName

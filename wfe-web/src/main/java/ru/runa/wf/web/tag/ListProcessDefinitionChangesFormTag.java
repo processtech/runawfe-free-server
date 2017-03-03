@@ -68,11 +68,12 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
         final String AUTHOR = "process_definition_changes.author";
         final String COMMENT = "process_definition_changes.comment";
 
-        List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().getChanges(getProcessDefinitionId());
+        List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().getLastChanges(getProcessDefinitionId(), new Long(10));
         if (!changes.isEmpty()) {
             Table table = new Table();
             tdFormElement.addElement(table);
             table.setClass(Resources.CLASS_LIST_TABLE);
+            table.setID("versionChangesTable");
             table.setStyle("border-style : hidden;");
             TR headerTR = new TR();
             table.addElement(headerTR);
@@ -91,11 +92,6 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
                     TR row = new TR();
                     table.addElement(row);
                     row.setStyle("border-top-style:hidden;" + "border-left-style:hidden;" + "border-right-style:hidden;");
-                    if (rowCount > 2) {
-                        row.addAttribute("class", "earlyComments");
-                        row.setStyle(row.getAttribute("style") + "display:none;");
-                    }
-
                     TD versionTD = new TD();
                     versionTD.setClass(Resources.CLASS_LIST_TABLE_TD);
                     if (currentVersion == change.getVersion()) {
@@ -132,23 +128,41 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
                     row.addElement(dateTimeTD);
                     row.addElement(authorTD);
                     row.addElement(commentTD);
+
                     rowCount++;
                 }
             }
 
-            if (changes.size() > 3) {
-                Table tableShowHideEarlyComments = new Table();
-                tdFormElement.addElement(tableShowHideEarlyComments);
+            if (changes.size() > 10) {
+                Table tableShowAllChanges = new Table();
+                tdFormElement.addElement(tableShowAllChanges);
                 TR tr = new TR();
-                tableShowHideEarlyComments.addElement(tr);
+                tableShowAllChanges.addElement(tr);
                 A link = new A();
-                link.setHref("#showHideEarlyComments");
-                link.setName("showHideEarlyComments");
-                String script = "jQuery( \".earlyComments\" ).slideToggle(\"fast\");";
+                link.setHref("#showAllChanges");
+                link.setName("showAllChanges");
+                String script = "jQuery.ajax({" +
+                        "type: 'GET'," +
+                        "url: '/wfe/versionChanges'," +
+                        "data: {" +
+                        "id: "+getProcessDefinitionId()+", " +
+                        "untilVersion: "+Delegates.getDefinitionService().getProcessDefinition(getUser(), getProcessDefinitionId()).getVersion()+" , "+
+                        "action: 'loadAllChanges', " +
+                        "}," +
+                        "dataType: 'html'," +
+                        "success: function (data) { " +
+                        "jQuery('#versionChangesTable').find('tr:gt(0)').remove();" +
+                        "window.scrollTo(0, 0); " +
+                        "jQuery('#versionChangesTable').append(data);" +
+                        "window.scrollTo(0, 0);" +
+                        "jQuery('a[name=showAllChanges]').closest('table').remove();" +
+                        "window.scrollTo(0, 0);" +
+                        "}" +
+                        "});";
                 link.setOnClick(script);
-                link.addElement(Messages.getMessage("process_definition_changes.showHideEarlyComments", pageContext));
-                TD showMore = new TD().addElement(link);
-                tr.addElement(showMore);
+                link.addElement(Messages.getMessage("process_definition_changes.showAllChanges", pageContext));
+                TD showAllChangesTd = new TD().addElement(link);
+                tr.addElement(showAllChangesTd);
             }
         }
     }
