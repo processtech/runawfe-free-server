@@ -75,6 +75,13 @@ public class SystemProperties {
     }
 
     /**
+     * Using non runtime substitution cache instead of static substitution cache.
+     */
+    public static boolean useNonRuntimeSubstitutionCache() {
+        return NO_DATABASE_RESOURCES.getBooleanProperty("nonruntime.susbstitution.cache", true);
+    }
+
+    /**
      * System version
      */
     public static String getVersion() {

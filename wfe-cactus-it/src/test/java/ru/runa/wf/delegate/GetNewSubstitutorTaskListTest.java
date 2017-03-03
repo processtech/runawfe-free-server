@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.cactus.ServletTestCase;
+
+import com.google.common.collect.Lists;
 
 import ru.runa.wf.service.WfServiceTestHelper;
 import ru.runa.wfe.definition.DefinitionPermission;
@@ -38,8 +40,6 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 public class GetNewSubstitutorTaskListTest extends ServletTestCase {
     private final static String PREFIX = GetNewSubstitutorTaskListTest.class.getName();
@@ -130,10 +130,10 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
      * active/inactive actors.
      */
     public void testSubstitutionSimple() throws Exception {
-        Substitution substitution1 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor + ")", substitutionCriteria_always, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor2 + ")", substitutionCriteria_always, true);
+        Substitution substitution1 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_always, true);
+        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will check precondition - no tasks to all actor's
             checkTaskList(substituted, 0);
@@ -200,10 +200,10 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
     }
 
     public void testSubstitutionByCriteria() throws Exception {
-        Substitution substitution1 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor + ")", substitutionCriteria_requester, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor2 + ")", substitutionCriteria_always, true);
+        Substitution substitution1 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_requester, true);
+        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will heck precondition - no tasks to all actor's
             checkTaskList(substituted, 0);
@@ -270,10 +270,10 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
     }
 
     public void testSubstitutionByFalseCriteria() throws Exception {
-        Substitution substitution1 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor + ")", substitutionCriteria_no_requester, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor2 + ")", substitutionCriteria_always, true);
+        Substitution substitution1 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_no_requester, true);
+        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will heck precondition - no tasks to all actor's
             checkTaskList(substituted, 0);
@@ -341,10 +341,10 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
 
     public void testSubstitutionFalseTermination() throws Exception {
         Substitution substitution1 = testHelper.createTerminator(substituted, substitutionCriteria_no_requester, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor + ")", substitutionCriteria_always, true);
-        Substitution substitution3 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor2 + ")", substitutionCriteria_always, true);
+        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_always, true);
+        Substitution substitution3 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will heck precondition - no tasks to all actor's
             checkTaskList(substituted, 0);
@@ -413,10 +413,10 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
 
     public void testSubstitutionTrueTermination() throws Exception {
         Substitution substitution1 = testHelper.createTerminator(substituted, substitutionCriteria_requester, true);
-        Substitution substitution2 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor + ")", substitutionCriteria_always, true);
-        Substitution substitution3 = testHelper.createActorSubstitutor(substituted, "ru.runa.af.organizationfunction.ExecutorByNameFunction("
-                + nameSubstitutor2 + ")", substitutionCriteria_always, true);
+        Substitution substitution2 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor + ")", substitutionCriteria_always, true);
+        Substitution substitution3 = testHelper.createActorSubstitutor(substituted,
+                "ru.runa.af.organizationfunction.ExecutorByNameFunction(" + nameSubstitutor2 + ")", substitutionCriteria_always, true);
         {
             // Will heck precondition - no tasks to all actor's
             checkTaskList(substituted, 0);
@@ -485,6 +485,8 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
 
     private void checkTaskList(User user, int expectedLength) throws Exception {
         List<WfTask> tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        Thread.sleep(50);
+        tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
         assertEquals("getTasks() returns wrong tasks number (expected " + expectedLength + ", but was " + tasks.size() + ")", expectedLength,
                 tasks.size());
         // Let's change actor status to check correct working.
@@ -495,13 +497,17 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
         setStatus(user, actorStatus);
 
         tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        Thread.sleep(50);
+        tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
         assertEquals("getTasks() returns wrong tasks number (expected " + expectedLength + ", but was " + tasks.size() + ")", expectedLength,
                 tasks.size());
-        actorStatus = testHelper.getExecutorService().<Actor> getExecutor(testHelper.getAdminUser(), substituted.getActor().getId()).isActive();
+        actorStatus = testHelper.getExecutorService().<Actor>getExecutor(testHelper.getAdminUser(), substituted.getActor().getId()).isActive();
 
         setStatus(substituted, !actorStatus);
 
         if (!actorStatus) {
+            tasks = testHelper.getTaskService().getMyTasks(substitutor, batchPresentation);
+            Thread.sleep(50);
             tasks = testHelper.getTaskService().getMyTasks(substitutor, batchPresentation);
             assertEquals("getTasks() returns wrong tasks number (expected " + 0 + ", but was " + tasks.size() + ")", 0, tasks.size());
             tasks = testHelper.getTaskService().getMyTasks(substitutor2, batchPresentation);
@@ -510,6 +516,8 @@ public class GetNewSubstitutorTaskListTest extends ServletTestCase {
 
         setStatus(substituted, actorStatus);
 
+        tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
+        Thread.sleep(50);
         tasks = testHelper.getTaskService().getMyTasks(user, batchPresentation);
         assertEquals("getTasks() returns wrong tasks number (expected " + expectedLength + ", but was " + tasks.size() + ")", expectedLength,
                 tasks.size());

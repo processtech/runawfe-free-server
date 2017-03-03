@@ -5,21 +5,29 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.transaction.Transaction;
-
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
 
-class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> implements SubstitutionCache {
+/**
+ * Cache control object for substitutions.
+ */
+class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCache, DefaultStateContext> implements SubstitutionCache {
 
     public SubstitutionCacheStateCtrl() {
+        super(new NonRuntimeSubstitutionCacheFactory(), createListenObjectTypes());
+        CachingLogic.registerChangeListener(this);
+    }
+
+    public SubstitutionCacheStateCtrl(boolean fakeBooleanUseStaticCache) {
         super(new SubstitutionCacheFactory(), createListenObjectTypes());
         CachingLogic.registerChangeListener(this);
     }
@@ -32,16 +40,8 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
 
     @Override
     public TreeMap<Substitution, Set<Long>> tryToGetSubstitutors(Actor actor) {
-        Transaction transaction = Utils.getTransaction();
-        if (transaction == null) {
-            return null;
-        }
-        SubstitutionCache cache = stateMachine.getCacheQuick(transaction);
-        if (cache != null) {
-            return cache.getSubstitutors(actor, false);
-        } else {
-            return null;
-        }
+        SubstitutionCache cache = CachingLogic.getCacheImpl(stateMachine);
+        return cache.getSubstitutors(actor, false);
     }
 
     @Override
@@ -59,11 +59,31 @@ class SubstitutionCacheStateCtrl extends BaseCacheCtrl<ManageableSubstitutionCac
         return result;
     }
 
+    /**
+     * Static factory. It creates on the fly by demand and it state is always equals to database state. May leads to high delay if many executors and
+     * substitutions is used. It's recommend to use {@link NonRuntimeSubstitutionCacheFactory}.
+     */
     private static class SubstitutionCacheFactory implements StaticCacheFactory<ManageableSubstitutionCache> {
 
         @Override
         public ManageableSubstitutionCache buildCache() {
-            return new SubstitutionCacheStateImpl();
+            return new SubstitutionCacheStateImpl(true, false, null);
+        }
+    }
+
+    /**
+     * Non runtime factory. It creates on background and cache state may differs from database state for some time.
+     */
+    private static class NonRuntimeSubstitutionCacheFactory implements NonRuntimeCacheFactory<ManageableSubstitutionCache> {
+
+        @Override
+        public ManageableSubstitutionCache createProxy() {
+            return new SubstitutionCacheStateImpl(false, true, null);
+        }
+
+        @Override
+        public ManageableSubstitutionCache buildCache(CacheInitializationContext<ManageableSubstitutionCache> context) {
+            return new SubstitutionCacheStateImpl(true, true, context);
         }
     }
 }
