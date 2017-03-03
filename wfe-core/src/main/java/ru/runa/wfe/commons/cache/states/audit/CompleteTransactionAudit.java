@@ -4,7 +4,7 @@ import javax.transaction.Transaction;
 
 import ru.runa.wfe.commons.cache.CacheImplementation;
 
-public interface CompleteTransactionAudit<CacheImpl extends CacheImplementation> extends StageSwitchAudit<CacheImpl> {
+public interface CompleteTransactionAudit<CacheImpl extends CacheImplementation, StateContext> extends StageSwitchAudit<CacheImpl, StateContext> {
 
     void beforeCompleteTransaction(Transaction transaction);
 

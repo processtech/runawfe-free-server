@@ -14,7 +14,7 @@ import ru.runa.wfe.commons.cache.CacheImplementation;
 /**
  * Tracking transactions, which change some objects, affecting cache.
  */
-class DirtyTransactions<CacheImpl extends CacheImplementation> {
+public class DirtyTransactions<CacheImpl extends CacheImplementation> {
 
     /**
      * Logging support.
@@ -45,7 +45,7 @@ class DirtyTransactions<CacheImpl extends CacheImplementation> {
 
     /**
      * Check if exists changing transaction.
-     * 
+     *
      * @return Return true, if exists at least one changing transaction and false otherwise.
      */
     public boolean isLocked() {
@@ -54,7 +54,7 @@ class DirtyTransactions<CacheImpl extends CacheImplementation> {
 
     /**
      * Check if transaction is changing some object, affecting cache.
-     * 
+     *
      * @param transaction
      *            Transaction to test dirty state.
      * @return Return true, if transaction is dirty and false otherwise.
@@ -65,7 +65,7 @@ class DirtyTransactions<CacheImpl extends CacheImplementation> {
 
     /**
      * Returns cache instance for transaction or provided cache instance for transaction, not changed cache.
-     * 
+     *
      * @param transaction
      *            Transaction, which requiested cache.
      * @param readCache
@@ -81,7 +81,7 @@ class DirtyTransactions<CacheImpl extends CacheImplementation> {
 
     /**
      * Create tracking object with exactly one dirty transaction.
-     * 
+     *
      * @param transaction
      *            Dirty transaction.
      * @param cache
@@ -96,7 +96,7 @@ class DirtyTransactions<CacheImpl extends CacheImplementation> {
     /**
      * Create tracking object with same transactions as in current plus provided transaction. If provided transaction is already dirty, current object
      * returned.
-     * 
+     *
      * @param transaction
      *            Dirty transaction.
      * @param cache
@@ -114,7 +114,7 @@ class DirtyTransactions<CacheImpl extends CacheImplementation> {
 
     /**
      * Create tracking object with same transactions as in current minus provided transaction.
-     * 
+     *
      * @param transaction
      *            Completed transaction.
      * @return Return tracking object.
