@@ -297,16 +297,16 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public List<ProcessDefinitionChange> getChanges(Long definitionId) {
         List<ProcessDefinitionChange> result = new ArrayList<>();
-        String definitionName = deploymentDAO.get(definitionId).getName();
+        String definitionName = getDefinition(definitionId).getName();
         List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
             Deployment deployment = listOfDeployments.get(m);
+            ProcessDefinition processDefinition = getDefinition(deployment.getId());
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
+            if (processDefinition.getProcessFiles().containsKey(fileName)) {
+                byte[] definitionXml = processDefinition.getProcessFiles().get(fileName);
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
@@ -331,23 +331,23 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
         List<ProcessDefinitionChange> result = new ArrayList<>();
-        String definitionName = deploymentDAO.get(definitionId).getName();
+        String definitionName = getDefinition(definitionId).getName();
         List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
-        if (n > listOfDeployments.size()){
+        if (n > listOfDeployments.size()) {
             n = new Long(listOfDeployments.size());
         }
-        if (n < 0){
+        if (n < 0) {
             n = new Long(0);
         }
         if (n > 0) {
             int previousCount = 0;
             for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
                 Deployment deployment = listOfDeployments.get(m);
+                ProcessDefinition processDefinition = getDefinition(deployment.getId());
                 int currentVersion = deployment.getVersion().intValue();
                 String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-                ProcessArchive archiveData = new ProcessArchive(deployment);
-                if (archiveData.getFileData().containsKey(fileName)) {
-                    byte[] definitionXml = archiveData.getFileData().get(fileName);
+                if (processDefinition.getProcessFiles().containsKey(fileName)) {
+                    byte[] definitionXml = processDefinition.getProcessFiles().get(fileName);
                     Document document = XmlUtils.parseWithoutValidation(definitionXml);
                     List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                     List<VersionInfo> versionInfos = Lists.newArrayList();
@@ -380,11 +380,11 @@ public class DefinitionLogic extends WFCommonLogic {
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
             Deployment deployment = listOfDeployments.get(m);
+            ProcessDefinition processDefinition = getDefinition(deployment.getId());
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
+            if (processDefinition.getProcessFiles().containsKey(fileName)) {
+                byte[] definitionXml = processDefinition.getProcessFiles().get(fileName);
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
@@ -414,11 +414,11 @@ public class DefinitionLogic extends WFCommonLogic {
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
             Deployment deployment = listOfDeployments.get(m);
+            ProcessDefinition processDefinition = getDefinition(deployment.getId());
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
+            if (processDefinition.getProcessFiles().containsKey(fileName)) {
+                byte[] definitionXml = processDefinition.getProcessFiles().get(fileName);
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
