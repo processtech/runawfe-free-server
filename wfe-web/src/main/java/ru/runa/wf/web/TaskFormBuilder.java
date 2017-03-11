@@ -72,7 +72,7 @@ public abstract class TaskFormBuilder {
         this.definitionId = task.getDefinitionId();
         this.task = task;
         if (interaction.hasForm()) {
-            IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task.getProcessId(), task.getId());
+            IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             Map<String, Object> map = FormSubmissionUtils.getUserFormInputVariables(request, interaction, variableProvider);
             if (map != null) {

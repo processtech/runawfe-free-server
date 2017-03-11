@@ -127,7 +127,7 @@ public class Utils {
         }
     }
 
-    // FIXME It is an anti-pattern to create new connections, sessions, producers and consumers for each message you produce or consume
+    // TODO It is an anti-pattern to create new connections, sessions, producers and consumers for each message you produce or consume
     public static ObjectMessage sendBpmnMessage(List<VariableMapping> data, IVariableProvider variableProvider, long ttl) {
         Connection connection = null;
         Session session = null;
@@ -180,7 +180,7 @@ public class Utils {
         variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_TOKEN_ID, BaseMessageNode.ERROR_EVENT_TOKEN_ID,
                 VariableMapping.USAGE_READ));
         variableMappings
-        .add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, VariableMapping.USAGE_READ));
+                .add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, VariableMapping.USAGE_READ));
         Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
     }
 

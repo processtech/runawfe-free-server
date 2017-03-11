@@ -88,6 +88,13 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("version");
     }
 
+    /**
+     * System build date
+     */
+    public static String getBuildDateString() {
+        return RESOURCES.getStringProperty("build.date");
+    }
+
     public static String getStartup() {
         return CalendarUtil.formatDateTime(SYSTEM_STARTUP_CALENDAR);
     }

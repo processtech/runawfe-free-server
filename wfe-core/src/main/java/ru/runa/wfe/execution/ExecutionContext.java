@@ -43,6 +43,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
@@ -87,6 +88,8 @@ public class ExecutionContext {
     private IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private VariableCreator variableCreator;
+    @Autowired
+    private ProcessDAO processDAO;
     @Autowired
     private TokenDAO tokenDAO;
     @Autowired
