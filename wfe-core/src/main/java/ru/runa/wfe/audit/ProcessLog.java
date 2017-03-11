@@ -52,17 +52,17 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
-import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.xml.XmlUtils;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
+import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.xml.XmlUtils;
+
 /**
  * Base class for logging process unit of work.
- * 
+ *
  * @author Dofs
  */
 @Entity
@@ -74,7 +74,10 @@ import com.google.common.collect.Maps;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class ProcessLog implements IAttributes, Serializable, Comparable<ProcessLog> {
     private static final long serialVersionUID = 1L;
-    private static final int ATTRIBUTE_MAX_LENGTH = SystemProperties.getLogMaxAttributeValueLength();
+
+    public static int getAttributeMaxLength() {
+        return SystemProperties.getLogMaxAttributeValueLength();
+    }
 
     private Long id;
     private Long processId;
@@ -181,8 +184,8 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
     }
 
     protected void addAttributeWithTruncation(String name, String value) {
-        if (value.length() > ATTRIBUTE_MAX_LENGTH) {
-            value = value.substring(0, ATTRIBUTE_MAX_LENGTH) + "...";
+        if (value.length() > getAttributeMaxLength()) {
+            value = value.substring(0, getAttributeMaxLength()) + "...";
         }
         addAttribute(name, value);
     }
@@ -210,7 +213,7 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
 
     /**
      * Applies some operation to process log instance.
-     * 
+     *
      * @param visitor
      *            Operation to apply.
      */
@@ -218,7 +221,7 @@ public abstract class ProcessLog implements IAttributes, Serializable, Comparabl
 
     /**
      * Formats log message description
-     * 
+     *
      * @param pattern
      *            localized pattern
      * @return formatted message

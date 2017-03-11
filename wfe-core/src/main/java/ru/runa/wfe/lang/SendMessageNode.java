@@ -30,7 +30,7 @@ import ru.runa.wfe.var.dto.Variables;
 
 import com.google.common.collect.Maps;
 
-public class SendMessageNode extends VariableContainerNode {
+public class SendMessageNode extends BaseMessageNode {
     private static final long serialVersionUID = 1L;
 
     private String ttlDuration;
@@ -49,7 +49,7 @@ public class SendMessageNode extends VariableContainerNode {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(Variables.CURRENT_PROCESS_ID, executionContext.getProcess().getId());
         // back compatibility

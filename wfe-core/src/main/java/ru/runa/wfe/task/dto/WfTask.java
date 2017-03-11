@@ -56,7 +56,7 @@ public class WfTask implements Serializable {
     private String definitionName;
     private Long processId;
     private String processHierarchyIds;
-
+    private Long tokenId;
     private Date creationDate;
     private Date deadlineDate;
     private Date deadlineWarningDate;
@@ -79,6 +79,7 @@ public class WfTask implements Serializable {
         this.owner = task.getExecutor();
         this.processId = task.getProcess().getId();
         this.processHierarchyIds = task.getProcess().getHierarchyIds();
+        this.tokenId = task.getToken().getId();
         this.definitionId = task.getProcess().getDeployment().getId();
         this.definitionName = task.getProcess().getDeployment().getName();
         this.swimlaneName = task.getSwimlane() != null ? task.getSwimlane().getName() : "";
@@ -138,6 +139,10 @@ public class WfTask implements Serializable {
 
     public String getProcessHierarchyIds() {
         return processHierarchyIds;
+    }
+
+    public Long getTokenId() {
+        return tokenId;
     }
 
     public Date getCreationDate() {

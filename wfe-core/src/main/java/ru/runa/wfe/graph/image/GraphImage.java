@@ -35,7 +35,7 @@ import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.lang.ProcessDefinition;
 
 import com.google.common.base.Throwables;
@@ -44,11 +44,11 @@ public class GraphImage {
     private static final String FORMAT = "png";
     private BufferedImage origImage = null;
     private final ProcessDefinition processDefinition;
-    private final Map<TransitionFigureBase, RenderHits> transitions;
+    private final Map<TransitionFigure, RenderHits> transitions;
     private final Map<AbstractFigure, RenderHits> nodes;
     private final boolean useEdgingOnly = DrawProperties.useEdgingOnly();
 
-    public GraphImage(ProcessDefinition processDefinition, Map<TransitionFigureBase, RenderHits> transitions, Map<AbstractFigure, RenderHits> nodes) {
+    public GraphImage(ProcessDefinition processDefinition, Map<TransitionFigure, RenderHits> transitions, Map<AbstractFigure, RenderHits> nodes) {
         try {
             origImage = ImageIO.read(new ByteArrayInputStream(processDefinition.getGraphImageBytesNotNull()));
         } catch (IOException e) {
@@ -77,10 +77,10 @@ public class GraphImage {
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
-        for (TransitionFigureBase transitionFigureBase : transitions.keySet()) {
-            RenderHits hits = transitions.get(transitionFigureBase);
-            transitionFigureBase.setRenderHits(hits);
-            transitionFigureBase.draw(graphics, hits.getColor());
+        for (TransitionFigure transitionFigure : transitions.keySet()) {
+            RenderHits hits = transitions.get(transitionFigure);
+            transitionFigure.setRenderHits(hits);
+            transitionFigure.draw(graphics, hits.getColor());
         }
         for (AbstractFigure nodeFigure : nodes.keySet()) {
             RenderHits hits = nodes.get(nodeFigure);

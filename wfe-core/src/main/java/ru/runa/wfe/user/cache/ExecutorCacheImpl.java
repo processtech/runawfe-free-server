@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.user.cache;
@@ -36,8 +36,8 @@ import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
-import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
-import ru.runa.wfe.commons.cache.sm.CacheInitializationContextStub;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContextStub;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -46,7 +46,7 @@ import ru.runa.wfe.user.Group;
 
 /**
  * Cache for executors.
- * 
+ *
  * @author Konstantinov Aleksey
  */
 class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache {
@@ -71,10 +71,10 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
     private final Cache<Class<?>, ConcurrentHashMap<BatchPresentationFieldEquals, List<Executor>>> batchAllExecutors;
 
     public ExecutorCacheImpl() {
-        this(new CacheInitializationContextStub<ManageableExecutorCache>());
+        this(new CacheInitializationProcessContextStub());
     }
 
-    public ExecutorCacheImpl(CacheInitializationContext<ManageableExecutorCache> context) {
+    public ExecutorCacheImpl(CacheInitializationProcessContext context) {
         codeToActorCache = createCache(actorsByCodesName);
         idToExecutorCache = createCache(executorsByIdName);
         nameToExecutorCache = createCache(executorsByNameName);
@@ -243,7 +243,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         return retVal;
     }
 
-    private void fillGroupMembersCaches(CacheInitializationContext<ManageableExecutorCache> context, List<ExecutorGroupMembership> memberships,
+    private void fillGroupMembersCaches(CacheInitializationProcessContext context, List<ExecutorGroupMembership> memberships,
             List<Executor> executors) {
         for (ExecutorGroupMembership membership : memberships) {
             getCollectionFromMap(groupToMembersCache, membership.getGroup().getId()).add(membership.getExecutor());

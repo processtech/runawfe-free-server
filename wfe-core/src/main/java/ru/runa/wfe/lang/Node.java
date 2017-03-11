@@ -32,9 +32,14 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
+import ru.runa.wfe.lang.bpmn2.CatchEventNode;
+import ru.runa.wfe.lang.bpmn2.MessageEventType;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
+import ru.runa.wfe.task.TaskCompletionInfo;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 public abstract class Node extends GraphElement {
@@ -83,7 +88,7 @@ public abstract class Node extends GraphElement {
 
     /**
      * creates a bidirection relation between this node and the given leaving transition.
-     *
+     * 
      * @throws IllegalArgumentException
      *             if leavingTransition is null.
      */
@@ -100,7 +105,7 @@ public abstract class Node extends GraphElement {
 
     /**
      * checks for the presence of a leaving transition with the given name.
-     *
+     * 
      * @return true if this node has a leaving transition with the given name, false otherwise.
      */
     public boolean hasLeavingTransition(String transitionName) {
@@ -145,9 +150,6 @@ public abstract class Node extends GraphElement {
 
     /**
      * add a bidirection relation between this node and the given arriving transition.
-     *
-     * @throws IllegalArgumentException
-     *             if t is null.
      */
     public Transition addArrivingTransition(Transition arrivingTransition) {
         arrivingTransitions.add(arrivingTransition);
@@ -177,18 +179,29 @@ public abstract class Node extends GraphElement {
      * called by a transition to pass execution to this node.
      */
     public void enter(ExecutionContext executionContext) {
+        log.info("Entering " + this + " with " + executionContext);
         Token token = executionContext.getToken();
         // update the runtime context information
         token.setNodeId(getNodeId());
         token.setNodeType(getNodeType());
         // fire the leave-node event for this node
-        fireEvent(executionContext, Event.NODE_ENTER);
+        fireEvent(executionContext, ActionEvent.NODE_ENTER);
         executionContext.addLog(new NodeEnterLog(this));
+        if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessEndNode)) {
+            for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
+                Node boundaryNode = (Node) boundaryEvent;
+                Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
+                eventToken.setNodeId(boundaryNode.getNodeId());
+                eventToken.setNodeType(boundaryNode.getNodeType());
+                ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
+                ((Node) boundaryEvent).handle(eventExecutionContext);
+            }
+        }
         boolean async = getAsyncExecution(executionContext);
         if (async) {
             ApplicationContextFactory.getNodeAsyncExecutor().execute(token.getProcess().getId(), token.getId(), token.getNodeId());
         } else {
-            execute(executionContext);
+            handle(executionContext);
         }
     }
 
@@ -202,10 +215,21 @@ public abstract class Node extends GraphElement {
         return SystemProperties.isProcessExecutionNodeAsyncEnabled(getNodeType());
     }
 
+    public final void handle(ExecutionContext executionContext) {
+        try {
+            log.info("Executing " + this + " with " + executionContext);
+            executionContext.activateTokenIfHasPreviousError();
+            execute(executionContext);
+        } catch (Throwable th) {
+            log.error("Handling failed in " + this);
+            throw Throwables.propagate(th);
+        }
+    }
+
     /**
      * override this method to customize the node behavior.
      */
-    public abstract void execute(ExecutionContext executionContext);
+    protected abstract void execute(ExecutionContext executionContext) throws Exception;
 
     /**
      * called by the implementation of this node to continue execution over the default transition.
@@ -218,12 +242,32 @@ public abstract class Node extends GraphElement {
      * called by the implementation of this node to continue execution over the given transition.
      */
     public void leave(ExecutionContext executionContext, Transition transition) {
+        log.info("Leaving " + this + " with " + executionContext);
+        if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
+            List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
+            for (Token token : executionContext.getToken().getActiveChildren()) {
+                Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
+                if (boundaryEvents.contains(node)) {
+                    token.end(executionContext.getProcessDefinition(), null, null, false);
+                }
+            }
+        }
+        if (this instanceof BoundaryEvent && ((BoundaryEvent) this).getBoundaryEventInterrupting() == Boolean.TRUE) {
+            Token parentToken = executionContext.getToken().getParent();
+            parentToken.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), false);
+            for (Token token : parentToken.getActiveChildren()) {
+                if (Objects.equal(token, executionContext.getToken())) {
+                    continue;
+                }
+                token.end(executionContext.getProcessDefinition(), null, TaskCompletionInfo.createForHandler("boundary event " + getName()), true);
+            }
+        }
         Token token = executionContext.getToken();
         for (IProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
             listener.onNodeLeave(executionContext, this, transition);
         }
         // fire the leave-node event for this node
-        fireEvent(executionContext, Event.NODE_LEAVE);
+        fireEvent(executionContext, ActionEvent.NODE_LEAVE);
         addLeaveLog(executionContext);
         if (transition == null) {
             transition = getDefaultLeavingTransitionNotNull();
@@ -245,5 +289,16 @@ public abstract class Node extends GraphElement {
             clone.originalConstraints = originalConstraints.clone();
         }
         return clone;
+    }
+
+    public boolean hasErrorEventHandler() {
+        if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
+            for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
+                if (boundaryEvent instanceof CatchEventNode && ((CatchEventNode) boundaryEvent).getEventType() == MessageEventType.error) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

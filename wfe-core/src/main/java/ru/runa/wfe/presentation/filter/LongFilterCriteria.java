@@ -22,7 +22,7 @@ import java.util.Map;
 import ru.runa.wfe.presentation.hibernate.QueryParameter;
 
 /**
- * Created on 01.09.2005
+ * Created on 01.09.2005 TODO add BETWEEN support
  */
 public class LongFilterCriteria extends FilterCriteria {
     private static final long serialVersionUID = 642103915780987672L;

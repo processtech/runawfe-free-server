@@ -30,7 +30,7 @@ import com.google.common.base.Strings;
 
 /**
  * Created on 30.09.2004
- *
+ * 
  */
 public class WebResources {
     private static final PropertyResources RESOURCES = new PropertyResources("web.properties");
@@ -116,10 +116,6 @@ public class WebResources {
 
     public static String getDomainName() {
         return RESOURCES.getStringPropertyNotNull("ntlm.domain");
-    }
-
-    public static boolean isVersionDisplay() {
-        return RESOURCES.getBooleanProperty("version.display", true);
     }
 
     public static boolean isAutoShowForm() {

@@ -132,7 +132,7 @@ public class BaseProcessVariableLoader {
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
             if (!subprocessesInfoMap.containsKey(process)) {
-                NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDAO.getNodeProcessByChild(process.getId());
+                NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDAO.findBySubProcessId(process.getId());
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();

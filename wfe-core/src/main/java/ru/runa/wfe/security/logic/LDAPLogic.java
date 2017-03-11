@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.security.logic;
@@ -36,6 +36,13 @@ import javax.naming.directory.SearchResult;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -49,16 +56,9 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * Imports users and group from LDAP directory.
- * 
+ *
  * @since 4.0.4
  */
 @SuppressWarnings("unchecked")
@@ -83,13 +83,11 @@ public class LDAPLogic extends TransactionalExecutor {
     @Autowired
     private PermissionDAO permissionDAO;
 
-    private final String providerUrl = SystemProperties.getResources().getStringProperty("ldap.connection.provider.url");
-    private final List<String> ous = SystemProperties.getResources().getMultipleStringProperty("ldap.synchronizer.ou");
-
     private Pattern patternForMissedPeople;
 
     private Pattern getPatternForMissedPeople() {
         if (patternForMissedPeople == null) {
+            String providerUrl = SystemProperties.getResources().getStringProperty("ldap.connection.provider.url");
             String dc = providerUrl.substring(providerUrl.lastIndexOf("/") + 1);
             patternForMissedPeople = Pattern.compile("," + dc, Pattern.CASE_INSENSITIVE);
         }
@@ -100,7 +98,7 @@ public class LDAPLogic extends TransactionalExecutor {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY,
                 SystemProperties.getResources().getStringProperty("ldap.context.factory", "com.sun.jndi.ldap.LdapCtxFactory"));
-        env.put(Context.PROVIDER_URL, providerUrl);
+        env.put(Context.PROVIDER_URL, SystemProperties.getResources().getStringProperty("ldap.connection.provider.url"));
         env.put(Context.SECURITY_AUTHENTICATION, SystemProperties.getResources().getStringProperty("ldap.connection.authentication", "simple"));
         env.put(Context.SECURITY_PRINCIPAL, SystemProperties.getResources().getStringPropertyNotNull("ldap.connection.principal"));
         env.put(Context.SECURITY_CREDENTIALS, SystemProperties.getResources().getStringPropertyNotNull("ldap.connection.password"));
@@ -127,8 +125,10 @@ public class LDAPLogic extends TransactionalExecutor {
             log.debug("Synchronization is disabled");
             return;
         }
-        Preconditions.checkNotNull(providerUrl, "LDAP property is not configured 'ldap.connection.provider.url'");
-        Preconditions.checkNotNull(ous, "LDAP property is not configured 'ldap.synchronizer.ou'");
+        Preconditions.checkNotNull(SystemProperties.getResources().getStringProperty("ldap.connection.provider.url"),
+                "LDAP property is not configured 'ldap.connection.provider.url'");
+        Preconditions.checkNotNull(SystemProperties.getResources().getMultipleStringProperty("ldap.synchronizer.ou"),
+                "LDAP property is not configured 'ldap.synchronizer.ou'");
         log.info("Synchronization mode: " + (createExecutors ? "full" : "user and group relations only"));
         try {
             Group wfeImportFromLdapGroup = new Group(IMPORTED_FROM_LDAP_GROUP_NAME, IMPORTED_FROM_LDAP_GROUP_DESCRIPION);
@@ -158,7 +158,7 @@ public class LDAPLogic extends TransactionalExecutor {
         // attributes.put(OBJECT_CLASS_ATTR_NAME, OBJECT_CLASS_ATTR_USER_VALUE);
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        for (String ou : ous) {
+        for (String ou : SystemProperties.getResources().getMultipleStringProperty("ldap.synchronizer.ou")) {
             List<SearchResult> resultList = Lists.newArrayList();
             try {
                 NamingEnumeration<SearchResult> list = dirContext.search(ou, "(objectclass=user)", controls);
@@ -169,8 +169,9 @@ public class LDAPLogic extends TransactionalExecutor {
             } catch (SizeLimitExceededException e) {
                 resultList.clear();
                 for (String y : ALPHABETS) {
-                    NamingEnumeration<SearchResult> list = dirContext.search(ou, "(&(|(" + SAM_ACCOUNT_NAME + "=" + y + "*)(" + SAM_ACCOUNT_NAME
-                            + "=" + y.toLowerCase() + "*))(objectclass=user))", controls);
+                    NamingEnumeration<SearchResult> list = dirContext.search(ou,
+                            "(&(|(" + SAM_ACCOUNT_NAME + "=" + y + "*)(" + SAM_ACCOUNT_NAME + "=" + y.toLowerCase() + "*))(objectclass=user))",
+                            controls);
                     while (list.hasMore()) {
                         SearchResult searchResult = list.next();
                         resultList.add(searchResult);
@@ -226,7 +227,7 @@ public class LDAPLogic extends TransactionalExecutor {
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         Map<String, SearchResult> groupResultsByDistinguishedName = Maps.newHashMap();
-        for (String ou : ous) {
+        for (String ou : SystemProperties.getResources().getMultipleStringProperty("ldap.synchronizer.ou")) {
             NamingEnumeration<SearchResult> list = dirContext.search(ou, "(objectclass=group)", controls);
             while (list.hasMore()) {
                 SearchResult searchResult = list.next();

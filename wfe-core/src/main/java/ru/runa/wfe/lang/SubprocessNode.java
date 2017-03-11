@@ -1,5 +1,6 @@
 package ru.runa.wfe.lang;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,20 +21,25 @@ import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class SubprocessNode extends VariableContainerNode implements Synchronizable {
+public class SubprocessNode extends VariableContainerNode implements Synchronizable, BoundaryEventContainer {
     private static final long serialVersionUID = 1L;
-
+    protected boolean async;
+    protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
     private String subProcessName;
     private boolean embedded;
+    private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
     private transient IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private transient ProcessFactory processFactory;
 
-    protected boolean async;
-    protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
+    @Override
+    public List<BoundaryEvent> getBoundaryEvents() {
+        return boundaryEvents;
+    }
 
     @Override
     public NodeType getNodeType() {
@@ -97,7 +103,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         if (isEmbedded()) {
             throw new InternalApplicationException("it's not intended for execution");
         }

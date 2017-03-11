@@ -99,7 +99,7 @@ public class DefinitionLogic extends WFCommonLogic {
         Collection<Permission> allPermissions = new DefinitionPermission().getAllPermissions();
         permissionDAO.setPermissions(user.getActor(), allPermissions, definition.getDeployment());
         log.debug("Deployed process definition " + definition);
-        return new WfDefinition(definition, true);
+        return new WfDefinition(definition, isPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.START_PROCESS));
     }
 
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
@@ -265,8 +265,8 @@ public class DefinitionLogic extends WFCommonLogic {
         filter.setDefinitionVersion(version);
         List<Process> processes = processDAO.getProcesses(filter);
         for (Process process : processes) {
-            if (nodeProcessDAO.getNodeProcessByChild(process.getId()) != null) {
-                throw new ParentProcessExistsException(definitionName, nodeProcessDAO.getNodeProcessByChild(process.getId()).getProcess()
+            if (nodeProcessDAO.findBySubProcessId(process.getId()) != null) {
+                throw new ParentProcessExistsException(definitionName, nodeProcessDAO.findBySubProcessId(process.getId()).getProcess()
                         .getDeployment().getName());
             }
         }
@@ -399,13 +399,14 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
-        ProcessDefinition definition = getDefinition(definitionId);
-        if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName)) {
-            checkPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.READ);
+        Deployment deployment = deploymentDAO.getNotNull(definitionId);
+        if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(IFileDataProvider.BOTS_XML_FILE)) {
+            checkPermissionAllowed(user, deployment, DefinitionPermission.READ);
         }
         if (IFileDataProvider.PAR_FILE.equals(fileName)) {
-            return definition.getDeployment().getContent();
+            return deployment.getContent();
         }
+        ProcessDefinition definition = getDefinition(definitionId);
         return definition.getFileData(fileName);
     }
 

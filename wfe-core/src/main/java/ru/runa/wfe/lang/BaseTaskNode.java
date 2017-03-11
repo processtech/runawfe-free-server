@@ -49,8 +49,8 @@ public abstract class BaseTaskNode extends InteractionNode implements Synchroniz
 
     public void endTokenTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo) {
         List<Task> tasks = taskDAO.findByToken(executionContext.getToken());
+        log.info("Ending " + executionContext.getToken() + " tasks " + tasks + " with " + taskCompletionInfo);
         if (!tasks.isEmpty()) {
-            log.debug("Ending " + tasks.size() + " tasks of " + executionContext.getToken() + " with " + taskCompletionInfo);
             for (Task task : tasks) {
                 if (Objects.equal(task.getNodeId(), getNodeId())) {
                     task.end(executionContext, taskCompletionInfo);

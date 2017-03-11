@@ -45,7 +45,7 @@ public class Fork extends Node {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         Token token = executionContext.getToken();
         checkCyclicExecution(token);
         Map<Token, Transition> childTokens = Maps.newHashMap();

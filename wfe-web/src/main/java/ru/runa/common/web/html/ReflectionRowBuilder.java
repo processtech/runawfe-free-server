@@ -64,130 +64,17 @@ import com.google.common.collect.Maps;
  * @author Gritsenko_S
  */
 public class ReflectionRowBuilder implements RowBuilder {
-
-    class EnvImpl extends EnvBaseImpl {
-
-        @Override
-        public PageContext getPageContext() {
-            return pageContext;
-        }
-
-        @Override
-        public BatchPresentation getBatchPresentation() {
-            return batchPresentation;
-        }
-
-        @Override
-        public String getURL(Object object) {
-            return itemUrlStrategy.getUrl(basePartOfUrlToObject, object);
-        }
-
-        @Override
-        public String getConfirmationMessage(Long pid) {
-            if (basePartOfUrlToObject.equals(ru.runa.common.WebResources.ACTION_MAPPING_START_PROCESS)
-                    && ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_PARAMETER)
-                    || ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER)) {
-                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getUser(), pid);
-                if (!(interaction.hasForm() || interaction.getOutputTransitionNames().size() > 1)) {
-                    String actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
-                    return ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, getPageContext());
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
-            boolean[] retVal = allowedCache.get(permission);
-            if (retVal == null) {
-                if (extractor == null) {
-                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, (List<Identifiable>) getItems());
-                } else {
-                    List<Identifiable> identifiables = Lists.newArrayListWithExpectedSize(getItems().size());
-                    for (Object object : getItems()) {
-                        identifiables.add(extractor.getIdentifiable(object, this));
-                    }
-                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, identifiables);
-                }
-                allowedCache.put(permission, retVal);
-            }
-            return retVal[currentState.getItemIndex()];
-        }
-
-        public boolean isFilterable() {
-            boolean isFilterable = false;
-            int idx = 0;
-            FieldDescriptor[] fields = batchPresentation.getAllFields();
-            for (FieldDescriptor field : fields) {
-                if (field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx)) {
-                    isFilterable = true;
-                    break;
-                }
-                idx++;
-            }
-
-            return isFilterable;
-        }
-
-        private final Map<Permission, boolean[]> allowedCache = Maps.newHashMap();
-
-    }
-
-    /**
-     * <<<<<<< HEAD TODO This is temporary workaround. Fix should be made in authorization subsystem by refactoring executor permissions. Only 1
-     * SecuredObjectType should be introduced for identifiables hierarchy due to simplifying SQL quieries and non-crossing IDs.
-     *
-     * ======= TODO This is temporary workaround. Fix should be made in authorization subsystem by refactoring executor permissions. Only 1
-     * SecuredObjectType should be introduced for identifiables hierarchy due to simplifying SQL quieries and non-crossing IDs.
-     * 
-     * >>>>>>> cccc94e358152f69386e66af26e0958ae242dcdb
-     * 
-     * @author dofs
-     * @since 4.0.6
-     */
-    class ExecutorTableEnvImpl extends EnvImpl {
-        private final Map<Executor, Boolean> allowedCache = Maps.newHashMap();
-
-        @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
-            List<Executor> executors = (List<Executor>) getItems();
-            Executor executor = executors.get(currentState.getItemIndex());
-            if (!allowedCache.containsKey(executor)) {
-                List<Executor> acquiredExecutors = Lists.newArrayList();
-                for (Executor testExecutor : executors) {
-                    if (executor.getSecuredObjectType() == testExecutor.getSecuredObjectType()) {
-                        acquiredExecutors.add(testExecutor);
-                    }
-                }
-                boolean[] allowedArray = Delegates.getAuthorizationService().isAllowed(getUser(), permission, acquiredExecutors);
-                for (int i = 0; i < allowedArray.length; i++) {
-                    allowedCache.put(acquiredExecutors.get(i), allowedArray[i]);
-                }
-            }
-            return allowedCache.get(executor);
-        }
-    }
-
     protected final List<? extends Object> items;
-
-    private final String basePartOfUrlToObject;
-
     protected final BatchPresentation batchPresentation;
-
     protected GroupState currentState;
-
     protected final String returnAction;
-
     protected final PageContext pageContext;
-
     protected ItemUrlStrategy itemUrlStrategy;
-
-    private CssClassStrategy cssClassStrategy;
-
     protected final int additionalEmptyCells;
-
     protected final TDBuilder[] builders;
     protected final EnvImpl env;
+    private final String basePartOfUrlToObject;
+    private CssClassStrategy cssClassStrategy;
 
     public ReflectionRowBuilder(List<? extends Object> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
             String returnAction, String idPropertyName, TDBuilder[] builders) {
@@ -427,4 +314,102 @@ public class ReflectionRowBuilder implements RowBuilder {
     public List<TR> buildNextArray() {
         return null;
     }
+
+    class EnvImpl extends EnvBaseImpl {
+        private final Map<Permission, boolean[]> allowedCache = Maps.newHashMap();
+
+        @Override
+        public PageContext getPageContext() {
+            return pageContext;
+        }
+
+        @Override
+        public BatchPresentation getBatchPresentation() {
+            return batchPresentation;
+        }
+
+        @Override
+        public String getURL(Object object) {
+            return itemUrlStrategy.getUrl(basePartOfUrlToObject, object);
+        }
+
+        @Override
+        public String getConfirmationMessage(Long pid) {
+            if (ru.runa.common.WebResources.ACTION_MAPPING_START_PROCESS.equals(basePartOfUrlToObject)
+                    && ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_PARAMETER)
+                    || ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER)) {
+                Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getUser(), pid);
+                if (!(interaction.hasForm() || interaction.getOutputTransitionNames().size() > 1)) {
+                    String actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
+                    return ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, getPageContext());
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+            boolean[] retVal = allowedCache.get(permission);
+            if (retVal == null) {
+                if (extractor == null) {
+                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, (List<Identifiable>) getItems());
+                } else {
+                    List<Identifiable> identifiables = Lists.newArrayListWithExpectedSize(getItems().size());
+                    for (Object object : getItems()) {
+                        identifiables.add(extractor.getIdentifiable(object, this));
+                    }
+                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, identifiables);
+                }
+                allowedCache.put(permission, retVal);
+            }
+            return retVal[currentState.getItemIndex()];
+        }
+
+        public boolean isFilterable() {
+            boolean isFilterable = false;
+            int idx = 0;
+            FieldDescriptor[] fields = batchPresentation.getAllFields();
+            for (FieldDescriptor field : fields) {
+                if (field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx)) {
+                    isFilterable = true;
+                    break;
+                }
+                idx++;
+            }
+
+            return isFilterable;
+        }
+
+    }
+
+    /**
+     * TODO This is temporary workaround. Fix should be made in authorization subsystem by refactoring executor permissions. Only 1 SecuredObjectType
+     * should be introduced for identifiables hierarchy due to simplifying SQL quieries and non-crossing IDs.
+     * 
+     * @author dofs
+     * @since 4.0.6
+     */
+    class ExecutorTableEnvImpl extends EnvImpl {
+        private final Map<Executor, Boolean> allowedCache = Maps.newHashMap();
+
+        @Override
+        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+            List<Executor> executors = (List<Executor>) getItems();
+            Executor executor = executors.get(currentState.getItemIndex());
+            if (!allowedCache.containsKey(executor)) {
+                List<Executor> acquiredExecutors = Lists.newArrayList();
+                for (Executor testExecutor : executors) {
+                    if (executor.getSecuredObjectType() == testExecutor.getSecuredObjectType()) {
+                        acquiredExecutors.add(testExecutor);
+                    }
+                }
+                boolean[] allowedArray = Delegates.getAuthorizationService().isAllowed(getUser(), permission, acquiredExecutors);
+                for (int i = 0; i < allowedArray.length; i++) {
+                    allowedCache.put(acquiredExecutors.get(i), allowedArray[i]);
+                }
+            }
+            return allowedCache.get(executor);
+        }
+    }
+
 }

@@ -6,5 +6,5 @@ public abstract class AbstractFigureFactory {
 
     public abstract AbstractFigure createFigure(Node node, boolean useEgdingOnly);
 
-    public abstract TransitionFigureBase createTransitionFigure();
+    public abstract TransitionFigure createTransitionFigure();
 }

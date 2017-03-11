@@ -1,30 +1,29 @@
 package ru.runa.wfe.execution.logic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.IVariableProvider;
 
-import com.google.common.base.Throwables;
-
 /**
- * Parses and evaluates swimlane initializers. Swimlane initializer can be given
- * in 2 forms: 1) FQDN class name(param1, param2, ...) for example
- * 'ru.runa.af.organizationfunction.ExecutorByNameFunction(userName)' 2)
- * 
- * @[!]relationName(parameter) for example '@!boss(processVariableName)'
- * 
+ * Parses and evaluates swimlane initializers. Swimlane initializer can be given in 2 forms:
+ *
+ * 1) FQDN class name(param1, param2, ...) for example 'ru.runa.af.organizationfunction.ExecutorByNameFunction(userName)'
+ * 2) @[!]relationName(parameter) for example '@!boss(processVariableName)'
+ *
  * @author Dofs
  * @since 4.0.5
  */
 public class SwimlaneInitializerHelper {
-    private static final Map<String, SwimlaneInitializer> CACHE = new HashMap<String, SwimlaneInitializer>();
+    private static final Map<String, SwimlaneInitializer> CACHE = Maps.newConcurrentMap();
 
     public static SwimlaneInitializer parse(String swimlaneConfiguration) {
         if (!CACHE.containsKey(swimlaneConfiguration)) {

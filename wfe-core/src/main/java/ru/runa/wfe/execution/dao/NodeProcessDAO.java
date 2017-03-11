@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
 @SuppressWarnings("unchecked")
 public class NodeProcessDAO extends GenericDAO<NodeProcess> {
 
-    public NodeProcess getNodeProcessByChild(Long processId) {
+    public NodeProcess findBySubProcessId(Long processId) {
         return findFirstOrNull("from NodeProcess where subProcess.id = ?", processId);
     }
 
@@ -82,6 +82,15 @@ public class NodeProcessDAO extends GenericDAO<NodeProcess> {
         for (Process subprocess : getSubprocesses(process)) {
             result.add(subprocess);
             result.addAll(getSubprocessesRecursive(subprocess));
+        }
+        return result;
+    }
+
+    public List<Process> getSubprocesses(Token token) {
+        List<NodeProcess> nodeProcesses = getNodeProcesses(token.getProcess(), token, null, null);
+        List<Process> result = Lists.newArrayListWithExpectedSize(nodeProcesses.size());
+        for (NodeProcess nodeProcess : nodeProcesses) {
+            result.add(nodeProcess.getSubProcess());
         }
         return result;
     }

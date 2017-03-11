@@ -16,12 +16,12 @@ import org.apache.commons.logging.LogFactory;
  * @author dofs
  */
 public abstract class DeferredTransactionListener implements ITransactionListener, Runnable {
-    private static final Log log = LogFactory.getLog(TransactionListeners.class);
     private static final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+    protected final Log log = LogFactory.getLog(getClass());
 
     @Override
     public void onTransactionComplete(UserTransaction transaction) {
-        log.debug("Scheduling invocation of " + this);
+        log.debug("Scheduling invocation");
         scheduledExecutorService.schedule(this, 10, TimeUnit.MILLISECONDS);
     }
 

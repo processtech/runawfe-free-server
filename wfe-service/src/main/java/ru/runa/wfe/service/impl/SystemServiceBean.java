@@ -17,22 +17,38 @@
  */
 package ru.runa.wfe.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 
+import org.jfree.util.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.audit.logic.AuditLogic;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.dao.Localization;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
+import ru.runa.wfe.commons.error.SystemError;
+import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.ProcessClassPresentation;
+import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
+import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.service.decl.SystemServiceLocal;
 import ru.runa.wfe.service.decl.SystemServiceRemote;
@@ -42,6 +58,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * Represent system ru.runa.commons.test operations login/logout. Created on 16.08.2004
@@ -54,6 +71,8 @@ import com.google.common.base.Preconditions;
 public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemote {
     @Autowired
     private AuditLogic auditLogic;
+    @Autowired
+    private ExecutionLogic executionLogic;
 
     @Override
     @WebResult(name = "result")
@@ -86,21 +105,91 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     }
 
     @Override
-    public String getSetting(String fileName, String name) {
+    @WebResult(name = "result")
+    public String getSetting(@WebParam(name = "fileName") String fileName, @WebParam(name = "name") String name) {
         Preconditions.checkArgument(fileName != null, "fileName");
         Preconditions.checkArgument(name != null, "name");
         return auditLogic.getSetting(fileName, name);
     }
 
     @Override
-    public void setSetting(String fileName, String name, String value) {
+    @WebResult(name = "result")
+    public void setSetting(@WebParam(name = "fileName") String fileName, @WebParam(name = "name") String name, @WebParam(name = "value") String value) {
         Preconditions.checkArgument(fileName != null, "fileName");
         Preconditions.checkArgument(name != null, "name");
         auditLogic.setSetting(fileName, name, value);
     }
 
     @Override
+    @WebResult(name = "result")
     public void clearSettings() {
         auditLogic.clearSettings();
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public List<ProcessError> getAllProcessErrors(User user) {
+        Preconditions.checkArgument(user != null, "user");
+        List<ProcessError> result = Lists.newArrayList();
+        for (List<ProcessError> list : Errors.getProcessErrors().values()) {
+            result.addAll(list);
+        }
+        BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+        int index = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
+        batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
+        List<WfProcess> processes = executionLogic.getProcesses(user, batchPresentation);
+        for (WfProcess process : processes) {
+            populateExecutionErrors(user, result, process.getId());
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public List<ProcessError> getProcessErrors(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(processId != null, "processId");
+        List<ProcessError> list = new ArrayList<ProcessError>();
+        List<ProcessError> cached = Errors.getProcessErrors(processId);
+        if (cached != null) {
+            list.addAll(cached);
+        }
+        populateExecutionErrors(user, list, processId);
+        Collections.sort(list);
+        return list;
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public List<SystemError> getSystemErrors(@WebParam(name = "user") User user) {
+        Preconditions.checkArgument(user != null, "user");
+        List<SystemError> list = Lists.newArrayList(Errors.getSystemErrors());
+        Collections.sort(list);
+        return list;
+    }
+
+    private void populateExecutionErrors(User user, List<ProcessError> list, Long processId) {
+        try {
+            for (WfToken token : executionLogic.getTokens(user, processId, false)) {
+                if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
+                    continue;
+                }
+                if (token.getErrorMessage() == null) {
+                    // during feature integration
+                    continue;
+                }
+                ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, token.getNode().getNodeId());
+                processError.setNodeName(token.getNode().getName());
+                processError.setMessage(token.getErrorMessage());
+                processError.setOccurredDate(token.getErrorDate());
+                list.add(processError);
+            }
+        } catch (Exception e) {
+            Log.warn("Unable to populate errors in process " + processId, e);
+            ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, "");
+            processError.setMessage("Unable to populate errors in this process");
+            list.add(processError);
+        }
     }
 }

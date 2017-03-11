@@ -1,7 +1,7 @@
 
     <!-- A : ru.runa.bpm.log.ActionLog -->
     <!-- B : ru.runa.bpm.log.SubprocessStartLog -->
-    <!-- C : ru.runa.bpm.log.CreateTimerActionLog -->
+    <!-- C : ru.runa.bpm.log.CreateTimerLog -->
     <!-- D : ru.runa.bpm.log.VariableDeleteLog -->
     <!-- E : ru.runa.bpm.log.AdminActionLog -->
     <!-- F : ru.runa.bpm.log.TaskDelegationLog -->

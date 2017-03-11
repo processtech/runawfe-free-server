@@ -21,9 +21,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
-
-public class StartStateFigure extends AbstractFigure {
+public class StartStateFigure extends AbstractUmlFigure {
 
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {
