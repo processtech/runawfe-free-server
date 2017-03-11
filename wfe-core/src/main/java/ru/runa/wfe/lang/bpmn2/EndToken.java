@@ -36,22 +36,9 @@ public class EndToken extends Node {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
-        executionContext.getToken().end(executionContext, null);
+    protected void execute(ExecutionContext executionContext) throws Exception {
+        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
         if (!executionContext.getProcess().hasEnded()) {
-            // boolean activeTokensFound = false;
-            // List<Token> tokens =
-            // ApplicationContextFactory.getTokenDAO().findActiveTokens(executionContext.getProcess());
-            // for (Token token : tokens) {
-            // // for https://sourceforge.net/p/runawfe/bugs/850/#4102
-            // if (token.getNodeType() != NodeType.PARALLEL_GATEWAY) {
-            // activeTokensFound = true;
-            // break;
-            // }
-            // }
-            // if (!activeTokensFound) {
-            // executionContext.getProcess().end(executionContext, null);
-            // }
             int count = ApplicationContextFactory.getTokenDAO().findByProcessAndExecutionStatusIsNotEnded(executionContext.getProcess()).size();
             if (count == 0) {
                 executionContext.getProcess().end(executionContext, null);

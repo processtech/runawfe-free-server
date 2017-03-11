@@ -45,6 +45,7 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
+import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.MultiSubprocessNode;
@@ -86,6 +87,8 @@ public class ExecutionContext {
     private VariableCreator variableCreator;
     @Autowired
     private ProcessDAO processDAO;
+    @Autowired
+    private TokenDAO tokenDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
     @Autowired
@@ -171,7 +174,11 @@ public class ExecutionContext {
     }
 
     public NodeProcess getParentNodeProcess() {
-        return nodeProcessDAO.getNodeProcessByChild(getProcess().getId());
+        return nodeProcessDAO.findBySubProcessId(getProcess().getId());
+    }
+
+    public List<Process> getTokenSubprocesses() {
+        return nodeProcessDAO.getSubprocesses(getToken());
     }
 
     public List<Process> getSubprocesses() {
@@ -263,6 +270,18 @@ public class ExecutionContext {
 
     public void addLog(ProcessLog processLog) {
         processLogDAO.addLog(processLog, getProcess(), token);
+    }
+
+    public void activateTokenIfHasPreviousError() {
+        if (getToken().getExecutionStatus() == ExecutionStatus.FAILED) {
+            getToken().setExecutionStatus(ExecutionStatus.ACTIVE);
+            getToken().setErrorDate(null);
+            getToken().setErrorMessage(null);
+            List<Token> failedTokens = tokenDAO.findByProcessAndExecutionStatus(getProcess(), ExecutionStatus.FAILED);
+            if (failedTokens.isEmpty()) {
+                getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
+            }
+        }
     }
 
     @Override
@@ -374,6 +393,7 @@ public class ExecutionContext {
         if (variable != null && !variable.supports(value)) {
             log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess());
             variableDAO.delete(variable);
+            variableDAO.flushPendingChanges();
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
@@ -491,7 +511,7 @@ public class ExecutionContext {
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
             if (!subprocessesInfoMap.containsKey(process)) {
-                NodeProcess nodeProcess = nodeProcessDAO.getNodeProcessByChild(process.getId());
+                NodeProcess nodeProcess = nodeProcessDAO.findBySubProcessId(process.getId());
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();

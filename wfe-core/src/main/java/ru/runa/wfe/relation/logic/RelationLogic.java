@@ -154,7 +154,7 @@ public class RelationLogic extends CommonLogic {
     }
 
     /**
-     * Return {@link Relation} with specified name or throws {@link RelationDoesNotExistException} if relation with such name does not exists.
+     * Return {@link Relation} with specified name or throws {@link RelationDoesNotExistException} if relation with such name does not exist.
      * 
      * @param user
      *            user, which perform operation.
@@ -168,7 +168,7 @@ public class RelationLogic extends CommonLogic {
     }
 
     /**
-     * Return {@link Relation} with specified identity or throws {@link RelationDoesNotExistException} if relation with such identity does not exists.
+     * Return {@link Relation} with specified identity or throws {@link RelationDoesNotExistException} if relation with such identity does not exist.
      * 
      * @param user
      *            user, which perform operation.

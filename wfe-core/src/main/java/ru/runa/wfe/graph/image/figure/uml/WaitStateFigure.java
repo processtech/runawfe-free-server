@@ -50,10 +50,10 @@ public class WaitStateFigure extends TaskNodeFigure {
             graphics.drawLine(r.x + center, r.y + center, r.x + center + diameter / 2 - 5, r.y + center - diameter / 2 + 5);
 
             int hOffset;
-            Rectangle2D textBounds = graphics.getFontMetrics().getStringBounds(getName(), graphics);
+            Rectangle2D textBounds = graphics.getFontMetrics().getStringBounds(node.getName(), graphics);
             if (textBounds.getWidth() > r.getWidth() - 5) {
                 int y = 0;
-                AttributedString attributedString = new AttributedString(getName());
+                AttributedString attributedString = new AttributedString(node.getName());
                 attributedString.addAttribute(TextAttribute.FONT, graphics.getFont());
                 AttributedCharacterIterator characterIterator = attributedString.getIterator();
                 LineBreakMeasurer measurer = new LineBreakMeasurer(characterIterator, graphics.getFontRenderContext());

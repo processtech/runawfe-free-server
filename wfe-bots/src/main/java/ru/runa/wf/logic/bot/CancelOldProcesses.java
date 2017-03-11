@@ -21,12 +21,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.DateFilterCriteria;
-import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -46,13 +46,12 @@ public class CancelOldProcesses extends TaskHandlerBase {
     @Override
     public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
         ExecutionService executionService = Delegates.getExecutionService();
-        BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
         Date lastDate = new Date();
         long timeout = variableProvider.getValueNotNull(long.class, "timeout");
         lastDate.setTime(System.currentTimeMillis() - timeout * 3600 * 1000);
-        Map<Integer, FilterCriteria> map = batchPresentation.getFilteredFields();
-        map.put(3, new DateFilterCriteria());
-        batchPresentation.setFilteredFields(map);
+        BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+        int endDateFieldIndex = ProcessClassPresentation.getInstance().getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
+        batchPresentation.getFilteredFields().put(endDateFieldIndex, new DateFilterCriteria());
         List<WfProcess> processes = executionService.getProcesses(user, batchPresentation);
         for (WfProcess process : processes) {
             if (process.getStartDate().before(lastDate) && !Objects.equal(process.getId(), task.getProcessId())) {

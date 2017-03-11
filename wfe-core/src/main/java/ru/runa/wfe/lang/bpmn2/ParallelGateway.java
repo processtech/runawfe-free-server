@@ -7,7 +7,6 @@ import java.util.Set;
 
 import javax.transaction.UserTransaction;
 
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ITransactionListener;
 import ru.runa.wfe.commons.SystemProperties;
@@ -17,7 +16,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
+import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
@@ -36,9 +35,9 @@ public class ParallelGateway extends Node {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         Token token = executionContext.getToken();
-        token.end(executionContext, null);
+        token.end(executionContext.getProcessDefinition(), null, null, false);
         log.debug("Executing " + this + " with " + token);
         StateInfo stateInfo = findStateInfo(executionContext.getProcess().getRootToken(), true);
         switch (stateInfo.state) {
@@ -67,7 +66,8 @@ public class ParallelGateway extends Node {
         case BLOCKING: {
             log.warn("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
                     + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
-            token.setExecutionStatus(ExecutionStatus.FAILED);
+            token.fail(new ProcessExecutionException(ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION,
+                    stateInfo.unreachableTransition));
             TransactionListeners.addListener(new FailedCheck(this, executionContext.getProcess().getId()), false);
             break;
         }
@@ -221,8 +221,6 @@ public class ParallelGateway extends Node {
                             log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
                                     + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
                             process.setExecutionStatus(ExecutionStatus.FAILED);
-                            Exception exception = new InternalApplicationException("no token can activate this node");
-                            ProcessExecutionErrors.addProcessError(processId, gateway.getNodeId(), gateway.getName(), null, exception);
                             break;
                         }
                         }
@@ -285,8 +283,6 @@ public class ParallelGateway extends Node {
                                 log.error("failing process " + process.getId() + " execution because " + stateInfo.unreachableTransition
                                         + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
                                 process.setExecutionStatus(ExecutionStatus.FAILED);
-                                Exception exception = new InternalApplicationException("no token can activate this node");
-                                ProcessExecutionErrors.addProcessError(processId, gateway.getNodeId(), gateway.getName(), null, exception);
                             }
                             break;
                         }

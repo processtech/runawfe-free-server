@@ -15,8 +15,7 @@ import ru.runa.wfe.history.graph.HistoryGraphTransitionModel;
 import com.google.common.collect.Maps;
 
 /**
- * Calculates graph flow bounds. Going from bottom to top and calculating width
- * and height on every graph node.
+ * Calculates graph flow bounds. Going from bottom to top and calculating width and height on every graph node.
  */
 public class CalculateSubTreeBounds implements HistoryGraphNodeVisitor<Object> {
 
@@ -80,7 +79,7 @@ public class CalculateSubTreeBounds implements HistoryGraphNodeVisitor<Object> {
             transition.getToNode().processBy(this, o);
         }
         data.setSubtreeHeight(getSubtreeHeight(node) + HistoryGraphLayoutProperties.cellHeight);
-        int width = transition == null ? node.getNode().getGraphWidth() + HistoryGraphLayoutProperties.widthBetweenNodes
+        int width = transition == null ? node.getNode().getGraphConstraints()[2] + HistoryGraphLayoutProperties.widthBetweenNodes
                 : getSubtreeWidthForParent(transition.getToNode());
         data.setSubtreeWidth(width);
         data.setHeight(HistoryGraphLayoutProperties.joinHeight);
@@ -101,7 +100,7 @@ public class CalculateSubTreeBounds implements HistoryGraphNodeVisitor<Object> {
         for (HistoryGraphTransitionModel transition : node.getTransitions()) {
             width += getSubtreeWidthForParent(transition.getToNode());
         }
-        int nodeWidth = node.getNode().getGraphWidth() + HistoryGraphLayoutProperties.widthBetweenNodes;
+        int nodeWidth = node.getNode().getGraphConstraints()[2] + HistoryGraphLayoutProperties.widthBetweenNodes;
         int subtreeWidth = width < nodeWidth ? nodeWidth : width;
         data.setSubtreeWidth(subtreeWidth);
         data.setPreferredWidth(subtreeWidth - HistoryGraphLayoutProperties.widthBetweenNodes);
@@ -121,19 +120,19 @@ public class CalculateSubTreeBounds implements HistoryGraphNodeVisitor<Object> {
         }
         data.setSubtreeHeight(getSubtreeHeight(node) + HistoryGraphLayoutProperties.cellHeight);
         int treeWidth = transition == null ? 0 : getSubtreeWidthForParent(transition.getToNode());
-        int subtreeWidth = node.getNode().getGraphWidth() + HistoryGraphLayoutProperties.widthBetweenNodes;
+        int subtreeWidth = node.getNode().getGraphConstraints()[2] + HistoryGraphLayoutProperties.widthBetweenNodes;
         if (subtreeWidth < HistoryGraphLayoutProperties.minNodeWidth) {
             subtreeWidth = HistoryGraphLayoutProperties.minNodeWidth;
         }
         data.setSubtreeWidth(treeWidth < subtreeWidth ? subtreeWidth : treeWidth);
-        data.setPreferredWidth(node.getNode().getGraphWidth());
-        data.setHeight(node.getNode().getGraphHeight());
-        data.setWidth(node.getNode().getGraphWidth());
+        data.setPreferredWidth(node.getNode().getGraphConstraints()[2]);
+        data.setHeight(node.getNode().getGraphConstraints()[3]);
+        data.setWidth(node.getNode().getGraphConstraints()[2]);
     }
 
     /**
      * Calculates max height of node subtrees.
-     * 
+     *
      * @param node
      *            Node, which subtree height is calculated.
      * @return Returns max subtree height.
@@ -149,13 +148,11 @@ public class CalculateSubTreeBounds implements HistoryGraphNodeVisitor<Object> {
     }
 
     /**
-     * Get subtree width for parent width calculation. We must return 0 on join
-     * and parallel gateways, because of this nodes aggregates several flows
+     * Get subtree width for parent width calculation. We must return 0 on join and parallel gateways, because of this nodes aggregates several flows
      * from top and it's width must not be considered in top flows.
-     * 
+     *
      * @param node
-     *            Node, which width must be returned for parent width
-     *            calculation.
+     *            Node, which width must be returned for parent width calculation.
      * @return Returns node width for parent width calculation.
      */
     private int getSubtreeWidthForParent(HistoryGraphNode node) {

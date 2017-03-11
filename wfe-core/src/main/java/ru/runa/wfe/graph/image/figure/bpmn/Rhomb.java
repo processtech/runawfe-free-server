@@ -22,12 +22,11 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.util.AngleInfo;
 import ru.runa.wfe.graph.image.util.Line;
 import ru.runa.wfe.graph.image.util.LineUtils;
 
-public class Rhomb extends AbstractFigure {
+public class Rhomb extends AbstractBpmnFigure {
     private final String imageName;
 
     public Rhomb(String imageName) {
@@ -36,7 +35,7 @@ public class Rhomb extends AbstractFigure {
 
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {
-        drawImage(graphics, imageName);
+        drawImageIfNoEdgingOnly(graphics, imageName);
         if (renderHits.isPassed()) {
             Rectangle r = new Rectangle(coords[0] + 6, coords[1] + 6, coords[2] - 12, coords[3] - 12);
             Polygon polygon = new Polygon(new int[] { (int) r.getMinX(), (int) r.getCenterX(), (int) r.getMaxX(), (int) r.getCenterX() }, new int[] {

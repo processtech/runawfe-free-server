@@ -21,10 +21,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.lang.Transition;
 
-public class ForkJoinFigure extends AbstractFigure {
+public class ForkJoinFigure extends AbstractUmlFigure {
 
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {

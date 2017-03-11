@@ -34,6 +34,7 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.VersionInfo;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.lang.jpdl.Action;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
@@ -378,7 +379,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     }
 
     @Override
-    public GraphElement getParent() {
+    public GraphElement getParentElement() {
         return null;
     }
 
@@ -503,10 +504,10 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
                     for (Transition transition : subprocessNode.getArrivingTransitions()) {
                         startNode.addArrivingTransition(transition);
                     }
-                    startNode.setSubProcessState(subprocessNode);
+                    startNode.setSubprocessNode(subprocessNode);
                     for (EmbeddedSubprocessEndNode endNode : subprocessDefinition.getEndNodes()) {
                         endNode.addLeavingTransition(subprocessNode.getLeavingTransitions().get(0));
-                        endNode.setSubProcessState(subprocessNode);
+                        endNode.setSubprocessNode(subprocessNode);
                     }
                     subprocessDefinition.mergeWithEmbeddedSubprocesses();
                 }

@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -93,6 +94,10 @@ public class ProcessDAO extends GenericDAO<Process> {
                 if (filter.getEndDateTo() != null) {
                     conditions.add("endDate <= :endDateTo");
                     parameters.put("endDateTo", filter.getEndDateTo());
+                }
+                if (filter.getFailedOnly()) {
+                    conditions.add("executionStatus = :executionStatus");
+                    parameters.put("executionStatus", ExecutionStatus.FAILED);
                 }
                 if (conditions.size() == 0) {
                     throw new IllegalArgumentException("Filter should be specified");

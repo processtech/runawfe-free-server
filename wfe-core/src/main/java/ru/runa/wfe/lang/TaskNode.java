@@ -21,14 +21,24 @@
  */
 package ru.runa.wfe.lang;
 
+import java.util.List;
+
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
+
+import com.google.common.collect.Lists;
 
 /**
  * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
  */
-public class TaskNode extends BaseTaskNode {
+public class TaskNode extends BaseTaskNode implements BoundaryEventContainer {
     private static final long serialVersionUID = 1L;
+    private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
+
+    @Override
+    public List<BoundaryEvent> getBoundaryEvents() {
+        return boundaryEvents;
+    }
 
     @Override
     public NodeType getNodeType() {
@@ -36,7 +46,7 @@ public class TaskNode extends BaseTaskNode {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         for (TaskDefinition taskDefinition : taskDefinitions) {
             Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
             // copy the swimlane assignment into the task

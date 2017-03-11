@@ -44,6 +44,8 @@ public class WfToken implements Serializable {
     private Node node;
     private String transitionId;
     private ExecutionStatus executionStatus;
+    private Date errorDate;
+    private String errorMessage;
 
     public WfToken() {
     }
@@ -56,6 +58,8 @@ public class WfToken implements Serializable {
         endDate = token.getEndDate();
         node = token.getNodeNotNull(processDefinition);
         executionStatus = token.getExecutionStatus();
+        errorDate = token.getErrorDate();
+        errorMessage = token.getErrorMessage();
     }
 
     public Long getParentId() {
@@ -88,6 +92,14 @@ public class WfToken implements Serializable {
 
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;
+    }
+
+    public Date getErrorDate() {
+        return errorDate;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     @Override

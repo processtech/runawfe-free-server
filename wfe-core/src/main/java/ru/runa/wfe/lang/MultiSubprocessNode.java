@@ -45,7 +45,8 @@ public class MultiSubprocessNode extends SubprocessNode {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) {
+        log.debug("Executing " + this + " with " + executionContext);
         MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
         List<Process> subProcesses = Lists.newArrayList();

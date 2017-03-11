@@ -24,7 +24,6 @@ import org.apache.ecs.html.TD;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTDBuilder;
@@ -37,6 +36,7 @@ import ru.runa.wfe.definition.dto.WfDefinition;
  * @author Vitaliy S aka Yilativs
  */
 public class PropertiesProcessTDBuilder extends BaseTDBuilder {
+
     public PropertiesProcessTDBuilder() {
         super(DefinitionPermission.READ);
     }
@@ -44,16 +44,15 @@ public class PropertiesProcessTDBuilder extends BaseTDBuilder {
     @Override
     public TD build(Object object, Env env) {
         WfDefinition pd = (WfDefinition) object;
-        ConcreteElement startLink;
-
+        ConcreteElement element;
         if (isEnabled(object, env)) {
             String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, pd.getId(), env.getPageContext(),
                     PortletUrlType.Render);
-            startLink = new A(url, MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext()));
+            element = new A(url, MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext()));
         } else {
-            startLink = new StringElement();
+            element = new StringElement();
         }
-        TD td = new TD(startLink);
+        TD td = new TD(element);
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         return td;
     }

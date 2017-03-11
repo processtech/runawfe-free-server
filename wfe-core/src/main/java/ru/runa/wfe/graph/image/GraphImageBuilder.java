@@ -32,9 +32,12 @@ import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
-import ru.runa.wfe.graph.image.figure.bpmn.BPMNFigureFactory;
-import ru.runa.wfe.graph.image.figure.uml.UMLFigureFactory;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
+import ru.runa.wfe.graph.image.figure.bpmn.BpmnFigureFactory;
+import ru.runa.wfe.graph.image.figure.uml.UmlFigureFactory;
+import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.BoundaryEventContainer;
+import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -53,8 +56,8 @@ public class GraphImageBuilder {
     private final ProcessDefinition processDefinition;
     private Token highlightedToken;
     private final Map<String, AbstractFigure> allNodeFigures = Maps.newHashMap();
-    private final Map<TransitionFigureBase, RenderHits> transitionFigureBases = Maps.newHashMap();
-    private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newHashMap();
+    private final Map<TransitionFigure, RenderHits> transitionFigures = Maps.newHashMap();
+    private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newLinkedHashMap();
     private final boolean smoothTransitions;
 
     public GraphImageBuilder(ProcessDefinition processDefinition) {
@@ -69,9 +72,9 @@ public class GraphImageBuilder {
     public byte[] createDiagram(Process process, ProcessLogs logs) throws Exception {
         AbstractFigureFactory factory;
         if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
-            factory = new BPMNFigureFactory();
+            factory = new BpmnFigureFactory();
         } else {
-            factory = new UMLFigureFactory();
+            factory = new UmlFigureFactory();
         }
         for (Node node : processDefinition.getNodes(false)) {
             AbstractFigure nodeFigure = factory.createFigure(node, DrawProperties.useEdgingOnly());
@@ -85,44 +88,46 @@ public class GraphImageBuilder {
                 nodeFigures.put(nodeFigure, new RenderHits(DrawProperties.getBaseColor()));
             }
             int leavingTransitionsCount = node.getLeavingTransitions().size();
-            if (nodeFigure.isHasTimer()) {
-                leavingTransitionsCount--;
-            }
             if (node.getNodeType() == NodeType.END_PROCESS) {
                 continue;
             }
             for (Transition transition : node.getLeavingTransitions()) {
                 AbstractFigure figureTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
-                TransitionFigureBase transitionFigureBase = factory.createTransitionFigure();
-                transitionFigureBase.init(transition, nodeFigure, figureTo, smoothTransitions);
+                TransitionFigure transitionFigure = factory.createTransitionFigure();
+                transitionFigure.init(transition, nodeFigure, figureTo, smoothTransitions);
                 if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
-                    boolean exclusiveNode = node.getNodeType() != NodeType.FORK && node.getNodeType() != NodeType.JOIN
-                            && node.getNodeType() != NodeType.PARALLEL_GATEWAY;
-                    transitionFigureBase.setExclusive(exclusiveNode && leavingTransitionsCount > 1);
+                    transitionFigure.setExclusive(node.getNodeType() != NodeType.PARALLEL_GATEWAY && leavingTransitionsCount > 1);
                 }
-                nodeFigure.addTransition(transitionFigureBase);
+                nodeFigure.addTransition(transitionFigure);
                 if (!DrawProperties.useEdgingOnly()) {
-                    transitionFigureBases.put(transitionFigureBase, new RenderHits(DrawProperties.getTransitionColor()));
+                    transitionFigures.put(transitionFigure, new RenderHits(DrawProperties.getTransitionColor()));
                 }
             }
         }
         for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(processDefinition);
             if (transition != null) {
+                RenderHits renderHits = new RenderHits(DrawProperties.getHighlightColor(), true);
                 // Mark 'from' block as PASSED
                 AbstractFigure nodeModelFrom = allNodeFigures.get(transition.getFrom().getTransitionNodeId(false));
-                nodeFigures.put(nodeModelFrom, new RenderHits(DrawProperties.getHighlightColor(), true));
+                nodeFigures.put(nodeModelFrom, renderHits);
                 // Mark 'to' block as PASSED
                 AbstractFigure nodeModelTo = allNodeFigures.get(transition.getTo().getTransitionNodeId(true));
-                nodeFigures.put(nodeModelTo, new RenderHits(DrawProperties.getHighlightColor(), true));
+                nodeFigures.put(nodeModelTo, renderHits);
+                if (nodeModelTo.getNode() instanceof BoundaryEventContainer) {
+                    for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) nodeModelTo.getNode()).getBoundaryEvents()) {
+                        AbstractFigure boundaryEventFigure = allNodeFigures.get(((GraphElement) boundaryEvent).getNodeId());
+                        nodeFigures.put(boundaryEventFigure, new RenderHits(DrawProperties.getHighlightColor(), false));
+                    }
+                }
                 // Mark transition as PASSED
-                TransitionFigureBase transitionFigureBase = nodeModelFrom.getTransition(transition.getName());
-                transitionFigureBases.put(transitionFigureBase, new RenderHits(DrawProperties.getHighlightColor(), true));
+                TransitionFigure transitionFigure = nodeModelFrom.getTransition(transition.getName());
+                transitionFigures.put(transitionFigure, renderHits);
             }
         }
         fillActiveSubprocesses(process.getRootToken());
         fillTasks(logs);
-        GraphImage graphImage = new GraphImage(processDefinition, transitionFigureBases, nodeFigures);
+        GraphImage graphImage = new GraphImage(processDefinition, transitionFigures, nodeFigures);
         return graphImage.getImageBytes();
     }
 
