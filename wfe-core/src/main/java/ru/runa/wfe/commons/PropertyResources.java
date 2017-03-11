@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -9,12 +8,12 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.dao.SettingDAO;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.dao.SettingDAO;
 
 public class PropertyResources {
     private static final Log log = LogFactory.getLog(PropertyResources.class);
@@ -23,13 +22,13 @@ public class PropertyResources {
     private final boolean useDatabase;
     private static boolean databaseAvailable = false;
 
-    private static Map<String, String> propertiesCache = new HashMap<String, String>();
+    private static Map<String, String> propertiesCache = Maps.newHashMap();
+
+    private SettingDAO settingDAO = null;
 
     public static void setDatabaseAvailable(boolean available) {
         databaseAvailable = available;
     }
-
-    private SettingDAO settingDAO = null;
 
     public PropertyResources(String fileName) {
         this(fileName, true, true);
@@ -59,11 +58,15 @@ public class PropertyResources {
 
     public static void renewCachedProperty(String fileName, String name, String value) {
         String fullName = fileName + '#' + name;
-        propertiesCache.put(fullName, value);
+        synchronized (propertiesCache) {
+            propertiesCache.put(fullName, value);
+        }
     }
 
     public static void clearPropertiesCache() {
-        propertiesCache.clear();
+        synchronized (propertiesCache) {
+            propertiesCache.clear();
+        }
     }
 
     public String getStringProperty(String name) {
@@ -76,22 +79,24 @@ public class PropertyResources {
                 }
             }
             if (settingDAO != null) {
-                String fullName = fileName + '#' + name;
-                if (propertiesCache.containsKey(fullName)) {
-                    return propertiesCache.get(fullName);
-                }
-                try {
-                    String value = settingDAO.getValue(fileName, name);
-                    if (value == null) {
-                        value = properties.getProperty(name);
+                synchronized (propertiesCache) {
+                    String fullName = fileName + '#' + name;
+                    if (propertiesCache.containsKey(fullName)) {
+                        return propertiesCache.get(fullName);
                     }
-                    if (value != null) {
-                        value = value.trim();
+                    try {
+                        String value = settingDAO.getValue(fileName, name);
+                        if (value == null) {
+                            value = properties.getProperty(name);
+                        }
+                        if (value != null) {
+                            value = value.trim();
+                        }
+                        propertiesCache.put(fullName, value);
+                        return value;
+                    } catch (Exception e) {
+                        log.error("Database error", e);
                     }
-                    propertiesCache.put(fullName, value);
-                    return value;
-                } catch (Exception e) {
-                    log.error("Database error", e);
                 }
             }
         }
