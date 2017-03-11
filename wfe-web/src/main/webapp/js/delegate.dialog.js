@@ -44,16 +44,16 @@ function delegateTaskDialog(btn) {
             width: 600,
             height: 500,
             buttons: [
-            	{
-                    text: $.delegateDialogStatic.unselect,
-                    click: function() {
-                        reset();
-                    }
-                },
                 {
                     text: $.delegateDialogStatic.delegate,
                     click: function() {
                         submitDelegateDialog();
+                    }
+                },
+            	{
+                    text: $.delegateDialogStatic.unselect,
+                    click: function() {
+                        reset();
                     }
                 }
             ]
