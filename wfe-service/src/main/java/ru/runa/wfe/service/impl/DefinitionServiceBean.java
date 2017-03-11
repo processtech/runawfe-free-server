@@ -134,7 +134,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionId != null, "definitionId");
         Preconditions.checkArgument(nodeId != null, "nodeId");
-        ProcessDefinition processDefinition = definitionLogic.getParsedProcessDefinition(user, definitionId);
+        ProcessDefinition processDefinition = definitionLogic.getDefinition(definitionId);
         return processDefinition.getNode(nodeId);
     }
 

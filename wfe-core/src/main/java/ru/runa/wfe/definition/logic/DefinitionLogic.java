@@ -255,7 +255,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
         Deployment deployment = deploymentDAO.getNotNull(definitionId);
-        if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName)) {
+        if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(IFileDataProvider.BOTS_XML_FILE)) {
             checkPermissionAllowed(user, deployment, DefinitionPermission.READ);
         }
         if (IFileDataProvider.PAR_FILE.equals(fileName)) {
