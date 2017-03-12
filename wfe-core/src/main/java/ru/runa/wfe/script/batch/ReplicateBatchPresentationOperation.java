@@ -75,7 +75,7 @@ public class ReplicateBatchPresentationOperation extends ScriptOperation {
 
     private void replicateBatchPresentation(ScriptExecutionContext context, BatchPresentation replicateMe, Set<BatchPresentation> templates) {
         List<Actor> allActors = (List<Actor>) context.getExecutorLogic().getExecutors(context.getUser(),
-            BatchPresentationFactory.ACTORS.createNonPaged());
+                BatchPresentationFactory.ACTORS.createNonPaged());
         List<Long> actorsIds = Lists.newArrayListWithExpectedSize(allActors.size());
         for (Actor actor : allActors) {
             actorsIds.add(actor.getId());
@@ -89,9 +89,9 @@ public class ReplicateBatchPresentationOperation extends ScriptOperation {
                 }
                 continue;
             }
-            BatchPresentation clon = replicateMe.clone();
-            clon.setName(replicateMe.getName());
-            profile.addBatchPresentation(clon);
+            BatchPresentation clone = replicateMe.clone();
+            clone.setName(replicateMe.getName());
+            profile.addBatchPresentation(clone);
             if (setActiveMode.equals(SetActiveMode.ALL) || setActiveMode.equals(SetActiveMode.CHANGED)) {
                 profile.setActiveBatchPresentation(replicateMe.getCategory(), replicateMe.getName());
             }
