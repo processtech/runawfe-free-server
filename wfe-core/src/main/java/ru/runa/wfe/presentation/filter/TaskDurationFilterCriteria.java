@@ -48,7 +48,7 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
                 parseDuration(newTemplates[0] + " " + newTemplates[1]);
             }
             if (newTemplates[2].length() > 0) {
-                parseDuration(newTemplates[2] + " " + newTemplates[1]);
+                parseDuration(newTemplates[2] + " " + newTemplates[3]);
             }
         } catch (Exception e) {
             throw new FilterFormatException(e.getMessage());
