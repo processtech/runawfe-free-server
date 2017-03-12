@@ -17,6 +17,8 @@
  */
 package ru.runa.common.web.html.format;
 
+import java.util.Arrays;
+
 import javax.servlet.jsp.PageContext;
 
 import org.apache.ecs.Entities;
@@ -50,7 +52,8 @@ public class DurationFilterTDFormatter extends FilterTDFormatter {
             filterInputTd.addElement(new Input(Input.HIDDEN, TableViewSetupForm.FILTER_POSITIONS, String.valueOf(fieldIndex)));
             final String selectedDuration = stringConditions[j + 1];
             Select select = new Select(TableViewSetupForm.FILTER_CRITERIA);
-            for (DurationEnum value : DurationEnum.values()) {
+            DurationEnum[] filterValues = Arrays.copyOfRange(DurationEnum.values(), DurationEnum.minutes.ordinal(), DurationEnum.values().length);
+            for (DurationEnum value : filterValues) {
                 Option option = new Option();
                 option.setValue(value.name());
                 option.addElement(Messages.getMessage(value.name(), pageContext));
