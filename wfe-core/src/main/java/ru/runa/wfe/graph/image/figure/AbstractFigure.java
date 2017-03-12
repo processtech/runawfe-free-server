@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
@@ -25,86 +25,51 @@ import java.awt.Rectangle;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
-import ru.runa.wfe.graph.image.GraphImageHelper;
-import ru.runa.wfe.graph.image.figure.uml.TaskNodeFigure;
-import ru.runa.wfe.graph.image.util.ActionUtils;
 import ru.runa.wfe.graph.image.util.AngleInfo;
 import ru.runa.wfe.graph.image.util.Line;
 import ru.runa.wfe.graph.image.util.LineUtils;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.Transition;
 
 public abstract class AbstractFigure {
-    private final static Log log = LogFactory.getLog(AbstractFigure.class);
+    protected final Log log = LogFactory.getLog(getClass());
 
-    protected String nodeName;
+    protected Node node;
     protected int[] coords;
-    protected NodeType nodeType;
 
-    protected String swimlane;
-    protected int actionsCount;
-    protected boolean async;
-    protected boolean minimized;
-    protected boolean hasTimer;
+    protected String swimlaneName;
     protected boolean useEgdingOnly;
 
-    protected Map<String, TransitionFigureBase> transitions = new HashMap<String, TransitionFigureBase>();
+    protected Map<String, TransitionFigure> transitions = new HashMap<String, TransitionFigure>();
     protected RenderHits renderHits;
 
     public void initFigure(Node node, boolean useEgdingOnly) {
-        this.nodeName = node.getName();
-        this.nodeType = node.getNodeType();
+        this.node = node;
         this.coords = node.getGraphConstraints();
-        this.hasTimer = node.getTimerActions(false).size() > 0;
-        if (node.getProcessDefinition().isGraphActionsEnabled()) {
-            this.actionsCount = GraphImageHelper.getNodeActionsCount(node);
-        }
-        this.async = (node instanceof Synchronizable && ((Synchronizable) node).isAsync());
-        this.minimized = node.isGraphMinimizedView();
         if (node instanceof InteractionNode && ((InteractionNode) node).getTasks().size() > 0) {
             TaskDefinition taskDefinition = ((InteractionNode) node).getFirstTaskNotNull();
             if (taskDefinition.getSwimlane() != null) {
-                this.swimlane = taskDefinition.getSwimlane().getName();
+                this.swimlaneName = taskDefinition.getSwimlane().getName();
             }
         }
         this.useEgdingOnly = useEgdingOnly;
     }
 
-    public String getName() {
-        return nodeName;
-    }
-
-    public NodeType getType() {
-        return nodeType;
-    }
-
-    public void setType(NodeType nodeType) {
-        this.nodeType = nodeType;
-    }
-
-    public boolean isHasTimer() {
-        return hasTimer;
+    public Node getNode() {
+        return node;
     }
 
     public RenderHits getRenderHits() {
@@ -135,43 +100,24 @@ public abstract class AbstractFigure {
         return coords[3];
     }
 
-    public void addTransition(TransitionFigureBase transitionFigure) {
+    public void addTransition(TransitionFigure transitionFigure) {
         transitions.put(transitionFigure.getTransition().getName(), transitionFigure);
     }
 
-    public TransitionFigureBase getTransition(String name) {
+    public TransitionFigure getTransition(String name) {
         return transitions.get(name);
-    }
-
-    protected void drawActions(Graphics2D graphics) {
-        if (actionsCount > 0) {
-            Color color = graphics.getColor();
-            if (useEgdingOnly) {
-                int shiftX = (ActionUtils.ACTION_DELIM + 2) + actionsCount * (ActionUtils.ACTION_SIZE + (ActionUtils.ACTION_DELIM + 3));
-                int shiftY = ActionUtils.ACTION_SIZE + 6;
-                graphics.setColor(DrawProperties.getBackgroundColor());
-                graphics.fillRect(getRectangle().x + getRectangle().width - 4 - shiftX, getRectangle().y + getRectangle().height - 4 - shiftY,
-                        shiftX, shiftY);
-            }
-            for (int i = 0; i < actionsCount; i++) {
-                Point loc = ActionUtils.getActionLocationOnNode(i, coords, getClass() == TaskNodeFigure.class);
-                loc.translate(-1, -1);
-                graphics.setColor(color);
-                graphics.drawOval(loc.x, loc.y, ActionUtils.ACTION_SIZE, ActionUtils.ACTION_SIZE);
-            }
-        }
     }
 
     protected void drawTextInfo(Graphics2D graphics, int hOffset) {
         if (!useEgdingOnly) {
             Color color = graphics.getColor();
             graphics.setColor(DrawProperties.getTextColor());
-            if (swimlane != null) {
-                hOffset = drawText(graphics, "(" + swimlane + ")", hOffset);
+            if (swimlaneName != null) {
+                hOffset = drawText(graphics, "(" + swimlaneName + ")", hOffset);
                 // additional space after swimlane label
                 hOffset += 3;
             }
-            drawText(graphics, getName(), hOffset);
+            drawText(graphics, node.getName(), hOffset);
             graphics.setColor(color);
         }
     }
@@ -199,25 +145,6 @@ public abstract class AbstractFigure {
         }
     }
 
-    protected void drawImage(Graphics2D graphics, String name) {
-        drawImage(graphics, name, coords[0], coords[1]);
-    }
-
-    protected void drawImage(Graphics2D graphics, String name, double x, double y) {
-        drawImage(graphics, name, x, y, !useEgdingOnly);
-    }
-
-    protected void drawImage(Graphics2D graphics, String name, double x, double y, boolean condition) {
-        try {
-            if (condition) {
-                BufferedImage image = ImageIO.read(ClassLoaderUtil.getAsStreamNotNull(name, getClass()));
-                graphics.drawRenderedImage(image, AffineTransform.getTranslateInstance(x, y));
-            }
-        } catch (IOException e) {
-            log.error("Unable to paint image", e);
-        }
-    }
-
     public Point getBendpoint() {
         Rectangle allRect = getRectangle();
         return new Point((int) allRect.getCenterX(), (int) allRect.getCenterY());
@@ -241,7 +168,7 @@ public abstract class AbstractFigure {
         double cx = rect.getCenterX();
         double cy = rect.getCenterY();
         if (x == cx) {
-            return (y - cy > 0) ? new AngleInfo(Double.MAX_VALUE, AngleInfo.QUARTER_IV) : new AngleInfo(Double.MAX_VALUE, AngleInfo.QUARTER_II);
+            return y - cy > 0 ? new AngleInfo(Double.MAX_VALUE, AngleInfo.QUARTER_IV) : new AngleInfo(Double.MAX_VALUE, AngleInfo.QUARTER_II);
         } else {
             double critAngle = rect.getHeight() / rect.getWidth();
             AngleInfo angleInfo = new AngleInfo();

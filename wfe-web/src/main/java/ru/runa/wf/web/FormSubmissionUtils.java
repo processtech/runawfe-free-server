@@ -1,9 +1,7 @@
 package ru.runa.wf.web;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -15,39 +13,25 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
 
-import ru.runa.common.WebResources;
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.RequestWebHelper;
 import ru.runa.wf.web.servlet.UploadedFile;
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponentExtractionModel;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.commons.ftl.FreemarkerProcessor;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
-import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
-import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.format.BooleanFormat;
-import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FormatCommons;
-import ru.runa.wfe.var.format.ListFormat;
-import ru.runa.wfe.var.format.MapFormat;
-import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
-import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @SuppressWarnings("unchecked")
 public class FormSubmissionUtils {
@@ -183,229 +167,8 @@ public class FormSubmissionUtils {
     private static Object extractVariable(HttpServletRequest request, Map<String, ? extends Object> userInput, VariableDefinition variableDefinition,
             Map<String, String> errors) throws Exception {
         VariableFormat format = FormatCommons.create(variableDefinition);
-        Object variableValue = null;
-        boolean forceSetVariableValue = false;
-        if (format instanceof ListFormat) {
-            List<Integer> indexes = null;
-            String sizeInputName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
-            String indexesInputName = variableDefinition.getName() + INDEXES_SUFFIX;
-            VariableFormat componentFormat = FormatCommons.createComponent(variableDefinition, 0);
-            List<Object> list = null;
-            String[] stringsIndexes = (String[]) userInput.get(indexesInputName);
-            if (stringsIndexes == null || stringsIndexes.length != 1) {
-                if (userInput.containsKey(sizeInputName)) {
-                    // js dynamic way
-                    String[] stringsSize = (String[]) userInput.get(sizeInputName);
-                    if (stringsSize == null || stringsSize.length != 1) {
-                        log.error("Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
-                        return IGNORED_VALUE;
-                    }
-                    int listSize = TypeConversionUtil.convertTo(int.class, stringsSize[0]);
-                    list = Lists.newArrayListWithExpectedSize(listSize);
-                    indexes = Lists.newArrayListWithExpectedSize(listSize);
-                    for (int i = 0; indexes.size() < listSize && i < 1000; i++) {
-                        String checkString = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
-                                + VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                        for (String key : userInput.keySet()) {
-                            if (key.startsWith(checkString)) {
-                                indexes.add(i);
-                                break;
-                            }
-                        }
-                    }
-                    if (indexes.size() != listSize) {
-                        errors.put(variableDefinition.getName(), ". Not all list items found. Expected:'" + listSize + "', found:'" + indexes.size());
-                    }
-                    for (Integer index : indexes) {
-                        String name = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                                + VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                        String scriptingName = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                                + VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                        VariableDefinition componentDefinition = new VariableDefinition(name, scriptingName, componentFormat);
-                        Object componentValue = extractVariable(request, userInput, componentDefinition, errors);
-                        if (!Objects.equal(IGNORED_VALUE, componentValue)) {
-                            list.add(componentValue);
-                        }
-                    }
-                    variableValue = list;
-                } else {
-                    // http old-style way
-                    String[] strings = (String[]) userInput.get(variableDefinition.getName());
-                    if (strings == null || strings.length == 0) {
-                        return IGNORED_VALUE;
-                    }
-                    list = Lists.newArrayListWithExpectedSize(strings.length);
-                    for (String componentValue : strings) {
-                        list.add(convertComponent(request, variableDefinition.getName(), componentFormat, componentValue, errors));
-                    }
-                    variableValue = list;
-                }
-            } else {
-                int listSize = !stringsIndexes[0].equals("") ? stringsIndexes[0].toString().split(",").length : 0;
-                list = Lists.newArrayListWithExpectedSize(listSize);
-                if (listSize > 0) {
-                    indexes = Lists.newArrayListWithExpectedSize(listSize);
-                    String[] stringIndexes = stringsIndexes[0].toString().split(",");
-                    for (String index : stringIndexes) {
-                        indexes.add(TypeConversionUtil.convertTo(int.class, index));
-                    }
-                    for (Integer index : indexes) {
-                        String name = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                                + VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                        String scriptingName = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                                + VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                        VariableDefinition componentDefinition = new VariableDefinition(name, scriptingName, componentFormat);
-                        Object componentValue = extractVariable(request, userInput, componentDefinition, errors);
-                        if (!Objects.equal(IGNORED_VALUE, componentValue)) {
-                            list.add(componentValue);
-                        }
-                    }
-                }
-                variableValue = list;
-            }
-
-        } else if (format instanceof MapFormat) {
-            Map<Object, Object> map = null;
-            String sizeInputName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
-            String indexesInputName = variableDefinition.getName() + INDEXES_SUFFIX;
-            VariableFormat componentKeyFormat = FormatCommons.createComponent(variableDefinition, 0);
-            VariableFormat componentValueFormat = FormatCommons.createComponent(variableDefinition, 1);
-            String[] stringsIndexes = (String[]) userInput.get(indexesInputName);
-            List<Integer> indexes = null;
-            if (stringsIndexes == null || stringsIndexes.length != 1) {
-                String[] stringsSize = (String[]) userInput.get(sizeInputName);
-                if (stringsSize == null || stringsSize.length != 1) {
-                    log.error("Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
-                    return IGNORED_VALUE;
-                }
-                int mapSize = TypeConversionUtil.convertTo(int.class, stringsSize[0]);
-                map = Maps.newHashMapWithExpectedSize(mapSize);
-                indexes = Lists.newArrayListWithExpectedSize(mapSize);
-                for (int i = 0; indexes.size() < mapSize && i < 1000; i++) {
-                    String checkString = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
-                            + VariableFormatContainer.COMPONENT_QUALIFIER_END;
-                    for (String key : userInput.keySet()) {
-                        if (key.startsWith(checkString)) {
-                            indexes.add(i);
-                            break;
-                        }
-                    }
-                }
-                if (indexes.size() != mapSize) {
-                    errors.put(variableDefinition.getName(), ". Not all list items found. Expected:'" + mapSize + "', found:'" + indexes.size());
-                }
-            } else {
-                int mapSize = !stringsIndexes[0].equals("") ? stringsIndexes[0].toString().split(",").length : 0;
-                map = Maps.newHashMapWithExpectedSize(mapSize);
-                indexes = Lists.newArrayListWithExpectedSize(mapSize);
-                if (mapSize > 0) {
-                    String[] stringIndexes = stringsIndexes[0].toString().split(",");
-                    for (String index : stringIndexes) {
-                        indexes.add(TypeConversionUtil.convertTo(int.class, index));
-                    }
-                }
-            }
-            for (Integer index : indexes) {
-                String nameKey = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                        + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".key";
-                String scriptingNameKey = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                        + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".key";
-                VariableDefinition componentKeyDefinition = new VariableDefinition(nameKey, scriptingNameKey, componentKeyFormat);
-                Object componentKeyValue = extractVariable(request, userInput, componentKeyDefinition, errors);
-                String nameValue = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                        + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".value";
-                String scriptingNameValue = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                        + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".value";
-                VariableDefinition componentValueDefinition = new VariableDefinition(nameValue, scriptingNameValue, componentValueFormat);
-                Object componentValueValue = extractVariable(request, userInput, componentValueDefinition, errors);
-                if (!Objects.equal(IGNORED_VALUE, componentKeyValue)) {
-                    map.put(componentKeyValue, componentValueValue);
-                }
-            }
-            variableValue = map;
-        } else if (format instanceof UserTypeFormat) {
-            List<VariableDefinition> expandedDefinitions = variableDefinition.expandUserType(false);
-            UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
-            for (VariableDefinition expandedDefinition : expandedDefinitions) {
-                Object componentValue = extractVariable(request, userInput, expandedDefinition, errors);
-                if (!Objects.equal(IGNORED_VALUE, componentValue)) {
-                    String attributeName = expandedDefinition.getName().substring(variableDefinition.getName().length() + 1);
-                    userTypeMap.put(attributeName, componentValue);
-                }
-            }
-            variableValue = userTypeMap;
-        } else {
-            Object value = userInput.get(variableDefinition.getName());
-            if (value != null) {
-                forceSetVariableValue = true;
-            }
-            variableValue = convertComponent(request, variableDefinition.getName(), format, value, errors);
-        }
-        if (variableValue != null || forceSetVariableValue) {
-            return variableValue;
-        }
-        return IGNORED_VALUE;
-    }
-
-    private static Object convertComponent(HttpServletRequest request, String inputName, VariableFormat format, Object value,
-            Map<String, String> errors) {
-        try {
-            if (format instanceof BooleanFormat) {
-                if (value == null) {
-                    // HTTP FORM doesn't pass unchecked checkbox value
-                    value = new String[] { Boolean.FALSE.toString() };
-                }
-            }
-            if (value instanceof String[]) {
-                value = ((String[]) value)[0];
-            }
-            if (value instanceof FormFile) {
-                FormFile formFile = (FormFile) value;
-                if (formFile.getFileSize() > 0) {
-                    String contentType = formFile.getContentType();
-                    if (contentType == null) {
-                        contentType = "application/octet-stream";
-                    }
-                    return new FileVariable(formFile.getFileName(), formFile.getFileData(), contentType);
-                }
-                if (SystemProperties.isV3CompatibilityMode() || !WebResources.isAjaxFileInputEnabled()) {
-                    return IGNORED_VALUE;
-                }
-            } else if (value instanceof UploadedFile) {
-                UploadedFile uploadedFile = (UploadedFile) value;
-                if (uploadedFile.getFileVariable() instanceof FileVariableProxy) {
-                    // for process update value
-                    return uploadedFile.getFileVariable();
-                }
-                if (uploadedFile.getContent() == null) {
-                    // null for display component
-                    return IGNORED_VALUE;
-                }
-                return new FileVariable(uploadedFile.getName(), uploadedFile.getContent(), uploadedFile.getMimeType());
-            } else if (value instanceof String) {
-                String valueToFormat = ((String) value).trim();
-                try {
-                    if (format instanceof ExecutorFormat) {
-                        return TypeConversionUtil.convertToExecutor(valueToFormat, new DelegateExecutorLoader(Commons.getUser(request.getSession())));
-                    }
-                    return format.parse(valueToFormat);
-                } catch (Exception e) {
-                    if (valueToFormat.length() > 0) {
-                        log.warn(e);
-                        // in other case we put validation in logic
-                        errors.put(inputName, e.getMessage());
-                    } else {
-                        log.debug(e);
-                    }
-                }
-            } else if (value == null) {
-            } else {
-                throw new InternalApplicationException("Unexpected class: " + value.getClass());
-            }
-            return null;
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
-        }
+        return format.processBy(new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request.getSession()))),
+                variableDefinition);
     }
 
     public static Map<String, UploadedFile> getUploadedFilesInputsMap(HttpServletRequest request) {

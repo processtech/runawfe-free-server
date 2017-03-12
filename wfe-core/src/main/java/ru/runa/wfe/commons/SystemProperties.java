@@ -3,11 +3,11 @@ package ru.runa.wfe.commons;
 import java.util.Calendar;
 import java.util.List;
 
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
-import ru.runa.wfe.lang.NodeType;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.lang.NodeType;
 
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
@@ -71,10 +71,24 @@ public class SystemProperties {
     }
 
     /**
+     * Using non runtime substitution cache instead of static substitution cache.
+     */
+    public static boolean useNonRuntimeSubstitutionCache() {
+        return NO_DATABASE_RESOURCES.getBooleanProperty("nonruntime.susbstitution.cache", true);
+    }
+
+    /**
      * System version
      */
     public static String getVersion() {
         return RESOURCES.getStringProperty("version");
+    }
+
+    /**
+     * System build date
+     */
+    public static String getBuildDateString() {
+        return RESOURCES.getStringProperty("build.date");
     }
 
     public static String getStartup() {
@@ -156,12 +170,20 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("ldap.synchronizer.enabled", false);
     }
 
-    public static String getEARFileName() {
-        return RESOURCES.getStringProperty("ear.filename", "runawfe.ear");
+    public static boolean isLDAPSynchronizationCreate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.create.executors", false);
     }
 
-    public static boolean isAllowedNotDefinedVariables() {
-        return RESOURCES.getBooleanProperty("undefined.variables.allowed", false);
+    public static boolean isLDAPSynchronizationUpdate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.update.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationDelete() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.delete.executors", false);
+    }
+
+    public static String getEARFileName() {
+        return RESOURCES.getStringProperty("ear.filename", "runawfe.ear");
     }
 
     public static boolean isStrongVariableFormatEnabled() {

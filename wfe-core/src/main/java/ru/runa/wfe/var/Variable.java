@@ -40,12 +40,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
+
+import com.google.common.base.Objects;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.VariableCreateLog;
@@ -58,19 +61,21 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.format.VariableFormat;
 
-import com.google.common.base.Objects;
-
 /**
  * Base class for classes that store variable values in the database.
  */
 @Entity
-@Table(name = "BPM_VARIABLE")
+@Table(name = "BPM_VARIABLE", uniqueConstraints = { @UniqueConstraint(name = "UK_VARIABLE_PROCESS", columnNames = { "PROCESS_ID", "NAME" }) })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public abstract class Variable<T extends Object> {
-    public static final int MAX_STRING_SIZE = SystemProperties.getStringVariableValueLength();
+
+    public static int getMaxStringSize() {
+        return SystemProperties.getStringVariableValueLength();
+    }
+
     protected Long id;
     private Long version;
     private String name;
@@ -220,8 +225,8 @@ public abstract class Variable<T extends Object> {
         } else {
             string = String.valueOf(value);
         }
-        if (string.length() > MAX_STRING_SIZE) {
-            string = string.substring(0, MAX_STRING_SIZE);
+        if (string.length() > getMaxStringSize()) {
+            string = string.substring(0, getMaxStringSize());
         }
         return string;
     }

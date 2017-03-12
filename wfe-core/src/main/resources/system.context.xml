@@ -438,4 +438,6 @@
 	
 	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JMSNodeAsyncExecutor" />
 	
+	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
+	
 </beans>

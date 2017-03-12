@@ -10,8 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -21,7 +24,6 @@ import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.ProcessSuspendedException;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.MultiTaskNode;
@@ -82,6 +84,7 @@ public class TaskLogic extends WFCommonLogic {
         if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new ProcessSuspendedException(task.getProcess().getId());
         }
+        ProcessError processError = new ProcessError(ProcessErrorType.system, task.getProcess().getId(), task.getNodeId());
         try {
             if (variables == null) {
                 variables = Maps.newHashMap();
@@ -134,11 +137,11 @@ public class TaskLogic extends WFCommonLogic {
                 signalToken(executionContext, task, transition);
             }
             log.info("Task '" + task.getName() + "' was done by " + user + " in process " + task.getProcess());
-            ProcessExecutionErrors.removeProcessError(task.getProcess().getId(), task.getNodeId());
+            Errors.removeProcessError(processError);
         } catch (ValidationException ex) {
             throw Throwables.propagate(ex);
         } catch (Throwable th) {
-            ProcessExecutionErrors.addProcessError(task, th);
+            Errors.addProcessError(processError, task.getName(), th);
             throw Throwables.propagate(th);
         }
     }
@@ -179,7 +182,7 @@ public class TaskLogic extends WFCommonLogic {
             }
         }
         log.debug("completion of " + task + " by " + transition);
-        token.signal(executionContext, transition);
+        executionContext.getNode().leave(executionContext, transition);
     }
 
     public void markTaskOpened(User user, Long taskId) {
@@ -295,24 +298,27 @@ public class TaskLogic extends WFCommonLogic {
             throw new AuthorizationException(user + " is not Administrator");
         }
         List<Task> tasks = new PresentationCompiler<Task>(batchPresentation).getBatch(CompilerParameters.createNonPaged());
+        int result = 0;
         for (Task task : tasks) {
             try {
                 TimeMeasurer measurer = new TimeMeasurer(log, 100);
                 measurer.jobStarted();
-                taskAssigner.assignTask(task, true);
+                if (taskAssigner.assignTask(task)) {
+                    result++;
+                }
                 measurer.jobEnded("reassignment " + task);
             } catch (Exception e) {
                 log.error("Unable to reassign " + task, e);
             }
         }
-        return tasks.size();
+        return result;
     }
 
-    public void reassignTask(User user, Long taskId) {
+    public boolean reassignTask(User user, Long taskId) {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");
         }
         Task task = taskDAO.getNotNull(taskId);
-        taskAssigner.assignTask(task, true);
+        return taskAssigner.assignTask(task);
     }
 }

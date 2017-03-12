@@ -1,25 +1,25 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.commons.cache.sm;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -33,22 +33,26 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.type.Type;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * Main class for RunaWFE caching. Register {@link ChangeListener} there to receive events on objects change and transaction complete.
  */
 public class CachingLogic {
 
-    private static AtomicBoolean enabled = new AtomicBoolean(true);
+    /**
+     * Flag to enable/disable changes tracking. It may be set to false in case of mass update for performance reason. Stores disable call count. To
+     * enable changes tracking enables must be called the same times.
+     */
+    private static AtomicInteger enabled = new AtomicInteger(0);
 
     /**
      * Map from {@link Transaction} to change listeners, which must be notified on transaction complete. Then transaction change some objects,
@@ -69,7 +73,7 @@ public class CachingLogic {
 
     /**
      * Register listener. Listener will be notified on events, according to implemented interfaces.
-     * 
+     *
      * @param listener
      *            Listener, which must receive events.
      */
@@ -88,7 +92,7 @@ public class CachingLogic {
 
     /**
      * Get change listeners for specified class.
-     * 
+     *
      * @param clazz
      *            Changed class.
      * @return Return change listeners for specified class.
@@ -113,13 +117,23 @@ public class CachingLogic {
         return result;
     }
 
+    /**
+     * Enables/disables changes tracking. It may be set to false in case of mass update for performance reason.
+     *
+     * @param enabled
+     *            Flag, equals true, to enable changes tracking and false otherwise.
+     */
     public static void setEnabled(boolean enabled) {
-        CachingLogic.enabled.set(enabled);
+        if (enabled) {
+            CachingLogic.enabled.decrementAndGet();
+        } else {
+            CachingLogic.enabled.incrementAndGet();
+        }
     }
 
     /**
      * Notify registered listeners on entity change.
-     * 
+     *
      * @param entity
      *            Changed object.
      * @param change
@@ -134,7 +148,7 @@ public class CachingLogic {
      *            Property types.
      */
     public static void onChange(Object entity, Change change, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
-        if (!enabled.get()) {
+        if (enabled.get() > 0) {
             return;
         }
         onWriteTransaction(getChangeListeners(entity.getClass()), entity, change, currentState, previousState, propertyNames, types);
@@ -142,7 +156,7 @@ public class CachingLogic {
 
     /**
      * Check current thread transaction type.
-     * 
+     *
      * @return If transaction change some objects, return true; return false otherwise.
      */
     public static boolean isWriteTransaction() {
@@ -155,7 +169,7 @@ public class CachingLogic {
 
     /**
      * Notifies given listeners.
-     * 
+     *
      * @param notifyThis
      *            Listeners to notify. May be null.
      * @param object
@@ -178,7 +192,7 @@ public class CachingLogic {
         }
         Set<ChangeListener> toNotify = dirtyTransactions.get(transaction);
         if (toNotify == null) {
-            toNotify = Sets.<ChangeListener> newConcurrentHashSet();
+            toNotify = Sets.<ChangeListener>newConcurrentHashSet();
             dirtyTransactions.put(transaction, toNotify);
             DirtyTransactionSynchronization.register(transaction);
         }
@@ -192,7 +206,7 @@ public class CachingLogic {
 
     /**
      * Called before transaction complete.
-     * 
+     *
      * @param transaction
      *            Transaction, which would be completed.
      */
@@ -208,9 +222,8 @@ public class CachingLogic {
 
     /**
      * Called, then thread transaction is completed. If thread transaction change nothing, when do nothing. If thread transaction change some objects,
-     * when all related listeners is notified on transaction complete. All related listeners first receive markTransactionComplete event, after what
-     * all related listeners receive onTransactionComplete event.
-     * 
+     * when all related listeners is notified on transaction complete.
+     *
      * @param transaction
      *            Transaction, which completed.
      */
@@ -226,23 +239,25 @@ public class CachingLogic {
 
     /**
      * Get or create cache. Cache (or proxy) will be returned in all case.
-     * 
+     *
      * @param stateMachine
      *            Cache lifetime state machine.
      * @return Return cache implementation (always not null).
      */
-    public static <CacheImpl extends CacheImplementation> CacheImpl getCacheImpl(CacheStateMachine<CacheImpl> stateMachine) {
+    public static <CacheImpl extends CacheImplementation, StateContext> CacheImpl getCacheImpl(
+            CacheStateMachine<CacheImpl, StateContext> stateMachine) {
         return stateMachine.getCache(getTransactionToGetCache(), isWriteTransaction());
     }
 
     /**
      * Get or create cache. If changing transaction is exists, when returns null.
-     * 
+     *
      * @param stateMachine
      *            Cache lifetime state machine.
      * @return Return cache implementation or null, if cache is locked (dirty transaction exists).
      */
-    public static <CacheImpl extends CacheImplementation> CacheImpl getCacheImplIfNotLocked(CacheStateMachine<CacheImpl> stateMachine) {
+    public static <CacheImpl extends CacheImplementation, StateContext> CacheImpl getCacheImplIfNotLocked(
+            CacheStateMachine<CacheImpl, StateContext> stateMachine) {
         return stateMachine.getCacheIfNotLocked(getTransactionToGetCache(), isWriteTransaction());
     }
 

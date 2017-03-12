@@ -21,8 +21,6 @@
  */
 package ru.runa.wfe.lang;
 
-import ru.runa.wfe.commons.SystemProperties;
-
 import com.google.common.base.Preconditions;
 
 /**
@@ -60,17 +58,6 @@ public class TaskDefinition extends GraphElement {
      */
     public void setSwimlane(SwimlaneDefinition swimlaneDefinition) {
         this.swimlaneDefinition = swimlaneDefinition;
-        if (SystemProperties.isAutoInvocationLocalBotStationEnabled() && swimlaneDefinition.isBotExecutor()) {
-            // in async mode BotInvokerActionHandler will not work as expected
-            if (!SystemProperties.isProcessExecutionNodeAsyncEnabled(NodeType.TASK_STATE)) {
-                Event event = getEventNotNull(Event.TASK_ASSIGN);
-                Action action = new Action();
-                action.setEvent(event);
-                action.setDelegation(new Delegation("ru.runa.wfe.service.handler.BotInvokerActionHandler", null));
-                action.setParent(this);
-                event.addAction(action);
-            }
-        }
     }
 
     public boolean isReassignSwimlane() {
@@ -98,7 +85,7 @@ public class TaskDefinition extends GraphElement {
     }
 
     @Override
-    public GraphElement getParent() {
+    public GraphElement getParentElement() {
         return node;
     }
 

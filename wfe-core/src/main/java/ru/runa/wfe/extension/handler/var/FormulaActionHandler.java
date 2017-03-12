@@ -17,6 +17,8 @@
  */
 package ru.runa.wfe.extension.handler.var;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Date;
 import java.util.List;
 
@@ -566,6 +568,10 @@ public class FormulaActionHandler extends ActionHandlerBase {
             if (num <= 0) {
                 return actions.roundFunction(d);
             }
+            if (BigDecimal.class.isInstance(param1)) {
+            	BigDecimal bd = (BigDecimal)param1;
+            	return bd.round(new MathContext(num));
+            }
             return actions.roundFunction(d, num);
         }
         if (s.equals("number_to_string_ru")) {
@@ -648,6 +654,37 @@ public class FormulaActionHandler extends ActionHandlerBase {
             }
             String mode = param3.toString();
             return actions.nameCaseRussian(fio, caseNumber, mode);
+        }
+        if (s.equalsIgnoreCase("BigDecimal")) {
+        	Object param = parsePriority0();
+            if (param == null || !nextToken().equals(")")) {
+                incorrectParameters(s);
+                return null;
+            }
+            return new BigDecimal(param.toString());
+        }
+        if (s.equalsIgnoreCase("float")) {
+        	Object param = parsePriority0();
+            if (param == null || !nextToken().equals(")")) {
+                incorrectParameters(s);
+                return null;
+            }
+            return new Double(param.toString());
+        }
+        if (s.equals("mapping")) {
+            Object param1 = parsePriority0();
+            if (param1 == null || !nextToken().equals(",")) {
+                incorrectParameters(s);
+                return null;
+            }
+            Object param2 = parsePriority0();
+            if (param2 == null || !nextToken().equals(")")) {
+                incorrectParameters(s);
+                return null;
+            }
+            String input = param1.toString();
+            String rule = param2.toString();
+            return actions.mapping(input, rule);
         }
         if (s.equals("number_to_short_string_ru")) {
             Object param1 = parsePriority0();

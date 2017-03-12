@@ -54,11 +54,14 @@ import org.hibernate.annotations.Index;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.lang.BaseTaskNode;
+import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
-import ru.runa.wfe.lang.Transition;
+import ru.runa.wfe.lang.SubprocessNode;
+import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 
 import com.google.common.base.Objects;
@@ -86,6 +89,8 @@ public class Token implements Serializable {
     private NodeType nodeType;
     private String transitionId;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
+    private Date errorDate;
+    private String errorMessage;
 
     public Token() {
     }
@@ -102,6 +107,7 @@ public class Token implements Serializable {
         setAbleToReactivateParent(true);
         setName(startNode.getNodeId());
         setChildren(new HashSet<Token>());
+        log.info("Created " + this);
     }
 
     /**
@@ -117,6 +123,7 @@ public class Token implements Serializable {
         setChildren(new HashSet<Token>());
         setParent(parent);
         parent.addChild(this);
+        log.info("Created " + this);
     }
 
     @Id
@@ -250,22 +257,36 @@ public class Token implements Serializable {
         this.executionStatus = executionStatus;
     }
 
+    @Column(name = "ERROR_DATE")
+    public Date getErrorDate() {
+        return errorDate;
+    }
+
+    public void setErrorDate(Date errorDate) {
+        this.errorDate = errorDate;
+    }
+
+    @Column(name = "ERROR_MESSAGE", length = 1024)
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public void fail(Throwable throwable) {
+        setExecutionStatus(ExecutionStatus.FAILED);
+        setErrorDate(new Date());
+        this.errorMessage = throwable.toString();
+    }
+
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
         return processDefinition.getNodeNotNull(nodeId);
     }
 
     private void addChild(Token token) {
         getChildren().add(token);
-    }
-
-    public void signal(ExecutionContext executionContext) {
-        signal(executionContext, null);
-    }
-
-    public void signal(ExecutionContext executionContext, Transition transition) {
-        if (!hasEnded()) {
-            executionContext.getNode().leave(executionContext, transition);
-        }
     }
 
     public void signalOnSubprocessEnd(ExecutionContext subExecutionContext) {
@@ -281,23 +302,36 @@ public class Token implements Serializable {
     }
 
     /**
-     * ends this token and all of its children (if any).
-     * 
+     * ends this token and all of its children (if recursive).
+     *
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
-    public void end(ExecutionContext executionContext, Actor canceller) {
+    public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
+        ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
         if (endDate == null) {
-            log.debug("Ending " + this + " by " + canceller);
+            log.info("Ending " + this + " by " + canceller);
             setEndDate(new Date());
-            for (Process subProcess : executionContext.getNotEndedSubprocesses()) {
-                ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
-                subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+            Node node = processDefinition.getNode(getNodeId());
+            if (node instanceof SubprocessNode) {
+                for (Process subProcess : executionContext.getTokenSubprocesses()) {
+                    ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                    subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                }
+            } else if (node instanceof BaseTaskNode) {
+                ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
+            } else if (node instanceof BoundaryEvent) {
+                log.info("Cancelling " + node + " with " + this);
+                ((BoundaryEvent) node).cancelBoundaryEvent(this);
+            } else if (node == null) {
+                log.warn("Node " + node + " is null");
             }
         }
         setExecutionStatus(ExecutionStatus.ENDED);
-        for (Token child : getChildren()) {
-            child.end(new ExecutionContext(executionContext.getProcessDefinition(), child), canceller);
+        if (recursive) {
+            for (Token child : getChildren()) {
+                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, recursive);
+            }
         }
     }
 

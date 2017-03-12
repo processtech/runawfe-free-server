@@ -19,12 +19,13 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
-import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
@@ -35,11 +36,12 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
 
 /**
  * Process execution service.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -47,7 +49,7 @@ public interface ExecutionService {
 
     /**
      * Starts new process by definition.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionName
@@ -59,11 +61,11 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-    ValidationException;
+            ValidationException;
 
     /**
      * Starts new process by definition.
-     *
+     * 
      * @param user
      *            authorized user
      * @param definitionId
@@ -79,7 +81,7 @@ public interface ExecutionService {
 
     /**
      * Gets process count for {@link BatchPresentation}.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -89,7 +91,7 @@ public interface ExecutionService {
 
     /**
      * Gets processes for {@link BatchPresentation}.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -98,19 +100,8 @@ public interface ExecutionService {
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation);
 
     /**
-     * Gets processes for {@link ProcessFilter}.
-     *
-     * @param user
-     *            authorized user
-     * @param filter
-     *            search criterias
-     * @return not <code>null</code>
-     */
-    public List<WfProcess> getProcessesByFilter(User user, ProcessFilter filter);
-
-    /**
      * Gets process by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -122,7 +113,7 @@ public interface ExecutionService {
 
     /**
      * Gets parent process if this process will be started as subprocess.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -134,7 +125,7 @@ public interface ExecutionService {
 
     /**
      * Get all subprocesses (recursively) by process id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -148,7 +139,7 @@ public interface ExecutionService {
 
     /**
      * Cancels process by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -159,7 +150,7 @@ public interface ExecutionService {
 
     /**
      * Gets all initialized process roles.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -171,7 +162,7 @@ public interface ExecutionService {
 
     /**
      * Assigns role by name to specified executor.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -186,7 +177,7 @@ public interface ExecutionService {
 
     /**
      * Gets all process variables.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -197,8 +188,81 @@ public interface ExecutionService {
     public List<WfVariable> getVariables(User user, Long processId) throws ProcessDoesNotExistException;
 
     /**
+     * Gets all process variables in batch mode.
+     * 
+     * @param user
+     *            authorized user
+     * @param processIds
+     *            process ids
+     * @return not <code>null</code>
+     */
+    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds);
+
+    /**
+     * Gets all process variables state on specified date.
+     * 
+     * @param user
+     *            authorized user
+     * @param filter
+     *            Criteria for filtering logs.
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
+
+    /**
+     * Gets specified process variables state on specified date.
+     * 
+     * @param user
+     *            authorized user
+     * @param filter
+     *            Criteria for filtering logs.
+     * @param variables
+     *            Variables to load.
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     * 
+     *             TODO 2505 useless method
+     */
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
+            throws ProcessDoesNotExistException;
+
+    /**
+     * Get process variable state for completed task.
+     * 
+     * @param user
+     *            Authorized user.
+     * @param processId
+     *            Process id to load variables.
+     * @param taskId
+     *            Task id or null, for loading start form state.
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     */
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
+
+    /**
+     * Get process variable state for completed task.
+     * 
+     * @param user
+     *            Authorized user.
+     * @param processId
+     *            Process id to load variables.
+     * @param taskId
+     *            Task id or null, for loading start form state.
+     * @param variables
+     *            Variables to load.
+     * @return not <code>null</code>
+     * @throws ProcessDoesNotExistException
+     * 
+     *             TODO 2505 useless method
+     */
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
+            throws ProcessDoesNotExistException;
+
+    /**
      * Gets variable by name from process.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -212,7 +276,7 @@ public interface ExecutionService {
 
     /**
      * Gets variable by name from process for specified task.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -228,7 +292,7 @@ public interface ExecutionService {
 
     /**
      * Gets file variable value by name from process.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -242,7 +306,7 @@ public interface ExecutionService {
 
     /**
      * Updates process variables without any signalling.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -255,7 +319,7 @@ public interface ExecutionService {
 
     /**
      * Gets process diagram as PNG image.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -274,7 +338,7 @@ public interface ExecutionService {
 
     /**
      * Gets process graph elements for diagram.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -288,7 +352,7 @@ public interface ExecutionService {
 
     /**
      * Gets process graph element for diagram.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -306,20 +370,15 @@ public interface ExecutionService {
     public void removeProcesses(User user, ProcessFilter filter) throws ParentProcessExistsException;
 
     /**
-     * Get process errors.
-     */
-    public List<ProcessError> getProcessErrors(User user, Long processId);
-
-    /**
      * Upgrades running process to specified version of deployed definition. This is not safe operation, use it with caution.
-     *
+     * 
      * @return false if version equal to current process definition version
      */
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version);
 
     /**
      * Get all active jobs (recursively) by process id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -333,7 +392,7 @@ public interface ExecutionService {
 
     /**
      * Get all active tokens (recursively) by process id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -347,7 +406,7 @@ public interface ExecutionService {
 
     /**
      * Activates suspended process by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param id
@@ -357,7 +416,7 @@ public interface ExecutionService {
 
     /**
      * Suspends active process by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param id

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -35,25 +36,25 @@ import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
+import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.execution.dto.ProcessError;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors.BotTaskIdentifier;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
 @SuppressWarnings("unchecked")
 public class ErrorDetailsAction extends ActionBase {
-
     private static final String HTML = "html";
 
     @Override
@@ -62,55 +63,54 @@ public class ErrorDetailsAction extends ActionBase {
         try {
             IdNameForm form = (IdNameForm) actionForm;
             String action = form.getAction();
-            if ("getBotTaskConfigurationError".equals(action)) {
-                for (Map.Entry<BotTaskIdentifier, Throwable> entry : ProcessExecutionErrors.getBotTaskConfigurationErrors().entrySet()) {
-                    if (Objects.equal(entry.getKey().getBot().getId(), form.getId())
-                            && Objects.equal(entry.getKey().getBotTaskName(), form.getName())) {
-                        String html = "<form id='supportForm'>";
-                        html += "<input type='hidden' name='botId' value='" + form.getId() + "' />";
-                        html += "<input type='hidden' name='botTaskName' value='" + form.getName() + "' />";
-                        html += "</form>";
-                        html += Throwables.getStackTraceAsString(entry.getValue());
-                        rootObject.put(HTML, html);
+            if ("getSystemError".equals(action)) {
+                for (SystemError systemError : Delegates.getSystemService().getSystemErrors(getLoggedUser(request))) {
+                    if (Objects.equal(systemError.getMessage(), form.getName())) {
+                        rootObject.put(HTML, systemError.getStackTrace());
                         break;
                     }
                 }
+            } else if ("deleteSystemError".equals(action)) {
+                Errors.removeSystemError(form.getName());
             } else if ("getProcessError".equals(action)) {
-                List<ProcessError> errorDetails = ProcessExecutionErrors.getProcessErrors(form.getId());
-                if (errorDetails != null) {
-                    for (ProcessError detail : errorDetails) {
-                        if (Objects.equal(detail.getNodeId(), form.getName())) {
-                            String html = "<form id='supportForm'>";
-                            html += "<input type='hidden' name='processId' value='" + form.getId() + "' />";
-                            html += "</form>";
-                            html += detail.getThrowableDetails();
-                            rootObject.put(HTML, html);
-                        }
+                List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(getLoggedUser(request), form.getId());
+                ProcessErrorType type = ProcessErrorType.valueOf(request.getParameter("type"));
+                ProcessError patternError = new ProcessError(type, form.getId(), form.getName());
+                for (ProcessError processError : processErrors) {
+                    if (Objects.equal(processError, patternError)) {
+                        String html = "<form id='supportForm'>";
+                        html += "<input type='hidden' name='processId' value='" + form.getId() + "' />";
+                        html += "</form>";
+                        html += processError.getStackTrace() != null ? processError.getStackTrace() : processError.getMessage();
+                        rootObject.put(HTML, html);
                     }
                 }
+            } else if ("deleteProcessError".equals(action)) {
+                ProcessErrorType type = ProcessErrorType.valueOf(request.getParameter("type"));
+                ProcessError patternError = new ProcessError(type, form.getId(), form.getName());
+                Errors.removeProcessError(patternError);
             } else if ("showSupportFiles".equals(action)) {
                 boolean fileIncluded = false;
                 request.getParameter("botId");
                 User user = getLoggedUser(request);
                 JSONArray tabs = new JSONArray();
                 Map<String, byte[]> supportFiles = Maps.newHashMap();
-                // TODO privileges are required for successful operation!
-                // TODO zip file name encoding (introduce zip encoding after
-                // moving to Java7)
+                // privileges are required for successful operation!
                 Map<Long, List<Long>> processHierarchies = Maps.newHashMap();
                 if (request.getParameter("processId") != null) {
-                    initProcessHierarchy(user, processHierarchies, Long.parseLong(request.getParameter("processId")));
-                } else if (request.getParameter("botTaskName") != null) {
-                    Long botId = Long.parseLong(request.getParameter("botId"));
-                    String botTaskName = request.getParameter("botTaskName");
-                    BotTaskIdentifier botTaskIdentifier = ProcessExecutionErrors.getBotTaskIdentifierNotNull(botId, botTaskName);
-                    addBotTabError(request, tabs, supportFiles, botTaskIdentifier);
+                    Long processId = Long.parseLong(request.getParameter("processId"));
+                    initProcessHierarchy(user, processHierarchies, processId);
                 } else {
-                    for (Long processId : ProcessExecutionErrors.getProcessErrors().keySet()) {
+                    Set<Long> processIds = Sets.newHashSet();
+                    for (ProcessError processError : Delegates.getSystemService().getAllProcessErrors(getLoggedUser(request))) {
+                        processIds.add(processError.getProcessId());
+                    }
+                    for (Long processId : processIds) {
                         initProcessHierarchy(user, processHierarchies, processId);
                     }
-                    for (BotTaskIdentifier botTaskIdentifier : ProcessExecutionErrors.getBotTaskConfigurationErrors().keySet()) {
-                        addBotTabError(request, tabs, supportFiles, botTaskIdentifier);
+                    int index = 1;
+                    for (SystemError systemError : Delegates.getSystemService().getSystemErrors(getLoggedUser(request))) {
+                        addSystemError(request, tabs, supportFiles, index++, systemError);
                     }
                 }
                 for (Entry<Long, List<Long>> processesEntry : processHierarchies.entrySet()) {
@@ -123,24 +123,15 @@ public class ErrorDetailsAction extends ActionBase {
                     Map<String, byte[]> processFiles = Maps.newHashMap();
                     JSONArray files = new JSONArray();
                     for (Long processId : processesEntry.getValue()) {
-                        StringBuilder exceptions = new StringBuilder();
-                        List<ProcessError> errorDetails = ProcessExecutionErrors.getProcessErrors().get(processId);
-                        for (ProcessError detail : errorDetails) {
-                            exceptions.append("\r\n---------------------------------------------------------------");
-                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(detail.getOccurredDate())).append(" ").append(detail.getNodeId()).append("/").append(detail.getTaskName());
-                            if (detail.getBotTask() != null) {
-                                String botTaskIdentifier = detail.getBotTask().getId() + "." + detail.getBotTask().getName();
-                                exceptions.append("\r\nbot task = ").append(detail.getBotTask().getTaskHandlerClassName()).append("/").append(botTaskIdentifier);
-                                if (!processFiles.containsKey(botTaskIdentifier)) {
-                                    processFiles.put(botTaskIdentifier, detail.getBotTask().getConfiguration());
-                                    addSupportFileInfo(files, MessageFormat.format(
-                                            getResources(request).getMessage("support.file.bottask.configuration"), detail.getBotTask().getName()),
-                                            true);
-                                }
-                            }
-                            exceptions.append("\r\n").append(detail.getThrowableDetails());
+                        String exceptions = "";
+                        List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(getLoggedUser(request), processId);
+                        for (ProcessError processError : processErrors) {
+                            exceptions += "\r\n---------------------------------------------------------------";
+                            exceptions += "\r\n" + CalendarUtil.formatDateTime(processError.getOccurredDate()) + " " + processError.getNodeId() + "/"
+                                    + processError.getNodeName();
+                            exceptions += "\r\n" + processError.getStackTrace();
                         }
-                        processFiles.put("exceptions." + processId + ".txt", exceptions.toString().getBytes(Charsets.UTF_8));
+                        processFiles.put("exceptions." + processId + ".txt", exceptions.getBytes(Charsets.UTF_8));
                     }
                     addSupportFileInfo(files, getResources(request).getMessage("support.file.exceptions"), true);
                     for (WfProcess process : processes) {
@@ -239,30 +230,16 @@ public class ErrorDetailsAction extends ActionBase {
         addSupportFileInfo(files, fileName + " (" + serverLogSizeInMb + " Mb)", logFileIncluded);
     }
 
-    private void addBotTabError(HttpServletRequest request, JSONArray tabs, Map<String, byte[]> supportFiles, BotTaskIdentifier botTaskIdentifier)
+    private void addSystemError(HttpServletRequest request, JSONArray tasks, Map<String, byte[]> supportFiles, int index, SystemError systemError)
             throws IOException {
         JSONObject tab = new JSONObject();
-        String type = botTaskIdentifier.getBotTask() != null ? "bottask" : "bot";
-        tab.put("key", "b" + botTaskIdentifier.getUniqueId());
-        tab.put("title", getResources(request).getMessage("errors." + type + ".name") + " " + botTaskIdentifier.getUniqueId());
-        Map<String, byte[]> botFiles = Maps.newHashMap();
+        tab.put("key", String.valueOf(index));
+        tab.put("title", systemError.getMessage());
         JSONArray files = new JSONArray();
-        String exceptions = "";
-        if (botTaskIdentifier.getBotTask() != null) {
-            exceptions += "\r\nbot task = " + botTaskIdentifier.getBotTask();
-            botFiles.put(botTaskIdentifier.getBotTaskName(), botTaskIdentifier.getBotTask().getConfiguration());
-            addSupportFileInfo(files, MessageFormat.format(getResources(request).getMessage("support.file.bottask.configuration"), botTaskIdentifier
-                    .getBotTask().getName()), true);
-        } else {
-            exceptions += "\r\nbot = " + botTaskIdentifier.getBot();
-        }
-        Throwable throwable = ProcessExecutionErrors.getBotTaskConfigurationErrors().get(botTaskIdentifier);
-        exceptions += "\r\n" + Throwables.getStackTraceAsString(throwable);
-        botFiles.put("exception." + botTaskIdentifier.getUniqueId() + ".txt", exceptions.getBytes(Charsets.UTF_8));
         addSupportFileInfo(files, getResources(request).getMessage("support.file.exceptions"), true);
-        supportFiles.put(type + "." + botTaskIdentifier.getUniqueId() + ".zip", createZip(botFiles));
+        supportFiles.put("exception." + index + ".txt", systemError.getStackTrace().getBytes(Charsets.UTF_8));
         tab.put("files", files);
-        tabs.add(tab);
+        tasks.add(tab);
     }
 
     private void initProcessHierarchy(User user, Map<Long, List<Long>> processHierarchies, Long processId) {
@@ -353,8 +330,7 @@ public class ErrorDetailsAction extends ActionBase {
             mergedEventDateTD.setRowSpan(mergedRowsCount + 1);
         }
         HeaderBuilder tasksHistoryHeaderBuilder = new ru.runa.wf.web.html.HistoryHeaderBuilder(maxLevel, getResources(request).getMessage(
-                MessagesOther.LABEL_HISTORY_DATE.getKey()), getResources(request).getMessage(
-                MessagesOther.LABEL_HISTORY_EVENT.getKey()));
+                MessagesOther.LABEL_HISTORY_DATE.getKey()), getResources(request).getMessage(MessagesOther.LABEL_HISTORY_EVENT.getKey()));
         RowBuilder rowBuilder = new TRRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         return tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder).toString();

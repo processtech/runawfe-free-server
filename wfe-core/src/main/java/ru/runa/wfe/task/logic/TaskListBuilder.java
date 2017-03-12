@@ -12,6 +12,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
@@ -49,13 +56,6 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.IExecutorDAO;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDAO;
-
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Task list builder component.
@@ -120,7 +120,7 @@ public class TaskListBuilder implements ITaskListBuilder {
             if (!Utils.isNullOrEmpty(variableNames)) {
                 Process process = state.getTask().getProcess();
                 ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
-                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
+                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                 for (String variableName : variableNames) {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
                 }
@@ -406,8 +406,8 @@ public class TaskListBuilder implements ITaskListBuilder {
                 }
                 continue;
             }
-            int substitutionRules = checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor,
-                    substitutorActor);
+            int substitutionRules =
+                    checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor, substitutorActor);
             if ((substitutionRules & SUBSTITUTION_APPLIES) == 0) {
                 continue;
             }
