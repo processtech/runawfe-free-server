@@ -18,6 +18,7 @@
 package ru.runa.wfe.extension.handler.var;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -83,6 +84,9 @@ public class FormulaActionHandlerOperations {
         if (Date.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Date(((Date) o1).getTime() + (long) (((Number) o2).doubleValue() * 60 * 1000));
         }
+        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+        	return ((BigDecimal)o1).add((BigDecimal)o2);
+        }
         if (Date.class.isInstance(o1) && Date.class.isInstance(o2)) {
             Date date2 = (Date) o2;
             Calendar calendar = new GregorianCalendar();
@@ -115,6 +119,9 @@ public class FormulaActionHandlerOperations {
         if (Date.class.isInstance(o1) && Date.class.isInstance(o2)) {
             return new Long((((Date) o1).getTime() - ((Date) o2).getTime()) / 60000);
         }
+        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+        	return ((BigDecimal)o1).subtract((BigDecimal)o2);
+        }
         log.error("Cannot make substraction for " + o1.getClass() + " with " + o2.getClass());
         return null;
     }
@@ -129,6 +136,9 @@ public class FormulaActionHandlerOperations {
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
             return new Long((long) (((Number) o1).doubleValue() * ((Number) o2).doubleValue()));
         }
+        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+        	return ((BigDecimal)o1).multiply((BigDecimal)o2);
+        }
         log.error("Cannot make multiplication for " + (o1 != null ? o1.getClass() : "null") + " with " + (o2 != null ? o2.getClass() : "null"));
         return null;
     }
@@ -140,6 +150,9 @@ public class FormulaActionHandlerOperations {
         if (Long.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Long((long) (((Long) o1).doubleValue() / ((Number) o2).doubleValue()));
         }
+        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+        	return ((BigDecimal)o1).divide((BigDecimal)o2);
+        }
         log.error("Cannot make division for " + o1.getClass() + " with " + o2.getClass());
         return null;
     }
@@ -150,6 +163,9 @@ public class FormulaActionHandlerOperations {
         }
         if (Long.class.isInstance(o)) {
             return new Long(-((Long) o).longValue());
+        }
+        if (BigDecimal.class.isInstance(o)) {
+        	return ((BigDecimal)o).negate();
         }
         log.error("Cannot make changeSign for " + o.getClass());
         return null;
@@ -182,6 +198,9 @@ public class FormulaActionHandlerOperations {
         if (Date.class.isInstance(o1) && Date.class.isInstance(o2)) {
             return new Boolean(((Date) o1).compareTo((Date) o2) < 0);
         }
+        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+        	return new Boolean(((BigDecimal)o1).compareTo((BigDecimal)o2) < 0);
+        }
         log.error("Cannot make less for " + o1.getClass() + " with " + o2.getClass());
         return null;
     }
@@ -191,6 +210,8 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object equal(Object o1, Object o2) {
+    	if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2))
+    		return new Boolean(((BigDecimal)o1).compareTo((BigDecimal)o2) == 0);
         return new Boolean(o1.equals(o2));
     }
 
@@ -471,15 +492,48 @@ public class FormulaActionHandlerOperations {
     private static TreeMap<String, HashMap<Integer, String>> names = new TreeMap<String, HashMap<Integer, String>>();
     private static TreeMap<String, HashMap<Integer, String>> families = new TreeMap<String, HashMap<Integer, String>>();
     private static TreeMap<String, HashMap<Integer, String>> parents = new TreeMap<String, HashMap<Integer, String>>();
+    private static TreeMap<String, HashMap<String, String>> mappingConf = new TreeMap<String, HashMap<String, String>>();
     static {
         readNameCaseConfig("nameCaseConf.xml");
+        readMappingConfig("mappingConf.xml");
     }
 
+    @SuppressWarnings("unchecked")
+	private static void readMappingConfig(String path) {
+        try {
+            InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
+            Document document = XmlUtils.parseWithoutValidation(is);
+			List<Element> childs = document.getRootElement().elements();
+            for (Element rule : childs) {
+            	String title = rule.attributeValue("title");
+            	HashMap<String, String> rmap = new HashMap<String, String>();
+            	for (Element item : (List<Element>)rule.elements()) {
+            		String input = item.attributeValue("input");
+            		String output = item.attributeValue("output");
+            		rmap.put(input, output);
+            	}
+            	mappingConf.put(title, rmap);
+            }
+        } catch (Exception e) {
+            log.error("Can`t parse " + path, e);
+        }
+    }
+    
+    public String mapping(String input, String rule) {
+    	try {
+    		return mappingConf.get(rule).get(input);
+    	} catch (Exception e) {
+            log.error("No mapping rule for " + input + " / " + rule, e);
+        }
+    	return input;
+    }
+    
     private static void readNameCaseConfig(String path) {
         try {
             InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
             Document document = XmlUtils.parseWithoutValidation(is);
-            List<Element> childs = document.getRootElement().elements();
+            @SuppressWarnings("unchecked")
+			List<Element> childs = document.getRootElement().elements();
             for (Element element : childs) {
                 if (element.getName().equals("name")) {
                     names.put(element.attributeValue("value"), parseNameCaseRules(element));
@@ -495,9 +549,10 @@ public class FormulaActionHandlerOperations {
             log.error("Can`t parse " + path, e);
         }
     }
-
+    
     private static HashMap<Integer, String> parseNameCaseRules(Element element) {
         HashMap<Integer, String> result = new HashMap<Integer, String>();
+        @SuppressWarnings("unchecked")
         List<Element> childs = element.elements();
         for (Element child : childs) {
             if (child.getName().equals("name")) {
