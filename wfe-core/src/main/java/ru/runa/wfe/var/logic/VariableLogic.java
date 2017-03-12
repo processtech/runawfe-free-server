@@ -354,12 +354,13 @@ public class VariableLogic extends WFCommonLogic {
             result.put(currentProcess, newMap);
             for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
                 ProcessDefinition definition = getDefinition(varProcess);
-                for (String variableName : processVariables.keySet()) {
+                for (Map.Entry<String, Object> entry1 : processVariables.entrySet()) {
+                    final String variableName = entry1.getKey();
                     VariableDefinition variableDefinition = definition.getVariable(variableName, false);
                     if (variableDefinition == null) {
                         continue;
                     }
-                    Object value = processVariables.get(variableName);
+                    Object value = entry1.getValue();
                     if (value instanceof String) {
                         value = variableDefinition.getFormatNotNull().parse((String) value);
                     }
