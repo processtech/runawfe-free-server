@@ -129,13 +129,13 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
 
     @Override
     public String onUserType(UserTypeFormat userTypeFormat, WfVariable variable) {
-        String componentJsHandlers = "";
+        StringBuilder componentJsHandlers = new StringBuilder();
         for (VariableDefinition variableDefinition : userTypeFormat.getUserType().getAttributes()) {
             VariableFormat nestedFormat = FormatCommons.create(variableDefinition);
             WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(variable, variableDefinition, null);
-            componentJsHandlers += nestedFormat.processBy(this, componentVariable);
+            componentJsHandlers.append(nestedFormat.processBy(this, componentVariable));
         }
-        return componentJsHandlers;
+        return componentJsHandlers.toString();
     }
 
     @Override

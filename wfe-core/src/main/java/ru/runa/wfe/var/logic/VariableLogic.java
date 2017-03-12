@@ -281,7 +281,8 @@ public class VariableLogic extends WFCommonLogic {
     private void removeSyncVariablesInBaseProcessMode(Map<Process, Map<String, Variable<?>>> processStateOnTime,
             BaseProcessVariableLoader baseProcessVariableLoader) {
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
-        for (Process process : processStateOnTime.keySet()) {
+        for (Map.Entry<Process, Map<String, Variable<?>>> entry : processStateOnTime.entrySet()) {
+            final Process process = entry.getKey();
             if (!baseProcessVariableLoader.getSubprocessSyncCache().isInBaseProcessIdMode(process)) {
                 continue;
             }
@@ -295,7 +296,7 @@ public class VariableLogic extends WFCommonLogic {
                 if (variable != null) {
                     ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(variableDefinition, variable.getValue());
                     for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull().processBy(operation, context)) {
-                        processStateOnTime.get(process).remove(simpleVariables.variableDefinition.getName());
+                        entry.getValue().remove(simpleVariables.variableDefinition.getName());
                     }
                 }
             }
@@ -346,9 +347,11 @@ public class VariableLogic extends WFCommonLogic {
             Set<String> simpleVariablesChanged) {
         Map<Process, Map<String, Object>> processToVariables = loadSimpleVariablesState(user, process, filter, simpleVariablesChanged);
         Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
-        for (Process currentProcess : processToVariables.keySet()) {
-            Map<String, Object> processVariables = processToVariables.get(currentProcess);
-            result.put(currentProcess, Maps.<String, Variable<?>> newHashMap());
+        for (Map.Entry<Process, Map<String, Object>> entry : processToVariables.entrySet()) {
+            final Process currentProcess = entry.getKey();
+            Map<String, Object> processVariables = entry.getValue();
+            Map<String, Variable<?>>  newMap = Maps.newHashMap();
+            result.put(currentProcess, newMap);
             for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
                 ProcessDefinition definition = getDefinition(varProcess);
                 for (String variableName : processVariables.keySet()) {
@@ -362,7 +365,7 @@ public class VariableLogic extends WFCommonLogic {
                     }
                     Variable<?> variable = variableCreator.create(varProcess, variableDefinition, value);
                     variable.setValue(new ExecutionContext(definition, varProcess), value, variableDefinition.getFormatNotNull());
-                    result.get(currentProcess).put(variableName, variable);
+                    newMap.put(variableName, variable);
                 }
             }
         }

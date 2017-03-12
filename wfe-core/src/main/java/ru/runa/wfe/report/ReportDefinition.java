@@ -80,6 +80,7 @@ public class ReportDefinition {
         this.parameters = new ArrayList<ReportParameter>(parameters);
         this.category = category;
         version = 1L;
+        // TODO no used
         parameters = new ArrayList<ReportParameter>();
     }
 

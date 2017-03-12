@@ -28,7 +28,7 @@ public class SystemProperties {
     public static final String TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME = "timertask.period.millis.unassigned.tasks.execution";
     public static final String TIMERTASK_START_MILLIS_LDAP_SYNC_NAME = "timertask.start.millis.ldap.sync";
     public static final String TIMERTASK_PERIOD_MILLIS_LDAP_SYNC_NAME = "timertask.period.millis.ldap.sync";
-    private static List<IProcessExecutionListener> processExecutionListeners = null;
+    private static volatile List<IProcessExecutionListener> processExecutionListeners = null;
     private static volatile Object lockProcessExecutionListeners = new Object();
 
     public static PropertyResources getResources() {

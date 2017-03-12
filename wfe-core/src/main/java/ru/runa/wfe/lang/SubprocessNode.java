@@ -133,7 +133,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                 Object value = variableProvider.getValue(variableName);
                 if (value != null) {
                     log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value
-                            + (value != null ? " of " + value.getClass() : ""));
+                            + " of " + value.getClass());
                     variables.put(mappedName, value);
                 } else {
                     log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");

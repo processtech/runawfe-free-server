@@ -109,7 +109,6 @@ public class Deployment extends Identifiable {
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(length = 16777216, name = "BYTES")
-    @Basic(fetch = FetchType.LAZY)
     public byte[] getContent() {
         return content;
     }
