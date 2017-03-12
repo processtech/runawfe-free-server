@@ -40,10 +40,7 @@ import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.SystemExecutors;
-import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.*;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
 import com.google.common.collect.Lists;
@@ -67,6 +64,11 @@ public class CommonLogic {
     protected <T extends Executor> T checkPermissionsOnExecutor(User user, T executor, Permission permission) {
         if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.READ)) {
             return executor;
+        }
+        if (executor instanceof TemporaryGroup && permission.equals(Permission.READ)) {
+            if (executorDAO.isExecutorInGroup(user.getActor(), (Group) executor)) {
+                return executor;
+            }
         }
         checkPermissionAllowed(user, executor, permission);
         return executor;
