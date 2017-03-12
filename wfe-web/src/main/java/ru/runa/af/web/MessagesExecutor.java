@@ -17,6 +17,8 @@ public final class MessagesExecutor {
     public static final StrutsMessage ACTOR_IS_ACTIVE = new StrutsMessage("label.actor_is_active");
     public static final StrutsMessage ACTOR_EMAIL = new StrutsMessage("label.actor_email");
     public static final StrutsMessage ACTOR_PHONE = new StrutsMessage("label.actor_phone");
+    public static final StrutsMessage ACTOR_TITLE = new StrutsMessage("label.actor_title");
+    public static final StrutsMessage ACTOR_DEPARTMENT = new StrutsMessage("label.actor_department");
     public static final StrutsMessage GROUP_AD = new StrutsMessage("label.group_ad");
 
     public static final StrutsMessage TITLE_SUBSTITUTION_CRITERIA = new StrutsMessage("title.substitution_criteria");

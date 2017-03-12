@@ -114,7 +114,7 @@ public class DocxFileChangerTest extends Assert {
         data.put(
                 "ArrayUser",
                 createVariable("ArrayUser", ListFormat.class.getName() + "(" + ActorFormat.class.getName() + ")",
-                        Lists.newArrayList(new Actor("Petrov", "", "", 1L, "test@email", null), new Actor("Ivanov", "Pervomayskaya str 30a"))));
+                        Lists.newArrayList(new Actor("Petrov", "", "", 1L, "test@email", null, null, null), new Actor("Ivanov", "Pervomayskaya str 30a"))));
         testDocx(true, "tables_format.docx", data);
     }
 

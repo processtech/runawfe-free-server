@@ -80,10 +80,8 @@ public class LDAPLogic extends TransactionalExecutor {
     private static final String ATTR_EMAIL = "mail";
     private static final String ATTR_MEMBER = "member";
     private static final String ATTR_PHONE = "telephoneNumber";
+    private static final String ATTR_DEPARTMENT = "department";
 
-    // private static final String OBJECT_CLASS_ATTR_NAME = "objectClass";
-    // private static final String OBJECT_CLASS_ATTR_USER_VALUE = "user";
-    // private static final String OBJECT_CLASS_ATTR_GROUP_VALUE = "group";
     private static final String IMPORTED_FROM_LDAP_GROUP_NAME = "ldap users";
     private static final String IMPORTED_FROM_LDAP_GROUP_DESCRIPION = "users imported from ldap server";
     private static final String DELETED_FROM_LDAP_GROUP_NAME = "ldap waste";
@@ -208,7 +206,9 @@ public class LDAPLogic extends TransactionalExecutor {
                 String name = getStringAttribute(searchResult, ATTR_SAM_ACCOUNT_NAME);
                 String fullName = getStringAttribute(searchResult, ATTR_NAME);
                 String email = getStringAttribute(searchResult, ATTR_EMAIL);
-                String description = getStringAttribute(searchResult, ATTR_TITLE);
+                String department = getStringAttribute(searchResult, ATTR_DEPARTMENT);
+                String title = getStringAttribute(searchResult, ATTR_TITLE);
+                String description = title; // getStringAttribute(searchResult, DESCRIPTION);
                 String phone = getStringAttribute(searchResult, ATTR_PHONE);
                 if (phone != null && phone.length() > 32) {
                     phone = phone.substring(0, 31);
@@ -218,7 +218,7 @@ public class LDAPLogic extends TransactionalExecutor {
                     if (!createExecutors) {
                         continue;
                     }
-                    actor = new Actor(name, description, fullName, null, email, phone);
+                    actor = new Actor(name, description, fullName, null, email, phone, title, department);
                     log.info("Importing " + actor);
                     executorDAO.create(actor);
                     executorDAO.addExecutorsToGroup(Lists.newArrayList(actor), wfeImportFromLdapGroup);
