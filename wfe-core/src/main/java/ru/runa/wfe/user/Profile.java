@@ -21,7 +21,6 @@ package ru.runa.wfe.user;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -35,10 +34,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -49,17 +48,16 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.DefaultBatchPresentations;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.BatchPresentations;
 
 /**
  * Created on 17.01.2005
- *
+ * 
  */
 @Entity
 @Table(name = "PROFILE")
@@ -72,10 +70,9 @@ public final class Profile implements Serializable {
     private Long version;
     private Actor actor;
     private Set<BatchPresentation> batchPresentations = Sets.newHashSet();
-    @XmlTransient
-    private Map<String, BatchPresentation> defaultBatchPresentations = Maps.newHashMap();
     private Date createDate;
     private Set<BatchPresentation> sharedBatchPresentations = Sets.newHashSet();
+    private boolean administrator;
 
     public Profile() {
     }
@@ -141,61 +138,70 @@ public final class Profile implements Serializable {
         this.batchPresentations = batchPresentations;
     }
 
-    public void addBatchPresentation(BatchPresentation batchPresentation) {
-        batchPresentations.add(batchPresentation);
-        setActiveBatchPresentation(batchPresentation.getCategory(), batchPresentation.getName());
-    }
-
     /**
-     * @return all (including shared) batch presentations for specified batchPresentationId
+     * @return all (including shared) batch presentations for specified category
      */
-    public List<BatchPresentation> getBatchPresentations(String batchPresentationId) {
+    public List<BatchPresentation> getBatchPresentations(String category) {
         List<BatchPresentation> result = Lists.newArrayList();
-        result.add(BatchPresentations.createDefault(batchPresentationId));
-        for (BatchPresentation batch : batchPresentations) {
-            if (Objects.equal(batch.getCategory(), batchPresentationId) && !batch.getName().startsWith(BatchPresentation.REFERENCE_SIGN)) {
-                result.add(batch);
+        boolean sharedPresentationIsActiveByAdmin = false;
+        for (BatchPresentation presentation : batchPresentations) {
+            if (Objects.equal(presentation.getCategory(), category) && !presentation.getName().startsWith(BatchPresentation.REFERENCE_SIGN)) {
+                result.add(presentation);
             }
         }
-        for (BatchPresentation batch : sharedBatchPresentations) {
-            if (Objects.equal(batch.getCategory(), batchPresentationId)) {
-                result.add(batch);
+        for (BatchPresentation presentation : sharedBatchPresentations) {
+            if (Objects.equal(presentation.getCategory(), category)) {
+                result.add(presentation);
+                if (presentation.isActive()) {
+                    sharedPresentationIsActiveByAdmin = true;
+                }
             }
+        }
+        if (administrator || !sharedPresentationIsActiveByAdmin) {
+            result.add(0, DefaultBatchPresentations.get(category, false));
         }
         return result;
     }
 
-    public void setActiveBatchPresentation(String batchPresentationId, String batchPresentationName) {
-        setActiveBatchPresentation(batchPresentationId, batchPresentationName, true);
+    public void addBatchPresentation(BatchPresentation batchPresentation) {
+        batchPresentations.add(batchPresentation);
     }
 
-    public void setActiveBatchPresentation(String batchPresentationId, String batchPresentationName, boolean administrator) {
+    public void addSharedBatchPresentation(BatchPresentation batchPresentation) {
+        sharedBatchPresentations.add(batchPresentation);
+    }
+
+    public void deleteBatchPresentation(BatchPresentation batchPresentation) {
+        batchPresentations.remove(batchPresentation);
+    }
+
+    public void setActiveBatchPresentation(String category, String name) {
         boolean found = false;
-        for (BatchPresentation batch : batchPresentations) {
-            if (Objects.equal(batch.getCategory(), batchPresentationId)) {
-                batch.setActive(batch.getName().equals(batchPresentationName));
-                if (batch.isActive()) {
+        for (BatchPresentation presentation : batchPresentations) {
+            if (Objects.equal(presentation.getCategory(), category)) {
+                presentation.setActive(presentation.getName().equals(name));
+                if (presentation.isActive()) {
                     found = true;
                 }
             }
         }
         if (!found && administrator) {
-            for (BatchPresentation batch : sharedBatchPresentations) {
-                if (Objects.equal(batch.getCategory(), batchPresentationId)) {
-                    batch.setActive(batch.getName().equals(batchPresentationName));
+            for (BatchPresentation presentation : sharedBatchPresentations) {
+                if (Objects.equal(presentation.getCategory(), category)) {
+                    presentation.setActive(presentation.getName().equals(name));
                 }
             }
         }
     }
 
-    public BatchPresentation getActiveBatchPresentation(String batchPresentationId) {
+    public BatchPresentation getActiveBatchPresentation(String category) {
         for (BatchPresentation batch : batchPresentations) {
-            if (batch.getCategory().equals(batchPresentationId) && batch.isActive()) {
+            if (batch.getCategory().equals(category) && batch.isActive()) {
                 String batchName = batch.getName();
                 if (batchName.startsWith(BatchPresentation.REFERENCE_SIGN)) {
                     batchName = batchName.substring(BatchPresentation.REFERENCE_SIGN.length());
                     for (BatchPresentation sharedBatch : sharedBatchPresentations) {
-                        if (sharedBatch.getCategory().equals(batchPresentationId) && sharedBatch.getName().equals(batchName)) {
+                        if (sharedBatch.getCategory().equals(category) && sharedBatch.getName().equals(batchName)) {
                             return sharedBatch;
                         }
                     }
@@ -205,22 +211,20 @@ public final class Profile implements Serializable {
             }
         }
         for (BatchPresentation batch : sharedBatchPresentations) {
-            if (batch.getCategory().equals(batchPresentationId) && batch.isActive()) {
+            if (batch.getCategory().equals(category) && batch.isActive()) {
                 return batch;
             }
         }
-        if (!defaultBatchPresentations.containsKey(batchPresentationId)) {
-            defaultBatchPresentations.put(batchPresentationId, BatchPresentations.createDefault(batchPresentationId));
-        }
-        return defaultBatchPresentations.get(batchPresentationId);
+        return DefaultBatchPresentations.get(category, true);
     }
 
-    public void deleteBatchPresentation(BatchPresentation batchPresentation) {
-        batchPresentations.remove(batchPresentation);
+    @Transient
+    public boolean isAdministrator() {
+        return administrator;
     }
 
-    public void addSharedBatchPresentation(BatchPresentation batchPresentation) {
-        sharedBatchPresentations.add(batchPresentation);
+    public void setAdministrator(boolean administrator) {
+        this.administrator = administrator;
     }
 
 }

@@ -19,7 +19,7 @@ package ru.runa.wfe.presentation;
 
 /**
  * Common constants for {@link BatchPresentation}.
- *
+ * 
  * @author Konstantinov Aleksey 11.02.2012
  */
 public class BatchPresentationConsts {
@@ -49,13 +49,9 @@ public class BatchPresentationConsts {
     public static final boolean DESC = false;
 
     /**
-     * Allowed sizes for paged {@link BatchPresentation}. This sizes will be available in web interface.
-     *
-     * @return Allowed sizes for paged {@link BatchPresentation}.
+     * Sort mode: descending.
      */
-    public static int[] getAllowedViewSizes() {
-        return ALLOWED_VIEW_SIZES.clone();
-    }
+    public static final int RANGE_SIZE_UNLIMITED = -1;
 
     public static final String ID_ALL_EXECUTORS = "listAllExecutorsForm";
 
@@ -85,7 +81,7 @@ public class BatchPresentationConsts {
 
     public static final String ID_RELATION_PAIRS = "listRelationPairs";
 
-    public static final String REPORTS = "listReportsForm";
+    public static final String ID_REPORTS = "listReportsForm";
 
     public static final String ID_PROCESSES = "listProcessesForm";
 
@@ -98,4 +94,14 @@ public class BatchPresentationConsts {
     public static final String ID_TASKS = "listTasksForm";
 
     public static final String ID_SYSTEM_LOGS = "listSystemLogsForm";
+
+    /**
+     * Allowed sizes for paged {@link BatchPresentation}. This sizes will be available in web interface.
+     * 
+     * @return Allowed sizes for paged {@link BatchPresentation}.
+     */
+    public static int[] getAllowedViewSizes() {
+        return ALLOWED_VIEW_SIZES.clone();
+    }
+
 }

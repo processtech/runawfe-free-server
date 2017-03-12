@@ -23,8 +23,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -32,16 +30,18 @@ import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.dao.BatchPresentationDAO;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 /**
  * Actor's profile management.
- *
+ * 
  * @author Dofs
  * @since 1.0
  */
@@ -51,8 +51,33 @@ public class ProfileLogic extends CommonLogic {
     private ProfileDAO profileDAO;
     @Autowired
     private BatchPresentationDAO batchPresentationDAO;
-    @Autowired
-    private ExecutorLogic executorLogic;
+
+    public List<Profile> getProfiles(User user, List<Long> actorIds) throws ExecutorDoesNotExistException {
+        List<Profile> result = Lists.newArrayListWithCapacity(actorIds.size());
+        for (Long actorId : actorIds) {
+            Actor actor = executorDAO.getActor(actorId);
+            checkPermissionAllowed(user, actor, Permission.READ);
+            result.add(getProfile(actor));
+        }
+        return result;
+    }
+
+    public Profile getProfile(Actor actor) {
+        Profile profile = profileDAO.get(actor);
+        if (profile == null) {
+            profile = new Profile(actor);
+            profileDAO.create(profile);
+        }
+        profile.setAdministrator(executorDAO.isAdministrator(actor));
+        List<BatchPresentation> sharedPresentations = batchPresentationDAO.getAllShared();
+        Set<BatchPresentation> existing = profile.getBatchPresentations();
+        for (BatchPresentation presentation : sharedPresentations) {
+            if (!existing.contains(presentation)) {
+                profile.addSharedBatchPresentation(presentation);
+            }
+        }
+        return profile;
+    }
 
     public void updateProfiles(User user, List<Profile> profiles) {
         for (Profile profile : profiles) {
@@ -61,57 +86,15 @@ public class ProfileLogic extends CommonLogic {
         }
     }
 
-    private Profile getProfileNotNull(Actor actor) {
-        Profile profile = profileDAO.get(actor);
-        if (profile == null) {
-            profile = new Profile(actor);
-            profileDAO.create(profile);
-        }
-        addSharedBatchPresentations(profile);
-        return profile;
-    }
-
-    public List<Profile> getProfiles(User user, List<Long> actorIds) throws ExecutorDoesNotExistException {
-        List<Profile> result = Lists.newArrayListWithCapacity(actorIds.size());
-        for (Long actorId : actorIds) {
-            Actor actor = executorDAO.getActor(actorId);
-            checkPermissionAllowed(user, actor, Permission.READ);
-            result.add(getProfileNotNull(actor));
-        }
-        return result;
-    }
-
-    public Profile getProfile(User user, Long actorId) {
-        Actor actor = executorDAO.getActor(actorId);
-        checkPermissionAllowed(user, actor, Permission.READ);
-        return getProfileNotNull(actor);
-    }
-
-    public void deleteActorProfile(User user, Long actorId) {
-        Actor actor = executorDAO.getActor(actorId);
-        checkPermissionAllowed(user, actor, ActorPermission.UPDATE);
-        profileDAO.delete(actor);
-    }
-
-    private BatchPresentation getBatchPresentationByName(Collection<BatchPresentation> presentations, String name) {
-        for (BatchPresentation bp : presentations) {
-            if (bp.getName().equals(name)) {
-                return bp;
-            }
-        }
-        return null;
-    }
-
-    public Profile changeActiveBatchPresentation(User user, String batchPresentationId, String newActiveBatchName) {
-        Profile profile = getProfileWithSharedBatchPresentations(user.getActor());
-        boolean administrator = executorLogic.isAdministrator(user);
-        if (!administrator) {
-            if (getBatchPresentationByName(profile.getBatchPresentations(), newActiveBatchName) == null) {
-                if (getBatchPresentationByName(profile.getBatchPresentations(), BatchPresentation.REFERENCE_SIGN + newActiveBatchName) != null) {
+    public Profile changeActiveBatchPresentation(User user, String category, String newActiveBatchName) {
+        Profile profile = getProfile(user.getActor());
+        if (!profile.isAdministrator()) {
+            if (getBatchPresentationByName(profile.getBatchPresentations(), category, newActiveBatchName) == null) {
+                if (getBatchPresentationByName(profile.getBatchPresentations(), category, BatchPresentation.REFERENCE_SIGN + newActiveBatchName) != null) {
                     newActiveBatchName = BatchPresentation.REFERENCE_SIGN + newActiveBatchName;
                 } else {
                     List<BatchPresentation> sharedPresentations = batchPresentationDAO.getAllShared();
-                    BatchPresentation sharedPresentation = getBatchPresentationByName(sharedPresentations, newActiveBatchName);
+                    BatchPresentation sharedPresentation = getBatchPresentationByName(sharedPresentations, category, newActiveBatchName);
                     if (sharedPresentation != null) {
                         BatchPresentation presentationRef = sharedPresentation.clone();
                         presentationRef.setName(BatchPresentation.REFERENCE_SIGN + sharedPresentation.getName());
@@ -123,23 +106,23 @@ public class ProfileLogic extends CommonLogic {
                 }
             }
         }
-        profile.setActiveBatchPresentation(batchPresentationId, newActiveBatchName, administrator);
-        return getProfileWithSharedBatchPresentations(user.getActor());
+        profile.setActiveBatchPresentation(category, newActiveBatchName);
+        return profile;
     }
 
     public Profile deleteBatchPresentation(User user, BatchPresentation batchPresentation) {
-        if (batchPresentation.isShared() && !executorLogic.isAdministrator(user)) {
+        Profile profile = getProfile(user.getActor());
+        if (batchPresentation.isShared() && !profile.isAdministrator()) {
             throw new InternalApplicationException("cannot delete batch presentation, user is not administrator");
         }
-        Profile profile = getProfileWithSharedBatchPresentations(user.getActor());
         profile.deleteBatchPresentation(batchPresentation);
         return profile;
     }
 
     public Profile createBatchPresentation(User user, BatchPresentation batchPresentation) {
-        Profile profile = getProfileWithSharedBatchPresentations(user.getActor());
+        Profile profile = getProfile(user.getActor());
         profile.addBatchPresentation(batchPresentation);
-        profile.setActiveBatchPresentation(batchPresentation.getCategory(), batchPresentation.getName(), executorLogic.isAdministrator(user));
+        profile.setActiveBatchPresentation(batchPresentation.getCategory(), batchPresentation.getName());
         return profile;
     }
 
@@ -147,27 +130,21 @@ public class ProfileLogic extends CommonLogic {
         if (BatchPresentationConsts.DEFAULT_NAME.equals(batchPresentation.getName())) {
             throw new InternalApplicationException("default batch presentation cannot be changed");
         }
-        if (batchPresentation.isShared() && !executorLogic.isAdministrator(user)) {
+        if (batchPresentation.isShared() && !getProfile(user.getActor()).isAdministrator()) {
             throw new InternalApplicationException("cannot save batch presentation, user is not administrator");
         }
         batchPresentation = batchPresentationDAO.update(batchPresentation);
         batchPresentationDAO.flushPendingChanges();
-        return getProfileWithSharedBatchPresentations(user.getActor());
+        return getProfile(user.getActor());
     }
 
-    private Profile getProfileWithSharedBatchPresentations(Actor actor) {
-        Profile profile = profileDAO.get(actor);
-        addSharedBatchPresentations(profile);
-        return profile;
-    }
-
-    private void addSharedBatchPresentations(Profile profile) {
-        List<BatchPresentation> sharedPresentations = batchPresentationDAO.getAllShared();
-        Set<BatchPresentation> existing = profile.getBatchPresentations();
-        for (BatchPresentation presentation : sharedPresentations) {
-            if (!existing.contains(presentation)) {
-                profile.addSharedBatchPresentation(presentation);
+    private BatchPresentation getBatchPresentationByName(Collection<BatchPresentation> presentations, String category, String name) {
+        for (BatchPresentation presentation : presentations) {
+            if (Objects.equal(presentation.getCategory(), category) && Objects.equal(presentation.getName(), name)) {
+                return presentation;
             }
         }
+        return null;
     }
+
 }
