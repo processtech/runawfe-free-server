@@ -168,6 +168,18 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("ldap.synchronizer.enabled", false);
     }
 
+    public static boolean isLDAPSynchronizationCreate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.create.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationUpdate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.update.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationDelete() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.delete.executors", false);
+    }
+
     public static String getEARFileName() {
         return RESOURCES.getStringProperty("ear.filename", "runawfe.ear");
     }
