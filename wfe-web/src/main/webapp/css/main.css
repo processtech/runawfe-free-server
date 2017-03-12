@@ -276,3 +276,7 @@ div.requiredWrapper::after {
 tr.suspended td, span.suspended {
   background-color: #ff9999;
 }
+
+tr.executor_group {
+  font-weight: bold;
+}
