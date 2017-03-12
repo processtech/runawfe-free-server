@@ -17,10 +17,13 @@
  */
 package ru.runa.wfe.user.logic;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
@@ -36,8 +39,6 @@ import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
 
-import com.google.common.collect.Lists;
-
 /**
  * Actor's profile management.
  *
@@ -45,6 +46,7 @@ import com.google.common.collect.Lists;
  * @since 1.0
  */
 public class ProfileLogic extends CommonLogic {
+
     @Autowired
     private ProfileDAO profileDAO;
     @Autowired
@@ -91,9 +93,37 @@ public class ProfileLogic extends CommonLogic {
         profileDAO.delete(actor);
     }
 
+    private BatchPresentation getBatchPresentationByName(Collection<BatchPresentation> presentations, String name) {
+        for (BatchPresentation bp : presentations) {
+            if (bp.getName().equals(name)) {
+                return bp;
+            }
+        }
+        return null;
+    }
+
     public Profile changeActiveBatchPresentation(User user, String batchPresentationId, String newActiveBatchName) {
         Profile profile = getProfileWithSharedBatchPresentations(user.getActor());
-        profile.setActiveBatchPresentation(batchPresentationId, newActiveBatchName);
+        boolean administrator = executorLogic.isAdministrator(user);
+        if (!administrator) {
+            if (getBatchPresentationByName(profile.getBatchPresentations(), newActiveBatchName) == null) {
+                if (getBatchPresentationByName(profile.getBatchPresentations(), BatchPresentation.REFERENCE_SIGN + newActiveBatchName) != null) {
+                    newActiveBatchName = BatchPresentation.REFERENCE_SIGN + newActiveBatchName;
+                } else {
+                    List<BatchPresentation> sharedPresentations = batchPresentationDAO.getAllShared();
+                    BatchPresentation sharedPresentation = getBatchPresentationByName(sharedPresentations, newActiveBatchName);
+                    if (sharedPresentation != null) {
+                        BatchPresentation presentationRef = sharedPresentation.clone();
+                        presentationRef.setName(BatchPresentation.REFERENCE_SIGN + sharedPresentation.getName());
+                        presentationRef.setShared(false);
+                        presentationRef.setFieldsData(null);
+                        profile.addBatchPresentation(presentationRef);
+                        newActiveBatchName = BatchPresentation.REFERENCE_SIGN + newActiveBatchName;
+                    }
+                }
+            }
+        }
+        profile.setActiveBatchPresentation(batchPresentationId, newActiveBatchName, administrator);
         return getProfileWithSharedBatchPresentations(user.getActor());
     }
 
@@ -109,7 +139,7 @@ public class ProfileLogic extends CommonLogic {
     public Profile createBatchPresentation(User user, BatchPresentation batchPresentation) {
         Profile profile = getProfileWithSharedBatchPresentations(user.getActor());
         profile.addBatchPresentation(batchPresentation);
-        profile.setActiveBatchPresentation(batchPresentation.getCategory(), batchPresentation.getName());
+        profile.setActiveBatchPresentation(batchPresentation.getCategory(), batchPresentation.getName(), executorLogic.isAdministrator(user));
         return profile;
     }
 
