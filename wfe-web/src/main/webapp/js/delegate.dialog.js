@@ -26,9 +26,9 @@ function delegateTaskDialog(btn) {
         '</td>' +
         '<td>' +
         '<fieldset class="set selected">' +
-        '<legend>'+$.delegateDialogStatic.selectedExecutors+'</legend>' +
+        '<legend>Executors selected</legend>' +
         '<fieldset class="actor">' +
-        '<legend>'+$.delegateDialogStatic.users+'</legend>' +
+        '<legend>Users selected</legend>' +
         '<ul class="actor">' +
         '</ul>' +
         '</fieldset>' +
@@ -41,8 +41,8 @@ function delegateTaskDialog(btn) {
         '</td>' +
         '</table>').appendTo(dialog);
         $.delegateDialog = dialog.dialog({
-            width: 600,
-            height: 500,
+            width: 850,
+            height: 600,
             buttons: [
                 {
                     text: $.delegateDialogStatic.delegate,
@@ -84,7 +84,7 @@ function delegateTaskDialog(btn) {
     var hint = undefined;
 
     function request(data, rev, callback) {
-        data = $.extend({perPage: 10, page: 0, excludeme: true}, data);
+        data = $.extend({perPage: 4000, page: 0, excludeme: true}, data);
         $.ajax({
             type:"POST",
             url:"/wfe/ajaxcmd?command=ajaxActorsList",
