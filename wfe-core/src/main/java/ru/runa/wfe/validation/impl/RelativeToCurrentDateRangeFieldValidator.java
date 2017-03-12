@@ -9,7 +9,7 @@ import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.var.format.DateFormat;
 
-public class RelativeToCurrentDateRangeFieldValidator extends AbstractRangeValidator<Date> {
+public class RelativeToCurrentDateRangeFieldValidator extends RangeFieldValidator<Date> {
 
     @Autowired
     private BusinessCalendar businessCalendar;
@@ -19,7 +19,6 @@ public class RelativeToCurrentDateRangeFieldValidator extends AbstractRangeValid
     }
 
     protected boolean ignoreTime() {
-        // return getParameter(boolean.class, "ignoreTime", false);
         return false;
     }
 
@@ -45,12 +44,12 @@ public class RelativeToCurrentDateRangeFieldValidator extends AbstractRangeValid
     }
 
     @Override
-    protected Date getMaxComparatorValue() {
+    protected Date getMaxComparatorValue(Class<Date> clazz) {
         return getParameter("max", true);
     }
 
     @Override
-    protected Date getMinComparatorValue() {
+    protected Date getMinComparatorValue(Class<Date> clazz) {
         return getParameter("min", false);
     }
 

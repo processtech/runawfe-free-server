@@ -41,12 +41,12 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Presentation of objects collection, contains sorting rules, filter rules and so on.
@@ -57,6 +57,8 @@ import com.google.common.collect.Lists;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BatchPresentation implements Cloneable, Serializable {
     private static final long serialVersionUID = 6631653373163613071L;
+
+    public final static String REFERENCE_SIGN = "\u2192"; // HTML entity (&rarr;) = '->' RIGHTWARDS ARROW
 
     private Long id;
     private Long version;
@@ -454,6 +456,7 @@ public class BatchPresentation implements Cloneable, Serializable {
         clone.name = name;
         clone.type = type;
         clone.fields = FieldsSerializer.fromDataSafe(type, FieldsSerializer.toData(type, getFields()));
+        clone.rangeSize = rangeSize;
         clone.createDate = new Date();
         return clone;
     }
@@ -475,8 +478,8 @@ public class BatchPresentation implements Cloneable, Serializable {
     public List<String> getDynamicFieldsToDisplay(boolean treatGrouppedFieldAsDisplayable) {
         List<String> result = Lists.newArrayList();
         for (int i = 0; i < getFields().dynamics.size(); i++) {
-            if (ArraysCommons.contains(getFields().displayIds, i) || treatGrouppedFieldAsDisplayable
-                    && ArraysCommons.contains(getFields().groupIds, i)) {
+            if (ArraysCommons.contains(getFields().displayIds, i)
+                    || treatGrouppedFieldAsDisplayable && ArraysCommons.contains(getFields().groupIds, i)) {
                 result.add(getFields().dynamics.get(i).getDynamicValue());
             }
         }

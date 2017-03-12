@@ -64,6 +64,7 @@ public class Resources {
     public static final String IMAGE_DELETE = "/images/delete.png";
     public static final String IMAGE_LOADING = "/images/loading.gif";
     public static final String CLASS_SUSPENDED = "suspended";
+    public static final String CLASS_EXECUTOR_GROUP = "executor_group";
     public static final String EXCEL_ICON = "/images/excel-icon.png";
 
 }

@@ -4,7 +4,7 @@ body {
 }
 
 form {
-    margin: 0pt;
+	margin: 0pt;
 }
 
 a:link {color: #666666; text-decoration: none; }
@@ -25,7 +25,7 @@ table.box {
 
 th.box {
 	background-color: #990000;
-    color: white;
+	color: white;
 	text-align: left;
 	width: 100%;
 	font-family: Arial, Helvetica, sans-serif;
@@ -100,25 +100,25 @@ td.tab-selected {
 
 td.group-name {
 	background-color: #f3f3f3;
-    border-width: 1pt;
-    border-color: #aaaaaa;
-    border-style: solid;
+	border-width: 1pt;
+	border-color: #aaaaaa;
+	border-style: solid;
 }
 
 tr.deadlineExpired td {
-  background-color: #ff9999;
+	background-color: #ff9999;
 }
 tr.deadlineAlmostExpired td {
-  background-color: #ddbb99;
+	background-color: #ddbb99;
 }
 tr.deadlineExists td {
-  background-color: white;
+	background-color: white;
 }
 tr.escalatedTask td {
-  background-color: #ef8ff8;
+	background-color: #ef8ff8;
 }
 tr.substitutionTask td {
-  background-color: #ffff9d;
+	background-color: #ffff9d;
 }
 
 a.hideableblock {
@@ -274,5 +274,9 @@ div.requiredWrapper::after {
 }
 
 tr.suspended td, span.suspended {
-  background-color: #ff9999;
+	background-color: #ff9999;
+}
+
+tr.executor_group {
+	font-weight: bold;
 }
