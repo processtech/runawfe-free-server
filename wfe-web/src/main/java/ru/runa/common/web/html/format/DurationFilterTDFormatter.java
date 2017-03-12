@@ -53,7 +53,7 @@ public class DurationFilterTDFormatter extends FilterTDFormatter {
             for (DurationEnum value : DurationEnum.values()) {
                 Option option = new Option();
                 option.setValue(value.name());
-                option.addElement(Messages.getMessage(value.name(), pageContext));
+                option.addElement(Messages.getMessage(value.getMessageKey(), pageContext));
                 option.setSelected(value.name().equals(selectedDuration));
                 select.addElement(option);
             }
