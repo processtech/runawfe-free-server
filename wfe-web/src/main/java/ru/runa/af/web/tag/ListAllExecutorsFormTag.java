@@ -48,7 +48,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Created on 18.08.2004
- *
+ * 
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
  */
@@ -71,23 +71,23 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
         TableBuilder tableBuilder = new TableBuilder();
         TDBuilder[] prefixBuilders = new TDBuilder[] { new IdentifiableCheckboxTDBuilder(ExecutorPermission.UPDATE) };
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
-        ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
-                getReturnAction(), IdForm.ID_INPUT_NAME, builders);
+        ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext,
+                WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         rowBuilder.setCssClassStrategy(new CssClassStrategy() {
-			
-			@Override
-			public String getCssStyle(Object item) {
-				return null;
-			}
-			
-			@Override
-			public String getClassName(Object item, User user) {
-				if (item instanceof Group){
-					return Resources.CLASS_EXECUTOR_GROUP;
-				}
-				return null;
-			}
-		});
+
+            @Override
+            public String getCssStyle(Object item) {
+                return null;
+            }
+
+            @Override
+            public String getClassName(Object item, User user) {
+                if (item instanceof Group) {
+                    return Resources.CLASS_EXECUTOR_GROUP;
+                }
+                return null;
+            }
+        });
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, getReturnAction(), pageContext);
         tdFormElement.addElement(tableBuilder.build(headerBuilder, rowBuilder));
         navigation.addPagingNavigationTable(tdFormElement);
