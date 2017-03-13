@@ -82,6 +82,13 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("version");
     }
 
+    /**
+     * System build date
+     */
+    public static String getBuildDateString() {
+        return RESOURCES.getStringProperty("build.date");
+    }
+
     public static String getStartup() {
         return CalendarUtil.formatDateTime(SYSTEM_STARTUP_CALENDAR);
     }
@@ -159,6 +166,18 @@ public class SystemProperties {
 
     public static boolean isLDAPSynchronizationEnabled() {
         return RESOURCES.getBooleanProperty("ldap.synchronizer.enabled", false);
+    }
+
+    public static boolean isLDAPSynchronizationCreate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.create.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationUpdate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.update.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationDelete() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.delete.executors", false);
     }
 
     public static String getEARFileName() {

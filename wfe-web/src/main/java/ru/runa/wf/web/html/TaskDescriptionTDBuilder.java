@@ -42,7 +42,7 @@ public class TaskDescriptionTDBuilder implements TDBuilder {
         WfTask task = (WfTask) object;
         String description = task.getDescription();
         if (description != null && description.contains("${")) {
-            IVariableProvider variableProvider = new DelegateTaskVariableProvider(env.getUser(), task.getProcessId(), task.getId());
+            IVariableProvider variableProvider = new DelegateTaskVariableProvider(env.getUser(), task);
             FormHashModel model = new FormHashModel(env.getUser(), variableProvider, new StrutsWebHelper(env.getPageContext()));
             description = FreemarkerProcessor.process(description, model);
         }

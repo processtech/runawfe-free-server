@@ -37,7 +37,6 @@ import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.extension.TaskHandler;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
@@ -130,13 +129,9 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
 
     private void doHandle() throws Exception {
         User user = botExecutor.getUser();
-        if (Delegates.getExecutionService().getProcess(user, task.getProcessId()).getExecutionStatus() == ExecutionStatus.SUSPENDED) {
-            log.warn("Ignored " + task + " execution due to suspended process execution status");
-            return;
-        }
         Bot bot = botExecutor.getBot();
         BotTask botTask = null;
-        IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task.getProcessId(), task.getId());
+        IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
         TaskHandler taskHandler = null;
         try {
             String botTaskName = BotTaskConfigurationUtils.getBotTaskName(user, task);

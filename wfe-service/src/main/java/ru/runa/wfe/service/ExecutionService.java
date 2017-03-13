@@ -77,7 +77,7 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-    ValidationException;
+            ValidationException;
 
     /**
      * Gets process count for {@link BatchPresentation}.
@@ -189,7 +189,7 @@ public interface ExecutionService {
 
     /**
      * Gets all process variables in batch mode.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processIds
@@ -200,7 +200,7 @@ public interface ExecutionService {
 
     /**
      * Gets all process variables state on specified date.
-     *
+     * 
      * @param user
      *            authorized user
      * @param filter
@@ -212,7 +212,7 @@ public interface ExecutionService {
 
     /**
      * Gets specified process variables state on specified date.
-     *
+     * 
      * @param user
      *            authorized user
      * @param filter
@@ -221,13 +221,15 @@ public interface ExecutionService {
      *            Variables to load.
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
+     * 
+     *             TODO 2505 useless method
      */
     public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
             throws ProcessDoesNotExistException;
 
     /**
      * Get process variable state for completed task.
-     *
+     * 
      * @param user
      *            Authorized user.
      * @param processId
@@ -241,7 +243,7 @@ public interface ExecutionService {
 
     /**
      * Get process variable state for completed task.
-     *
+     * 
      * @param user
      *            Authorized user.
      * @param processId
@@ -252,6 +254,8 @@ public interface ExecutionService {
      *            Variables to load.
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
+     * 
+     *             TODO 2505 useless method
      */
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
             throws ProcessDoesNotExistException;

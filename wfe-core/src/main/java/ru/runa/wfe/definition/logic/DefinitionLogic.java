@@ -100,7 +100,7 @@ public class DefinitionLogic extends WFCommonLogic {
         Collection<Permission> allPermissions = new DefinitionPermission().getAllPermissions();
         permissionDAO.setPermissions(user.getActor(), allPermissions, definition.getDeployment());
         log.debug("Deployed process definition " + definition);
-        return new WfDefinition(definition, true);
+        return new WfDefinition(definition, isPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.START_PROCESS));
     }
 
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
@@ -403,7 +403,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
         Deployment deployment = deploymentDAO.getNotNull(definitionId);
-        if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName)) {
+        if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(IFileDataProvider.BOTS_XML_FILE)) {
             checkPermissionAllowed(user, deployment, DefinitionPermission.READ);
         }
         if (IFileDataProvider.PAR_FILE.equals(fileName)) {

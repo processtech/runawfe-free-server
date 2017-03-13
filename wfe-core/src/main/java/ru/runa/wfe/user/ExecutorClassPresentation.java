@@ -31,6 +31,7 @@ public class ExecutorClassPresentation extends ClassPresentation {
     public static final String NAME = "batch_presentation.executor.name";
     public static final String FULL_NAME = "batch_presentation.executor.full_name";
     public static final String DESCRIPTION = "batch_presentation.executor.description";
+    public static final String TYPE = "batch_presentation.executor.type";
 
     private static final ClassPresentation INSTANCE = new ExecutorClassPresentation();
 
@@ -39,12 +40,13 @@ public class ExecutorClassPresentation extends ClassPresentation {
                 // display name field type DB source isSort filter mode get
                 // value/show in web getter param
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Executor.class, "name"), true, 1, BatchPresentationConsts.ASC,
-                		FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
                 new FieldDescriptor(FULL_NAME, String.class.getName(), new DefaultDBSource(Executor.class, "fullName"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "fullName" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Executor.class, "description"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "description" }) });
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "description" }),
+                new FieldDescriptor(TYPE, String.class.getName(), new DefaultDBSource(Executor.class, "class"), false, FieldFilterMode.DATABASE,
+                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "class" }).setShowable(false) });
     }
 
     public static final ClassPresentation getInstance() {
