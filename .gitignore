@@ -4,5 +4,6 @@ target
 .project
 .settings
 wfe-web/src/main/webapp/WEB-INF/wf.tld
+wfe-web/src/main/webapp/WEB-INF/classes/struts_en.properties
 wfe-webservice-client/src/main/
 *.iml

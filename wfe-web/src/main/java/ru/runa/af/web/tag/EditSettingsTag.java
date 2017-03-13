@@ -75,10 +75,10 @@ public class EditSettingsTag extends TitledFormTag {
         List<Setting> settings = new ArrayList<Setting>();
     }
 
-    public static final TreeMap<String, SettingsFile> settingsList = new TreeMap<String, SettingsFile>();
+    public static final TreeMap<String, SettingsFile> settingsList;
 
     static {
-        readSettingsList("settingsList.xml");
+        settingsList = readSettingsList("settingsList.xml");
     }
 
     @SuppressWarnings("unchecked")
@@ -94,14 +94,14 @@ public class EditSettingsTag extends TitledFormTag {
     }
 
     @SuppressWarnings("unchecked")
-    private static void readSettingsList(String path) {
-        try {
-            InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, EditSettingsTag.class);
+    private static TreeMap<String, SettingsFile> readSettingsList(String path) {
+        TreeMap<String, SettingsFile> result = new TreeMap<>();
+        try (InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, EditSettingsTag.class)) {
             Document document = XmlUtils.parseWithoutValidation(is);
             List<Element> files = document.getRootElement().elements();
             for (Element f : files) {
                 SettingsFile pf = new SettingsFile();
-                settingsList.put(f.attributeValue("title"), pf);
+                result.put(f.attributeValue("title"), pf);
                 parseSettingType(pf.defaultSetting, f);
                 List<Element> plist = f.elements();
                 for (Element p : plist) {
@@ -116,6 +116,7 @@ public class EditSettingsTag extends TitledFormTag {
         } catch (Exception e) {
             log.error("Can`t parse " + path, e);
         }
+        return result;
     }
 
     private String resource;

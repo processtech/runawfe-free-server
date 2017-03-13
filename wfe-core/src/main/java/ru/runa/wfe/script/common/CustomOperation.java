@@ -27,6 +27,7 @@ public class CustomOperation extends ScriptOperation {
 
     @XmlMixed
     @XmlAnyElement
+    // TODO no used
     public List elementContent = Lists.newArrayList();
 
     @Override

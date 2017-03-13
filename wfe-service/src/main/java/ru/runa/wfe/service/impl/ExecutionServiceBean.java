@@ -34,12 +34,13 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
-import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
@@ -66,8 +67,6 @@ import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.logic.VariableLogic;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "ExecutionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -182,7 +181,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException {
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(filter != null, "filter");
         long processId = filter.getProcessId();
@@ -195,8 +194,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
-            throws ProcessDoesNotExistException {
+    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(filter != null, "filter");
         Preconditions.checkArgument(variables != null, "variables");
@@ -210,7 +208,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId);
@@ -222,8 +220,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
-            throws ProcessDoesNotExistException {
+    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         Preconditions.checkArgument(variables != null, "variables");
@@ -355,7 +352,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @Override
     @WebResult(name = "result")
     public NodeGraphElement getProcessDiagramElement(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "nodeId") String nodeId) throws ProcessDoesNotExistException {
+            @WebParam(name = "nodeId") String nodeId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         Preconditions.checkArgument(nodeId != null, "nodeId");
@@ -400,7 +397,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @Override
     @WebResult(name = "result")
     public List<WfToken> getProcessTokens(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "recursive") boolean recursive) throws ProcessDoesNotExistException {
+            @WebParam(name = "recursive") boolean recursive) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.getTokens(user, processId, recursive);

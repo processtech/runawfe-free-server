@@ -78,9 +78,6 @@ public class UndeployProcessDefinitionTDBuilder extends BaseTDBuilder {
     @Override
     public String getValue(Object object, Env env) {
         String result = MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(env.getPageContext());
-        if (result == null) {
-            result = "";
-        }
         return result;
     }
 }

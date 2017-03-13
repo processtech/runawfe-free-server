@@ -117,13 +117,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public boolean isAdministrator(User user) {
-        try {
-            Group administratorsGroup = (Group) getExecutor(user, SystemProperties.getAdministratorsGroupName());
-            return isExecutorInGroup(user, user.getActor(), administratorsGroup);
-        } catch (AuthorizationException e) {
-            log.debug(e);
-            return false;
-        }
+        return executorDAO.isAdministrator(user.getActor());
     }
 
     public void remove(User user, List<Long> ids) {

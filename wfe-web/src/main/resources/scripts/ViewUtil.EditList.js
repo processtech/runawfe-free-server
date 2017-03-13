@@ -17,7 +17,7 @@ function initUNIQUENAME(addButtonElement) {
 			var rows = div.find("div[row][current][name='VARIABLE']");
 			var rowIndex = rows.length < 1 ? 0 : parseInt(rows.last().attr("row")) + 1;
 			console.log("Adding row " + rowIndex);
-			var copy = div.find("div[wfeContainerTemplate]").first().clone();
+			var copy = div.find("div[template]").first().clone();
 			copy.find("[name]").each(function(){
 			    $(this).attr("name", $(this).attr("name").replace(/\{\}/, "[" + rowIndex + "]"));
 			}); 

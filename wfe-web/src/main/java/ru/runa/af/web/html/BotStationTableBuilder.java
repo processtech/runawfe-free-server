@@ -86,7 +86,7 @@ public class BotStationTableBuilder {
         Input nameInput = HTMLUtils.createInput(BotStationForm.BOT_STATION_NAME, name, true, true);
         table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_STATION_NAME.message(pageContext), nameInput));
 
-        Input addressInput = HTMLUtils.createInput(BotStationForm.BOT_STATION_RMI_ADDRESS, name);
+        Input addressInput = HTMLUtils.createInput(BotStationForm.BOT_STATION_RMI_ADDRESS, address);
         table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_STATION_ADDRESS.message(pageContext), addressInput));
         return table;
     }

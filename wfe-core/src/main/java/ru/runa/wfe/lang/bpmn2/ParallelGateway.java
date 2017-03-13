@@ -162,7 +162,7 @@ public class ParallelGateway extends Node {
         }
     }
 
-    private static enum State {
+    private enum State {
         LEAVING,
         WAITING,
         BLOCKING

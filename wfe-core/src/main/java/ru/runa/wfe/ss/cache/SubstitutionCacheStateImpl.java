@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.ss.cache;
@@ -27,11 +27,15 @@ import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContextStub;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
@@ -42,22 +46,63 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-import com.google.common.collect.Maps;
-
-class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
+/**
+ * Cache implementation for substitutions.
+ */
+public class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
     private static final Log log = LogFactory.getLog(SubstitutionCacheStateImpl.class);
-    public static final String substitutorsName = "ru.runa.wfe.ss.cache.substitutors";
-    public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
-    private final Cache<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutorsCache;
-    private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
-    private final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-    private final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
 
-    public SubstitutionCacheStateImpl() {
+    /**
+     * EHCache name.
+     */
+    public static final String substitutorsName = "ru.runa.wfe.ss.cache.substitutors";
+
+    /**
+     * EHCache name.
+     */
+    public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
+
+    /**
+     * Maps from actor id to it substitution rules and actors, which may substitute key actor by rule.
+     */
+    private final Cache<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutorsCache;
+
+    /**
+     * Map from actor id to all actors, which may be substituted by key actor. Only inactive substituted actors added as substituted (no need to check
+     * if it active).
+     */
+    private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
+
+    /**
+     * Flag, equals true, if cache is not runtime and it state may different from database state and false otherwise.
+     */
+    private final boolean isNonRuntime;
+
+    /**
+     * Creates cache implementation for substitutions.
+     *
+     * @param fullInitialization
+     *            Flag, equals true, if cache must be fully initialized and false, if cache must be empty (no initialization).
+     * @param isNonRuntime
+     *            Flag, equals true, if cache is not runtime and it state may different from database state and false otherwise.
+     * @param initializationContext
+     *            Cache initialization context.
+     */
+    public SubstitutionCacheStateImpl(boolean fullInitialization, boolean isNonRuntime, CacheInitializationProcessContext initializationContext) {
+        if (initializationContext == null) {
+            initializationContext = new CacheInitializationProcessContextStub();
+        }
+        this.isNonRuntime = isNonRuntime;
         actorToSubstitutorsCache = createCache(substitutorsName, true);
         actorToSubstitutedCache = createCache(substitutedName, true);
-        Map<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutors = getMapActorToSubstitutors();
-        Map<Long, HashSet<Long>> actorToSubstituted = getMapActorToSubstituted(actorToSubstitutors);
+        if (!fullInitialization) {
+            return;
+        }
+        Map<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutors = getMapActorToSubstitutors(initializationContext);
+        Map<Long, HashSet<Long>> actorToSubstituted = getMapActorToSubstituted(actorToSubstitutors, initializationContext);
+        if (!initializationContext.isInitializationStillRequired()) {
+            return;
+        }
         actorToSubstitutorsCache.putAll(actorToSubstitutors);
         actorToSubstitutedCache.putAll(actorToSubstituted);
     }
@@ -88,10 +133,16 @@ class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubs
         return new HashSet<Long>();
     }
 
-    private Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors() {
+    private static Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors(
+            CacheInitializationProcessContext initializationContext) {
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
+        final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         try {
+            final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
             for (Substitution substitution : substitutionDAO.getAll()) {
+                if (!initializationContext.isInitializationStillRequired()) {
+                    return result;
+                }
                 try {
                     Long actorId;
                     try {
@@ -134,10 +185,16 @@ class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubs
         return result;
     }
 
-    private Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors) {
+    private static Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors,
+            CacheInitializationProcessContext initializationContext) {
         Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
+        final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         for (Map.Entry<Long, TreeMap<Substitution, HashSet<Long>>> entry1 : mapActorToSubstitutors.entrySet()) {
             final Long substitutedId = entry1.getKey();
+            // TODO why is it here?
+            if (!initializationContext.isInitializationStillRequired()) {
+                return result;
+            }
             try {
                 Actor substitutedActor = executorDAO.getActor(substitutedId);
                 if (substitutedActor.isActive()) {
@@ -169,6 +226,6 @@ class SubstitutionCacheStateImpl extends BaseCacheImpl implements ManageableSubs
 
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        return false;
+        return isNonRuntime;
     }
 }

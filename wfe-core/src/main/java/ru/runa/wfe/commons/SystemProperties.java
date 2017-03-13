@@ -28,7 +28,7 @@ public class SystemProperties {
     public static final String TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME = "timertask.period.millis.unassigned.tasks.execution";
     public static final String TIMERTASK_START_MILLIS_LDAP_SYNC_NAME = "timertask.start.millis.ldap.sync";
     public static final String TIMERTASK_PERIOD_MILLIS_LDAP_SYNC_NAME = "timertask.period.millis.ldap.sync";
-    private static List<IProcessExecutionListener> processExecutionListeners = null;
+    private static volatile List<IProcessExecutionListener> processExecutionListeners = null;
     private static volatile Object lockProcessExecutionListeners = new Object();
 
     public static PropertyResources getResources() {
@@ -77,10 +77,24 @@ public class SystemProperties {
     }
 
     /**
+     * Using non runtime substitution cache instead of static substitution cache.
+     */
+    public static boolean useNonRuntimeSubstitutionCache() {
+        return NO_DATABASE_RESOURCES.getBooleanProperty("nonruntime.susbstitution.cache", true);
+    }
+
+    /**
      * System version
      */
     public static String getVersion() {
         return RESOURCES.getStringProperty("version");
+    }
+
+    /**
+     * System build date
+     */
+    public static String getBuildDateString() {
+        return RESOURCES.getStringProperty("build.date");
     }
 
     public static String getStartup() {
@@ -160,6 +174,18 @@ public class SystemProperties {
 
     public static boolean isLDAPSynchronizationEnabled() {
         return RESOURCES.getBooleanProperty("ldap.synchronizer.enabled", false);
+    }
+
+    public static boolean isLDAPSynchronizationCreate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.create.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationUpdate() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.update.executors", false);
+    }
+
+    public static boolean isLDAPSynchronizationDelete() {
+        return RESOURCES.getBooleanProperty("ldap.synchronizer.delete.executors", false);
     }
 
     public static String getEARFileName() {

@@ -30,6 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
@@ -43,6 +47,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
@@ -61,13 +66,10 @@ import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
+import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
@@ -86,6 +88,8 @@ public class ExecutionContext {
     private IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private VariableCreator variableCreator;
+    @Autowired
+    private ProcessDAO processDAO;
     @Autowired
     private TokenDAO tokenDAO;
     @Autowired
@@ -107,8 +111,12 @@ public class ExecutionContext {
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
-        this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables, disableVariableDaoLoading);
-        baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcess(), getProcessDefinition());
+        if (disableVariableDaoLoading) {
+            this.variableLoader = new VariableLoaderFromMap(loadedVariables);
+        } else {
+            this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
+        }
+        this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
@@ -318,8 +326,7 @@ public class ExecutionContext {
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
-        final ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader
-                .getSubprocessSyncCache();
+        final BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
         if (variable == null) {
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
@@ -407,5 +414,4 @@ public class ExecutionContext {
             log.info(String.format("Changed dueDate for %s from %s to %s", job, oldDate, job.getDueDate()));
         }
     }
-
 }

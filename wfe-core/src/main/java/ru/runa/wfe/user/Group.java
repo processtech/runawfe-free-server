@@ -66,6 +66,7 @@ public class Group extends Executor {
 
     @Override
     public boolean equals(Object obj) {
+        // TODO breaks contract - hashCode
         if (!super.equals(obj)) {
             return false;
         }

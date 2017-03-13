@@ -33,6 +33,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDAO;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -869,4 +870,15 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         getHibernateTemplate().save(executor);
         return executor;
     }
+
+    public boolean isAdministrator(Actor actor) {
+        try {
+            Group administratorsGroup = (Group) getExecutor(SystemProperties.getAdministratorsGroupName());
+            return isExecutorInGroup(actor, administratorsGroup);
+        } catch (ExecutorDoesNotExistException e) {
+            log.debug(e);
+            return false;
+        }
+    }
+
 }

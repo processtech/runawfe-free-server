@@ -53,7 +53,7 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
         } else {
             object = super.getValue(variableName);
         }
-        mergeLocalValues(variableName, object);
+        mergeLocalValues(variableName, object, null);
         return object;
     }
 
@@ -73,16 +73,16 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
         }
         WfVariable variable = super.getVariable(variableName);
         if (variable != null) {
-            mergeLocalValues(variableName, variable.getValue());
+            mergeLocalValues(variableName, variable.getValue(), variable.getDefinition());
         }
         return variable;
     }
 
-    private void mergeLocalValues(String variableName, Object object) {
+    private void mergeLocalValues(String variableName, Object object, VariableDefinition variableDefinition) {
         if (object instanceof UserTypeMap) {
             mergeUserTypeVariable(variableName, (UserTypeMap) object);
         } else if (object instanceof List) {
-            mergeListVariable(variableName, (List) object);
+            mergeListVariable(variableName, (List) object, variableDefinition);
         }
     }
 
@@ -112,14 +112,17 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
         }
     }
 
-    private void mergeListVariable(String variableName, List<Object> list) {
-        if (getProcessDefinition() == null) {
-            return;
-        }
-        VariableDefinition variableDefinition = getProcessDefinition().getVariable(variableName, false);
+    private void mergeListVariable(String variableName, List<Object> list, VariableDefinition variableDefinition) {
+        // TODO sneaky code
         if (variableDefinition == null) {
-            // for MultiTask
-            return;
+            if (getProcessDefinition() == null) {
+                return;
+            }
+            variableDefinition = getProcessDefinition().getVariable(variableName, false);
+            if (variableDefinition == null) {
+                // for MultiTask
+                return;
+            }
         }
         String sizeVariableName = variableName + VariableFormatContainer.SIZE_SUFFIX;
         if (values.containsKey(sizeVariableName)) {

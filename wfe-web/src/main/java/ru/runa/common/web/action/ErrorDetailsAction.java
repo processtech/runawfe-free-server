@@ -127,7 +127,8 @@ public class ErrorDetailsAction extends ActionBase {
                         List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(getLoggedUser(request), processId);
                         for (ProcessError processError : processErrors) {
                             exceptions.append("\r\n---------------------------------------------------------------");
-                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(processError.getOccurredDate())).append(" ").append(processError.getNodeId()).append("/")
+                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(processError.getOccurredDate()))
+                                    .append(" ").append(processError.getNodeId()).append("/")
                                     .append(processError.getNodeName())
                                     .append("\r\n").append(processError.getStackTrace());
                         }

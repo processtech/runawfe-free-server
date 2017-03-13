@@ -18,6 +18,8 @@
 package ru.runa.wfe.extension.handler.var;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -71,6 +73,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object sum(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).add(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).add((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() + ((Number) o2).doubleValue());
         }
@@ -100,6 +108,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object sub(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).subtract(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).subtract((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() - ((Number) o2).doubleValue());
         }
@@ -120,6 +134,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object mul(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).multiply(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).multiply((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() * ((Number) o2).doubleValue());
         }
@@ -134,6 +154,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object div(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).divide(asBigDecimal((Number) o2), MathContext.DECIMAL128);
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).divide((BigDecimal) o2, MathContext.DECIMAL128);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Double) o1).doubleValue() / ((Number) o2).doubleValue());
         }
@@ -145,6 +171,9 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object changeSign(Object o) {
+        if (BigDecimal.class.isInstance(o)) {
+            return ((BigDecimal) o).negate();
+        }
         if (Double.class.isInstance(o)) {
             return new Double(-((Double) o).doubleValue());
         }
@@ -164,6 +193,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object less(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).compareTo(asBigDecimal((Number) o2)) < 0;
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).compareTo((BigDecimal) o2) < 0;
+        }
         if (Double.class.isInstance(o1) && Double.class.isInstance(o2)) {
             return Boolean.valueOf(((Double) o1).doubleValue() < ((Double) o2).doubleValue());
         }
@@ -182,6 +217,9 @@ public class FormulaActionHandlerOperations {
         if (Date.class.isInstance(o1) && Date.class.isInstance(o2)) {
             return Boolean.valueOf(((Date) o1).compareTo((Date) o2) < 0);
         }
+        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+        	return Boolean.valueOf(((BigDecimal)o1).compareTo((BigDecimal)o2) < 0);
+        }
         log.error("Cannot make less for " + o1.getClass() + " with " + o2.getClass());
         return null;
     }
@@ -191,7 +229,10 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object equal(Object o1, Object o2) {
-        return o1.equals(o2);
+        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return Boolean.valueOf(((BigDecimal) o1).compareTo((BigDecimal) o2) == 0);
+        }
+        return Boolean.valueOf(o1.equals(o2));
     }
 
     public Object lessOrEqual(Object o1, Object o2) {
@@ -467,14 +508,47 @@ public class FormulaActionHandlerOperations {
     private static TreeMap<String, HashMap<Integer, String>> names = new TreeMap<String, HashMap<Integer, String>>();
     private static TreeMap<String, HashMap<Integer, String>> families = new TreeMap<String, HashMap<Integer, String>>();
     private static TreeMap<String, HashMap<Integer, String>> parents = new TreeMap<String, HashMap<Integer, String>>();
+    private static TreeMap<String, HashMap<String, String>> mappingConf = new TreeMap<String, HashMap<String, String>>();
     static {
         readNameCaseConfig("nameCaseConf.xml");
+        readMappingConfig("mappingConf.xml");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void readMappingConfig(String path) {
+        try {
+            InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
+            Document document = XmlUtils.parseWithoutValidation(is);
+            List<Element> childs = document.getRootElement().elements();
+            for (Element rule : childs) {
+                String title = rule.attributeValue("title");
+                HashMap<String, String> rmap = new HashMap<String, String>();
+                for (Element item : (List<Element>) rule.elements()) {
+                    String input = item.attributeValue("input");
+                    String output = item.attributeValue("output");
+                    rmap.put(input, output);
+                }
+                mappingConf.put(title, rmap);
+            }
+        } catch (Exception e) {
+            log.error("Can`t parse " + path, e);
+        }
+    }
+
+    public String mapping(String input, String rule) {
+        try {
+            return mappingConf.get(rule).get(input);
+        } catch (Exception e) {
+            log.error("No mapping rule for " + input + " / " + rule, e);
+        }
+        return input;
     }
 
     private static void readNameCaseConfig(String path) {
         try {
             InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
             Document document = XmlUtils.parseWithoutValidation(is);
+            @SuppressWarnings("unchecked")
             List<Element> childs = document.getRootElement().elements();
             for (Element element : childs) {
                 if (element.getName().equals("name")) {
@@ -494,6 +568,7 @@ public class FormulaActionHandlerOperations {
 
     private static HashMap<Integer, String> parseNameCaseRules(Element element) {
         HashMap<Integer, String> result = new HashMap<Integer, String>();
+        @SuppressWarnings("unchecked")
         List<Element> childs = element.elements();
         for (Element child : childs) {
             if (child.getName().equals("name")) {
@@ -554,6 +629,16 @@ public class FormulaActionHandlerOperations {
         }
 
         return answer.toString();
+    }
+
+    private BigDecimal asBigDecimal(Number n) {
+        if (BigDecimal.class.isInstance(n)) {
+            return (BigDecimal) n;
+        } else if (Double.class.isInstance(n)) {
+            return BigDecimal.valueOf((Double) n);
+        } else {
+            return BigDecimal.valueOf((Long) n);
+        }
     }
 
 }

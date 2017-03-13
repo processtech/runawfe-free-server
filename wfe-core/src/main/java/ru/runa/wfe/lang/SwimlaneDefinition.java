@@ -55,7 +55,7 @@ public class SwimlaneDefinition extends GraphElement {
     }
 
     public void setOrgFunctionLabel(String displayOrgFunction) {
-        orgFunctionLabel = displayOrgFunction;
+        orgFunctionLabel = null == displayOrgFunction ? null : displayOrgFunction.intern();
     }
 
     public List<String> getFlowNodeIds() {
@@ -71,7 +71,7 @@ public class SwimlaneDefinition extends GraphElement {
     }
 
     public void setScriptingName(String scriptingName) {
-        this.scriptingName = scriptingName;
+        this.scriptingName = null == scriptingName ? null : scriptingName.intern();
     }
 
     public VariableDefinition toVariableDefinition() {

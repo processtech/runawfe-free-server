@@ -39,6 +39,9 @@ public class ProcessDAO extends GenericDAO<Process> {
     }
 
     public List<Process> find(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return Lists.newArrayList();
+        }
         return getHibernateTemplate().findByNamedParam("from Process where id in (:ids)", "ids", ids);
     }
 

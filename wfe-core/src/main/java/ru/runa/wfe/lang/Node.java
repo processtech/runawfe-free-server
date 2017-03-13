@@ -252,7 +252,7 @@ public abstract class Node extends GraphElement {
                 }
             }
         }
-        if (this instanceof BoundaryEvent && ((BoundaryEvent) this).getBoundaryEventInterrupting() == Boolean.TRUE) {
+        if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
             Token parentToken = executionContext.getToken().getParent();
             parentToken.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), false);
             for (Token token : parentToken.getActiveChildren()) {
