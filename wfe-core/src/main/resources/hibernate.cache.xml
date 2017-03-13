@@ -6,7 +6,9 @@
 		timeToIdleSeconds="17000"
 		overflowToDisk="false"
 		statistics="true"
+		mode="DISABLE_SELECTIVE"
 	/>
+	<shared-cache-mode>DISABLE_SELECTIVE</shared-cache-mode>
 
 	<!-- cache
 		name="ru.runa.wfe.definition.cache.definitionIdToDefinition"

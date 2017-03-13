@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION")
 @Cache(usage = CacheConcurrencyStrategy.NONE)
+@Cacheable(false)
 public class DeploymentContent extends DeploymentData {
 
     private byte[] content;
