@@ -60,7 +60,6 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
-import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
@@ -160,7 +159,6 @@ public class InitializerLogic {
         patches.add(AddProcessAndTokenExecutionStatusPatch.class);
         patches.add(CreateAdminScriptTables.class);
         patches.add(AddDeploymentLockPatch.class);
-        patches.add(AddVariableUniqueKeyPatch.class);
         patches.add(AddTokenErrorDataPatch.class);
         dbPatches = Collections.unmodifiableList(patches);
     };
