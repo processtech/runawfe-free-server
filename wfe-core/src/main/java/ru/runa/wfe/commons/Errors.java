@@ -46,6 +46,7 @@ public class Errors {
     }
 
     public static void removeSystemError(String message) {
+        // TODO it never work
         systemErrors.remove(message);
     }
 

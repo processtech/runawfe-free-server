@@ -85,7 +85,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
 
     @Override
     public Long getIdentifiableId() {
-        return new Long(getName().hashCode());
+        return Long.valueOf(getName().hashCode());
     }
 
     @Override

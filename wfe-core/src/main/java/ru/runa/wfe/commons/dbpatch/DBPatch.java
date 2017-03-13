@@ -96,12 +96,12 @@ public abstract class DBPatch {
     }
 
     protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions, String unique) {
-        String query = "CREATE TABLE " + tableName + " (";
+        StringBuilder query = new StringBuilder("CREATE TABLE ").append(tableName).append(" (");
         for (ColumnDef columnDef : columnDefinitions) {
             if (columnDefinitions.indexOf(columnDef) > 0) {
-                query += ", ";
+                query.append(", ");
             }
-            query += columnDef.name + " " + columnDef.getSqlTypeName(dialect);
+            query.append(columnDef.name).append(" ").append(columnDef.getSqlTypeName(dialect));
             if (columnDef.primaryKey) {
                 String primaryKeyModifier;
                 switch (dbType) {
@@ -125,18 +125,18 @@ public abstract class DBPatch {
                     primaryKeyModifier = "PRIMARY KEY";
                     break;
                 }
-                query += " " + primaryKeyModifier;
+                query.append(" ").append(primaryKeyModifier);
                 continue;
             }
             if (!columnDef.allowNulls) {
-                query += " NOT NULL";
+                query.append(" NOT NULL");
             }
         }
         if (unique != null) {
-            query += ", UNIQUE " + unique;
+            query.append(", UNIQUE ").append(unique);
         }
-        query += ")";
-        return query;
+        query.append(")");
+        return query.toString();
     }
 
     protected final String getDDLRenameTable(String oldTableName, String newTableName) {

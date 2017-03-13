@@ -189,7 +189,7 @@ public interface ExecutionService {
 
     /**
      * Gets all process variables in batch mode.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processIds

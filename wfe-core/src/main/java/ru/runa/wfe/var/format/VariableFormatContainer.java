@@ -9,30 +9,30 @@ import ru.runa.wfe.var.UserType;
  * @since 4.0.5
  */
 public interface VariableFormatContainer {
-    public static final String SIZE_SUFFIX = ".size";
-    public static final String KEY_SUFFIX = "#key";
-    public static final String VALUE_SUFFIX = "#value";
-    public static final String COMPONENT_QUALIFIER_START = "[";
-    public static final String COMPONENT_QUALIFIER_END = "]";
-    public static final String COMPONENT_PARAMETERS_START = "(";
-    public static final String COMPONENT_PARAMETERS_END = ")";
-    public static final String COMPONENT_PARAMETERS_DELIM = ", ";
+    String SIZE_SUFFIX = ".size";
+    String KEY_SUFFIX = "#key";
+    String VALUE_SUFFIX = "#value";
+    String COMPONENT_QUALIFIER_START = "[";
+    String COMPONENT_QUALIFIER_END = "]";
+    String COMPONENT_PARAMETERS_START = "(";
+    String COMPONENT_PARAMETERS_END = ")";
+    String COMPONENT_PARAMETERS_DELIM = ", ";
 
     /**
      * @return component format by index.
      */
-    public String getComponentClassName(int index);
+    String getComponentClassName(int index);
 
     /**
      * Sets component formats.
      */
-    public void setComponentClassNames(String[] componentClassNames);
+    void setComponentClassNames(String[] componentClassNames);
 
     /**
      * @return user types by index
      */
-    public UserType getComponentUserType(int index);
+    UserType getComponentUserType(int index);
 
-    public void setComponentUserTypes(UserType[] componentUserTypes);
+    void setComponentUserTypes(UserType[] componentUserTypes);
 
 }

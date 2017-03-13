@@ -50,8 +50,8 @@ public class JbpmDayPart {
         String fromText = dayPartText.substring(0, separatorIndex).trim().toLowerCase();
         String toText = dayPartText.substring(separatorIndex + 1).trim().toLowerCase();
 
-        Date from = CalendarUtil.convertToDate(fromText, CalendarUtil.HOURS_MINUTES_FORMAT);
-        Date to = CalendarUtil.convertToDate(toText, CalendarUtil.HOURS_MINUTES_FORMAT);
+        Date from = CalendarUtil.convertToDate(fromText, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+        Date to = CalendarUtil.convertToDate(toText, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
 
         Calendar calendar = getCalendarWithDate(from);
         fromHour = calendar.get(Calendar.HOUR_OF_DAY);

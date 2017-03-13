@@ -28,7 +28,7 @@ public class DefaultBusinessCalendar extends AbstractBusinessCalendar {
         for (String propertyName : BusinessCalendarProperties.getResources().getAllPropertyNames()) {
             if (propertyName.startsWith("holiday")) {
                 String string = BusinessCalendarProperties.getResources().getStringProperty(propertyName);
-                Calendar calendar = CalendarUtil.convertToCalendar(string, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+                Calendar calendar = CalendarUtil.convertToCalendar(string, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
                 CalendarUtil.setZeroTimeCalendar(calendar);
                 HOLIDAYS.add(calendar);
             }
@@ -46,8 +46,8 @@ public class DefaultBusinessCalendar extends AbstractBusinessCalendar {
             }
             String fromText = dayPartText.substring(0, separatorIndex).trim().toLowerCase();
             String toText = dayPartText.substring(separatorIndex + 1).trim().toLowerCase();
-            Date from = CalendarUtil.convertToDate(fromText, CalendarUtil.HOURS_MINUTES_FORMAT);
-            Date to = CalendarUtil.convertToDate(toText, CalendarUtil.HOURS_MINUTES_FORMAT);
+            Date from = CalendarUtil.convertToDate(fromText, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+            Date to = CalendarUtil.convertToDate(toText, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
             workingIntervals.add(new CalendarInterval(from, to));
         }
         return new BusinessDay(workingIntervals);

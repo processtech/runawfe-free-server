@@ -15,7 +15,7 @@ public class VersionInfo implements Serializable {
     }
 
     public VersionInfo(String dateTimeAsString, String author, String comment) {
-        this.date = CalendarUtil.convertToCalendar(dateTimeAsString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+        this.date = CalendarUtil.convertToCalendar(dateTimeAsString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
         this.author = author;
         this.comment = comment;
     }
@@ -25,7 +25,7 @@ public class VersionInfo implements Serializable {
     }
 
     public String getDateAsString() {
-        return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+        return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
     }
 
     public void setDate(Calendar date) {
@@ -33,11 +33,11 @@ public class VersionInfo implements Serializable {
     }
 
     public void setDate(String dateAsString) {
-        this.date = CalendarUtil.convertToCalendar(dateAsString, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+        this.date = CalendarUtil.convertToCalendar(dateAsString, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
     }
 
     public void setDateTime(String dateTimeAsString) {
-        this.date.setTime(CalendarUtil.convertToDate(dateTimeAsString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT));
+        this.date.setTime(CalendarUtil.convertToDate(dateTimeAsString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR));
     }
 
     public String getAuthor() {

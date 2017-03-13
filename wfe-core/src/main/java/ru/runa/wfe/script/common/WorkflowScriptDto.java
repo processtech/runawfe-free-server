@@ -73,6 +73,7 @@ public class WorkflowScriptDto extends OperationsListContainer {
     public static void main(String[] args) throws Exception {
         SchemaOutputResolver outputResolver = new MySchemaOutputResolver();
         JAXBContext.newInstance(WorkflowScriptDto.class).generateSchema(outputResolver);
+        // TODO hard code
         String string = "D:/AL/Work/RunaWFE/src/projects/wfe/wfe-core/src/main/adminkit/scripts/deploy-samples-script.xml";
         WorkflowScriptDto data = (WorkflowScriptDto) JAXBContext.newInstance(WorkflowScriptDto.class).createUnmarshaller()
                 .unmarshal(new FileInputStream(string));
@@ -82,8 +83,6 @@ public class WorkflowScriptDto extends OperationsListContainer {
     }
 
     public static class MySchemaOutputResolver extends SchemaOutputResolver {
-        int idx = 0;
-
         MySchemaOutputResolver() {
         }
 

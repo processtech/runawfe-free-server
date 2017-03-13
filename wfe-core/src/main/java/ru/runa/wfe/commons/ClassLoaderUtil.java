@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
+import com.google.common.io.Closeables;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -123,13 +124,18 @@ public class ClassLoaderUtil {
                 is = getAsStream(resource, ClassLoaderUtil.class);
             }
             if (is != null) {
-                properties.load(new InputStreamReader(is, Charsets.UTF_8));
-                is.close();
+                InputStreamReader reader = new InputStreamReader(is, Charsets.UTF_8);
+                properties.load(reader);
+                Closeables.closeQuietly(reader);
+                Closeables.closeQuietly(is);
             }
             is = getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + resource, ClassLoaderUtil.class);
             if (is != null) {
-                properties.load(new InputStreamReader(is, Charsets.UTF_8));
-                is.close();
+                try (InputStreamReader reader = new InputStreamReader(is , Charsets.UTF_8)) {
+                    properties.load(reader);
+                } finally {
+                    is.close();
+                }
             }
         } catch (IOException e) {
             throw new InternalApplicationException("couldn't load properties file '" + resource + "'", e);

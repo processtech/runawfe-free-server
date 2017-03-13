@@ -30,18 +30,17 @@ public class ChooseValueFromList extends FormComponent {
         String variableName = getParameterAsString(0);
         WfVariable variable = variableProvider.getVariableNotNull(variableName);
         String scriptingName = variable.getDefinition().getScriptingNameWithoutDots();
-        String html = "";
-        html += "<div class='radioset'>";
+        StringBuilder html = new StringBuilder("<div class='radioset'>");
         int i = 1;
         for (String option : getOptions()) {
-            html += "<input type='radio' name='" + variableName + "' value='" + option + "' id='" + scriptingName + "." + i + "' ";
+            html.append("<input type='radio' name='").append(variableName).append("' value='").append(option).append("' id='").append(scriptingName).append(".").append(i).append("' ");
             if (Objects.equal(variable.getValue(), option)) {
-                html += "checked='checked' ";
+                html.append("checked='checked' ");
             }
-            html += "/><label for='" + scriptingName + "." + i + "'>" + option + "</label>";
+            html.append("/><label for='").append(scriptingName).append(".").append(i).append("'>").append(option).append("</label>");
             i++;
         }
-        html += "</div>";
+        html.append("</div>");
         return html;
     }
 

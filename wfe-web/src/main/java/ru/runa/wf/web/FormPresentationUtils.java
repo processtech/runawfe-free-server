@@ -384,13 +384,7 @@ public class FormPresentationUtils {
     }
 
     private static void addClassAttribute(Element element, String cssClass) {
-        String cssClasses = element.getAttribute(CSS_CLASS_ATTR);
-        if (cssClasses == null) {
-            cssClasses = "";
-        } else {
-            cssClasses += " ";
-        }
-        cssClasses += cssClass;
+        String cssClasses = element.getAttribute(CSS_CLASS_ATTR) +  " " + cssClass;
         element.setAttribute(CSS_CLASS_ATTR, cssClasses);
     }
 

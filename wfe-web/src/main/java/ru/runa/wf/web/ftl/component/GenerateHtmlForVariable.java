@@ -402,24 +402,24 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     }
 
     public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort, boolean enabled) {
-        String html = "<select name=\"" + variableName + "\"";
+        StringBuilder html = new StringBuilder("<select name=\"").append(variableName).append("\"");
         if (!enabled) {
-            html += " disabled=\"true\"";
+            html.append(" disabled=\"true\"");
         }
-        html += ">";
+        html.append(">");
         if (javaSort) {
             Collections.sort(executors);
         }
-        html += "<option value=\"\"> ------------------------- </option>";
+        html.append("<option value=\"\"> ------------------------- </option>");
         for (Executor executor : executors) {
-            html += "<option value=\"ID" + executor.getId() + "\"";
+            html.append("<option value=\"ID").append(executor.getId()).append("\"");
             if (Objects.equal(executor, value)) {
-                html += " selected";
+                html.append(" selected");
             }
-            html += ">" + executor.getLabel() + "</option>";
+            html.append(">").append(executor.getLabel()).append("</option>");
         }
-        html += "</select>";
-        return html;
+        html.append("</select>");
+        return html.toString();
     }
 
     public static String getFileComponent(WebHelper webHelper, String variableName, IFileVariable value, boolean enabled) {

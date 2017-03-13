@@ -43,7 +43,7 @@ public class StringFormat extends VariableFormat implements VariableDisplaySuppo
         /*
          * internal java-string without html-formatting tags
          */
-        return source.replaceAll("<br>", "\n");
+        return source.replaceAll("<br>", "\n").intern();
     }
 
     @Override

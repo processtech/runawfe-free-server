@@ -81,7 +81,7 @@ public class SortingHeaderBuilder implements HeaderBuilder {
         boolean[] sortingModes = batchPresentation.getFieldsToSortModes();
         Map<Integer, Boolean> sortedFieldsIdModeMap = new HashMap<Integer, Boolean>();
         for (int i = 0; i < sortingFields.length; i++) {
-            sortedFieldsIdModeMap.put(new Integer(sortingFields[i].fieldIdx), new Boolean(sortingModes[i]));
+            sortedFieldsIdModeMap.put(Integer.valueOf(sortingFields[i].fieldIdx), Boolean.valueOf(sortingModes[i]));
         }
         TR tr = new TR();
         createCells(tr, createEmptyStrings(getAditionalNumberOfPrefixEmptyCells()));
@@ -102,7 +102,7 @@ public class SortingHeaderBuilder implements HeaderBuilder {
             tr.addElement(header);
             header.setClass(Resources.CLASS_LIST_TABLE_TH);
             IMG sortingImage = null;
-            Boolean sortingMode = sortedFieldsIdModeMap.get(new Integer(fields[i].fieldIdx));
+            Boolean sortingMode = sortedFieldsIdModeMap.get(Integer.valueOf(fields[i].fieldIdx));
             if (sortingMode != null) {// i.e. there is at least on sorting field
                 if (sortingMode.booleanValue() == BatchPresentationConsts.ASC) {
                     sortingImage = new IMG(Commons.getUrl(Resources.SORT_ASC_IMAGE, pageContext, PortletUrlType.Resource));

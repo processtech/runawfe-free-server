@@ -56,11 +56,13 @@ public class CategoriesIterator implements Iterator<String[]> {
                 if (another == null) {
                     return false;
                 }
+                // TODO странное сравнение
                 if (another.getClass().equals(this.getClass())) {
                     return true;
                 }
                 return false;
             }
+
         });
         for (String[] type : types) {
             for (int i = 0; i < type.length; ++i) {

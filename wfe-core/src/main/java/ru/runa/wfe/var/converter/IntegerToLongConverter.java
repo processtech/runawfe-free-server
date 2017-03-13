@@ -35,11 +35,11 @@ public class IntegerToLongConverter implements Converter {
 
     @Override
     public Object convert(ExecutionContext executionContext, Variable<?> variable, Object o) {
-        return new Long(((Number) o).longValue());
+        return Long.valueOf(((Number) o).longValue());
     }
 
     @Override
     public Object revert(Object o) {
-        return new Integer(((Long) o).intValue());
+        return Integer.valueOf(((Long) o).intValue());
     }
 }

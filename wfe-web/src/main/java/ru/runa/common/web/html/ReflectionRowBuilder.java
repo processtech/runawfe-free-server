@@ -289,14 +289,14 @@ public class ReflectionRowBuilder implements RowBuilder {
         return !currentState.equals(GroupState.STATE_NO_MORE_ELEMENTS);
     }
 
-    protected class DefaultItemUrlStrategy implements ItemUrlStrategy {
-        private final PageContext context;
+    protected static final class DefaultItemUrlStrategy implements ItemUrlStrategy {
 
+        private final PageContext context;
         private final String idPropertyName;
 
         public DefaultItemUrlStrategy(String idPropertyName, PageContext pageContext) {
             this.idPropertyName = idPropertyName;
-            context = pageContext;
+            this.context = pageContext;
         }
 
         @Override

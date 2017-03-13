@@ -58,7 +58,7 @@ public class TaskDeadlineUtils {
 
         Calendar periodCal = Calendar.getInstance();
         periodCal.setTimeInMillis(periodMillis - periodCal.getTimeZone().getOffset(periodMillis));
-        period += CalendarUtil.format(periodCal, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT);
+        period += CalendarUtil.format(periodCal, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT_STR);
 
         if (isStartDateBeforeEndDate) {
             period = "- " + period;
