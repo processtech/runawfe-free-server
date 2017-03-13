@@ -60,6 +60,8 @@ public class WfToken implements Serializable {
         executionStatus = token.getExecutionStatus();
         errorDate = token.getErrorDate();
         errorMessage = token.getErrorMessage();
+        // TODO
+//        transitionId?
     }
 
     public Long getParentId() {

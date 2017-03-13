@@ -274,7 +274,6 @@ public class DefinitionLogic extends WFCommonLogic {
         if (version == null) {
             Deployment latestDeployment = deploymentDAO.findLatestDeployment(definitionName);
             checkPermissionAllowed(user, latestDeployment, DefinitionPermission.UNDEPLOY_DEFINITION);
-            checkLock(user, latestDeployment);
             permissionDAO.deleteAllPermissions(latestDeployment);
             List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definitionName);
             for (Deployment deployment : deployments) {
@@ -283,7 +282,6 @@ public class DefinitionLogic extends WFCommonLogic {
             log.info("Process definition " + latestDeployment + " successfully undeployed");
         } else {
             Deployment deployment = deploymentDAO.findDeployment(definitionName, version);
-            checkLock(user, deployment);
             removeDeployment(user, deployment);
             log.info("Process definition " + deployment + " successfully undeployed");
         }
@@ -583,7 +581,7 @@ public class DefinitionLogic extends WFCommonLogic {
         }
     }
 
-    private final class DefinitionIdentifiable extends Identifiable {
+    private static final class DefinitionIdentifiable extends Identifiable {
 
         private static final long serialVersionUID = 1L;
         private final String deploymentName;
@@ -594,7 +592,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
         @Override
         public Long getIdentifiableId() {
-            return new Long(deploymentName.hashCode());
+            return Long.valueOf(deploymentName.hashCode());
         }
 
         @Override
@@ -607,7 +605,7 @@ public class DefinitionLogic extends WFCommonLogic {
         }
     }
 
-    private final class StartProcessPermissionCheckCallback implements CheckMassPermissionCallback {
+    private static final class StartProcessPermissionCheckCallback implements CheckMassPermissionCallback {
         private final List<WfDefinition> result;
         private final Map<Deployment, ProcessDefinition> processDefinitions;
 

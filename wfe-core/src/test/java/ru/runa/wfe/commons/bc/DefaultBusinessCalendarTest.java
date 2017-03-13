@@ -56,14 +56,14 @@ public class DefaultBusinessCalendarTest extends Assert {
 
     @Test(dataProvider = "getBusinessDurations")
     public void testBusinessTime(String baseDateString, String durationString, String expectedDateString) {
-        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
         Date appliedDate = businessCalendar.apply(baseDate, durationString);
         assertEquals(CalendarUtil.formatDateTime(appliedDate), expectedDateString);
     }
 
     @Test(dataProvider = "getRegularDurations")
     public void testRegularTime(String baseDateString, String durationString, String expectedDateString) {
-        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
         Date appliedDate = businessCalendar.apply(baseDate, durationString);
         assertEquals(CalendarUtil.formatDateTime(appliedDate), expectedDateString);
     }
@@ -72,7 +72,7 @@ public class DefaultBusinessCalendarTest extends Assert {
     public void testDebug() {
         String baseDateString = "03.09.2013 07:30";
         String durationString = "1 business days";
-        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
         Date appliedDate = businessCalendar.apply(baseDate, durationString);
         System.out.println(baseDateString + " -> " + durationString + " -> " + CalendarUtil.formatDateTime(appliedDate));
     }

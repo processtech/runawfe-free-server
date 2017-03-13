@@ -48,10 +48,10 @@ public class DateFilterCriteria extends FilterCriteria {
         super.validate(newTemplates);
         try {
             if (!Strings.isNullOrEmpty(newTemplates[0])) {
-                CalendarUtil.convertToDate(newTemplates[0], CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                CalendarUtil.convertToDate(newTemplates[0], CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
             }
             if (!Strings.isNullOrEmpty(newTemplates[1])) {
-                CalendarUtil.convertToDate(newTemplates[1], CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                CalendarUtil.convertToDate(newTemplates[1], CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
             }
         } catch (Exception e) {
             throw new FilterFormatException(e.getMessage());
@@ -61,10 +61,10 @@ public class DateFilterCriteria extends FilterCriteria {
     private void initDates() {
         try {
             if (!Strings.isNullOrEmpty(getFilterTemplate(0))) {
-                dateStart = CalendarUtil.convertToDate(getFilterTemplate(0), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                dateStart = CalendarUtil.convertToDate(getFilterTemplate(0), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
             }
             if (!Strings.isNullOrEmpty(getFilterTemplate(1))) {
-                dateEnd = CalendarUtil.convertToDate(getFilterTemplate(1), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
+                dateEnd = CalendarUtil.convertToDate(getFilterTemplate(1), CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
             }
         } catch (Exception e) {
             log.error("date parsing error: " + e);

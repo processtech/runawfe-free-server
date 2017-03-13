@@ -47,6 +47,8 @@ public class ContainerElementsRequiredValidator extends FieldValidator {
                 checkValue(itemVariableName, object, false);
                 index++;
             }
+        } if (null == value) {
+            getValidatorContext().addFieldError(variableName, getMessage());
         } else if (value.getClass().isArray()) {
             for (int i = 0; i < Array.getLength(value); i++) {
                 String itemVariableName = variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
@@ -64,10 +66,8 @@ public class ContainerElementsRequiredValidator extends FieldValidator {
             }
         } else if (requireContainerType) {
             addError("Unexpected variable type: " + value.getClass());
-        } else {
-            if (value == null || (value instanceof String && ((String) value).isEmpty())) {
-                getValidatorContext().addFieldError(variableName, getMessage());
-            }
+        } else if (value instanceof String && ((String) value).isEmpty()) {
+            getValidatorContext().addFieldError(variableName, getMessage());
         }
     }
 

@@ -33,8 +33,9 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(TaskDurationFilterCriteria.class);
 
-    private BusinessDuration durationStart;
-    private BusinessDuration durationEnd;
+    // TODO
+    private transient BusinessDuration durationStart;
+    private transient BusinessDuration durationEnd;
 
     public TaskDurationFilterCriteria() {
         super(4);

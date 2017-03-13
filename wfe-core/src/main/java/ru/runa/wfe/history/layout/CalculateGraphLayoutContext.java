@@ -118,7 +118,7 @@ public class CalculateGraphLayoutContext {
     /**
      * Stores offset, saved by Fork Node.
      */
-    public class SubtreeOffset {
+    public static class SubtreeOffset {
         /**
          * Node, which generates offset.
          */

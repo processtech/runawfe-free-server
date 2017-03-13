@@ -153,8 +153,7 @@ public class TaskLogic extends WFCommonLogic {
         ProcessDefinition processDefinition = getDefinition(task);
         MultiTaskNode node = (MultiTaskNode) processDefinition.getNodeNotNull(task.getNodeId());
         for (VariableMapping mapping : node.getVariableMappings()) {
-            Set<Map.Entry<String, Object>> entries = new HashSet<Map.Entry<String, Object>>(variables.entrySet());
-            for (Map.Entry<String, Object> entry : entries) {
+            for (Map.Entry<String, Object> entry : variables.entrySet()) {
                 if (Objects.equal(mapping.getMappedName(), entry.getKey()) || entry.getKey().startsWith(mapping.getMappedName() + UserType.DELIM)) {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),

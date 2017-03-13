@@ -52,7 +52,7 @@ public class WaitNode extends Node {
                 }
                 log.info("Leaving " + timerJob + " from " + executionContext.getNode() + " by transition " + timerJob.getOutTransitionName());
                 executionContext.getNode().leave(executionContext, transition);
-            } else if (Boolean.TRUE == executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION)) {
+            } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
                 log.info("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
                 ApplicationContextFactory.getJobDAO().deleteTimersByName(timerJob.getToken(), timerJob.getName());
             } else if (timerJob.getRepeatDurationString() != null) {

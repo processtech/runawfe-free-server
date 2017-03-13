@@ -112,7 +112,7 @@ public class BotTaskListTag extends TitledFormTag {
         return UpdateBotTasksAction.UPDATE_BOT_TASKS_ACTION_PATH;
     }
 
-    class BotTaskHeaderBuilder implements HeaderBuilder {
+    static class BotTaskHeaderBuilder implements HeaderBuilder {
 
         private final PageContext context;
 

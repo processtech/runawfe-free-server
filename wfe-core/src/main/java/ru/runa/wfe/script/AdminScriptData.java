@@ -4,6 +4,7 @@ import java.util.Map;
 
 import ru.runa.wfe.user.User;
 
+// TODO unused
 public class AdminScriptData {
     private User user;
     private byte[][] processDefinitionsBytes;

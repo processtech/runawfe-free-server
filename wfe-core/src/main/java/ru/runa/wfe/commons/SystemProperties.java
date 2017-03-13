@@ -19,6 +19,7 @@ public class SystemProperties {
 
     public static final String RESOURCE_EXTENSION_PREFIX = "wfe.custom.";
     public static final String DEPRECATED_PREFIX = "deprecated.";
+    @Deprecated
     public static final Calendar SYSTEM_STARTUP_CALENDAR = Calendar.getInstance();
 
     public static final String TIMERTASK_START_MILLIS_JOB_EXECUTION_NAME = "timertask.start.millis.job.execution";
@@ -27,7 +28,8 @@ public class SystemProperties {
     public static final String TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME = "timertask.period.millis.unassigned.tasks.execution";
     public static final String TIMERTASK_START_MILLIS_LDAP_SYNC_NAME = "timertask.start.millis.ldap.sync";
     public static final String TIMERTASK_PERIOD_MILLIS_LDAP_SYNC_NAME = "timertask.period.millis.ldap.sync";
-    private static List<IProcessExecutionListener> processExecutionListeners = null;
+    private static volatile List<IProcessExecutionListener> processExecutionListeners = null;
+    private static volatile Object lockProcessExecutionListeners = new Object();
 
     public static PropertyResources getResources() {
         return RESOURCES;
@@ -294,14 +296,18 @@ public class SystemProperties {
 
     public static List<IProcessExecutionListener> getProcessExecutionListeners() {
         if (processExecutionListeners == null) {
-            processExecutionListeners = Lists.newArrayList();
-            for (String className : RESOURCES.getMultipleStringProperty("process.execution.listeners")) {
-                try {
-                    IProcessExecutionListener listener = ClassLoaderUtil.instantiate(className);
-                    processExecutionListeners.add(listener);
-                } catch (Throwable th) {
-                    processExecutionListeners = null;
-                    Throwables.propagate(th);
+            synchronized (lockProcessExecutionListeners) {
+                if (processExecutionListeners == null) {
+                    processExecutionListeners = Lists.newArrayList();
+                    for (String className : RESOURCES.getMultipleStringProperty("process.execution.listeners")) {
+                        try {
+                            IProcessExecutionListener listener = ClassLoaderUtil.instantiate(className);
+                            processExecutionListeners.add(listener);
+                        } catch (Throwable th) {
+                            processExecutionListeners = null;
+                            Throwables.propagate(th);
+                        }
+                    }
                 }
             }
         }

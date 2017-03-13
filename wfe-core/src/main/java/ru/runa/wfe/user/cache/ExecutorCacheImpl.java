@@ -324,7 +324,7 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
         return getAll(Executor.class);
     }
 
-    private class BatchPresentationFieldEquals {
+    private static class BatchPresentationFieldEquals {
         private final BatchPresentation batchPresentation;
 
         BatchPresentationFieldEquals(BatchPresentation batchPresentation) {

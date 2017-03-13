@@ -102,7 +102,7 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
             long periodMillis = taskEndDate.getTimeInMillis() - taskCreateDate.getTimeInMillis();
             Calendar periodCal = Calendar.getInstance();
             periodCal.setTimeInMillis(periodMillis - periodCal.getTimeZone().getOffset(periodMillis));
-            period += CalendarUtil.format(periodCal, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT);
+            period += CalendarUtil.format(periodCal, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT_STR);
         }
         tr.addElement(new TD().addElement(period).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
