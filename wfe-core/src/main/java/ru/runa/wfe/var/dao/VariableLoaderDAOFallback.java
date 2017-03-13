@@ -14,7 +14,6 @@ import ru.runa.wfe.var.dto.WfVariable;
  *
  * @author AL
  */
-@SuppressWarnings({ "unchecked" })
 public class VariableLoaderDAOFallback extends AbstractVariableLoader {
 
     /**
@@ -45,10 +44,10 @@ public class VariableLoaderDAOFallback extends AbstractVariableLoader {
     @Override
     public Variable<?> get(Process process, String name) {
         Map<String, Variable<?>> loadedProcessVariables = loadedVariables.get(process);
-        if (loadedProcessVariables == null || !loadedProcessVariables.containsKey(name)) {
-            return dao.get(process, name);
+        if (loadedProcessVariables != null && loadedProcessVariables.containsKey(name)) {
+            return loadedProcessVariables.get(name);
         }
-        return loadedProcessVariables.get(name);
+        return dao.get(process, name);
     }
 
     @Override

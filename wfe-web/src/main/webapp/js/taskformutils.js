@@ -23,15 +23,7 @@ $(function() {
 		deleteFile($(this).attr("inputId"));
 	});
 	$(".tabs").tabs();
-	$(".inputText").jqte({
-		blur: function() {
-			$(".jqte_toolbar").hide(true);
-		},
-		focus: function() {
-			$(".jqte_toolbar").show(true);
-		}
-	});
-	$(".jqte_toolbar").hide(true);
+	$(".inputText").jqte();
 });
 
 function initFileInput(dropzone) {

@@ -345,9 +345,6 @@
 	word-wrap:break-word; -ms-word-wrap:break-word;
 	resize:vertical
 }
-.jqte_editor div, .jqte_editor p {
-	margin:0 0 7px
-}
 .jqte_editor a:link, .jqte_editor a:link * {
 	color:#0066FF !important;
 	text-decoration:underline;

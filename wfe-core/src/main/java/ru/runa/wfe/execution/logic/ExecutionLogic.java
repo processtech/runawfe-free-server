@@ -88,7 +88,7 @@ import ru.runa.wfe.var.Variable;
 
 /**
  * Process execution logic.
- * 
+ *
  * @author Dofs
  * @since 2.0
  */
