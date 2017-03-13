@@ -49,14 +49,13 @@ public abstract class AbstractFigure {
 
     protected Node node;
     protected int[] coords;
-
     protected String swimlaneName;
-    protected boolean useEgdingOnly;
+    protected boolean useEdgingOnly;
 
     protected Map<String, TransitionFigure> transitions = new HashMap<String, TransitionFigure>();
     protected RenderHits renderHits;
 
-    public void initFigure(Node node, boolean useEgdingOnly) {
+    public void initFigure(Node node, boolean useEdgingOnly) {
         this.node = node;
         this.coords = node.getGraphConstraints();
         if (node instanceof InteractionNode && ((InteractionNode) node).getTasks().size() > 0) {
@@ -65,7 +64,7 @@ public abstract class AbstractFigure {
                 this.swimlaneName = taskDefinition.getSwimlane().getName();
             }
         }
-        this.useEgdingOnly = useEgdingOnly;
+        this.useEdgingOnly = useEdgingOnly;
     }
 
     public Node getNode() {
@@ -109,7 +108,7 @@ public abstract class AbstractFigure {
     }
 
     protected void drawTextInfo(Graphics2D graphics, int hOffset) {
-        if (!useEgdingOnly) {
+        if (!useEdgingOnly) {
             Color color = graphics.getColor();
             graphics.setColor(DrawProperties.getTextColor());
             if (swimlaneName != null) {

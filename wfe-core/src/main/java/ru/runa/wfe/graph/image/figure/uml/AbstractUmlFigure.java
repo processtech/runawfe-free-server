@@ -29,7 +29,7 @@ public abstract class AbstractUmlFigure extends AbstractFigure {
     protected void drawActions(Graphics2D graphics) {
         if (actionsCount > 0) {
             Color color = graphics.getColor();
-            if (useEgdingOnly) {
+            if (useEdgingOnly) {
                 int shiftX = (ActionUtils.ACTION_DELIM + 2) + actionsCount * (ActionUtils.ACTION_SIZE + (ActionUtils.ACTION_DELIM + 3));
                 int shiftY = ActionUtils.ACTION_SIZE + 6;
                 graphics.setColor(DrawProperties.getBackgroundColor());
