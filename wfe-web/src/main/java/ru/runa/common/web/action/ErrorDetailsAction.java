@@ -71,7 +71,12 @@ public class ErrorDetailsAction extends ActionBase {
                     }
                 }
             } else if ("deleteSystemError".equals(action)) {
-                Errors.removeSystemError(form.getName());
+                for (SystemError systemError : Delegates.getSystemService().getSystemErrors(getLoggedUser(request))) {
+                    if (Objects.equal(systemError.getMessage(), form.getName())) {
+                        Errors.removeSystemError(systemError);
+                        break;
+                    }
+                }
             } else if ("getProcessError".equals(action)) {
                 List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(getLoggedUser(request), form.getId());
                 ProcessErrorType type = ProcessErrorType.valueOf(request.getParameter("type"));
