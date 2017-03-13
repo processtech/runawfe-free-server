@@ -117,7 +117,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
      * add a file to this definition.
      */
     public void addFile(String name, byte[] bytes) {
-        processFiles.put(name, bytes);
+        processFiles.put(name.intern(), bytes);
     }
 
     public void addInteraction(String name, Interaction interaction) {
@@ -431,7 +431,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     }
 
     public void addEmbeddedSubprocess(SubprocessDefinition subprocessDefinition) {
-        embeddedSubprocesses.put(subprocessDefinition.getNodeId(), subprocessDefinition);
+        embeddedSubprocesses.put(subprocessDefinition.getNodeId().intern(), subprocessDefinition);
     }
 
     public List<String> getEmbeddedSubprocessNodeIds() {
