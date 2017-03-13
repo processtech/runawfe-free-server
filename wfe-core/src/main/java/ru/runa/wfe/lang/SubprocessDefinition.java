@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.bpmn2.EndToken;
@@ -20,7 +21,7 @@ public class SubprocessDefinition extends ProcessDefinition {
     }
 
     public SubprocessDefinition(ProcessDefinition parentProcessDefinition) {
-        super(parentProcessDefinition.getDeployment().getCopy());
+        super(parentProcessDefinition.getDeploymentEntity().getCopy());
         this.parentProcessDefinition = parentProcessDefinition;
     }
 
