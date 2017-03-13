@@ -7,6 +7,13 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
@@ -49,13 +56,6 @@ import ru.runa.wfe.lang.jpdl.Join;
 import ru.runa.wfe.lang.jpdl.ReceiveMessageNode;
 import ru.runa.wfe.lang.jpdl.WaitNode;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @SuppressWarnings({ "unchecked" })
 public class JpdlXmlReader {
@@ -102,10 +102,11 @@ public class JpdlXmlReader {
     private static final String ACCESS_TYPE = "accessType";
     private static final String EMBEDDED = "embedded";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
-    private static final String CREATION_MODE = "creationMode";
+    private static final String MULTI_TASK_CREATION_MODE = "multiTaskCreationMode";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
     private static final String BEHAVIOUR = "behavior";
     private static final String BEHAVIOUR_TERMINATE = "TERMINATE";
+    private static final String EXECUTION_CONDITION = "executionCondition";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -273,13 +274,13 @@ public class JpdlXmlReader {
         for (Element element : elements) {
             String variableName = element.attributeValue(NAME_ATTR);
             if (variableName == null) {
-                throw new InvalidDefinitionException(processDefinition.getName(), "the name attribute of a variable element is required: "
-                        + element.asXML());
+                throw new InvalidDefinitionException(processDefinition.getName(),
+                        "the name attribute of a variable element is required: " + element.asXML());
             }
             String mappedName = element.attributeValue(MAPPED_NAME_ATTR);
             if (mappedName == null) {
-                throw new InvalidDefinitionException(processDefinition.getName(), "the mapped-name attribute of a variable element is required: "
-                        + element.asXML());
+                throw new InvalidDefinitionException(processDefinition.getName(),
+                        "the mapped-name attribute of a variable element is required: " + element.asXML());
             }
             String access = element.attributeValue(ACCESS_ATTR, "read,write");
             variableAccesses.add(new VariableMapping(variableName, mappedName, access));
@@ -322,22 +323,23 @@ public class JpdlXmlReader {
         if (node instanceof TaskNode) {
             TaskNode taskNode = (TaskNode) node;
             taskNode.setAsync(Boolean.valueOf(element.attributeValue(ASYNC_ATTR, "false")));
-            taskNode.setCompletionMode(AsyncCompletionMode.valueOf(element.attributeValue(ASYNC_COMPLETION_MODE_ATTR,
-                    AsyncCompletionMode.NEVER.name())));
+            taskNode.setCompletionMode(
+                    AsyncCompletionMode.valueOf(element.attributeValue(ASYNC_COMPLETION_MODE_ATTR, AsyncCompletionMode.NEVER.name())));
             readTasks(processDefinition, element, taskNode);
         }
         if (node instanceof MultiTaskNode) {
             MultiTaskNode multiTaskNode = (MultiTaskNode) node;
             multiTaskNode.setAsync(Boolean.valueOf(element.attributeValue(ASYNC_ATTR, "false")));
-            multiTaskNode.setCompletionMode(AsyncCompletionMode.valueOf(element.attributeValue(ASYNC_COMPLETION_MODE_ATTR,
-                    AsyncCompletionMode.NEVER.name())));
-            multiTaskNode.setSynchronizationMode(MultiTaskSynchronizationMode.valueOf(element.attributeValue(TASK_EXECUTION_MODE_ATTR,
-                    MultiTaskSynchronizationMode.LAST.name())));
+            multiTaskNode.setCompletionMode(
+                    AsyncCompletionMode.valueOf(element.attributeValue(ASYNC_COMPLETION_MODE_ATTR, AsyncCompletionMode.NEVER.name())));
+            multiTaskNode.setSynchronizationMode(
+                    MultiTaskSynchronizationMode.valueOf(element.attributeValue(TASK_EXECUTION_MODE_ATTR, MultiTaskSynchronizationMode.LAST.name())));
             multiTaskNode.setDiscriminatorVariableName(element.attributeValue(TASK_EXECUTORS_ATTR));
             multiTaskNode.setDiscriminatorUsage(element.attributeValue(TASK_EXECUTORS_USAGE));
-            multiTaskNode.setCreationMode(MultiTaskCreationMode.valueOf(element.attributeValue(CREATION_MODE,
-                    MultiTaskCreationMode.BY_EXECUTORS.name())));
+            multiTaskNode.setCreationMode(
+                    MultiTaskCreationMode.valueOf(element.attributeValue(MULTI_TASK_CREATION_MODE, MultiTaskCreationMode.BY_EXECUTORS.name())));
             multiTaskNode.setVariableMappings(readVariableMappings(processDefinition, element));
+            multiTaskNode.setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));
             readTasks(processDefinition, element, multiTaskNode);
         }
         if (node instanceof SubprocessNode) {
@@ -346,6 +348,9 @@ public class JpdlXmlReader {
             if (subProcessElement != null) {
                 subprocessNode.setSubProcessName(subProcessElement.attributeValue(NAME_ATTR));
                 subprocessNode.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
+            }
+            if (node instanceof MultiSubprocessNode) {
+                ((MultiSubprocessNode) node).setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));
             }
         }
         if (node instanceof Decision) {
