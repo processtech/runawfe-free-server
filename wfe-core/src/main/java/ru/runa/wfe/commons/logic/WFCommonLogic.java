@@ -17,14 +17,11 @@
  */
 package ru.runa.wfe.commons.logic;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Objects;
+import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
@@ -48,19 +45,16 @@ import ru.runa.wfe.ss.logic.SubstitutionLogic;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionBy;
 import ru.runa.wfe.task.dao.TaskDAO;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.*;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.validation.ValidatorContext;
 import ru.runa.wfe.validation.ValidatorManager;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.dao.VariableDAO;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created on 15.03.2005
@@ -204,8 +198,6 @@ public class WFCommonLogic extends CommonLogic {
      *
      * @param user
      *            Current user.
-     * @param id
-     *            Identity of process definition, which presentation elements must be loaded.
      * @param visitor
      *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.
      * @return List of graph presentation elements.

@@ -26,6 +26,7 @@ import java.util.Map;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -35,16 +36,8 @@ import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.DefinitionAlreadyExistException;
-import ru.runa.wfe.definition.DefinitionArchiveFormatException;
-import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionNameMismatchException;
-import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.definition.ProcessDefinitionChange;
-import ru.runa.wfe.definition.VersionInfo;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
+import ru.runa.wfe.definition.*;
+import ru.runa.wfe.definition.dao.DeploymentContentDAO;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.CommentsParser;
 import ru.runa.wfe.definition.par.ProcessArchive;
@@ -76,6 +69,9 @@ import com.google.common.collect.Maps;
  */
 public class DefinitionLogic extends WFCommonLogic {
 
+    @Autowired
+    protected DeploymentContentDAO deploymentContentDAO;
+
     static final SecuredObjectType[] securedObjectTypes = new SecuredObjectType[] { SecuredObjectType.DEFINITION };
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
@@ -95,7 +91,7 @@ public class DefinitionLogic extends WFCommonLogic {
         definition.getDeployment().setCategories(categories);
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
-        deploymentDAO.deploy(definition.getDeployment(), null);
+        deploymentContentDAO.deploy((DeploymentContent) definition.getDeployment(), null);
         Collection<Permission> allPermissions = new DefinitionPermission().getAllPermissions();
         permissionDAO.setPermissions(user.getActor(), allPermissions, definition.getDeployment());
         log.debug("Deployed process definition " + definition);
@@ -103,7 +99,7 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
-        Deployment oldDeployment = deploymentDAO.getNotNull(definitionId);
+        DeploymentContent oldDeployment = deploymentContentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, oldDeployment, DefinitionPermission.REDEPLOY_DEFINITION);
         if (processArchiveBytes == null) {
             Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
@@ -143,7 +139,7 @@ public class DefinitionLogic extends WFCommonLogic {
         }
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
-        deploymentDAO.deploy(definition.getDeployment(), oldDeployment);
+        deploymentContentDAO.deploy((DeploymentContent) definition.getDeployment(), oldDeployment);
         log.debug("Process definition " + oldDeployment + " was successfully redeployed");
         return new WfDefinition(definition, true);
     }
@@ -158,7 +154,7 @@ public class DefinitionLogic extends WFCommonLogic {
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes) {
         Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
-        Deployment deployment = deploymentDAO.getNotNull(definitionId);
+        DeploymentContent deployment = deploymentContentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
         ProcessDefinition uploadedDefinition;
         try {
@@ -186,13 +182,15 @@ public class DefinitionLogic extends WFCommonLogic {
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
             }
         }
-        deployment.setContent(uploadedDefinition.getDeployment().getContent());
+        final DeploymentContent deploymentContent = (DeploymentContent)uploadedDefinition.getDeployment();
+        final Deployment deploymentOnly = Deployment.from(deployment);
+        deployment.setContent(deploymentContent.getContent());
         deployment.setUpdateDate(new Date());
         deployment.setUpdateActor(user.getActor());
-        deploymentDAO.update(deployment);
-        addUpdatedDefinitionInProcessLog(user, deployment);
+        deploymentContentDAO.update(deploymentContent);
+        addUpdatedDefinitionInProcessLog(user, deploymentOnly);
         log.debug("Process definition " + deployment + " was successfully updated");
-        return new WfDefinition(deployment);
+        return new WfDefinition(deploymentOnly);
     }
 
     private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
@@ -298,10 +296,10 @@ public class DefinitionLogic extends WFCommonLogic {
     public List<ProcessDefinitionChange> getChanges(Long definitionId) {
         List<ProcessDefinitionChange> result = new ArrayList<>();
         String definitionName = deploymentDAO.get(definitionId).getName();
-        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        List<DeploymentContent> listOfDeployments = deploymentContentDAO.findAllDeploymentVersions(definitionName);
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
-            Deployment deployment = listOfDeployments.get(m);
+            DeploymentContent deployment = listOfDeployments.get(m);
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
             ProcessArchive archiveData = new ProcessArchive(deployment);
@@ -331,10 +329,10 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         List<ProcessDefinitionChange> result = new ArrayList<>();
-        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        List<DeploymentContent> listOfDeployments = deploymentContentDAO.findAllDeploymentVersions(definitionName);
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
-            Deployment deployment = listOfDeployments.get(m);
+            DeploymentContent deployment = listOfDeployments.get(m);
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
             ProcessArchive archiveData = new ProcessArchive(deployment);
@@ -365,10 +363,10 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public List<ProcessDefinitionChange> findChanges(Date date1, Date date2) {
         List<ProcessDefinitionChange> result = new ArrayList<>();
-        List<Deployment> listOfDeployments = deploymentDAO.getAll();
+        List<DeploymentContent> listOfDeployments = deploymentContentDAO.getAll();
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
-            Deployment deployment = listOfDeployments.get(m);
+            DeploymentContent deployment = listOfDeployments.get(m);
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
             ProcessArchive archiveData = new ProcessArchive(deployment);
@@ -399,7 +397,7 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
-        Deployment deployment = deploymentDAO.getNotNull(definitionId);
+        DeploymentContent deployment = deploymentContentDAO.getNotNull(definitionId);
         if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(IFileDataProvider.BOTS_XML_FILE)) {
             checkPermissionAllowed(user, deployment, DefinitionPermission.READ);
         }
@@ -452,7 +450,7 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     private ProcessDefinition parseProcessDefinition(byte[] data) {
-        Deployment deployment = new Deployment();
+        DeploymentContent deployment = new DeploymentContent();
         deployment.setContent(data);
         ProcessArchive archive = new ProcessArchive(deployment);
         return archive.parseProcessDefinition();
@@ -493,9 +491,12 @@ public class DefinitionLogic extends WFCommonLogic {
         List<Deployment> deployments = Lists.newArrayListWithExpectedSize(deploymentIds.size());
         for (Number definitionId : deploymentIds) {
             try {
-                ProcessDefinition definition = getDefinition(definitionId.longValue());
-                processDefinitions.put(definition.getDeployment(), definition);
-                deployments.add(definition.getDeployment());
+                final ProcessDefinition definition = getDefinition(definitionId.longValue());
+                final Deployment deployment = definition.getDeployment() instanceof Deployment
+                        ? (Deployment) definition.getDeployment()
+                        : Deployment.from(definition.getDeployment());
+                processDefinitions.put(deployment, definition);
+                deployments.add(deployment);
             } catch (Exception e) {
                 Deployment deployment = deploymentDAO.get(definitionId.longValue());
                 if (deployment != null) {

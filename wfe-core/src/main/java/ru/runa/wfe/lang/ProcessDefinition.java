@@ -27,12 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.definition.InvalidDefinitionException;
-import ru.runa.wfe.definition.ProcessDefinitionAccessType;
-import ru.runa.wfe.definition.VersionInfo;
+import ru.runa.wfe.definition.*;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.jpdl.Action;
 import ru.runa.wfe.task.Task;
@@ -50,7 +45,7 @@ import com.google.common.collect.Maps;
 public class ProcessDefinition extends GraphElement implements IFileDataProvider {
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
-    protected Deployment deployment;
+    protected DeploymentData deployment;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;
     protected final List<Node> nodes = Lists.newArrayList();
@@ -69,13 +64,13 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     protected ProcessDefinition() {
     }
 
-    public ProcessDefinition(Deployment deployment) {
+    public ProcessDefinition(DeploymentData deployment) {
         this.deployment = deployment;
         processDefinition = this;
     }
 
     public Long getId() {
-        return deployment.getId();
+        return deployment.id();
     }
 
     @Override
@@ -102,8 +97,12 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         deployment.setDescription(description);
     }
 
-    public Deployment getDeployment() {
+    public DeploymentData getDeployment() {
         return deployment;
+    }
+
+    public Deployment getDeploymentEntity() {
+        return deployment instanceof Deployment ? (Deployment) deployment : Deployment.from(deployment);
     }
 
     public ProcessDefinitionAccessType getAccessType() {
@@ -530,4 +529,11 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     public ArrayList<VersionInfo> getVersionInfoList() {
         return versionInfoList;
     }
+
+    public void closeParsing() {
+        if (this.deployment instanceof DeploymentContent) {
+            this.deployment = Deployment.from(this.deployment);
+        }
+    }
+
 }
