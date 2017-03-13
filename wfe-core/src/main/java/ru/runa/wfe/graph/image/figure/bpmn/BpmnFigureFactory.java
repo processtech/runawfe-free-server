@@ -26,7 +26,7 @@ import ru.runa.wfe.lang.Node;
 public class BpmnFigureFactory extends AbstractFigureFactory {
 
     @Override
-    public AbstractFigure createFigure(Node node, boolean useEgdingOnly) {
+    public AbstractFigure createFigure(Node node, boolean useEdgingOnly) {
         AbstractFigure figure = null;
         switch (node.getNodeType()) {
         case TASK_STATE:
@@ -75,7 +75,7 @@ public class BpmnFigureFactory extends AbstractFigureFactory {
         default:
             throw new InternalApplicationException("Unexpected figure type found: " + node.getNodeType());
         }
-        figure.initFigure(node, useEgdingOnly);
+        figure.initFigure(node, useEdgingOnly);
         return figure;
     }
 

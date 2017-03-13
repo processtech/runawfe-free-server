@@ -21,7 +21,7 @@ public abstract class AbstractBpmnFigure extends AbstractFigure {
     }
 
     protected void drawImageIfNoEdgingOnly(Graphics2D graphics, String name, double x, double y) {
-        if (!useEgdingOnly) {
+        if (!useEdgingOnly) {
             drawImage(graphics, name, x, y);
         }
     }
