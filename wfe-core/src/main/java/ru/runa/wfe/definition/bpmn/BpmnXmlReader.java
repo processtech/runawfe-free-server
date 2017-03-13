@@ -83,7 +83,7 @@ public class BpmnXmlReader {
     private static final String LANE_SET = "laneSet";
     private static final String LANE = "lane";
     private static final String FLOW_NODE_REF = "flowNodeRef";
-    private static final String SHOW_WIMLANE = "showSwimlane";
+    private static final String SHOW_SWIMLANE = "showSwimlane";
     private static final String REASSIGN = "reassign";
     private static final String REASSIGN_SWIMLANE_TO_TASK_PERFORMER = "reassignSwimlaneToTaskPerformer";
     private static final String CLASS = "class";
@@ -155,7 +155,7 @@ public class BpmnXmlReader {
             Map<String, String> processProperties = parseExtensionProperties(process);
             processDefinition.setDescription(processProperties.get(DOCUMENTATION));
             defaultTaskDeadline = processProperties.get(DEFAULT_TASK_DEADLINE);
-            String swimlaneDisplayModeName = processProperties.get(SHOW_WIMLANE);
+            String swimlaneDisplayModeName = processProperties.get(SHOW_SWIMLANE);
             if (swimlaneDisplayModeName != null) {
                 // definition.setSwimlaneDisplayMode(SwimlaneDisplayMode.valueOf(swimlaneDisplayModeName));
             }
@@ -305,6 +305,9 @@ public class BpmnXmlReader {
             }
             if (properties.containsKey(ASYNC_COMPLETION_MODE)) {
                 subprocessNode.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
+            }
+            if (node instanceof MultiSubprocessNode && properties.containsKey(DISCRIMINATOR_CONDITION)) {
+                ((MultiSubprocessNode) node).setDiscriminatorCondition(properties.get(DISCRIMINATOR_CONDITION));
             }
         }
         if (node instanceof ExclusiveGateway) {
