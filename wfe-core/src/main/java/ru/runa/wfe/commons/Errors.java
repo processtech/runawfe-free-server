@@ -45,8 +45,8 @@ public class Errors {
         }
     }
 
-    public static void removeSystemError(String message) {
-        systemErrors.remove(message);
+    public static void removeSystemError(SystemError systemError) {
+        systemErrors.remove(systemError);
     }
 
     public static boolean addProcessError(ProcessError processError, String nodeName, Throwable throwable) {
