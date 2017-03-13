@@ -2,6 +2,7 @@ package ru.runa.wfe.definition;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
+import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -34,6 +35,9 @@ public abstract class DeploymentData extends Identifiable {
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private Actor lockActor;
+    private Date lockDate;
+    private Boolean lockForAll;
 
     @Transient
     public Long id() {
@@ -101,7 +105,7 @@ public abstract class DeploymentData extends Identifiable {
 
     @ManyToOne
     @JoinColumn(name = "CREATE_USER_ID")
-    @org.hibernate.annotations.ForeignKey(name = "FK_DEFINITION_CREATE_USER")
+    @ForeignKey(name = "FK_DEFINITION_CREATE_USER")
     public Actor getCreateActor() {
         return createActor;
     }
@@ -121,13 +125,42 @@ public abstract class DeploymentData extends Identifiable {
 
     @ManyToOne
     @JoinColumn(name = "UPDATE_USER_ID")
-    @org.hibernate.annotations.ForeignKey(name = "FK_DEFINITION_UPDATE_USER")
+    @ForeignKey(name = "FK_DEFINITION_UPDATE_USER")
     public Actor getUpdateActor() {
         return updateActor;
     }
 
     public void setUpdateActor(Actor updateActor) {
         this.updateActor = updateActor;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "LOCK_USER_ID")
+    @ForeignKey(name = "FK_DEFINITION_LOCK_USER")
+    public Actor getLockActor() {
+        return lockActor;
+    }
+
+    public void setLockActor(Actor lockActor) {
+        this.lockActor = lockActor;
+    }
+
+    @Column(name = "LOCK_DATE", nullable = true)
+    public Date getLockDate() {
+        return lockDate;
+    }
+
+    public void setLockDate(Date lockDate) {
+        this.lockDate = lockDate;
+    }
+
+    @Column(name = "LOCK_FOR_ALL")
+    public Boolean getLockForAll() {
+        return lockForAll;
+    }
+
+    public void setLockForAll(Boolean lockForAll) {
+        this.lockForAll = lockForAll;
     }
 
     @Transient

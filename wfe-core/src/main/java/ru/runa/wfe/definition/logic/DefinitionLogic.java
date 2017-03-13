@@ -147,7 +147,7 @@ public class DefinitionLogic extends WFCommonLogic {
         }
         deploymentContentDAO.deploy((DeploymentContent) definition.getDeployment(), oldDeployment);
         if (definition.getDeployment().getLockActor() != null) {
-            deploymentDAO.update(oldDeployment);
+            deploymentContentDAO.update(oldDeployment);
         }
         log.debug("Process definition " + oldDeployment + " was successfully redeployed");
         return new WfDefinition(definition, true);
@@ -563,7 +563,7 @@ public class DefinitionLogic extends WFCommonLogic {
         }
     }
 
-    private void checkLock(User user, Deployment deployment) {
+    private void checkLock(User user, DeploymentData deployment) {
         if (deployment.getLockActor() == null) {
             return;
         }
