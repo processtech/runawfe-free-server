@@ -17,23 +17,17 @@
  */
 package ru.runa.wfe.definition.cache;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
-
-import ru.runa.wfe.commons.cache.BaseCacheImpl;
-import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
-import ru.runa.wfe.commons.cache.ChangedObjectParameter;
+import ru.runa.wfe.commons.cache.*;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.DeploymentContent;
 import ru.runa.wfe.definition.dao.DeploymentContentDAO;
-import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ProcessDefinition;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefinitionCache {
 

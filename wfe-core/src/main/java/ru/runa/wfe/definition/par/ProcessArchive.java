@@ -101,7 +101,7 @@ public class ProcessArchive {
             }
         }
         processDefinition.mergeWithEmbeddedSubprocesses();
-        processDefinition.closeParsing();
+        processDefinition.clearDeploymentContent();
         return processDefinition;
     }
 
