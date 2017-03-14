@@ -56,7 +56,11 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 15.03.2005
