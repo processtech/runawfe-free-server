@@ -13,9 +13,9 @@ import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
 
 /**
- * Helper for {@link Calendar} and {@link CalendarInterval}.
- * All operations with {@link Calendar}, which return value, are immutable and create new Calendar instance.
- *
+ * Helper for {@link Calendar} and {@link CalendarInterval}. All operations with {@link Calendar}, which return value, are immutable and create new
+ * Calendar instance.
+ * 
  * @author dofs
  * @since 4.0
  */
@@ -26,8 +26,6 @@ public class CalendarUtil {
     public static final String DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR = SystemProperties.getDateFormatPattern() + " HH:mm:ss";
     public static final String HOURS_MINUTES_FORMAT_STR = "HH:mm";
     public static final String HOURS_MINUTES_SECONDS_FORMAT_STR = "HH:mm:ss";
-
-
 
     @Deprecated
     public static final DateFormat DATE_WITHOUT_TIME_FORMAT = new SimpleDateFormat(SystemProperties.getDateFormatPattern());
@@ -143,11 +141,11 @@ public class CalendarUtil {
     }
 
     public static String formatDateTime(Date date) {
-        return format(date, DATE_WITHOUT_TIME_FORMAT_STR);
+        return format(date, DATE_WITH_HOUR_MINUTES_FORMAT_STR);
     }
 
     public static String formatTime(Date date) {
-        return format(date, DATE_WITHOUT_TIME_FORMAT_STR);
+        return format(date, HOURS_MINUTES_FORMAT_STR);
     }
 
     /**
@@ -210,13 +208,12 @@ public class CalendarUtil {
     }
 
     /**
-     *
+     * 
      * @param oneStart
      *            is a list of start - end pairs of calendar
      * @param oneEnd
      *            is a list of start - end pairs of calendar
-     * @return 0 if no intersection. Returns N milliseconds of total
-     *         intersection time
+     * @return 0 if no intersection. Returns N milliseconds of total intersection time
      */
     private static boolean isIntersectionStrong(Calendar oneStart, Calendar oneEnd, Calendar twoStart, Calendar twoEnd) {
         if (oneEnd.compareTo(twoStart) < 0 || twoEnd.compareTo(oneStart) < 0) {
@@ -455,14 +452,14 @@ public class CalendarUtil {
         return dateToCalendar(convertToDate(dateAsString, dateFormat));
     }
 
-    public static  Calendar convertToCalendar(String dateAsString, String dateFormat) {
+    public static Calendar convertToCalendar(String dateAsString, String dateFormat) {
         return dateToCalendar(convertToDate(dateAsString, dateFormat));
     }
 
     public static void main(String[] arg) {
         CalendarInterval calendarInterval = new CalendarInterval(CalendarUtil.convertToCalendar("01.01.2013 00:00",
                 CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR), CalendarUtil.convertToCalendar("01.01.2013 23:59:59",
-                        CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR));
+                CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR));
         double days = calendarInterval.getDaysBetween();
         System.out.println(days);
         System.out.println((int) days);
