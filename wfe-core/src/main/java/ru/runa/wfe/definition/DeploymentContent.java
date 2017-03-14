@@ -1,8 +1,5 @@
 package ru.runa.wfe.definition;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.*;
 
 /**
@@ -11,8 +8,6 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION")
-@Cache(usage = CacheConcurrencyStrategy.NONE)
-@Cacheable(false)
 public class DeploymentContent extends DeploymentData {
 
     private byte[] content;

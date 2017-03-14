@@ -21,11 +21,10 @@
  */
 package ru.runa.wfe.lang;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.*;
 import ru.runa.wfe.form.Interaction;
@@ -37,10 +36,10 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ProcessDefinition extends GraphElement implements IFileDataProvider {
     private static final long serialVersionUID = 1L;
@@ -80,29 +79,25 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
 
     @Override
     public void setName(String name) {
-        if (deployment.getName() != null) {
+        if (getDeployment().getName() != null) {
             // don't override name from database
             return;
         }
-        deployment.setName(name);
+        getDeployment().setName(name);
     }
 
     @Override
     public String getDescription() {
-        return deployment.getDescription();
+        return getDeployment().getDescription();
     }
 
     @Override
     public void setDescription(String description) {
-        deployment.setDescription(description);
+        getDeployment().setDescription(description);
     }
 
     public DeploymentData getDeployment() {
         return deployment;
-    }
-
-    public Deployment getDeploymentEntity() {
-        return deployment instanceof Deployment ? (Deployment) deployment : Deployment.from(deployment);
     }
 
     public ProcessDefinitionAccessType getAccessType() {
@@ -530,10 +525,13 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         return versionInfoList;
     }
 
-    public void closeParsing() {
+    public DeploymentContent clearDeploymentContent() {
+        DeploymentContent result = null;
         if (this.deployment instanceof DeploymentContent) {
+            result = (DeploymentContent) this.deployment;
             this.deployment = Deployment.from(this.deployment);
         }
+        return result;
     }
 
 }
