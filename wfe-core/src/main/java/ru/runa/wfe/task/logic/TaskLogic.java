@@ -65,7 +65,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Task logic.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -153,12 +153,13 @@ public class TaskLogic extends WFCommonLogic {
         ProcessDefinition processDefinition = getDefinition(task);
         MultiTaskNode node = (MultiTaskNode) processDefinition.getNodeNotNull(task.getNodeId());
         for (VariableMapping mapping : node.getVariableMappings()) {
-            for (Map.Entry<String, Object> entry : variables.entrySet()) {
+            Set<Map.Entry<String, Object>> entries = new HashSet<Map.Entry<String, Object>>(variables.entrySet());
+            for (Map.Entry<String, Object> entry : entries) {
                 if (Objects.equal(mapping.getMappedName(), entry.getKey()) || entry.getKey().startsWith(mapping.getMappedName() + UserType.DELIM)) {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
