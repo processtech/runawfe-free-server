@@ -16,6 +16,7 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -45,9 +46,13 @@ public class Errors {
         }
     }
 
-    public static void removeSystemError(String message) {
-        // TODO it never work
-        systemErrors.remove(message);
+    public static void removeSystemError(String errorMessage) {
+        for (SystemError systemError : systemErrors) {
+            if (Objects.equal(systemError.getMessage(), errorMessage)) {
+                systemErrors.remove(systemError);
+                break;
+            }
+        }
     }
 
     public static boolean addProcessError(ProcessError processError, String nodeName, Throwable throwable) {
