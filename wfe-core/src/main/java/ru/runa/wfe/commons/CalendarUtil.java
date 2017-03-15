@@ -143,7 +143,7 @@ public class CalendarUtil {
     }
 
     public static String formatDateTime(Date date) {
-        return format(date, DATE_WITHOUT_TIME_FORMAT_STR);
+        return format(date, DATE_WITH_HOUR_MINUTES_FORMAT_STR);
     }
 
     public static String formatTime(Date date) {
