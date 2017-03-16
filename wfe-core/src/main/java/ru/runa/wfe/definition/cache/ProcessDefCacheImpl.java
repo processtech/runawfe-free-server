@@ -21,8 +21,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import ru.runa.wfe.commons.cache.*;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.DeploymentContent;
+import ru.runa.wfe.definition.DeploymentData;
 import ru.runa.wfe.definition.dao.DeploymentContentDAO;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -49,12 +49,12 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         definitionNameToId = source.definitionNameToId;
     }
 
-    public synchronized void onDeploymentChange(Deployment deployment, Change change) {
+    public synchronized void onDeploymentChange(DeploymentData deployment, Change change) {
         // TODO different calc depending on change
         readWriteLock.writeLock().lock();
         try {
-            if (deployment.getId() != null) {
-                definitionIdToDefinition.remove(deployment.getId());
+            if (deployment.id() != null) {
+                definitionIdToDefinition.remove(deployment.id());
             }
             definitionNameToId.remove(deployment.getName());
         } finally {
@@ -63,9 +63,10 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     }
 
     /**
-     * This method can be used only in old cache implementation (Synchronization is guaranteed by cache logic). State machine implementation must
+     * @deprecated This method can be used only in old cache implementation (Synchronization is guaranteed by cache logic). State machine implementation must
      * return new cache instance and may not unlock current cache.
      */
+    @Deprecated
     public void Unlock() {
     }
 
@@ -127,11 +128,12 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
 
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        if (changedObject.object instanceof Deployment) {
-            onDeploymentChange((Deployment) changedObject.object, changedObject.changeType);
+        if (null != changedObject.object && DeploymentData.class.isAssignableFrom(changedObject.object.getClass())) {
+            onDeploymentChange((DeploymentData) changedObject.object, changedObject.changeType);
             return true;
         }
         log.error("Unexpected object " + changedObject.object);
         return false;
     }
+
 }

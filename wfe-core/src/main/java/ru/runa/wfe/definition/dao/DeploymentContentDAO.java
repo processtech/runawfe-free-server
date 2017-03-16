@@ -18,8 +18,21 @@ import java.util.List;
  */
 public class DeploymentContentDAO extends GenericDAO<DeploymentContent> {
 
+
+    @Override
+    protected void checkNotNull(DeploymentContent entity, Object identity) {
+        if (entity == null) {
+            throw new DefinitionDoesNotExistException(String.valueOf(identity));
+        }
+    }
+
+    public Long nextVersion(DeploymentContent deployment, DeploymentContent previousLatestVersion) {
+        return null == previousLatestVersion ? 1l : previousLatestVersion.getVersion() + 1;
+    }
+
     public void deploy(DeploymentContent deployment, DeploymentContent previousLatestVersion) {
         // if there is a current latest process definition
+        final Long version = nextVersion(deployment, previousLatestVersion);
         if (previousLatestVersion != null) {
             DeploymentContent latestDeployment = findLatestDeployment(previousLatestVersion.getName());
             if (!Objects.equal(latestDeployment.getId(), previousLatestVersion.getId())) {
@@ -28,10 +41,10 @@ public class DeploymentContentDAO extends GenericDAO<DeploymentContent> {
                         + previousLatestVersion.getVersion() + "'");
             }
             // take the next version number
-            deployment.setVersion(previousLatestVersion.getVersion() + 1);
+            deployment.setVersion(version);
         } else {
             // start from 1
-            deployment.setVersion(1L);
+            deployment.setVersion(version);
         }
         create(deployment);
     }

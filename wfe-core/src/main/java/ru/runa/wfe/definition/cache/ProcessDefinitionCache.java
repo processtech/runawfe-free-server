@@ -37,7 +37,7 @@ interface ProcessDefinitionCache {
      * @throws DefinitionDoesNotExistException
      *             {@link ProcessDefinition} with specified identity doesn't exists.
      */
-    public ProcessDefinition getDefinition(DeploymentContentDAO deploymentDAO, Long definitionId) throws DefinitionDoesNotExistException;
+    ProcessDefinition getDefinition(DeploymentContentDAO deploymentDAO, Long definitionId) throws DefinitionDoesNotExistException;
 
     /**
      * Returns {@link ProcessDefinition} with specified name and latest version.
@@ -50,5 +50,5 @@ interface ProcessDefinitionCache {
      * @throws DefinitionDoesNotExistException
      *             {@link ProcessDefinition} with specified name doesn't exists.
      */
-    public ProcessDefinition getLatestDefinition(DeploymentContentDAO deploymentDAO, String definitionName) throws DefinitionDoesNotExistException;
+    ProcessDefinition getLatestDefinition(DeploymentContentDAO deploymentDAO, String definitionName) throws DefinitionDoesNotExistException;
 }
