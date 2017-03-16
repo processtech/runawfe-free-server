@@ -18,6 +18,14 @@ import java.util.List;
  */
 public class DeploymentContentDAO extends GenericDAO<DeploymentContent> {
 
+
+    @Override
+    protected void checkNotNull(DeploymentContent entity, Object identity) {
+        if (entity == null) {
+            throw new DefinitionDoesNotExistException(String.valueOf(identity));
+        }
+    }
+
     public void deploy(DeploymentContent deployment, DeploymentContent previousLatestVersion) {
         // if there is a current latest process definition
         if (previousLatestVersion != null) {

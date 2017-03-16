@@ -63,9 +63,10 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     }
 
     /**
-     * This method can be used only in old cache implementation (Synchronization is guaranteed by cache logic). State machine implementation must
+     * @deprecated This method can be used only in old cache implementation (Synchronization is guaranteed by cache logic). State machine implementation must
      * return new cache instance and may not unlock current cache.
      */
+    @Deprecated
     public void Unlock() {
     }
 
