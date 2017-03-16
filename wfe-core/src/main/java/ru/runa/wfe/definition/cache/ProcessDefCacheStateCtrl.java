@@ -11,6 +11,7 @@ import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentContent;
 import ru.runa.wfe.definition.dao.DeploymentContentDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
 
@@ -39,6 +40,7 @@ class ProcessDefCacheStateCtrl extends BaseCacheCtrl<ManageableProcessDefinition
     private static final List<ListenObjectDefinition> createListenObjectTypes() {
         ArrayList<ListenObjectDefinition> result = new ArrayList<ListenObjectDefinition>();
         result.add(new ListenObjectDefinition(Deployment.class, ListenObjectLogType.ALL));
+        result.add(new ListenObjectDefinition(DeploymentContent.class, ListenObjectLogType.ALL));
         return result;
     }
 

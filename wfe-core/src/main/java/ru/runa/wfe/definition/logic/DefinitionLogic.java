@@ -76,6 +76,7 @@ public class DefinitionLogic extends WFCommonLogic {
         deploymentContent.setCategories(categories);
         deploymentContent.setCreateDate(new Date());
         deploymentContent.setCreateActor(user.getActor());
+        deploymentContent.setVersion(deploymentContentDAO.nextVersion(deploymentContent, null));
 
         ProcessDefinition definition;
         try {
@@ -114,6 +115,7 @@ public class DefinitionLogic extends WFCommonLogic {
         redeployDeploymentContent.setContent(processArchiveBytes);
         redeployDeploymentContent.setCreateDate(new Date());
         redeployDeploymentContent.setCreateActor(user.getActor());
+        redeployDeploymentContent.setVersion(deploymentContentDAO.nextVersion(redeployDeploymentContent, oldDeployment));
 
         ProcessDefinition newDefinition;
         try {
