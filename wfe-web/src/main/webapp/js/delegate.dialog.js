@@ -26,9 +26,9 @@ function delegateTaskDialog(btn) {
         '</td>' +
         '<td>' +
         '<fieldset class="set selected">' +
-        '<legend>Executors selected</legend>' +
+        '<legend>'+$.delegateDialogStatic.selectedExecutors+'</legend>' +
         '<fieldset class="actor">' +
-        '<legend>Users selected</legend>' +
+        '<legend>'+$.delegateDialogStatic.users+'</legend>' +
         '<ul class="actor">' +
         '</ul>' +
         '</fieldset>' +
