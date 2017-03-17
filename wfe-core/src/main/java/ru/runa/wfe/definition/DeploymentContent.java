@@ -3,6 +3,9 @@ package ru.runa.wfe.definition;
 import javax.persistence.*;
 
 /**
+ *
+ * If use in one transaction with {@link Deployment} for the same row  use this entity only.
+ *
  * @author Egor Litvinenko
  * @since 13.03.17
  */

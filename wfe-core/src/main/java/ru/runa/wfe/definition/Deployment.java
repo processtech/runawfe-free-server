@@ -5,6 +5,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
+/**
+ *
+ * If use in one transaction with {@link DeploymentContent} for the same row use {@link DeploymentContent} only.
+ *
+ * */
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
