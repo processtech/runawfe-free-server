@@ -172,7 +172,7 @@ public class DefinitionLogic extends WFCommonLogic {
         Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
         final DeploymentContent oldDeploymentContent = deploymentContentDAO.getNotNull(definitionId);
         checkPermissionAllowed(user, oldDeploymentContent, DefinitionPermission.REDEPLOY_DEFINITION);
-        checkLock(user, deployment);
+        checkLock(user, oldDeploymentContent);
 
         final DeploymentContent uploadedDeploymentContent = new DeploymentContent();
         uploadedDeploymentContent.setContent(processArchiveBytes);
@@ -570,14 +570,14 @@ public class DefinitionLogic extends WFCommonLogic {
         }
     }
 
-    private void checkLock(User user, Deployment deployment) {
+    private void checkLock(User user, DeploymentData deployment) {
         if (deployment.getLockActor() == null) {
             return;
         }
         if (deployment.getLockForAll() != Boolean.TRUE && user.getActor().equals(deployment.getLockActor())) {
             return;
         }
-        throw new DefinitionLockedException(deployment);
+        throw new DefinitionLockedException(Deployment.from(deployment));
     }
 
     private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
