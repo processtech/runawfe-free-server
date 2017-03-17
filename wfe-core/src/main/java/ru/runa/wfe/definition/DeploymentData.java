@@ -23,7 +23,6 @@ public abstract class DeploymentData extends Identifiable {
     private String name;
     private String description;
     private String category;
-    private byte[] content;
     private Date createDate;
     private Actor createActor;
     private Date updateDate;
