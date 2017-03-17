@@ -1,12 +1,11 @@
 package ru.runa.wfe.commons;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
@@ -16,11 +15,11 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.ByteStreams;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Errors {
     private static Set<SystemError> systemErrors = Sets.newConcurrentHashSet();
@@ -47,9 +46,11 @@ public class Errors {
     }
 
     public static void removeSystemError(String errorMessage) {
-        for (SystemError systemError : systemErrors) {
+        final Iterator<SystemError> iterator = systemErrors.iterator();
+        while (iterator.hasNext()) {
+            final SystemError systemError = iterator.next();
             if (Objects.equal(systemError.getMessage(), errorMessage)) {
-                systemErrors.remove(systemError);
+                iterator.remove();
                 break;
             }
         }

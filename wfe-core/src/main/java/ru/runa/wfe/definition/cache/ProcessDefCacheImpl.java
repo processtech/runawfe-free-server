@@ -17,21 +17,17 @@
  */
 package ru.runa.wfe.definition.cache;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
-
-import ru.runa.wfe.commons.cache.BaseCacheImpl;
-import ru.runa.wfe.commons.cache.Cache;
-import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
-import ru.runa.wfe.commons.cache.ChangedObjectParameter;
+import ru.runa.wfe.commons.cache.*;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.dao.DeploymentDAO;
+import ru.runa.wfe.definition.DeploymentContent;
+import ru.runa.wfe.definition.DeploymentData;
+import ru.runa.wfe.definition.dao.DeploymentContentDAO;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.lang.ProcessDefinition;
+
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefinitionCache {
 
@@ -41,7 +37,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
     private final Cache<Long, ProcessDefinition> definitionIdToDefinition;
     private final Cache<String, Long> definitionNameToId;
 
-    private final AtomicBoolean isLocked = new AtomicBoolean(false);
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     public ProcessDefCacheImpl() {
         definitionIdToDefinition = createCache(definitionIdToDefinitionName);
@@ -53,61 +49,76 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
         definitionNameToId = source.definitionNameToId;
     }
 
-    public synchronized void onDeploymentChange(Deployment deployment, Change change) {
-        isLocked.set(true);
+    public synchronized void onDeploymentChange(DeploymentData deployment, Change change) {
         // TODO different calc depending on change
-        if (deployment.getId() != null) {
-            definitionIdToDefinition.remove(deployment.getId());
+        readWriteLock.writeLock().lock();
+        try {
+            if (deployment.id() != null) {
+                definitionIdToDefinition.remove(deployment.id());
+            }
+            definitionNameToId.remove(deployment.getName());
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
-        definitionNameToId.remove(deployment.getName());
     }
 
     /**
-     * This method can be used only in old cache implementation (Synchronization is guaranteed by cache logic). State machine implementation must
+     * @deprecated This method can be used only in old cache implementation (Synchronization is guaranteed by cache logic). State machine implementation must
      * return new cache instance and may not unlock current cache.
      */
+    @Deprecated
     public void Unlock() {
-        isLocked.set(false);
     }
 
     @Override
-    public ProcessDefinition getDefinition(DeploymentDAO deploymentDAO, Long definitionId) throws DefinitionDoesNotExistException {
+    public ProcessDefinition getDefinition(DeploymentContentDAO deploymentContentDAO, Long definitionId) throws DefinitionDoesNotExistException {
         ProcessDefinition processDefinition = null;
-        // synchronized (this) {
-        processDefinition = definitionIdToDefinition.get(definitionId);
-        if (processDefinition != null) {
-            return processDefinition;
+        readWriteLock.readLock().lock();
+        try {
+            processDefinition = definitionIdToDefinition.get(definitionId);
+            if (processDefinition != null) {
+                return processDefinition;
+            }
+        } finally {
+            readWriteLock.readLock().unlock();
         }
-        // }
-        Deployment deployment = deploymentDAO.getNotNull(definitionId);
-        Hibernate.initialize(deployment);
-        if (deployment instanceof HibernateProxy) {
-            deployment = (Deployment) (((HibernateProxy) deployment).getHibernateLazyInitializer().getImplementation());
+        readWriteLock.writeLock().lock();
+        try {
+            DeploymentContent deploymentContent = deploymentContentDAO.getNotNull(definitionId);
+            Hibernate.initialize(deploymentContent);
+            if (deploymentContent instanceof HibernateProxy) {
+                deploymentContent = (DeploymentContent) (((HibernateProxy) deploymentContent).getHibernateLazyInitializer().getImplementation());
+            }
+            ProcessArchive archive = new ProcessArchive(deploymentContent);
+            processDefinition = archive.parseProcessDefinition();
+            definitionIdToDefinition.put(definitionId, processDefinition);
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
-        ProcessArchive archive = new ProcessArchive(deployment);
-        processDefinition = archive.parseProcessDefinition();
-        // synchronized (this) {
-        definitionIdToDefinition.put(definitionId, processDefinition);
-        // }
         return processDefinition;
     }
 
     @Override
-    public ProcessDefinition getLatestDefinition(DeploymentDAO deploymentDAO, String definitionName) {
+    public ProcessDefinition getLatestDefinition(DeploymentContentDAO deploymentContentDAO, String definitionName) {
         Long definitionId = null;
-        // synchronized (this) {
-        definitionId = definitionNameToId.get(definitionName);
-        if (definitionId != null) {
-            return getDefinition(deploymentDAO, definitionId);
-        }
-        // }
-        definitionId = deploymentDAO.findLatestDeployment(definitionName).getId();
-        synchronized (this) {
-            if (!isLocked.get()) {
-                definitionNameToId.put(definitionName, definitionId);
+        readWriteLock.readLock().lock();
+        try {
+            definitionId = definitionNameToId.get(definitionName);
+            if (definitionId != null) {
+                return getDefinition(deploymentContentDAO, definitionId);
             }
+        } finally {
+            readWriteLock.readLock().unlock();
         }
-        return getDefinition(deploymentDAO, definitionId);
+        definitionId = deploymentContentDAO.findLatestDeployment(definitionName).getId();
+
+        readWriteLock.writeLock().lock();
+        try {
+            definitionNameToId.put(definitionName, definitionId);
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+        return getDefinition(deploymentContentDAO, definitionId);
     }
 
     @Override
@@ -117,11 +128,12 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
 
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        if (changedObject.object instanceof Deployment) {
-            onDeploymentChange((Deployment) changedObject.object, changedObject.changeType);
+        if (null != changedObject.object && DeploymentData.class.isAssignableFrom(changedObject.object.getClass())) {
+            onDeploymentChange((DeploymentData) changedObject.object, changedObject.changeType);
             return true;
         }
         log.error("Unexpected object " + changedObject.object);
         return false;
     }
+
 }
