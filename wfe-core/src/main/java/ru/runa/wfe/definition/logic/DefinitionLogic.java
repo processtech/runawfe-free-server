@@ -17,12 +17,16 @@
  */
 package ru.runa.wfe.definition.logic;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -32,7 +36,19 @@ import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.*;
+import ru.runa.wfe.definition.DefinitionAlreadyExistException;
+import ru.runa.wfe.definition.DefinitionArchiveFormatException;
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
+import ru.runa.wfe.definition.DefinitionNameMismatchException;
+import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentContent;
+import ru.runa.wfe.definition.DeploymentData;
+import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.VersionInfo;
+import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dao.DeploymentContentDAO;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.CommentsParser;
@@ -56,11 +72,9 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Created on 15.03.2005
@@ -121,6 +135,11 @@ public class DefinitionLogic extends WFCommonLogic {
         redeployDeploymentContent.setCreateDate(new Date());
         redeployDeploymentContent.setCreateActor(user.getActor());
         redeployDeploymentContent.setVersion(deploymentContentDAO.nextVersion(redeployDeploymentContent, oldDeployment));
+        if (oldDeployment.getLockActor() != null) {
+            redeployDeploymentContent.setLockActor(oldDeployment.getLockActor());
+            redeployDeploymentContent.setLockDate(oldDeployment.getLockDate());
+            redeployDeploymentContent.setLockForAll(oldDeployment.getLockForAll());
+        }
 
         ProcessDefinition newDefinition;
         try {
@@ -149,11 +168,6 @@ public class DefinitionLogic extends WFCommonLogic {
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
             }
         }
-        if (oldDeployment.getLockActor() != null) {
-            redeployDeploymentContent.setLockActor(oldDeployment.getLockActor());
-            redeployDeploymentContent.setLockDate(oldDeployment.getLockDate());
-            redeployDeploymentContent.setLockForAll(oldDeployment.getLockForAll());
-        }
         deploymentContentDAO.deploy(redeployDeploymentContent, oldDeployment);
         if (redeployDeploymentContent.getLockActor() != null) {
             deploymentContentDAO.update(oldDeployment);
@@ -164,7 +178,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     /**
      * Updates process definition.
-     * 
+     *
      * @param user
      * @param definitionId
      * @param processArchiveBytes
@@ -283,7 +297,6 @@ public class DefinitionLogic extends WFCommonLogic {
         if (version == null) {
             Deployment latestDeployment = deploymentDAO.findLatestDeployment(definitionName);
             checkPermissionAllowed(user, latestDeployment, DefinitionPermission.UNDEPLOY_DEFINITION);
-            checkLock(user, latestDeployment);
             permissionDAO.deleteAllPermissions(latestDeployment);
             List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definitionName);
             for (Deployment deployment : deployments) {
@@ -292,7 +305,6 @@ public class DefinitionLogic extends WFCommonLogic {
             log.info("Process definition " + latestDeployment + " successfully undeployed");
         } else {
             Deployment deployment = deploymentDAO.findDeployment(definitionName, version);
-            checkLock(user, deployment);
             removeDeployment(user, deployment);
             log.info("Process definition " + deployment + " successfully undeployed");
         }
@@ -505,11 +517,10 @@ public class DefinitionLogic extends WFCommonLogic {
         for (Number definitionId : deploymentIds) {
             try {
                 final ProcessDefinition definition = getDefinition(definitionId.longValue());
-                final Deployment deployment = definition.getDeployment() instanceof Deployment
-                        ? (Deployment) definition.getDeployment()
-                        : Deployment.from(definition.getDeployment());
-                processDefinitions.put(deployment, definition);
-                deployments.add(deployment);
+                final Deployment deployment = definition.getDeployment() instanceof Deployment ? (Deployment) definition.getDeployment() : Deployment
+                        .from(definition.getDeployment());
+                        processDefinitions.put(deployment, definition);
+                        deployments.add(deployment);
             } catch (Exception e) {
                 Deployment deployment = deploymentDAO.get(definitionId.longValue());
                 if (deployment != null) {
@@ -540,7 +551,7 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public void lockProcessDefinition(User user, String definitionName, boolean forAll) throws DefinitionDoesNotExistException,
-            DefinitionLockedException {
+    DefinitionLockedException {
         List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definitionName);
         if (deployments.isEmpty()) {
             throw new DefinitionDoesNotExistException(definitionName);
@@ -581,7 +592,7 @@ public class DefinitionLogic extends WFCommonLogic {
         if (deployment.getLockForAll() != Boolean.TRUE && user.getActor().equals(deployment.getLockActor())) {
             return;
         }
-        throw new DefinitionLockedException(deployment);
+        throw new DefinitionLockedException(Deployment.from(deployment));
     }
 
     private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
@@ -594,7 +605,7 @@ public class DefinitionLogic extends WFCommonLogic {
         }
     }
 
-    private final class DefinitionIdentifiable extends Identifiable {
+    private static final class DefinitionIdentifiable extends Identifiable {
 
         private static final long serialVersionUID = 1L;
         private final String deploymentName;

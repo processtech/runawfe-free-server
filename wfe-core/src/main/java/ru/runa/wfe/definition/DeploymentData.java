@@ -1,12 +1,7 @@
 package ru.runa.wfe.definition;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
-import org.hibernate.annotations.ForeignKey;
-import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.security.Identifiable;
-import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.user.Actor;
+import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -15,8 +10,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-import java.util.Date;
-import java.util.List;
+
+import org.hibernate.annotations.ForeignKey;
+
+import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.user.Actor;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 
 /**
  * @author Egor Litvinenko
@@ -136,7 +139,7 @@ public abstract class DeploymentData extends Identifiable {
 
     @ManyToOne
     @JoinColumn(name = "LOCK_USER_ID")
-    @ForeignKey(name = "FK_DEFINITION_LOCK_USER")
+    @org.hibernate.annotations.ForeignKey(name = "FK_DEFINITION_LOCK_USER")
     public Actor getLockActor() {
         return lockActor;
     }
