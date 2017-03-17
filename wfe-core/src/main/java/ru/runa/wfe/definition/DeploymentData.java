@@ -7,13 +7,7 @@ import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
@@ -24,16 +18,19 @@ import java.util.List;
 @MappedSuperclass
 public abstract class DeploymentData extends Identifiable {
     private static final long serialVersionUID = 1L;
-    private Long id;
-    private Long version;
+    private Long id;private Long version;
     private Language language;
     private String name;
     private String description;
     private String category;
+    private byte[] content;
     private Date createDate;
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private Actor lockActor;
+    private Date lockDate;
+    private Boolean lockForAll;
 
     @Transient
     public Long id() {
@@ -128,6 +125,35 @@ public abstract class DeploymentData extends Identifiable {
 
     public void setUpdateActor(Actor updateActor) {
         this.updateActor = updateActor;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "LOCK_USER_ID")
+    @org.hibernate.annotations.ForeignKey(name = "FK_DEFINITION_LOCK_USER")
+    public Actor getLockActor() {
+        return lockActor;
+    }
+
+    public void setLockActor(Actor lockActor) {
+        this.lockActor = lockActor;
+    }
+
+    @Column(name = "LOCK_DATE", nullable = true)
+    public Date getLockDate() {
+        return lockDate;
+    }
+
+    public void setLockDate(Date lockDate) {
+        this.lockDate = lockDate;
+    }
+
+    @Column(name = "LOCK_FOR_ALL")
+    public Boolean getLockForAll() {
+        return lockForAll;
+    }
+
+    public void setLockForAll(Boolean lockForAll) {
+        this.lockForAll = lockForAll;
     }
 
     @Transient
