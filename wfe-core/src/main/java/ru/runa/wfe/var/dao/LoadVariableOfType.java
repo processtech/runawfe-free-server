@@ -193,7 +193,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
                 }
                 if (!(variable.getValue() instanceof ComplexVariable)) {
                     log.error("User type variable " + variableDefinition.getName() + " has unexpected value of type "
-                            + variable.getValue().getClass() + ". Returning default.");
+                            + variable.getValue().getClass() + " in process " + context.process.getId());
                     return variableDefinition.getDefaultValue();
                 }
                 UserTypeMap map = new UserTypeMap(userTypeFormat.getUserType());
@@ -212,7 +212,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     /**
      * Loading variable of simple type (one variable value -> one variable record).
-     *
+     * 
      * @param format
      *            Loaded variable format.
      * @param context

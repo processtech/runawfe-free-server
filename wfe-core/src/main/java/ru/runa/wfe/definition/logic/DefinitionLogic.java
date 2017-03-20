@@ -156,13 +156,13 @@ public class DefinitionLogic extends WFCommonLogic {
         boolean containsAllPreviousComments = newDefinition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier "
+                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                         + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
             }
         }
         if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
             if (containsAllPreviousComments && newDefinition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
-                throw new InternalApplicationException("The new version of definition must contains more than "
+                throw new InternalApplicationException("The new version of definition must contain more than "
                         + oldDefinition.getVersionInfoList().size() + " version comments. Uploaded definition contains "
                         + newDefinition.getVersionInfoList().size()
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
@@ -178,7 +178,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     /**
      * Updates process definition.
-     *
+     * 
      * @param user
      * @param definitionId
      * @param processArchiveBytes
@@ -210,13 +210,13 @@ public class DefinitionLogic extends WFCommonLogic {
         boolean containsAllPreviousComments = uploadedDefinition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier "
+                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                         + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
             }
         }
         if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
             if (containsAllPreviousComments && uploadedDefinition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
-                throw new InternalApplicationException("The new version of definition must contains more than "
+                throw new InternalApplicationException("The new version of definition must contain more than "
                         + oldDefinition.getVersionInfoList().size() + " version comments. Uploaded definition contains "
                         + uploadedDefinition.getVersionInfoList().size()
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
@@ -519,8 +519,8 @@ public class DefinitionLogic extends WFCommonLogic {
                 final ProcessDefinition definition = getDefinition(definitionId.longValue());
                 final Deployment deployment = definition.getDeployment() instanceof Deployment ? (Deployment) definition.getDeployment() : Deployment
                         .from(definition.getDeployment());
-                        processDefinitions.put(deployment, definition);
-                        deployments.add(deployment);
+                processDefinitions.put(deployment, definition);
+                deployments.add(deployment);
             } catch (Exception e) {
                 Deployment deployment = deploymentDAO.get(definitionId.longValue());
                 if (deployment != null) {
@@ -551,7 +551,7 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public void lockProcessDefinition(User user, String definitionName, boolean forAll) throws DefinitionDoesNotExistException,
-    DefinitionLockedException {
+            DefinitionLockedException {
         List<Deployment> deployments = deploymentDAO.findAllDeploymentVersions(definitionName);
         if (deployments.isEmpty()) {
             throw new DefinitionDoesNotExistException(definitionName);
