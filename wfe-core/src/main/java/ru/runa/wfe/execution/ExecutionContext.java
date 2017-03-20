@@ -278,12 +278,12 @@ public class ExecutionContext {
 
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
-        value = convertValueForVariableType(variableDefinition, value);
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(),
                 baseProcessVariableLoader, variableDAO);
         for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull()
                 .processBy(new ConvertToSimpleVariables(), context)) {
-            setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, simpleVariables.value);
+            Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
+            setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
         }
     }
 

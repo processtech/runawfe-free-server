@@ -22,6 +22,7 @@ import ru.runa.wfe.commons.hibernate.Converters;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.async.INodeAsyncExecutor;
+import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
@@ -81,6 +82,10 @@ public class ApplicationContextFactory {
 
     public static ProcessDAO getProcessDAO() {
         return getContext().getBean("processDAO", ProcessDAO.class);
+    }
+
+    public static NodeProcessDAO getNodeProcessDAO() {
+        return getContext().getBean(NodeProcessDAO.class);
     }
 
     public static ProcessLogDAO getProcessLogDAO() {
