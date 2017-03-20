@@ -24,7 +24,6 @@ import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.lang.Node;
@@ -64,6 +63,8 @@ public class NodeAsyncExecutionBean implements MessageListener {
             String nodeId = message.getStringProperty("nodeId");
             log.debug("handling node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
             handleMessage(processId, tokenId, nodeId);
+        } catch (MessagePostponedException e) {
+            throw e;
         } catch (Exception e) {
             log.error(jmsMessage, e);
             throw new MessagePostponedException(e.getMessage());
@@ -77,12 +78,12 @@ public class NodeAsyncExecutionBean implements MessageListener {
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
                     Token token = tokenDAO.getNotNull(tokenId);
+                    if (token.getProcess().hasEnded()) {
+                        log.debug("Ignored execution in ended " + token.getProcess());
+                        return;
+                    }
                     if (!Objects.equal(nodeId, token.getNodeId())) {
                         throw new InternalApplicationException(token + " expected to be in node " + nodeId);
-                    }
-                    if (token.getProcess().getExecutionStatus() == ExecutionStatus.ENDED) {
-                        log.debug("Ignored " + token.getProcess() + " execution");
-                        return;
                     }
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     Node node = processDefinition.getNodeNotNull(token.getNodeId());
