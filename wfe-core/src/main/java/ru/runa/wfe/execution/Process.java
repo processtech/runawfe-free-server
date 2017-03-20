@@ -22,7 +22,6 @@
 package ru.runa.wfe.execution;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -304,15 +303,6 @@ public class Process extends IdentifiableBase {
     private void endSubprocessAndTasksOnMainProcessEndRecursively(ExecutionContext executionContext, Actor canceller) {
         List<Process> subprocesses = executionContext.getSubprocesses();
         if (subprocesses.size() > 0) {
-            ProcessDefinition processDefinition = executionContext.getProcessDefinition();
-            List<Node> nodes = processDefinition.getNodes(true);
-            HashMap<String, SubprocessNode> subProcessesStates = new HashMap<String, SubprocessNode>(subprocesses.size());
-            for (Node node : nodes) {
-                if (node instanceof SubprocessNode) {
-                    SubprocessNode subprocessNode = (SubprocessNode) node;
-                    subProcessesStates.put(subprocessNode.getSubProcessName(), subprocessNode);
-                }
-            }
             IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             for (Process subProcess : subprocesses) {
                 ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
@@ -336,11 +326,12 @@ public class Process extends IdentifiableBase {
                     }
                 }
 
-                String subProcessName = subProcessDefinition.getName();
-                SubprocessNode subprocessNode = subProcessesStates.get(subProcessName);
-
-                if (!subProcess.hasEnded() && subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
-                    subProcess.end(subExecutionContext, canceller);
+                if (!subProcess.hasEnded()) {
+                    NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDAO().findBySubProcessId(subProcess.getId());
+                    SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
+                    if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
+                        subProcess.end(subExecutionContext, canceller);
+                    }
                 }
             }
         }
