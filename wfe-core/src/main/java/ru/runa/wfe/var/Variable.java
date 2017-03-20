@@ -48,18 +48,19 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
-import com.google.common.base.Objects;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.VariableUpdateLog;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.format.VariableFormat;
+
+import com.google.common.base.Objects;
 
 /**
  * Base class for classes that store variable values in the database.
@@ -225,9 +226,7 @@ public abstract class Variable<T extends Object> {
         } else {
             string = String.valueOf(value);
         }
-        if (string.length() > getMaxStringSize()) {
-            string = string.substring(0, getMaxStringSize());
-        }
+        string = Utils.getCuttedString(string, getMaxStringSize());
         return string;
     }
 

@@ -17,12 +17,16 @@
  */
 package ru.runa.wfe.definition.logic;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -32,7 +36,19 @@ import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.*;
+import ru.runa.wfe.definition.DefinitionAlreadyExistException;
+import ru.runa.wfe.definition.DefinitionArchiveFormatException;
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionLockedException;
+import ru.runa.wfe.definition.DefinitionNameMismatchException;
+import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentContent;
+import ru.runa.wfe.definition.DeploymentData;
+import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.VersionInfo;
+import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dao.DeploymentContentDAO;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.CommentsParser;
@@ -56,7 +72,9 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
-import java.util.*;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Created on 15.03.2005
@@ -123,7 +141,6 @@ public class DefinitionLogic extends WFCommonLogic {
             redeployDeploymentContent.setLockForAll(oldDeployment.getLockForAll());
         }
 
-
         ProcessDefinition newDefinition;
         try {
             newDefinition = parseProcessDefinition(redeployDeploymentContent);
@@ -139,13 +156,13 @@ public class DefinitionLogic extends WFCommonLogic {
         boolean containsAllPreviousComments = newDefinition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier "
+                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                         + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
             }
         }
         if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
             if (containsAllPreviousComments && newDefinition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
-                throw new InternalApplicationException("The new version of definition must contains more than "
+                throw new InternalApplicationException("The new version of definition must contain more than "
                         + oldDefinition.getVersionInfoList().size() + " version comments. Uploaded definition contains "
                         + newDefinition.getVersionInfoList().size()
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
@@ -194,13 +211,13 @@ public class DefinitionLogic extends WFCommonLogic {
         boolean containsAllPreviousComments = uploadedDefinition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier "
+                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                         + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
             }
         }
         if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
             if (containsAllPreviousComments && uploadedDefinition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
-                throw new InternalApplicationException("The new version of definition must contains more than "
+                throw new InternalApplicationException("The new version of definition must contain more than "
                         + oldDefinition.getVersionInfoList().size() + " version comments. Uploaded definition contains "
                         + uploadedDefinition.getVersionInfoList().size()
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
@@ -501,9 +518,8 @@ public class DefinitionLogic extends WFCommonLogic {
         for (Number definitionId : deploymentIds) {
             try {
                 final ProcessDefinition definition = getDefinition(definitionId.longValue());
-                final Deployment deployment = definition.getDeployment() instanceof Deployment
-                        ? (Deployment) definition.getDeployment()
-                        : Deployment.from(definition.getDeployment());
+                final Deployment deployment = definition.getDeployment() instanceof Deployment ? (Deployment) definition.getDeployment() : Deployment
+                        .from(definition.getDeployment());
                 processDefinitions.put(deployment, definition);
                 deployments.add(deployment);
             } catch (Exception e) {

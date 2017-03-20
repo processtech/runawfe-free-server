@@ -320,4 +320,11 @@ public class Utils {
         }.executeInTransaction(true);
     }
 
+    public static String getCuttedString(String string, int limit) {
+        if (string != null && string.length() > limit) {
+            return string.substring(0, limit);
+        }
+        return string;
+    }
+
 }
