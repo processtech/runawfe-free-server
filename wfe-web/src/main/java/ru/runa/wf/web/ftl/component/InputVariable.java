@@ -1,5 +1,6 @@
 package ru.runa.wf.web.ftl.component;
 
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -10,9 +11,17 @@ public class InputVariable extends FormComponent {
     protected Object renderRequest() {
         String variableName = getParameterAsString(0);
         WfVariable variable = variableProvider.getVariableNotNull(variableName);
-        String html = "<div class=\"inputVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\">";
-        html += ViewUtil.getComponentInput(user, webHelper, variable);
-        html += "</div>";
+        String componentHtml = ViewUtil.getComponentInput(user, webHelper, variable);
+
+        String tagToUse = "span";
+        if (HTMLUtils.checkForBlockElements(componentHtml)) {
+            tagToUse = "div";
+        }
+
+        String html = "<" + tagToUse + " class=\"inputVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\">";
+        html += componentHtml;
+        html += "</" + tagToUse + ">";
+
         return html;
     }
 
