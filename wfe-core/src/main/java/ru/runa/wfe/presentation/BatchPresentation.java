@@ -41,12 +41,12 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Presentation of objects collection, contains sorting rules, filter rules and so on.
@@ -475,11 +475,28 @@ public class BatchPresentation implements Cloneable, Serializable {
     public List<String> getDynamicFieldsToDisplay(boolean treatGrouppedFieldAsDisplayable) {
         List<String> result = Lists.newArrayList();
         for (int i = 0; i < getFields().dynamics.size(); i++) {
-            if (ArraysCommons.contains(getFields().displayIds, i) || treatGrouppedFieldAsDisplayable
-                    && ArraysCommons.contains(getFields().groupIds, i)) {
+            if (ArraysCommons.contains(getFields().displayIds, i)
+                    || treatGrouppedFieldAsDisplayable && ArraysCommons.contains(getFields().groupIds, i)) {
                 result.add(getFields().dynamics.get(i).getDynamicValue());
             }
         }
         return result;
     }
+
+    /**
+     * Tests if field participates in filters
+     *
+     * @param displayName
+     *            - display name of tested field within current BatchPresentation
+     * @return
+     */
+    public boolean isFieldActuallyFiltered(String displayName) {
+        for (FieldDescriptor fd : getAllFields()) {
+            if (fd.displayName.equals(displayName)) {
+                return isFieldFiltered(fd.fieldIdx);
+            }
+        }
+        return false;
+    }
+
 }

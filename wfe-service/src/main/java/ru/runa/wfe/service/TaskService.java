@@ -53,6 +53,18 @@ public interface TaskService {
     public WfTask getTask(User user, Long taskId) throws TaskDoesNotExistException;
 
     /**
+     * Gets tasks for specified Executor Id
+     *
+     * @param user
+     *            User currently working (used to check rights only!)
+     * @param executorId
+     *            Executor whose tasks are returned (for group - tasks of actors from group, not group itself).
+     * @param batchPresentation
+     * @return
+     */
+    public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation);
+
+    /**
      * Gets all process tasks.
      *
      * @param user
@@ -104,16 +116,14 @@ public interface TaskService {
      * @param taskId
      *            task id
      * @param variables
-     *            variable values, can contain transition name by key
-     *            ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
+     *            variable values, can contain transition name by key ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
      * @param swimlaneActorId
-     *            actor id who will be assigned to task swimlane, can be
-     *            <code>null</code>
+     *            actor id who will be assigned to task swimlane, can be <code>null</code>
      * @throws TaskDoesNotExistException
      * @throws ValidationException
      */
-    public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
-            ValidationException;
+    public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId)
+            throws TaskDoesNotExistException, ValidationException;
 
     /**
      * Marks task as read.

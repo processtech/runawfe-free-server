@@ -28,6 +28,8 @@ import org.apache.ecs.html.TD;
 import org.apache.struts.Globals;
 import org.apache.struts.taglib.html.Constants;
 
+import com.google.common.base.Charsets;
+
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
@@ -35,8 +37,6 @@ import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.task.TaskDoesNotExistException;
-
-import com.google.common.base.Charsets;
 
 public abstract class WFFormTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
@@ -104,8 +104,12 @@ public abstract class WFFormTag extends TitledFormTag {
     }
 
     @Override
-    public boolean isFormButtonVisible() {
+    protected boolean isFormButtonVisible() {
         return formButtonVisible;
+    }
+
+    protected void setFormButtonVisible(boolean isVisible) {
+        this.formButtonVisible = isVisible;
     }
 
     @Override
