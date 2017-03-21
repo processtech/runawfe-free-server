@@ -6,8 +6,8 @@ import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
+
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 
 public class ExclusiveGateway extends Node {
     private static final long serialVersionUID = 1L;
@@ -34,22 +34,18 @@ public class ExclusiveGateway extends Node {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
-        try {
-            if (delegation != null) {
-                log.debug("gateway " + name + " is treated as decision gateway");
-                DecisionHandler decisionHandler = delegation.getInstance();
-                String transitionName = decisionHandler.decide(executionContext);
-                Preconditions.checkNotNull(transitionName, "Null transition name by condition");
-                Transition transition = getLeavingTransitionNotNull(transitionName);
-                log.debug("gateway " + name + " is taking '" + transition + "'");
-                leave(executionContext, transition);
-            } else {
-                log.debug("gateway " + name + " is treated as merge gateway");
-                leave(executionContext, getDefaultLeavingTransitionNotNull());
-            }
-        } catch (Exception exception) {
-            throw Throwables.propagate(exception);
+    protected void execute(ExecutionContext executionContext) throws Exception {
+        if (delegation != null) {
+            log.debug("gateway " + name + " is treated as decision gateway");
+            DecisionHandler decisionHandler = delegation.getInstance();
+            String transitionName = decisionHandler.decide(executionContext);
+            Preconditions.checkNotNull(transitionName, "Null transition name by condition");
+            Transition transition = getLeavingTransitionNotNull(transitionName);
+            log.debug("gateway " + name + " is taking '" + transition + "'");
+            leave(executionContext, transition);
+        } else {
+            log.debug("gateway " + name + " is treated as merge gateway");
+            leave(executionContext, getDefaultLeavingTransitionNotNull());
         }
     }
 

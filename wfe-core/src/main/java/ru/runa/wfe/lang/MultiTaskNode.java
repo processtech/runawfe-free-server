@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
@@ -36,9 +39,6 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 /**
  * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
@@ -115,7 +115,7 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         TaskDefinition taskDefinition = getFirstTaskNotNull();
         MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
         List<?> data = (List<?>) parameters.getDiscriminatorValue();
@@ -154,19 +154,14 @@ public class MultiTaskNode extends BaseTaskNode {
 
     private boolean createTasksByDiscriminator(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
         Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
-        String script = discriminatorCondition;
-        if (Utils.isNullOrEmpty(script)) {
-            // TODO temporary
-            script = (String) executionContext.getVariableValue("multitask condition");
-        }
         List<Integer> ignoredIndexes = Lists.newArrayList();
-        if (!Utils.isNullOrEmpty(script)) {
+        if (!Utils.isNullOrEmpty(discriminatorCondition)) {
             GroovyScriptExecutor scriptExecutor = new GroovyScriptExecutor();
             MapVariableProvider variableProvider = new MapVariableProvider(new HashMap<String, Object>());
             for (int index = 0; index < data.size(); index++) {
                 variableProvider.add("item", data.get(index));
                 variableProvider.add("index", index);
-                boolean result = (Boolean) scriptExecutor.evaluateScript(variableProvider, script);
+                boolean result = (Boolean) scriptExecutor.evaluateScript(variableProvider, discriminatorCondition);
                 if (!result) {
                     ignoredIndexes.add(index);
                 }

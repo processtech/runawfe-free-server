@@ -5,7 +5,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Text format for string representable as text areas.
- * 
+ *
  * @author dofs
  * @since 4.0
  */
@@ -21,4 +21,8 @@ public class TextFormat extends StringFormat implements VariableDisplaySupport {
         return (String) object;
     }
 
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onTextString(this, context);
+    }
 }

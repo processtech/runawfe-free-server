@@ -23,14 +23,16 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
+import com.google.common.base.Strings;
+
 public class FormatCommons {
 
     private static VariableFormat create(String className, UserType userType) {
         if (userType != null) {
             return new UserTypeFormat(userType);
         }
-        if (className == null) {
-            className = "ru.runa.wfe.var.format.StringFormat";
+        if (Strings.isNullOrEmpty(className)) {
+            className = StringFormat.class.getName();
         }
         VariableFormat format = ClassLoaderUtil.instantiate(className);
         if (format instanceof VariableFormatContainer) {

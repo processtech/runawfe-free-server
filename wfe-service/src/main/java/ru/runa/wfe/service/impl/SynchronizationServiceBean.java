@@ -25,6 +25,8 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.security.logic.LDAPLogic;
 import ru.runa.wfe.service.SynchronizationService;
 import ru.runa.wfe.service.interceptors.CacheReloader;
@@ -33,20 +35,18 @@ import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Preconditions;
-
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ SpringBeanAutowiringInterceptor.class, CacheReloader.class, EjbExceptionSupport.class, PerformanceObserver.class,
-    EjbTransactionSupport.class })
+        EjbTransactionSupport.class })
 public class SynchronizationServiceBean implements SynchronizationService {
     @Autowired
     private LDAPLogic importer;
 
     @Override
-    public void synchronizeExecutorsWithLDAP(User user, boolean createExecutors) {
+    public void synchronizeExecutorsWithLDAP(User user, boolean createExecutors, boolean updateExecutors, boolean deleteExecutors) {
         Preconditions.checkArgument(user != null, "user");
-        importer.synchronizeExecutors(false, createExecutors);
+        importer.synchronizeExecutors(false, createExecutors, updateExecutors, deleteExecutors);
     }
 
 }

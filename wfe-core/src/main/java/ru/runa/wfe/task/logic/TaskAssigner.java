@@ -5,17 +5,18 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.runa.wfe.commons.Errors;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
-import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.extension.AssignmentHandler;
+import ru.runa.wfe.extension.assign.AssignmentException;
+import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDAO;
-
-import com.google.common.base.Throwables;
 
 public class TaskAssigner {
     private static final Log log = LogFactory.getLog(TaskAssigner.class);
@@ -25,12 +26,8 @@ public class TaskAssigner {
     private TaskDAO taskDAO;
 
     @Transactional
-    public void assignTask(Task task, boolean throwError) {
-        if (task.getProcess().hasEnded()) {
-            log.error("Deleting task for finished process: " + task);
-            task.delete();
-            return;
-        }
+    public boolean assignTask(Task task) {
+        ProcessError processError = new ProcessError(ProcessErrorType.assignment, task.getProcess().getId(), task.getNodeId());
         try {
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(task.getProcess());
             if (task.getSwimlane() != null) {
@@ -38,16 +35,23 @@ public class TaskAssigner {
                 AssignmentHandler handler = delegation.getInstance();
                 handler.assign(new ExecutionContext(processDefinition, task), task);
             }
-            ProcessExecutionErrors.removeProcessError(task.getProcess().getId(), task.getNodeId());
-        } catch (Throwable th) {
-            log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "'", th);
-            if (throwError) {
-                Throwables.propagate(th);
+            if (task.getExecutor() != null) {
+                Errors.removeProcessError(processError);
+                return true;
             } else {
-                ProcessExecutionException e = new ProcessExecutionException(ProcessExecutionException.TASK_ASSIGNMENT_FAILED, th, task.getName());
-                ProcessExecutionErrors.addProcessError(task, e);
+                Errors.addProcessError(processError, task.getName(), new NoExecutorAssignedException());
+            }
+        } catch (Throwable th) {
+            if (Errors.addProcessError(processError, task.getName(), th)) {
+                if (th instanceof AssignmentException) {
+                    log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "': "
+                            + th.getMessage());
+                } else {
+                    log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "'", th);
+                }
             }
         }
+        return false;
     }
 
 }

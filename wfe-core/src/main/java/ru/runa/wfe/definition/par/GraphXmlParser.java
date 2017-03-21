@@ -9,12 +9,12 @@ import org.dom4j.Element;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
-import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.Bendpoint;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 
 import com.google.common.base.Throwables;
@@ -55,12 +55,10 @@ public class GraphXmlParser implements ProcessArchiveParser {
                     boolean minimizedView = Boolean.parseBoolean(nodeElement.attributeValue("minimizedView", "false"));
                     ((Node) graphElement).setGraphMinimizedView(minimizedView);
                     transitionSource = (Node) graphElement;
-                } else if (graphElement instanceof Action) {
-                    // in case of BPMN timer in task state
-                    transitionSource = (Node) graphElement.getParent();
-                    ;
                 } else {
-                    LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
+                    if (!(graphElement instanceof SwimlaneDefinition)) {
+                        LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
+                    }
                     continue;
                 }
                 List<Element> transitionElements = nodeElement.elements(TRANSITION_ELEMENT);

@@ -60,10 +60,9 @@ public class BatchPresentationFactory {
         return result;
     }
 
-    // TODO this method for loading all must be changed? It actually not loaded all - it loaded much, but not all.
     public BatchPresentation createNonPaged() {
         BatchPresentation batchPresentation = createDefault(BatchPresentationConsts.DEFAULT_ID);
-        batchPresentation.setRangeSize(10000);
+        batchPresentation.setRangeSize(BatchPresentationConsts.RANGE_SIZE_UNLIMITED);
         return batchPresentation;
     }
 

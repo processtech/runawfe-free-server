@@ -58,6 +58,8 @@ import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
 public class BatchPresentation implements Cloneable, Serializable {
     private static final long serialVersionUID = 6631653373163613071L;
 
+    public final static String REFERENCE_SIGN = "\u2192"; // HTML entity (&rarr;) = '->' RIGHTWARDS ARROW
+
     private Long id;
     private Long version;
     private ClassPresentationType type;
@@ -454,6 +456,7 @@ public class BatchPresentation implements Cloneable, Serializable {
         clone.name = name;
         clone.type = type;
         clone.fields = FieldsSerializer.fromDataSafe(type, FieldsSerializer.toData(type, getFields()));
+        clone.rangeSize = rangeSize;
         clone.createDate = new Date();
         return clone;
     }

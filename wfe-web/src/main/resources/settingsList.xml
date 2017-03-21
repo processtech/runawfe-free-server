@@ -27,6 +27,9 @@
 		<property title="ldap.connection.password" />
 		<property title="ldap.synchronizer.ou" />
 		<property title="ldap.synchronizer.create.executors" />
+		<property title="ldap.synchronizer.update.executors" />
+		<property title="ldap.synchronizer.delete.executors" />
+
 		<property title="date.format.pattern" />
 		<property title="executionServiceAPI.updateVariables.enabled">
 			<value>true</value>
@@ -59,6 +62,14 @@
 			<value>false</value>
 		</property>
 		<property title="auto.invocation.local.botstation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.comments.collisions.allowed">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.comments.empty.allowed">
 			<value>true</value>
 			<value>false</value>
 		</property>
@@ -97,6 +108,14 @@
 			<value>false</value>
 		</property>
 		<property title="synchronization.ldap.create.executors">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="synchronization.ldap.update.executors">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="synchronization.ldap.delete.executors">
 			<value>true</value>
 			<value>false</value>
 		</property>

@@ -60,4 +60,9 @@ public class StringFormat extends VariableFormat implements VariableDisplaySuppo
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
         return String.valueOf(object).replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\"", "&quot;");
     }
+
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onString(this, context);
+    }
 }

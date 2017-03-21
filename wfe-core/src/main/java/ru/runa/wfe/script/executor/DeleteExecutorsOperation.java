@@ -25,7 +25,7 @@ public class DeleteExecutorsOperation extends ExecutorsSetContainerOperation {
     public void validate(ScriptExecutionContext context) {
         super.validate(false);
         if (deleteExecutors.size() == 0 && !super.isStandartIdentitiesSetDefined()) {
-            throw new AdminScriptException(SCRIPT_NAME + " must contains " + DeleteExecutorOperation.SCRIPT_NAME
+            throw new AdminScriptException(SCRIPT_NAME + " must contain " + DeleteExecutorOperation.SCRIPT_NAME
                     + " or standart executor set definition elements.");
         }
     }

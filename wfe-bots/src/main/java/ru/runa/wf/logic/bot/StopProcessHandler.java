@@ -4,11 +4,12 @@ import java.util.Map;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
+import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
@@ -24,12 +25,14 @@ public class StopProcessHandler extends TaskHandlerBase implements ActionHandler
 
     @Override
     public void execute(ExecutionContext executionContext) throws Exception {
-        ProcessDAO processDAO = ApplicationContextFactory.getProcessDAO();
         Long processId = TypeConversionUtil.convertTo(Long.class,
                 paramsDef.getInputParamValueNotNull("processId", executionContext.getVariableProvider()));
         if (processId > 0) {
-            ru.runa.wfe.execution.Process process = processDAO.get(processId);
-            process.end(executionContext, null);
+            ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDAO().get(processId);
+            IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+            ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
+            ExecutionContext targetExecutionContext = new ExecutionContext(processDefinition, process);
+            process.end(targetExecutionContext, null);
         } else {
             log.warn("ProcessID = " + processId + ", don't stopping process");
         }

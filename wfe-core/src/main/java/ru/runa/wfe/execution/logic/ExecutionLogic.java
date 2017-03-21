@@ -22,6 +22,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -79,16 +86,9 @@ import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * Process execution logic.
- *
+ * 
  * @author Dofs
  * @since 2.0
  */
@@ -115,11 +115,6 @@ public class ExecutionLogic extends WFCommonLogic {
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation) {
         List<Object> data = getPersistentObjects(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES, true);
         return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
-    }
-
-    public List<WfProcess> getProcesses(User user, ProcessFilter filter) {
-        List<Process> processes = getProcessesInternal(user, filter);
-        return toWfProcesses(processes, null);
     }
 
     public void deleteProcesses(User user, final ProcessFilter filter) {
@@ -149,7 +144,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public WfProcess getParentProcess(User user, Long processId) throws ProcessDoesNotExistException {
-        NodeProcess nodeProcess = nodeProcessDAO.getNodeProcessByChild(processId);
+        NodeProcess nodeProcess = nodeProcessDAO.findBySubProcessId(processId);
         if (nodeProcess == null) {
             return null;
         }
@@ -245,7 +240,7 @@ public class ExecutionLogic extends WFCommonLogic {
                 }
             }
             if (childProcessId != null) {
-                highlightedToken = nodeProcessDAO.getNodeProcessByChild(childProcessId).getParentToken();
+                highlightedToken = nodeProcessDAO.findBySubProcessId(childProcessId).getParentToken();
             }
             if (subprocessId != null) {
                 processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
@@ -343,8 +338,9 @@ public class ExecutionLogic extends WFCommonLogic {
         Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newDeploymentVersion);
         process.setDeployment(nextDeployment);
         processDAO.update(process);
-        processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
-                newDeploymentVersion), process, null);
+        processLogDAO.addLog(
+                new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(), newDeploymentVersion),
+                process, null);
         return true;
     }
 
@@ -410,15 +406,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     private List<Process> getProcessesInternal(User user, ProcessFilter filter) {
-        List<Process> processes;
-        if (filter.getFailedOnly()) {
-            processes = Lists.newArrayList();
-            for (Long processId : ProcessExecutionErrors.getProcessErrors().keySet()) {
-                processes.add(processDAO.get(processId));
-            }
-        } else {
-            processes = processDAO.getProcesses(filter);
-        }
+        List<Process> processes = processDAO.getProcesses(filter);
         processes = filterIdentifiable(user, processes, ProcessPermission.READ);
         return processes;
     }
@@ -441,7 +429,7 @@ public class ExecutionLogic extends WFCommonLogic {
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
+                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                     for (String variableName : variableNamesToInclude) {
                         try {
                             wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));

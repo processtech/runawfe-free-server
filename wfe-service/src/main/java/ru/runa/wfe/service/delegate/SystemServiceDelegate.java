@@ -20,16 +20,11 @@ package ru.runa.wfe.service.delegate;
 import java.util.List;
 
 import ru.runa.wfe.commons.dao.Localization;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.service.SystemService;
 import ru.runa.wfe.user.User;
 
-/**
- * Base interface which implementaions provide operations on ASystem they are
- * represent. For example {@link SystemServiceDelegete}represents delegete to
- * AASystem. Created on 17.08.2004
- * 
- * 
- */
 public class SystemServiceDelegate extends EJB3Delegate implements SystemService {
 
     public SystemServiceDelegate() {
@@ -76,31 +71,58 @@ public class SystemServiceDelegate extends EJB3Delegate implements SystemService
         }
     }
 
-	@Override
-	public String getSetting(String fileName, String name) {
-		try {
+    @Override
+    public String getSetting(String fileName, String name) {
+        try {
             return getSystemService().getSetting(fileName, name);
         } catch (Exception e) {
             throw handleException(e);
         }
-	}
+    }
 
-	@Override
-	public void setSetting(String fileName, String name, String value) {
-		try {
+    @Override
+    public void setSetting(String fileName, String name, String value) {
+        try {
             getSystemService().setSetting(fileName, name, value);
         } catch (Exception e) {
             throw handleException(e);
         }
-	}
-	
-	@Override
-	public void clearSettings() {
-		try {
+    }
+
+    @Override
+    public void clearSettings() {
+        try {
             getSystemService().clearSettings();
         } catch (Exception e) {
             throw handleException(e);
         }
-	}
+    }
+
+    @Override
+    public List<ProcessError> getAllProcessErrors(User user) {
+        try {
+            return getSystemService().getAllProcessErrors(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<ProcessError> getProcessErrors(User user, Long processId) {
+        try {
+            return getSystemService().getProcessErrors(user, processId);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<SystemError> getSystemErrors(User user) {
+        try {
+            return getSystemService().getSystemErrors(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
 
 }

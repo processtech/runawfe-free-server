@@ -20,9 +20,9 @@ public class StringMatcher implements VariableTypeMatcher {
         }
         int len = ((String) value).length();
         if (large) {
-            return len > Variable.MAX_STRING_SIZE;
+            return len > Variable.getMaxStringSize();
         }
-        return len <= Variable.MAX_STRING_SIZE;
+        return len <= Variable.getMaxStringSize();
     }
 
 }

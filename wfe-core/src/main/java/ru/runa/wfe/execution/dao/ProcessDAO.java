@@ -10,6 +10,7 @@ import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -35,6 +36,13 @@ public class ProcessDAO extends GenericDAO<Process> {
      */
     public List<Process> findAllProcesses(Long definitionId) {
         return getHibernateTemplate().find("from Process where deployment.id=? order by startDate desc", definitionId);
+    }
+
+    public List<Process> find(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return Lists.newArrayList();
+        }
+        return getHibernateTemplate().findByNamedParam("from Process where id in (:ids)", "ids", ids);
     }
 
     public Set<Number> getDependentProcessIds(Executor executor) {
@@ -93,6 +101,10 @@ public class ProcessDAO extends GenericDAO<Process> {
                 if (filter.getEndDateTo() != null) {
                     conditions.add("endDate <= :endDateTo");
                     parameters.put("endDateTo", filter.getEndDateTo());
+                }
+                if (filter.getFailedOnly()) {
+                    conditions.add("executionStatus = :executionStatus");
+                    parameters.put("executionStatus", ExecutionStatus.FAILED);
                 }
                 if (conditions.size() == 0) {
                     throw new IllegalArgumentException("Filter should be specified");

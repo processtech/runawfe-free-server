@@ -24,6 +24,7 @@ import java.util.Map;
 import org.hibernate.Query;
 
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.security.SecuredObjectType;
 
 import com.google.common.collect.Lists;
@@ -86,7 +87,7 @@ public class PresentationCompiler<T extends Object> implements IBatchPresentatio
             query.setParameterList("ownersIds", compilerParams.getOwners());
             placeholders.remove("ownersIds");
         }
-        if (compilerParams.isPagingEnabled()) {
+        if (compilerParams.isPagingEnabled() && batchPresentation.getRangeSize() != BatchPresentationConsts.RANGE_SIZE_UNLIMITED) {
             query.setFirstResult((batchPresentation.getPageNumber() - 1) * batchPresentation.getRangeSize());
             query.setMaxResults(batchPresentation.getRangeSize());
         }

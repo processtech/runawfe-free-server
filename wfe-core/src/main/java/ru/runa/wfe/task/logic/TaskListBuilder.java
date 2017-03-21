@@ -142,7 +142,7 @@ public class TaskListBuilder implements ITaskListBuilder {
             if (!Utils.isNullOrEmpty(variableNames)) {
                 Process process = state.getTask().getProcess();
                 ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
-                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables);
+                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                 for (String variableName : variableNames) {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
                 }
@@ -508,8 +508,8 @@ public class TaskListBuilder implements ITaskListBuilder {
                 }
                 continue;
             }
-            int substitutionRules = checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor,
-                    substitutorActor);
+            int substitutionRules =
+                    checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor, substitutorActor);
             if ((substitutionRules & SUBSTITUTION_APPLIES) == 0) {
                 continue;
             }

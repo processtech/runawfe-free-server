@@ -6,12 +6,11 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 
 import ru.runa.wfe.graph.DrawProperties;
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.util.AngleInfo;
 import ru.runa.wfe.graph.image.util.Line;
 import ru.runa.wfe.graph.image.util.LineUtils;
 
-public class SendMessageNodeFigure extends AbstractFigure {
+public class SendMessageNodeFigure extends AbstractUmlFigure {
 
     private Polygon createPolygon() {
         Rectangle r = getRectangle();
@@ -30,7 +29,7 @@ public class SendMessageNodeFigure extends AbstractFigure {
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {
         graphics.drawPolygon(createPolygon());
-        if (!useEgdingOnly) {
+        if (!useEdgingOnly) {
             Rectangle r = getRectangle();
             drawTextInfo(graphics, (int) r.getHeight() / 2 - DrawProperties.getFontSize());
         }

@@ -17,6 +17,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_INSANCE_VARIABLE_LIST = new StrutsMessage("title.process_variable_list");
     public static final StrutsMessage TITLE_PROCESS = new StrutsMessage("title.process");
     public static final StrutsMessage TITLE_PROCESS_DEFINITION = new StrutsMessage("title.process_definition");
+    public static final StrutsMessage TITLE_PROCESS_DEFINITION_CHANGES = new StrutsMessage("title.process_definition_changes");
     public static final StrutsMessage TITLE_TASKS = new StrutsMessage("title.tasks");
     public static final StrutsMessage TITLE_ACTOR_TASKS = new StrutsMessage("title.actor_tasks");
     public static final StrutsMessage TITLE_GROUP_TASKS = new StrutsMessage("title.group_tasks");
