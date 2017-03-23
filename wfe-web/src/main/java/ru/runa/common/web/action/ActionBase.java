@@ -20,11 +20,28 @@ public abstract class ActionBase extends Action {
         return Commons.getUser(request.getSession());
     }
 
-    @Override
-    protected ActionMessages getErrors(HttpServletRequest request) {
-        ActionMessages errors = (ActionMessages) request.getAttribute(Globals.ERROR_KEY);
+    protected void addError(HttpServletRequest request, Exception e) {
+        ActionMessages errors = getActionMessages(request, Globals.ERROR_KEY);
+        ActionExceptionHelper.addException(errors, e);
+        saveErrors(request.getSession(), errors);
+    }
+
+    protected void addError(HttpServletRequest request, ActionMessage message) {
+        ActionMessages errors = getActionMessages(request, Globals.ERROR_KEY);
+        errors.add(ActionMessages.GLOBAL_MESSAGE, message);
+        saveErrors(request.getSession(), errors);
+    }
+
+    protected void addMessage(HttpServletRequest request, ActionMessage message) {
+        ActionMessages messages = getActionMessages(request, Globals.MESSAGE_KEY);
+        messages.add(ActionMessages.GLOBAL_MESSAGE, message);
+        saveMessages(request.getSession(), messages);
+    }
+
+    private ActionMessages getActionMessages(HttpServletRequest request, String key) {
+        ActionMessages errors = (ActionMessages) request.getAttribute(key);
         if (errors == null) {
-            errors = (ActionMessages) request.getSession().getAttribute(Globals.ERROR_KEY);
+            errors = (ActionMessages) request.getSession().getAttribute(key);
         }
         if (errors == null) {
             errors = new ActionMessages();
@@ -32,21 +49,4 @@ public abstract class ActionBase extends Action {
         return errors;
     }
 
-    protected void addError(HttpServletRequest request, Exception e) {
-        ActionMessages errors = getErrors(request);
-        ActionExceptionHelper.addException(errors, e);
-        saveErrors(request.getSession(), errors);
-    }
-
-    protected void addError(HttpServletRequest request, ActionMessage message) {
-        ActionMessages errors = getErrors(request);
-        errors.add(ActionMessages.GLOBAL_MESSAGE, message);
-        saveErrors(request.getSession(), errors);
-    }
-
-    protected void addMessage(HttpServletRequest request, ActionMessage message) {
-        ActionMessages messages = getErrors(request);
-        messages.add("userMessages", message);
-        saveErrors(request.getSession(), messages);
-    }
 }
