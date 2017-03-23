@@ -62,6 +62,10 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
         componentToVariableValue = new HttpComponentToVariableValue(executorLoader, errors);
     }
 
+    public Map<String, String> getErrors() {
+        return errors;
+    }
+
     @Override
     public Object onDate(DateFormat dateFormat, VariableDefinition variableDefinition) {
         return defaultFormatProcessing(variableDefinition);
@@ -293,7 +297,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
 
     /**
      * Default value extract algorithm, if no other is specified in on* method.
-     *
+     * 
      * @param variableDefinition
      *            Variable definition which variable value is extracted.
      * @return Returns variable value
