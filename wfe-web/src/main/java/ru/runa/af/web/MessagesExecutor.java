@@ -58,4 +58,8 @@ public final class MessagesExecutor {
     public static final StrutsMessage TITLE_CREATE_RELATION_PAIR = new StrutsMessage("title.create_relation_pair");
     public static final StrutsMessage TITLE_CREATE_ACTOR = new StrutsMessage("title.create_actor");
     public static final StrutsMessage TITLE_CREATE_GROUP = new StrutsMessage("title.create_group");
+
+    public static final StrutsMessage LABEL_YOU_ARE_NOT_ENABLED_WITH_SUBSTITUTIONS = new StrutsMessage("label.you_are_not_active_with_substitutions");
+    public static final StrutsMessage LABEL_YOU_ARE_NOT_ENABLED_WITHOUT_SUBSTITUTIONS = new StrutsMessage(
+            "label.you_are_not_active_without_substitutions");
 }
