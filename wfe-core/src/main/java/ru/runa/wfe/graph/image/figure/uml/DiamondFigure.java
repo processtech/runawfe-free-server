@@ -31,7 +31,7 @@ public class DiamondFigure extends AbstractUmlFigure {
     }
 
     protected boolean drawText() {
-        return !useEgdingOnly;
+        return !useEdgingOnly;
     }
 
     @Override

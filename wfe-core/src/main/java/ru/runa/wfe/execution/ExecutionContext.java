@@ -64,8 +64,6 @@ import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.format.LongFormat;
-import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -280,12 +278,12 @@ public class ExecutionContext {
 
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
-        value = convertValueForVariableType(variableDefinition, value);
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(),
                 baseProcessVariableLoader, variableDAO);
         for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull()
                 .processBy(new ConvertToSimpleVariables(), context)) {
-            setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, simpleVariables.value);
+            Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
+            setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
         }
     }
 
@@ -347,26 +345,6 @@ public class ExecutionContext {
                     variable = variableCreator.create(token.getProcess(), variableDefinition, value);
                     resultingVariableLog = variable.setValue(this, value, variableDefinition.getFormatNotNull());
                     variableDAO.create(variable);
-                    if (variableDefinition.getName().contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)) {
-                        String autoExtendVariableName = variableDefinition.getName();
-                        while (autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)
-                                && autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
-                            int listIndexStart = autoExtendVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
-                            int listIndexEnd = autoExtendVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END);
-                            String listVariableName = autoExtendVariableName.substring(0, listIndexStart);
-                            String sizeVariableName = listVariableName + VariableFormatContainer.SIZE_SUFFIX;
-                            VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
-                            Integer oldSize = (Integer) variableLoader.getVariableValue(processDefinition, token.getProcess(), sizeDefinition);
-                            int listIndex = Integer.parseInt(autoExtendVariableName.substring(listIndexStart
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
-                            int newSize = listIndex + 1;
-                            if (oldSize == null || oldSize.intValue() < newSize) {
-                                log.debug("Auto-extending list " + listVariableName + " size: " + oldSize + " -> " + newSize);
-                                setSimpleVariableValue(processDefinition, token, sizeDefinition, newSize);
-                            }
-                            autoExtendVariableName = listVariableName;
-                        }
-                    }
                 }
             }
         } else {

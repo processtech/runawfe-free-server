@@ -42,7 +42,7 @@ public class WaitStateFigure extends TaskNodeFigure {
     public void draw(Graphics2D graphics, boolean cleanMode) {
         Rectangle r = getRectangle();
         graphics.drawRoundRect(r.x, r.y, r.width, r.height, 20, 10);
-        if (!useEgdingOnly) {
+        if (!useEdgingOnly) {
             int offset = 5, diameter = 18;
             int center = offset + diameter / 2;
             graphics.drawOval(r.x + offset, r.y + offset, diameter, diameter);
@@ -69,8 +69,4 @@ public class WaitStateFigure extends TaskNodeFigure {
         }
     }
 
-    @Override
-    public Rectangle getRectangle() {
-        return new Rectangle(coords[0], coords[1], coords[2], coords[3]);
-    }
 }

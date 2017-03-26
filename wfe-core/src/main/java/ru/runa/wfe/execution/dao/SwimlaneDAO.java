@@ -7,6 +7,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.extension.AssignmentHandler;
+import ru.runa.wfe.extension.assign.AssignmentException;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 
 /**
@@ -41,8 +42,10 @@ public class SwimlaneDAO extends GenericDAO<Swimlane> {
             try {
                 AssignmentHandler assignmentHandler = swimlaneDefinition.getDelegation().getInstance();
                 assignmentHandler.assign(executionContext, swimlane);
+            } catch (AssignmentException e) {
+                log.warn("Unable to assign in " + swimlane + " due to " + e);
             } catch (Exception e) {
-                log.warn("Unable to assign in " + this, e);
+                log.warn("Unable to assign in " + swimlane, e);
             }
         }
         return swimlane;

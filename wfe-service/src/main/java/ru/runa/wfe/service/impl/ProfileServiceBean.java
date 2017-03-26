@@ -54,7 +54,7 @@ public class ProfileServiceBean implements ProfileServiceLocal, ProfileServiceRe
     @WebResult(name = "result")
     public Profile getProfile(@WebParam(name = "user") User user) {
         Preconditions.checkArgument(user != null, "user");
-        return profileLogic.getProfile(user, user.getActor().getId());
+        return profileLogic.getProfile(user.getActor());
     }
 
     @Override

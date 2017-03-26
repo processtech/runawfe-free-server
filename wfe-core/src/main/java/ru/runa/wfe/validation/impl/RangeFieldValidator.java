@@ -22,19 +22,19 @@ import ru.runa.wfe.validation.FieldValidator;
 /**
  * Base class for range based validators.
  */
-public abstract class AbstractRangeValidator<T extends Object> extends FieldValidator {
+public class RangeFieldValidator<T extends Object> extends FieldValidator {
 
-    protected Comparable getComparableValue() {
-        return (Comparable<T>) getFieldValue();
+    protected T getMinComparatorValue(Class<T> clazz) {
+        return getParameter(clazz, "min", null);
     }
 
-    protected abstract T getMinComparatorValue();
-
-    protected abstract T getMaxComparatorValue();
+    protected T getMaxComparatorValue(Class<T> clazz) {
+        return getParameter(clazz, "max", null);
+    }
 
     @Override
     public void validate() {
-        Comparable<T> value = getComparableValue();
+        Comparable<T> value = (Comparable<T>) getFieldValue();
         // if there is no value - don't do comparison
         // if a value is required, a required validator should be added to the
         // field
@@ -43,7 +43,7 @@ public abstract class AbstractRangeValidator<T extends Object> extends FieldVali
         }
 
         boolean inclusive = getParameter(boolean.class, "inclusive", true);
-        T minValue = getMinComparatorValue();
+        T minValue = getMinComparatorValue((Class<T>) value.getClass());
         if (minValue != null) {
             if (inclusive) {
                 if (value.compareTo(minValue) < 0) {
@@ -56,7 +56,7 @@ public abstract class AbstractRangeValidator<T extends Object> extends FieldVali
             }
         }
 
-        T maxValue = getMaxComparatorValue();
+        T maxValue = getMaxComparatorValue((Class<T>) value.getClass());
         if (maxValue != null) {
             if (inclusive) {
                 if (value.compareTo(maxValue) > 0) {
