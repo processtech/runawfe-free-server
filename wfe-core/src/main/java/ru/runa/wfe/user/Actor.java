@@ -24,10 +24,10 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
+import ru.runa.wfe.security.SecuredObjectType;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-
-import ru.runa.wfe.security.SecuredObjectType;
 
 /**
  * Actor represents a real user of system that could perform different actions.
@@ -110,7 +110,7 @@ public class Actor extends Executor {
         this.email = email;
     }
 
-    @Column(name = "PHONE", length = 32)
+    @Column(name = "PHONE", length = 1024)
     public String getPhone() {
         return phone;
     }

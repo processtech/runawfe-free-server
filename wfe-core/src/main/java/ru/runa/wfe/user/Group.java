@@ -64,18 +64,6 @@ public class Group extends Executor {
         return SecuredObjectType.GROUP;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if ((obj instanceof Group)) {
-            return super.equals(obj);
-        } else {
-            return false;
-        }
-    }
-
     @Column(name = "E_MAIL")
     public String getLdapGroupName() {
         return ldapGroupName;

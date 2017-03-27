@@ -3,11 +3,11 @@ package ru.runa.wfe.commons;
 import java.util.Calendar;
 import java.util.List;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.lang.NodeType;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
@@ -25,8 +25,6 @@ public class SystemProperties {
     public static final String TIMERTASK_PERIOD_MILLIS_JOB_EXECUTION_NAME = "timertask.period.millis.job.execution";
     public static final String TIMERTASK_START_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME = "timertask.start.unassigned.tasks.execution";
     public static final String TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME = "timertask.period.millis.unassigned.tasks.execution";
-    public static final String TIMERTASK_START_MILLIS_LDAP_SYNC_NAME = "timertask.start.millis.ldap.sync";
-    public static final String TIMERTASK_PERIOD_MILLIS_LDAP_SYNC_NAME = "timertask.period.millis.ldap.sync";
     private static List<IProcessExecutionListener> processExecutionListeners = null;
 
     public static PropertyResources getResources() {
@@ -162,22 +160,6 @@ public class SystemProperties {
 
     public static int getTokenMaximumDepth() {
         return RESOURCES.getIntegerProperty("token.maximum.depth", 100);
-    }
-
-    public static boolean isLDAPSynchronizationEnabled() {
-        return RESOURCES.getBooleanProperty("ldap.synchronizer.enabled", false);
-    }
-
-    public static boolean isLDAPSynchronizationCreate() {
-        return RESOURCES.getBooleanProperty("ldap.synchronizer.create.executors", false);
-    }
-
-    public static boolean isLDAPSynchronizationUpdate() {
-        return RESOURCES.getBooleanProperty("ldap.synchronizer.update.executors", false);
-    }
-
-    public static boolean isLDAPSynchronizationDelete() {
-        return RESOURCES.getBooleanProperty("ldap.synchronizer.delete.executors", false);
     }
 
     public static String getEARFileName() {

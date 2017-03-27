@@ -43,6 +43,6 @@ public class LDAPImporterClient {
 
     private static void importExecutors(String username, String password) {
         User user = Delegates.getAuthenticationService().authenticateByLoginPassword(username, password);
-        Delegates.getSynchronizationService().synchronizeExecutorsWithLDAP(user, true, true, true);
+        Delegates.getSynchronizationService().synchronizeExecutorsWithLDAP(user);
     }
 }

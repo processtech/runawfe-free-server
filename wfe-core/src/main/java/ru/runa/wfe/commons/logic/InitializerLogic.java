@@ -211,15 +211,11 @@ public class InitializerLogic {
         ApplicationContext context = ApplicationContextFactory.getContext();
         PropertyResources resources = SystemProperties.getResources();
         ScheduledTimerTask jobExecutorTask = context.getBean("jobExecutorTask", ScheduledTimerTask.class);
-        ScheduledTimerTask tasksAssignTask = context.getBean("tasksAssignTask", ScheduledTimerTask.class);
-        ScheduledTimerTask ldapSynchronizerTask = context.getBean("ldapSynchronizerTask", ScheduledTimerTask.class);
-
         jobExecutorTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_JOB_EXECUTION_NAME, 60000));
         jobExecutorTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_JOB_EXECUTION_NAME, 60000));
+        ScheduledTimerTask tasksAssignTask = context.getBean("tasksAssignTask", ScheduledTimerTask.class);
         tasksAssignTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME, 60000));
         tasksAssignTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME, 60000));
-        ldapSynchronizerTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_LDAP_SYNC_NAME, 600000));
-        ldapSynchronizerTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_LDAP_SYNC_NAME, 600000));
     }
 
     /**
