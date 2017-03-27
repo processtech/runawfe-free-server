@@ -23,6 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
@@ -234,7 +236,7 @@ public class HTMLUtils {
 
     /**
      * Substitutes arguments for process history logs
-     *
+     * 
      * @param user
      * @param pageContext
      *            can be <code>null</code>
@@ -310,5 +312,26 @@ public class HTMLUtils {
             }
         }
         return result;
+    }
+
+    private static Map<String, Pattern> patternForTagCache = Maps.newHashMap();
+
+    private static Pattern getPatternForTag(String tagName) {
+        final String pattern = "<\\s*%s(\\s+.*>|>)";
+        if (!patternForTagCache.containsKey(tagName)) {
+            patternForTagCache.put(tagName, Pattern.compile(String.format(pattern, tagName), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
+        }
+        return patternForTagCache.get(tagName);
+    }
+
+    public static boolean checkForBlockElements(String html) {
+        Set<String> blockElements = WebResources.getHtmlBlockElements();
+
+        for (String element : blockElements) {
+            Pattern pattern = getPatternForTag(element);
+            if (pattern.matcher(html).find())
+                return true;
+        }
+        return false;
     }
 }
