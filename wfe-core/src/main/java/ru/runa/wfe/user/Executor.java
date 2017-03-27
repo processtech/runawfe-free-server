@@ -44,13 +44,13 @@ import ru.runa.wfe.security.IdentifiableBase;
 import ru.runa.wfe.user.jaxb.ExecutorAdapter;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 /*
  * Created on 01.07.2004
  */
 /**
- * Represents an Executor. Executor is an abstract object of system that could
- * perform different actions.
+ * Represents an Executor. Executor is an abstract object of system that could perform different actions.
  * 
  */
 @Entity
@@ -75,6 +75,7 @@ public abstract class Executor extends IdentifiableBase implements Comparable<Ex
     }
 
     protected Executor(String name, String description) {
+        Preconditions.checkNotNull(name, "name");
         setName(name);
         setDescription(description);
         this.createDate = new Date();

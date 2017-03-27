@@ -57,7 +57,7 @@ public class ExecutorTableBuilder {
      */
     public ExecutorTableBuilder(boolean isActor, PageContext pageContext) {
         if (isActor) {
-            executor = new Actor("", "", "", null, "", "");
+            executor = new Actor("", "", "", null, "", "", "", "");
         } else {
             executor = new Group("", "");
         }
@@ -87,6 +87,12 @@ public class ExecutorTableBuilder {
 
             Input phoneInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.PHONE_INPUT_NAME, actor.getPhone(), enabled, false);
             table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_PHONE.message(pageContext), phoneInput));
+
+            Input titleInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.TITLE_INPUT_NAME, actor.getTitle(), enabled, false);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_TITLE.message(pageContext), titleInput));
+
+            Input departmentInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.DEPARTMENT_INPUT_NAME, actor.getDepartment(), enabled, false);
+            table.addElement(HTMLUtils.createRow(MessagesExecutor.ACTOR_DEPARTMENT.message(pageContext), departmentInput));
         } else {
             Group group = (Group) executor;
             Input adLdapGroupInput = HTMLUtils.createInput(UpdateExecutorDetailsForm.EMAIL_INPUT_NAME, group.getLdapGroupName(), enabled, false);
