@@ -20,11 +20,6 @@ public class UploadedFile {
     private byte[] content;
     private IFileVariable fileVariable;
 
-    /**
-     * Bug fix #1095(http://sourceforge.net/p/runawfe/bugs/1095/) Indicates that the user has uploaded a file to the server
-     */
-    private boolean flagFor1095;
-
     public UploadedFile() {
     }
 
@@ -76,11 +71,4 @@ public class UploadedFile {
         return Objects.toStringHelper(getClass()).add("name", name).toString();
     }
 
-    public boolean isFlagFor1095() {
-        return flagFor1095;
-    }
-
-    public void setFlagFor1095(boolean flagFor1095) {
-        this.flagFor1095 = flagFor1095;
-    }
 }
