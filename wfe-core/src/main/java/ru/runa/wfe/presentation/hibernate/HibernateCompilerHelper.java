@@ -38,7 +38,7 @@ public final class HibernateCompilerHelper {
 
     /**
      * Check, if field must affects SQL query.
-     *
+     * 
      * @param field
      *            Filed to check.
      * @param batchPresentation
@@ -49,8 +49,8 @@ public final class HibernateCompilerHelper {
         if (field.fieldState == FieldState.DISABLED) {
             return false;
         }
-        final List<FieldDescriptor> dysplayFields = Arrays.asList(batchPresentation.getDisplayFields());
-        if (!field.isWeakJoin && dysplayFields.contains(field)) {
+        final List<FieldDescriptor> displayFields = Arrays.asList(batchPresentation.getDisplayFields());
+        if (displayFields.contains(field)) {
             return true;
         }
         FieldDescriptor[] allFields = batchPresentation.getAllFields();
@@ -60,15 +60,17 @@ public final class HibernateCompilerHelper {
                 break;
             }
         }
-        return batchPresentation.isFieldFiltered(idx) && field.filterMode == FieldFilterMode.DATABASE
-                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) && field.sortable
-                        && (!field.displayName.startsWith(ClassPresentation.filterable_prefix)
-                                || field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
+        return batchPresentation.isFieldFiltered(idx)
+                && field.filterMode == FieldFilterMode.DATABASE
+                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx))
+                && field.sortable
+                && (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || field.displayName
+                        .startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
     }
 
     /**
      * Parse identifier from string.
-     *
+     * 
      * @param sqlRequest
      *            String to parse identifier from.
      * @param tableName
@@ -78,12 +80,16 @@ public final class HibernateCompilerHelper {
      * @return Parsed identifier.
      */
     public static String getIdentifier(StringBuilder sqlRequest, String tableName, boolean forwardSearch) {
-        return getIdentifier(sqlRequest, sqlRequest.indexOf(" ", sqlRequest.indexOf(tableName)), forwardSearch);
+        int fromIndex = sqlRequest.indexOf(" from ");
+        if (-1 == fromIndex) {
+            fromIndex = sqlRequest.indexOf(" FROM ");
+        }
+        return getIdentifier(sqlRequest, sqlRequest.indexOf(" ", sqlRequest.indexOf(tableName, fromIndex)), forwardSearch);
     }
 
     /**
      * Parse identifier from string.
-     *
+     * 
      * @param string
      *            String to parse identifier from.
      * @param idx
@@ -109,7 +115,7 @@ public final class HibernateCompilerHelper {
 
     /**
      * Get table name from Entity class.
-     *
+     * 
      * @param entityClass
      *            Class to parse table name from.
      * @return Parsed table name.

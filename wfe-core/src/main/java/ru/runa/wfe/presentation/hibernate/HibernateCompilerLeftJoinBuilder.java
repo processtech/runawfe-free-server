@@ -211,7 +211,11 @@ public class HibernateCompilerLeftJoinBuilder {
      *            Table name, which must be left joined.
      */
     private void removeJoinedTable(StringBuilder sqlRequest, String tableName) {
-        int fromPosition = sqlRequest.indexOf(tableName);
+        int fromIndex = sqlRequest.indexOf(" from ");
+        if (-1 == fromIndex) {
+            fromIndex = sqlRequest.indexOf(" FROM ");
+        }
+        int fromPosition = sqlRequest.indexOf(tableName, fromIndex);
         int toPosition = sqlRequest.indexOf(",", fromPosition);
         int tmpPos = sqlRequest.indexOf(" where ", fromPosition);
         if ((tmpPos != -1 && tmpPos < toPosition) || toPosition == -1) {
