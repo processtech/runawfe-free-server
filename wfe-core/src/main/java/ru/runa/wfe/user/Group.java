@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.user;
@@ -26,7 +26,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 
 /**
  * Represents a group of {@link Executor}s.
- * 
+ *
  * Created on 01.07.2004
  */
 @Entity
@@ -41,7 +41,7 @@ public class Group extends Executor {
 
     /**
      * Creates an {@link Group}
-     * 
+     *
      * @param name
      *            {@link Group}name
      * @param description
@@ -62,19 +62,6 @@ public class Group extends Executor {
     @Override
     public SecuredObjectType getSecuredObjectType() {
         return SecuredObjectType.GROUP;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        // TODO breaks contract - hashCode
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if ((obj instanceof Group)) {
-            return super.equals(obj);
-        } else {
-            return false;
-        }
     }
 
     @Column(name = "E_MAIL")

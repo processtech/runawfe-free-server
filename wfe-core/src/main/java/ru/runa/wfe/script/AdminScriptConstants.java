@@ -17,6 +17,8 @@ public class AdminScriptConstants {
     public final static String CODE_ATTRIBUTE_NAME = "code";
     public final static String EMAIL_ATTRIBUTE_NAME = "email";
     public final static String PHONE_ATTRIBUTE_NAME = "phone";
+    public final static String TITLE_ATTRIBUTE_NAME = "title";
+    public final static String DEPARTMENT_ATTRIBUTE_NAME = "department";
     public final static String EXECUTOR_ATTRIBUTE_NAME = "executor";
     public final static String ADDRESS_ATTRIBUTE_NAME = "address";
     public final static String BOTSTATION_ATTRIBUTE_NAME = "botStation";
