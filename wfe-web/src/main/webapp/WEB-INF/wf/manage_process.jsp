@@ -1,3 +1,4 @@
+<%@page import="ru.runa.common.web.Commons"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.web.form.IdForm" %>
 <%@ page import="ru.runa.wf.web.form.TaskIdForm" %>
@@ -14,6 +15,7 @@
 
 	<script type="text/javascript" src="<html:rewrite page="/js/errorviewer.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/processgraphutils.js" />">c=0;</script>
+	<script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/processupgrade.dialog.js" />">c=0;</script>
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
