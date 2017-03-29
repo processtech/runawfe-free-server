@@ -154,7 +154,7 @@ public class FormulaActionHandlerOperations {
             return new Double(((Number) o1).doubleValue() + ((Number) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Long.valueOf((long) (((Long) o1).doubleValue() + ((Long) o2).doubleValue()));
+            return new Long((long) (((Long) o1).doubleValue() + ((Long) o2).doubleValue()));
         }
         if (Date.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Date(((Date) o1).getTime() + (long) (((Number) o2).doubleValue() * 60 * 1000));
@@ -189,13 +189,13 @@ public class FormulaActionHandlerOperations {
             return new Double(((Number) o1).doubleValue() - ((Number) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Long.valueOf((long) (((Number) o1).doubleValue() - ((Number) o2).doubleValue()));
+            return new Long((long) (((Number) o1).doubleValue() - ((Number) o2).doubleValue()));
         }
         if (Date.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Date(((Date) o1).getTime() - (long) (((Number) o2).doubleValue() * 60 * 1000));
         }
         if (Date.class.isInstance(o1) && Date.class.isInstance(o2)) {
-            return Long.valueOf((((Date) o1).getTime() - ((Date) o2).getTime()) / 60000);
+            return new Long((((Date) o1).getTime() - ((Date) o2).getTime()) / 60000);
         }
         log.error("Cannot make substraction for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -215,7 +215,7 @@ public class FormulaActionHandlerOperations {
             return new Double(((Number) o1).doubleValue() * ((Number) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Long.valueOf((long) (((Number) o1).doubleValue() * ((Number) o2).doubleValue()));
+            return new Long((long) (((Number) o1).doubleValue() * ((Number) o2).doubleValue()));
         }
         log.error("Cannot make multiplication for " + (o1 != null ? o1.getClass() : "null") + " with " + (o2 != null ? o2.getClass() : "null"));
         return null;
@@ -232,7 +232,7 @@ public class FormulaActionHandlerOperations {
             return new Double(((Double) o1).doubleValue() / ((Number) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Number.class.isInstance(o2)) {
-            return Long.valueOf((long) (((Long) o1).doubleValue() / ((Number) o2).doubleValue()));
+            return new Long((long) (((Long) o1).doubleValue() / ((Number) o2).doubleValue()));
         }
         log.error("Cannot make division for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -246,7 +246,7 @@ public class FormulaActionHandlerOperations {
             return new Double(-((Double) o).doubleValue());
         }
         if (Long.class.isInstance(o)) {
-            return Long.valueOf(-((Long) o).longValue());
+            return new Long(-((Long) o).longValue());
         }
         log.error("Cannot make changeSign for " + o.getClass());
         return null;
@@ -254,7 +254,7 @@ public class FormulaActionHandlerOperations {
 
     public Object not(Object o) {
         if (Boolean.class.isInstance(o)) {
-            return !(Boolean) o;
+            return new Boolean(!((Boolean) o).booleanValue());
         }
         log.error("Cannot make not for " + o.getClass());
         return null;
@@ -268,25 +268,22 @@ public class FormulaActionHandlerOperations {
             return asBigDecimal((Number) o1).compareTo((BigDecimal) o2) < 0;
         }
         if (Double.class.isInstance(o1) && Double.class.isInstance(o2)) {
-            return Boolean.valueOf(((Double) o1).doubleValue() < ((Double) o2).doubleValue());
+            return new Boolean(((Double) o1).doubleValue() < ((Double) o2).doubleValue());
         }
         if (Double.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Boolean.valueOf(((Double) o1).doubleValue() < ((Long) o2).doubleValue());
+            return new Boolean(((Double) o1).doubleValue() < ((Long) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Double.class.isInstance(o2)) {
-            return Boolean.valueOf(((Long) o1).doubleValue() < ((Double) o2).doubleValue());
+            return new Boolean(((Long) o1).doubleValue() < ((Double) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Boolean.valueOf(((Long) o1).longValue() < ((Long) o2).longValue());
+            return new Boolean(((Long) o1).longValue() < ((Long) o2).longValue());
         }
         if (String.class.isInstance(o1) && String.class.isInstance(o2)) {
-            return Boolean.valueOf(((String) o1).compareTo((String) o2) < 0);
+            return new Boolean(((String) o1).compareTo((String) o2) < 0);
         }
         if (Date.class.isInstance(o1) && Date.class.isInstance(o2)) {
-            return Boolean.valueOf(((Date) o1).compareTo((Date) o2) < 0);
-        }
-        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
-            return Boolean.valueOf(((BigDecimal) o1).compareTo((BigDecimal) o2) < 0);
+            return new Boolean(((Date) o1).compareTo((Date) o2) < 0);
         }
         log.error("Cannot make less for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -298,9 +295,9 @@ public class FormulaActionHandlerOperations {
 
     public Object equal(Object o1, Object o2) {
         if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
-            return Boolean.valueOf(((BigDecimal) o1).compareTo((BigDecimal) o2) == 0);
+            return new Boolean(((BigDecimal) o1).compareTo((BigDecimal) o2) == 0);
         }
-        return Boolean.valueOf(o1.equals(o2));
+        return new Boolean(o1.equals(o2));
     }
 
     public Object lessOrEqual(Object o1, Object o2) {
@@ -317,7 +314,7 @@ public class FormulaActionHandlerOperations {
 
     public Object or(Object o1, Object o2) {
         if (Boolean.class.isInstance(o1) && Boolean.class.isInstance(o2)) {
-            return (Boolean) o1 || (Boolean) o2;
+            return new Boolean(((Boolean) o1).booleanValue() || ((Boolean) o2).booleanValue());
         }
         log.error("Cannot make or for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -325,7 +322,7 @@ public class FormulaActionHandlerOperations {
 
     public Object and(Object o1, Object o2) {
         if (Boolean.class.isInstance(o1) && Boolean.class.isInstance(o2)) {
-            return (Boolean) o1 && (Boolean) o2;
+            return new Boolean(((Boolean) o1).booleanValue() && ((Boolean) o2).booleanValue());
         }
         log.error("Cannot make and for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -333,7 +330,7 @@ public class FormulaActionHandlerOperations {
 
     public Object xor(Object o1, Object o2) {
         if (Boolean.class.isInstance(o1) && Boolean.class.isInstance(o2)) {
-            return (Boolean) o1 ^ (Boolean) o2;
+            return new Boolean(((Boolean) o1).booleanValue() ^ ((Boolean) o2).booleanValue());
         }
         log.error("Cannot make xor for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -345,12 +342,12 @@ public class FormulaActionHandlerOperations {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(date);
             if (calendar.get(Calendar.YEAR) == 1970 && calendar.get(Calendar.MONTH) == Calendar.JANUARY && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-                return CalendarUtil.format(date, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+                return CalendarUtil.format(date, CalendarUtil.HOURS_MINUTES_FORMAT);
             }
             if (calendar.get(Calendar.HOUR) == 0 && calendar.get(Calendar.MINUTE) == 0 && calendar.get(Calendar.SECOND) == 0) {
-                return CalendarUtil.format(date, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+                return CalendarUtil.format(date, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
             }
-            return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+            return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         }
         if (Date.class.isAssignableFrom(c) && Date.class.isInstance(o)) {
             return o;
@@ -377,8 +374,8 @@ public class FormulaActionHandlerOperations {
         }
         Date d = (Date) p;
         try {
-            String s = CalendarUtil.format(d, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
-            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+            String s = CalendarUtil.format(d, CalendarUtil.HOURS_MINUTES_FORMAT);
+            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT);
         } catch (Exception e) {
             log.warn("Unparseable time", e);
         }
@@ -395,7 +392,7 @@ public class FormulaActionHandlerOperations {
         if (hours * 60 < minutes) {
             hours++;
         }
-        return Long.valueOf(hours * 60);
+        return new Long(hours * 60);
     }
 
     public Long roundUpFunction(double d) {
@@ -588,8 +585,12 @@ public class FormulaActionHandlerOperations {
                                     zd = 9;
                                 }
                             }
-                        } else if (zb > 10 && za > 16) {
-                            zd = 8;
+                        } else {
+                            boolean b3 = "ой ый".indexOf(suf2) >= 0 && wordType > 4 && !word.substring(len - 4, len).equals("опой") || zb > 10
+                                    && za > 16;
+                            if (b3) {
+                                zd = 8;
+                            }
                         }
                     }
                 }

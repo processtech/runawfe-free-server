@@ -15,28 +15,16 @@ import ru.runa.wfe.InternalApplicationException;
 /**
  * Helper for {@link Calendar} and {@link CalendarInterval}. All operations with {@link Calendar}, which return value, are immutable and create new
  * Calendar instance.
- * 
+ *
  * @author dofs
  * @since 4.0
  */
 public class CalendarUtil {
-
-    public static final String DATE_WITHOUT_TIME_FORMAT_STR = SystemProperties.getDateFormatPattern();
-    public static final String DATE_WITH_HOUR_MINUTES_FORMAT_STR = SystemProperties.getDateFormatPattern() + " HH:mm";
-    public static final String DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR = SystemProperties.getDateFormatPattern() + " HH:mm:ss";
-    public static final String HOURS_MINUTES_FORMAT_STR = "HH:mm";
-    public static final String HOURS_MINUTES_SECONDS_FORMAT_STR = "HH:mm:ss";
-
-    @Deprecated
-    public static final DateFormat DATE_WITHOUT_TIME_FORMAT = new SimpleDateFormat(SystemProperties.getDateFormatPattern());
-    @Deprecated
-    public static final DateFormat DATE_WITH_HOUR_MINUTES_FORMAT = new SimpleDateFormat(SystemProperties.getDateFormatPattern() + " HH:mm");
-    @Deprecated
-    public static final DateFormat DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT = new SimpleDateFormat(SystemProperties.getDateFormatPattern() + " HH:mm:ss");
-    @Deprecated
-    public static final DateFormat HOURS_MINUTES_FORMAT = new SimpleDateFormat("HH:mm");
-    @Deprecated
-    public static final DateFormat HOURS_MINUTES_SECONDS_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    public static final String DATE_WITHOUT_TIME_FORMAT = SystemProperties.getDateFormatPattern();
+    public static final String DATE_WITH_HOUR_MINUTES_FORMAT = SystemProperties.getDateFormatPattern() + " HH:mm";
+    public static final String DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT = SystemProperties.getDateFormatPattern() + " HH:mm:ss";
+    public static final String HOURS_MINUTES_FORMAT = "HH:mm";
+    public static final String HOURS_MINUTES_SECONDS_FORMAT = "HH:mm:ss";
 
     private static final Calendar UNLIMITED_DATE = getZeroTimeCalendar(Calendar.getInstance());
     private static final Calendar ZERO_DATE = getZeroTimeCalendar(Calendar.getInstance());
@@ -118,64 +106,55 @@ public class CalendarUtil {
                 && calendar.get(Calendar.MILLISECOND) == 0;
     }
 
-    /**
-     * @deprecated This method use synchronization of DateFormat. It's better to use method {@link #format(Date, String)} for performance.
-     * */
-    @Deprecated
-    public static String format(Date date, DateFormat dateFormat) {
-        synchronized (dateFormat) {
-            return date == null ? null : dateFormat.format(date);
-        }
-    }
-
-    public static String format(Date date, String dateFormat) {
-        return date == null ? null : new SimpleDateFormat(dateFormat).format(date);
-    }
-
-    public static Date parseDate(String date, String dateFormat) throws ParseException {
-        return date == null ? null : new SimpleDateFormat(dateFormat).parse(date);
+    public static String format(Date date, String format) {
+        return date == null ? null : new SimpleDateFormat(format).format(date);
     }
 
     public static String formatDate(Date date) {
-        return format(date, DATE_WITHOUT_TIME_FORMAT_STR);
+        return format(date, DATE_WITHOUT_TIME_FORMAT);
     }
 
     public static String formatDateTime(Date date) {
-        return format(date, DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+        return format(date, DATE_WITH_HOUR_MINUTES_FORMAT);
     }
 
     public static String formatTime(Date date) {
-        return format(date, HOURS_MINUTES_FORMAT_STR);
+        return format(date, HOURS_MINUTES_FORMAT);
     }
 
-    /**
-     * @deprecated This method use synchronization of DateFormat. It's better to use method {@link #format(Calendar, String)} for performance.
-     * */
+    public static String format(Calendar calendar, String format) {
+        if (calendar == null) {
+            return null;
+        }
+        return format(calendar.getTime(), format);
+    }
+
     @Deprecated
-    public static String format(Calendar calendar, DateFormat dateFormat) {
+    public static String format(Calendar calendar, DateFormat format) {
         if (calendar == null) {
             return null;
         }
-        return format(calendar.getTime(), dateFormat);
+        return format.format(calendar.getTime());
     }
 
-    public static String format(Calendar calendar, String dateFormat) {
-        if (calendar == null) {
+    @Deprecated
+    public static String format(Date date, DateFormat format) {
+        if (date == null) {
             return null;
         }
-        return format(calendar.getTime(), dateFormat);
+        return format.format(date);
     }
 
     public static String formatDate(Calendar calendar) {
-        return format(calendar, DATE_WITHOUT_TIME_FORMAT_STR);
+        return format(calendar, DATE_WITHOUT_TIME_FORMAT);
     }
 
     public static String formatDateTime(Calendar calendar) {
-        return format(calendar, DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+        return format(calendar, DATE_WITH_HOUR_MINUTES_FORMAT);
     }
 
     public static String formatTime(Calendar calendar) {
-        return format(calendar, HOURS_MINUTES_FORMAT_STR);
+        return format(calendar, HOURS_MINUTES_FORMAT);
     }
 
     public static Calendar dateToCalendar(Date date) {
@@ -208,7 +187,7 @@ public class CalendarUtil {
     }
 
     /**
-     * 
+     *
      * @param oneStart
      *            is a list of start - end pairs of calendar
      * @param oneEnd
@@ -412,57 +391,25 @@ public class CalendarUtil {
         return countMinutesFromMillis(resultLong);
     }
 
-    public static CalendarInterval convertToOrderedInterval(String date1, String date2, DateFormat dateFormat) {
+    public static CalendarInterval convertToOrderedInterval(String date1, String date2, String format) {
         List<Calendar> calendarList = new ArrayList<Calendar>(2);
-        calendarList.add(convertToCalendar(date1, dateFormat));
-        calendarList.add(convertToCalendar(date2, dateFormat));
+        calendarList.add(convertToCalendar(date1, format));
+        calendarList.add(convertToCalendar(date2, format));
         Collections.sort(calendarList);
         CalendarInterval result = new CalendarInterval(calendarList.get(0), calendarList.get(1), true);
         return result;
     }
 
-    /**
-     * @deprecated This method is synchronized. For performance use #convertToDate(String, String).
-     * */
-    @Deprecated
-    public static synchronized Date convertToDate(String dateAsString, DateFormat format) {
-        try {
-            synchronized (format) {
-                return format.parse(dateAsString);
-            }
-        } catch (ParseException e) {
-            String pattern = format instanceof SimpleDateFormat ? ((SimpleDateFormat) format).toPattern() : format.toString();
-            throw new InternalApplicationException("Unable parse " + dateAsString + " with " + pattern, e);
-        }
-    }
-
     public static Date convertToDate(String dateAsString, String format) {
         try {
-            return parseDate(dateAsString, format);
+            return new SimpleDateFormat(format).parse(dateAsString);
         } catch (ParseException e) {
             throw new InternalApplicationException("Unable parse " + dateAsString + " with " + format, e);
         }
     }
 
-    /**
-     * @deprecated use convertToCalendar(String, String) without synchronization
-     * */
-    @Deprecated
-    public static synchronized Calendar convertToCalendar(String dateAsString, DateFormat dateFormat) {
-        return dateToCalendar(convertToDate(dateAsString, dateFormat));
-    }
-
-    public static Calendar convertToCalendar(String dateAsString, String dateFormat) {
-        return dateToCalendar(convertToDate(dateAsString, dateFormat));
-    }
-
-    public static void main(String[] arg) {
-        CalendarInterval calendarInterval = new CalendarInterval(CalendarUtil.convertToCalendar("01.01.2013 00:00",
-                CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR), CalendarUtil.convertToCalendar("01.01.2013 23:59:59",
-                CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR));
-        double days = calendarInterval.getDaysBetween();
-        System.out.println(days);
-        System.out.println((int) days);
+    public static Calendar convertToCalendar(String dateAsString, String format) {
+        return dateToCalendar(convertToDate(dateAsString, format));
     }
 
 }

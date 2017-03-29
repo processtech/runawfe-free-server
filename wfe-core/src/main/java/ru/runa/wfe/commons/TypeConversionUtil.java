@@ -159,19 +159,19 @@ public class TypeConversionUtil {
                 Date date;
                 String formattedDate = (String) object;
                 try {
-                    date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
+                    date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
                 } catch (Exception e1) {
                     try {
-                        date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+                        date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
                     } catch (Exception e2) {
                         try {
-                            date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+                            date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
                         } catch (Exception e3) {
                             try {
-                                date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT_STR);
+                                date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT);
                             } catch (Exception e4) {
                                 try {
-                                    date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+                                    date = CalendarUtil.convertToDate(formattedDate, CalendarUtil.HOURS_MINUTES_FORMAT);
                                 } catch (Exception e5) {
                                     throw new InternalApplicationException("Unable to find datetime format for '" + formattedDate + "'");
                                 }
@@ -236,18 +236,6 @@ public class TypeConversionUtil {
         }
     }
 
-    public static boolean isEmptyList(Object value) {
-        if (value == null) {
-            return true;
-        } else if (value.getClass().isArray()) {
-            return Array.getLength(value) == 0;
-        } else if (value instanceof List) {
-            return ((List<?>) value).isEmpty();
-        } else {
-            throw new RuntimeException("Unsupported array type " + value.getClass());
-        }
-    }
-
     public static Object getListFirstValueOrNull(Object container) {
         int size = TypeConversionUtil.getListSize(container);
         return size > 0 ? TypeConversionUtil.getListValue(container, 0) : null;
@@ -269,7 +257,7 @@ public class TypeConversionUtil {
                 throw new RuntimeException("Array has insufficient length, index = " + index);
             }
         } else {
-            throw new RuntimeException("Unsupported array type " + container.getClass());
+            throw new RuntimeException("Unsupported array type " + (container != null ? container.getClass() : "null"));
         }
     }
 

@@ -23,14 +23,19 @@ package ru.runa.wfe.definition.par;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.definition.*;
+import ru.runa.wfe.definition.DefinitionArchiveFormatException;
+import ru.runa.wfe.definition.DeploymentContent;
+import ru.runa.wfe.definition.DeploymentData;
+import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
@@ -40,11 +45,11 @@ import com.google.common.io.ByteStreams;
 
 public class ProcessArchive {
     private final DeploymentData deployment;
-    public static final List<String> UNSECURED_FILE_NAMES;
+    public static final List<String> UNSECURED_FILE_NAMES = Lists.newArrayList();
     static {
-        UNSECURED_FILE_NAMES = Collections.unmodifiableList(Arrays.asList(IFileDataProvider.START_IMAGE_FILE_NAME,
-                IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME,
-                IFileDataProvider.BOTS_XML_FILE));
+        UNSECURED_FILE_NAMES.add(IFileDataProvider.START_IMAGE_FILE_NAME);
+        UNSECURED_FILE_NAMES.add(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
+        UNSECURED_FILE_NAMES.add(IFileDataProvider.BOTS_XML_FILE);
     }
 
     static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<ProcessArchiveParser>();

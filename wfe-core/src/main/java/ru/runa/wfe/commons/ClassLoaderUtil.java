@@ -34,7 +34,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import com.google.common.io.Closeables;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -124,14 +123,15 @@ public class ClassLoaderUtil {
                 is = getAsStream(resource, ClassLoaderUtil.class);
             }
             if (is != null) {
-                InputStreamReader reader = new InputStreamReader(is, Charsets.UTF_8);
-                properties.load(reader);
-                Closeables.closeQuietly(reader);
-                Closeables.closeQuietly(is);
+                try (InputStreamReader reader = new InputStreamReader(is, Charsets.UTF_8)) {
+                    properties.load(reader);
+                } finally {
+                    is.close();
+                }
             }
             is = getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + resource, ClassLoaderUtil.class);
             if (is != null) {
-                try (InputStreamReader reader = new InputStreamReader(is , Charsets.UTF_8)) {
+                try (InputStreamReader reader = new InputStreamReader(is, Charsets.UTF_8)) {
                     properties.load(reader);
                 } finally {
                     is.close();
@@ -228,8 +228,7 @@ public class ClassLoaderUtil {
      *            classpath resource name
      * @param callingClass
      *            package of this class will be inspected for resources
-     * @return resource string content or <code>null</code> if no resource
-     *         exists
+     * @return resource string content or <code>null</code> if no resource exists
      */
     public static String getAsString(String resourceName, Class<?> callingClass) {
         InputStream stream = getAsStream(resourceName, callingClass);

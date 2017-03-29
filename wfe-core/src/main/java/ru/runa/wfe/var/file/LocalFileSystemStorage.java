@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.google.common.io.Files;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.Variable;
+
+import com.google.common.io.Files;
 
 public class LocalFileSystemStorage implements IFileVariableStorage {
 
@@ -21,9 +21,7 @@ public class LocalFileSystemStorage implements IFileVariableStorage {
         }
         storageDir = new File(SystemProperties.getLocalFileStoragePath());
         if (SystemProperties.isLocalFileStorageEnabled()) {
-            if(!storageDir.mkdirs()) {
-                throw new RuntimeException("Storage dirs: " + storageDir + " is not created.");
-            }
+            storageDir.mkdirs();
         }
         return storageDir;
     }
@@ -32,9 +30,8 @@ public class LocalFileSystemStorage implements IFileVariableStorage {
         File file = new File(getLocalFileStorage(), path);
         if (create) {
             try {
-                if (!file.getParentFile().mkdirs() || !file.createNewFile()) {
-                    throw new IOException();
-                }
+                file.getParentFile().mkdirs();
+                file.createNewFile();
             } catch (IOException e) {
                 throw new InternalApplicationException("Unable to create file '" + file + "'");
             }

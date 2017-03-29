@@ -7,7 +7,7 @@ import com.google.common.base.Objects;
 
 /**
  * Contains 2 calendars.
- * 
+ *
  * @author dofs
  */
 public class CalendarInterval implements Comparable<CalendarInterval> {
@@ -31,7 +31,7 @@ public class CalendarInterval implements Comparable<CalendarInterval> {
 
     /**
      * Creates new calendar interval by dates.
-     * 
+     *
      * @param expandTimeInBounds
      *            if <code>true</code> then from time will be set to 00:00:00 and to time to 23:59:59
      */
@@ -48,7 +48,7 @@ public class CalendarInterval implements Comparable<CalendarInterval> {
 
     /**
      * Creates new calendar interval by calendars.
-     * 
+     *
      * @param expandTimeInBounds
      *            if <code>true</code> then from time will be set to 00:00:00 and to time to 23:59:59
      */
@@ -179,8 +179,8 @@ public class CalendarInterval implements Comparable<CalendarInterval> {
 
     @Override
     public String toString() {
-        return CalendarUtil.format(from, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR) + "-"
-                + CalendarUtil.format(to, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
+        return CalendarUtil.format(from, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT) + "-"
+                + CalendarUtil.format(to, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
     }
 
     public String toDateRangeString() {

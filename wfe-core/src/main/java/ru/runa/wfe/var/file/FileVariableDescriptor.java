@@ -9,11 +9,11 @@ import com.google.common.io.Files;
 
 /**
  * Used only for back compatibility to read from stream.
- * 
+ *
  * @see LocalFileSystemVariable.
- * 
+ *
  * @author dofs
- * 
+ *
  */
 @Deprecated
 public class FileVariableDescriptor extends FileVariable {
@@ -24,7 +24,6 @@ public class FileVariableDescriptor extends FileVariable {
     @Override
     public byte[] getData() {
         if (localData == null) {
-            // TODO variablePath == null всегда
             File file = LocalFileSystemStorage.getContentFile(variablePath, false);
             try {
                 localData = Files.toByteArray(file);

@@ -50,20 +50,20 @@ public class DefaultBusinessCalendarTest extends Assert {
                 { "03.09.2013 07:30", "-1 business hours", "02.09.2013 17:00" }, { "03.09.2013 07:30", "1 business hours", "03.09.2013 10:00" },
                 { "02.09.2013 09:30", "-10 business hours", "29.08.2013 16:30" }, { "02.09.2013 09:30", "10 business hours", "03.09.2013 11:30" },
                 { "03.09.2013 09:30", "-7 business hours", "02.09.2013 10:30" }, { "03.09.2013 09:30", "10 business hours", "05.09.2013 11:30" },
-        //
+                //
         };
     }
 
     @Test(dataProvider = "getBusinessDurations")
     public void testBusinessTime(String baseDateString, String durationString, String expectedDateString) {
-        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         Date appliedDate = businessCalendar.apply(baseDate, durationString);
         assertEquals(CalendarUtil.formatDateTime(appliedDate), expectedDateString);
     }
 
     @Test(dataProvider = "getRegularDurations")
     public void testRegularTime(String baseDateString, String durationString, String expectedDateString) {
-        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         Date appliedDate = businessCalendar.apply(baseDate, durationString);
         assertEquals(CalendarUtil.formatDateTime(appliedDate), expectedDateString);
     }
@@ -72,7 +72,7 @@ public class DefaultBusinessCalendarTest extends Assert {
     public void testDebug() {
         String baseDateString = "03.09.2013 07:30";
         String durationString = "1 business days";
-        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+        Date baseDate = CalendarUtil.convertToDate(baseDateString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         Date appliedDate = businessCalendar.apply(baseDate, durationString);
         System.out.println(baseDateString + " -> " + durationString + " -> " + CalendarUtil.formatDateTime(appliedDate));
     }

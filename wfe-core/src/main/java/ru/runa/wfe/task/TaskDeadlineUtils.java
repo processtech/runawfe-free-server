@@ -23,7 +23,7 @@ public class TaskDeadlineUtils {
 
     /**
      * Returns String value containing period of time between start and end input dates. Returns negative value in case start date goes after end date
-     * 
+     *
      * @param startDate
      *            start of period
      * @param endDate
@@ -58,7 +58,7 @@ public class TaskDeadlineUtils {
 
         Calendar periodCal = Calendar.getInstance();
         periodCal.setTimeInMillis(periodMillis - periodCal.getTimeZone().getOffset(periodMillis));
-        period += CalendarUtil.format(periodCal, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT_STR);
+        period += CalendarUtil.format(periodCal, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT);
 
         if (isStartDateBeforeEndDate) {
             period = "- " + period;
