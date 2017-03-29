@@ -1,7 +1,10 @@
 package ru.runa.wfe.definition;
 
+import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -24,6 +27,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
@@ -47,6 +51,7 @@ public class Deployment extends Identifiable {
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private String htmlRegulations = "";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -211,6 +216,24 @@ public class Deployment extends Identifiable {
         deployment.language = language;
         deployment.name = name;
         deployment.version = version;
+        deployment.setHtmlRegulations(getHtmlRegulations());
         return deployment;
+    }
+
+    @Transient
+    public void setHtmlRegulations(String htmlRegulations){
+        this.htmlRegulations = htmlRegulations;
+    }
+
+    @Transient
+    public String getHtmlRegulations(){
+        if (htmlRegulations.isEmpty()){
+            ProcessArchive processArchive = new ProcessArchive(this);
+            Map<String, byte[]> fileData = processArchive.getFileData();
+            if (fileData.containsKey(IFileDataProvider.REGULATIONS_HTML_FILE_NAME)){
+                htmlRegulations = new String(fileData.get(IFileDataProvider.REGULATIONS_HTML_FILE_NAME), Charset.forName("UTF8"));
+            }
+        }
+        return htmlRegulations;
     }
 }
