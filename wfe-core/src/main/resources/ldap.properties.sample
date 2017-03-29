@@ -1,0 +1,60 @@
+################################
+# Common connection settings
+################################
+
+# allowed http://docs.oracle.com/javase/7/docs/technotes/guides/jndi/jndi-ldap.html
+java.naming.factory.initial = com.sun.jndi.ldap.LdapCtxFactory
+java.naming.provider.url = ldap://192.168.0.1/dc=domain,dc=com
+java.naming.security.authentication = simple
+java.naming.ldap.version = 3
+
+################################
+# Authentication module settings
+################################
+
+# How to map the user id entered by the user to that passed through to LDAP
+# Supported placeholders are: ${username} (user login)
+#  Examples
+#   AD (default)          DOMAIN\\${username}
+#   AD UPN                ${username}@domain
+#   AD DN                 cn=${username},ou=xyz,dc=domain
+#   OpenLDAP simple       uid=${username},ou=People,dc=domain,dc=com
+#   OpenLDAP DIGEST-MD5   ${username}
+authentication.username.format = DOMAIN\\${username}
+
+################################
+# Synchronization module settings
+################################
+
+synchronization.enabled = true
+
+synchronization.import.group.name = ldap users
+synchronization.import.group.description = users imported from ldap server
+synchronization.waste.group.name = ldap waste
+synchronization.waste.group.description = users and groups deleted from ldap server
+
+java.naming.referral = follow
+# authorized subject to read directory
+java.naming.security.principal = cn=LdapReader,ou=User_policy,dc=domain,dc=com
+java.naming.security.credentials = m0rd@v0r0tLDAP
+
+# organization units you want to import separated by <;>
+synchronization.organization.units = ou=Admins;ou=User_policy
+# partial synchronization can be enabled
+synchronization.create.executors.enabled = true
+synchronization.update.executors.enabled = true
+synchronization.delete.executors.enabled = true
+# types
+synchronization.object.class.filter = (objectclass={0})
+synchronization.user.object.class = user
+synchronization.group.object.class = group
+# synchronization attribute mappings
+synchronization.account.name.attribute = sAMAccountName
+synchronization.user.fullName.attribute = name
+synchronization.user.description.attribute = description
+synchronization.user.title.attribute = title
+synchronization.user.email.attribute = mail
+synchronization.user.phone.attribute = telephoneNumber
+synchronization.user.department.attribute = department
+synchronization.group.description.attribute = name
+synchronization.group.member.attribute = member

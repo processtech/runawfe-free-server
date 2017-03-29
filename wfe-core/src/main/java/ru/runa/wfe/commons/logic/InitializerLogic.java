@@ -31,9 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.timer.ScheduledTimerTask;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.DatabaseProperties;
@@ -61,6 +58,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
+import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
@@ -84,6 +82,9 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
@@ -160,6 +161,7 @@ public class InitializerLogic {
         patches.add(CreateAdminScriptTables.class);
         patches.add(AddVariableUniqueKeyPatch.class);
         patches.add(AddTokenErrorDataPatch.class);
+        patches.add(AddTitleAndDepartmentColumnsToActorPatch.class);
         dbPatches = Collections.unmodifiableList(patches);
     };
 
@@ -212,15 +214,11 @@ public class InitializerLogic {
         ApplicationContext context = ApplicationContextFactory.getContext();
         PropertyResources resources = SystemProperties.getResources();
         ScheduledTimerTask jobExecutorTask = context.getBean("jobExecutorTask", ScheduledTimerTask.class);
-        ScheduledTimerTask tasksAssignTask = context.getBean("tasksAssignTask", ScheduledTimerTask.class);
-        ScheduledTimerTask ldapSynchronizerTask = context.getBean("ldapSynchronizerTask", ScheduledTimerTask.class);
-
         jobExecutorTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_JOB_EXECUTION_NAME, 60000));
         jobExecutorTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_JOB_EXECUTION_NAME, 60000));
+        ScheduledTimerTask tasksAssignTask = context.getBean("tasksAssignTask", ScheduledTimerTask.class);
         tasksAssignTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME, 60000));
         tasksAssignTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME, 60000));
-        ldapSynchronizerTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_LDAP_SYNC_NAME, 600000));
-        ldapSynchronizerTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_LDAP_SYNC_NAME, 600000));
     }
 
     /**

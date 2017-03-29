@@ -43,7 +43,7 @@ public class ReceiveMessageNodeFigure extends AbstractUmlFigure {
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {
         graphics.drawPolygon(createPolygon());
-        if (!useEgdingOnly) {
+        if (!useEdgingOnly) {
             Rectangle r = getRectangle();
             drawTextInfo(graphics, (int) r.getHeight() / 2 - DrawProperties.getFontSize());
         }

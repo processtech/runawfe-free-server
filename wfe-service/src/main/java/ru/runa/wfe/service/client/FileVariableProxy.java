@@ -4,10 +4,12 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.file.IFileVariable;
 
+import com.google.common.base.Objects;
+
 /**
- * This class eliminates byte[] data transferring without usage. Case 2 added
- * since v4.3.0: used for uploading custom IFileVariable implementation classes.
- *
+ * This class eliminates byte[] data transferring without usage. Case 2 added since v4.3.0: used for uploading custom IFileVariable implementation
+ * classes.
+ * 
  * @author dofs
  * @since 4.0
  */
@@ -71,4 +73,17 @@ public class FileVariableProxy implements IFileVariable {
         return stringValue;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof FileVariableProxy) {
+            FileVariableProxy p = (FileVariableProxy) obj;
+            return Objects.equal(processId, p.processId) && Objects.equal(variableName, p.variableName) && Objects.equal(stringValue, p.stringValue);
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(processId, variableName, stringValue);
+    }
 }

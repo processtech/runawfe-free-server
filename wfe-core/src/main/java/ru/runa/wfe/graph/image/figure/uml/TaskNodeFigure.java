@@ -86,11 +86,6 @@ public class TaskNodeFigure extends AbstractUmlFigure {
 
     @Override
     public Rectangle getRectangle() {
-        if (node.isGraphMinimizedView()) {
-            return new Rectangle(coords[0] + DrawProperties.GRID_SIZE / 2, coords[1] + DrawProperties.GRID_SIZE / 2, DrawProperties.GRID_SIZE,
-                    DrawProperties.GRID_SIZE);
-        }
-        return new Rectangle(coords[0] + DrawProperties.GRID_SIZE, coords[1], coords[2] - DrawProperties.GRID_SIZE, coords[3]
-                - DrawProperties.GRID_SIZE);
+        return new Rectangle(coords[0], coords[1], coords[2], coords[3]);
     }
 }

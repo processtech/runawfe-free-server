@@ -21,6 +21,7 @@ package ru.runa.wfe.user;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -38,6 +39,7 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -53,6 +55,7 @@ import ru.runa.wfe.presentation.DefaultBatchPresentations;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
@@ -70,6 +73,8 @@ public final class Profile implements Serializable {
     private Long version;
     private Actor actor;
     private Set<BatchPresentation> batchPresentations = Sets.newHashSet();
+    @XmlTransient
+    private Map<String, BatchPresentation> defaultBatchPresentations = Maps.newHashMap();
     private Date createDate;
     private Set<BatchPresentation> sharedBatchPresentations = Sets.newHashSet();
     private boolean administrator;
@@ -158,7 +163,7 @@ public final class Profile implements Serializable {
             }
         }
         if (administrator || !sharedPresentationIsActiveByAdmin) {
-            result.add(0, DefaultBatchPresentations.get(category, false));
+            result.add(0, getDefaultBatchPresentation(category));
         }
         return result;
     }
@@ -215,7 +220,7 @@ public final class Profile implements Serializable {
                 return batch;
             }
         }
-        return DefaultBatchPresentations.get(category, true);
+        return getDefaultBatchPresentation(category);
     }
 
     @Transient
@@ -225,6 +230,13 @@ public final class Profile implements Serializable {
 
     public void setAdministrator(boolean administrator) {
         this.administrator = administrator;
+    }
+
+    private BatchPresentation getDefaultBatchPresentation(String category) {
+        if (!defaultBatchPresentations.containsKey(category)) {
+            defaultBatchPresentations.put(category, DefaultBatchPresentations.get(category, true));
+        }
+        return defaultBatchPresentations.get(category);
     }
 
 }

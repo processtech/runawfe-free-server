@@ -14,7 +14,7 @@
 	Object processErrors = request.getAttribute("processErrors");
 	if (processErrors != null) {
 		out.write("<div class=\"errors\" style=\"color: #914b98;\">");
-		out.write("<b>"+ru.runa.common.web.Commons.getMessage("errors.process", pageContext)+"</b><br>");
+		out.write("<b>" + ru.runa.common.web.Commons.getMessage("errors.process", pageContext) + "</b><br>");
 		out.write("" + processErrors);
 		out.write("</div>");
 	}
@@ -26,17 +26,13 @@
 
 <%--Used for error message displaying --%>
 <span class="errors">
-	<html:messages id="commonError" property="org.apache.struts.action.GLOBAL_MESSAGE">
+	<html:messages id="error">
 		<BR>
-		<B style="color: red;"><bean:write name="commonError" /></B>
+		<B style="color: red;"><bean:write name="error" /></B>
 	</html:messages>
-	<html:messages id="processError" property="processErrors">
+	<html:messages id="message" message="true">
 		<BR>
-		<B style="color: brown;"><bean:write name="processError" /></B>
-	</html:messages>
-	<html:messages id="userMessage" property="userMessages">
-		<BR>
-		<B style="color: blue;"><bean:write name="userMessage" /></B>
+		<B style="color: blue;"><bean:write name="message" /></B>
 	</html:messages>
 </span>
 </center>

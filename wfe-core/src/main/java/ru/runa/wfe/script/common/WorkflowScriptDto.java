@@ -35,7 +35,7 @@ public class WorkflowScriptDto extends OperationsListContainer {
 
     public void validate(boolean allowTransactionScope) {
         if (!operations.isEmpty() && !transactionScopes.isEmpty()) {
-            throw new ScriptValidationException("workflowScript must contains only operations or transactionScope elements (not both at same time).");
+            throw new ScriptValidationException("workflowScript must contain only operations or transactionScope elements (not both at same time).");
         }
         if (!allowTransactionScope && !transactionScopes.isEmpty()) {
             throw new ScriptValidationException(
