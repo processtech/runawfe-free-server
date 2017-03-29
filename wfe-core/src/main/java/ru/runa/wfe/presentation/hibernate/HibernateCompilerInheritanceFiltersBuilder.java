@@ -183,9 +183,6 @@ public class HibernateCompilerInheritanceFiltersBuilder {
      */
     private String createDbSourceFilterCriteria(FieldDescriptor field, DBSource dbSource, String[] filterTemplates) {
         FilterCriteria fieldsToFilterCriteria = FilterCriteriaFactory.createFilterCriteria(dbSource.getSourceObject().getName());
-        if (fieldsToFilterCriteria == null) {
-            return null;
-        }
         try {
             fieldsToFilterCriteria.applyFilterTemplates(filterTemplates);
             return fieldsToFilterCriteria.buildWhereCondition(dbSource.getValueDBPath(hqlBuilder.getAliasMapping().getAlias(field)),

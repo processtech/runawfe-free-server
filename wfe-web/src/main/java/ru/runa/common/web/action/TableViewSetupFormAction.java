@@ -109,7 +109,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             } else {
                 int arrayPos = ArraysCommons.findPosition(tableViewSetupForm.getSortPositionsIds(), idx);
                 Map<Integer, String[]> m = tableViewSetupForm.getFieldsToFilterCriteriasMap();
-                m.remove(new Integer(idx));
+                m.remove(Integer.valueOf(idx));
                 Map<Integer, FilterCriteria> result = FilterFormatsFactory.getParser().parse(batchPresentation, m);
                 for (int fieldIdx : batchPresentation.getFilteredFields().keySet()) {
                     if (fields[fieldIdx].fieldState != FieldState.ENABLED) {

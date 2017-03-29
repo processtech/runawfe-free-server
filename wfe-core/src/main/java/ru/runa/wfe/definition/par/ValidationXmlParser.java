@@ -34,7 +34,7 @@ public class ValidationXmlParser {
             List<Element> fieldElements = document.getRootElement().elements(FIELD_ELEMENT_NAME);
             List<String> varNames = new ArrayList<String>(fieldElements.size());
             for (Element fieldElement : fieldElements) {
-                varNames.add(fieldElement.attributeValue(NAME_ATTRIBUTE_NAME));
+                varNames.add(fieldElement.attributeValue(NAME_ATTRIBUTE_NAME).intern());
             }
             return varNames;
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class ValidationXmlParser {
                     String typeName = validatorElement.attributeValue(TYPE_ATTRIBUTE_NAME);
                     if (requiredValidatorNames.contains(typeName)) {
                         if (validatorElement.element(TRANSITION_CONTEXT_ELEMENT_NAME) == null) {
-                            variableNames.add(variableName);
+                            variableNames.add(variableName.intern());
                         }
                     }
                 }

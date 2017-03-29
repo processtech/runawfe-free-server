@@ -147,7 +147,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
         return Delegates.getReportService().getReportDefinition(getUser(), getIdentifiableId());
     }
 
-    class ReportGenerationTypeNameVisitor implements ReportGenerationTypeVisitor<StrutsMessage> {
+    static final class ReportGenerationTypeNameVisitor implements ReportGenerationTypeVisitor<StrutsMessage> {
 
         @Override
         public StrutsMessage onHtml() {

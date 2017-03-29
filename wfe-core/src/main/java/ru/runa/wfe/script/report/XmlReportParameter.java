@@ -93,7 +93,7 @@ public class XmlReportParameter {
         public abstract ReportParameterType getType();
     }
 
-    public class TypyToXmlConverter implements ReportParameterTypeVisitor<XmlReportParameterType, Object> {
+    public static final class TypyToXmlConverter implements ReportParameterTypeVisitor<XmlReportParameterType, Object> {
 
         @Override
         public XmlReportParameterType onString(Object data) {

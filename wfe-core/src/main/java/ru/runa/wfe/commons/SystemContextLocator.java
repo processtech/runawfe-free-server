@@ -14,7 +14,8 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @since 4.0.5
  */
 public class SystemContextLocator extends SingletonBeanFactoryLocator {
-    private static BeanFactoryLocator beanFactoryLocator;
+
+    private static volatile BeanFactoryLocator beanFactoryLocator;
 
     private SystemContextLocator() {
         super("system.context");

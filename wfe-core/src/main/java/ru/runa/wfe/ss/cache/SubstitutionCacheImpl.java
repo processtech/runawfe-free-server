@@ -195,20 +195,21 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
 
     private Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors) {
         Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
-        for (Long substitutedId : mapActorToSubstitutors.keySet()) {
+        for (Map.Entry<Long, TreeMap<Substitution, HashSet<Long>>> entry1 : mapActorToSubstitutors.entrySet()) {
+            final Long substitutedId = entry1.getKey();
             try {
                 Actor substitutedActor = executorDAO.getActor(substitutedId);
                 if (substitutedActor.isActive()) {
                     continue;
                 }
-                for (HashSet<Long> substitutors : mapActorToSubstitutors.get(substitutedId).values()) {
+                for (HashSet<Long> substitutors : entry1.getValue().values()) {
                     if (substitutors == null) {
                         continue;
                     }
                     for (Long substitutor : substitutors) {
                         HashSet<Long> set = result.get(substitutor);
                         if (set == null) {
-                            set = new HashSet<Long>();
+                            set = new HashSet<>();
                             result.put(substitutor, set);
                         }
                         set.add(substitutedActor.getId());

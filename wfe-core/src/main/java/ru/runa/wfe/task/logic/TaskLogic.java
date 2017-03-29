@@ -65,7 +65,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Task logic.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */

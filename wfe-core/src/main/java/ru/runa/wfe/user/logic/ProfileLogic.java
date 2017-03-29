@@ -133,7 +133,7 @@ public class ProfileLogic extends CommonLogic {
         if (batchPresentation.isShared() && !getProfile(user.getActor()).isAdministrator()) {
             throw new InternalApplicationException("cannot save batch presentation, user is not administrator");
         }
-        batchPresentation = batchPresentationDAO.update(batchPresentation);
+        batchPresentationDAO.update(batchPresentation);
         batchPresentationDAO.flushPendingChanges();
         return getProfile(user.getActor());
     }
