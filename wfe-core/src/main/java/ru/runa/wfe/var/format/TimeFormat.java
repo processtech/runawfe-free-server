@@ -29,7 +29,7 @@ import ru.runa.wfe.commons.CalendarUtil;
 public class TimeFormat extends AbstractDateFormat {
 
     public TimeFormat() {
-        super(CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+        super(CalendarUtil.HOURS_MINUTES_FORMAT);
     }
 
     @Override

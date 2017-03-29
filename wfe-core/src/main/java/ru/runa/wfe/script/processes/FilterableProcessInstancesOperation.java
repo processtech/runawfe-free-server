@@ -70,16 +70,16 @@ public abstract class FilterableProcessInstancesOperation extends ScriptOperatio
             filter.setFinished(onlyFinished);
         }
         if (!Strings.isNullOrEmpty(startDateFrom)) {
-            filter.setStartDateFrom(CalendarUtil.convertToDate(startDateFrom, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR));
+            filter.setStartDateFrom(CalendarUtil.convertToDate(startDateFrom, CalendarUtil.DATE_WITHOUT_TIME_FORMAT));
         }
         if (!Strings.isNullOrEmpty(startDateTo)) {
-            filter.setStartDateTo(CalendarUtil.convertToDate(startDateTo, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR));
+            filter.setStartDateTo(CalendarUtil.convertToDate(startDateTo, CalendarUtil.DATE_WITHOUT_TIME_FORMAT));
         }
         if (!Strings.isNullOrEmpty(endDateFrom)) {
-            filter.setStartDateFrom(CalendarUtil.convertToDate(endDateFrom, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR));
+            filter.setStartDateFrom(CalendarUtil.convertToDate(endDateFrom, CalendarUtil.DATE_WITHOUT_TIME_FORMAT));
         }
         if (!Strings.isNullOrEmpty(endDateTo)) {
-            filter.setEndDateTo(CalendarUtil.convertToDate(endDateTo, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR));
+            filter.setEndDateTo(CalendarUtil.convertToDate(endDateTo, CalendarUtil.DATE_WITHOUT_TIME_FORMAT));
         }
         return filter;
     }

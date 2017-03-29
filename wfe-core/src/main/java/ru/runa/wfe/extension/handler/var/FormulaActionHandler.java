@@ -46,9 +46,9 @@ public class FormulaActionHandler extends ActionHandlerBase {
     private int nowPosition = 0;
     private static final String oneSymbolTokens = "=()+-*/!<>&|^'\",\n;";
     private static final String[] operations = { "&|^", // priority 0
-            "<!=>", // priority 1
-            "+-", // priority 2
-            "*/" // priority 3
+        "<!=>", // priority 1
+        "+-", // priority 2
+        "*/" // priority 3
     };
     private boolean stringVariableToken = false;
     private boolean quo = false;
@@ -569,8 +569,8 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return actions.roundFunction(d);
             }
             if (BigDecimal.class.isInstance(param1)) {
-            	BigDecimal bd = (BigDecimal)param1;
-            	return bd.round(new MathContext(num));
+                BigDecimal bd = (BigDecimal) param1;
+                return bd.round(new MathContext(num));
             }
             return actions.roundFunction(d, num);
         }
@@ -656,7 +656,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return actions.nameCaseRussian(fio, caseNumber, mode);
         }
         if (s.equalsIgnoreCase("BigDecimal")) {
-        	Object param = parsePriority0();
+            Object param = parsePriority0();
             if (param == null || !nextToken().equals(")")) {
                 incorrectParameters(s);
                 return null;
@@ -664,7 +664,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return new BigDecimal(param.toString());
         }
         if (s.equalsIgnoreCase("float")) {
-        	Object param = parsePriority0();
+            Object param = parsePriority0();
             if (param == null || !nextToken().equals(")")) {
                 incorrectParameters(s);
                 return null;
@@ -797,23 +797,23 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return Boolean.FALSE;
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
+            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
         } catch (Exception e) {
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         } catch (Exception e) {
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+            return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
         } catch (Exception e) {
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT_STR);
+            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_SECONDS_FORMAT);
         } catch (Exception e) {
         }
         try {
-            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT);
         } catch (Exception e) {
         }
         return null;

@@ -26,7 +26,7 @@ import ru.runa.wfe.commons.CalendarUtil;
 public class DateTimeFormat extends AbstractDateFormat {
 
     public DateTimeFormat() {
-        super(CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+        super(CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
     }
 
     @Override

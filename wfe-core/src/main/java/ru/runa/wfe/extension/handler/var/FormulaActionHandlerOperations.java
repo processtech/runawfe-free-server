@@ -345,12 +345,12 @@ public class FormulaActionHandlerOperations {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(date);
             if (calendar.get(Calendar.YEAR) == 1970 && calendar.get(Calendar.MONTH) == Calendar.JANUARY && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-                return CalendarUtil.format(date, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+                return CalendarUtil.format(date, CalendarUtil.HOURS_MINUTES_FORMAT);
             }
             if (calendar.get(Calendar.HOUR) == 0 && calendar.get(Calendar.MINUTE) == 0 && calendar.get(Calendar.SECOND) == 0) {
-                return CalendarUtil.format(date, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+                return CalendarUtil.format(date, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
             }
-            return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+            return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         }
         if (Date.class.isAssignableFrom(c) && Date.class.isInstance(o)) {
             return o;
@@ -377,8 +377,8 @@ public class FormulaActionHandlerOperations {
         }
         Date d = (Date) p;
         try {
-            String s = CalendarUtil.format(d, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
-            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+            String s = CalendarUtil.format(d, CalendarUtil.HOURS_MINUTES_FORMAT);
+            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT);
         } catch (Exception e) {
             log.warn("Unparseable time", e);
         }
@@ -530,7 +530,7 @@ public class FormulaActionHandlerOperations {
             String part1 = word.substring(0, i);
             String part2 = word.substring(i + 1);
             return wordCaseRussian(part1, caseNumber, sex, wordType, onlyOneChar) + "-"
-                    + wordCaseRussian(part2, caseNumber, sex, wordType, onlyOneChar);
+            + wordCaseRussian(part2, caseNumber, sex, wordType, onlyOneChar);
         }
 
         int len = word.length();
@@ -600,29 +600,29 @@ public class FormulaActionHandlerOperations {
 
         String zf = zd == 8 && caseNumber != 5 ? zb > 15 || "жий ний".indexOf(suf3) >= 0 ? "е" : "о" : word.equals("лев") ? "ьв" : len - 4 >= 0
                 && "аеёийоуэюя".indexOf(word.substring(len - 4, len - 3)) < 0 && (zb > 11 || zb == 0) && ze != 45 ? "" : za == 7 ? "л"
-                : za == 10 ? "к" : za == 13 ? "йц" : ze == 0 ? "" : ze < 12 ? "ь" + (ze == 1 ? "ц" : "") : ze < 37 ? "ц" : ze < 49 ? "йц" : "р";
-        if (zd != 9) {
-            int nm = len;
-            if (zd > 6 || zf.length() > 0) {
-                nm -= 2;
-            } else {
-                nm -= zd > 0 ? 1 : 0;
-            }
-            String ns = word.substring(0, nm);
-            ns += zf;
-            String ss = "а у а " + "оыые".substring("внч".indexOf(suf1) + 1).charAt(0) + "ме " + ("гжкхш".indexOf(suf2.charAt(0)) > 0 ? "и" : "ы")
-                    + " е у ойе я ю я ем" + (za == 16 ? "и" : "е") + " и е ю ейе и и ь ьюи и и ю ейи ойойу ойойойойуюойойгомуго"
-                    + (zf.equals("е") || za == 16 || zb > 12 && zb < 16 ? "и" : "ы") + "мм";
-            ns += ss.substring(10 * zd + 2 * caseNumber - 3 - 1, 10 * zd + 2 * caseNumber - 3 + 1);
-            zf = ns;
-        } else {
-            zf = word;
-        }
+                        : za == 10 ? "к" : za == 13 ? "йц" : ze == 0 ? "" : ze < 12 ? "ь" + (ze == 1 ? "ц" : "") : ze < 37 ? "ц" : ze < 49 ? "йц" : "р";
+                        if (zd != 9) {
+                            int nm = len;
+                            if (zd > 6 || zf.length() > 0) {
+                                nm -= 2;
+                            } else {
+                                nm -= zd > 0 ? 1 : 0;
+                            }
+                            String ns = word.substring(0, nm);
+                            ns += zf;
+                            String ss = "а у а " + "оыые".substring("внч".indexOf(suf1) + 1).charAt(0) + "ме " + ("гжкхш".indexOf(suf2.charAt(0)) > 0 ? "и" : "ы")
+                                    + " е у ойе я ю я ем" + (za == 16 ? "и" : "е") + " и е ю ейе и и ь ьюи и и ю ейи ойойу ойойойойуюойойгомуго"
+                                    + (zf.equals("е") || za == 16 || zb > 12 && zb < 16 ? "и" : "ы") + "мм";
+                            ns += ss.substring(10 * zd + 2 * caseNumber - 3 - 1, 10 * zd + 2 * caseNumber - 3 + 1);
+                            zf = ns;
+                        } else {
+                            zf = word;
+                        }
 
-        String ans = zf;
-        ans = ans.replace(" ", "");
-        ans = upcaseFirstChar(ans);
-        return ans;
+                        String ans = zf;
+                        ans = ans.replace(" ", "");
+                        ans = upcaseFirstChar(ans);
+                        return ans;
     }
 
     private String upcaseFirstChar(String ans) {
