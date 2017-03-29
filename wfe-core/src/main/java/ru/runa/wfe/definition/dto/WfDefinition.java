@@ -50,6 +50,8 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private boolean hasHtmlRegulations = false;
+    private String htmlRegulations = "";
 
     public WfDefinition() {
     }
@@ -61,6 +63,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         hasDisabledImage = definition.getFileData(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
         subprocessOnly = definition.getAccessType() == ProcessDefinitionAccessType.OnlySubprocess;
         this.canBeStarted = canBeStarted && !subprocessOnly;
+        hasHtmlRegulations = definition.getFileData(IFileDataProvider.REGULATIONS_HTML_FILE_NAME) != null;
     }
 
     public WfDefinition(Deployment deployment) {
@@ -73,6 +76,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         createActor = deployment.getCreateActor();
         updateDate = deployment.getUpdateDate();
         updateActor = deployment.getUpdateActor();
+        htmlRegulations = deployment.getHtmlRegulations();
     }
 
     @Override
@@ -172,4 +176,11 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         return Objects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
     }
 
+    public boolean hasHtmlRegulations(){
+        return hasHtmlRegulations;
+    }
+
+    public String getHtmlRegulations(){
+        return htmlRegulations;
+    }
 }

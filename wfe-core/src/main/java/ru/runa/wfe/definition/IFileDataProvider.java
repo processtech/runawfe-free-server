@@ -20,6 +20,7 @@ public interface IFileDataProvider {
     public static final String BOT_TASK_FILE_PROTOCOL = "botfile://";
     public static final String SUBPROCESS_DEFINITION_PREFIX = "sub";
     public static final String COMMENTS_XML_FILE_NAME = "comments.xml";
+    public static final String REGULATIONS_HTML_FILE_NAME = "regulations.html";
 
     byte[] getFileData(String fileName);
 
