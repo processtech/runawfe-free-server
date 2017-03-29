@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Interface for database patch (Applied during version update).
- * 
+ *
  * @author Dofs
  */
 public abstract class DBPatch {
@@ -96,12 +96,12 @@ public abstract class DBPatch {
     }
 
     protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions, String unique) {
-        StringBuilder query = new StringBuilder("CREATE TABLE ").append(tableName).append(" (");
+        String query = "CREATE TABLE " + tableName + " (";
         for (ColumnDef columnDef : columnDefinitions) {
             if (columnDefinitions.indexOf(columnDef) > 0) {
-                query.append(", ");
+                query += ", ";
             }
-            query.append(columnDef.name).append(" ").append(columnDef.getSqlTypeName(dialect));
+            query += columnDef.name + " " + columnDef.getSqlTypeName(dialect);
             if (columnDef.primaryKey) {
                 String primaryKeyModifier;
                 switch (dbType) {
@@ -125,18 +125,18 @@ public abstract class DBPatch {
                     primaryKeyModifier = "PRIMARY KEY";
                     break;
                 }
-                query.append(" ").append(primaryKeyModifier);
+                query += " " + primaryKeyModifier;
                 continue;
             }
             if (!columnDef.allowNulls) {
-                query.append(" NOT NULL");
+                query += " NOT NULL";
             }
         }
         if (unique != null) {
-            query.append(", UNIQUE ").append(unique);
+            query += ", UNIQUE " + unique;
         }
-        query.append(")");
-        return query.toString();
+        query += ")";
+        return query;
     }
 
     protected final String getDDLRenameTable(String oldTableName, String newTableName) {

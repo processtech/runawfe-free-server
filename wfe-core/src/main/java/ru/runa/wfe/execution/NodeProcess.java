@@ -18,7 +18,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.lang.Node;
 
 import com.google.common.base.Objects;
@@ -124,15 +123,14 @@ public class NodeProcess {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hashCode(id);
     }
 
     @Override
     public boolean equals(Object obj) {
-        // TODO strange types
         if (obj instanceof NodeProcess) {
             NodeProcess b = (NodeProcess) obj;
-            return id.equals(b.id);
+            return Objects.equal(id, b.id);
         }
         return super.equals(obj);
     }

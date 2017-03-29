@@ -18,7 +18,6 @@ public abstract class TaskHandlerBase implements TaskHandler, Configurable {
 
     @Override
     public final void setConfiguration(byte[] config, byte[] embeddedFile) throws Exception {
-        // TODO no used
         this.embeddedFile = embeddedFile;
         if (config != null) {
             setConfiguration(new String(config, Charsets.UTF_8));

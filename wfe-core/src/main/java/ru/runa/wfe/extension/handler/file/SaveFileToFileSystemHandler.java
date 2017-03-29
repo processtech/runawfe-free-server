@@ -1,7 +1,6 @@
 package ru.runa.wfe.extension.handler.file;
 
 import java.io.File;
-import java.io.IOException;
 
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
@@ -24,11 +23,8 @@ public class SaveFileToFileSystemHandler extends CommonParamBasedHandler {
         if (file.exists() && !override) {
             throw new Exception("File alfready exists in '" + filePath + "' and override=false");
         }
-        if(file.getParentFile().mkdirs() && file.createNewFile()) {
-            Files.write(fileVariable.getData(), file);
-        } else {
-            throw new IOException("Can't write file: " + file);
-        }
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        Files.write(fileVariable.getData(), file);
     }
-
 }

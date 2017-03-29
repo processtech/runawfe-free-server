@@ -236,18 +236,6 @@ public class TypeConversionUtil {
         }
     }
 
-    public static boolean isEmptyList(Object value) {
-        if (value == null) {
-            return true;
-        } else if (value.getClass().isArray()) {
-            return Array.getLength(value) == 0;
-        } else if (value instanceof List) {
-            return ((List<?>) value).isEmpty();
-        } else {
-            throw new RuntimeException("Unsupported array type " + value.getClass());
-        }
-    }
-
     public static Object getListFirstValueOrNull(Object container) {
         int size = TypeConversionUtil.getListSize(container);
         return size > 0 ? TypeConversionUtil.getListValue(container, 0) : null;
@@ -269,7 +257,7 @@ public class TypeConversionUtil {
                 throw new RuntimeException("Array has insufficient length, index = " + index);
             }
         } else {
-            throw new RuntimeException("Unsupported array type " + container.getClass());
+            throw new RuntimeException("Unsupported array type " + (container != null ? container.getClass() : "null"));
         }
     }
 
