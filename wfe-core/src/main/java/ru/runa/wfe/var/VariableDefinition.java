@@ -23,14 +23,15 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
+import ru.runa.wfe.var.format.VariableFormatVisitor;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class VariableDefinition implements Serializable {
@@ -235,6 +236,20 @@ public class VariableDefinition implements Serializable {
             return Objects.equal(name, d.name);
         }
         return super.equals(obj);
+    }
+
+    /**
+     * Applies operation depends on variable format type.
+     *
+     * @param operation
+     *            Operation, applied to format.
+     * @param context
+     *            Operation call context. Contains additional data for operation.
+     * @return Returns operation result.
+     */
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        VariableFormat format = FormatCommons.create(this);
+        return format.processBy(operation, context);
     }
 
     @Override

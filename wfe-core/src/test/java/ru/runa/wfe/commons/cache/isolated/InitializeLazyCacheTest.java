@@ -22,6 +22,7 @@ import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheProxy;
 import ru.runa.wfe.commons.cache.common.TestTransaction;
 import ru.runa.wfe.commons.cache.states.CacheState;
+import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.commons.cache.states.audit.CommitCacheAudit;
 import ru.runa.wfe.commons.cache.states.audit.GetCacheAudit;
 
@@ -52,7 +53,7 @@ public class InitializeLazyCacheTest {
             }
         };
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
-        GetCacheAudit<TestCacheIface> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
+        GetCacheAudit<TestCacheIface, DefaultStateContext> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
             @Override
             protected void _afterCreation(Transaction transaction, TestCacheIface cache) {
@@ -61,29 +62,31 @@ public class InitializeLazyCacheTest {
             }
 
             @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
+            protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from, CacheState<TestCacheIface, DefaultStateContext> to) {
                 Assert.assertTrue(ctrl.isCacheInstanceExists());
                 Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
             }
         };
         ctrl.getAudit().set_getCacheAudit(_getCacheAudit);
 
-        CommitCacheAudit<TestCacheIface> _commitCacheAudit = new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
+        CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
+                new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
 
-            @Override
-            protected void _afterCommit(TestCacheIface cache) {
-                // Cache stated has not changed. Only after successful change an initialized cached is returned.
-                Assert.assertTrue(ctrl.isCacheInstanceExists());
-                Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
-            }
+                    @Override
+                    protected void _afterCommit(TestCacheIface cache) {
+                        // Cache stated has not changed. Only after successful change an initialized cached is returned.
+                        Assert.assertTrue(ctrl.isCacheInstanceExists());
+                        Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
+                    }
 
-            @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
-                commitCacheEvt.setEvent();
-                Assert.assertTrue(ctrl.isCacheInstanceExists());
-                Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), cacheClass);
-            }
-        };
+                    @Override
+                    protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from,
+                            CacheState<TestCacheIface, DefaultStateContext> to) {
+                        commitCacheEvt.setEvent();
+                        Assert.assertTrue(ctrl.isCacheInstanceExists());
+                        Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), cacheClass);
+                    }
+                };
         ctrl.getAudit().set_commitCacheAudit(_commitCacheAudit);
 
         // No cache initially.
@@ -131,7 +134,7 @@ public class InitializeLazyCacheTest {
             }
         };
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
-        GetCacheAudit<TestCacheIface> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
+        GetCacheAudit<TestCacheIface, DefaultStateContext> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
             @Override
             protected void _afterCreation(Transaction transaction, TestCacheIface cache) {
@@ -139,34 +142,37 @@ public class InitializeLazyCacheTest {
             }
 
             @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
+            protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from, CacheState<TestCacheIface, DefaultStateContext> to) {
                 Assert.assertTrue(ctrl.isCacheInstanceExists());
                 Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
             }
 
             @Override
-            protected void _stageSwitchFailed(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
+            protected void _stageSwitchFailed(CacheState<TestCacheIface, DefaultStateContext> from,
+                    CacheState<TestCacheIface, DefaultStateContext> to) {
                 throw new RuntimeException("multiThreadInitializationTest: stageSwitchFailed is unexpected");
             }
         };
         ctrl.getAudit().set_getCacheAudit(_getCacheAudit);
 
-        CommitCacheAudit<TestCacheIface> _commitCacheAudit = new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
+        CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
+                new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
 
-            @Override
-            protected void _afterCommit(TestCacheIface cache) {
-            	// Cache stated has not changed. Only after successful change an initialized cached is returned.
-                Assert.assertTrue(ctrl.isCacheInstanceExists());
-                Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
-            }
+                    @Override
+                    protected void _afterCommit(TestCacheIface cache) {
+                        // Cache stated has not changed. Only after successful change an initialized cached is returned.
+                        Assert.assertTrue(ctrl.isCacheInstanceExists());
+                        Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
+                    }
 
-            @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
-                commitCacheEvt.setEvent();
-                Assert.assertTrue(ctrl.isCacheInstanceExists());
-                Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), cacheClass);
-            }
-        };
+                    @Override
+                    protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from,
+                            CacheState<TestCacheIface, DefaultStateContext> to) {
+                        commitCacheEvt.setEvent();
+                        Assert.assertTrue(ctrl.isCacheInstanceExists());
+                        Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), cacheClass);
+                    }
+                };
         ctrl.getAudit().set_commitCacheAudit(_commitCacheAudit);
 
         final int threadsCount = 10;
@@ -227,35 +233,39 @@ public class InitializeLazyCacheTest {
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
-        GetCacheAudit<TestCacheIface> readThreadGetCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
+        GetCacheAudit<TestCacheIface, DefaultStateContext> readThreadGetCacheAudit =
+                new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
-            @Override
-            protected void _beforeCreation(Transaction transaction) {
-                readThreadBlockedEvt.setEvent();
-                readThreadAllowUnblockEvt.tryWaitEvent();
-            }
+                    @Override
+                    protected void _beforeCreation(Transaction transaction) {
+                        readThreadBlockedEvt.setEvent();
+                        readThreadAllowUnblockEvt.tryWaitEvent();
+                    }
 
-            @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
-                throw new RuntimeException("read thread must not switch state - it must be done by write thread");
-            }
-        };
+                    @Override
+                    protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from,
+                            CacheState<TestCacheIface, DefaultStateContext> to) {
+                        throw new RuntimeException("read thread must not switch state - it must be done by write thread");
+                    }
+                };
         ctrl.getAudit().set_getCacheAudit(readThreadGetCacheAudit);
 
-        CommitCacheAudit<TestCacheIface> _commitCacheAudit = new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
+        CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
+                new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
 
-            @Override
-            protected void _beforeCommit(TestCacheIface cache) {
-                commitAllowEvt.tryWaitEvent();
-            }
+                    @Override
+                    protected void _beforeCommit(TestCacheIface cache) {
+                        commitAllowEvt.tryWaitEvent();
+                    }
 
-            @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
-                commitedEvt.setEvent();
-                Assert.assertTrue(ctrl.isCacheInstanceExists());
-                Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), cacheClass);
-            }
-        };
+                    @Override
+                    protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from,
+                            CacheState<TestCacheIface, DefaultStateContext> to) {
+                        commitedEvt.setEvent();
+                        Assert.assertTrue(ctrl.isCacheInstanceExists());
+                        Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), cacheClass);
+                    }
+                };
         ctrl.getAudit().set_commitCacheAudit(_commitCacheAudit);
 
         DaemonSafeThread readThread = DaemonSafeThread.createAndStart(new Runnable() {
@@ -275,7 +285,7 @@ public class InitializeLazyCacheTest {
         Assert.assertEquals(ctrl.getCacheWithChoise(true, getCacheIfNoLocked).getClass(), proxyClass);
         readThreadAllowUnblockEvt.setEvent();
         readThreadGetCacheCompleted.tryWaitEvent();
-        //  Both threads got instance of proxy class
+        // Both threads got instance of proxy class
         Assert.assertEquals(ctrl.getCurrentCacheInstance().getClass(), proxyClass);
         // Allow cache initialization to complete.
         commitAllowEvt.setEvent();
@@ -300,24 +310,28 @@ public class InitializeLazyCacheTest {
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
 
-        CommitCacheAudit<TestCacheIface> _commitCacheAudit = new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
+        CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
+                new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
 
-            @Override
-            protected void _afterCommit(TestCacheIface cache) {
-                commitInProgressEvt.setEvent();
-                commitAllowEvt.tryWaitEvent();
-            }
+                    @Override
+                    protected void _afterCommit(TestCacheIface cache) {
+                        commitInProgressEvt.setEvent();
+                        commitAllowEvt.tryWaitEvent();
+                    }
 
-            @Override
-            protected void _stageSwitchFailed(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
-                commitedEvt.setEvent();
-            }
+                    @Override
+                    protected void _stageSwitchFailed(CacheState<TestCacheIface, DefaultStateContext> from,
+                            CacheState<TestCacheIface, DefaultStateContext> to) {
+                        commitedEvt.setEvent();
+                    }
 
-            @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
-                throw new RuntimeException("changeCacheOnInititalization: stageSwitched must not be success (stage is changed before commit)");
-            }
-        };
+                    @Override
+                    protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from,
+                            CacheState<TestCacheIface, DefaultStateContext> to) {
+                        throw new RuntimeException(
+                                "changeCacheOnInititalization: stageSwitched must not be success (stage is changed before commit)");
+                    }
+                };
         ctrl.getAudit().set_commitCacheAudit(_commitCacheAudit);
 
         Assert.assertEquals(ctrl.getCacheWithChoise(false, getCacheIfNoLocked).getClass(), proxyClass);
@@ -344,18 +358,20 @@ public class InitializeLazyCacheTest {
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
 
-        CommitCacheAudit<TestCacheIface> _commitCacheAudit = new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
+        CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
+                new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
 
-            @Override
-            protected void _afterCommit(TestCacheIface cache) {
-                commitAllowEvt.tryWaitEvent();
-            }
+                    @Override
+                    protected void _afterCommit(TestCacheIface cache) {
+                        commitAllowEvt.tryWaitEvent();
+                    }
 
-            @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
-                commitedEvt.setEvent();
-            }
-        };
+                    @Override
+                    protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from,
+                            CacheState<TestCacheIface, DefaultStateContext> to) {
+                        commitedEvt.setEvent();
+                    }
+                };
         ctrl.getAudit().set_commitCacheAudit(_commitCacheAudit);
 
         ctrl.getAudit().set_getCacheAudit(new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
@@ -402,13 +418,15 @@ public class InitializeLazyCacheTest {
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
 
-        CommitCacheAudit<TestCacheIface> _commitCacheAudit = new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
+        CommitCacheAudit<TestCacheIface, DefaultStateContext> _commitCacheAudit =
+                new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
 
-            @Override
-            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
-                commitedEvt.setEvent();
-            }
-        };
+                    @Override
+                    protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from,
+                            CacheState<TestCacheIface, DefaultStateContext> to) {
+                        commitedEvt.setEvent();
+                    }
+                };
         ctrl.getAudit().set_commitCacheAudit(_commitCacheAudit);
 
         Assert.assertEquals(ctrl.getCache(false).getClass(), proxyClass);

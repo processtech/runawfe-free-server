@@ -7,13 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
 
-class ProcessDefCacheStateCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache> implements DefinitionCache {
+class ProcessDefCacheStateCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache, DefaultStateContext> implements DefinitionCache {
 
     @Autowired
     private DeploymentDAO deploymentDAO;

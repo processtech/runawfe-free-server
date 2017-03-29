@@ -45,7 +45,7 @@ public abstract class NodeGraphElementVisitor {
         if (element.getNodeType() == NodeType.MULTI_SUBPROCESS) {
             onMultiSubprocessNode((MultiSubprocessNodeGraphElement) element);
         }
-        if (element.getNodeType() == NodeType.TASK_STATE) {
+        if (element.getNodeType() == NodeType.TASK_STATE || element.getNodeType() == NodeType.MULTI_TASK_STATE) {
             onTaskNode((TaskNodeGraphElement) element);
         }
     }

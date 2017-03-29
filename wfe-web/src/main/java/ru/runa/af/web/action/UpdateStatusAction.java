@@ -33,8 +33,7 @@ import ru.runa.wfe.user.Actor;
 /**
  * Created on Mar 2, 2006
  * 
- * @struts:action path="/updateStatus" name="updateStatusForm" validate="true"
- *                input = "/WEB-INF/af/manage_executor.jsp"
+ * @struts:action path="/updateStatus" name="updateStatusForm" validate="true" input = "/WEB-INF/af/manage_executor.jsp"
  * @struts.action-forward name="success" path="/WEB-INF/af/manage_executor.jsp"
  * @struts.action-forward name="failure" path="/WEB-INF/af/manage_executor.jsp"
  */
@@ -47,6 +46,8 @@ public class UpdateStatusAction extends ActionBase {
         try {
             Actor actor = Delegates.getExecutorService().getExecutor(getLoggedUser(request), form.getId());
             Delegates.getExecutorService().setStatus(getLoggedUser(request), actor, form.isActive());
+            // to reflect changes in ManageTasksAction
+            getLoggedUser(request).getActor().setActive(form.isActive());
         } catch (Exception e) {
             addError(request, e);
             return mapping.findForward(Resources.FORWARD_FAILURE);

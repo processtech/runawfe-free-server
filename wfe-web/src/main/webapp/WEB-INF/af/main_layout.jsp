@@ -97,11 +97,13 @@
 				<A HREF="http://sourceforge.net/forum/?group_id=125156" target="new">forum</A>
 				--%>
 				<%= WebResources.getAdditionalLinks() %>
-				<% if (Version.isDisplay()) { %>
-					<div style="padding: 3px; color: aaa;">
-						<bean:message key="title.version"/> <b><%= Version.get() %></b>
-					</div>
-				<% } %>
+				<div style="padding: 3px; color: #aaa;">
+					<bean:message key="title.version"/> <b><%= Version.get() %></b>
+				</div>
+				<div style="padding: 3px; color: #ccc;">
+					<bean:message key="title.build"/>
+					<%= Version.getBuildInfo() %>
+				</div>
 				<div id="filtersHelpDialog" style="display: none;">
 					<bean:message key="content.filters.help"/>
 				</div>

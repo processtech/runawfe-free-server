@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.user.dao;
@@ -33,6 +33,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDAO;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -265,17 +266,6 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     /**
-     * Load available {@linkplain Actor}'s with given codes. If actor with some code not available, it will be ignored. Result order is not specified.
-     * 
-     * @param executorIds
-     *            Loading {@linkplain Actor}'s codes.
-     * @return Loaded actors.
-     */
-    public List<Actor> getAvailableActorsByCodes(List<Long> codes) {
-        return getHibernateTemplate().find("select actor from Actor as actor where actor.code in ?", codes);
-    }
-
-    /**
      * Load {@linkplain Group}'s with given identities.
      * 
      * @param executorIds
@@ -297,7 +287,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
             }
         });
     }
-    
+
     public List<TemporaryGroup> getTemporaryGroups() {
         return getHibernateTemplate().executeFind(new HibernateCallback<List<TemporaryGroup>>() {
             @Override
@@ -486,10 +476,12 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Add {@linkplain Executor} to {@linkplain Group}
      */
-    public void addExecutorToGroup(Executor executor, Group group) {
+    public boolean addExecutorToGroup(Executor executor, Group group) {
         if (getMembership(group, executor) == null) {
             getHibernateTemplate().save(new ExecutorGroupMembership(group, executor));
+            return true;
         }
+        return false;
     }
 
     /**
@@ -523,11 +515,13 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Remove {@linkplain Executor} from {@linkplain Group}.
      */
-    public void removeExecutorFromGroup(Executor executor, Group group) {
+    public boolean removeExecutorFromGroup(Executor executor, Group group) {
         ExecutorGroupMembership membership = getMembership(group, executor);
         if (membership != null) {
             getHibernateTemplate().delete(membership);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -737,7 +731,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         visited.add(executor);
         Set<Group> result = new HashSet<Group>();
         for (Group group : getExecutorGroups(executor)) {
-            if (!group.isTemporary() || (group.isTemporary() && includeTemporaryGroups)) {
+            if (!group.isTemporary() || group.isTemporary() && includeTemporaryGroups) {
                 result.add(group);
                 result.addAll(getExecutorGroupsAll(group, visited, includeTemporaryGroups));
             }
@@ -880,4 +874,15 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         getHibernateTemplate().save(executor);
         return executor;
     }
+
+    public boolean isAdministrator(Actor actor) {
+        try {
+            Group administratorsGroup = (Group) getExecutor(SystemProperties.getAdministratorsGroupName());
+            return isExecutorInGroup(actor, administratorsGroup);
+        } catch (ExecutorDoesNotExistException e) {
+            log.debug(e);
+            return false;
+        }
+    }
+
 }

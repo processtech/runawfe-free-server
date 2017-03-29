@@ -24,7 +24,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
-import org.apache.struts.action.ActionMessages;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
@@ -40,7 +39,7 @@ import ru.runa.wfe.user.Profile;
 
 /**
  * Created on 18.08.2004
- *
+ * 
  * @struts:action path="/startProcess" name="idForm" validate="true" input = "/WEB-INF/wf/manage_process_definitions.jsp"
  * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
  * @struts.action-forward name="failure" path="/manage_process_definitions.do" redirect = "true"
@@ -66,10 +65,7 @@ public class StartProcessAction extends ActionBase {
                 Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
 
-                ActionMessages messages = new ActionMessages();
-                messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
-                saveMessages(request.getSession(), messages);
-
+                addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
                 successForward = mapping.findForward(Resources.FORWARD_SUCCESS);
 
                 if (WebResources.isAutoShowForm()) {

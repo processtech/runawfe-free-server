@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.runa.wfe</groupId>
 	<artifactId>wfe-app</artifactId>
@@ -17,7 +16,6 @@
 		<module>../wfe-office</module>
 		<module>../wfe-web</module>
 		<module>../wfe-ear</module>
-		<module>../wfe-cactus-it</module>
 	</modules>
 
 	<properties>
@@ -26,12 +24,30 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.organization.name>runawfe.org</project.organization.name>
 		<spring.version>3.1.2.RELEASE</spring.version>
-
+		<project.build.cactus>false</project.build.cactus>
 		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
 		<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
 		<maven.profile.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.profile.hibernate.dialect>
 		<maven.profile.user.transaction.jndi.name>java:jboss/UserTransaction</maven.profile.user.transaction.jndi.name>
+		<maven.build.timestamp.format>dd.MM.yyyy</maven.build.timestamp.format>
+		<project.build.date>${maven.build.timestamp}</project.build.date>
+		<skipTests>true</skipTests>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>cactus</id>
+			<activation>
+				<property>
+					<name>project.build.cactus</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<modules>
+				<module>../wfe-cactus-it</module>
+			</modules>
+		</profile>
+	</profiles>
 
 	<dependencyManagement>
 		<dependencies>
@@ -282,8 +298,7 @@
 
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -310,10 +325,11 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
 					<configuration>
 						<encoding>UTF-8</encoding>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>1.7</source>
+						<target>1.7</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -355,28 +371,36 @@
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>1.7</version>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.8</version>
-					<configuration>
-						<encoding>UTF-8</encoding>
-						<linksource>true</linksource>
-						<additionalJOption>-J-Dfile.encoding=${file.encoding}
-							-J-Dconsole.encoding=${console.encoding}</additionalJOption>
-					</configuration>
-				</plugin>
 				<!-- The JBoss AS plugin deploys your ear to a local JBoss AS container -->
-				<!-- Due to Maven's lack of intelligence with EARs we need to configure 
-					the jboss-as maven plugin to skip deployment for all modules. We then enable 
+				<!-- Due to Maven's lack of intelligence with EARs we need to configure the jboss-as maven plugin to skip deployment for all modules. We then enable 
 					it specifically in the ear module. -->
-				<!-- plugin> <groupId>org.jboss.as.plugins</groupId> <artifactId>jboss-as-maven-plugin</artifactId> 
-					<version>7.1.1.Final</version> <inherited>true</inherited> <configuration> 
-					<skip>true</skip> </configuration> </plugin -->
+				<!-- plugin> <groupId>org.jboss.as.plugins</groupId> <artifactId>jboss-as-maven-plugin</artifactId> <version>7.1.1.Final</version> <inherited>true</inherited> 
+					<configuration> <skip>true</skip> </configuration> </plugin -->
 				<plugin>
 					<groupId>com.googlecode.maven-overview-plugin</groupId>
 					<artifactId>maven-overview-plugin</artifactId>
 					<version>RELEASE</version>
+				</plugin>
+				<!-- buildnumber-maven-plugin cannot generate git branch info -->
+				<plugin>
+					<groupId>pl.project13.maven</groupId>
+					<artifactId>git-commit-id-plugin</artifactId>
+					<version>2.2.1</version>
+					<executions>
+						<execution>
+							<id>get-the-git-infos</id>
+							<goals>
+								<goal>revision</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+						<generateGitPropertiesFile>true</generateGitPropertiesFile>
+						<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+						<format>properties</format>
+						<abbrevLength>7</abbrevLength>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -397,6 +421,4 @@
 		</plugins>
 	</build>
 
-	<dependencies>
-	</dependencies>
 </project>

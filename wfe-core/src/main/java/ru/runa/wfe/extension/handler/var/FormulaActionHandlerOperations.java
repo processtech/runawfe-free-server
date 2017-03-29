@@ -18,6 +18,8 @@
 package ru.runa.wfe.extension.handler.var;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -52,6 +54,10 @@ import com.google.common.collect.Maps;
 public class FormulaActionHandlerOperations {
     private static final Log log = LogFactory.getLog(FormulaActionHandlerOperations.class);
     private static final Map<String, Function<? extends Object>> functions = Maps.newHashMap();
+    private static TreeMap<String, HashMap<Integer, String>> names = new TreeMap<String, HashMap<Integer, String>>();
+    private static TreeMap<String, HashMap<Integer, String>> families = new TreeMap<String, HashMap<Integer, String>>();
+    private static TreeMap<String, HashMap<Integer, String>> parents = new TreeMap<String, HashMap<Integer, String>>();
+    private static TreeMap<String, HashMap<String, String>> mappingConf = new TreeMap<String, HashMap<String, String>>();
     static {
         registerFunction(new ListToString());
         registerFunction(new GetListMatchedIndexes());
@@ -60,17 +66,87 @@ public class FormulaActionHandlerOperations {
         registerFunction(new DeleteListElementsByIndexes());
         registerFunction(new ToList());
         registerFunction(new GetSize());
-    }
-
-    private static void registerFunction(Function<? extends Object> function) {
-        functions.put(function.getName(), function);
+        //
+        readNameCaseConfig("nameCaseConf.xml");
+        readMappingConfig("mappingConf.xml");
     }
 
     public static Function<? extends Object> getFunction(String name) {
         return functions.get(name);
     }
 
+    private static void readNameCaseConfig(String path) {
+        try {
+            InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
+            Document document = XmlUtils.parseWithoutValidation(is);
+            @SuppressWarnings("unchecked")
+            List<Element> childs = document.getRootElement().elements();
+            for (Element element : childs) {
+                if (element.getName().equals("name")) {
+                    names.put(element.attributeValue("value"), parseNameCaseRules(element));
+                }
+                if (element.getName().equals("family")) {
+                    families.put(element.attributeValue("value"), parseNameCaseRules(element));
+                }
+                if (element.getName().equals("parent")) {
+                    parents.put(element.attributeValue("value"), parseNameCaseRules(element));
+                }
+            }
+        } catch (Exception e) {
+            log.error("Can`t parse " + path, e);
+        }
+    }
+
+    private static HashMap<Integer, String> parseNameCaseRules(Element element) {
+        HashMap<Integer, String> result = new HashMap<Integer, String>();
+        @SuppressWarnings("unchecked")
+        List<Element> childs = element.elements();
+        for (Element child : childs) {
+            if (child.getName().equals("name")) {
+                break;
+            }
+            int c = Integer.parseInt(child.attributeValue("case"));
+            result.put(c, child.getText());
+        }
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void readMappingConfig(String path) {
+        try {
+            InputStream is = ClassLoaderUtil.getAsStream(path, FormulaActionHandlerOperations.class);
+            if (is == null) {
+                log.warn("No " + path + " found");
+                return;
+            }
+            Document document = XmlUtils.parseWithoutValidation(is);
+            List<Element> childs = document.getRootElement().elements();
+            for (Element rule : childs) {
+                String title = rule.attributeValue("title");
+                HashMap<String, String> rmap = new HashMap<String, String>();
+                for (Element item : (List<Element>) rule.elements()) {
+                    String input = item.attributeValue("input");
+                    String output = item.attributeValue("output");
+                    rmap.put(input, output);
+                }
+                mappingConf.put(title, rmap);
+            }
+        } catch (Exception e) {
+            log.error("Can`t parse " + path, e);
+        }
+    }
+
+    private static void registerFunction(Function<? extends Object> function) {
+        functions.put(function.getName(), function);
+    }
+
     public Object sum(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).add(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).add((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() + ((Number) o2).doubleValue());
         }
@@ -100,6 +176,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object sub(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).subtract(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).subtract((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() - ((Number) o2).doubleValue());
         }
@@ -120,6 +202,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object mul(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).multiply(asBigDecimal((Number) o2));
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).multiply((BigDecimal) o2);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Number) o1).doubleValue() * ((Number) o2).doubleValue());
         }
@@ -134,6 +222,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object div(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).divide(asBigDecimal((Number) o2), MathContext.DECIMAL128);
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).divide((BigDecimal) o2, MathContext.DECIMAL128);
+        }
         if (Double.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Double(((Double) o1).doubleValue() / ((Number) o2).doubleValue());
         }
@@ -145,6 +239,9 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object changeSign(Object o) {
+        if (BigDecimal.class.isInstance(o)) {
+            return ((BigDecimal) o).negate();
+        }
         if (Double.class.isInstance(o)) {
             return new Double(-((Double) o).doubleValue());
         }
@@ -164,6 +261,12 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object less(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && Number.class.isInstance(o2)) {
+            return ((BigDecimal) o1).compareTo(asBigDecimal((Number) o2)) < 0;
+        }
+        if (Number.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return asBigDecimal((Number) o1).compareTo((BigDecimal) o2) < 0;
+        }
         if (Double.class.isInstance(o1) && Double.class.isInstance(o2)) {
             return new Boolean(((Double) o1).doubleValue() < ((Double) o2).doubleValue());
         }
@@ -191,6 +294,9 @@ public class FormulaActionHandlerOperations {
     }
 
     public Object equal(Object o1, Object o2) {
+        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
+            return new Boolean(((BigDecimal) o1).compareTo((BigDecimal) o2) == 0);
+        }
         return new Boolean(o1.equals(o2));
     }
 
@@ -323,6 +429,66 @@ public class FormulaActionHandlerOperations {
             st *= 10;
         }
         return (double) roundFunction(d * st) / st;
+    }
+
+    public String mapping(String input, String rule) {
+        try {
+            return mappingConf.get(rule).get(input);
+        } catch (Exception e) {
+            log.error("No mapping rule for " + input + " / " + rule, e);
+        }
+        return input;
+    }
+
+    public String nameCaseRussian(String fio, int caseNumber, String mode) {
+        boolean sex = false;
+        StringTokenizer st = new StringTokenizer(fio);
+        if (st.hasMoreElements()) {
+            st.nextToken();
+        }
+        if (st.hasMoreElements()) {
+            st.nextToken();
+        }
+        String parent = st.hasMoreElements() ? st.nextToken() : "   ";
+        if (parent.charAt(parent.length() - 1) == 'ч') {
+            sex = true;
+        }
+        return nameCaseRussian(fio, caseNumber, sex, mode);
+    }
+
+    public String nameCaseRussian(String fio, int caseNumber, boolean sex, String mode) {
+        StringTokenizer st = new StringTokenizer(fio);
+        String family = st.hasMoreElements() ? st.nextToken() : "";
+        String name = st.hasMoreElements() ? st.nextToken() : "";
+        String parent = st.hasMoreElements() ? st.nextToken() : "";
+
+        String answer = "";
+        for (char c : mode.toCharArray()) {
+            switch (c) {
+            case 'F':
+                answer += wordCaseRussian(family, caseNumber, sex, 1, false);
+                break;
+            case 'I':
+                answer += wordCaseRussian(name, caseNumber, sex, 2, false);
+                break;
+            case 'O':
+                answer += wordCaseRussian(parent, caseNumber, sex, 3, false);
+                break;
+            case 'f':
+                answer += wordCaseRussian(family, caseNumber, sex, 1, true);
+                break;
+            case 'i':
+                answer += wordCaseRussian(name, caseNumber, sex, 2, true);
+                break;
+            case 'o':
+                answer += wordCaseRussian(parent, caseNumber, sex, 3, true);
+                break;
+            default:
+                answer += c;
+            }
+        }
+
+        return answer;
     }
 
     private String wordCaseRussian(String word, int caseNumber, boolean sex, int wordType, boolean onlyOneChar) {
@@ -468,96 +634,14 @@ public class FormulaActionHandlerOperations {
         return ans;
     }
 
-    private static TreeMap<String, HashMap<Integer, String>> names = new TreeMap<String, HashMap<Integer, String>>();
-    private static TreeMap<String, HashMap<Integer, String>> families = new TreeMap<String, HashMap<Integer, String>>();
-    private static TreeMap<String, HashMap<Integer, String>> parents = new TreeMap<String, HashMap<Integer, String>>();
-    static {
-        readNameCaseConfig("nameCaseConf.xml");
-    }
-
-    private static void readNameCaseConfig(String path) {
-        try {
-            InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
-            Document document = XmlUtils.parseWithoutValidation(is);
-            List<Element> childs = document.getRootElement().elements();
-            for (Element element : childs) {
-                if (element.getName().equals("name")) {
-                    names.put(element.attributeValue("value"), parseNameCaseRules(element));
-                }
-                if (element.getName().equals("family")) {
-                    families.put(element.attributeValue("value"), parseNameCaseRules(element));
-                }
-                if (element.getName().equals("parent")) {
-                    parents.put(element.attributeValue("value"), parseNameCaseRules(element));
-                }
-            }
-        } catch (Exception e) {
-            log.error("Can`t parse " + path, e);
+    private BigDecimal asBigDecimal(Number n) {
+        if (BigDecimal.class.isInstance(n)) {
+            return (BigDecimal) n;
+        } else if (Double.class.isInstance(n)) {
+            return BigDecimal.valueOf((Double) n);
+        } else {
+            return BigDecimal.valueOf((Long) n);
         }
-    }
-
-    private static HashMap<Integer, String> parseNameCaseRules(Element element) {
-        HashMap<Integer, String> result = new HashMap<Integer, String>();
-        List<Element> childs = element.elements();
-        for (Element child : childs) {
-            if (child.getName().equals("name")) {
-                break;
-            }
-            int c = Integer.parseInt(child.attributeValue("case"));
-            result.put(c, child.getText());
-        }
-        return result;
-    }
-
-    public String nameCaseRussian(String fio, int caseNumber, String mode) {
-        boolean sex = false;
-        StringTokenizer st = new StringTokenizer(fio);
-        if (st.hasMoreElements()) {
-            st.nextToken();
-        }
-        if (st.hasMoreElements()) {
-            st.nextToken();
-        }
-        String parent = st.hasMoreElements() ? st.nextToken() : "   ";
-        if (parent.charAt(parent.length() - 1) == 'ч') {
-            sex = true;
-        }
-        return nameCaseRussian(fio, caseNumber, sex, mode);
-    }
-
-    public String nameCaseRussian(String fio, int caseNumber, boolean sex, String mode) {
-        StringTokenizer st = new StringTokenizer(fio);
-        String family = st.hasMoreElements() ? st.nextToken() : "";
-        String name = st.hasMoreElements() ? st.nextToken() : "";
-        String parent = st.hasMoreElements() ? st.nextToken() : "";
-
-        String answer = "";
-        for (char c : mode.toCharArray()) {
-            switch (c) {
-            case 'F':
-                answer += wordCaseRussian(family, caseNumber, sex, 1, false);
-                break;
-            case 'I':
-                answer += wordCaseRussian(name, caseNumber, sex, 2, false);
-                break;
-            case 'O':
-                answer += wordCaseRussian(parent, caseNumber, sex, 3, false);
-                break;
-            case 'f':
-                answer += wordCaseRussian(family, caseNumber, sex, 1, true);
-                break;
-            case 'i':
-                answer += wordCaseRussian(name, caseNumber, sex, 2, true);
-                break;
-            case 'o':
-                answer += wordCaseRussian(parent, caseNumber, sex, 3, true);
-                break;
-            default:
-                answer += c;
-            }
-        }
-
-        return answer;
     }
 
 }

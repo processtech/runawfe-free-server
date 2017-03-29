@@ -2,6 +2,7 @@ package ru.runa.wfe.service.client;
 
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
+import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -9,7 +10,7 @@ import com.google.common.base.Objects;
 
 /**
  * Implementation which uses service call for each variable retrieval (through RunaWFE delegates).
- *
+ * 
  * @author Dofs
  * @since 4.2.1
  */
@@ -21,9 +22,10 @@ public class DelegateTaskVariableProvider extends DelegateProcessVariableProvide
         this.taskId = taskId;
     }
 
-    public DelegateTaskVariableProvider(User user, Long processId, Long taskId) {
-        super(user, processId);
-        this.taskId = taskId;
+    public DelegateTaskVariableProvider(User user, WfTask task) {
+        super(user, task.getProcessId());
+        this.processDefinitionId = task.getDefinitionId();
+        this.taskId = task.getId();
     }
 
     @Override

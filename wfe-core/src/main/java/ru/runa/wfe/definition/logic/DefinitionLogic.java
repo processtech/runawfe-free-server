@@ -99,7 +99,7 @@ public class DefinitionLogic extends WFCommonLogic {
         Collection<Permission> allPermissions = new DefinitionPermission().getAllPermissions();
         permissionDAO.setPermissions(user.getActor(), allPermissions, definition.getDeployment());
         log.debug("Deployed process definition " + definition);
-        return new WfDefinition(definition, true);
+        return new WfDefinition(definition, isPermissionAllowed(user, definition.getDeployment(), DefinitionPermission.START_PROCESS));
     }
 
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
@@ -129,13 +129,13 @@ public class DefinitionLogic extends WFCommonLogic {
         boolean containsAllPreviousComments = definition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier "
+                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                         + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
             }
         }
         if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
             if (containsAllPreviousComments && definition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
-                throw new InternalApplicationException("The new version of definition must contains more than "
+                throw new InternalApplicationException("The new version of definition must contain more than "
                         + oldDefinition.getVersionInfoList().size() + " version comments. Uploaded definition contains "
                         + definition.getVersionInfoList().size()
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
@@ -174,13 +174,13 @@ public class DefinitionLogic extends WFCommonLogic {
         boolean containsAllPreviousComments = uploadedDefinition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier "
+                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                         + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
             }
         }
         if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
             if (containsAllPreviousComments && uploadedDefinition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
-                throw new InternalApplicationException("The new version of definition must contains more than "
+                throw new InternalApplicationException("The new version of definition must contain more than "
                         + oldDefinition.getVersionInfoList().size() + " version comments. Uploaded definition contains "
                         + uploadedDefinition.getVersionInfoList().size()
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
@@ -400,7 +400,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
         Deployment deployment = deploymentDAO.getNotNull(definitionId);
-        if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName)) {
+        if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(IFileDataProvider.BOTS_XML_FILE)) {
             checkPermissionAllowed(user, deployment, DefinitionPermission.READ);
         }
         if (IFileDataProvider.PAR_FILE.equals(fileName)) {

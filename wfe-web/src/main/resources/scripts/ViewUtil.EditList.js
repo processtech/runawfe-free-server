@@ -1,38 +1,55 @@
 
-var componentInputUNIQUENAME = "COMPONENT_INPUT";
-var lastIndexUNIQUENAME = -1;
-
 $(document).ready(function() {
-	updateIndexesUNIQUENAME();
-	lastIndexUNIQUENAME = $("#UNIQUENAME div[row][current]").length - 1;	
-	$("#btnAddUNIQUENAME").click(function() {
-		var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
-		lastIndexUNIQUENAME = rowIndex;
-		console.log("Adding row " + rowIndex);
-		var e = "<div current row='" + rowIndex + "' name='VARIABLE' style='margin-bottom:4px;'>";
-		e += componentInputUNIQUENAME.replace(/\[\]/g, "[" + rowIndex + "]");
-		e += "<input type='button' value=' - ' onclick='removeUNIQUENAME(this);' style='width: 30px;' />";
-		e += "</div>";
-		$("#btnAddUNIQUENAME").before(e);
-		updateIndexesUNIQUENAME();
-		COMPONENT_JS_HANDLER
-		$("#UNIQUENAME").trigger("onRowAdded", [rowIndex]);
-	});
+	initUNIQUENAME(null);
 });
 
+function initUNIQUENAME(addButtonElement) {
+	var addButton;
+	if (addButtonElement !== null) {
+		addButton = $(addButtonElement).closest("div").find("#btnAddUNIQUENAME").filter(filterTemplatesElements).last();
+	} else {
+		addButton = $("#btnAddUNIQUENAME");
+	}
+	updateIndexesUNIQUENAME(addButton.closest("div").parent().closest("div"));
+	addButton.each(function() {
+		$(this).click(function() {
+			var div = $(this).closest("div").parent().closest("div");
+			var rows = div.find("div[row][current][name='VARIABLE']");
+			var rowIndex = rows.length < 1 ? 0 : parseInt(rows.last().attr("row")) + 1;
+			console.log("Adding row " + rowIndex);
+			var copy = div.find("div[template]").first().clone();
+			copy.find("[name]").each(function(){
+			    $(this).attr("name", $(this).attr("name").replace(/\{\}/, "[" + rowIndex + "]"));
+			}); 
+			var e = "<div current row='" + rowIndex + "' name='VARIABLE' style='margin-bottom:4px;'>";
+			e += copy.html();
+			e += "</div>";
+			addButton.before(e);
+			updateIndexesUNIQUENAME(div);
+			COMPONENT_JS_HANDLER
+			$("#UNIQUENAME").trigger("onRowAdded", [rowIndex]);
+		});
+	});
+}
+	
 function getSizeUNIQUENAME() {
-	return parseInt($("input[name='VARIABLE.indexes']").val().split(',').length);
+	if ($("input[name='VARIABLE.indexes']").length > 0) {
+		return parseInt($("input[name='VARIABLE.indexes']").val().split(',').length);
+	} else {
+		return 0;
+	}
 }
 
 function removeUNIQUENAME(button) {
 	var div = $(button).closest("div");
+	var listDiv = div.parent().closest("div").parent().closest("div");
 	var rowIndex = parseInt(div.attr("row"));
 	console.log("Removing row ", rowIndex);
 	div.find(".inputFileDelete").each(function() {
 		$(this).click();
 	});
 	div.remove();
-	updateIndexesUNIQUENAME();
+	updateIndexesUNIQUENAME(listDiv);
 	$("#UNIQUENAME").trigger("onRowRemoved", [rowIndex]);
 }
 
@@ -48,12 +65,12 @@ function removeAllUNIQUENAME() {
 	console.log("Removed all rows");
 }
 
-function updateIndexesUNIQUENAME() {
+function updateIndexesUNIQUENAME(div) {
 	var ids = "";
-	$("#UNIQUENAME div[row][current]").each(function() {
+	div.find("div[row][current][name='VARIABLE']").filter(filterTemplatesElements).each(function() {
 		ids == "" ? ids = $(this).attr('row') : ids += "," + $(this).attr('row') ; 
 	});
-	var indexesInput = $("input[name='VARIABLE.indexes']");
+	var indexesInput = div.find("input[name$='.indexes']").filter(filterTemplatesElements).first();
 	indexesInput.val(ids);
 	console.log("List size = " + getSizeUNIQUENAME());
 }

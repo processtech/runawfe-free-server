@@ -35,12 +35,9 @@ import ru.runa.wfe.user.Group;
 /**
  * Created on 20.08.2004
  * 
- * @struts:action path="/createExecutor" name="createExecutorForm"
- *                validate="true" input = "/WEB-INF/af/create_executor.jsp"
- * @struts.action-forward name="success" path="/manage_executors.do" redirect =
- *                        "true"
- * @struts.action-forward name="failure" path="/create_executor.do" redirect =
- *                        "true"
+ * @struts:action path="/createExecutor" name="createExecutorForm" validate="true" input = "/WEB-INF/af/create_executor.jsp"
+ * @struts.action-forward name="success" path="/manage_executors.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/create_executor.do" redirect = "true"
  */
 public class CreateExecutorAction extends ActionBase {
 
@@ -55,10 +52,9 @@ public class CreateExecutorAction extends ActionBase {
                 if (createFrom.getCode() != 0) {
                     code = createFrom.getCode();
                 }
-                Delegates.getExecutorService().create(
-                        getLoggedUser(request),
+                Delegates.getExecutorService().create(getLoggedUser(request),
                         new Actor(createFrom.getNewName(), createFrom.getDescription(), createFrom.getFullName(), code, createFrom.getEmail(),
-                                createFrom.getPhone()));
+                                createFrom.getPhone(), createFrom.getTitle(), createFrom.getDepartment()));
             } else if (CreateExecutorForm.TYPE_GROUP.equals(createFrom.getExecutorType())) {
                 Delegates.getExecutorService().create(getLoggedUser(request),
                         new Group(createFrom.getNewName(), createFrom.getDescription(), createFrom.getEmail()));
