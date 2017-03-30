@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -127,22 +126,6 @@ public class CalendarUtil {
             return null;
         }
         return format(calendar.getTime(), format);
-    }
-
-    @Deprecated
-    public static String format(Calendar calendar, DateFormat format) {
-        if (calendar == null) {
-            return null;
-        }
-        return format.format(calendar.getTime());
-    }
-
-    @Deprecated
-    public static String format(Date date, DateFormat format) {
-        if (date == null) {
-            return null;
-        }
-        return format.format(date);
     }
 
     public static String formatDate(Calendar calendar) {
