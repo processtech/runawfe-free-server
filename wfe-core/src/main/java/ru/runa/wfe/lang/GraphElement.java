@@ -33,14 +33,13 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.runa.wfe.definition.Language;
-import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.lang.jpdl.Action;
-import ru.runa.wfe.lang.jpdl.ActionEvent;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
+import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.lang.jpdl.Action;
+import ru.runa.wfe.lang.jpdl.ActionEvent;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class GraphElement implements Serializable, Cloneable {
@@ -141,9 +140,6 @@ public abstract class GraphElement implements Serializable, Cloneable {
     }
 
     public void fireEvent(ExecutionContext executionContext, String eventType) {
-        if (processDefinition.getDeployment().getLanguage() != Language.JPDL) {
-            return;
-        }
         log.debug("event '" + eventType + "' on '" + this + "' for '" + executionContext.getToken() + "'");
         // execute static actions
         ActionEvent actionEvent = getEventNotNull(eventType);
