@@ -1,5 +1,16 @@
 package ru.runa.wfe.office.doc;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.util.Map;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+import javax.imageio.ImageIO;
+
+import ru.runa.wfe.office.OfficeProperties;
+import sun.management.counter.Units;
+import sun.rmi.runtime.Log;
 
 public class DocxUtils {
     private static final Log log = LogFactory.getLog(DocxUtils.class);
@@ -75,6 +86,13 @@ public class DocxUtils {
     }
 
     public static void setCellText(XWPFTableCell cell, String text, XWPFTableCell cellTemplate) {
+        if (cellTemplate != null) {
+            if (cell.getCTTc().getTcPr() != null && cellTemplate.getCTTc().getTcPr() != null) {
+                cell.getCTTc().getTcPr().setTcBorders(cellTemplate.getCTTc().getTcPr().getTcBorders());
+            } else if (cellTemplate.getCTTc().getTcPr() != null) {
+                cell.getCTTc().addNewTcPr().setTcBorders(cellTemplate.getCTTc().getTcPr().getTcBorders());
+            }
+        }
         if (cellTemplate != null && cellTemplate.getParagraphs().size() > 0 && cellTemplate.getParagraphs().get(0).getRuns().size() > 0) {
             XWPFParagraph paragraph0;
             if (cell.getParagraphs().size() > 0) {
