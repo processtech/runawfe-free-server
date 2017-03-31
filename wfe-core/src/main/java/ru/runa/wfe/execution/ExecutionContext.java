@@ -30,6 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
@@ -43,6 +47,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
@@ -61,13 +66,9 @@ import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableDAO;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
+import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.format.LongFormat;
-import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
+import ru.runa.wfe.var.format.VariableFormat;
 
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
@@ -87,6 +88,8 @@ public class ExecutionContext {
     @Autowired
     private VariableCreator variableCreator;
     @Autowired
+    private ProcessDAO processDAO;
+    @Autowired
     private TokenDAO tokenDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
@@ -102,25 +105,30 @@ public class ExecutionContext {
     private SwimlaneDAO swimlaneDAO;
 
     protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
-            Map<Process, Map<String, Variable<?>>> loadedVariables) {
+            Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
-        this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
-        baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcess(), getProcessDefinition());
+        if (disableVariableDaoLoading) {
+            this.variableLoader = new VariableLoaderFromMap(loadedVariables);
+        } else {
+            this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
+        }
+        this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, null);
+        this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(processDefinition, process.getRootToken(), loadedVariables);
+    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables,
+            boolean disableVariableDaoLoading) {
+        this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Process process) {
@@ -271,12 +279,12 @@ public class ExecutionContext {
 
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
-        value = convertValueForVariableType(variableDefinition, value);
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(),
                 baseProcessVariableLoader, variableDAO);
-        for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull()
-                .processBy(new ConvertToSimpleVariables(), context)) {
-            setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, simpleVariables.value);
+        VariableFormat variableFormat = variableDefinition.getFormatNotNull();
+        for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
+            Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
+            setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
         }
     }
 
@@ -317,8 +325,7 @@ public class ExecutionContext {
             resultingVariableLog = new VariableDeleteLog(variable);
             variable = null;
         }
-        final ru.runa.wfe.var.dao.BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader
-                .getSubprocessSyncCache();
+        final BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
         if (variable == null) {
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
@@ -339,26 +346,6 @@ public class ExecutionContext {
                     variable = variableCreator.create(token.getProcess(), variableDefinition, value);
                     resultingVariableLog = variable.setValue(this, value, variableDefinition.getFormatNotNull());
                     variableDAO.create(variable);
-                    if (variableDefinition.getName().contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)) {
-                        String autoExtendVariableName = variableDefinition.getName();
-                        while (autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)
-                                && autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
-                            int listIndexStart = autoExtendVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
-                            int listIndexEnd = autoExtendVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END);
-                            String listVariableName = autoExtendVariableName.substring(0, listIndexStart);
-                            String sizeVariableName = listVariableName + VariableFormatContainer.SIZE_SUFFIX;
-                            VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
-                            Integer oldSize = (Integer) variableLoader.getVariableValue(processDefinition, token.getProcess(), sizeDefinition);
-                            int listIndex = Integer.parseInt(autoExtendVariableName.substring(listIndexStart
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
-                            int newSize = listIndex + 1;
-                            if (oldSize == null || oldSize.intValue() < newSize) {
-                                log.debug("Auto-extending list " + listVariableName + " size: " + oldSize + " -> " + newSize);
-                                setSimpleVariableValue(processDefinition, token, sizeDefinition, newSize);
-                            }
-                            autoExtendVariableName = listVariableName;
-                        }
-                    }
                 }
             }
         } else {

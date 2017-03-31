@@ -34,7 +34,7 @@ public class AddColumnsToSubstituteEscalatedTasksPatch extends DBPatch {
         for (Object[] bundle : bundles) {
             try {
                 log.info(String.format("applyPatch: id: %s set PROCESS_ID description: %s", bundle[0], bundle[1]));
-                Long pid = new Long(0);
+                Long pid = Long.valueOf(0);
                 Matcher m;
                 if (bundle[1] != null && ((m = DECIMAL_LONG.matcher((CharSequence) bundle[1])).find())) {
                     MatchResult mr = m.toMatchResult();

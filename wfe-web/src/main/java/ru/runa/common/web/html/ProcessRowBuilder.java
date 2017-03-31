@@ -48,14 +48,9 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
     @Override
     public List<TR> buildNextArray() {
         List<TR> trs = renderTRFromCurrentStateArray();
-        int curIdx = currentState.getItemIndex();
-        if (currentState.isGroupHeader()) {
-            curIdx--;
-        }
         do {
             currentState = currentState.buildNextState(batchPresentation);
         } while (currentState.getStateType().equals(GroupState.StateType.TYPE_EMPTY_STATE));
-
         return trs;
     }
 

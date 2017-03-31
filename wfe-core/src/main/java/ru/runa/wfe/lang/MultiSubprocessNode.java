@@ -7,6 +7,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
@@ -28,9 +31,6 @@ import ru.runa.wfe.var.dto.Variables;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 public class MultiSubprocessNode extends SubprocessNode {
     private static final long serialVersionUID = 1L;
 
@@ -38,6 +38,8 @@ public class MultiSubprocessNode extends SubprocessNode {
     private transient ProcessFactory processFactory;
     @Autowired
     private transient NodeProcessDAO nodeProcessDAO;
+
+    private String discriminatorCondition;
 
     @Override
     public NodeType getNodeType() {
@@ -51,16 +53,14 @@ public class MultiSubprocessNode extends SubprocessNode {
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
         List<Process> subProcesses = Lists.newArrayList();
         ProcessDefinition subProcessDefinition = getSubProcessDefinition();
-        // TODO create discriminatorCondition attribute
-        String script = (String) executionContext.getVariableValue("multisubprocess condition");
         List<Integer> ignoredIndexes = Lists.newArrayList();
-        if (!Utils.isNullOrEmpty(script)) {
+        if (!Utils.isNullOrEmpty(discriminatorCondition)) {
             GroovyScriptExecutor scriptExecutor = new GroovyScriptExecutor();
             MapVariableProvider variableProvider = new MapVariableProvider(new HashMap<String, Object>());
             for (int index = 0; index < data.size(); index++) {
                 variableProvider.add("item", data.get(index));
                 variableProvider.add("index", index);
-                boolean result = (Boolean) scriptExecutor.evaluateScript(variableProvider, script);
+                boolean result = (Boolean) scriptExecutor.evaluateScript(variableProvider, discriminatorCondition);
                 if (!result) {
                     ignoredIndexes.add(index);
                 }
@@ -213,6 +213,14 @@ public class MultiSubprocessNode extends SubprocessNode {
             }
             super.leave(executionContext, transition);
         }
+    }
+
+    public String getDiscriminatorCondition() {
+        return discriminatorCondition;
+    }
+
+    public void setDiscriminatorCondition(String discriminatorCondition) {
+        this.discriminatorCondition = discriminatorCondition;
     }
 
 }

@@ -19,6 +19,7 @@ package ru.runa.common;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.LogFactory;
 
@@ -27,10 +28,11 @@ import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 /**
  * Created on 30.09.2004
- *
+ * 
  */
 public class WebResources {
     private static final PropertyResources RESOURCES = new PropertyResources("web.properties");
@@ -118,10 +120,6 @@ public class WebResources {
         return RESOURCES.getStringPropertyNotNull("ntlm.domain");
     }
 
-    public static boolean isVersionDisplay() {
-        return RESOURCES.getBooleanProperty("version.display", true);
-    }
-
     public static boolean isAutoShowForm() {
         return RESOURCES.getBooleanProperty("task.form.autoShowNext", false);
     }
@@ -150,6 +148,13 @@ public class WebResources {
         return "";
     }
 
+    public static Set<String> getHtmlBlockElements() {
+        List<String> blockElements = RESOURCES.getMultipleStringProperty("html.blockElements");
+        Set<String> set = Sets.newHashSet();
+        set.addAll(blockElements);
+        return set;
+    }
+
     public static int getViewLogsLimitLinesCount() {
         return RESOURCES.getIntegerProperty("view.logs.limit.lines.count", 10000);
     }
@@ -164,14 +169,6 @@ public class WebResources {
 
     public static boolean isBulkDeploymentElements() {
         return RESOURCES.getBooleanProperty("process.definition.ajax.bulk.deployment.enabled", true);
-    }
-
-    public static boolean isLDAPSynchronizationEnabled() {
-        return RESOURCES.getBooleanProperty("synchronization.ldap.link.enabled", false);
-    }
-
-    public static boolean isLDAPSynchronizationFull() {
-        return RESOURCES.getBooleanProperty("synchronization.ldap.create.executors", false);
     }
 
     public static boolean isAjaxFileInputEnabled() {

@@ -114,13 +114,13 @@ public class TypeConversionUtil {
             if (object instanceof Number && Number.class.isAssignableFrom(classConvertTo)) {
                 Number n = (Number) object;
                 if (classConvertTo == Long.class) {
-                    return (T) new Long(n.longValue());
+                    return (T) Long.valueOf(n.longValue());
                 }
                 if (classConvertTo == Integer.class) {
-                    return (T) new Integer(n.intValue());
+                    return (T) Integer.valueOf(n.intValue());
                 }
                 if (classConvertTo == Byte.class) {
-                    return (T) new Byte(n.byteValue());
+                    return (T) Byte.valueOf(n.byteValue());
                 }
                 if (classConvertTo == Double.class) {
                     return (T) new Double(n.doubleValue());
@@ -335,7 +335,7 @@ public class TypeConversionUtil {
             return (T) "";
         }
         if (clazz == Long.class) {
-            return (T) new Long(0);
+            return (T) Long.valueOf(0);
         }
         if (clazz == Boolean.class) {
             return (T) Boolean.FALSE;

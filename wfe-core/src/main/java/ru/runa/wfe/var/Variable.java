@@ -54,6 +54,7 @@ import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.VariableUpdateLog;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
@@ -71,7 +72,11 @@ import com.google.common.base.Objects;
 @DiscriminatorValue(value = "V")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public abstract class Variable<T extends Object> {
-    public static final int MAX_STRING_SIZE = SystemProperties.getStringVariableValueLength();
+
+    public static int getMaxStringSize() {
+        return SystemProperties.getStringVariableValueLength();
+    }
+
     protected Long id;
     private Long version;
     private String name;
@@ -221,9 +226,7 @@ public abstract class Variable<T extends Object> {
         } else {
             string = String.valueOf(value);
         }
-        if (string.length() > MAX_STRING_SIZE) {
-            string = string.substring(0, MAX_STRING_SIZE);
-        }
+        string = Utils.getCuttedString(string, getMaxStringSize());
         return string;
     }
 

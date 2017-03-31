@@ -109,7 +109,7 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
         return MessagesProcesses.TITLE_PROCESSES.message(pageContext);
     }
 
-    class ProcessCssClassStrategy implements CssClassStrategy {
+    static class ProcessCssClassStrategy implements CssClassStrategy {
 
         @Override
         public String getClassName(Object item, User user) {

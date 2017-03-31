@@ -42,20 +42,24 @@ public class Actor extends Executor {
     private boolean active = true;
     private String email;
     private String phone;
+    private String title;
+    private String department;
 
     protected Actor() {
     }
 
-    public Actor(String name, String description, String fullName, Long code, String email, String phone) {
+    public Actor(String name, String description, String fullName, Long code, String email, String phone, String title, String department) {
         super(name, description);
         setFullName(fullName != null ? fullName : "");
         setCode(code);
         setEmail(email != null ? email : "");
         setPhone(phone != null ? phone : "");
+        setTitle(title != null ? title : "");
+        setDepartment(department != null ? department : "");
     }
 
     public Actor(String name, String description, String fullName, Long code) {
-        this(name, description, fullName, code, null, null);
+        this(name, description, fullName, code, null, null, null, null);
     }
 
     public Actor(String name, String description, String fullName) {
@@ -106,13 +110,31 @@ public class Actor extends Executor {
         this.email = email;
     }
 
-    @Column(name = "PHONE", length = 32)
+    @Column(name = "PHONE", length = 1024)
     public String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    @Column(name = "TITLE", length = 1024)
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @Column(name = "DEPARTMENT", length = 1024)
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     @Transient

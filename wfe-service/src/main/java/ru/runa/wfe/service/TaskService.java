@@ -85,6 +85,7 @@ public interface TaskService {
      *            authorized user
      * @param batchPresentation
      *            to load tasks
+     * @return reassigned tasks count
      */
     public int reassignTasks(User user, BatchPresentation batchPresentation);
 
@@ -93,8 +94,9 @@ public interface TaskService {
      * 
      * @param user
      *            authorized user
+     * @return whether task was successfully reassigned
      */
-    public void reassignTask(User user, Long taskId);
+    public boolean reassignTask(User user, Long taskId);
 
     /**
      * Completes task by id.
@@ -111,7 +113,7 @@ public interface TaskService {
      * @throws ValidationException
      */
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
-            ValidationException;
+    ValidationException;
 
     /**
      * Marks task as read.

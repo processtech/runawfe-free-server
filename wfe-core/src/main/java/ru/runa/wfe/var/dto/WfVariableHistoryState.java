@@ -6,12 +6,10 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  * State for process variables on some date or date range.
  */
-@XmlType(namespace = "http://stub.service.wfe.runa.ru/", name = "wfVariableHistoryState")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfVariableHistoryState implements Serializable {
 
@@ -33,7 +31,6 @@ public class WfVariableHistoryState implements Serializable {
     private Set<String> simpleVariablesChanged;
 
     public WfVariableHistoryState(List<WfVariable> startDateRangeVariables, List<WfVariable> variables, Set<String> simpleVariablesChanged) {
-        super();
         this.startDateRangeVariables = startDateRangeVariables;
         this.variables = variables;
         this.simpleVariablesChanged = simpleVariablesChanged;

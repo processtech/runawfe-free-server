@@ -391,11 +391,11 @@ public class CompilerParameters {
     /**
      * Dummy class for only identity parameter fluent interface.
      */
-    private class OnlyIdentity {
+    private static class OnlyIdentity {
 
     }
 
-    private class IdRestriction {
+    private static class IdRestriction {
         public final String[] idRestriction;
 
         public IdRestriction(String[] idRestrictions) {

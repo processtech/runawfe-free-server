@@ -33,7 +33,7 @@ public class DefinitionLockedException extends InternalApplicationException {
     private final Date date;
     private final Boolean forAll;
 
-    public DefinitionLockedException(Deployment deployment) {
+    public DefinitionLockedException(DeploymentData deployment) {
         super("Definition " + deployment.getName() + " locked by " + deployment.getLockActor().getName() + " at "
                 + CalendarUtil.formatDateTime(deployment.getLockDate()) + (deployment.getLockForAll() ? " for all." : "."));
         this.name = deployment.getName();

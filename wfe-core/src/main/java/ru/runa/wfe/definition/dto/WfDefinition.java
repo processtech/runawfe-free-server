@@ -60,7 +60,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
     }
 
     public WfDefinition(ProcessDefinition definition, boolean canBeStarted) {
-        this(definition.getDeployment());
+        this(Deployment.from(definition.getDeployment()));
         hasHtmlDescription = definition.getFileData(IFileDataProvider.INDEX_FILE_NAME) != null;
         hasStartImage = definition.getFileData(IFileDataProvider.START_IMAGE_FILE_NAME) != null;
         hasDisabledImage = definition.getFileData(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
@@ -85,7 +85,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
 
     @Override
     public Long getIdentifiableId() {
-        return new Long(getName().hashCode());
+        return Long.valueOf(getName().hashCode());
     }
 
     @Override

@@ -20,7 +20,7 @@ package ru.runa.common.web.html;
 import ru.runa.wfe.user.User;
 
 public interface CssClassStrategy {
-    public String getClassName(Object item, User user);
+    String getClassName(Object item, User user);
 
-    public String getCssStyle(Object item);
+    String getCssStyle(Object item);
 }

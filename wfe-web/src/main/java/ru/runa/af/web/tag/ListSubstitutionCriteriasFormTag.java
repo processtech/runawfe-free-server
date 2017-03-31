@@ -86,7 +86,7 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
         tdFormElement.addElement(new Input(Input.HIDDEN, SubstitutionCriteriasForm.REMOVE_METHOD_INPUT_NAME,
                 SubstitutionCriteriasForm.REMOVE_METHOD_CONFIRM));
         if (substitutionCriteriaIds != null && !substitutionCriteriaIds.isEmpty()) {
-            String message = MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_USED_BY.message(pageContext) + ":<ul>";
+            StringBuilder javascript = new StringBuilder(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_USED_BY.message(pageContext)).append(":<ul>");
             ArrayList<Long> ids = arrayFromString(substitutionCriteriaIds);
             ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
             SubstitutionService substitutionService = Delegates.getSubstitutionService();
@@ -97,17 +97,15 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
             for (Substitution substitution : substitutions) {
                 ExecutorService executorService = Delegates.getExecutorService();
                 Actor actor = executorService.getExecutor(getUser(), substitution.getActorId());
-                message += "<li>" + actor.getFullName() + " (" + actor.getName() + ")</li>";
+                javascript.append("<li>" + actor.getFullName() + " (" + actor.getName() + ")</li>");
             }
-            message += "</ul>" + MessagesConfirmation.CONF_POPUP_REMOVE_SUBSTITUTION_CRITERIA.message(pageContext);
+            javascript.append("</ul>" + MessagesConfirmation.CONF_POPUP_REMOVE_SUBSTITUTION_CRITERIA.message(pageContext));
             getForm().addAttribute("id", "substitutionCriteriasForm");
-            String javascript = "onload = function() {" + "openSubstitutionCriteriasConfirmPopup('" + message + "', '"
-                    + SubstitutionCriteriasForm.REMOVE_METHOD_ALL + "', '"
-                    + MessagesConfirmation.CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ALL.message(pageContext) + "', '"
-                    + SubstitutionCriteriasForm.REMOVE_METHOD_ONLY + "', '"
-                    + MessagesConfirmation.CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ONLY.message(pageContext) + "', '"
-                    + MessagesConfirmation.CONF_POPUP_BUTTON_CANCEL.message(pageContext) + "');" + "}";
-            tdFormElement.addElement(WebUtils.getScript(javascript));
+            javascript.insert(0, "onload = function() {" + "openSubstitutionCriteriasConfirmPopup('").append("', '")
+                    .append(SubstitutionCriteriasForm.REMOVE_METHOD_ALL).append("', '")
+                    .append(MessagesConfirmation.CONF_POPUP_SUBSTITUTION_CRITERIA_BUTTON_ALL.message(pageContext)).append("', '")
+                    .append(MessagesConfirmation.CONF_POPUP_BUTTON_CANCEL.message(pageContext)).append("');}");
+            tdFormElement.addElement(WebUtils.getScript(javascript.toString()));
         }
     }
 

@@ -13,9 +13,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class DefaultBusinessCalendar extends AbstractBusinessCalendar {
-    private static final Map<Integer, BusinessDay> WEEK_DAYS = Maps.newHashMap();
-    private static final List<Calendar> HOLIDAYS = Lists.newArrayList();
-    static {
+    private static Map<Integer, BusinessDay> WEEK_DAYS;
+    private static List<Calendar> HOLIDAYS;
+
+    private static synchronized void init() {
+        if (WEEK_DAYS != null) {
+            return;
+        }
+        WEEK_DAYS = Maps.newHashMap();
+        HOLIDAYS = Lists.newArrayList();
         for (int weekDay = Calendar.SUNDAY; weekDay <= Calendar.SATURDAY; weekDay++) {
             WEEK_DAYS.put(weekDay, parse(BusinessCalendarProperties.getWeekWorkingTime(weekDay)));
         }
@@ -49,6 +55,7 @@ public class DefaultBusinessCalendar extends AbstractBusinessCalendar {
 
     @Override
     protected BusinessDay getBusinessDay(Calendar calendar) {
+        init();
         calendar = CalendarUtil.getZeroTimeCalendar(calendar);
         if (HOLIDAYS.contains(calendar)) {
             return BusinessDay.HOLIDAY;

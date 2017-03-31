@@ -47,7 +47,7 @@ public class MapAggregateFunctionActionHandler extends CommonParamBasedHandler {
             if (doubleValue) {
                 result = min;
             } else {
-                result = new Long((long) min);
+                result = Long.valueOf((long) min);
             }
         } else if ("MAX".equals(function)) {
             boolean doubleValue = false;
@@ -64,7 +64,7 @@ public class MapAggregateFunctionActionHandler extends CommonParamBasedHandler {
             if (doubleValue) {
                 result = max;
             } else {
-                result = new Long((long) max);
+                result = Long.valueOf((long) max);
             }
         } else {
             throw new Exception("Unknown function '" + function + "'");
@@ -84,7 +84,7 @@ public class MapAggregateFunctionActionHandler extends CommonParamBasedHandler {
         if (doubleValue) {
             return sum;
         } else {
-            return new Long((long) sum);
+            return Long.valueOf((long) sum);
         }
     }
 

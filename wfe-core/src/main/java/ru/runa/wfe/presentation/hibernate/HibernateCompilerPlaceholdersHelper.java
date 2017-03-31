@@ -80,10 +80,10 @@ public final class HibernateCompilerPlaceholdersHelper {
             if (charAt == '\'' && !inDoubleQuot) {
                 inQuot = !inQuot;
             }
-            if (charAt == new Character('\"').charValue() && !inQuot) {
+            if (charAt == '\"' && !inQuot) {
                 inDoubleQuot = !inDoubleQuot;
             }
-            if (charAt == new Character(searchCharacter).charValue() && !inQuot && !inDoubleQuot) {
+            if (charAt == searchCharacter && !inQuot && !inDoubleQuot) {
                 return idx;
             }
         }

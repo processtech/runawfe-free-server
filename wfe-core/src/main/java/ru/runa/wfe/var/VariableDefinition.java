@@ -54,18 +54,18 @@ public class VariableDefinition implements Serializable {
     }
 
     public VariableDefinition(String name, String scriptingName) {
-        this.name = name;
+        this.name = name.intern();
         if (scriptingName == null) {
-            this.scriptingName = toScriptingName(name);
+            this.scriptingName = toScriptingName(name).intern();
             this.synthetic = true;
         } else {
-            this.scriptingName = scriptingName;
+            this.scriptingName = scriptingName.intern();
         }
     }
 
     public VariableDefinition(String name, String scriptingName, VariableFormat variableFormat) {
         this(name, scriptingName);
-        setFormat(variableFormat.toString());
+        setFormat(variableFormat.toString().intern());
         this.variableFormat = variableFormat;
         if (variableFormat instanceof UserTypeFormat) {
             this.userType = ((UserTypeFormat) variableFormat).getUserType();
@@ -112,7 +112,7 @@ public class VariableDefinition implements Serializable {
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = null == description ? null : description.intern();
     }
 
     public String getScriptingName() {
@@ -120,7 +120,7 @@ public class VariableDefinition implements Serializable {
     }
 
     public String getScriptingNameWithoutDots() {
-        return scriptingName.replaceAll("\\.", "_").replaceAll("\\[", "_").replaceAll("\\]", "_");
+        return scriptingName.replaceAll("(\\.|\\[|\\])", "_").intern();
     }
 
     public VariableFormat getFormatNotNull() {
@@ -143,7 +143,7 @@ public class VariableDefinition implements Serializable {
     }
 
     public void setFormat(String format) {
-        this.format = format;
+        this.format = null == format ? null : format.intern();
     }
 
     public String[] getFormatComponentClassNames() {
@@ -182,7 +182,7 @@ public class VariableDefinition implements Serializable {
     }
 
     public void setFormatLabel(String formatLabel) {
-        this.formatLabel = formatLabel;
+        this.formatLabel = null == formatLabel ? null : formatLabel.intern();
     }
 
     public boolean isUserType() {
@@ -273,7 +273,7 @@ public class VariableDefinition implements Serializable {
                 chars[i] = '_';
             }
         }
-        String scriptingName = new String(chars);
+        String scriptingName = String.valueOf(chars).intern();
         return scriptingName;
     }
 

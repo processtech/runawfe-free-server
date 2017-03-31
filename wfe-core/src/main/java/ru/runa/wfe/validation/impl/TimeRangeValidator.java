@@ -23,7 +23,7 @@ import java.util.Date;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 
-public class TimeRangeValidator extends AbstractRangeValidator<Date> {
+public class TimeRangeValidator extends RangeFieldValidator<Date> {
 
     private Date getParameter(String name) {
         Calendar baseDate = TypeConversionUtil.convertTo(Calendar.class, getFieldValue());
@@ -36,12 +36,12 @@ public class TimeRangeValidator extends AbstractRangeValidator<Date> {
     }
 
     @Override
-    protected Date getMaxComparatorValue() {
+    protected Date getMaxComparatorValue(Class<Date> clazz) {
         return getParameter("max");
     }
 
     @Override
-    protected Date getMinComparatorValue() {
+    protected Date getMinComparatorValue(Class<Date> clazz) {
         return getParameter("min");
     }
 

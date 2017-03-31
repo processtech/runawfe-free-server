@@ -75,7 +75,10 @@ public class InteractionsParser implements ProcessArchiveParser {
                 String stateId = formElement.attributeValue(STATE_ATTRIBUTE_NAME);
                 Node node = processDefinition.getNodeNotNull(stateId);
                 String fileName = formElement.attributeValue(FILE_ATTRIBUTE_NAME);
-                String typeName = formElement.attributeValue(TYPE_ATTRIBUTE_NAME);
+                String type = formElement.attributeValue(TYPE_ATTRIBUTE_NAME);
+                if (type != null) {
+                    type = type.intern();
+                }
                 String validationFileName = formElement.attributeValue(VALIDATION_FILE_ATTRIBUTE_NAME);
                 boolean jsValidationEnabled = Boolean.parseBoolean(formElement.attributeValue(JS_VALIDATION_ATTRIBUTE_NAME));
                 String scriptFileName = formElement.attributeValue(SCRIPT_FILE_ATTRIBUTE_NAME);
@@ -98,7 +101,7 @@ public class InteractionsParser implements ProcessArchiveParser {
                 if (!Strings.isNullOrEmpty(templateFileName)) {
                     template = processDefinition.getFileDataNotNull(templateFileName);
                 }
-                Interaction interaction = new Interaction(node, typeName, formCode, validationXml, jsValidationEnabled, processScriptData,
+                Interaction interaction = new Interaction(node, type, formCode, validationXml, jsValidationEnabled, processScriptData,
                         formScriptData, css, template);
                 if (validationXml != null) {
                     List<String> variableNames = ValidationXmlParser.readVariableNames(processDefinition, validationFileName, validationXml);

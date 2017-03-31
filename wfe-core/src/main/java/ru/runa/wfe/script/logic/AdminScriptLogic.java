@@ -60,7 +60,7 @@ public class AdminScriptLogic extends CommonLogic {
             adminScript = new AdminScript();
             adminScript.setName(name);
             adminScript.setContent(script);
-            adminScript = scriptDAO.create(adminScript);
+            scriptDAO.create(adminScript);
         } else {
             adminScript.setContent(script);
             scriptDAO.update(adminScript);

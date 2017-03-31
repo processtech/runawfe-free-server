@@ -27,7 +27,7 @@ public class UserType implements Serializable {
     }
 
     public UserType(String name) {
-        this.name = name;
+        this.name = name.intern();
     }
 
     public String getName() {

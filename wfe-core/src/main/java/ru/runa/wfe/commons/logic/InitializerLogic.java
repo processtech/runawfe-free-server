@@ -18,6 +18,7 @@
 package ru.runa.wfe.commons.logic;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,6 +59,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddProcessAndTokenExecutionStatusPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
+import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
@@ -86,79 +88,82 @@ import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
- * 
+ *
  * @author Dofs
  */
 public class InitializerLogic {
     protected static final Log log = LogFactory.getLog(InitializerLogic.class);
 
-    public static final List<Class<? extends DBPatch>> dbPatches = Lists.newArrayList();
+    public static final List<Class<? extends DBPatch>> dbPatches;
 
     static {
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
-        dbPatches.add(UnsupportedPatch.class);
+        List<Class<? extends DBPatch>> patches = Lists.newArrayList();
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
+        patches.add(UnsupportedPatch.class);
         // version 20
         // 4.0.0
-        dbPatches.add(AddHierarchyProcess.class);
-        dbPatches.add(JbpmRefactoringPatch.class);
-        dbPatches.add(TransitionLogPatch.class);
+        patches.add(AddHierarchyProcess.class);
+        patches.add(JbpmRefactoringPatch.class);
+        patches.add(TransitionLogPatch.class);
         // 4.0.1
-        dbPatches.add(PerformancePatch401.class);
-        dbPatches.add(TaskEndDateRemovalPatch.class);
+        patches.add(PerformancePatch401.class);
+        patches.add(TaskEndDateRemovalPatch.class);
         // 4.0.1
-        dbPatches.add(PermissionMappingPatch403.class);
+        patches.add(PermissionMappingPatch403.class);
         // 4.0.5
-        dbPatches.add(NodeTypeChangePatch.class);
-        dbPatches.add(ExpandDescriptionsPatch.class);
+        patches.add(NodeTypeChangePatch.class);
+        patches.add(ExpandDescriptionsPatch.class);
         // 4.0.6
-        dbPatches.add(TaskOpenedByExecutorsPatch.class);
+        patches.add(TaskOpenedByExecutorsPatch.class);
         // 4.1.0
-        dbPatches.add(AddNodeIdToProcessLogPatch.class);
-        dbPatches.add(AddSubProcessIndexColumn.class);
+        patches.add(AddNodeIdToProcessLogPatch.class);
+        patches.add(AddSubProcessIndexColumn.class);
         // 4.1.1
-        dbPatches.add(AddCreateDateColumns.class);
+        patches.add(AddCreateDateColumns.class);
         // 4.2.0
-        dbPatches.add(AddEmbeddedFileForBotTask.class);
-        dbPatches.add(AddColumnForEmbeddedBotTaskFileName.class);
-        dbPatches.add(AddSettingsTable.class);
-        dbPatches.add(AddSequentialFlagToBot.class);
-        dbPatches.add(CreateAggregatedLogsTables.class);
-        dbPatches.add(TaskCreateLogSeverityChangedPatch.class);
-        dbPatches.add(AddColumnsToSubstituteEscalatedTasksPatch.class);
+        patches.add(AddEmbeddedFileForBotTask.class);
+        patches.add(AddColumnForEmbeddedBotTaskFileName.class);
+        patches.add(AddSettingsTable.class);
+        patches.add(AddSequentialFlagToBot.class);
+        patches.add(CreateAggregatedLogsTables.class);
+        patches.add(TaskCreateLogSeverityChangedPatch.class);
+        patches.add(AddColumnsToSubstituteEscalatedTasksPatch.class);
         // 4.2.1
-        dbPatches.add(AddMultiTaskIndexToTaskPatch.class);
+        patches.add(AddMultiTaskIndexToTaskPatch.class);
         // 4.2.2
-        dbPatches.add(AddDeploymentAuditPatch.class);
+        patches.add(AddDeploymentAuditPatch.class);
         // 4.3.0
-        dbPatches.add(AddAggregatedTaskIndexPatch.class);
-        dbPatches.add(AddParentProcessIdPatch.class);
-        dbPatches.add(CreateReportsTables.class);
-        dbPatches.add(AddDueDateExpressionToJobAndTask.class);
-        dbPatches.add(AddBatchPresentationIsSharedPatch.class);
-        dbPatches.add(ExpandVarcharPatch.class);
-        dbPatches.add(AddProcessAndTokenExecutionStatusPatch.class);
-        dbPatches.add(CreateAdminScriptTables.class);
-        dbPatches.add(AddDeploymentLockPatch.class);
-        // dbPatches.add(AddVariableUniqueKeyPatch.class);
-        dbPatches.add(AddTokenErrorDataPatch.class);
+        patches.add(AddAggregatedTaskIndexPatch.class);
+        patches.add(AddParentProcessIdPatch.class);
+        patches.add(CreateReportsTables.class);
+        patches.add(AddDueDateExpressionToJobAndTask.class);
+        patches.add(AddBatchPresentationIsSharedPatch.class);
+        patches.add(ExpandVarcharPatch.class);
+        patches.add(AddProcessAndTokenExecutionStatusPatch.class);
+        patches.add(CreateAdminScriptTables.class);
+        patches.add(AddDeploymentLockPatch.class);
+        // patches.add(AddVariableUniqueKeyPatch.class);
+        patches.add(AddTokenErrorDataPatch.class);
+        patches.add(AddTitleAndDepartmentColumnsToActorPatch.class);
+        dbPatches = Collections.unmodifiableList(patches);
     };
 
     @Autowired
@@ -210,15 +215,11 @@ public class InitializerLogic {
         ApplicationContext context = ApplicationContextFactory.getContext();
         PropertyResources resources = SystemProperties.getResources();
         ScheduledTimerTask jobExecutorTask = context.getBean("jobExecutorTask", ScheduledTimerTask.class);
-        ScheduledTimerTask tasksAssignTask = context.getBean("tasksAssignTask", ScheduledTimerTask.class);
-        ScheduledTimerTask ldapSynchronizerTask = context.getBean("ldapSynchronizerTask", ScheduledTimerTask.class);
-
         jobExecutorTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_JOB_EXECUTION_NAME, 60000));
         jobExecutorTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_JOB_EXECUTION_NAME, 60000));
+        ScheduledTimerTask tasksAssignTask = context.getBean("tasksAssignTask", ScheduledTimerTask.class);
         tasksAssignTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME, 60000));
         tasksAssignTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME, 60000));
-        ldapSynchronizerTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_LDAP_SYNC_NAME, 600000));
-        ldapSynchronizerTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_LDAP_SYNC_NAME, 600000));
     }
 
     /**
@@ -229,7 +230,7 @@ public class InitializerLogic {
 
     /**
      * Initialize database.
-     * 
+     *
      * @param daoHolder
      *            Helper object for getting DAO's.
      */

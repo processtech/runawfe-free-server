@@ -179,7 +179,7 @@ public class TableViewSetupForm extends IdsForm {
         boolean[] sortingModeIds = new boolean[actualSortedPositionIds.length];
         Map<Long, Integer> idPositionsMap = getIdPositionsMap(sortingIds);
         for (int i = 0; i < sortingModeIds.length; i++) {
-            int index = idPositionsMap.get(new Long(actualSortedPositionIds[i]));
+            int index = idPositionsMap.get(Long.valueOf(actualSortedPositionIds[i]));
             if (sortingModeNames[index].equals(ASC_SORTING_MODE)) {
                 sortingModeIds[i] = BatchPresentationConsts.ASC;
             } else if (sortingModeNames[index].equals(DSC_SORTING_MODE)) {
@@ -192,7 +192,7 @@ public class TableViewSetupForm extends IdsForm {
     private Map<Long, Integer> getIdPositionsMap(Long[] ids) {
         Map<Long, Integer> map = new HashMap<Long, Integer>();
         for (int i = 0; i < ids.length; i++) {
-            map.put(new Long(ids[i]), new Integer(i));
+            map.put(ids[i], i);
         }
         return map;
     }
@@ -272,7 +272,7 @@ public class TableViewSetupForm extends IdsForm {
         Map<Integer, String[]> filterCriterias = new HashMap<Integer, String[]>();
         if (fieldsToFilterIds != null) {
             for (int i = 0; i < fieldsToFilterIds.length; i++) {
-                filterCriterias.put(new Integer(fieldsToFilterIds[i]), getCriteriasForField(fieldsToFilterIds[i]));
+                filterCriterias.put(Integer.valueOf(fieldsToFilterIds[i]), getCriteriasForField(fieldsToFilterIds[i]));
             }
         }
         return filterCriterias;

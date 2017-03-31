@@ -35,13 +35,13 @@ public class SaveSettingsAction extends ActionBase {
     	if (!Delegates.getExecutorService().isAdministrator(Commons.getUser(request.getSession())))
     		throw new AuthorizationException("No permission on this page");
         try {
-            SettingsFileForm pform = (SettingsFileForm)form;
+            SettingsFileForm pform = (SettingsFileForm) form;
             String resource = pform.getResource();
             Map<String, String> properties = pform.getModifiedSettings();
             SystemService service = Delegates.getSystemService();
-            for (String p : properties.keySet()) {
-            	log.info(resource + "[" + p + "] = " + properties.get(p));
-            	service.setSetting(resource, p, properties.get(p));
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+            	log.info(resource + "[" + entry.getKey() + "] = " + entry.getValue());
+            	service.setSetting(resource, entry.getKey(), entry.getValue());
             }
         } catch (Exception e) {
             log.error("", e);

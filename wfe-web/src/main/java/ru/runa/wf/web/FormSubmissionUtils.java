@@ -13,11 +13,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.RequestWebHelper;
 import ru.runa.wf.web.servlet.UploadedFile;
@@ -33,6 +28,11 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+
 @SuppressWarnings("unchecked")
 public class FormSubmissionUtils {
     private static final Log log = LogFactory.getLog(FormSubmissionUtils.class);
@@ -46,7 +46,7 @@ public class FormSubmissionUtils {
 
     /**
      * save in request user input with errors
-     *
+     * 
      * @param errors
      *            validation errors
      */
@@ -87,14 +87,14 @@ public class FormSubmissionUtils {
     private static Map<String, String[]> extractAllAvailableVariables(ActionForm actionForm) {
         Hashtable<String, Object> hashtable = actionForm.getMultipartRequestHandler().getAllElements();
         Map<String, String[]> variablesMap = new HashMap<String, String[]>();
-        for (String varName : hashtable.keySet()) {
-            Object value = hashtable.get(varName);
+        for (Map.Entry<String, Object> entry : hashtable.entrySet()) {
+            Object value = entry.getValue();
             if (value instanceof FormFile) {
                 // we could not fulfill in future this type of the input on the
                 // web page (access restriction), so discard it
                 continue;
             } else {
-                variablesMap.put(varName, (String[]) value);
+                variablesMap.put(entry.getKey(), (String[]) value);
             }
         }
         return variablesMap;
@@ -167,8 +167,11 @@ public class FormSubmissionUtils {
     private static Object extractVariable(HttpServletRequest request, Map<String, ? extends Object> userInput, VariableDefinition variableDefinition,
             Map<String, String> errors) throws Exception {
         VariableFormat format = FormatCommons.create(variableDefinition);
-        return format.processBy(new UserInputsToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request.getSession()))),
-                variableDefinition);
+        HttpFormToVariableValue httpFormToVariableValue = new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request
+                .getSession())));
+        Object result = format.processBy(httpFormToVariableValue, variableDefinition);
+        errors.putAll(httpFormToVariableValue.getErrors());
+        return result;
     }
 
     public static Map<String, UploadedFile> getUploadedFilesInputsMap(HttpServletRequest request) {

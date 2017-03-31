@@ -48,7 +48,7 @@ import com.google.common.collect.Maps;
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
     private static Log log = LogFactory.getLog(Utils.class);
-    private static InitialContext initialContext;
+    private static volatile InitialContext initialContext;
     private static TransactionManager transactionManager;
     private static ConnectionFactory connectionFactory;
     private static Queue bpmMessageQueue;
@@ -127,7 +127,7 @@ public class Utils {
         }
     }
 
-    // FIXME It is an anti-pattern to create new connections, sessions, producers and consumers for each message you produce or consume
+    // TODO It is an anti-pattern to create new connections, sessions, producers and consumers for each message you produce or consume
     public static ObjectMessage sendBpmnMessage(List<VariableMapping> data, IVariableProvider variableProvider, long ttl) {
         Connection connection = null;
         Session session = null;
@@ -310,13 +310,21 @@ public class Utils {
             protected void doExecuteInTransaction() throws Exception {
                 Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
                 if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
-                    token.fail(throwable.getLocalizedMessage());
+                    token.fail(throwable);
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
                     ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
-                    Errors.sendEmailNotification(throwable, processError);
+                    processError.setThrowable(throwable);
+                    Errors.sendEmailNotification(processError);
                 }
             }
         }.executeInTransaction(true);
+    }
+
+    public static String getCuttedString(String string, int limit) {
+        if (string != null && string.length() > limit) {
+            return string.substring(0, limit);
+        }
+        return string;
     }
 
 }

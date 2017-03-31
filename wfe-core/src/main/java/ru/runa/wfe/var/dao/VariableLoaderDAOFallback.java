@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -17,13 +14,7 @@ import ru.runa.wfe.var.dto.WfVariable;
  *
  * @author AL
  */
-@SuppressWarnings({ "unchecked" })
-public class VariableLoaderDAOFallback extends BaseVariableLoaderImpl {
-
-    /**
-     * Logging support.
-     */
-    private static final Log log = LogFactory.getLog(VariableLoaderDAOFallback.class);
+public class VariableLoaderDAOFallback extends AbstractVariableLoader {
 
     /**
      * {@link VariableDAO} for loading variables if no preloaded variable is available.
@@ -46,7 +37,6 @@ public class VariableLoaderDAOFallback extends BaseVariableLoaderImpl {
      *            Preloaded variables. For each process contains map from variable name to variable. May be null.
      */
     public VariableLoaderDAOFallback(VariableDAO dao, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        super();
         this.dao = dao;
         this.loadedVariables = loadedVariables == null ? new HashMap<Process, Map<String, Variable<?>>>() : loadedVariables;
     }
@@ -54,10 +44,10 @@ public class VariableLoaderDAOFallback extends BaseVariableLoaderImpl {
     @Override
     public Variable<?> get(Process process, String name) {
         Map<String, Variable<?>> loadedProcessVariables = loadedVariables.get(process);
-        if (loadedProcessVariables == null || !loadedProcessVariables.containsKey(name)) {
-            return dao.get(process, name);
+        if (loadedProcessVariables != null && loadedProcessVariables.containsKey(name)) {
+            return loadedProcessVariables.get(name);
         }
-        return loadedProcessVariables.get(name);
+        return dao.get(process, name);
     }
 
     @Override

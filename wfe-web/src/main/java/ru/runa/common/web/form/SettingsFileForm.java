@@ -57,10 +57,10 @@ public class SettingsFileForm extends ActionForm {
 
     public Map<String, String> getModifiedSettings() {
         Map<String, String> res = new HashMap<String, String>();
-        for (String p : properties.keySet()) {
-            PropertyForm f = properties.get(p);
+        for (Map.Entry<String, PropertyForm> entry : properties.entrySet()) {
+            PropertyForm f = entry.getValue();
             if (!f.getNewValue().equals(f.getOldValue())) {
-                res.put(p, f.getNewValue());
+                res.put(entry.getKey(), f.getNewValue());
             }
         }
         return res;

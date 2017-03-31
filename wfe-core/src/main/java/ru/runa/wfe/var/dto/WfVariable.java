@@ -4,15 +4,13 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlType;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.StringFormat;
 
-@XmlType(namespace = "http://stub.service.wfe.runa.ru/", name = "wfVariableStub")
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfVariable implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -47,6 +45,7 @@ public class WfVariable implements Serializable {
         return definition.getDefaultValue();
     }
 
+    // TODO 2505 what reason for this?
     public Object getValueNoDefault() {
         return value;
     }

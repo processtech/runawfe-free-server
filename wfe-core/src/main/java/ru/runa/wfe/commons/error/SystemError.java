@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -47,10 +46,7 @@ public class SystemError implements Serializable, Comparable<SystemError> {
 
     public void setThrowable(Throwable throwable) {
         if (throwable != null) {
-            this.message = throwable.getLocalizedMessage();
-            if (Strings.isNullOrEmpty(this.message)) {
-                this.message = throwable.getClass().getName();
-            }
+            this.message = throwable.toString();
             this.stackTrace = Throwables.getStackTraceAsString(throwable);
         }
     }

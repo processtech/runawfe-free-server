@@ -123,13 +123,19 @@ public class ClassLoaderUtil {
                 is = getAsStream(resource, ClassLoaderUtil.class);
             }
             if (is != null) {
-                properties.load(new InputStreamReader(is, Charsets.UTF_8));
-                is.close();
+                try (InputStreamReader reader = new InputStreamReader(is, Charsets.UTF_8)) {
+                    properties.load(reader);
+                } finally {
+                    is.close();
+                }
             }
             is = getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + resource, ClassLoaderUtil.class);
             if (is != null) {
-                properties.load(new InputStreamReader(is, Charsets.UTF_8));
-                is.close();
+                try (InputStreamReader reader = new InputStreamReader(is, Charsets.UTF_8)) {
+                    properties.load(reader);
+                } finally {
+                    is.close();
+                }
             }
         } catch (IOException e) {
             throw new InternalApplicationException("couldn't load properties file '" + resource + "'", e);
@@ -222,8 +228,7 @@ public class ClassLoaderUtil {
      *            classpath resource name
      * @param callingClass
      *            package of this class will be inspected for resources
-     * @return resource string content or <code>null</code> if no resource
-     *         exists
+     * @return resource string content or <code>null</code> if no resource exists
      */
     public static String getAsString(String resourceName, Class<?> callingClass) {
         InputStream stream = getAsStream(resourceName, callingClass);

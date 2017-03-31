@@ -18,12 +18,12 @@
 
 package ru.runa.wfe.var.format;
 
-import com.google.common.base.Strings;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+
+import com.google.common.base.Strings;
 
 public class FormatCommons {
 
@@ -32,7 +32,7 @@ public class FormatCommons {
             return new UserTypeFormat(userType);
         }
         if (Strings.isNullOrEmpty(className)) {
-            className = "ru.runa.wfe.var.format.StringFormat";
+            className = StringFormat.class.getName();
         }
         VariableFormat format = ClassLoaderUtil.instantiate(className);
         if (format instanceof VariableFormatContainer) {

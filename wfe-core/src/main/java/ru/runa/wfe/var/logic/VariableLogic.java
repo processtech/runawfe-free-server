@@ -27,12 +27,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -76,6 +70,12 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 /**
  * Variables access logic.
  *
@@ -93,12 +93,33 @@ public class VariableLogic extends WFCommonLogic {
         Process process = processDAO.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         checkPermissionAllowed(user, process, ProcessPermission.READ);
-        ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(Sets.newHashSet(process));
+        ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
-            if (!Utils.isNullOrEmpty(variable.getValue())) {
+            if (variable != null && !Utils.isNullOrEmpty(variable.getValue())) {
                 result.add(variable);
             }
+        }
+        return result;
+    }
+
+    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) throws ProcessDoesNotExistException {
+        Map<Long, List<WfVariable>> result = Maps.newHashMap();
+        List<Process> processes = processDAO.find(processIds);
+        processes = filterIdentifiable(user, processes, ProcessPermission.READ);
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(processes);
+        for (Process process : processes) {
+            List<WfVariable> list = Lists.newArrayList();
+            ProcessDefinition processDefinition = getDefinition(process);
+            ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
+            for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
+                WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
+                if (variable != null && !Utils.isNullOrEmpty(variable.getValue())) {
+                    list.add(variable);
+                }
+            }
+            result.put(process.getId(), list);
         }
         return result;
     }
@@ -233,7 +254,7 @@ public class VariableLogic extends WFCommonLogic {
         Map<Process, Map<String, Variable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
         VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
         ProcessDefinition processDefinition = getDefinition(process);
-        BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, process, processDefinition);
+        BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, processDefinition, process);
         removeSyncVariablesInBaseProcessMode(processStateOnTime, baseProcessVariableLoader);
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
@@ -260,7 +281,8 @@ public class VariableLogic extends WFCommonLogic {
     private void removeSyncVariablesInBaseProcessMode(Map<Process, Map<String, Variable<?>>> processStateOnTime,
             BaseProcessVariableLoader baseProcessVariableLoader) {
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
-        for (Process process : processStateOnTime.keySet()) {
+        for (Map.Entry<Process, Map<String, Variable<?>>> entry : processStateOnTime.entrySet()) {
+            final Process process = entry.getKey();
             if (!baseProcessVariableLoader.getSubprocessSyncCache().isInBaseProcessIdMode(process)) {
                 continue;
             }
@@ -274,7 +296,7 @@ public class VariableLogic extends WFCommonLogic {
                 if (variable != null) {
                     ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesUnrollContext(variableDefinition, variable.getValue());
                     for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull().processBy(operation, context)) {
-                        processStateOnTime.get(process).remove(simpleVariables.variableDefinition.getName());
+                        entry.getValue().remove(simpleVariables.variableDefinition.getName());
                     }
                 }
             }
@@ -325,23 +347,26 @@ public class VariableLogic extends WFCommonLogic {
             Set<String> simpleVariablesChanged) {
         Map<Process, Map<String, Object>> processToVariables = loadSimpleVariablesState(user, process, filter, simpleVariablesChanged);
         Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
-        for (Process currentProcess : processToVariables.keySet()) {
-            Map<String, Object> processVariables = processToVariables.get(currentProcess);
-            result.put(currentProcess, Maps.<String, Variable<?>> newHashMap());
+        for (Map.Entry<Process, Map<String, Object>> entry : processToVariables.entrySet()) {
+            final Process currentProcess = entry.getKey();
+            Map<String, Object> processVariables = entry.getValue();
+            Map<String, Variable<?>>  newMap = Maps.newHashMap();
+            result.put(currentProcess, newMap);
             for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
                 ProcessDefinition definition = getDefinition(varProcess);
-                for (String variableName : processVariables.keySet()) {
+                for (Map.Entry<String, Object> entry1 : processVariables.entrySet()) {
+                    final String variableName = entry1.getKey();
                     VariableDefinition variableDefinition = definition.getVariable(variableName, false);
                     if (variableDefinition == null) {
                         continue;
                     }
-                    Object value = processVariables.get(variableName);
+                    Object value = entry1.getValue();
                     if (value instanceof String) {
                         value = variableDefinition.getFormatNotNull().parse((String) value);
                     }
                     Variable<?> variable = variableCreator.create(varProcess, variableDefinition, value);
                     variable.setValue(new ExecutionContext(definition, varProcess), value, variableDefinition.getFormatNotNull());
-                    result.get(currentProcess).put(variableName, variable);
+                    newMap.put(variableName, variable);
                 }
             }
         }
@@ -389,6 +414,7 @@ public class VariableLogic extends WFCommonLogic {
         try {
             filter.setProcessId(process.getId());
             HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
+            // TODO 2505 load from db only VariableLogs?
             for (VariableLog variableLog : auditLogic.getProcessLogs(user, filter).getLogs(VariableLog.class)) {
                 String variableName = variableLog.getVariableName();
                 if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {

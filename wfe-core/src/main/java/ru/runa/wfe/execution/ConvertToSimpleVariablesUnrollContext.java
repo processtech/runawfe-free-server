@@ -27,7 +27,6 @@ public class ConvertToSimpleVariablesUnrollContext implements ConvertToSimpleVar
      *            Variable value.
      */
     public ConvertToSimpleVariablesUnrollContext(VariableDefinition variableDefinition, Object value) {
-        super();
         this.variableDefinition = variableDefinition;
         this.value = value;
     }

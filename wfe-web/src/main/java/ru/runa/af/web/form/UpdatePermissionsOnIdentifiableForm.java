@@ -62,7 +62,7 @@ public class UpdatePermissionsOnIdentifiableForm extends IdsForm {
      * @return
      */
     public Permissions getExecutor(String executorId) {
-        Long id = new Long(executorId);
+        Long id = Long.valueOf(executorId);
         Permissions permissions = executorPermissions.get(id);
         if (permissions == null) {
             permissions = new Permissions();
@@ -86,7 +86,7 @@ public class UpdatePermissionsOnIdentifiableForm extends IdsForm {
          */
         public void setPermission(String permissionMask, Object value) {
             if (ON_VALUE.equals(value)) {
-                permissionMasks.add(new Long(permissionMask));
+                permissionMasks.add(Long.valueOf(permissionMask));
             }
         }
 

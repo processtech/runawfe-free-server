@@ -54,6 +54,7 @@ import org.hibernate.annotations.Index;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.Node;
@@ -275,10 +276,11 @@ public class Token implements Serializable {
         this.errorMessage = errorMessage;
     }
 
-    public void fail(String errorMessage) {
+    public void fail(Throwable throwable) {
         setExecutionStatus(ExecutionStatus.FAILED);
         setErrorDate(new Date());
-        setErrorMessage(errorMessage);
+        // safe for unicode
+        setErrorMessage(Utils.getCuttedString(throwable.toString(), 1024 / 2));
     }
 
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
@@ -312,7 +314,7 @@ public class Token implements Serializable {
         if (endDate == null) {
             log.info("Ending " + this + " by " + canceller);
             setEndDate(new Date());
-            Node node = executionContext.getNode();
+            Node node = processDefinition.getNode(getNodeId());
             if (node instanceof SubprocessNode) {
                 for (Process subProcess : executionContext.getTokenSubprocesses()) {
                     ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
@@ -323,6 +325,8 @@ public class Token implements Serializable {
             } else if (node instanceof BoundaryEvent) {
                 log.info("Cancelling " + node + " with " + this);
                 ((BoundaryEvent) node).cancelBoundaryEvent(this);
+            } else if (node == null) {
+                log.warn("Node " + node + " is null");
             }
         }
         setExecutionStatus(ExecutionStatus.ENDED);
