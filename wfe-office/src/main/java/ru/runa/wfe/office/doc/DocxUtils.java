@@ -261,10 +261,14 @@ public class DocxUtils {
             }
             int colonIndex = iteratorWithContainerVariable.indexOf(":");
             if (colonIndex > 0) {
-                operation.setIterateBy(IterateBy.identifyByString(config, iteratorWithContainerVariable));
+                try {
+                    operation.setIterateBy(IterateBy.identifyByString(config, iteratorWithContainerVariable));
+                } catch (Exception e) {
+                    return null;
+                }
                 operation.setContainerVariableName(iteratorWithContainerVariable.substring(colonIndex + 1).trim());
             } else {
-                operation.setContainerVariableName(iteratorWithContainerVariable);
+                return null;
             }
             if (iteratorNameIndex != -1) {
                 String lexem = placeholder.substring(iteratorNameIndex + ITERATOR_NAME_DELIMITER.length()).trim();
@@ -280,10 +284,7 @@ public class DocxUtils {
                 return null;
             }
             if (operation.getContainerVariableName().startsWith(GROOVY)) {
-                String script = operation.getContainerVariableName().substring(GROOVY.length());
-                GroovyScriptExecutor executor = new GroovyScriptExecutor();
-                Object value = executor.evaluateScript(variableProvider, script);
-                operation.setContainerValue(value);
+                operation.setContainerValue(executeGroovy(variableProvider, operation.getContainerVariableName()));
             } else {
                 WfVariable variable = variableProvider.getVariable(operation.getContainerVariableName());
                 if (variable != null) {
