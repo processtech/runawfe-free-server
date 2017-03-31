@@ -248,6 +248,9 @@ public class DocxUtils {
 
     public static <T extends AbstractIteratorOperation> T parseIterationOperation(DocxConfig config, IVariableProvider variableProvider,
             String string, T operation) {
+        if (Strings.isNullOrEmpty(string)) {
+            return null;
+        }
         string = string.trim();
         if (string.startsWith(CLOSING_PLACEHOLDER_START)) {
             return null;
