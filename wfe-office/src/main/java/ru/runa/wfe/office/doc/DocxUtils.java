@@ -2,15 +2,44 @@ package ru.runa.wfe.office.doc;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
+import org.apache.poi.xwpf.usermodel.VerticalAlign;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.xmlbeans.XmlCursor;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
+
+import ru.runa.wfe.commons.GroovyScriptExecutor;
+import ru.runa.wfe.commons.SafeIndefiniteLoop;
+import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.office.OfficeProperties;
-import sun.management.counter.Units;
-import sun.rmi.runtime.Log;
+import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.MapDelegableVariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.format.VariableFormatContainer;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 public class DocxUtils {
     private static final Log log = LogFactory.getLog(DocxUtils.class);
@@ -138,18 +167,21 @@ public class DocxUtils {
         }
     }
 
+    private static Object executeGroovy(IVariableProvider variableProvider, String script) {
+        script = script.substring(GROOVY.length());
+        GroovyScriptExecutor executor = new GroovyScriptExecutor();
+        return executor.evaluateScript(variableProvider, script);
+    }
+
     public static Object getValue(DocxConfig config, IVariableProvider variableProvider, Object value, String selector) {
-        if (Strings.isNullOrEmpty(selector)) {
-            return value;
-        }
         if (value == null) {
             if (selector.startsWith(GROOVY)) {
-                String script = selector.substring(GROOVY.length());
-                GroovyScriptExecutor executor = new GroovyScriptExecutor();
-                return executor.evaluateScript(variableProvider, script);
+                return executeGroovy(variableProvider, selector);
             }
-            value = variableProvider.getValue(selector);
-        } else {
+            if (!Strings.isNullOrEmpty(selector)) {
+                value = variableProvider.getValue(selector);
+            }
+        } else if (!Strings.isNullOrEmpty(selector) && value instanceof Map) {
             StringTokenizer tokenizer = new StringTokenizer(selector, "\\.");
             while (tokenizer.hasMoreTokens()) {
                 String variableName = tokenizer.nextToken();
@@ -203,8 +235,10 @@ public class DocxUtils {
                     }
                 }
             }
-        }
-        if (value instanceof String) {
+        } else if (value instanceof String) {
+            if (((String) value).startsWith(GROOVY)) {
+                return executeGroovy(variableProvider, (String) value);
+            }
             value = ((String) value).replaceAll(Pattern.quote("</p>"), "\n").replaceAll("&nbsp;", " ");
             Matcher m = STRIP_HTML_TAGS_PATTERN.matcher((String) value);
             return m.replaceAll("");
