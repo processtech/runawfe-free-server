@@ -1,45 +1,5 @@
 package ru.runa.wfe.office.doc;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.imageio.ImageIO;
-
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.poi.util.Units;
-import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
-import org.apache.poi.xwpf.usermodel.VerticalAlign;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.xmlbeans.XmlCursor;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
-
-import ru.runa.wfe.commons.GroovyScriptExecutor;
-import ru.runa.wfe.commons.SafeIndefiniteLoop;
-import ru.runa.wfe.commons.TypeConversionUtil;
-import ru.runa.wfe.office.OfficeProperties;
-import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.MapDelegableVariableProvider;
-import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.IFileVariable;
-import ru.runa.wfe.var.format.FormatCommons;
-import ru.runa.wfe.var.format.VariableFormat;
-import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 public class DocxUtils {
     private static final Log log = LogFactory.getLog(DocxUtils.class);
@@ -171,8 +131,7 @@ public class DocxUtils {
                 return executor.evaluateScript(variableProvider, script);
             }
             value = variableProvider.getValue(selector);
-        }
-        if (value == null) {
+        } else {
             StringTokenizer tokenizer = new StringTokenizer(selector, "\\.");
             while (tokenizer.hasMoreTokens()) {
                 String variableName = tokenizer.nextToken();
