@@ -8,6 +8,11 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -49,11 +54,8 @@ import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.lang.bpmn2.ParallelGateway;
 import ru.runa.wfe.lang.bpmn2.TextAnnotation;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
+import ru.runa.wfe.lang.jpdl.Action;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class BpmnXmlReader {
     private static final String RUNA_NAMESPACE = "http://runa.ru/wfe/xml";
@@ -119,6 +121,10 @@ public class BpmnXmlReader {
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
     private static final String CANCEL_ACTIVITY = "cancelActivity";
     private static final String TYPE = "type";
+    private static final String ACTION_HANDLER_SET = "actionHandlerSet";
+    private static final String ACTION_HANDLER = "actionHandler";
+    private static final String ACTION_HANDLER_REFS = "actionHandlerRefs";
+    private static final String EVENT_TYPE = "eventType";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -142,6 +148,7 @@ public class BpmnXmlReader {
     }
 
     private String defaultTaskDeadline;
+    private Map<String, Element> actionHandlerCache = Maps.newHashMap();
 
     public BpmnXmlReader(Document document) {
         this.document = document;
@@ -170,6 +177,8 @@ public class BpmnXmlReader {
                 processDefinition.setNodeAsyncExecution("new".equals(processProperties.get(NODE_ASYNC_EXECUTION)));
             }
 
+            cacheActionHandlers(process);
+
             // 1: read most content
             readSwimlanes(processDefinition, process);
             readNodes(processDefinition, process);
@@ -179,6 +188,9 @@ public class BpmnXmlReader {
 
             // 3: verify
             verifyElements(processDefinition);
+
+            actionHandlerCache.clear();
+
         } catch (Exception e) {
             throw new InvalidDefinitionException(processDefinition.getName(), e);
         }
@@ -289,6 +301,7 @@ public class BpmnXmlReader {
             if (properties.containsKey(ASYNC_COMPLETION_MODE)) {
                 taskNode.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
             }
+            readActionHandlers(processDefinition, taskNode, element);
         }
         if (node instanceof VariableContainerNode) {
             VariableContainerNode variableContainerNode = (VariableContainerNode) node;
@@ -324,8 +337,8 @@ public class BpmnXmlReader {
         }
         if (node instanceof BaseMessageNode) {
             BaseMessageNode baseMessageNode = (BaseMessageNode) node;
-            baseMessageNode.setEventType(MessageEventType.valueOf(element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE),
-                    MessageEventType.message.name())));
+            baseMessageNode
+                    .setEventType(MessageEventType.valueOf(element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE), MessageEventType.message.name())));
         }
         if (node instanceof SendMessageNode) {
             SendMessageNode sendMessageNode = (SendMessageNode) node;
@@ -413,6 +426,7 @@ public class BpmnXmlReader {
             source.addLeavingTransition(transition);
             // set destinationNode of the transition
             target.addArrivingTransition(transition);
+            readActionHandlers(processDefinition, transition, element);
         }
     }
 
@@ -475,4 +489,48 @@ public class BpmnXmlReader {
             node.validate();
         }
     }
+
+    private void cacheActionHandlers(Element processElement) {
+        actionHandlerCache.clear();
+        Element actionHandlerSet = processElement.element(ACTION_HANDLER_SET);
+        if (actionHandlerSet != null) {
+            for (Element actionHandlerElement : (List<Element>) actionHandlerSet.elements(ACTION_HANDLER)) {
+                actionHandlerCache.put(actionHandlerElement.attributeValue(ID), actionHandlerElement);
+            }
+        }
+    }
+
+    private void readActionHandlers(ProcessDefinition processDefinition, GraphElement ge, Element e) {
+        String refs = e.attributeValue(ACTION_HANDLER_REFS);
+        if (!Strings.isNullOrEmpty(refs)) {
+            String[] actionHandlerIds = refs.split(",");
+            for (String actionHandlerId : actionHandlerIds) {
+                if (actionHandlerCache.containsKey(actionHandlerId)) {
+                    Element element = actionHandlerCache.get(actionHandlerId);
+                    Map<String, String> extProps = parseExtensionProperties(element);
+                    String eventType = extProps.get(EVENT_TYPE);
+                    if (eventType != null) {
+                        String className = extProps.get(CLASS);
+                        if (className == null) {
+                            throw new InvalidDefinitionException(processDefinition.getName(), "no className specified in " + element.asXML());
+                        }
+                        String configuration = extProps.get(CONFIG);
+                        Delegation delegation = new Delegation(className, configuration);
+                        // check
+                        try {
+                            delegation.getInstance();
+                        } catch (Exception x) {
+                            throw Throwables.propagate(x);
+                        }
+                        Action action = new Action();
+                        action.setName(element.attributeValue(NAME));
+                        action.setDelegation(delegation);
+                        action.setParentElement(ge);
+                        ge.getEventNotNull(eventType).addAction(action);
+                    }
+                }
+            }
+        }
+    }
+
 }
