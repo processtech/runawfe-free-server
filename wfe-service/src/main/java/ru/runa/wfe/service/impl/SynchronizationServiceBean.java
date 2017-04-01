@@ -44,9 +44,9 @@ public class SynchronizationServiceBean implements SynchronizationService {
     private LdapLogic ldapLogic;
 
     @Override
-    public void synchronizeExecutorsWithLDAP(User user) {
+    public int synchronizeExecutorsWithLdap(User user) {
         Preconditions.checkArgument(user != null, "user");
-        ldapLogic.synchronizeExecutors();
+        return ldapLogic.synchronizeExecutors();
     }
 
 }

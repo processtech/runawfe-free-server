@@ -64,4 +64,5 @@ public final class MessagesExecutor {
     public static final StrutsMessage LABEL_YOU_ARE_NOT_ENABLED_WITH_SUBSTITUTIONS = new StrutsMessage("label.you_are_not_active_with_substitutions");
     public static final StrutsMessage LABEL_YOU_ARE_NOT_ENABLED_WITHOUT_SUBSTITUTIONS = new StrutsMessage(
             "label.you_are_not_active_without_substitutions");
+    public static final StrutsMessage SYNCHRONIZATION_COMPLETED = new StrutsMessage("executors.synchronization.completed");
 }
