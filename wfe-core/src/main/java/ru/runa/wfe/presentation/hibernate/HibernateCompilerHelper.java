@@ -38,7 +38,7 @@ public final class HibernateCompilerHelper {
 
     /**
      * Check, if field must affects SQL query.
-     * 
+     *
      * @param field
      *            Filed to check.
      * @param batchPresentation
@@ -60,17 +60,15 @@ public final class HibernateCompilerHelper {
                 break;
             }
         }
-        return batchPresentation.isFieldFiltered(idx)
-                && field.filterMode == FieldFilterMode.DATABASE
-                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx))
-                && field.sortable
-                && (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || field.displayName
-                        .startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
+        return batchPresentation.isFieldFiltered(idx) && field.filterMode == FieldFilterMode.DATABASE
+                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) && field.sortable
+                        && (!field.displayName.startsWith(ClassPresentation.filterable_prefix)
+                                || field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
     }
 
     /**
      * Parse identifier from string.
-     * 
+     *
      * @param sqlRequest
      *            String to parse identifier from.
      * @param tableName
@@ -80,16 +78,28 @@ public final class HibernateCompilerHelper {
      * @return Parsed identifier.
      */
     public static String getIdentifier(StringBuilder sqlRequest, String tableName, boolean forwardSearch) {
-        int fromIndex = sqlRequest.indexOf(" from ");
-        if (-1 == fromIndex) {
-            fromIndex = sqlRequest.indexOf(" FROM ");
-        }
+        int fromIndex = getFromClauseIndex(sqlRequest);
         return getIdentifier(sqlRequest, sqlRequest.indexOf(" ", sqlRequest.indexOf(tableName, fromIndex)), forwardSearch);
     }
 
     /**
+     * Returns string index, where from clause begins.
+     *
+     * @param queryString
+     *            Query string.
+     * @return Returns string index, where from clause begins.
+     */
+    public static int getFromClauseIndex(StringBuilder queryString) {
+        int fromIndex = queryString.indexOf(" from ");
+        if (-1 == fromIndex) {
+            fromIndex = queryString.indexOf(" FROM ");
+        }
+        return fromIndex;
+    }
+
+    /**
      * Parse identifier from string.
-     * 
+     *
      * @param string
      *            String to parse identifier from.
      * @param idx
@@ -115,7 +125,7 @@ public final class HibernateCompilerHelper {
 
     /**
      * Get table name from Entity class.
-     * 
+     *
      * @param entityClass
      *            Class to parse table name from.
      * @return Parsed table name.
