@@ -53,34 +53,33 @@ public class StartProcessAction extends ActionBase {
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         IdForm idForm = (IdForm) form;
         Long definitionId = idForm.getId();
-        ActionForward successForward = null;
         try {
+            ActionForward forward;
             saveToken(request);
             Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getLoggedUser(request), definitionId);
             if (interaction.hasForm() || interaction.getOutputTransitionNames().size() > 1) {
-                successForward = Commons.forward(mapping.findForward(ru.runa.common.WebResources.FORWARD_SUCCESS_DISPLAY_START_FORM),
-                        IdForm.ID_INPUT_NAME, definitionId);
+                forward = Commons.forward(mapping.findForward(WebResources.FORWARD_SUCCESS_DISPLAY_START_FORM), IdForm.ID_INPUT_NAME, definitionId);
             } else {
                 WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
                 Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
 
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
-                successForward = mapping.findForward(Resources.FORWARD_SUCCESS);
+                forward = mapping.findForward(Resources.FORWARD_SUCCESS);
 
                 if (WebResources.isAutoShowForm()) {
                     Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
-                    ActionForward forward = AutoShowFormHelper.getNextActionForward(getLoggedUser(request), mapping, profile, processId);
-                    if (forward != null) {
-                        return forward;
+                    ActionForward autoShowForward = AutoShowFormHelper.getNextActionForward(getLoggedUser(request), mapping, profile, processId);
+                    if (autoShowForward != null) {
+                        return autoShowForward;
                     }
                 }
             }
+            return forward;
         } catch (Exception e) {
             addError(request, e);
             return mapping.findForward(Resources.FORWARD_FAILURE);
         }
-        return successForward;
     }
 
 }

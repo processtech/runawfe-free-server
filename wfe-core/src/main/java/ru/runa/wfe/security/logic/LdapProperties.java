@@ -100,4 +100,8 @@ public class LdapProperties {
         return RESOURCES.getStringProperty("synchronization.group.member.attribute");
     }
 
+    public static boolean isSynchronizationEmptyAttributeEnabled() {
+        return RESOURCES.getBooleanProperty("synchronization.empty.attribute.enabled", false);
+    }
+
 }

@@ -11,9 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -37,6 +34,9 @@ import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+
 public class ViewUtil {
     private static final Log log = LogFactory.getLog(ViewUtil.class);
 
@@ -46,8 +46,7 @@ public class ViewUtil {
         return GenerateHtmlForVariable.createExecutorSelect(user, variable);
     }
 
-    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort,
-            boolean enabled) {
+    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort, boolean enabled) {
         return GenerateHtmlForVariable.createExecutorSelect(variableName, executors, value, javaSort, enabled);
     }
 

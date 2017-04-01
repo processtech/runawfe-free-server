@@ -42,7 +42,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Created on 18.08.2004
- *
+ * 
  * @struts:action path="/submitTaskForm" name="processForm" validate="true" input = "/WEB-INF/wf/manage_tasks.jsp"
  * @struts.action-forward name="success" path="/manage_tasks.do" redirect = "true"
  * @struts.action-forward name="failure" path="/submit_task.do" redirect = "false"
@@ -68,7 +68,7 @@ public class SubmitTaskFormAction extends BaseProcessFormAction {
         String transitionName = form.getSubmitButton();
         variables.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         Delegates.getTaskService().completeTask(user, taskId, variables, form.getActorId());
-        FormSubmissionUtils.getUploadedFilesMap(request).clear();
+        FormSubmissionUtils.clearUserInputFiles(request);
         return processId;
     }
 
