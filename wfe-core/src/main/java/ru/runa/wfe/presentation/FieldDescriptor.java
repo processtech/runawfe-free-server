@@ -231,56 +231,6 @@ public class FieldDescriptor {
      *            Preferred way to get value of this field and show this field in web interface. (Class name)
      * @param tdBuilderParams
      *            Parameters, passed to tdBuilder constructor.
-     */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
-            Object[] tdBuilderParams) {
-        this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
-                false, -1, null);
-    }
-
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
-     *            Components, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     * @param isWeakJoin
-     *            If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping.
-     */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
-            Object[] tdBuilderParams, boolean isWeakJoin) {
-        this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
-                isWeakJoin, -1, null);
-    }
-
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
-     *            Components, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
      * @param isWeakJoin
      *            If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping.
      * @param fieldIdx

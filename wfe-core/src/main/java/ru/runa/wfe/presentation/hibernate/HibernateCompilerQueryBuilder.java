@@ -24,7 +24,6 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
-import org.hibernate.util.StringHelper;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -79,22 +78,8 @@ public class HibernateCompilerQueryBuilder {
         if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad()) {
             return session.createSQLQuery(sqlRequest).setResultTransformer(CountIdResultTransformer.INSTANCE);
         } else {
-            if (!hqlBuilder.getVisibleJoinedClasses().isEmpty()) {
-                // Dirty hack - force hibernate to map many entities.
-                StringBuilder sb = new StringBuilder();
-                sb.append("/*{").append(StringHelper.unqualify(batchPresentation.getClassPresentation().getPresentationClass().getName()))
-                        .append("}");
-                for (Class<?> entity : hqlBuilder.getVisibleJoinedClasses()) {
-                    sb.append(",{").append(StringHelper.unqualify(entity.getName())).append("}");
-                }
-                sb.append("*/ ").append(sqlRequest);
-                sqlRequest = sb.toString();
-            }
             SQLQuery query = session.createSQLQuery(sqlRequest);
             query.addEntity(batchPresentation.getClassPresentation().getPresentationClass());
-            for (Class<?> entity : hqlBuilder.getVisibleJoinedClasses()) {
-                query.addEntity(entity);
-            }
             return query;
         }
     }
@@ -136,14 +121,11 @@ public class HibernateCompilerQueryBuilder {
      *            SQL request to tune select clause.
      */
     private StringBuilder tuneSelectClause(StringBuilder sqlRequest) {
-        if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad() || !hqlBuilder.getVisibleJoinedClasses().isEmpty()) {
+        if (parameters.isCountQuery() || parameters.isOnlyIdentityLoad()) {
             return sqlRequest;
         }
         int posDot = sqlRequest.indexOf(".");
-        int posFrom = sqlRequest.indexOf(" from ");
-        if (posFrom == -1) {
-            posFrom = sqlRequest.indexOf(" FROM ");
-        }
+        int posFrom = HibernateCompilerHelper.getFromClauseIndex(sqlRequest);
         return sqlRequest.replace(posDot + 1, posFrom, "*");
     }
 

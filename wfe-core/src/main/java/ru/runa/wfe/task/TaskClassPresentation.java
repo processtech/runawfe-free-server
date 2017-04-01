@@ -29,6 +29,7 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.SubstringDBSource;
 import ru.runa.wfe.presentation.filter.ObservableTasksFilterCriteria;
+import ru.runa.wfe.presentation.VariableDBSource;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.var.Variable;
 
@@ -50,17 +51,6 @@ public class TaskClassPresentation extends ClassPresentation {
     public static final String TASK_OBSERVABLE_EXECUTOR = "batch_presentation.task.observable_executor";
 
     private static final ClassPresentation INSTANCE = new TaskClassPresentation();
-
-    private static class VariableDBSource extends DefaultDBSource {
-        public VariableDBSource(Class<?> sourceObject) {
-            super(sourceObject, "stringValue");
-        }
-
-        @Override
-        public String getJoinExpression(String alias) {
-            return classNameSQL + ".process=" + alias + ".process";
-        }
-    }
 
     private TaskClassPresentation() {
         super(Task.class, "", false, new FieldDescriptor[] {
