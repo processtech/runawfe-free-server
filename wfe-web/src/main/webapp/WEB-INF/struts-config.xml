@@ -22,6 +22,7 @@
 		<form-bean name="idForm" type="ru.runa.common.web.form.IdForm" />
 		<form-bean name="idVersionForm" type="ru.runa.common.web.form.IdVersionForm" />
 		<form-bean name="idNameForm" type="ru.runa.common.web.form.IdNameForm" />
+		<form-bean name="startProcessForm" type="ru.runa.wf.web.form.StartProcessForm" />
 		<form-bean name="updatePasswordForm" type="ru.runa.af.web.form.UpdatePasswordForm" />
 		<form-bean name="setSortingForm" type="ru.runa.common.web.form.SetSortingForm" />
 		<form-bean name="botForm" type="ru.runa.af.web.form.BotForm" />
@@ -239,7 +240,7 @@
 			<forward name="failure" path="/manage_system.do" redirect="false" />
 		</action>
 		<action path="/startProcess" type="ru.runa.wf.web.action.StartProcessAction"
-			name="idForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			name="startProcessForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
 			unknown="false" validate="true">
 			<forward name="success" path="/manage_process_definitions.do"
 				redirect="true" />
