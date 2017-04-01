@@ -303,6 +303,19 @@ public class Utils {
         return false;
     }
 
+    /**
+     * Check strings equality with trimming (Oracle specifics: null == '' == ' ').
+     */
+    public static boolean stringsEqual(String string1, String string2) {
+        if (string1 == null) {
+            return string2 == null || string2.trim().length() == 0;
+        }
+        if (string2 == null) {
+            return string1.trim().length() == 0;
+        }
+        return string1.trim().equals(string2.trim());
+    }
+
     public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
         new TransactionalExecutor(transaction) {
 

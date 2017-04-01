@@ -1,5 +1,7 @@
 package ru.runa.wf.web.servlet;
 
+import java.io.Serializable;
+
 import ru.runa.wfe.var.file.IFileVariable;
 
 import com.google.common.base.Objects;
@@ -13,7 +15,8 @@ import com.google.common.base.Objects;
  *
  * IE file removal does not remove it on server-side eventually
  */
-public class UploadedFile {
+public class UploadedFile implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String name;
     private String size;
     private String mimeType;

@@ -27,18 +27,18 @@ public class GenerateHtmlForVariableContext {
 
     /**
      * Creates copy of HTML code generation context for different variable.
-     *
+     * 
      * @param newVariable
      *            Variable, requested new context.
      * @return Returns HTML code generation operation context for variable.
      */
-    public GenerateHtmlForVariableContext CopyFor(WfVariable newVariable) {
+    public GenerateHtmlForVariableContext copyFor(WfVariable newVariable) {
         return new GenerateHtmlForVariableContext(newVariable, processId, readonly);
     }
 
     /**
      * Current variable name.
-     *
+     * 
      * @return Returns current variable name.
      */
     public String getVariableName() {
@@ -47,7 +47,7 @@ public class GenerateHtmlForVariableContext {
 
     /**
      * Get scripting name for current variable, replacing all special symbols.
-     *
+     * 
      * @return Returns scripting name for current variable, replacing all special symbols.
      */
     public String getScriptingNameWithoutDots() {
