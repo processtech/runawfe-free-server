@@ -90,6 +90,7 @@
 		<forward name="grant_bot_station_permission" path="/grant_bot_station_permission.do" />
 		<forward name="edit_settings" path="/edit_settings.do" />
 		<forward name="drop_settings" path="/drop_settings.do" />
+        <forward name="manage_tasks_view_only" path="/manage_tasks_view_only.do" />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->
@@ -946,6 +947,9 @@
 		
 		<action path="/update_process_swimlanes" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/update_process_swimlanes.jsp" />
+
+		<action path="/manage_tasks_view_only" type="org.apache.struts.actions.ForwardAction"
+			parameter="/WEB-INF/wf/manage_tasks_view_only.jsp" />
 
 	</action-mappings>
 

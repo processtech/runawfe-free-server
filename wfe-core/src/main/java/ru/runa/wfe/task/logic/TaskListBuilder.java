@@ -36,24 +36,36 @@ import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.FieldDescriptor;
+import ru.runa.wfe.presentation.FieldFilterMode;
+import ru.runa.wfe.presentation.FieldState;
+import ru.runa.wfe.presentation.filter.FilterCriteria;
+import ru.runa.wfe.presentation.filter.ObservableTasksFilterCriteria;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.IBatchPresentationCompilerFactory;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
+import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.logic.ISubstitutionLogic;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskClassPresentation;
 import ru.runa.wfe.task.cache.TaskCache;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
+import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.GroupPermission;
+import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDAO;
 
@@ -92,6 +104,10 @@ public class TaskListBuilder implements ITaskListBuilder {
     private NodeProcessDAO nodeProcessDAO;
     @Autowired
     private VariableDAO variableDAO;
+    @Autowired
+    private PermissionDAO permissionDAO;
+    @Autowired
+    private ExecutorLogic executorLogic;
 
     public TaskListBuilder(TaskCache cache) {
         taskCache = cache;
@@ -106,8 +122,14 @@ public class TaskListBuilder implements ITaskListBuilder {
             return cached.getData();
         }
 
-        List<TaskInListState> tasksState = loadMyAndGroupsAndSubstitutedTasks(actor, batchPresentation);
-        tasksState.addAll(loadAdministrativeTasks(actor));
+        List<TaskInListState> tasksState = null;
+        String observableExecutorNameTemplate = getObservableExecutorNameTemplate(batchPresentation);
+        if (observableExecutorNameTemplate != null) {
+            tasksState = loadObservableTask(actor, batchPresentation, observableExecutorNameTemplate);
+        } else {
+            tasksState = loadMyAndGroupsAndSubstitutedTasks(actor, batchPresentation);
+            tasksState.addAll(loadAdministrativeTasks(actor));
+        }
 
         List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
         Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(getTasksProcesses(tasksState), variableNames);
@@ -129,6 +151,17 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
         taskCache.setTasks(cached, actor.getId(), batchPresentation, result);
         return result;
+    }
+
+    private String getObservableExecutorNameTemplate(BatchPresentation batchPresentation) {
+        for (Map.Entry<Integer, FilterCriteria> entry : batchPresentation.getFilteredFields().entrySet()) {
+            FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
+            if (field.fieldState == FieldState.ENABLED && field.filterMode == FieldFilterMode.DATABASE
+                    && field.fieldType.equals(ObservableTasksFilterCriteria.class.getName())) {
+                return entry.getValue().getFilterTemplates()[0];
+            }
+        }
+        return null;
     }
 
     /**
@@ -219,6 +252,74 @@ public class TaskListBuilder implements ITaskListBuilder {
         return tasksState;
     }
 
+    private void addObservableExecutor(Executor executor, Set<Executor> executors) {
+        executors.add(executor);
+        if (executor instanceof Group) {
+            for (Executor e : executorDAO.getGroupChildren(((Group) executor))) {
+                addObservableExecutor(e, executors);
+            }
+        }
+    }
+
+    /**
+     * Load observable tasks.
+     *
+     * @param actor
+     *            Actor, which task list is created.
+     * @param batchPresentation
+     *            {@link BatchPresentation} with parameters for loading tasks.
+     * @return List of tasks. Always not null.
+     */
+    private List<TaskInListState> loadObservableTask(Actor actor, BatchPresentation batchPresentation, String observableExecutorNameTemplate) {
+        Set<Executor> executorsByMembership = getExecutorsToGetTasks(actor, false);
+        if (observableExecutorNameTemplate.isEmpty()) {
+            observableExecutorNameTemplate = "%";
+        }
+        observableExecutorNameTemplate = observableExecutorNameTemplate.replace('*', '%').replace('?', '_');
+        List<Executor> executorsLikeName = executorDAO.getExecutorsLikeName(observableExecutorNameTemplate);
+        Set<Executor> observableExecutors = Sets.newHashSet();
+        for (Executor executor : executorsLikeName) {
+            addObservableExecutor(executor, observableExecutors);
+        }
+        Set<Executor> executorsToGetTasks = Sets.newHashSet();
+        if (executorLogic.isAdministrator(new User(actor, null))) {
+            for (Executor taskOwner : observableExecutors) {
+                if (permissionDAO.permissionExists(taskOwner instanceof Actor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS, taskOwner)) {
+                    executorsToGetTasks.add(taskOwner);
+                }
+            }
+        } else {
+            for (Executor executor : executorsByMembership) {
+                for (Executor taskOwner : observableExecutors) {
+                    boolean taskOwnerIsActor = taskOwner instanceof Actor;
+                    if (permissionDAO.permissionExists(executor, taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS,
+                            taskOwner) && (taskOwnerIsActor || permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner))
+                            && permissionDAO.permissionExists(executor, ExecutorPermission.READ, taskOwner)) {
+                        executorsToGetTasks.add(taskOwner);
+                    }
+                }
+            }
+        }
+        List<Task> tasks = loadTasks(batchPresentation, executorsToGetTasks);
+        List<TaskInListState> tasksState = Lists.newArrayList();
+        for (Task task : tasks) {
+            try {
+                TaskInListState acceptable = getAcceptableTask(task, actor, batchPresentation, executorsByMembership);
+                if (acceptable == null) {
+                    continue;
+                }
+                tasksState.add(acceptable);
+            } catch (Exception e) {
+                if (taskDAO.get(task.getId()) == null) {
+                    log.debug(String.format("getTasks: task: %s has been completed", task, e));
+                    continue;
+                }
+                log.error(String.format("getTasks: task: %s unable to build ", task), e);
+            }
+        }
+        return tasksState;
+    }
+
     @SuppressWarnings("unchecked")
     private List<Task> loadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
         if (executorsToGetTasks.size() < SystemProperties.getDatabaseParametersCount()) {
@@ -292,7 +393,8 @@ public class TaskListBuilder implements ITaskListBuilder {
             log.warn(String.format("getAcceptableTask: not found definition for task: %s with process: %s", task, task.getProcess()));
             return null;
         }
-        if (executorsToGetTasksByMembership.contains(taskExecutor)) {
+        if (executorsToGetTasksByMembership.contains(taskExecutor)
+                || batchPresentation.isFieldActuallyFiltered(TaskClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return new TaskInListState(task, actor, false);
         }

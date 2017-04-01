@@ -53,6 +53,18 @@ public interface TaskService {
     public WfTask getTask(User user, Long taskId) throws TaskDoesNotExistException;
 
     /**
+     * Gets tasks for specified Executor Id
+     *
+     * @param user
+     *            User currently working (used to check rights only!)
+     * @param executorId
+     *            Executor whose tasks are returned (for group - tasks of actors from group, not group itself).
+     * @param batchPresentation
+     * @return
+     */
+    public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation);
+
+    /**
      * Gets all process tasks.
      *
      * @param user
@@ -112,8 +124,8 @@ public interface TaskService {
      * @throws TaskDoesNotExistException
      * @throws ValidationException
      */
-    public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
-    ValidationException;
+    public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId)
+            throws TaskDoesNotExistException, ValidationException;
 
     /**
      * Marks task as read.

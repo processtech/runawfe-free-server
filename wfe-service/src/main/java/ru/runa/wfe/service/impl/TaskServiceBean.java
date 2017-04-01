@@ -16,6 +16,8 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -33,8 +35,6 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.logic.TaskLogic;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "TaskServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -147,6 +147,17 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
         Preconditions.checkArgument(taskId != null, "taskId");
         Preconditions.checkArgument(newOwners != null, "newOwners");
         taskLogic.delegateTask(user, taskId, currentOwner, keepCurrentOwners, newOwners);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public List<WfTask> getExecutorTasks(User user, @WebParam(name = "executorId") Long executorId,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+        Preconditions.checkArgument(executorId != null, "executorId");
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.TASKS.createNonPaged();
+        }
+        return taskLogic.getExecutorTasks(user, executorId, batchPresentation);
     }
 
 }
