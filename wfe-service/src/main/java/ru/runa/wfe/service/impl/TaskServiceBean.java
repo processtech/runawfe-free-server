@@ -154,4 +154,16 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
         Preconditions.checkArgument(user != null, "user");
         return taskLogic.getUnassignedTasks(user);
     }
+
+    @Override
+    @WebResult(name = "result")
+    public List<WfTask> getExecutorTasks(User user, @WebParam(name = "executorId") Long executorId,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+        Preconditions.checkArgument(executorId != null, "executorId");
+        if (batchPresentation == null) {
+            batchPresentation = BatchPresentationFactory.TASKS.createNonPaged();
+        }
+        return taskLogic.getExecutorTasks(user, executorId, batchPresentation);
+    }
+
 }

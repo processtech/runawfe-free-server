@@ -24,6 +24,8 @@ import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.form.IdForm;
@@ -35,8 +37,6 @@ import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 14.04.2008
@@ -50,6 +50,7 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
     private Long taskId;
     private Long actorId;
     private boolean buttonEnabled = false;
+    private boolean buttonVisible = true;
 
     private Long getTaskId() {
         return taskId;
@@ -81,7 +82,7 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
                 task.addVariable(variable);
             }
         }
-        this.buttonEnabled = task.isGroupAssigned();
+        buttonEnabled = task.isGroupAssigned();
         String url = getReturnAction() + "?" + IdForm.ID_INPUT_NAME + "=" + taskId + "&" + ProcessForm.ACTOR_ID_INPUT_NAME + "=" + actorId;
         tdFormElement.addElement(ListTasksFormTag.buildTasksTable(pageContext, batchPresentation, Lists.newArrayList(task), url, true));
         tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(taskId)));
@@ -95,6 +96,11 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
     @Override
     protected boolean isFormButtonEnabled() {
         return buttonEnabled;
+    }
+
+    @Override
+    protected boolean isFormButtonVisible() {
+        return buttonVisible;
     }
 
     @Override

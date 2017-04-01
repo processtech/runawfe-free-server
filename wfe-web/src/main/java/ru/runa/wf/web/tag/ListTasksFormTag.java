@@ -60,7 +60,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         BatchPresentation batchPresentation = getBatchPresentation();
-        List<WfTask> tasks = Delegates.getTaskService().getMyTasks(getUser(), batchPresentation);
+        List<WfTask> tasks = getTasksList(batchPresentation);
         Table table = buildTasksTable(pageContext, batchPresentation, tasks, getReturnAction(), false);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, tasks.size());
         navigation.addPagingNavigationTable(tdFormElement);
@@ -146,4 +146,10 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     public String getConfirmationPopupParameter() {
         return ConfirmationPopupHelper.ACCEPT_TASK_PARAMETER;
     }
+
+    protected List<WfTask> getTasksList(BatchPresentation batchPresentation) {
+        List<WfTask> tasks = Delegates.getTaskService().getMyTasks(getUser(), batchPresentation);
+        return tasks;
+    }
+
 }

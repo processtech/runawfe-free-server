@@ -486,4 +486,21 @@ public class BatchPresentation implements Cloneable, Serializable {
         }
         return result;
     }
+
+    /**
+     * Tests if field participates in filters
+     *
+     * @param displayName
+     *            - display name of tested field within current BatchPresentation
+     * @return
+     */
+    public boolean isFieldActuallyFiltered(String displayName) {
+        for (FieldDescriptor fd : getAllFields()) {
+            if (fd.displayName.equals(displayName)) {
+                return isFieldFiltered(fd.fieldIdx);
+            }
+        }
+        return false;
+    }
+
 }

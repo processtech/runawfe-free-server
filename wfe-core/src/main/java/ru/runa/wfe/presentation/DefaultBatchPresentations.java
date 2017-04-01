@@ -44,6 +44,7 @@ public class DefaultBatchPresentations {
         create(BatchPresentationConsts.ID_DEFINITIONS, BatchPresentationFactory.DEFINITIONS);
         create(BatchPresentationConsts.ID_DEFINITIONS_HISTORY, BatchPresentationFactory.DEFINITIONS_HISTORY);
         create(BatchPresentationConsts.ID_TASKS, BatchPresentationFactory.TASKS);
+        create(BatchPresentationConsts.ID_TASKS_VIEW_ONLY, BatchPresentationFactory.TASKS_VIEW_ONLY);
         create(BatchPresentationConsts.ID_SYSTEM_LOGS, BatchPresentationFactory.SYSTEM_LOGS);
     }
 
