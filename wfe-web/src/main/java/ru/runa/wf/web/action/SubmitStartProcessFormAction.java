@@ -42,7 +42,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Created on 18.08.2004
- *
+ * 
  * @struts:action path="/submitStartProcessForm" name="commonProcessForm" validate="true" input = "/WEB-INF/wf/manage_process_definitions.jsp"
  * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
  * @struts.action-forward name="failure" path="/submit_start_process.do" redirect = "false"
@@ -62,7 +62,7 @@ public class SubmitStartProcessFormAction extends BaseProcessFormAction {
         WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, definitionId);
         log.debug(user + " submitted start form for definition " + definition.getName());
         Long processId = Delegates.getExecutionService().startProcess(user, definition.getName(), variables);
-        FormSubmissionUtils.getUploadedFilesMap(request).clear();
+        FormSubmissionUtils.clearUserInputFiles(request);
         return processId;
     }
 
