@@ -78,7 +78,6 @@ public class ReportDefinition {
         this.parameters = new ArrayList<ReportParameter>(parameters);
         this.category = category;
         this.version = 1L;
-        this.parameters = new ArrayList<ReportParameter>();
     }
 
     @Id
