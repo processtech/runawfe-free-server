@@ -37,6 +37,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import com.google.common.io.Closeables;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -162,11 +163,13 @@ public class SQLActionHandler extends ActionHandlerBase {
             if (newValue instanceof Blob) {
                 ObjectInputStream ois = new ObjectInputStream(((Blob) newValue).getBinaryStream());
                 newValue = ois.readObject();
+                Closeables.closeQuietly(ois);
             }
             if (newValue instanceof byte[]) {
                 ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) newValue);
                 ObjectInputStream ois = new ObjectInputStream(bais);
                 newValue = ois.readObject();
+                Closeables.closeQuietly(ois);
             }
             in.add(result.getVariableName(), newValue);
             out.put(result.getVariableName(), newValue);

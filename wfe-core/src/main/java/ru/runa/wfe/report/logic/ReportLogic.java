@@ -52,10 +52,10 @@ public class ReportLogic extends WFCommonLogic {
     public List<ReportParameterDto> analyzeReportFile(ReportDto report, byte[] reportFileContent) {
         Map<String, String> reportParameters = new GetCompiledReportParametersDescription(reportFileContent).onRawSqlReport();
         List<ReportParameterDto> result = new ArrayList<ReportParameterDto>();
-        for (String parameterName : reportParameters.keySet()) {
+        for (Map.Entry<String, String> entry : reportParameters.entrySet()) {
             ReportParameterDto reportParameterDto = new ReportParameterDto();
-            reportParameterDto.setInternalName(parameterName);
-            reportParameterDto.setDescription(reportParameters.get(parameterName));
+            reportParameterDto.setInternalName(entry.getKey());
+            reportParameterDto.setDescription(entry.getValue());
             result.add(reportParameterDto);
         }
         return result;

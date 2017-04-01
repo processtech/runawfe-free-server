@@ -53,15 +53,15 @@ public class LdapProperties {
     }
 
     public static String getSynchronizationObjectClassFilter() {
-        return RESOURCES.getStringProperty("synchronization.object.class.filter");
+        return RESOURCES.getStringProperty("synchronization.object.class.filter", "(objectclass={0})");
     }
 
     public static String getSynchronizationUserObjectClass() {
-        return RESOURCES.getStringProperty("synchronization.user.object.class");
+        return RESOURCES.getStringProperty("synchronization.user.object.class", "user");
     }
 
     public static String getSynchronizationGroupObjectClass() {
-        return RESOURCES.getStringProperty("synchronization.group.object.class");
+        return RESOURCES.getStringProperty("synchronization.group.object.class", "group");
     }
 
     public static String getSynchronizationAccountNameAttribute() {
@@ -98,6 +98,10 @@ public class LdapProperties {
 
     public static String getSynchronizationGroupMemberAttribute() {
         return RESOURCES.getStringProperty("synchronization.group.member.attribute");
+    }
+
+    public static boolean isSynchronizationEmptyAttributeEnabled() {
+        return RESOURCES.getBooleanProperty("synchronization.empty.attribute.enabled", false);
     }
 
 }

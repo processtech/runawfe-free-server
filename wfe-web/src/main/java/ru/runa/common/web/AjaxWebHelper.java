@@ -61,7 +61,7 @@ public class AjaxWebHelper extends RequestWebHelper {
     private String getUrl(String href, String action, Map<String, ? extends Object> params) {
         String charEncoding = "UTF-8";
         ModuleConfig moduleConfig = ModuleUtils.getInstance().getModuleConfig(null, request, request.getServletContext());
-        StringBuffer url = new StringBuffer();
+        StringBuilder url = new StringBuilder();
         int n = 0;
         if (href != null) {
             ++n;
@@ -89,10 +89,10 @@ public class AjaxWebHelper extends RequestWebHelper {
             }
         }
 
-        if (params != null && params.size() > 0) {
+        if (params != null && !params.isEmpty()) {
             String temp = url.toString();
             int hash = temp.indexOf(35);
-            if (hash >= 0) {
+            if (hash > -1) {
                 url.setLength(hash);
                 temp = url.toString();
             }
@@ -100,11 +100,9 @@ public class AjaxWebHelper extends RequestWebHelper {
             String separator = "&";
 
             boolean question = temp.indexOf(63) >= 0;
-            Iterator keys = params.keySet().iterator();
-
-            while (keys.hasNext()) {
-                String key = (String) keys.next();
-                Object value = params.get(key);
+            for(Map.Entry<String, ? extends Object> entry : params.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
 
                 if (value == null) {
                     if (!question) {

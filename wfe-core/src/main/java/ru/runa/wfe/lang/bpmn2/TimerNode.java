@@ -108,7 +108,7 @@ public class TimerNode extends Node implements BoundaryEvent {
             if (!getLeavingTransitions().isEmpty()) {
                 cancelBoundaryEvent(executionContext.getToken());
                 leave(executionContext);
-            } else if (Boolean.TRUE == executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION)) {
+            } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
                 log.info("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
                 cancelBoundaryEvent(executionContext.getToken());
             } else if (repeatDurationString != null) {

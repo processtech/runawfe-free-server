@@ -48,7 +48,7 @@ import com.google.common.collect.Maps;
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
     private static Log log = LogFactory.getLog(Utils.class);
-    private static InitialContext initialContext;
+    private static volatile InitialContext initialContext;
     private static TransactionManager transactionManager;
     private static ConnectionFactory connectionFactory;
     private static Queue bpmMessageQueue;
@@ -301,6 +301,19 @@ public class Utils {
             return s.isEmpty();
         }
         return false;
+    }
+
+    /**
+     * Check strings equality with trimming (Oracle specifics: null == '' == ' ').
+     */
+    public static boolean stringsEqual(String string1, String string2) {
+        if (string1 == null) {
+            return string2 == null || string2.trim().length() == 0;
+        }
+        if (string2 == null) {
+            return string1.trim().length() == 0;
+        }
+        return string1.trim().equals(string2.trim());
     }
 
     public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {

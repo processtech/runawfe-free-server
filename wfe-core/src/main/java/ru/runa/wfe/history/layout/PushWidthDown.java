@@ -54,7 +54,7 @@ public class PushWidthDown implements HistoryGraphNodeVisitor<Integer> {
             context = layoutData.getSubtreeWidth();
         }
         for (HistoryGraphTransitionModel transition : node.getTransitions()) {
-            transition.getToNode().processBy(this, new Integer(context));
+            transition.getToNode().processBy(this, context);
         }
     }
 }

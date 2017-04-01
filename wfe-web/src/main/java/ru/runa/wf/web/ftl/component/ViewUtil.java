@@ -129,11 +129,9 @@ public class ViewUtil {
         String loadingImageUrl = "";
         String uploadFileTitle = webHelper.getMessage("message.upload.file");
         String loadingMessage = webHelper.getMessage("message.loading");
-        if (webHelper != null) {
-            attachImageUrl = webHelper.getUrl(Resources.IMAGE_ATTACH);
-            loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
-            loadingMessage = webHelper.getMessage("message.loading");
-        }
+        attachImageUrl = webHelper.getUrl(Resources.IMAGE_ATTACH);
+        loadingImageUrl = webHelper.getUrl(Resources.IMAGE_LOADING);
+        loadingMessage = webHelper.getMessage("message.loading");
         String hideStyle = "style=\"display: none;\"";
         String html = "<div class=\"inputFileContainer\">";
         html += "<div class=\"dropzone\" >";

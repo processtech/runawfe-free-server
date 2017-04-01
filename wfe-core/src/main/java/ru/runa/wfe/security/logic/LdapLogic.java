@@ -53,6 +53,7 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -86,10 +87,10 @@ public class LdapLogic {
     private Group importGroup = null;
     private Group wasteGroup = null;
 
-    public synchronized void synchronizeExecutors() {
+    public synchronized int synchronizeExecutors() {
         if (!LdapProperties.isSynchronizationEnabled()) {
             log.debug("Synchronization is disabled");
-            return;
+            return -1;
         }
         log.info("Synchronizing executors");
         try {
@@ -98,9 +99,11 @@ public class LdapLogic {
             wasteGroup = loadGroup(new Group(LdapProperties.getSynchronizationWasteGroupName(),
                     LdapProperties.getSynchronizationWasteGroupDescription()));
             DirContext dirContext = getContext();
-            Map<String, Actor> actorsByDistinguishedName = synchronizeActors(dirContext);
-            synchronizeGroups(dirContext, actorsByDistinguishedName);
+            Map<String, Actor> actorsByDistinguishedName = Maps.newHashMap();
+            int changesCount = synchronizeActors(dirContext, actorsByDistinguishedName);
+            changesCount += synchronizeGroups(dirContext, actorsByDistinguishedName);
             dirContext.close();
+            return changesCount;
         } catch (Exception e) {
             log.error("", e);
             // prevent java.io.NotSerializableException: com.sun.jndi.ldap.LdapCtx
@@ -108,7 +111,8 @@ public class LdapLogic {
         }
     }
 
-    private Map<String, Actor> synchronizeActors(DirContext dirContext) throws Exception {
+    private int synchronizeActors(DirContext dirContext, Map<String, Actor> actorsByDistinguishedName) throws Exception {
+        int changesCount = 0;
         List<Actor> existingActorsList = executorDAO.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged());
         Map<String, Actor> existingActorsMap = Maps.newHashMap();
         for (Actor actor : existingActorsList) {
@@ -118,7 +122,6 @@ public class LdapLogic {
         if (LdapProperties.isSynchronizationDeleteExecutors()) {
             ldapActorsToDelete.addAll(executorDAO.getGroupActors(importGroup));
         }
-        Map<String, Actor> actorsByDistinguishedName = Maps.newHashMap();
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         for (String ou : LdapProperties.getSynchronizationOrganizationUnits()) {
@@ -145,12 +148,16 @@ public class LdapLogic {
             }
             for (SearchResult searchResult : resultList) {
                 String name = getStringAttribute(searchResult, ATTR_ACCOUNT_NAME);
+                String description = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserDescriptionAttribute());
                 String fullName = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserFullNameAttribute());
                 String email = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserEmailAttribute());
-                String department = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserDepartmentAttribute());
-                String title = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserTitleAttribute());
-                String description = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserDescriptionAttribute());
                 String phone = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserPhoneAttribute());
+                String title = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserTitleAttribute());
+                String department = getStringAttribute(searchResult, LdapProperties.getSynchronizationUserDepartmentAttribute());
+                ToStringHelper toStringHelper = Objects.toStringHelper("user info");
+                toStringHelper.add("name", name).add("description", description).add("fullName", fullName).add("email", email);
+                toStringHelper.add("phone", phone).add("title", title).add("department", department).omitNullValues();
+                log.debug("Read " + toStringHelper.toString());
                 Actor actor = existingActorsMap.get(name.toLowerCase());
                 if (actor == null) {
                     if (!LdapProperties.isSynchronizationCreateExecutors()) {
@@ -161,39 +168,49 @@ public class LdapLogic {
                     executorDAO.create(actor);
                     executorDAO.addExecutorsToGroup(Lists.newArrayList(actor), importGroup);
                     permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.READ), actor);
+                    changesCount++;
                 } else {
                     ldapActorsToDelete.remove(actor);
                     if (LdapProperties.isSynchronizationUpdateExecutors()) {
-                        List<String> updatedAttributes = Lists.newArrayList();
-                        if (!Strings.isNullOrEmpty(description) && !Objects.equal(description, actor.getDescription())) {
+                        List<IChange> changes = Lists.newArrayList();
+                        if (isAttributeNeedsChange(description, actor.getDescription())) {
+                            changes.add(new AttributeChange("description", actor.getDescription(), description));
                             actor.setDescription(description);
-                            updatedAttributes.add("description");
                         }
-                        if (!Strings.isNullOrEmpty(fullName) && !Objects.equal(fullName, actor.getFullName())) {
+                        if (isAttributeNeedsChange(fullName, actor.getFullName())) {
+                            changes.add(new AttributeChange("fullName", actor.getFullName(), fullName));
                             actor.setFullName(fullName);
-                            updatedAttributes.add("fullName");
                         }
-                        if (!Strings.isNullOrEmpty(email) && !Objects.equal(email, actor.getEmail())) {
+                        if (isAttributeNeedsChange(email, actor.getEmail())) {
+                            changes.add(new AttributeChange("email", actor.getEmail(), email));
                             actor.setEmail(email);
-                            updatedAttributes.add("email");
                         }
-                        if (!Strings.isNullOrEmpty(phone) && !Objects.equal(phone, actor.getPhone())) {
+                        if (isAttributeNeedsChange(phone, actor.getPhone())) {
+                            changes.add(new AttributeChange("phone", actor.getPhone(), phone));
                             actor.setPhone(phone);
-                            updatedAttributes.add("phone");
+                        }
+                        if (isAttributeNeedsChange(title, actor.getTitle())) {
+                            changes.add(new AttributeChange("title", actor.getTitle(), title));
+                            actor.setTitle(title);
+                        }
+                        if (isAttributeNeedsChange(department, actor.getDepartment())) {
+                            changes.add(new AttributeChange("department", actor.getDepartment(), department));
+                            actor.setDepartment(department);
                         }
                         if (!actor.isActive()) {
                             actor.setActive(true);
-                            updatedAttributes.add("active");
+                            changes.add(new AttributeChange("active", "false", "true"));
+                            if (executorDAO.removeExecutorFromGroup(actor, wasteGroup)) {
+                                changes.add(new Change("waste group removal"));
+                            }
+                            if (executorDAO.addExecutorToGroup(actor, importGroup)) {
+                                changes.add(new Change("import group addition"));
+                            }
                         }
-                        executorDAO.update(actor);
-                        if (executorDAO.removeExecutorFromGroup(actor, wasteGroup)) {
-                            updatedAttributes.add("waste group removal");
-                        }
-                        if (executorDAO.addExecutorToGroup(actor, importGroup)) {
-                            updatedAttributes.add("import group addition");
-                        }
-                        if (!updatedAttributes.isEmpty()) {
-                            log.info("Updating " + actor + ": " + updatedAttributes);
+                        if (!changes.isEmpty()) {
+                            executorDAO.update(actor);
+                            log.info("Updating " + actor + ": " + changes);
+                            changesCount++;
                         }
                     }
                 }
@@ -205,14 +222,16 @@ public class LdapLogic {
                 actor.setActive(false);
                 executorDAO.update(actor);
                 log.info("Deleting " + actor);
+                changesCount++;
             }
             executorDAO.removeExecutorsFromGroup(ldapActorsToDelete, importGroup);
             executorDAO.addExecutorsToGroup(ldapActorsToDelete, wasteGroup);
         }
-        return actorsByDistinguishedName;
+        return changesCount;
     }
 
-    private void synchronizeGroups(DirContext dirContext, Map<String, Actor> actorsByDistinguishedName) throws NamingException {
+    private int synchronizeGroups(DirContext dirContext, Map<String, Actor> actorsByDistinguishedName) throws NamingException {
+        int changesCount = 0;
         List<Group> existingGroupsList = executorDAO.getAllGroups();
         Map<String, Group> existingGroupsByLdapNameMap = Maps.newHashMap();
         for (Group group : existingGroupsList) {
@@ -227,6 +246,7 @@ public class LdapLogic {
                 if (executor instanceof Group) {
                     ldapGroupsToDelete.add((Group) executor);
                     log.info("Deleting " + executor);
+                    changesCount++;
                 }
             }
         }
@@ -246,6 +266,9 @@ public class LdapLogic {
         for (SearchResult searchResult : groupResultsByDistinguishedName.values()) {
             String name = getStringAttribute(searchResult, ATTR_ACCOUNT_NAME);
             String description = getStringAttribute(searchResult, LdapProperties.getSynchronizationGroupDescriptionAttribute());
+            ToStringHelper toStringHelper = Objects.toStringHelper("group info");
+            toStringHelper.add("name", name).add("description", description).omitNullValues();
+            log.debug("Read " + toStringHelper.toString());
             Group group = existingGroupsByLdapNameMap.get(name);
             if (group == null) {
                 if (!LdapProperties.isSynchronizationCreateExecutors()) {
@@ -257,23 +280,25 @@ public class LdapLogic {
                 executorDAO.create(group);
                 executorDAO.addExecutorsToGroup(Lists.newArrayList(group), importGroup);
                 permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.READ), group);
+                changesCount++;
             } else {
                 ldapGroupsToDelete.remove(group);
                 if (LdapProperties.isSynchronizationUpdateExecutors()) {
-                    List<String> updatedAttributes = Lists.newArrayList();
-                    if (!Strings.isNullOrEmpty(description) && !Objects.equal(description, group.getDescription())) {
+                    List<IChange> changes = Lists.newArrayList();
+                    if (isAttributeNeedsChange(description, group.getDescription())) {
+                        changes.add(new AttributeChange("description", group.getDescription(), description));
                         group.setDescription(description);
-                        updatedAttributes.add("description");
                         executorDAO.update(group);
                     }
                     if (executorDAO.removeExecutorFromGroup(group, wasteGroup)) {
-                        updatedAttributes.add("waste group removal");
+                        changes.add(new Change("waste group removal"));
                     }
                     if (executorDAO.addExecutorToGroup(group, importGroup)) {
-                        updatedAttributes.add("import group addition");
+                        changes.add(new Change("import group addition"));
                     }
-                    if (!updatedAttributes.isEmpty()) {
-                        log.info("Updating " + group);
+                    if (!changes.isEmpty()) {
+                        log.info("Updating " + group + ": " + changes);
+                        changesCount++;
                     }
                 }
             }
@@ -290,15 +315,26 @@ public class LdapLogic {
             if (actorsToAdd.size() > 0) {
                 log.info("Adding to " + group + ": " + actorsToAdd);
                 executorDAO.addExecutorsToGroup(actorsToAdd, group);
+                changesCount++;
             }
             if (actorsToDelete.size() > 0) {
                 executorDAO.removeExecutorsFromGroup(Lists.newArrayList(actorsToDelete), group);
+                changesCount++;
             }
         }
         if (LdapProperties.isSynchronizationDeleteExecutors() && ldapGroupsToDelete.size() > 0) {
             executorDAO.removeExecutorsFromGroup(ldapGroupsToDelete, importGroup);
             executorDAO.addExecutorsToGroup(ldapGroupsToDelete, wasteGroup);
+            changesCount++;
         }
+        return changesCount;
+    }
+
+    private boolean isAttributeNeedsChange(String oldValue, String newValue) {
+        if (LdapProperties.isSynchronizationEmptyAttributeEnabled() || !Strings.isNullOrEmpty(oldValue)) {
+            return !Utils.stringsEqual(oldValue, newValue);
+        }
+        return false;
     }
 
     private Pattern getPatternForMissedPeople() {
@@ -370,6 +406,40 @@ public class LdapLogic {
                     }
                 }
             }
+        }
+    }
+
+    private static interface IChange {
+
+    }
+
+    private static class Change implements IChange {
+        final String message;
+
+        public Change(String message) {
+            this.message = message;
+        }
+
+        @Override
+        public String toString() {
+            return message;
+        }
+    }
+
+    private static class AttributeChange implements IChange {
+        final String attributeName;
+        final String oldValue;
+        final String newValue;
+
+        public AttributeChange(String attributeName, String oldValue, String newValue) {
+            this.attributeName = attributeName;
+            this.oldValue = oldValue;
+            this.newValue = newValue;
+        }
+
+        @Override
+        public String toString() {
+            return attributeName + ": " + oldValue + " -> " + newValue;
         }
     }
 

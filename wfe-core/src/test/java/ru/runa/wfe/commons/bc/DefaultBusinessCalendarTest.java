@@ -50,7 +50,7 @@ public class DefaultBusinessCalendarTest extends Assert {
                 { "03.09.2013 07:30", "-1 business hours", "02.09.2013 17:00" }, { "03.09.2013 07:30", "1 business hours", "03.09.2013 10:00" },
                 { "02.09.2013 09:30", "-10 business hours", "29.08.2013 16:30" }, { "02.09.2013 09:30", "10 business hours", "03.09.2013 11:30" },
                 { "03.09.2013 09:30", "-7 business hours", "02.09.2013 10:30" }, { "03.09.2013 09:30", "10 business hours", "05.09.2013 11:30" },
-        //
+                //
         };
     }
 
