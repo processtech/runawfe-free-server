@@ -56,6 +56,10 @@ public class DocxFileChanger {
                             tableExpansionOperation.addOperation(columnIndex, operation);
                             String text0 = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, 0);
                             DocxUtils.setCellText(cell, text0);
+                        } else {
+                            operation = new ColumnSetValueOperation();
+                            operation.setContainerValue(cell.getText());
+                            tableExpansionOperation.addOperation(columnIndex, operation);
                         }
                     }
                     if (tableExpansionOperation.getRows() == 0) {
