@@ -4,8 +4,8 @@ import java.util.List;
 
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.report.ReportFileMissingException;
-import ru.runa.wfe.report.dto.ReportDto;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.user.User;
 
 public interface ReportService {
@@ -21,7 +21,7 @@ public interface ReportService {
      *            Flag, equals true, if paging is enabled and false otherwise.
      * @return Return list of reports, loaded according to batch presentation.
      */
-    List<ReportDto> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging);
+    List<WfReport> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging);
 
     /**
      * Load report definition by id.
@@ -32,7 +32,7 @@ public interface ReportService {
      *            Report id.
      * @return Return report definition.
      */
-    ReportDto getReportDefinition(User user, Long id);
+    WfReport getReportDefinition(User user, Long id);
 
     /**
      * Analyzes report definition and returns list of report parameters.
@@ -44,7 +44,7 @@ public interface ReportService {
      *            Report file content (jasper file).
      * @return
      */
-    List<ReportParameterDto> analyzeReportFile(ReportDto report, byte[] reportFileContent);
+    List<WfReportParameter> analyzeReportFile(WfReport report, byte[] reportFileContent);
 
     /**
      * Deploy report definition to system.
@@ -56,7 +56,7 @@ public interface ReportService {
      * @param file
      *            Report file (.jasper) content (may be null).
      */
-    void deployReport(User user, ReportDto report, byte[] file);
+    void deployReport(User user, WfReport report, byte[] file);
 
     /**
      * Redeploy report definition to system.
@@ -68,7 +68,7 @@ public interface ReportService {
      * @param file
      *            Report file (.jasper) content.
      */
-    void redeployReport(User user, ReportDto report, byte[] file) throws ReportFileMissingException;
+    void redeployReport(User user, WfReport report, byte[] file) throws ReportFileMissingException;
 
     /**
      * Undeploy report definition.

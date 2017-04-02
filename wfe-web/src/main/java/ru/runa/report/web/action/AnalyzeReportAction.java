@@ -34,8 +34,8 @@ import ru.runa.wf.web.servlet.BulkUploadServlet;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.report.ReportFileMissingException;
 import ru.runa.wfe.report.ReportNameMissingException;
-import ru.runa.wfe.report.dto.ReportDto;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.service.delegate.Delegates;
 
 import com.google.common.base.Strings;
@@ -70,9 +70,9 @@ public class AnalyzeReportAction extends ActionBase {
                 throw new ReportFileMissingException();
             }
             byte[] reportFileContent = uploadedParFiles.values().iterator().next().getContent();
-            ReportDto report = new ReportDto();
+            WfReport report = new WfReport();
             report.setName(reportName);
-            List<ReportParameterDto> reportParameters = Delegates.getReportService().analyzeReportFile(report, reportFileContent);
+            List<WfReportParameter> reportParameters = Delegates.getReportService().analyzeReportFile(report, reportFileContent);
             request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, reportParameters);
             return mapping.findForward(Resources.FORWARD_SUCCESS);
         } catch (Exception e) {

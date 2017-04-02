@@ -12,7 +12,7 @@ import ru.runa.wfe.presentation.hibernate.RestrictionsToPermissions;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportPermission;
 import ru.runa.wfe.report.ReportWithNameExistsException;
-import ru.runa.wfe.report.dto.ReportDto;
+import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 
@@ -20,19 +20,19 @@ public class ReportDAO extends GenericDAO<ReportDefinition> {
 
     private static final SecuredObjectType[] SECURED_OBJECTS = new SecuredObjectType[] { SecuredObjectType.REPORT };
 
-    public List<ReportDto> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
+    public List<WfReport> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, ReportPermission.READ, SECURED_OBJECTS);
         CompilerParameters parameters = CompilerParameters.create(enablePaging).addPermissions(permissions);
         List<ReportDefinition> deployments = new PresentationCompiler<ReportDefinition>(batchPresentation).getBatch(parameters);
-        List<ReportDto> definitions = Lists.newArrayList();
+        List<WfReport> definitions = Lists.newArrayList();
         for (ReportDefinition deployment : deployments) {
-            definitions.add(new ReportDto(deployment));
+            definitions.add(new WfReport(deployment));
         }
         return definitions;
     }
 
-    public ReportDto getReportDefinition(Long id) {
-        return new ReportDto(this.get(id));
+    public WfReport getReportDefinition(Long id) {
+        return new WfReport(this.get(id));
     }
 
     public ReportDefinition getReportDefinition(String reportName) {

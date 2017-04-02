@@ -23,7 +23,7 @@ import org.apache.struts.action.ActionMapping;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.wfe.report.dto.ReportDto;
+import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
@@ -41,7 +41,7 @@ public class RedeployReportAction extends BaseDeployReportAction {
     private Long reportId;
 
     @Override
-    protected void doAction(User user, ReportDto report, byte[] file) throws Exception {
+    protected void doAction(User user, WfReport report, byte[] file) throws Exception {
         reportId = report.getId();
         Delegates.getReportService().redeployReport(user, report, file);
     }

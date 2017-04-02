@@ -40,8 +40,8 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.report.ReportNameMissingException;
 import ru.runa.wfe.report.ReportParameterType;
 import ru.runa.wfe.report.ReportParameterUserNameMissingException;
-import ru.runa.wfe.report.dto.ReportDto;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.user.User;
 
 import com.google.common.base.Joiner;
@@ -52,7 +52,7 @@ import com.google.common.collect.Sets;
 
 public abstract class BaseDeployReportAction extends ActionBase {
 
-    protected abstract void doAction(User user, ReportDto report, byte[] file) throws Exception;
+    protected abstract void doAction(User user, WfReport report, byte[] file) throws Exception;
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
@@ -62,12 +62,12 @@ public abstract class BaseDeployReportAction extends ActionBase {
             request.setAttribute(AnalyzeReportAction.REPORT_NAME_PARAM, reportName);
             String reportDescription = request.getParameter(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM);
             request.setAttribute(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM, reportDescription);
-            List<ReportParameterDto> parameters = getReportParameters(deployForm);
+            List<WfReportParameter> parameters = getReportParameters(deployForm);
             request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, parameters);
             if (Strings.isNullOrEmpty(reportName)) {
                 throw new ReportNameMissingException();
             }
-            for (ReportParameterDto reportParameterDto : parameters) {
+            for (WfReportParameter reportParameterDto : parameters) {
                 if (Strings.isNullOrEmpty(reportParameterDto.getUserName())) {
                     throw new ReportParameterUserNameMissingException(reportParameterDto.getInternalName());
                 }
@@ -75,7 +75,7 @@ public abstract class BaseDeployReportAction extends ActionBase {
             Map<String, UploadedFile> uploadedJasperFiles = BulkUploadServlet.getUploadedFilesMap(request);
             byte[] file = getReportFileContent(uploadedJasperFiles);
             String category = Joiner.on(Utils.CATEGORY_DELIMITER).join(CategoriesSelectUtils.extract(request));
-            ReportDto report = new ReportDto(deployForm.getId(), reportName, reportDescription, category, parameters);
+            WfReport report = new WfReport(deployForm.getId(), reportName, reportDescription, category, parameters);
             doAction(getLoggedUser(request), report, file);
             uploadedJasperFiles.clear();
         } catch (Exception e) {
@@ -92,8 +92,8 @@ public abstract class BaseDeployReportAction extends ActionBase {
         return uploadedJasperFiles.values().iterator().next().getContent();
     }
 
-    private List<ReportParameterDto> getReportParameters(DeployReportForm deployForm) {
-        Map<Integer, List<ReportParameterDto>> positionToParameter = Maps.newTreeMap();
+    private List<WfReportParameter> getReportParameters(DeployReportForm deployForm) {
+        Map<Integer, List<WfReportParameter>> positionToParameter = Maps.newTreeMap();
         Set<Integer> required = Sets.newHashSet();
         for (String reqIdx : deployForm.getVarRequired()) {
             required.add(Integer.parseInt(reqIdx));
@@ -102,18 +102,18 @@ public abstract class BaseDeployReportAction extends ActionBase {
         for (String positionString : deployForm.getVarPosition()) {
             int position = Integer.parseInt(positionString);
             if (!positionToParameter.containsKey(position)) {
-                positionToParameter.put(position, Lists.<ReportParameterDto> newArrayList());
+                positionToParameter.put(position, Lists.<WfReportParameter> newArrayList());
             }
-            ReportParameterDto parameterDto = new ReportParameterDto(deployForm.getVarUserName()[idx], deployForm.getVarDescription()[idx],
+            WfReportParameter parameterDto = new WfReportParameter(deployForm.getVarUserName()[idx], deployForm.getVarDescription()[idx],
                     deployForm.getVarInternalName()[idx], position, ReportParameterType.valueOf(deployForm.getVarType()[idx]), required.contains(idx));
             positionToParameter.get(position).add(parameterDto);
             ++idx;
         }
-        List<ReportParameterDto> result = Lists.newArrayList();
+        List<WfReportParameter> result = Lists.newArrayList();
         idx = 0;
-        for (Iterator<Entry<Integer, List<ReportParameterDto>>> iterator = positionToParameter.entrySet().iterator(); iterator.hasNext();) {
-            Entry<Integer, List<ReportParameterDto>> entry = iterator.next();
-            for (ReportParameterDto dto : entry.getValue()) {
+        for (Iterator<Entry<Integer, List<WfReportParameter>>> iterator = positionToParameter.entrySet().iterator(); iterator.hasNext();) {
+            Entry<Integer, List<WfReportParameter>> entry = iterator.next();
+            for (WfReportParameter dto : entry.getValue()) {
                 dto.setPosition(idx);
                 result.add(dto);
                 ++idx;

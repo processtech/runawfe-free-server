@@ -30,7 +30,7 @@ import ru.runa.report.web.action.AnalyzeReportAction;
 import ru.runa.report.web.action.DeployReportAction;
 import ru.runa.wf.web.servlet.BulkUploadServlet;
 import ru.runa.wf.web.servlet.UploadedFile;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReportParameter;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployReportForm")
 public class DeployReportFormTag extends BaseReportFormTag {
@@ -40,7 +40,7 @@ public class DeployReportFormTag extends BaseReportFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        ArrayList<ReportParameterDto> parameters = (ArrayList<ReportParameterDto>) pageContext.getRequest().getAttribute(REPORT_PARAMETERS);
+        ArrayList<WfReportParameter> parameters = (ArrayList<WfReportParameter>) pageContext.getRequest().getAttribute(REPORT_PARAMETERS);
 
         String[] definitionTypes = null;
         Form form = getForm();
@@ -79,7 +79,7 @@ public class DeployReportFormTag extends BaseReportFormTag {
 
     private boolean isReportSelected() {
         Map<String, UploadedFile> uploadedParFiles = BulkUploadServlet.getUploadedFilesMap(pageContext.getSession());
-        ArrayList<ReportParameterDto> parameters = (ArrayList<ReportParameterDto>) pageContext.getRequest().getAttribute(REPORT_PARAMETERS);
+        ArrayList<WfReportParameter> parameters = (ArrayList<WfReportParameter>) pageContext.getRequest().getAttribute(REPORT_PARAMETERS);
         return uploadedParFiles != null && !uploadedParFiles.isEmpty() && parameters != null;
     }
 }
