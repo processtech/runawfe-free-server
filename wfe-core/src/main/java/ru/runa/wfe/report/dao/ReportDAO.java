@@ -2,19 +2,19 @@ package ru.runa.wfe.report.dao;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToPermissions;
-import ru.runa.wfe.report.ReportAlreadyExistsException;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportPermission;
+import ru.runa.wfe.report.ReportWithNameExistsException;
 import ru.runa.wfe.report.dto.ReportDto;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 public class ReportDAO extends GenericDAO<ReportDefinition> {
 
@@ -41,7 +41,7 @@ public class ReportDAO extends GenericDAO<ReportDefinition> {
 
     public void deployReport(ReportDefinition report) {
         if (getReportDefinition(report.getName()) != null) {
-            throw new ReportAlreadyExistsException();
+            throw new ReportWithNameExistsException(report.getName());
         }
         this.create(report);
     }

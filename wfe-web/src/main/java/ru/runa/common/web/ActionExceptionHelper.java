@@ -17,6 +17,8 @@
  */
 package ru.runa.common.web;
 
+import java.util.Locale;
+
 import javax.security.auth.login.LoginException;
 import javax.servlet.jsp.PageContext;
 
@@ -24,6 +26,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
+
+import com.google.common.base.Throwables;
 
 import ru.runa.wf.web.VariablesFormatException;
 import ru.runa.wf.web.action.DataFileNotPresentException;
@@ -54,29 +58,26 @@ import ru.runa.wfe.user.ExecutorParticipatesInProcessesException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.validation.ValidationException;
 
-import com.google.common.base.Throwables;
-
 /**
  * Created 27.05.2005
- * 
  */
 public class ActionExceptionHelper {
     private static final Log log = LogFactory.getLog(ActionExceptionHelper.class);
 
-    public static void addException(ActionMessages errors, Throwable e) {
+    public static void addException(ActionMessages errors, Throwable e, Locale locale) {
         e = Throwables.getRootCause(e);
-        errors.add(ActionMessages.GLOBAL_MESSAGE, getActionMessage(e));
+        errors.add(ActionMessages.GLOBAL_MESSAGE, getActionMessage(e, locale));
         // category set to DEBUG due to logging in EJB layer
         // it's logged anyway due to cause in web layer
         log.debug("action exception", e);
     }
 
     public static String getErrorMessage(Throwable e, PageContext pageContext) {
-        ActionMessage actionMessage = getActionMessage(e);
+        ActionMessage actionMessage = getActionMessage(e, pageContext.getRequest().getLocale());
         return Commons.getMessage(actionMessage.getKey(), pageContext, actionMessage.getValues());
     }
 
-    private static ActionMessage getActionMessage(Throwable e) {
+    private static ActionMessage getActionMessage(Throwable e, Locale locale) {
         ActionMessage actionMessage;
         if (e instanceof AuthenticationException || e instanceof LoginException || e instanceof AuthenticationExpiredException) {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_AUTHENTICATION.getKey());
@@ -117,8 +118,8 @@ public class ActionExceptionHelper {
                     ((InvalidDefinitionException) e).getDefinitionName(), e.getMessage());
         } else if (e instanceof DefinitionNameMismatchException) {
             DefinitionNameMismatchException exception = (DefinitionNameMismatchException) e;
-            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(),
-                    exception.getDeployedProcessDefinitionName(), exception.getGivenProcessDefinitionName());
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getDeployedProcessDefinitionName(),
+                    exception.getGivenProcessDefinitionName());
         } else if (e instanceof TaskDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.ERROR_TASK_DOES_NOT_EXIST.getKey());
         } else if (e instanceof SubstitutionDoesNotExistException) {
@@ -145,7 +146,7 @@ public class ActionExceptionHelper {
         } else if (e instanceof ValidationException) {
             actionMessage = new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey());
         } else if (e instanceof LocalizableException) {
-            actionMessage = new ActionMessage(e.getLocalizedMessage(), false);
+            actionMessage = new ActionMessage(((LocalizableException) e).getLocalizedMessage(locale), false);
         } else if (e instanceof InternalApplicationException) {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_UNKNOWN.getKey(), e.getMessage());
         } else {

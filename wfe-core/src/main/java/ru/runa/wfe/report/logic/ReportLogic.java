@@ -6,12 +6,15 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportFileMissingException;
 import ru.runa.wfe.report.ReportParameter;
-import ru.runa.wfe.report.ReportParameterMissionException;
+import ru.runa.wfe.report.ReportParameterMissingException;
 import ru.runa.wfe.report.ReportParameterUnknownException;
 import ru.runa.wfe.report.ReportPermission;
 import ru.runa.wfe.report.ReportWithNameExistsException;
@@ -24,9 +27,6 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 public class ReportLogic extends WFCommonLogic {
 
@@ -65,9 +65,7 @@ public class ReportLogic extends WFCommonLogic {
         checkPermissionAllowed(user, ReportsSecure.INSTANCE, ReportPermission.DEPLOY);
         ReportDefinition existingByName = reportDAO.getReportDefinition(report.getName());
         if (existingByName != null) {
-            ReportWithNameExistsException exception = new ReportWithNameExistsException();
-            exception.setReportName(report.getName());
-            throw exception;
+            throw new ReportWithNameExistsException(report.getName());
         }
         ReportDefinition reportDefinition = createReportDefinition(report, file);
         reportDAO.deployReport(reportDefinition);
@@ -76,9 +74,7 @@ public class ReportLogic extends WFCommonLogic {
     public void redeployReport(User user, ReportDto report, byte[] file) throws ReportFileMissingException {
         ReportDefinition existingByName = reportDAO.getReportDefinition(report.getName());
         if (existingByName != null && !existingByName.getId().equals(report.getId())) {
-            ReportWithNameExistsException exception = new ReportWithNameExistsException();
-            exception.setReportName(report.getName());
-            throw exception;
+            throw new ReportWithNameExistsException(report.getName());
         }
         if (file == null) {
             ReportDefinition replacedReport = reportDAO.get(report.getId());
@@ -120,7 +116,7 @@ public class ReportLogic extends WFCommonLogic {
             reportParameters.remove(reportParameterDto.getInnerName());
         }
         if (!reportParameters.isEmpty()) {
-            throw new ReportParameterMissionException(reportParameters.keySet().iterator().next());
+            throw new ReportParameterMissingException(reportParameters.keySet().iterator().next());
         }
         return reportDefinition;
     }
