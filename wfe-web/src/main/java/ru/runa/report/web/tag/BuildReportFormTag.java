@@ -39,8 +39,8 @@ import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.report.web.MessagesReport;
 import ru.runa.report.web.action.BuildReportAction;
 import ru.runa.wfe.report.ReportPermission;
-import ru.runa.wfe.report.dto.ReportDto;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.ReportGenerationType;
 import ru.runa.wfe.report.impl.ReportGenerationType.ReportGenerationTypeVisitor;
 import ru.runa.wfe.report.impl.ReportParameterModel;
@@ -62,7 +62,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
     @Override
     protected void fillFormData(TD tdFormElement) {
         tdFormElement.addElement(HTMLUtils.createInput("HIDDEN", IdForm.ID_INPUT_NAME, Long.toString(getIdentifiableId())));
-        ReportDto report = getIdentifiable();
+        WfReport report = getIdentifiable();
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
         tdFormElement.addElement(table);
@@ -71,7 +71,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
         tr.addElement(new TH(MessagesCommon.HEADER_PARAMETER_VALUE.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
         table.addElement(tr);
         Map<String, String> parameterDescriptions = Maps.newHashMap();
-        for (ReportParameterDto parameter : report.getParameters()) {
+        for (WfReportParameter parameter : report.getParameters()) {
             parameterDescriptions.put(parameter.getInternalName(), parameter.getDescription());
             ReportParameterCreateModelOperation createModelOperation = new ReportParameterCreateModelOperation(getUser());
             ReportParameterModel model = parameter.getType().processBy(createModelOperation, parameter);
@@ -143,7 +143,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
     }
 
     @Override
-    protected ReportDto getIdentifiable() {
+    protected WfReport getIdentifiable() {
         return Delegates.getReportService().getReportDefinition(getUser(), getIdentifiableId());
     }
 

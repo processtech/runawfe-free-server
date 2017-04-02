@@ -13,7 +13,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-public class ReportDto extends Identifiable implements Comparable<ReportDto>, EntityWithType {
+public class WfReport extends Identifiable implements Comparable<WfReport>, EntityWithType {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,13 +22,13 @@ public class ReportDto extends Identifiable implements Comparable<ReportDto>, En
     private String description;
     private String category;
     private byte[] compiledReport;
-    private List<ReportParameterDto> parameters;
+    private List<WfReportParameter> parameters;
 
-    public ReportDto() {
+    public WfReport() {
         super();
     }
 
-    public ReportDto(Long id, String name, String description, String category, List<ReportParameterDto> parameters) {
+    public WfReport(Long id, String name, String description, String category, List<WfReportParameter> parameters) {
         super();
         this.id = id;
         this.name = name;
@@ -37,20 +37,20 @@ public class ReportDto extends Identifiable implements Comparable<ReportDto>, En
         this.parameters = parameters;
     }
 
-    public ReportDto(ReportDefinition definition) {
+    public WfReport(ReportDefinition definition) {
         super();
         id = definition.getId();
         name = definition.getName();
         description = definition.getDescription();
         category = definition.getCategory();
         compiledReport = definition.getCompiledReport();
-        parameters = new ArrayList<ReportParameterDto>(Lists.transform(definition.getParameters(),
-                new Function<ReportParameter, ReportParameterDto>() {
+        parameters = new ArrayList<WfReportParameter>(Lists.transform(definition.getParameters(),
+                new Function<ReportParameter, WfReportParameter>() {
                     int position = 0;
 
                     @Override
-                    public ReportParameterDto apply(ReportParameter input) {
-                        return new ReportParameterDto(input.getName(), "", input.getInnerName(), ++position, input.getType(), input.isRequired());
+                    public WfReportParameter apply(ReportParameter input) {
+                        return new WfReportParameter(input.getName(), "", input.getInnerName(), ++position, input.getType(), input.isRequired());
                     }
                 }));
     }
@@ -95,16 +95,16 @@ public class ReportDto extends Identifiable implements Comparable<ReportDto>, En
         return new String[] {};
     }
 
-    public List<ReportParameterDto> getParameters() {
+    public List<WfReportParameter> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<ReportParameterDto> parameters) {
+    public void setParameters(List<WfReportParameter> parameters) {
         this.parameters = parameters;
     }
 
     @Override
-    public int compareTo(ReportDto arg0) {
+    public int compareTo(WfReport arg0) {
         return name.compareTo(arg0.getName());
     }
 

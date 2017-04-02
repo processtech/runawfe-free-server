@@ -23,7 +23,7 @@ import java.util.List;
 import ru.runa.common.web.CategoriesIterator;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.report.dto.ReportDto;
+import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.service.ReportService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -42,11 +42,11 @@ public class ReportTypesIterator implements Iterator<String[]> {
     private static List<String[]> getAllcategories(User user) {
         ReportService reportService = Delegates.getReportService();
         BatchPresentation batchPresentation = BatchPresentationFactory.REPORTS.createNonPaged();
-        List<ReportDto> definitions = reportService.getReportDefinitions(user, batchPresentation, false);
-        return Lists.transform(definitions, new Function<ReportDto, String[]>() {
+        List<WfReport> definitions = reportService.getReportDefinitions(user, batchPresentation, false);
+        return Lists.transform(definitions, new Function<WfReport, String[]>() {
 
             @Override
-            public String[] apply(ReportDto input) {
+            public String[] apply(WfReport input) {
                 return input.getCategories();
             }
         });

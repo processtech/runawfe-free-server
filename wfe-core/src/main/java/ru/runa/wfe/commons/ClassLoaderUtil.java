@@ -37,13 +37,13 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.runa.wfe.InternalApplicationException;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
+
+import ru.runa.wfe.InternalApplicationException;
 
 /**
  * Utils.
@@ -279,10 +279,24 @@ public class ClassLoaderUtil {
         }
     }
 
-    public static Properties getLocalizedProperties(String resourceBaseName, Class<?> callingClass) {
+    /**
+     * Load localized properties.
+     *
+     * @param resourceBaseName
+     *            Localized resource bundle name.
+     * @param callingClass
+     *            Class, used for searching resource bundle.
+     * @param locale
+     *            Proffered properties locale. May be null, if default system locale is required.
+     * @return Returns loaded localized properties.
+     */
+    public static Properties getLocalizedProperties(String resourceBaseName, Class<?> callingClass, Locale locale) {
         Properties properties = new Properties();
         try {
-            InputStream is = getAsStream(resourceBaseName + "_" + Locale.getDefault().getLanguage() + ".properties", callingClass);
+            if (locale == null) {
+                locale = Locale.getDefault();
+            }
+            InputStream is = getAsStream(resourceBaseName + "_" + locale.getLanguage() + ".properties", callingClass);
             if (is == null) {
                 is = getAsStreamNotNull(resourceBaseName + ".properties", callingClass);
             }

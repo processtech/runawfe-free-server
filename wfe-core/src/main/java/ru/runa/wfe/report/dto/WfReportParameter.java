@@ -2,7 +2,7 @@ package ru.runa.wfe.report.dto;
 
 import ru.runa.wfe.report.ReportParameterType;
 
-public class ReportParameterDto {
+public class WfReportParameter {
     private String userName;
     private String description;
     private String internalName;
@@ -10,11 +10,11 @@ public class ReportParameterDto {
     private ReportParameterType type;
     private boolean isRequired;
 
-    public ReportParameterDto() {
+    public WfReportParameter() {
         super();
     }
 
-    public ReportParameterDto(String userName, String description, String internalName, int position, ReportParameterType type, boolean isRequired) {
+    public WfReportParameter(String userName, String description, String internalName, int position, ReportParameterType type, boolean isRequired) {
         super();
         this.userName = userName;
         this.description = description;
@@ -91,7 +91,7 @@ public class ReportParameterDto {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ReportParameterDto other = (ReportParameterDto) obj;
+        WfReportParameter other = (WfReportParameter) obj;
         if (internalName == null) {
             if (other.internalName != null) {
                 return false;

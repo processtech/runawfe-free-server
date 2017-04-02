@@ -12,7 +12,7 @@ import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.ReportParameterModel;
 import ru.runa.wfe.report.impl.ReportParameterModel.ListValuesData;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -22,7 +22,7 @@ import ru.runa.wfe.user.User;
 /**
  * Operation of parameter model creation.
  */
-public class ReportParameterCreateModelOperation implements ReportParameterTypeVisitor<ReportParameterModel, ReportParameterDto> {
+public class ReportParameterCreateModelOperation implements ReportParameterTypeVisitor<ReportParameterModel, WfReportParameter> {
 
     private final User user;
 
@@ -31,34 +31,34 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
     }
 
     @Override
-    public ReportParameterModel onString(ReportParameterDto data) {
+    public ReportParameterModel onString(WfReportParameter data) {
         return new ReportParameterModel(data);
     }
 
     @Override
-    public ReportParameterModel onNumber(ReportParameterDto data) {
+    public ReportParameterModel onNumber(WfReportParameter data) {
         return new ReportParameterModel(data);
     }
 
     @Override
-    public ReportParameterModel onDate(ReportParameterDto data) {
+    public ReportParameterModel onDate(WfReportParameter data) {
         return new ReportParameterModel(data);
     }
 
     @Override
-    public ReportParameterModel onUncheckedBoolean(ReportParameterDto data) {
+    public ReportParameterModel onUncheckedBoolean(WfReportParameter data) {
         return new ReportParameterModel(data);
     }
 
     @Override
-    public ReportParameterModel onCheckedBoolean(ReportParameterDto data) {
+    public ReportParameterModel onCheckedBoolean(WfReportParameter data) {
         ReportParameterModel model = new ReportParameterModel(data);
         model.setValue(Boolean.toString(true));
         return model;
     }
 
     @Override
-    public ReportParameterModel onProcessNameOrNull(ReportParameterDto data) {
+    public ReportParameterModel onProcessNameOrNull(WfReportParameter data) {
         ReportParameterModel model = new ReportParameterModel(data);
         List<WfDefinition> definitions =
                 Delegates.getDefinitionService().getProcessDefinitions(user, BatchPresentationFactory.DEFINITIONS.createNonPaged(), false);
@@ -75,7 +75,7 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
     }
 
     @Override
-    public ReportParameterModel onSwimlane(ReportParameterDto data) {
+    public ReportParameterModel onSwimlane(WfReportParameter data) {
         ReportParameterModel model = new ReportParameterModel(data);
         List<WfDefinition> definitions =
                 Delegates.getDefinitionService().getProcessDefinitions(user, BatchPresentationFactory.DEFINITIONS.createNonPaged(), false);
@@ -104,36 +104,36 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
     }
 
     @Override
-    public ReportParameterModel onActorId(ReportParameterDto data) {
+    public ReportParameterModel onActorId(WfReportParameter data) {
         return createExecutorsSelectionModel(data, BatchPresentationFactory.ACTORS.createNonPaged(), false);
     }
 
     @Override
-    public ReportParameterModel onGroupId(ReportParameterDto data) {
+    public ReportParameterModel onGroupId(WfReportParameter data) {
         return createExecutorsSelectionModel(data, BatchPresentationFactory.GROUPS.createNonPaged(), false);
     }
 
     @Override
-    public ReportParameterModel onExecutorId(ReportParameterDto data) {
+    public ReportParameterModel onExecutorId(WfReportParameter data) {
         return createExecutorsSelectionModel(data, BatchPresentationFactory.EXECUTORS.createNonPaged(), false);
     }
 
     @Override
-    public ReportParameterModel onActorName(ReportParameterDto data) {
+    public ReportParameterModel onActorName(WfReportParameter data) {
         return createExecutorsSelectionModel(data, BatchPresentationFactory.ACTORS.createNonPaged(), true);
     }
 
     @Override
-    public ReportParameterModel onGroupName(ReportParameterDto data) {
+    public ReportParameterModel onGroupName(WfReportParameter data) {
         return createExecutorsSelectionModel(data, BatchPresentationFactory.GROUPS.createNonPaged(), true);
     }
 
     @Override
-    public ReportParameterModel onExecutorName(ReportParameterDto data) {
+    public ReportParameterModel onExecutorName(WfReportParameter data) {
         return createExecutorsSelectionModel(data, BatchPresentationFactory.EXECUTORS.createNonPaged(), true);
     }
 
-    private ReportParameterModel createExecutorsSelectionModel(ReportParameterDto data, BatchPresentation batch, boolean nameSelection) {
+    private ReportParameterModel createExecutorsSelectionModel(WfReportParameter data, BatchPresentation batch, boolean nameSelection) {
         ReportParameterModel model = new ReportParameterModel(data);
         List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user, batch);
         if (executors == null) {

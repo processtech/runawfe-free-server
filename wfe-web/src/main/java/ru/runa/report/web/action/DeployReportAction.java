@@ -22,7 +22,7 @@ import org.apache.struts.action.ActionMapping;
 
 import ru.runa.common.web.Resources;
 import ru.runa.wfe.report.ReportFileMissingException;
-import ru.runa.wfe.report.dto.ReportDto;
+import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
@@ -37,7 +37,7 @@ public class DeployReportAction extends BaseDeployReportAction {
     public static final String ACTION_PATH = "/deployReport";
 
     @Override
-    protected void doAction(User user, ReportDto report, byte[] file) throws Exception {
+    protected void doAction(User user, WfReport report, byte[] file) throws Exception {
         if (file == null) {
             throw new ReportFileMissingException();
         }
