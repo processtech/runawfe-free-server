@@ -32,6 +32,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wf.web.form.StartProcessForm;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -39,7 +40,7 @@ import ru.runa.wfe.user.Profile;
 
 /**
  * Created on 18.08.2004
- * 
+ *
  * @struts:action path="/startProcess" name="idForm" validate="true" input = "/WEB-INF/wf/manage_process_definitions.jsp"
  * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
  * @struts.action-forward name="failure" path="/manage_process_definitions.do" redirect = "true"
@@ -50,9 +51,13 @@ import ru.runa.wfe.user.Profile;
 public class StartProcessAction extends ActionBase {
 
     @Override
-    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-        IdForm idForm = (IdForm) form;
-        Long definitionId = idForm.getId();
+    public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
+        StartProcessForm startProcessForm = (StartProcessForm) actionForm;
+        Long definitionId = startProcessForm.getId();
+        if (startProcessForm.getName() != null) {
+            WfDefinition definition = Delegates.getDefinitionService().getLatestProcessDefinition(getLoggedUser(request), startProcessForm.getName());
+            definitionId = definition.getId();
+        }
         try {
             ActionForward forward;
             saveToken(request);
