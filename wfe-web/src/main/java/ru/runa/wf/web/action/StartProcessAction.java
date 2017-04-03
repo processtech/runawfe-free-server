@@ -40,7 +40,7 @@ import ru.runa.wfe.user.Profile;
 
 /**
  * Created on 18.08.2004
- * 
+ *
  * @struts:action path="/startProcess" name="idForm" validate="true" input = "/WEB-INF/wf/manage_process_definitions.jsp"
  * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
  * @struts.action-forward name="failure" path="/manage_process_definitions.do" redirect = "true"
