@@ -75,35 +75,35 @@ public class JbpmDuration implements Serializable {
     static Map<String, Integer> calendarFields = Maps.newHashMap();
 
     static {
-        Integer millisecondField = new Integer(Calendar.MILLISECOND);
+        Integer millisecondField = Integer.valueOf(Calendar.MILLISECOND);
         calendarFields.put("millisecond", millisecondField);
         calendarFields.put("milliseconds", millisecondField);
 
-        Integer secondField = new Integer(Calendar.SECOND);
+        Integer secondField = Integer.valueOf(Calendar.SECOND);
         calendarFields.put("second", secondField);
         calendarFields.put("seconds", secondField);
 
-        Integer minuteField = new Integer(Calendar.MINUTE);
+        Integer minuteField = Integer.valueOf(Calendar.MINUTE);
         calendarFields.put("minute", minuteField);
         calendarFields.put("minutes", minuteField);
 
-        Integer hourField = new Integer(Calendar.HOUR);
+        Integer hourField = Integer.valueOf(Calendar.HOUR);
         calendarFields.put("hour", hourField);
         calendarFields.put("hours", hourField);
 
-        Integer dayField = new Integer(Calendar.DAY_OF_MONTH);
+        Integer dayField = Integer.valueOf(Calendar.DAY_OF_MONTH);
         calendarFields.put("day", dayField);
         calendarFields.put("days", dayField);
 
-        Integer weekField = new Integer(Calendar.WEEK_OF_MONTH);
+        Integer weekField = Integer.valueOf(Calendar.WEEK_OF_MONTH);
         calendarFields.put("week", weekField);
         calendarFields.put("weeks", weekField);
 
-        Integer monthField = new Integer(Calendar.MONTH);
+        Integer monthField = Integer.valueOf(Calendar.MONTH);
         calendarFields.put("month", monthField);
         calendarFields.put("months", monthField);
 
-        Integer yearField = new Integer(Calendar.YEAR);
+        Integer yearField = Integer.valueOf(Calendar.YEAR);
         calendarFields.put("year", yearField);
         calendarFields.put("years", yearField);
     }
@@ -111,31 +111,31 @@ public class JbpmDuration implements Serializable {
     static Map<String, Long> businessAmounts = Maps.newHashMap();
 
     static {
-        Long secondAmount = new Long(SECOND);
+        Long secondAmount = Long.valueOf(SECOND);
         businessAmounts.put("business second", secondAmount);
         businessAmounts.put("business seconds", secondAmount);
 
-        Long minuteAmount = new Long(MINUTE);
+        Long minuteAmount = Long.valueOf(MINUTE);
         businessAmounts.put("business minute", minuteAmount);
         businessAmounts.put("business minutes", minuteAmount);
 
-        Long hourAmount = new Long(HOUR);
+        Long hourAmount = Long.valueOf(HOUR);
         businessAmounts.put("business hour", hourAmount);
         businessAmounts.put("business hours", hourAmount);
 
-        Long dayAmount = new Long(BUSINESS_DAY);
+        Long dayAmount = Long.valueOf(BUSINESS_DAY);
         businessAmounts.put("business day", dayAmount);
         businessAmounts.put("business days", dayAmount);
 
-        Long weekAmount = new Long(BUSINESS_WEEK);
+        Long weekAmount = Long.valueOf(BUSINESS_WEEK);
         businessAmounts.put("business week", weekAmount);
         businessAmounts.put("business weeks", weekAmount);
 
-        Long monthAmount = new Long(BUSINESS_MONTH);
+        Long monthAmount = Long.valueOf(BUSINESS_MONTH);
         businessAmounts.put("business month", monthAmount);
         businessAmounts.put("business months", monthAmount);
 
-        Long yearAmount = new Long(BUSINESS_YEAR);
+        Long yearAmount = Long.valueOf(BUSINESS_YEAR);
         businessAmounts.put("business year", yearAmount);
         businessAmounts.put("business years", yearAmount);
     }

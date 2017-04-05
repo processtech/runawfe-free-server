@@ -25,17 +25,16 @@ public class AdminkitScriptsTag extends TagSupport {
     public int doStartTag() {
         try {
             final ScriptingService scriptingService = Delegates.getScriptingService();
-            String html = "";
+            final StringBuilder html = new StringBuilder();
             for (String scriptName : scriptingService.getScriptsNames()) {
-                html += "<a href=\"#\" fileName=\"" + scriptName + "\">" + scriptName + "</a>&nbsp;";
+                html.append("<a href=\"#\" fileName=\"").append(scriptName).append("\">").append(scriptName).append("</a>&nbsp;");
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("action", "delete");
                 params.put("fileName", scriptName);
                 String href = Commons.getActionUrl(AdminkitScriptsAction.PATH, params, pageContext, PortletUrlType.Action);
-                html += "(<a href=\"" + href + "\">X</a>)";
-                html += "&nbsp;&nbsp;";
+                html.append("(<a href=\"").append(href).append("\">X</a>)").append("&nbsp;&nbsp;");
             }
-            pageContext.getOut().write(html);
+            pageContext.getOut().write(html.toString());
             return Tag.SKIP_BODY;
         } catch (IOException e) {
             throw Throwables.propagate(e);

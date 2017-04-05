@@ -92,9 +92,6 @@ public class IOCommons {
     public static String getAdminkitScriptsDirPath() {
         if (adminkitScriptsDirPath == null) {
             adminkitScriptsDirPath = getInstallationDirPath() + "/adminkit/scripts/";
-            if (adminkitScriptsDirPath == null) {
-                adminkitScriptsDirPath = "";
-            }
         }
         return adminkitScriptsDirPath;
     }

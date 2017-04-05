@@ -113,8 +113,8 @@ public class DocxFileChangerTest extends Assert {
         Map<String, Object> data = Maps.newHashMap();
         data.put(
                 "ArrayUser",
-                createVariable("ArrayUser", ListFormat.class.getName() + "(" + ActorFormat.class.getName() + ")",
-                        Lists.newArrayList(new Actor("Petrov", "", "", 1L, "test@email", null, null, null), new Actor("Ivanov", "Pervomayskaya str 30a"))));
+                createVariable("ArrayUser", ListFormat.class.getName() + "(" + ActorFormat.class.getName() + ")", Lists.newArrayList(new Actor(
+                        "Petrov", "", "", 1L, "test@email", null, null, null), new Actor("Ivanov", "Pervomayskaya str 30a"))));
         testDocx(true, "tables_format.docx", data);
     }
 

@@ -76,10 +76,13 @@ public enum ReportGenerationType {
                 File file = new File(reportTempFolder + resource.getKey());
                 FileOutputStream outStream = null;
                 try {
-                    file.createNewFile();
-                    outStream = new FileOutputStream(file);
-                    outStream.write(resource.getValue());
-                    outStream.flush();
+                    if (file.createNewFile()) {
+                        outStream = new FileOutputStream(file);
+                        outStream.write(resource.getValue());
+                        outStream.flush();
+                    } else {
+                        throw new IOException("Can't write file " + file);
+                    }
                 } catch (IOException e) {
                     Log log = LogFactory.getLog(ReportGenerationType.class);
                     log.error("Failed to save report resource " + file.getAbsolutePath(), e);

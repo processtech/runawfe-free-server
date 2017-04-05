@@ -44,11 +44,11 @@ public class FormulaActionHandler extends ActionHandlerBase {
     private final FormulaActionHandlerOperations actions = new FormulaActionHandlerOperations();
     private char[] formula = null;
     private int nowPosition = 0;
-    private final String oneSymbolTokens = "=()+-*/!<>&|^'\",\n;";
-    private final String[] operations = { "&|^", // priority 0
-            "<!=>", // priority 1
-            "+-", // priority 2
-            "*/" // priority 3
+    private static final String oneSymbolTokens = "=()+-*/!<>&|^'\",\n;";
+    private static final String[] operations = { "&|^", // priority 0
+        "<!=>", // priority 1
+        "+-", // priority 2
+        "*/" // priority 3
     };
     private boolean stringVariableToken = false;
     private boolean quo = false;
@@ -59,12 +59,12 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return null;
         }
         nowPosition++;
-        String answer = "";
+        StringBuilder answer = new StringBuilder();
         boolean escapeCharacter = false;
         while (nowPosition < formula.length) {
             if (escapeCharacter) {
                 escapeCharacter = false;
-                answer += formula[nowPosition];
+                answer.append(formula[nowPosition]);
             } else {
                 if (formula[nowPosition] == '\\') {
                     escapeCharacter = true;
@@ -72,7 +72,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                     if (formula[nowPosition] == limitingSymbol) {
                         break;
                     } else {
-                        answer += formula[nowPosition];
+                        answer.append(formula[nowPosition]);
                     }
                 }
             }
@@ -82,7 +82,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return null;
         }
         nowPosition++;
-        return answer;
+        return answer.toString();
     }
 
     private String nextToken() {
@@ -114,14 +114,14 @@ public class FormulaActionHandler extends ActionHandlerBase {
             nowPosition++;
             return "" + formula[nowPosition - 1];
         }
-        String answer = "";
+        StringBuilder answer = new StringBuilder();
         while (nowPosition < formula.length && formula[nowPosition] != ' ') {
             if (oneSymbolTokens.contains("" + formula[nowPosition])) {
                 break;
             }
-            answer += formula[nowPosition++];
+            answer.append(formula[nowPosition++]);
         }
-        return answer;
+        return answer.toString();
     }
 
     @Override
@@ -569,8 +569,8 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return actions.roundFunction(d);
             }
             if (BigDecimal.class.isInstance(param1)) {
-            	BigDecimal bd = (BigDecimal)param1;
-            	return bd.round(new MathContext(num));
+                BigDecimal bd = (BigDecimal) param1;
+                return bd.round(new MathContext(num));
             }
             return actions.roundFunction(d, num);
         }
@@ -656,7 +656,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return actions.nameCaseRussian(fio, caseNumber, mode);
         }
         if (s.equalsIgnoreCase("BigDecimal")) {
-        	Object param = parsePriority0();
+            Object param = parsePriority0();
             if (param == null || !nextToken().equals(")")) {
                 incorrectParameters(s);
                 return null;
@@ -664,7 +664,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return new BigDecimal(param.toString());
         }
         if (s.equalsIgnoreCase("float")) {
-        	Object param = parsePriority0();
+            Object param = parsePriority0();
             if (param == null || !nextToken().equals(")")) {
                 incorrectParameters(s);
                 return null;
@@ -783,7 +783,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return nextToken();
         }
         try {
-            return new Long(Long.parseLong(s));
+            return Long.parseLong(s);
         } catch (NumberFormatException e) {
         }
         try {
@@ -791,10 +791,10 @@ public class FormulaActionHandler extends ActionHandlerBase {
         } catch (NumberFormatException e) {
         }
         if (s.equalsIgnoreCase("true")) {
-            return new Boolean(true);
+            return Boolean.TRUE;
         }
         if (s.equalsIgnoreCase("false")) {
-            return new Boolean(false);
+            return Boolean.FALSE;
         }
         try {
             return CalendarUtil.convertToDate(s, CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);

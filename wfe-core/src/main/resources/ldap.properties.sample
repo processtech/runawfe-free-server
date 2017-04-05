@@ -48,6 +48,8 @@ synchronization.delete.executors.enabled = true
 synchronization.object.class.filter = (objectclass={0})
 synchronization.user.object.class = user
 synchronization.group.object.class = group
+# whether to reset empty attributes
+synchronization.empty.attribute.enabled = true
 # synchronization attribute mappings
 synchronization.account.name.attribute = sAMAccountName
 synchronization.user.fullName.attribute = name

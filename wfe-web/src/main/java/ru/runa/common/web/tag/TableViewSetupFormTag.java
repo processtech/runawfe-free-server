@@ -392,8 +392,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         Option[] positionOptions = new Option[fieldsCount + 1];
         positionOptions[0] = new Option("-1").addElement(new StringElement(MessagesBatch.OPTION_NONE.message(pageContext)));
         for (int position = 1; position < positionOptions.length; position++) {
-            String positionString = new Integer(position).toString();
-            String positionIdString = new Integer(position - 1).toString();
+            String positionString = String.valueOf(position).intern();
+            String positionIdString = String.valueOf(position - 1).intern();
             positionOptions[position] = new Option(positionIdString).addElement(positionString);
         }
         return positionOptions;

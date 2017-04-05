@@ -145,11 +145,11 @@ public class SQLFunctionDAO {
 
         ArrayList<Long> codes = new ArrayList<Long>();
         codes.add(code);
-        if (directorsCodesList.contains((codes.get(0)).longValue())) {
-            result.add(codes.get(0));
+        if (directorsCodesList.contains(code)) {
+            result.add(code);
             return result;
         }
-        while (codes.size() > 0) {
+        while (!codes.isEmpty()) {
             List<Long> chiefsCodes = getActorCodes(SQLFunctionResources.getChiefCodeBySubordinateCodeSQL(), new Long[] { codes.get(0) });
             for (Long chiefCode : chiefsCodes) {
                 if (directorsCodesList.contains(chiefCode)) {

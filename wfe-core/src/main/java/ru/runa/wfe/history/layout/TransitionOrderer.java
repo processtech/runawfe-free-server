@@ -60,15 +60,15 @@ public class TransitionOrderer implements HistoryGraphNodeVisitor<TransitionOrde
         }
         List<Integer> newOrder = new ArrayList<Integer>();
         while (!nodeToHeight.isEmpty()) {
-            int maxHeight = Collections.max(nodeToHeight.values());
-            for (HistoryGraphNode historyGraphNode : nodeToHeight.keySet()) {
-                if (nodeToHeight.get(historyGraphNode) == maxHeight) {
+            Integer maxHeight = Collections.max(nodeToHeight.values());
+            for (Map.Entry<HistoryGraphNode, Integer> entry : nodeToHeight.entrySet()) {
+                if (maxHeight.equals(entry.getValue())) {
                     for (int i = 0; i < complexFollowNodes.size(); ++i) {
-                        if (complexFollowNodes.get(i) == historyGraphNode) {
+                        if (complexFollowNodes.get(i) == entry.getKey()) {
                             newOrder.add(i);
                         }
                     }
-                    nodeToHeight.remove(historyGraphNode);
+                    nodeToHeight.remove(entry.getKey());
                     break;
                 }
             }
