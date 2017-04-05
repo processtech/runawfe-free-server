@@ -32,6 +32,7 @@ public class CategoriesIterator implements Iterator<String[]> {
 
     public CategoriesIterator(List<String[]> types) {
         SortedSet<String[]> categoriesSet = new TreeSet<String[]>(new Comparator<String[]>() {
+
             @Override
             public int compare(String[] o1, String[] o2) {
                 int length = o1.length > o2.length ? o2.length : o1.length;
@@ -51,16 +52,6 @@ public class CategoriesIterator implements Iterator<String[]> {
                 return 0;
             }
 
-            @Override
-            public boolean equals(Object another) {
-                if (another == null) {
-                    return false;
-                }
-                if (another.getClass().equals(this.getClass())) {
-                    return true;
-                }
-                return false;
-            }
         });
         for (String[] type : types) {
             for (int i = 0; i < type.length; ++i) {

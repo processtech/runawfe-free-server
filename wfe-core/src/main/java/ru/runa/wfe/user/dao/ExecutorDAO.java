@@ -479,10 +479,12 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Add {@linkplain Executor} to {@linkplain Group}
      */
-    public void addExecutorToGroup(Executor executor, Group group) {
+    public boolean addExecutorToGroup(Executor executor, Group group) {
         if (getMembership(group, executor) == null) {
             getHibernateTemplate().save(new ExecutorGroupMembership(group, executor));
+            return true;
         }
+        return false;
     }
 
     /**
@@ -516,11 +518,13 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Remove {@linkplain Executor} from {@linkplain Group}.
      */
-    public void removeExecutorFromGroup(Executor executor, Group group) {
+    public boolean removeExecutorFromGroup(Executor executor, Group group) {
         ExecutorGroupMembership membership = getMembership(group, executor);
         if (membership != null) {
             getHibernateTemplate().delete(membership);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -667,7 +671,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
                     criteria.addOrder(Order.asc(CODE_PROPERTY_NAME));
                     List<Actor> actors = criteria.list();
                     if (actors.size() > 0) {
-                        return new Long(actors.get(0).getCode().longValue() - 1);
+                        return Long.valueOf(actors.get(0).getCode().longValue() - 1);
                     }
                     return -1L;
                 }

@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface BoundaryEventContainer {
 
-    public List<BoundaryEvent> getBoundaryEvents();
+    List<BoundaryEvent> getBoundaryEvents();
 
 }

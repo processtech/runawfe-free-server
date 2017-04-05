@@ -64,6 +64,6 @@ public class TaskInListState {
             return false;
         }
         TaskInListState other = (TaskInListState) obj;
-        return task.getId() == other.task.getId();
+        return task.getId().equals(other.task.getId());
     }
 }

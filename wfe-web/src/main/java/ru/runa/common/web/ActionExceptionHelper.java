@@ -58,22 +58,14 @@ import com.google.common.base.Throwables;
 
 /**
  * Created 27.05.2005
- *
+ * 
  */
 public class ActionExceptionHelper {
     private static final Log log = LogFactory.getLog(ActionExceptionHelper.class);
 
-    public static void addProcessError(ActionMessages errors, Throwable e) {
-        addException(errors, "processErrors", e);
-    }
-
     public static void addException(ActionMessages errors, Throwable e) {
-        addException(errors, ActionMessages.GLOBAL_MESSAGE, e);
-    }
-
-    private static void addException(ActionMessages errors, String key, Throwable e) {
         e = Throwables.getRootCause(e);
-        errors.add(key, getActionMessage(e));
+        errors.add(ActionMessages.GLOBAL_MESSAGE, getActionMessage(e));
         // category set to DEBUG due to logging in EJB layer
         // it's logged anyway due to cause in web layer
         log.debug("action exception", e);
@@ -84,7 +76,7 @@ public class ActionExceptionHelper {
         return Commons.getMessage(actionMessage.getKey(), pageContext, actionMessage.getValues());
     }
 
-    public static ActionMessage getActionMessage(Throwable e) {
+    private static ActionMessage getActionMessage(Throwable e) {
         ActionMessage actionMessage;
         if (e instanceof AuthenticationException || e instanceof LoginException || e instanceof AuthenticationExpiredException) {
             actionMessage = new ActionMessage(MessagesException.EXCEPTION_AUTHENTICATION.getKey());

@@ -56,11 +56,11 @@ public class StringEnumerationFilterTDFormatter extends FilterTDFormatter {
     public void formatTd(TD td, PageContext pageContext, FilterCriteria filterCriteria, int fieldIndex) {
         String filterValue = filterCriteria.getFilterTemplates()[0];
         Select select = new Select(TableViewSetupForm.FILTER_CRITERIA);
-        for (String value : enumerationValues.keySet()) {
+        for (Map.Entry<String, String> entry : enumerationValues.entrySet()) {
             Option option = new Option();
-            option.setValue(value);
-            option.addElement(Messages.getMessage(enumerationValues.get(value), pageContext));
-            option.setSelected(value.equals(filterValue));
+            option.setValue(entry.getKey());
+            option.addElement(Messages.getMessage(entry.getValue(), pageContext));
+            option.setSelected(entry.getKey().equals(filterValue));
             select.addElement(option);
         }
         td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.FILTER_POSITIONS, String.valueOf(fieldIndex)));

@@ -23,6 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
@@ -234,7 +236,7 @@ public class HTMLUtils {
 
     /**
      * Substitutes arguments for process history logs
-     *
+     * 
      * @param user
      * @param pageContext
      *            can be <code>null</code>
@@ -267,19 +269,18 @@ public class HTMLUtils {
                     result[i] = "null";
                     continue;
                 }
-                String executors = "{ ";
+                final StringBuilder executors = new StringBuilder("{ ");
                 for (Long id : ids) {
                     try {
                         Executor executor = Delegates.getExecutorService().getExecutor(user, id);
-                        executors += pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString();
-                        executors += "&nbsp;";
+                        executors.append(pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString()).append("&nbsp;");
                     } catch (Exception e) {
                         log.debug("could not get executor by " + id + ": " + e.getMessage());
-                        executors += id + "&nbsp;";
+                        executors.append(id).append("&nbsp;");
                     }
                 }
-                executors += "}";
-                result[i] = executors;
+                executors.append("}");
+                result[i] = executors.toString();
             } else if (arguments[i] instanceof ProcessIdValue) {
                 Long processId = ((ProcessIdValue) arguments[i]).getId();
                 if (processId == null) {
@@ -310,5 +311,26 @@ public class HTMLUtils {
             }
         }
         return result;
+    }
+
+    private static Map<String, Pattern> patternForTagCache = Maps.newHashMap();
+
+    private static Pattern getPatternForTag(String tagName) {
+        final String pattern = "<\\s*%s(\\s+.*>|>)";
+        if (!patternForTagCache.containsKey(tagName)) {
+            patternForTagCache.put(tagName, Pattern.compile(String.format(pattern, tagName), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
+        }
+        return patternForTagCache.get(tagName);
+    }
+
+    public static boolean checkForBlockElements(String html) {
+        Set<String> blockElements = WebResources.getHtmlBlockElements();
+
+        for (String element : blockElements) {
+            Pattern pattern = getPatternForTag(element);
+            if (pattern.matcher(html).find())
+                return true;
+        }
+        return false;
     }
 }

@@ -18,7 +18,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.lang.Node;
 
 import com.google.common.base.Objects;
@@ -129,7 +128,7 @@ public class NodeProcess {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BotStation) {
+        if (obj instanceof NodeProcess) {
             NodeProcess b = (NodeProcess) obj;
             return Objects.equal(id, b.id);
         }

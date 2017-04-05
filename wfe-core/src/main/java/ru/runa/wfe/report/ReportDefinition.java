@@ -67,8 +67,6 @@ public class ReportDefinition {
     private String category;
 
     public ReportDefinition() {
-        version = 1L;
-        parameters = new ArrayList<ReportParameter>();
     }
 
     public ReportDefinition(Long id, String name, String description, byte[] compiledReport, List<ReportParameter> parameters, String category) {
@@ -79,8 +77,8 @@ public class ReportDefinition {
         this.configType = ReportConfigurationType.RAW_SQL_REPORT;
         this.parameters = new ArrayList<ReportParameter>(parameters);
         this.category = category;
-        version = 1L;
-        parameters = new ArrayList<ReportParameter>();
+        this.version = 1L;
+        this.parameters = new ArrayList<ReportParameter>();
     }
 
     @Id

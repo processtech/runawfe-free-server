@@ -107,8 +107,8 @@ public class Deployment extends Identifiable {
     }
 
     @Lob
-    @Column(length = 16777216, name = "BYTES")
     @Basic(fetch = FetchType.LAZY)
+    @Column(length = 16777216, name = "BYTES")
     public byte[] getContent() {
         return content;
     }
@@ -160,7 +160,7 @@ public class Deployment extends Identifiable {
     @Transient
     @Override
     public Long getIdentifiableId() {
-        return new Long(getName().hashCode());
+        return Long.valueOf(getName().hashCode());
     }
 
     @Transient

@@ -63,7 +63,7 @@ public abstract class GraphElement implements Serializable, Cloneable {
     }
 
     public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
+        this.nodeId = null == nodeId ? null : nodeId.intern();
     }
 
     public String getName() {
@@ -71,7 +71,7 @@ public abstract class GraphElement implements Serializable, Cloneable {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = null == name ? null : name.intern();
         if (getNodeId() == null) {
             setNodeId(name);
         }
@@ -82,7 +82,7 @@ public abstract class GraphElement implements Serializable, Cloneable {
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = null == description ? null : description.intern();
     }
 
     public void setProcessDefinition(ProcessDefinition processDefinition) {

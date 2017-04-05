@@ -17,6 +17,8 @@ public final class MessagesExecutor {
     public static final StrutsMessage ACTOR_IS_ACTIVE = new StrutsMessage("label.actor_is_active");
     public static final StrutsMessage ACTOR_EMAIL = new StrutsMessage("label.actor_email");
     public static final StrutsMessage ACTOR_PHONE = new StrutsMessage("label.actor_phone");
+    public static final StrutsMessage ACTOR_TITLE = new StrutsMessage("label.actor_title");
+    public static final StrutsMessage ACTOR_DEPARTMENT = new StrutsMessage("label.actor_department");
     public static final StrutsMessage GROUP_AD = new StrutsMessage("label.group_ad");
 
     public static final StrutsMessage TITLE_SUBSTITUTION_CRITERIA = new StrutsMessage("title.substitution_criteria");
@@ -58,4 +60,9 @@ public final class MessagesExecutor {
     public static final StrutsMessage TITLE_CREATE_RELATION_PAIR = new StrutsMessage("title.create_relation_pair");
     public static final StrutsMessage TITLE_CREATE_ACTOR = new StrutsMessage("title.create_actor");
     public static final StrutsMessage TITLE_CREATE_GROUP = new StrutsMessage("title.create_group");
+
+    public static final StrutsMessage LABEL_YOU_ARE_NOT_ENABLED_WITH_SUBSTITUTIONS = new StrutsMessage("label.you_are_not_active_with_substitutions");
+    public static final StrutsMessage LABEL_YOU_ARE_NOT_ENABLED_WITHOUT_SUBSTITUTIONS = new StrutsMessage(
+            "label.you_are_not_active_without_substitutions");
+    public static final StrutsMessage SYNCHRONIZATION_COMPLETED = new StrutsMessage("executors.synchronization.completed");
 }

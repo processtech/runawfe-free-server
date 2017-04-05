@@ -527,7 +527,7 @@ public class FormulaActionHandlerOperations {
             String part1 = word.substring(0, i);
             String part2 = word.substring(i + 1);
             return wordCaseRussian(part1, caseNumber, sex, wordType, onlyOneChar) + "-"
-                    + wordCaseRussian(part2, caseNumber, sex, wordType, onlyOneChar);
+            + wordCaseRussian(part2, caseNumber, sex, wordType, onlyOneChar);
         }
 
         int len = word.length();
@@ -588,9 +588,9 @@ public class FormulaActionHandlerOperations {
                         } else {
                             boolean b3 = "ой ый".indexOf(suf2) >= 0 && wordType > 4 && !word.substring(len - 4, len).equals("опой") || zb > 10
                                     && za > 16;
-                            if (b3) {
-                                zd = 8;
-                            }
+                                    if (b3) {
+                                        zd = 8;
+                                    }
                         }
                     }
                 }
@@ -601,30 +601,30 @@ public class FormulaActionHandlerOperations {
 
         String zf = zd == 8 && caseNumber != 5 ? zb > 15 || "жий ний".indexOf(suf3) >= 0 ? "е" : "о" : word.equals("лев") ? "ьв" : len - 4 >= 0
                 && "аеёийоуэюя".indexOf(word.substring(len - 4, len - 3)) < 0 && (zb > 11 || zb == 0) && ze != 45 ? "" : za == 7 ? "л"
-                : za == 10 ? "к" : za == 13 ? "йц" : ze == 0 ? "" : ze < 12 ? "ь" + (ze == 1 ? "ц" : "") : ze < 37 ? "ц" : ze < 49 ? "йц" : "р";
+                        : za == 10 ? "к" : za == 13 ? "йц" : ze == 0 ? "" : ze < 12 ? "ь" + (ze == 1 ? "ц" : "") : ze < 37 ? "ц" : ze < 49 ? "йц" : "р";
 
-        if (zd != 9) {
-            int nm = len;
-            if (zd > 6 || zf.length() > 0) {
-                nm -= 2;
-            } else {
-                nm -= zd > 0 ? 1 : 0;
-            }
-            String ns = word.substring(0, nm);
-            ns += zf;
-            String ss = "а у а " + "оыые".substring("внч".indexOf(suf1) + 1).charAt(0) + "ме " + ("гжкхш".indexOf(suf2.charAt(0)) > 0 ? "и" : "ы")
-                    + " е у ойе я ю я ем" + (za == 16 ? "и" : "е") + " и е ю ейе и и ь ьюи и и ю ейи ойойу ойойойойуюойойгомуго"
-                    + (zf.equals("е") || za == 16 || zb > 12 && zb < 16 ? "и" : "ы") + "мм";
-            ns += ss.substring(10 * zd + 2 * caseNumber - 3 - 1, 10 * zd + 2 * caseNumber - 3 + 1);
-            zf = ns;
-        } else {
-            zf = word;
-        }
+                        if (zd != 9) {
+                            int nm = len;
+                            if (zd > 6 || zf.length() > 0) {
+                                nm -= 2;
+                            } else {
+                                nm -= zd > 0 ? 1 : 0;
+                            }
+                            String ns = word.substring(0, nm);
+                            ns += zf;
+                            String ss = "а у а " + "оыые".substring("внч".indexOf(suf1) + 1).charAt(0) + "ме " + ("гжкхш".indexOf(suf2.charAt(0)) > 0 ? "и" : "ы")
+                                    + " е у ойе я ю я ем" + (za == 16 ? "и" : "е") + " и е ю ейе и и ь ьюи и и ю ейи ойойу ойойойойуюойойгомуго"
+                                    + (zf.equals("е") || za == 16 || zb > 12 && zb < 16 ? "и" : "ы") + "мм";
+                            ns += ss.substring(10 * zd + 2 * caseNumber - 3 - 1, 10 * zd + 2 * caseNumber - 3 + 1);
+                            zf = ns;
+                        } else {
+                            zf = word;
+                        }
 
-        String ans = zf;
-        ans = ans.replace(" ", "");
-        ans = upcaseFirstChar(ans);
-        return ans;
+                        String ans = zf;
+                        ans = ans.replace(" ", "");
+                        ans = upcaseFirstChar(ans);
+                        return ans;
     }
 
     private String upcaseFirstChar(String ans) {

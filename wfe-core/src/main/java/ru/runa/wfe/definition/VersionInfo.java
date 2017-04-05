@@ -64,7 +64,7 @@ public class VersionInfo implements Serializable {
         if (other == this) {
             return true;
         }
-        if ((other instanceof VersionInfo) != true) {
+        if (other instanceof VersionInfo != true) {
             return false;
         }
 

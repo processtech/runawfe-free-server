@@ -9,11 +9,11 @@ import com.google.common.io.Files;
 
 /**
  * Used only for back compatibility to read from stream.
- * 
+ *
  * @see LocalFileSystemVariable.
- * 
+ *
  * @author dofs
- * 
+ *
  */
 @Deprecated
 public class FileVariableDescriptor extends FileVariable {

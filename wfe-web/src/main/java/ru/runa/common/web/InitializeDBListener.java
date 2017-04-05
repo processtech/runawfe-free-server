@@ -14,7 +14,7 @@ import ru.runa.wfe.service.delegate.BotInvokerServiceDelegate;
 import ru.runa.wfe.service.delegate.Delegates;
 
 public class InitializeDBListener implements ServletContextListener {
-    public static Log log = LogFactory.getLog(InitializeDBListener.class);
+    private static final Log log = LogFactory.getLog(InitializeDBListener.class);
 
     @Override
     public void contextInitialized(ServletContextEvent event) {

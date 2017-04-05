@@ -26,7 +26,7 @@ public interface CacheImplementation {
     /**
      * Commit current cache as default. After committing cache will be used from many threads to check cached values.
      */
-    public void commitCache();
+    void commitCache();
 
     /**
      * All dirty transaction is completed. Cache instance may decide to create new cache for future use. Do not return current cache instance - create
@@ -34,7 +34,7 @@ public interface CacheImplementation {
      * 
      * @return Return cache implementation to be used in future or null, if cache must be dropped.
      */
-    public CacheImplementation unlock();
+    CacheImplementation unlock();
 
     /**
      * Called to notify about object change.
@@ -43,5 +43,5 @@ public interface CacheImplementation {
      *            Changed object
      * @return Return true, if cache is still may be used and false if cache must be dropped.
      */
-    public boolean onChange(ChangedObjectParameter changedObject);
+    boolean onChange(ChangedObjectParameter changedObject);
 }

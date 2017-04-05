@@ -60,9 +60,6 @@ public class PropertiesProcessTDBuilder extends BaseTDBuilder {
     @Override
     public String getValue(Object object, Env env) {
         String result = MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext());
-        if (result == null) {
-            result = "";
-        }
         return result;
     }
 }

@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Interface for database patch (Applied during version update).
- * 
+ *
  * @author Dofs
  */
 public abstract class DBPatch {

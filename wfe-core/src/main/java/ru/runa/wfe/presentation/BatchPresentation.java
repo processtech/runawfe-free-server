@@ -451,6 +451,7 @@ public class BatchPresentation implements Cloneable, Serializable {
 
     @Override
     public BatchPresentation clone() {
+        // TODO breaks contract
         BatchPresentation clone = new BatchPresentation();
         clone.category = category;
         clone.name = name;
