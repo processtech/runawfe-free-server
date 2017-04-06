@@ -181,7 +181,8 @@ public class DocxUtils {
             if (!Strings.isNullOrEmpty(selector)) {
                 value = variableProvider.getValue(selector);
             }
-        } else if (!Strings.isNullOrEmpty(selector) && value instanceof Map) {
+        }
+        if (!Strings.isNullOrEmpty(selector)) {
             StringTokenizer tokenizer = new StringTokenizer(selector, "\\.");
             while (tokenizer.hasMoreTokens()) {
                 String variableName = tokenizer.nextToken();
