@@ -27,6 +27,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import com.google.common.base.Strings;
+
+import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.report.web.tag.DeployReportFormTag;
@@ -38,16 +41,12 @@ import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.base.Strings;
-
 /**
  * Created on 06.10.2004
  *
  * @struts:action path="/analyzeReport" name="fileForm" validate="false"
- * @struts.action-forward name="success" path="/deploy_report.do" redirect =
- *                        "false"
- * @struts.action-forward name="failure" path="/deploy_report.do" redirect =
- *                        "false"
+ * @struts.action-forward name="success" path="/deploy_report.do" redirect = "false"
+ * @struts.action-forward name="failure" path="/deploy_report.do" redirect = "false"
  */
 public class AnalyzeReportAction extends ActionBase {
     public static final String ACTION_PATH = "/analyzeReport";
@@ -58,6 +57,7 @@ public class AnalyzeReportAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         try {
+            CategoriesSelectUtils.extract(request);
             String reportName = request.getParameter(REPORT_NAME_PARAM);
             request.setAttribute(REPORT_NAME_PARAM, reportName);
             String reportDescription = request.getParameter(REPORT_DESCRIPTION_PARAM);
