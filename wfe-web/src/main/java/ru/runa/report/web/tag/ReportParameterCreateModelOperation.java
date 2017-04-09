@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -60,8 +61,8 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
     @Override
     public ReportParameterModel onProcessNameOrNull(WfReportParameter data) {
         ReportParameterModel model = new ReportParameterModel(data);
-        List<WfDefinition> definitions =
-                Delegates.getDefinitionService().getProcessDefinitions(user, BatchPresentationFactory.DEFINITIONS.createNonPaged(), false);
+        List<WfDefinition> definitions = Delegates.getDefinitionService().getProcessDefinitions(user,
+                BatchPresentationFactory.DEFINITIONS.createNonPaged(), false);
         if (definitions == null) {
             definitions = new ArrayList<WfDefinition>();
         }
@@ -77,8 +78,8 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
     @Override
     public ReportParameterModel onSwimlane(WfReportParameter data) {
         ReportParameterModel model = new ReportParameterModel(data);
-        List<WfDefinition> definitions =
-                Delegates.getDefinitionService().getProcessDefinitions(user, BatchPresentationFactory.DEFINITIONS.createNonPaged(), false);
+        List<WfDefinition> definitions = Delegates.getDefinitionService().getProcessDefinitions(user,
+                BatchPresentationFactory.DEFINITIONS.createNonPaged(), false);
         if (definitions == null) {
             definitions = new ArrayList<WfDefinition>();
         }
@@ -143,7 +144,9 @@ public class ReportParameterCreateModelOperation implements ReportParameterTypeV
         listData.add(new ListValuesData("All", null));
         for (Executor executor : executors) {
             Object selectionValue = nameSelection ? executor.getName() : executor.getId().toString();
-            listData.add(new ListValuesData(executor.getName() + " (" + executor.getFullName() + ")", selectionValue));
+            String displayName = Strings.isNullOrEmpty(executor.getFullName()) ? executor.getName()
+                    : executor.getName() + " (" + executor.getFullName() + ")";
+            listData.add(new ListValuesData(displayName, selectionValue));
         }
         model.setListValues(listData);
         return model;

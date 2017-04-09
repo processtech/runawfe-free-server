@@ -30,6 +30,12 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.report.web.form.DeployReportForm;
@@ -44,12 +50,6 @@ import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 public abstract class BaseDeployReportAction extends ActionBase {
 
     protected abstract void doAction(User user, WfReport report, byte[] file) throws Exception;
@@ -58,6 +58,7 @@ public abstract class BaseDeployReportAction extends ActionBase {
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         DeployReportForm deployForm = (DeployReportForm) form;
         try {
+            String category = Joiner.on(Utils.CATEGORY_DELIMITER).join(CategoriesSelectUtils.extract(request));
             String reportName = request.getParameter(AnalyzeReportAction.REPORT_NAME_PARAM);
             request.setAttribute(AnalyzeReportAction.REPORT_NAME_PARAM, reportName);
             String reportDescription = request.getParameter(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM);
@@ -74,7 +75,6 @@ public abstract class BaseDeployReportAction extends ActionBase {
             }
             Map<String, UploadedFile> uploadedJasperFiles = BulkUploadServlet.getUploadedFilesMap(request);
             byte[] file = getReportFileContent(uploadedJasperFiles);
-            String category = Joiner.on(Utils.CATEGORY_DELIMITER).join(CategoriesSelectUtils.extract(request));
             WfReport report = new WfReport(deployForm.getId(), reportName, reportDescription, category, parameters);
             doAction(getLoggedUser(request), report, file);
             uploadedJasperFiles.clear();
@@ -105,7 +105,8 @@ public abstract class BaseDeployReportAction extends ActionBase {
                 positionToParameter.put(position, Lists.<WfReportParameter> newArrayList());
             }
             WfReportParameter parameterDto = new WfReportParameter(deployForm.getVarUserName()[idx], deployForm.getVarDescription()[idx],
-                    deployForm.getVarInternalName()[idx], position, ReportParameterType.valueOf(deployForm.getVarType()[idx]), required.contains(idx));
+                    deployForm.getVarInternalName()[idx], position, ReportParameterType.valueOf(deployForm.getVarType()[idx]),
+                    required.contains(idx));
             positionToParameter.get(position).add(parameterDto);
             ++idx;
         }
