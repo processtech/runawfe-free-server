@@ -1,5 +1,7 @@
 package ru.runa.wfe.report.dto;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.report.ReportParameterType;
 
 public class WfReportParameter {
@@ -118,4 +120,21 @@ public class WfReportParameter {
         return true;
     }
 
+    /**
+     * Check for equality on data, loaded from report definition.
+     *
+     * @param other
+     *            Object for comparison.
+     * @return Returns true, if other object has same report parameters as current and false otherwise.
+     */
+    public boolean weekEquals(WfReportParameter other) {
+        if (Strings.isNullOrEmpty(internalName)) {
+            if (!Strings.isNullOrEmpty(other.internalName)) {
+                return false;
+            }
+        } else if (!internalName.equals(other.internalName)) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -48,11 +48,10 @@ import ru.runa.wfe.report.ReportParameterType;
 import ru.runa.wfe.report.ReportParameterUserNameMissingException;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
-import ru.runa.wfe.user.User;
 
 public abstract class BaseDeployReportAction extends ActionBase {
 
-    protected abstract void doAction(User user, WfReport report, byte[] file) throws Exception;
+    protected abstract void doAction(HttpServletRequest request, WfReport report, byte[] file) throws Exception;
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
@@ -76,7 +75,7 @@ public abstract class BaseDeployReportAction extends ActionBase {
             Map<String, UploadedFile> uploadedJasperFiles = BulkUploadServlet.getUploadedFilesMap(request);
             byte[] file = getReportFileContent(uploadedJasperFiles);
             WfReport report = new WfReport(deployForm.getId(), reportName, reportDescription, category, parameters);
-            doAction(getLoggedUser(request), report, file);
+            doAction(request, report, file);
             uploadedJasperFiles.clear();
         } catch (Exception e) {
             addError(request, e);

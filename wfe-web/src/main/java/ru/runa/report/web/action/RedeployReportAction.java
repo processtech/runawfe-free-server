@@ -1,35 +1,42 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.report.web.action;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+
+import com.google.common.collect.Lists;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.report.web.tag.DeployReportFormTag;
 import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.User;
 
 /**
  * Created on 06.10.2004
- * 
+ *
  * @struts:action path="/redeployReport" name="fileForm" validate="false"
  * @struts.action-forward name="success" path="/manage_report.do" redirect = "true"
  * @struts.action-forward name="failure" path="/manage_report.do" redirect = "false"
@@ -41,9 +48,30 @@ public class RedeployReportAction extends BaseDeployReportAction {
     private Long reportId;
 
     @Override
-    protected void doAction(User user, WfReport report, byte[] file) throws Exception {
+    protected void doAction(HttpServletRequest request, WfReport report, byte[] file) throws Exception {
         reportId = report.getId();
-        Delegates.getReportService().redeployReport(user, report, file);
+        List<WfReportParameter> reportParameters = Delegates.getReportService().analyzeReportFile(report, file);
+        List<WfReportParameter> currentReportParameters = (List<WfReportParameter>) request.getAttribute(DeployReportFormTag.REPORT_PARAMETERS);
+        List<WfReportParameter> newReportParameters = Lists.newArrayList();
+        boolean hasNewParameters = false;
+        for (WfReportParameter parameter : reportParameters) {
+            boolean exists = false;
+            for (WfReportParameter current : currentReportParameters) {
+                if (current.weekEquals(parameter)) {
+                    exists = true;
+                    newReportParameters.add(current);
+                    break;
+                }
+            }
+            if (!exists) {
+                hasNewParameters = true;
+                newReportParameters.add(parameter);
+            }
+        }
+        if (hasNewParameters || newReportParameters.size() != currentReportParameters.size()) {
+            request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, newReportParameters);
+        }
+        Delegates.getReportService().redeployReport(getLoggedUser(request), report, file);
     }
 
     @Override
