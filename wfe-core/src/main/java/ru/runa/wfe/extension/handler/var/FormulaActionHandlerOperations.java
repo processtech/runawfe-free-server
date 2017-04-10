@@ -77,7 +77,11 @@ public class FormulaActionHandlerOperations {
 
     private static void readNameCaseConfig(String path) {
         try {
-            InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
+            InputStream is = ClassLoaderUtil.getAsStream(path, FormulaActionHandlerOperations.class);
+            if (is == null) {
+                log.warn("No " + path + " found");
+                return;
+            }
             Document document = XmlUtils.parseWithoutValidation(is);
             @SuppressWarnings("unchecked")
             List<Element> childs = document.getRootElement().elements();
