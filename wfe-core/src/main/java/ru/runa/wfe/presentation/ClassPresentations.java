@@ -13,7 +13,7 @@ import ru.runa.wfe.relation.RelationClassPresentation;
 import ru.runa.wfe.relation.RelationPairClassPresentation;
 import ru.runa.wfe.report.ReportClassPresentation;
 import ru.runa.wfe.task.TaskClassPresentation;
-import ru.runa.wfe.task.TaskViewOnlyClassPresentation;
+import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.user.ActorClassPresentation;
 import ru.runa.wfe.user.ExecutorClassPresentation;
 import ru.runa.wfe.user.GroupClassPresentation;
@@ -29,7 +29,7 @@ public class ClassPresentations {
         registerClassPresentation(ClassPresentationType.PROCESS, ProcessClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.PROCESS_WITH_TASKS, ProcessWithTasksClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.TASK, TaskClassPresentation.getInstance());
-        registerClassPresentation(ClassPresentationType.TASK_VIEW_ONLY, TaskViewOnlyClassPresentation.getInstance());
+        registerClassPresentation(ClassPresentationType.TASK_OBSERVABLE, TaskObservableClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.RELATIONPAIR, RelationPairClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.RELATION, RelationClassPresentation.getInstance());
         registerClassPresentation(ClassPresentationType.SYSTEM_LOG, SystemLogClassPresentation.getInstance());

@@ -41,4 +41,8 @@ public class MessagesOther {
     public static final StrutsMessage LABEL_UNSET_EMPTY_VALUE = new StrutsMessage("label.unset_empty.value");
 
     public static final StrutsMessage LABEL_EXPORT = new StrutsMessage("label.export");
+
+    public static final StrutsMessage USER = new StrutsMessage("batch_presentation.executor.user");
+    public static final StrutsMessage GROUP = new StrutsMessage("batch_presentation.executor.group");
+
 }

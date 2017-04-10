@@ -40,7 +40,7 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-import ru.runa.wfe.presentation.filter.ObservableTasksFilterCriteria;
+import ru.runa.wfe.presentation.filter.ObservableExecutorNameFilterCriteria;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.IBatchPresentationCompilerFactory;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
@@ -50,7 +50,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.logic.ISubstitutionLogic;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskClassPresentation;
+import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.cache.TaskCache;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
@@ -157,7 +157,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         for (Map.Entry<Integer, FilterCriteria> entry : batchPresentation.getFilteredFields().entrySet()) {
             FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
             if (field.fieldState == FieldState.ENABLED && field.filterMode == FieldFilterMode.DATABASE
-                    && field.fieldType.equals(ObservableTasksFilterCriteria.class.getName())) {
+                    && field.fieldType.equals(ObservableExecutorNameFilterCriteria.class.getName())) {
                 return entry.getValue().getFilterTemplates()[0];
             }
         }
@@ -271,6 +271,29 @@ public class TaskListBuilder implements ITaskListBuilder {
      * @return List of tasks. Always not null.
      */
     private List<TaskInListState> loadObservableTask(Actor actor, BatchPresentation batchPresentation, String observableExecutorNameTemplate) {
+        Set<Executor> executorsToGetTasks = getObservableExecutors(actor, observableExecutorNameTemplate);
+        List<Task> tasks = loadTasks(batchPresentation, executorsToGetTasks);
+        List<TaskInListState> tasksState = Lists.newArrayList();
+        Set<Executor> executorsByMembership = getExecutorsToGetTasks(actor, false);
+        for (Task task : tasks) {
+            try {
+                TaskInListState acceptable = getAcceptableTask(task, actor, batchPresentation, executorsByMembership);
+                if (acceptable == null) {
+                    continue;
+                }
+                tasksState.add(acceptable);
+            } catch (Exception e) {
+                if (taskDAO.get(task.getId()) == null) {
+                    log.debug(String.format("getTasks: task: %s has been completed", task, e));
+                    continue;
+                }
+                log.error(String.format("getTasks: task: %s unable to build ", task), e);
+            }
+        }
+        return tasksState;
+    }
+
+    public Set<Executor> getObservableExecutors(Actor actor, String observableExecutorNameTemplate) {
         Set<Executor> executorsByMembership = getExecutorsToGetTasks(actor, false);
         if (observableExecutorNameTemplate.isEmpty()) {
             observableExecutorNameTemplate = "%";
@@ -300,24 +323,7 @@ public class TaskListBuilder implements ITaskListBuilder {
                 }
             }
         }
-        List<Task> tasks = loadTasks(batchPresentation, executorsToGetTasks);
-        List<TaskInListState> tasksState = Lists.newArrayList();
-        for (Task task : tasks) {
-            try {
-                TaskInListState acceptable = getAcceptableTask(task, actor, batchPresentation, executorsByMembership);
-                if (acceptable == null) {
-                    continue;
-                }
-                tasksState.add(acceptable);
-            } catch (Exception e) {
-                if (taskDAO.get(task.getId()) == null) {
-                    log.debug(String.format("getTasks: task: %s has been completed", task, e));
-                    continue;
-                }
-                log.error(String.format("getTasks: task: %s unable to build ", task), e);
-            }
-        }
-        return tasksState;
+        return executorsToGetTasks;
     }
 
     @SuppressWarnings("unchecked")
@@ -394,7 +400,7 @@ public class TaskListBuilder implements ITaskListBuilder {
             return null;
         }
         if (executorsToGetTasksByMembership.contains(taskExecutor)
-                || batchPresentation.isFieldActuallyFiltered(TaskClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
+                || batchPresentation.isFieldActuallyFiltered(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return new TaskInListState(task, actor, false);
         }
@@ -508,8 +514,8 @@ public class TaskListBuilder implements ITaskListBuilder {
                 }
                 continue;
             }
-            int substitutionRules =
-                    checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor, substitutorActor);
+            int substitutionRules = checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor,
+                    substitutorActor);
             if ((substitutionRules & SUBSTITUTION_APPLIES) == 0) {
                 continue;
             }
