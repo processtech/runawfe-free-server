@@ -69,10 +69,7 @@ public class StartProcessAction extends ActionBase {
                 WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
                 Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
-
-                addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
                 successForward = mapping.findForward(Resources.FORWARD_SUCCESS);
-
                 if (WebResources.isAutoShowForm()) {
                     Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
                     ActionForward forward = AutoShowFormHelper.getNextActionForward(getLoggedUser(request), mapping, profile, processId);
