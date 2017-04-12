@@ -50,26 +50,28 @@ public class RedeployReportAction extends BaseDeployReportAction {
     @Override
     protected void doAction(HttpServletRequest request, WfReport report, byte[] file) throws Exception {
         reportId = report.getId();
-        List<WfReportParameter> reportParameters = Delegates.getReportService().analyzeReportFile(report, file);
-        List<WfReportParameter> currentReportParameters = (List<WfReportParameter>) request.getAttribute(DeployReportFormTag.REPORT_PARAMETERS);
-        List<WfReportParameter> newReportParameters = Lists.newArrayList();
-        boolean hasNewParameters = false;
-        for (WfReportParameter parameter : reportParameters) {
-            boolean exists = false;
-            for (WfReportParameter current : currentReportParameters) {
-                if (current.weekEquals(parameter)) {
-                    exists = true;
-                    newReportParameters.add(current);
-                    break;
+        if (file != null) {
+            List<WfReportParameter> reportParameters = Delegates.getReportService().analyzeReportFile(report, file);
+            List<WfReportParameter> currentReportParameters = (List<WfReportParameter>) request.getAttribute(DeployReportFormTag.REPORT_PARAMETERS);
+            List<WfReportParameter> newReportParameters = Lists.newArrayList();
+            boolean hasNewParameters = false;
+            for (WfReportParameter parameter : reportParameters) {
+                boolean exists = false;
+                for (WfReportParameter current : currentReportParameters) {
+                    if (current.weekEquals(parameter)) {
+                        exists = true;
+                        newReportParameters.add(current);
+                        break;
+                    }
+                }
+                if (!exists) {
+                    hasNewParameters = true;
+                    newReportParameters.add(parameter);
                 }
             }
-            if (!exists) {
-                hasNewParameters = true;
-                newReportParameters.add(parameter);
+            if (hasNewParameters || newReportParameters.size() != currentReportParameters.size()) {
+                request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, newReportParameters);
             }
-        }
-        if (hasNewParameters || newReportParameters.size() != currentReportParameters.size()) {
-            request.setAttribute(DeployReportFormTag.REPORT_PARAMETERS, newReportParameters);
         }
         Delegates.getReportService().redeployReport(getLoggedUser(request), report, file);
     }
