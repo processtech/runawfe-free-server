@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
+import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.Entities;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
@@ -268,6 +269,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 }
             }
         } catch (Exception e) {
+            LogFactory.getLog(getClass()).warn("Unable to buildBatchTable", e);
             table.addElement(e.toString());
         }
         return table;
@@ -354,7 +356,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             FilterTDFormatter formatter = FilterFormatsFactory.getFormatter(batchPresentation.getAllFields()[fieldIdx].fieldType);
             tr.addElement(formatter.format(pageContext, batchPresentation.getFieldFilteredCriteria(fieldIdx), fieldIdx,
                     batchPresentation.isFieldFiltered(fieldIdx)).addElement(
-                            new Input(Input.HIDDEN, TableViewSetupForm.FILTERING_FIELD_IDS, String.valueOf(fieldIdx))));
+                    new Input(Input.HIDDEN, TableViewSetupForm.FILTERING_FIELD_IDS, String.valueOf(fieldIdx))));
         } else {
             tr.addElement(new TD());
         }

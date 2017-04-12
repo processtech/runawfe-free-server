@@ -17,8 +17,10 @@
  */
 package ru.runa.wfe.presentation;
 
+
 /**
- * {@link DBSource} implementation, which cast field value to CHAR(128). Must be used to access potentially large strings (effect is of this source is substring of value).
+ * {@link DBSource} implementation, which cast field value to CHAR(128). Must be used to access potentially large strings (effect is of this source is
+ * substring of value).
  */
 public class SubstringDBSource extends DefaultDBSource {
 
@@ -35,7 +37,7 @@ public class SubstringDBSource extends DefaultDBSource {
     }
 
     @Override
-    public String getValueDBPath(String alias) {
+    public String getValueDBPath(AccessType accessType, String alias) {
         return alias == null ? valueDBPath : "CAST(" + alias + "." + valueDBPath + " AS CHAR(128))";
     }
 }

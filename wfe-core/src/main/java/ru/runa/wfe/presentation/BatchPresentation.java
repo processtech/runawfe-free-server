@@ -41,12 +41,12 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 /**
  * Presentation of objects collection, contains sorting rules, filter rules and so on.
@@ -397,11 +397,10 @@ public class BatchPresentation implements Cloneable, Serializable {
         return ArraysCommons.contains(getFields().groupIds, fieldId);
     }
 
-    public FilterCriteria getFieldFilteredCriteria(int fieldId) {
-        FilterCriteria filterCriteria = getFields().filters.get(fieldId);
+    public FilterCriteria getFieldFilteredCriteria(int fieldIndex) {
+        FilterCriteria filterCriteria = getFields().filters.get(fieldIndex);
         if (filterCriteria == null) {
-            String fieldType = getAllFields()[fieldId].fieldType;
-            filterCriteria = FilterCriteriaFactory.createFilterCriteria(fieldType);
+            filterCriteria = FilterCriteriaFactory.createFilterCriteria(this, fieldIndex);
         }
         return filterCriteria;
     }
@@ -464,7 +463,7 @@ public class BatchPresentation implements Cloneable, Serializable {
 
     /**
      * Get helper to hold fields set (such us fields to display, sort and so on).
-     *
+     * 
      * @return Helper to current {@link BatchPresentation}.
      */
     @Transient
@@ -479,11 +478,12 @@ public class BatchPresentation implements Cloneable, Serializable {
     public List<String> getDynamicFieldsToDisplay(boolean treatGrouppedFieldAsDisplayable) {
         List<String> result = Lists.newArrayList();
         for (int i = 0; i < getFields().dynamics.size(); i++) {
-            if (ArraysCommons.contains(getFields().displayIds, i)
-                    || treatGrouppedFieldAsDisplayable && ArraysCommons.contains(getFields().groupIds, i)) {
+            if (ArraysCommons.contains(getFields().displayIds, i) || treatGrouppedFieldAsDisplayable
+                    && ArraysCommons.contains(getFields().groupIds, i)) {
                 result.add(getFields().dynamics.get(i).getDynamicValue());
             }
         }
         return result;
     }
+
 }

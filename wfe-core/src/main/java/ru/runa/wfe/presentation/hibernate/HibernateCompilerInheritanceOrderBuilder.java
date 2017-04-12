@@ -23,6 +23,7 @@ import java.util.List;
 
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.DBSource;
+import ru.runa.wfe.presentation.DBSource.AccessType;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldState;
 
@@ -188,11 +189,11 @@ public class HibernateCompilerInheritanceOrderBuilder {
         List<String> result = new LinkedList<String>();
         for (DBSource dbSource : field.dbSources) {
             String alias = hqlBuilder.getAliasMapping().getAlias(field);
-            if (dbSource.getValueDBPath(null) == null) {
+            if (dbSource.getValueDBPath(AccessType.ORDER, null) == null) {
                 continue;
             }
             String fakeHQLRequest = "select " + alias + " from " + dbSource.getSourceObject().getName() + " as " + alias + " order by "
-                    + dbSource.getValueDBPath(alias) + (sortingMode ? " asc" : " desc");
+                    + dbSource.getValueDBPath(AccessType.ORDER, alias) + (sortingMode ? " asc" : " desc");
             HibernateCompilerTranslator fakeTranslator = new HibernateCompilerTranslator(fakeHQLRequest, false);
             String compiledFakeSQL = fakeTranslator.translate();
             int sortExprIdx = compiledFakeSQL.indexOf("order by") + 9;
