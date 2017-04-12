@@ -28,13 +28,15 @@ import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.SubstringDBSource;
+import ru.runa.wfe.presentation.filter.ObservableExecutorNameFilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.var.Variable;
 
 /**
- * Created on 22.10.2005
+ * Created on 2017-04-05
  */
-public class TaskClassPresentation extends ClassPresentation {
+public class TaskObservableClassPresentation extends ClassPresentation {
+
     public static final String NAME = "batch_presentation.task.name";
     public static final String DESCRIPTION = "batch_presentation.task.description";
     public static final String DEFINITION_NAME = "batch_presentation.task.definition_name";
@@ -46,10 +48,12 @@ public class TaskClassPresentation extends ClassPresentation {
     public static final String TASK_CREATE_DATE = "batch_presentation.task.create_date";
     public static final String TASK_ASSIGN_DATE = "batch_presentation.task.assign_date";
     public static final String TASK_DURATION = "batch_presentation.task.duration";
+    public static final String TASK_OBSERVABLE_EXECUTOR = "batch_presentation.task.observable_executor";
 
-    private static final ClassPresentation INSTANCE = new TaskClassPresentation();
+    private static final ClassPresentation INSTANCE = new TaskObservableClassPresentation();
 
     private static class VariableDBSource extends DefaultDBSource {
+
         public VariableDBSource(Class<?> sourceObject) {
             super(sourceObject, "stringValue");
         }
@@ -58,12 +62,11 @@ public class TaskClassPresentation extends ClassPresentation {
         public String getJoinExpression(String alias) {
             return classNameSQL + ".process=" + alias + ".process";
         }
+
     }
 
-    private TaskClassPresentation() {
+    private TaskObservableClassPresentation() {
         super(Task.class, "", false, new FieldDescriptor[] {
-                // display name field type DB source isSort filter mode
-                // get value/show in web getter parameters
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Task.class, "name"), true, 3, BatchPresentationConsts.ASC,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new SubstringDBSource(Task.class, "description"), true,
@@ -85,11 +88,14 @@ public class TaskClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_ASSIGN_DATE, Date.class.getName(), new DefaultDBSource(Task.class, null), false, FieldFilterMode.NONE,
                         "ru.runa.wf.web.html.TaskAssignmentDateTDBuilder", new Object[] {}).setVisible(false),
                 new FieldDescriptor(TASK_DURATION, String.class.getName(), new DefaultDBSource(Task.class, null), false, FieldFilterMode.NONE,
-                        "ru.runa.wf.web.html.TaskDurationTDBuilder", new Object[] {}).setVisible(false) });
-
+                        "ru.runa.wf.web.html.TaskDurationTDBuilder", new Object[] {}).setVisible(false),
+                new FieldDescriptor(TASK_OBSERVABLE_EXECUTOR, ObservableExecutorNameFilterCriteria.class.getName(),
+                        new DefaultDBSource(Task.class, "executor.name"), false, FieldFilterMode.DATABASE,
+                        "ru.runa.wf.web.html.ObservableTasksTDBuilder", new Object[] {}).setShowable(false) });
     }
 
     public static final ClassPresentation getInstance() {
         return INSTANCE;
     }
+
 }

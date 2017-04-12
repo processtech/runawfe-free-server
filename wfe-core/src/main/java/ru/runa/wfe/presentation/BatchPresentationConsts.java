@@ -93,7 +93,7 @@ public class BatchPresentationConsts {
 
     public static final String ID_TASKS = "listTasksForm";
 
-    public static final String ID_TASKS_VIEW_ONLY = "listTasksViewOnlyForm";
+    public static final String ID_OBSERVABLE_TASKS = "listObservableTasksForm";
 
     public static final String ID_SYSTEM_LOGS = "listSystemLogsForm";
 

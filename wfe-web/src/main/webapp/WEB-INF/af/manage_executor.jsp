@@ -15,10 +15,10 @@
 <table width="100%">
 	<tr>
 		<td align="right">
-			<wf:listExecutorTasksLink identifiableId='<%= id %>' href='<%= "/manage_tasks_view_only.do?" + parameterName + "=" + id %>'  />
+			<wf:listExecutorTasksLink identifiableId='<%= id %>' href='<%= "/manage_observable_tasks.do?" + parameterName + "=" + id %>' />
 		</td>
 		<td width="200" align="right">
-			<wf:updatePermissionsOnIdentifiableLink identifiableId='<%=id %>' href='<%= "/manage_executor_permissions.do?" + parameterName+ "=" + id %>'  />
+			<wf:updatePermissionsOnIdentifiableLink identifiableId='<%=id %>' href='<%= "/manage_executor_permissions.do?" + parameterName+ "=" + id %>' />
 		</td>
 	</tr>
 </table>

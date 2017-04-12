@@ -125,3 +125,15 @@ function showFiltersHelp() {
 		}]
 	});
 }
+
+function showObservableTasksHelp() {
+	$("#observableTasksHelpDialog").dialog({
+		dialogClass: "no-close",
+		buttons: [{
+			text: buttonCloseMessage,
+			click: function() {
+				$(this).dialog("close");
+			}
+		}]
+	});
+}

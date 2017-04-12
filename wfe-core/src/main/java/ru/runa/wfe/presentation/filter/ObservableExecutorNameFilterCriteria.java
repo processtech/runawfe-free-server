@@ -7,12 +7,12 @@ import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.presentation.hibernate.QueryParameter;
 
-public class ObservableTasksFilterCriteria extends FilterCriteria {
+public class ObservableExecutorNameFilterCriteria extends FilterCriteria {
 
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(ObservableTasksFilterCriteria.class);
+    private static final Log log = LogFactory.getLog(ObservableExecutorNameFilterCriteria.class);
 
-    public ObservableTasksFilterCriteria() {
+    public ObservableExecutorNameFilterCriteria() {
         super(1);
     }
 

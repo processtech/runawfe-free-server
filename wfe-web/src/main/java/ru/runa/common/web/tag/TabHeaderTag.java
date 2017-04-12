@@ -70,6 +70,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, ASystem.INSTANCE));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS, ASystem.INSTANCE));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
     }
 
     @Attribute(required = false, rtexprvalue = true)
@@ -102,6 +103,9 @@ public class TabHeaderTag extends TagSupport {
                 }
                 tr.addElement(td);
                 td.addElement(a);
+                if (FORWARDS.get(i).getMenuMessage() == MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS) {
+                    td.addElement("<a href='javascript:showObservableTasksHelp();' style='color: red; text-decoration: none;'>*</a>");
+                }
             }
         } else {
             TR tr = new TR();
