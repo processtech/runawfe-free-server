@@ -59,10 +59,6 @@ public class VariableDBSources {
             this.processPath = processPath;
         }
 
-        // classNameSQL + ".id=" + alias + ".process";
-        // classNameSQL + ".id=" + alias + ".process"
-        // classNameSQL + ".process=" + alias + ".process";
-
         @Override
         public String getJoinExpression(String alias) {
             StringBuilder join = new StringBuilder(ClassPresentation.classNameSQL);
