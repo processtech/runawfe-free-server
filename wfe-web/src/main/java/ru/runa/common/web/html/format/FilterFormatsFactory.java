@@ -27,6 +27,7 @@ import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
 import ru.runa.wfe.presentation.filter.ObservableExecutorNameFilterCriteria;
 import ru.runa.wfe.presentation.filter.TaskDurationFilterCriteria;
 import ru.runa.wfe.presentation.filter.UserOrGroupFilterCriteria;
+import ru.runa.wfe.var.Variable;
 
 /**
  * Powered by Dofs
@@ -41,6 +42,7 @@ public class FilterFormatsFactory {
         formattersMap.put(Integer.class.getName(), new StringFilterTDFormatter());
         formattersMap.put(Date.class.getName(), new DateFilterTDFormatter());
         formattersMap.put(AnywhereStringFilterCriteria.class.getName(), new StringFilterTDFormatter());
+        formattersMap.put(Variable.class.getName(), new StringFilterTDFormatter());
         formattersMap.put(SystemLogTypeFilterCriteria.class.getName(), new StringEnumerationFilterTDFormatter(SystemLogTypeHelper.getValues()));
         formattersMap.put(UserOrGroupFilterCriteria.class.getName(), new UserOrGroupFilterTDFormatter());
         formattersMap.put(TaskDurationFilterCriteria.class.getName(), new DurationFilterTDFormatter());

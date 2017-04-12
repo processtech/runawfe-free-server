@@ -20,8 +20,10 @@ package ru.runa.wfe.presentation.filter;
 import java.util.Date;
 import java.util.Map;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.var.Variable;
 
 import com.google.common.collect.Maps;
 
@@ -32,24 +34,32 @@ import com.google.common.collect.Maps;
  */
 public class FilterCriteriaFactory {
 
-    private static Map<String, Class<? extends FilterCriteria>> filterCriterias = Maps.newHashMap();
+    private static Map<Class<?>, Class<? extends FilterCriteria>> filterCriterias = Maps.newHashMap();
 
     static {
-        filterCriterias.put(String.class.getName(), StringFilterCriteria.class);
-        filterCriterias.put(Integer.class.getName(), LongFilterCriteria.class);
-        filterCriterias.put(Date.class.getName(), DateFilterCriteria.class);
+        filterCriterias.put(String.class, StringFilterCriteria.class);
+        filterCriterias.put(Integer.class, LongFilterCriteria.class);
+        filterCriterias.put(Date.class, DateFilterCriteria.class);
+        filterCriterias.put(Variable.class, StringFilterCriteria.class);
     }
 
-    public static FilterCriteria createFilterCriteria(BatchPresentation batchPresentation, int fieldId) {
-        String fieldType = batchPresentation.getAllFields()[fieldId].fieldType;
-        return createFilterCriteria(fieldType);
+    public static FilterCriteria createFilterCriteria(BatchPresentation batchPresentation, int fieldIndex) {
+        String fieldClassName = batchPresentation.getAllFields()[fieldIndex].fieldType;
+        return createFilterCriteria(ClassLoaderUtil.loadClass(fieldClassName));
     }
 
-    public static FilterCriteria createFilterCriteria(String fieldType) {
-        Class<? extends FilterCriteria> criteriaClass = filterCriterias.get(fieldType);
-        if (criteriaClass != null) {
-            return ClassLoaderUtil.instantiate(criteriaClass);
+    public static FilterCriteria createFilterCriteria(final Class<?> fieldClass) {
+        if (FilterCriteria.class.isAssignableFrom(fieldClass)) {
+            return (FilterCriteria) ClassLoaderUtil.instantiate(fieldClass);
         }
-        return ClassLoaderUtil.instantiate(fieldType);
+        Class<?> testClass = fieldClass;
+        while (testClass != Object.class) {
+            Class<? extends FilterCriteria> criteriaClass = filterCriterias.get(testClass);
+            if (criteriaClass != null) {
+                return ClassLoaderUtil.instantiate(criteriaClass);
+            }
+            testClass = testClass.getSuperclass();
+        }
+        throw new InternalApplicationException("No FilterCriteria found for " + fieldClass);
     }
 }
