@@ -118,13 +118,4 @@ public class TaskServiceDelegate extends EJB3Delegate implements TaskService {
         }
     }
 
-    @Override
-    public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation) {
-        try {
-            return getTaskService().getExecutorTasks(user, executorId, batchPresentation);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
 }

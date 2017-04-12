@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.bc;
 
 public enum DurationEnum {
-
     seconds("label.time_scale.second"),
     minutes("label.time_scale.minute"),
     hours("label.time_scale.hour"),

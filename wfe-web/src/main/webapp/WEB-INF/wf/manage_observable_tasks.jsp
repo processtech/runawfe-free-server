@@ -1,5 +1,5 @@
+<%@page import="ru.runa.common.web.form.IdForm"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
-<%@ page import="ru.runa.common.web.form.IdForm" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -8,21 +8,14 @@
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
-<%! private long executorIdValue; %>
-
 <tiles:put name="body" type="string">
 <%
-	String returnAction = "/manage_tasks_view_only.do";
+	String parameterName = IdForm.ID_INPUT_NAME;
+	String id = request.getParameter(parameterName);
+	id = (id == null ? "0" : id);
+	String returnAction = "/manage_observable_tasks.do";
 %>
-<%
-	String parameterName= IdForm.ID_INPUT_NAME;
-	String executorId = request.getParameter(parameterName);
-	executorIdValue = Long.parseLong(executorId);
-	pageContext.setAttribute("execId", executorId);
-	long id = Long.parseLong(request.getParameter(parameterName));
-%>
-
-<wf:listTasksViewOnlyForm batchPresentationId="listTasksViewOnlyForm" executorId="<%= executorIdValue %>" buttonAlignment="right" returnAction="<%= returnAction %>" >
+<wf:listObservableTasksForm batchPresentationId="listObservableTasksForm" buttonAlignment="right" returnAction="<%= returnAction %>" executorId="<%= Long.parseLong(id) %>" >
 	<script>
 	var helpVisible = false;
 	$().ready(function() {
@@ -41,21 +34,16 @@
 	</script>
 	<div style="position: relative;">
 		<div style="position: absolute; right: 5px; top: 5px;">
-			<table><tbody>
-				<tr>
-					<td class="hideableblock" style="width: 100px;" align="left">
-						<a href="#" class="hideableblock" id="helpRequestButton">
-							<img id="helpImg" class="hideableblock" src="/wfe/images/view_setup_hidden.gif">&nbsp;<bean:message key="link.help" />
-						</a>
-					</td>
-					<td align="right">
-						<wf:updateExecutorLink identifiableId='<%= id %>' href='<%= "/manage_executor.do?" + parameterName + "=" + id %>'  />
-					</td>
-				</tr>
-			</tbody></table>
+			<table><tbody><tr>
+				<td class="hideableblock">
+					<a href="#" class="hideableblock" id="helpRequestButton">
+						<img id="helpImg" class="hideableblock" src="/wfe/images/view_setup_hidden.gif">&nbsp;<bean:message key="link.help" />
+					</a>
+				</td>
+			</tr></tbody></table>
 		</div>
-		<wf:viewControlsHideableBlock hideableBlockId="listTasksViewOnlyForm"  returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listTasksViewOnlyForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
+		<wf:viewControlsHideableBlock hideableBlockId="listObservableTasksForm"  returnAction="<%= returnAction %>" >
+			<wf:tableViewSetupForm batchPresentationId="listObservableTasksForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
 		</wf:viewControlsHideableBlock>
 		<div id="helpContentDiv" style="display: none;">
 			<table>
@@ -78,10 +66,7 @@
 			</table>
 		</div>
 	</div>	
-</wf:listTasksViewOnlyForm>
+</wf:listObservableTasksForm>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
-<tiles:put name="head" type="string">
-	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/manage_tasks_view_only.do?id=${execId}"/>' ">
-</tiles:put>
 </tiles:insert>

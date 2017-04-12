@@ -84,13 +84,13 @@
 		<forward name="manage_processes"
 			path="/manage_processes.do?tabForwardName=manage_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
+		<forward name="manage_observable_tasks" path="/manage_observable_tasks.do?tabForwardName=manage_observable_tasks" />
 		<forward name="configure_bot_station"
 			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
 		<forward name="bot_station_permission" path="/bot_station_permission.do" />
 		<forward name="grant_bot_station_permission" path="/grant_bot_station_permission.do" />
 		<forward name="edit_settings" path="/edit_settings.do" />
 		<forward name="drop_settings" path="/drop_settings.do" />
-        <forward name="manage_tasks_view_only" path="/manage_tasks_view_only.do" />
 	</global-forwards>
 
 	<!-- ========== Action Mapping Definitions =================================== -->
@@ -885,6 +885,9 @@
 		<action path="/manage_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
 			parameter="/WEB-INF/wf/manage_tasks.jsp" />
 
+		<action path="/manage_observable_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
+			parameter="/WEB-INF/wf/manage_observable_tasks.jsp" />
+
 		<action path="/submit_task" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_task.jsp" />
 
@@ -971,9 +974,6 @@
 		
 		<action path="/update_process_swimlanes" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/update_process_swimlanes.jsp" />
-
-		<action path="/manage_tasks_view_only" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/wf/manage_tasks_view_only.jsp" />
 
 	</action-mappings>
 

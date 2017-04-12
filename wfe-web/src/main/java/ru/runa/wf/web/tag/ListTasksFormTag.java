@@ -48,7 +48,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Created on 15.10.2004
- *
+ * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
  */
@@ -148,8 +148,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     }
 
     protected List<WfTask> getTasksList(BatchPresentation batchPresentation) {
-        List<WfTask> tasks = Delegates.getTaskService().getMyTasks(getUser(), batchPresentation);
-        return tasks;
+        return Delegates.getTaskService().getMyTasks(getUser(), batchPresentation);
     }
 
 }

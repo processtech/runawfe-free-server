@@ -44,6 +44,9 @@ public class MessagesOther {
     public static final StrutsMessage LABEL_EXPORT_TO = new StrutsMessage("label.export_to");
     public static final StrutsMessage LABEL_RESOURCE_NOT_ASSIGNED = new StrutsMessage("label.resource_not_assigned");
 
+    public static final StrutsMessage USER = new StrutsMessage("batch_presentation.executor.user");
+    public static final StrutsMessage GROUP = new StrutsMessage("batch_presentation.executor.group");
+
     public static final StrutsMessage LABEL_LOCKING = new StrutsMessage("label.locking");
     public static final StrutsMessage LABEL_LOCK = new StrutsMessage("label.lock");
     public static final StrutsMessage LABEL_FOR_ALL = new StrutsMessage("label.for_all");

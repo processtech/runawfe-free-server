@@ -79,7 +79,6 @@ public class TaskFormTag extends WFFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         super.fillFormElement(tdFormElement);
-        WfTask task = Delegates.getTaskService().getTask(getUser(), getTaskId());
         tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(taskId)));
         tdFormElement.addElement(new Input(Input.HIDDEN, ProcessForm.ACTOR_ID_INPUT_NAME, String.valueOf(actorId)));
         tdFormElement.addElement(new Input(Input.HIDDEN, WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, "redirectEnabled"));
@@ -100,12 +99,7 @@ public class TaskFormTag extends WFFormTag {
 
     @Override
     protected boolean isFormButtonEnabled() {
-        return Delegates.getExecutorService().isAdministrator(getUser()) || getUser().getActor().getId().equals(getActorId());
-    }
-
-    @Override
-    protected boolean isFormButtonVisible() {
-        return isFormButtonEnabled();
+        return !Delegates.getTaskService().getTask(getUser(), getTaskId()).isReadOnly();
     }
 
 }

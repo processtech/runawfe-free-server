@@ -12,13 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
@@ -37,20 +30,18 @@ import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
-import ru.runa.wfe.presentation.FieldFilterMode;
-import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-import ru.runa.wfe.presentation.filter.ObservableTasksFilterCriteria;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.IBatchPresentationCompilerFactory;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.logic.ISubstitutionLogic;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskClassPresentation;
+import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.cache.TaskCache;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
@@ -63,15 +54,21 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
-import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.IExecutorDAO;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDAO;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 /**
  * Task list builder component.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -123,9 +120,8 @@ public class TaskListBuilder implements ITaskListBuilder {
         }
 
         List<TaskInListState> tasksState = null;
-        String observableExecutorNameTemplate = getObservableExecutorNameTemplate(batchPresentation);
-        if (observableExecutorNameTemplate != null) {
-            tasksState = loadObservableTask(actor, batchPresentation, observableExecutorNameTemplate);
+        if (batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation) {
+            tasksState = loadObservableTasks(actor, batchPresentation);
         } else {
             tasksState = loadMyAndGroupsAndSubstitutedTasks(actor, batchPresentation);
             tasksState.addAll(loadAdministrativeTasks(actor));
@@ -156,17 +152,16 @@ public class TaskListBuilder implements ITaskListBuilder {
     private String getObservableExecutorNameTemplate(BatchPresentation batchPresentation) {
         for (Map.Entry<Integer, FilterCriteria> entry : batchPresentation.getFilteredFields().entrySet()) {
             FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
-            if (field.fieldState == FieldState.ENABLED && field.filterMode == FieldFilterMode.DATABASE
-                    && field.fieldType.equals(ObservableTasksFilterCriteria.class.getName())) {
+            if (field.displayName.equals(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
                 return entry.getValue().getFilterTemplates()[0];
             }
         }
-        return null;
+        return "";
     }
 
     /**
      * Get processes, which tasks is in user tasks list.
-     *
+     * 
      * @param tasksState
      *            User tasks list.
      * @return set of processes, which tasks is in user tasks list.
@@ -182,7 +177,7 @@ public class TaskListBuilder implements ITaskListBuilder {
 
     /**
      * Get tasks id, which tasks is in user tasks list.
-     *
+     * 
      * @param tasksState
      *            User tasks list.
      * @return list of tasks id, which tasks is in user tasks list.
@@ -198,7 +193,7 @@ public class TaskListBuilder implements ITaskListBuilder {
 
     /**
      * Load administrative tasks if actor is in process administrators group.
-     *
+     * 
      * @param actor
      *            Actor, which task list is created.
      * @return List of administrative tasks or empty list if actor is not in process administrators group. Always not null.
@@ -221,7 +216,7 @@ public class TaskListBuilder implements ITaskListBuilder {
 
     /**
      * Load tasks for me, for all my groups, for actors, substituted by me.
-     *
+     * 
      * @param actor
      *            Actor, which task list is created.
      * @param batchPresentation
@@ -263,16 +258,29 @@ public class TaskListBuilder implements ITaskListBuilder {
 
     /**
      * Load observable tasks.
-     *
+     * 
      * @param actor
      *            Actor, which task list is created.
      * @param batchPresentation
      *            {@link BatchPresentation} with parameters for loading tasks.
      * @return List of tasks. Always not null.
      */
-    private List<TaskInListState> loadObservableTask(Actor actor, BatchPresentation batchPresentation, String observableExecutorNameTemplate) {
+    private List<TaskInListState> loadObservableTasks(Actor actor, BatchPresentation batchPresentation) {
+        String observableExecutorNameTemplate = getObservableExecutorNameTemplate(batchPresentation);
+        Set<Executor> executorsToGetTasks = getObservableExecutors(actor, observableExecutorNameTemplate);
+        List<TaskInListState> tasksState = Lists.newArrayList();
+        if (!executorsToGetTasks.isEmpty()) {
+            List<Task> tasks = loadTasks(batchPresentation, executorsToGetTasks);
+            for (Task task : tasks) {
+                tasksState.add(new TaskInListState(task, actor, false));
+            }
+        }
+        return tasksState;
+    }
+
+    public Set<Executor> getObservableExecutors(Actor actor, String observableExecutorNameTemplate) {
         Set<Executor> executorsByMembership = getExecutorsToGetTasks(actor, false);
-        if (observableExecutorNameTemplate.isEmpty()) {
+        if (Utils.isNullOrEmpty(observableExecutorNameTemplate)) {
             observableExecutorNameTemplate = "%";
         }
         observableExecutorNameTemplate = observableExecutorNameTemplate.replace('*', '%').replace('?', '_');
@@ -282,42 +290,22 @@ public class TaskListBuilder implements ITaskListBuilder {
             addObservableExecutor(executor, observableExecutors);
         }
         Set<Executor> executorsToGetTasks = Sets.newHashSet();
-        if (executorLogic.isAdministrator(new User(actor, null))) {
-            for (Executor taskOwner : observableExecutors) {
-                if (permissionDAO.permissionExists(taskOwner instanceof Actor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS, taskOwner)) {
-                    executorsToGetTasks.add(taskOwner);
-                }
-            }
+        if (executorDAO.isAdministrator(actor)) {
+            executorsToGetTasks.addAll(observableExecutors);
         } else {
             for (Executor executor : executorsByMembership) {
                 for (Executor taskOwner : observableExecutors) {
                     boolean taskOwnerIsActor = taskOwner instanceof Actor;
-                    if (permissionDAO.permissionExists(executor, taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS,
-                            taskOwner) && (taskOwnerIsActor || permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner))
+                    Permission viewTasksPermission = taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS;
+                    if (permissionDAO.permissionExists(executor, viewTasksPermission, taskOwner)
+                            && (taskOwnerIsActor || permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner))
                             && permissionDAO.permissionExists(executor, ExecutorPermission.READ, taskOwner)) {
                         executorsToGetTasks.add(taskOwner);
                     }
                 }
             }
         }
-        List<Task> tasks = loadTasks(batchPresentation, executorsToGetTasks);
-        List<TaskInListState> tasksState = Lists.newArrayList();
-        for (Task task : tasks) {
-            try {
-                TaskInListState acceptable = getAcceptableTask(task, actor, batchPresentation, executorsByMembership);
-                if (acceptable == null) {
-                    continue;
-                }
-                tasksState.add(acceptable);
-            } catch (Exception e) {
-                if (taskDAO.get(task.getId()) == null) {
-                    log.debug(String.format("getTasks: task: %s has been completed", task, e));
-                    continue;
-                }
-                log.error(String.format("getTasks: task: %s unable to build ", task), e);
-            }
-        }
-        return tasksState;
+        return executorsToGetTasks;
     }
 
     @SuppressWarnings("unchecked")
@@ -393,8 +381,7 @@ public class TaskListBuilder implements ITaskListBuilder {
             log.warn(String.format("getAcceptableTask: not found definition for task: %s with process: %s", task, task.getProcess()));
             return null;
         }
-        if (executorsToGetTasksByMembership.contains(taskExecutor)
-                || batchPresentation.isFieldActuallyFiltered(TaskClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
+        if (executorsToGetTasksByMembership.contains(taskExecutor)) {
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return new TaskInListState(task, actor, false);
         }
@@ -508,8 +495,8 @@ public class TaskListBuilder implements ITaskListBuilder {
                 }
                 continue;
             }
-            int substitutionRules =
-                    checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor, substitutorActor);
+            int substitutionRules = checkSubstitutionRules(criteria, substitutionRule.getValue(), executionContext, task, assignedActor,
+                    substitutorActor);
             if ((substitutionRules & SUBSTITUTION_APPLIES) == 0) {
                 continue;
             }

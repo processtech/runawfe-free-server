@@ -36,6 +36,10 @@ public enum FieldFilterMode {
      * Field will be filtered in database, but entity table must not be joined, just used to select root entity id's. HQL/SQL query will be
      * constructed with filter restrictions. No sort restrictions is available.
      */
-    DATABASE_ID_RESTRICTION
-    /* , EXTERNAL/*Not supported yet */
+    DATABASE_ID_RESTRICTION,
+
+    /**
+     * Filed is filtered in application code.
+     */
+    APPLICATION;
 }

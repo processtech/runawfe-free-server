@@ -40,10 +40,10 @@ import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskCompletionBy;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskDoesNotExistException;
+import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
@@ -194,7 +194,13 @@ public class TaskLogic extends WFCommonLogic {
 
     public WfTask getTask(User user, Long taskId) {
         Task task = taskDAO.getNotNull(taskId);
-        return taskObjectFactory.create(task, user.getActor(), false, null);
+        WfTask wfTask = taskObjectFactory.create(task, user.getActor(), false, null);
+        if (!executorLogic.isAdministrator(user)) {
+            if (checkCanParticipate(user.getActor(), task) == null) {
+                wfTask.setReadOnly(true);
+            }
+        }
+        return wfTask;
     }
 
     public Long getProcessId(User user, Long taskId) {
@@ -206,6 +212,9 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
+        if (batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation) {
+            return taskListBuilder.getTasks(user.getActor(), batchPresentation);
+        }
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");
         }
@@ -325,58 +334,6 @@ public class TaskLogic extends WFCommonLogic {
         List<WfTask> result = Lists.newArrayList();
         for (Task task : taskDAO.findUnassignedTasks()) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
-        }
-        return result;
-    }
-
-    private boolean canUserViewActorTask(User user, Executor actor) {
-        if (isPermissionAllowed(user, actor, ActorPermission.VIEW_TASKS)) {
-            if (isPermissionAllowed(user, actor, ActorPermission.READ)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean canUserViewGroupTask(User user, Executor group) {
-        if (isPermissionAllowed(user, group, GroupPermission.VIEW_TASKS)) {
-            if (isPermissionAllowed(user, group, GroupPermission.LIST_GROUP)) {
-                if (isPermissionAllowed(user, group, GroupPermission.READ)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation) {
-        if (user.getActor().getId().equals(executorId)) {
-            return getMyTasks(user, batchPresentation);
-        }
-        boolean userIsAdministrator = executorLogic.isAdministrator(user);
-        List<WfTask> result = Lists.newArrayList();
-        Executor executor = executorLogic.getExecutor(user, executorId);
-        if (executor instanceof Actor) {
-            if (userIsAdministrator || canUserViewActorTask(user, executor)) {
-                result = taskListBuilder.getTasks((Actor) executor, batchPresentation);
-            }
-        } else {
-            // Group users processing
-            if (userIsAdministrator || canUserViewGroupTask(user, executor)) {
-                List<Actor> groupActors = executorLogic.getGroupActors(user, (Group) executor);
-                // List<WfTask> groupMemberTasks = new ArrayList<WfTask>();
-                for (Actor actor : groupActors) {
-                    if (userIsAdministrator || canUserViewActorTask(user, actor)) {
-                        List<WfTask> actorTasks = taskListBuilder.getTasks(actor, batchPresentation);
-                        // To prevent doubles in result - we'll test their id-s (so that twice-loaded Tasks will be considered the same one)
-                        for (WfTask task : actorTasks) {
-                            if (!result.contains(task)) {
-                                result.add(task);
-                            }
-                        }
-                    }
-                }
-            }
         }
         return result;
     }
