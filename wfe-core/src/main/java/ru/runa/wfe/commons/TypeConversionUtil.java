@@ -306,6 +306,16 @@ public class TypeConversionUtil {
         }
     }
 
+    public static int getMapSize(Object value) {
+        if (value == null) {
+            return 0;
+        } else if (value instanceof Map) {
+            return ((Map<?, ?>) value).size();
+        } else {
+            throw new RuntimeException("Unsupported map type " + value.getClass());
+        }
+    }
+
     public static Map<String, String> toStringMap(Map<? extends Object, ? extends Object> map) {
         Map<String, String> result = new HashMap<String, String>();
         for (Map.Entry<? extends Object, ? extends Object> entry : map.entrySet()) {

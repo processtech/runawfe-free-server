@@ -17,7 +17,11 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.Map;
+
 import org.apache.ecs.html.A;
+import org.apache.ecs.html.Div;
+import org.apache.ecs.html.Span;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
@@ -28,9 +32,13 @@ import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
+import ru.runa.common.web.form.IdNameForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction;
+import ru.runa.wf.web.action.LockProcessDefinitionAction;
+import ru.runa.wf.web.action.LockProcessDefinitionForAllAction;
 import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
+import ru.runa.wf.web.action.UnlockProcessDefinitionAction;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
@@ -41,6 +49,8 @@ import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskClassPresentation;
+
+import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processDefinitionInfoForm")
 public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
@@ -120,6 +130,43 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
             updatedByTR.addElement(new TD(updatedBy).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
 
+        if (definition.getLockDate() != null) {
+            {
+                TR lockDateTR = new TR();
+                table.addElement(lockDateTR);
+                String lockDateMessage = Messages.getMessage(DefinitionClassPresentation.LOCK_DATE, pageContext);
+                lockDateTR.addElement(new TD(lockDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+                String message = CalendarUtil.formatDateTime(definition.getLockDate());
+                if (definition.isLockForAll()) {
+                    message += " (" + MessagesOther.LABEL_FOR_ALL.message(pageContext) + ")";
+                }
+                Div div = new Div();
+                div.addElement(new Span(message));
+                div.addElement(createUnlockLink(definition));
+                lockDateTR.addElement(new TD(div).setClass(Resources.CLASS_LIST_TABLE_TD));
+            }
+            {
+                TR lockByTR = new TR();
+                table.addElement(lockByTR);
+                String updatedByMessage = Messages.getMessage(DefinitionClassPresentation.LOCK_ACTOR, pageContext);
+                lockByTR.addElement(new TD(updatedByMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+                Div div = new Div();
+                div.addElement(new Span(definition.getLockActor().getLabel()));
+                if (!definition.isLockForAll()) {
+                    div.addElement(createLockForAllLink(definition));
+                }
+                lockByTR.addElement(new TD(div).setClass(Resources.CLASS_LIST_TABLE_TD));
+            }
+        } else {
+            TR lockTR = new TR();
+            table.addElement(lockTR);
+            lockTR.addElement(new TD(MessagesOther.LABEL_LOCKING.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+            Div div = new Div();
+            div.addElement(createLockLink(definition));
+            div.addElement(createLockForAllLink(definition));
+            lockTR.addElement(new TD(div).setClass(Resources.CLASS_LIST_TABLE_TD));
+        }
+
         TR descriptionTR = new TR();
         table.addElement(descriptionTR);
         String description = Messages.getMessage(DefinitionClassPresentation.DESCRIPTION, pageContext);
@@ -136,4 +183,31 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
     protected String getTitle() {
         return MessagesProcesses.TITLE_PROCESS_DEFINITION.message(pageContext);
     }
+
+    private A createLockLink(WfDefinition definition) {
+        return createLink(LockProcessDefinitionAction.ACTION_PATH, definition, MessagesOther.LABEL_LOCK.message(pageContext), false);
+    }
+
+    private A createLockForAllLink(WfDefinition definition) {
+        String message = MessagesOther.LABEL_LOCK.message(pageContext) + " " + MessagesOther.LABEL_FOR_ALL.message(pageContext);
+        return createLink(LockProcessDefinitionForAllAction.ACTION_PATH, definition, message, true);
+    }
+
+    private A createUnlockLink(WfDefinition definition) {
+        return createLink(UnlockProcessDefinitionAction.ACTION_PATH, definition, MessagesOther.LABEL_UNLOCK.message(pageContext), true);
+    }
+
+    private A createLink(String path, WfDefinition definition, String message, boolean margin) {
+        Map<String, Object> parameters = Maps.newHashMap();
+        parameters.put(IdNameForm.ID_INPUT_NAME, definition.getId());
+        parameters.put(IdNameForm.NAME_INPUT_NAME, definition.getName());
+        final String url = Commons.getActionUrl(path, parameters, pageContext, PortletUrlType.Render);
+        final A a = new A(url, message);
+        a.setClass(Resources.CLASS_LINK);
+        if (margin) {
+            a.setStyle("margin-left: 50px;");
+        }
+        return a;
+    }
+
 }

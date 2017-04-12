@@ -1,6 +1,7 @@
 package ru.runa.wfe.commons;
 
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,9 +68,11 @@ public class Errors {
     }
 
     public static void removeSystemError(String errorMessage) {
-        for (SystemError systemError : systemErrors) {
+        final Iterator<SystemError> iterator = systemErrors.iterator();
+        while (iterator.hasNext()) {
+            final SystemError systemError = iterator.next();
             if (Objects.equal(systemError.getMessage(), errorMessage)) {
-                systemErrors.remove(systemError);
+                iterator.remove();
                 break;
             }
         }

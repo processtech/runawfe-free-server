@@ -19,6 +19,7 @@ import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDAO;
 import ru.runa.wfe.commons.hibernate.Converters;
+import ru.runa.wfe.definition.dao.DeploymentContentDAO;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.async.INodeAsyncExecutor;
@@ -159,6 +160,10 @@ public class ApplicationContextFactory {
 
     public static DeploymentDAO getDeploymentDAO() {
         return getContext().getBean("deploymentDAO", DeploymentDAO.class);
+    }
+
+    public static DeploymentContentDAO getDeploymentContentDAO() {
+        return getContext().getBean("deploymentContentDAO", DeploymentContentDAO.class);
     }
 
     public static PermissionDAO getPermissionDAO() {

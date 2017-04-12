@@ -22,9 +22,9 @@ import ru.runa.wfe.user.User;
 
 /**
  * Format object that converts given object to string.
- *
+ * 
  * Created on 24.11.2006
- *
+ * 
  */
 public class StringFormat extends VariableFormat implements VariableDisplaySupport {
 
@@ -58,7 +58,8 @@ public class StringFormat extends VariableFormat implements VariableDisplaySuppo
 
     @Override
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
-        return String.valueOf(object).replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\"", "&quot;");
+        return String.valueOf(object).replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\"", "&quot;").replaceAll("'", "&#39;")
+                .replaceAll("`", "&apos;");
     }
 
     @Override

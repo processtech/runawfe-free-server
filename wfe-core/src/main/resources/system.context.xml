@@ -230,6 +230,9 @@
 	<bean id="deploymentDAO" class="ru.runa.wfe.definition.dao.DeploymentDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>
+	<bean id="deploymentContentDAO" class="ru.runa.wfe.definition.dao.DeploymentContentDAO">
+		<property name="hibernateTemplate" ref="hibernateTemplate" />
+	</bean>
 	<bean id="executorDAO" class="ru.runa.wfe.user.dao.ExecutorDAO">
 		<property name="hibernateTemplate" ref="hibernateTemplate" />
 	</bean>

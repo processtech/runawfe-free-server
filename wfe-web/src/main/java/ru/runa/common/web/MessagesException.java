@@ -26,6 +26,8 @@ public final class MessagesException {
     public static final StrutsMessage DEFINITION_ARCHIVE_FORMAT_ERROR = new StrutsMessage("definition.archive.format.error");
     public static final StrutsMessage DEFINITION_FILE_FORMAT_ERROR = new StrutsMessage("definition.file.format.error");
     public static final StrutsMessage DEFINITION_FILE_DOES_NOT_EXIST_ERROR = new StrutsMessage("definition.file.does.not.exist.error");
+    public static final StrutsMessage DEFINITION_LOCKED = new StrutsMessage("definition.locked.error");
+    public static final StrutsMessage DEFINITION_LOCKED_FOR_ALL = new StrutsMessage("definition.locked.for.all.error");
     public static final StrutsMessage SUBSTITUTION_OUT_OF_DATE = new StrutsMessage("substitution.out.of.date.error");
     public static final StrutsMessage TASK_WAS_ALREADY_ACCEPTED = new StrutsMessage("task.was.already.accepted");
     public static final StrutsMessage TASK_WAS_ALREADY_COMPLETED = new StrutsMessage("task.was.already.completed");

@@ -31,6 +31,9 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_SUSPEND = new StrutsMessage("process.suspend");
     public static final StrutsMessage PROCESS_SUSPENDED = new StrutsMessage("process.suspended");
     public static final StrutsMessage PROCESS_CANCELED = new StrutsMessage("process.canceled");
+    public static final StrutsMessage DEFINITION_LOCKED = new StrutsMessage("definition.locked");
+    public static final StrutsMessage DEFINITION_LOCKED_FOR_ALL = new StrutsMessage("definition.locked_for_all");
+    public static final StrutsMessage DEFINITION_UNLOCKED = new StrutsMessage("definition.unlocked");
     public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");
     public static final StrutsMessage PROCESS_UPGRADE_TO_DEFINITION_VERSION = new StrutsMessage("process.upgrade.to.definition.version");
@@ -81,7 +84,8 @@ public final class MessagesProcesses {
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_START_DATE = new StrutsMessage("label.task_history_table_start_date");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_END_DATE = new StrutsMessage("label.task_history_table_end_date");
     public static final StrutsMessage LABEL_TASK_HISTORY_TABLE_DURATION = new StrutsMessage("label.task_history_table_duration");
-    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage("batch_presentation.process_definition.update_current_version");
+    public static final StrutsMessage LABEL_UPDATE_CURRENT_VERSION = new StrutsMessage(
+            "batch_presentation.process_definition.update_current_version");
     public static final StrutsMessage TITLE_SUBPROCESSES_LIST = new StrutsMessage("title.process_subprocess_list");
 
 }

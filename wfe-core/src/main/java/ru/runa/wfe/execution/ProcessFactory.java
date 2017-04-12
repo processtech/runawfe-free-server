@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
@@ -130,7 +131,7 @@ public class ProcessFactory {
     private ExecutionContext createProcessInternal(ProcessDefinition processDefinition, Map<String, Object> variables, Actor actor,
             Process parentProcess, Map<String, Object> transientVariables) {
         Preconditions.checkNotNull(processDefinition, "can't create a process when processDefinition is null");
-        Process process = new Process(processDefinition.getDeployment());
+        Process process = new Process((Deployment) processDefinition.getDeployment());
         Token rootToken = new Token(processDefinition, process);
         process.setRootToken(rootToken);
         processDAO.create(process);

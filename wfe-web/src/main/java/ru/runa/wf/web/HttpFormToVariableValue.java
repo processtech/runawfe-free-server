@@ -244,15 +244,15 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
         }
         for (Integer index : indexes) {
             String nameKey = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                    + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".key";
+                    + VariableFormatContainer.COMPONENT_QUALIFIER_END + VariableFormatContainer.KEY_SUFFIX;
             String scriptingNameKey = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                    + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".key";
+                    + VariableFormatContainer.COMPONENT_QUALIFIER_END + VariableFormatContainer.KEY_SUFFIX;
             VariableDefinition componentKeyDefinition = new VariableDefinition(nameKey, scriptingNameKey, componentKeyFormat);
             Object componentKeyValue = componentKeyDefinition.processBy(this, componentKeyDefinition);
             String nameValue = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                    + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".value";
+                    + VariableFormatContainer.COMPONENT_QUALIFIER_END + VariableFormatContainer.VALUE_SUFFIX;
             String scriptingNameValue = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
-                    + VariableFormatContainer.COMPONENT_QUALIFIER_END + ".value";
+                    + VariableFormatContainer.COMPONENT_QUALIFIER_END + VariableFormatContainer.VALUE_SUFFIX;
             VariableDefinition componentValueDefinition = new VariableDefinition(nameValue, scriptingNameValue, componentValueFormat);
             Object componentValueValue = componentValueDefinition.processBy(this, componentValueDefinition);
             if (!Objects.equal(FormSubmissionUtils.IGNORED_VALUE, componentKeyValue)) {

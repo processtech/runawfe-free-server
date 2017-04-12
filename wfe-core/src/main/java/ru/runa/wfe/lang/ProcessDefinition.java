@@ -21,18 +21,12 @@
  */
 package ru.runa.wfe.lang;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
-import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.definition.InvalidDefinitionException;
-import ru.runa.wfe.definition.ProcessDefinitionAccessType;
-import ru.runa.wfe.definition.VersionInfo;
+import ru.runa.wfe.definition.*;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.jpdl.Action;
 import ru.runa.wfe.task.Task;
@@ -42,15 +36,15 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ProcessDefinition extends GraphElement implements IFileDataProvider {
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
-    protected Deployment deployment;
+    protected DeploymentData deployment;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;
     protected final List<Node> nodes = Lists.newArrayList();
@@ -69,13 +63,13 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     protected ProcessDefinition() {
     }
 
-    public ProcessDefinition(Deployment deployment) {
+    public ProcessDefinition(DeploymentData deployment) {
         this.deployment = deployment;
         processDefinition = this;
     }
 
     public Long getId() {
-        return deployment.getId();
+        return deployment.id();
     }
 
     @Override
@@ -85,24 +79,24 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
 
     @Override
     public void setName(String name) {
-        if (deployment.getName() != null) {
+        if (getDeployment().getName() != null) {
             // don't override name from database
             return;
         }
-        deployment.setName(name);
+        getDeployment().setName(name);
     }
 
     @Override
     public String getDescription() {
-        return deployment.getDescription();
+        return getDeployment().getDescription();
     }
 
     @Override
     public void setDescription(String description) {
-        deployment.setDescription(description);
+        getDeployment().setDescription(description);
     }
 
-    public Deployment getDeployment() {
+    public DeploymentData getDeployment() {
         return deployment;
     }
 
@@ -118,7 +112,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
      * add a file to this definition.
      */
     public void addFile(String name, byte[] bytes) {
-        processFiles.put(name, bytes);
+        processFiles.put(name.intern(), bytes);
     }
 
     public void addInteraction(String name, Interaction interaction) {
@@ -432,7 +426,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     }
 
     public void addEmbeddedSubprocess(SubprocessDefinition subprocessDefinition) {
-        embeddedSubprocesses.put(subprocessDefinition.getNodeId(), subprocessDefinition);
+        embeddedSubprocesses.put(subprocessDefinition.getNodeId().intern(), subprocessDefinition);
     }
 
     public List<String> getEmbeddedSubprocessNodeIds() {
@@ -530,4 +524,14 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     public ArrayList<VersionInfo> getVersionInfoList() {
         return versionInfoList;
     }
+
+    public DeploymentContent clearDeploymentContent() {
+        DeploymentContent result = null;
+        if (this.deployment instanceof DeploymentContent) {
+            result = (DeploymentContent) this.deployment;
+            this.deployment = Deployment.from(this.deployment);
+        }
+        return result;
+    }
+
 }

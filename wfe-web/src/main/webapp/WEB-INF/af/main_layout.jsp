@@ -21,7 +21,7 @@
   	<meta http-equiv="Pragma" content="no-cache">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/main.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/jquery-ui-1.9.2.custom.css" />">
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/jquery-te-1.4.0.css" />">
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/jquery-te-1.4.0.custom.css" />">
 	<script type="text/javascript">
 		var saveSuccessMessage = "<bean:message key="adminkit.script.save.success" />";
 		var executionSuccessMessage = "<bean:message key="adminkit.script.execution.success" />";

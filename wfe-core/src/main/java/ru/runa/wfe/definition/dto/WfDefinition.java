@@ -35,7 +35,9 @@ import com.google.common.base.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfDefinition extends Identifiable implements Comparable<WfDefinition>, EntityWithType {
+
     private static final long serialVersionUID = -6032491529439317948L;
+
     private Long id;
     private String name;
     private String description;
@@ -50,12 +52,15 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private Actor lockActor;
+    private Date lockDate;
+    private boolean lockForAll;
 
     public WfDefinition() {
     }
 
     public WfDefinition(ProcessDefinition definition, boolean canBeStarted) {
-        this(definition.getDeployment());
+        this(Deployment.from(definition.getDeployment()));
         hasHtmlDescription = definition.getFileData(IFileDataProvider.INDEX_FILE_NAME) != null;
         hasStartImage = definition.getFileData(IFileDataProvider.START_IMAGE_FILE_NAME) != null;
         hasDisabledImage = definition.getFileData(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME) != null;
@@ -73,6 +78,9 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         createActor = deployment.getCreateActor();
         updateDate = deployment.getUpdateDate();
         updateActor = deployment.getUpdateActor();
+        lockActor = deployment.getLockActor();
+        lockDate = deployment.getLockDate();
+        lockForAll = deployment.getLockForAll() == Boolean.TRUE;
     }
 
     @Override
@@ -144,6 +152,18 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
 
     public Actor getUpdateActor() {
         return updateActor;
+    }
+
+    public Actor getLockActor() {
+        return lockActor;
+    }
+
+    public Date getLockDate() {
+        return lockDate;
+    }
+
+    public boolean isLockForAll() {
+        return lockForAll;
     }
 
     @Override

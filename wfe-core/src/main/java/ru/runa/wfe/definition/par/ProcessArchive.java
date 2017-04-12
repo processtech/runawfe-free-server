@@ -33,7 +33,8 @@ import java.util.zip.ZipInputStream;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentContent;
+import ru.runa.wfe.definition.DeploymentData;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
@@ -43,7 +44,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 
 public class ProcessArchive {
-    private final Deployment deployment;
+    private final DeploymentData deployment;
     public static final List<String> UNSECURED_FILE_NAMES = Lists.newArrayList();
     static {
         UNSECURED_FILE_NAMES.add(IFileDataProvider.START_IMAGE_FILE_NAME);
@@ -66,7 +67,7 @@ public class ProcessArchive {
 
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
-    public ProcessArchive(Deployment deployment) {
+    public ProcessArchive(DeploymentContent deployment) {
         try {
             this.deployment = deployment;
             ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(deployment.getContent()));
@@ -105,6 +106,7 @@ public class ProcessArchive {
             }
         }
         processDefinition.mergeWithEmbeddedSubprocesses();
+        processDefinition.clearDeploymentContent();
         return processDefinition;
     }
 

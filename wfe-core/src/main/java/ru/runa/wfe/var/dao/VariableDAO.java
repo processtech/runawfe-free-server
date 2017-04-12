@@ -14,8 +14,6 @@ import ru.runa.wfe.var.Variable;
 
 import com.google.common.collect.Maps;
 
-import com.google.common.collect.Maps;
-
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class VariableDAO extends GenericDAO<Variable> {
 

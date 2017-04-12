@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.var.format.MapFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Objects;
@@ -55,15 +56,28 @@ public class UserType implements Serializable {
                 throw new InternalApplicationException(String.format("Unable get attribute '%s' from non user type", name));
             }
             String nameRemainder = name.substring(firstDotIndex + 1);
-            return attributeDefinition.getUserType().getAttribute(nameRemainder);
+            VariableDefinition innerAttributeDefinition = attributeDefinition.getUserType().getAttributeExpanded(nameRemainder);
+            if (innerAttributeDefinition == null) {
+                return null;
+            }
+            VariableDefinition expandedDefinition = new VariableDefinition(attributeDefinition.getName() + UserType.DELIM
+                    + innerAttributeDefinition.getName(), attributeDefinition.getScriptingName() + UserType.DELIM
+                    + innerAttributeDefinition.getScriptingName(), innerAttributeDefinition);
+            return expandedDefinition;
         }
         int componentStartIndex = name.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
         String attributeName = componentStartIndex != -1 ? name.substring(0, componentStartIndex) : name;
         VariableDefinition attributeDefinition = attributesMap.get(attributeName);
         if (attributeDefinition != null && componentStartIndex != -1) {
-            VariableDefinition componentDefinition = new VariableDefinition(name, null, attributeDefinition.getFormatComponentClassNames()[0],
-                    attributeDefinition.getFormatComponentUserTypes()[0]);
-            return componentDefinition;
+            if (MapFormat.class.getName().equals(attributeDefinition.getFormatClassName())) {
+                if (name.endsWith(VariableFormatContainer.KEY_SUFFIX)) {
+                    return new VariableDefinition(name, null, attributeDefinition.getFormatComponentClassNames()[0], attributeDefinition.getFormatComponentUserTypes()[0]);
+                } else if (name.endsWith(VariableFormatContainer.VALUE_SUFFIX)) {
+                    return new VariableDefinition(name, null, attributeDefinition.getFormatComponentClassNames()[1], attributeDefinition.getFormatComponentUserTypes()[1]);
+                }
+            }
+            return new VariableDefinition(name, null, attributeDefinition.getFormatComponentClassNames()[0],
+                        attributeDefinition.getFormatComponentUserTypes()[0]);
         }
         return attributeDefinition;
     }
@@ -101,9 +115,10 @@ public class UserType implements Serializable {
         String attributeName = componentStartIndex != -1 ? name.substring(0, componentStartIndex) : name;
         VariableDefinition attributeDefinition = attributesMap.get(attributeName);
         if (attributeDefinition != null && componentStartIndex != -1) {
+            int componentIndex = !name.endsWith(VariableFormatContainer.VALUE_SUFFIX) ? 0 : 1;
             VariableDefinition componentDefinition = new VariableDefinition(attributeDefinition.getName() + name.substring(componentStartIndex),
                     attributeDefinition.getScriptingName() + name.substring(componentStartIndex),
-                    attributeDefinition.getFormatComponentClassNames()[0], attributeDefinition.getFormatComponentUserTypes()[0]);
+                    attributeDefinition.getFormatComponentClassNames()[componentIndex], attributeDefinition.getFormatComponentUserTypes()[componentIndex]);
             return componentDefinition;
         }
         return attributeDefinition;

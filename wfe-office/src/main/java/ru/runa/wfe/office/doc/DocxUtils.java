@@ -115,6 +115,13 @@ public class DocxUtils {
     }
 
     public static void setCellText(XWPFTableCell cell, String text, XWPFTableCell cellTemplate) {
+        if (cellTemplate != null) {
+            if (cell.getCTTc().getTcPr() != null && cellTemplate.getCTTc().getTcPr() != null) {
+                cell.getCTTc().getTcPr().setTcBorders(cellTemplate.getCTTc().getTcPr().getTcBorders());
+            } else if (cellTemplate.getCTTc().getTcPr() != null) {
+                cell.getCTTc().addNewTcPr().setTcBorders(cellTemplate.getCTTc().getTcPr().getTcBorders());
+            }
+        }
         if (cellTemplate != null && cellTemplate.getParagraphs().size() > 0 && cellTemplate.getParagraphs().get(0).getRuns().size() > 0) {
             XWPFParagraph paragraph0;
             if (cell.getParagraphs().size() > 0) {
@@ -160,19 +167,21 @@ public class DocxUtils {
         }
     }
 
+    private static Object executeGroovy(IVariableProvider variableProvider, String script) {
+        script = script.substring(GROOVY.length());
+        GroovyScriptExecutor executor = new GroovyScriptExecutor();
+        return executor.evaluateScript(variableProvider, script);
+    }
+
     public static Object getValue(DocxConfig config, IVariableProvider variableProvider, Object value, String selector) {
-        if (Strings.isNullOrEmpty(selector)) {
-            return value;
-        }
         if (value == null) {
             if (selector.startsWith(GROOVY)) {
-                String script = selector.substring(GROOVY.length());
-                GroovyScriptExecutor executor = new GroovyScriptExecutor();
-                return executor.evaluateScript(variableProvider, script);
+                return executeGroovy(variableProvider, selector);
             }
-            value = variableProvider.getValue(selector);
-        }
-        if (value == null) {
+            if (!Strings.isNullOrEmpty(selector)) {
+                value = variableProvider.getValue(selector);
+            }
+        } else if (!Strings.isNullOrEmpty(selector) && value instanceof Map) {
             StringTokenizer tokenizer = new StringTokenizer(selector, "\\.");
             while (tokenizer.hasMoreTokens()) {
                 String variableName = tokenizer.nextToken();
@@ -226,8 +235,10 @@ public class DocxUtils {
                     }
                 }
             }
-        }
-        if (value instanceof String) {
+        } else if (value instanceof String) {
+            if (((String) value).startsWith(GROOVY)) {
+                return executeGroovy(variableProvider, (String) value);
+            }
             value = ((String) value).replaceAll(Pattern.quote("</p>"), "\n").replaceAll("&nbsp;", " ");
             Matcher m = STRIP_HTML_TAGS_PATTERN.matcher((String) value);
             return m.replaceAll("");
@@ -237,6 +248,9 @@ public class DocxUtils {
 
     public static <T extends AbstractIteratorOperation> T parseIterationOperation(DocxConfig config, IVariableProvider variableProvider,
             String string, T operation) {
+        if (Strings.isNullOrEmpty(string)) {
+            return null;
+        }
         string = string.trim();
         if (string.startsWith(CLOSING_PLACEHOLDER_START)) {
             return null;
@@ -250,10 +264,14 @@ public class DocxUtils {
             }
             int colonIndex = iteratorWithContainerVariable.indexOf(":");
             if (colonIndex > 0) {
-                operation.setIterateBy(IterateBy.identifyByString(config, iteratorWithContainerVariable));
+                try {
+                    operation.setIterateBy(IterateBy.identifyByString(config, iteratorWithContainerVariable));
+                } catch (Exception e) {
+                    return null;
+                }
                 operation.setContainerVariableName(iteratorWithContainerVariable.substring(colonIndex + 1).trim());
             } else {
-                operation.setContainerVariableName(iteratorWithContainerVariable);
+                return null;
             }
             if (iteratorNameIndex != -1) {
                 String lexem = placeholder.substring(iteratorNameIndex + ITERATOR_NAME_DELIMITER.length()).trim();
@@ -269,10 +287,7 @@ public class DocxUtils {
                 return null;
             }
             if (operation.getContainerVariableName().startsWith(GROOVY)) {
-                String script = operation.getContainerVariableName().substring(GROOVY.length());
-                GroovyScriptExecutor executor = new GroovyScriptExecutor();
-                Object value = executor.evaluateScript(variableProvider, script);
-                operation.setContainerValue(value);
+                operation.setContainerValue(executeGroovy(variableProvider, operation.getContainerVariableName()));
             } else {
                 WfVariable variable = variableProvider.getVariable(operation.getContainerVariableName());
                 if (variable != null) {

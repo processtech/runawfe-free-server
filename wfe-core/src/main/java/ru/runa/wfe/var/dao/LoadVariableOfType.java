@@ -35,6 +35,7 @@ import ru.runa.wfe.var.legacy.ComplexVariable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Load variable value depends of variable type.
@@ -124,14 +125,38 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     @Override
     public Object onMap(MapFormat mapFormat, LoadVariableOfTypeContext context) {
-        VariableDefinition variableDefinition = context.variableDefinition;
-        Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
-        if (variable == null) {
-            return variableDefinition.getDefaultValue();
+        Map<Object, Object> map = Maps.newHashMap();
+        String sizeVariableName = context.variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
+        VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
+        Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.сreateFor(sizeDefinition));
+        if (size == null && SystemProperties.isV4MapVariableCompatibilityMode()) {
+            VariableDefinition variableDefinition = context.variableDefinition;
+            Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            if (variable == null) {
+                return variableDefinition.getDefaultValue();
+            }
+            Object value = variable.getValue();
+            value = processComplexVariables(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
+            return value;
         }
-        Object value = variable.getValue();
-        value = processComplexVariables(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
-        return value;
+
+        String[] componentFormats = context.variableDefinition.getFormatComponentClassNames();
+        UserType[] componentUserTypes = context.variableDefinition.getFormatComponentUserTypes();
+        for (int i = 0; i < size.intValue(); i++) {
+            String componentName = context.variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
+                    + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+            VariableDefinition componentKeyDefinition = new VariableDefinition(componentName + VariableFormatContainer.KEY_SUFFIX, null,
+                    componentFormats[0], componentUserTypes[0]);
+            Object componentKey = componentKeyDefinition.getFormatNotNull().processBy(this, context.сreateFor(componentKeyDefinition));
+
+            VariableDefinition componentValueDefinition = new VariableDefinition(componentName + VariableFormatContainer.VALUE_SUFFIX, null,
+                    componentFormats[1], componentUserTypes[1]);
+            Object componentValue = componentValueDefinition.getFormatNotNull().processBy(this, context.сreateFor(componentValueDefinition));
+
+            map.put(componentKey, componentValue);
+        }
+
+        return map;
     }
 
     @Override
