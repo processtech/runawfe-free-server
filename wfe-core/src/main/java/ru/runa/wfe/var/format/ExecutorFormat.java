@@ -6,9 +6,6 @@ import java.util.Map;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -20,6 +17,9 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 
 public class ExecutorFormat extends VariableFormat implements VariableDisplaySupport {
     private static Map<Class<?>, String> tooltipTemplates = Maps.newHashMap();

@@ -44,6 +44,7 @@ import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.GroupFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
@@ -321,6 +322,18 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         TextArea result = new TextArea().setName(variableName).setDisabled(context.readonly);
         result.setClass("inputText");
         if (value != null) {
+            result.setTagText(textFormat.format(value));
+        }
+        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+    }
+
+    @Override
+    public GenerateHtmlForVariableResult onFormattedTextString(FormattedTextFormat textFormat, GenerateHtmlForVariableContext context) {
+        String variableName = context.variable.getDefinition().getName();
+        Object value = context.variable.getValue();
+        TextArea result = new TextArea().setName(variableName).setDisabled(context.readonly);
+        result.setClass("inputFormattedText");
+        if (value != null) {
             result.setTagText(textFormat.formatHtml(user, webHelper, context.processId, variableName, value));
         }
         return new GenerateHtmlForVariableResult(context, result.toString(), null);
@@ -488,7 +501,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Generates result for input number.
-     *
+     * 
      * @param context
      *            HTML generation context.
      * @return Returns data for generating form.
@@ -504,7 +517,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Create HTML Input element ({@link Input}) for variable.
-     *
+     * 
      * @param context
      *            HTML generation context.
      * @param type
@@ -529,7 +542,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Generates HTML div element for template container.
-     *
+     * 
      * @param context
      *            HTML generation context.
      * @return Returns HTML div element for template container.
@@ -544,7 +557,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Generates remove button for list and so on containers.
-     *
+     * 
      * @param context
      *            HTML generation context.
      * @return Returns remove button.
@@ -560,7 +573,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Generates add button for list and so on containers.
-     *
+     * 
      * @param context
      *            HTML generation context.
      * @return Returns add button.
@@ -578,7 +591,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
 
     /**
      * Create HTML div element for collection row.
-     *
+     * 
      * @param context
      *            HTML generation context.
      * @param row
