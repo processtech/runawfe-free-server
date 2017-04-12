@@ -14,7 +14,7 @@ import ru.runa.wfe.validation.ValidationException;
 
 /**
  * Task service.
- *
+ * 
  * @author gbax
  * @since 4.2.1
  */
@@ -22,7 +22,7 @@ public interface TaskService {
 
     /**
      * Gets tasks for authenticated user by {@link BatchPresentation}.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -32,7 +32,7 @@ public interface TaskService {
 
     /**
      * Gets tasks by {@link BatchPresentation}.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -42,7 +42,7 @@ public interface TaskService {
 
     /**
      * Gets task by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param taskId
@@ -53,20 +53,8 @@ public interface TaskService {
     public WfTask getTask(User user, Long taskId) throws TaskDoesNotExistException;
 
     /**
-     * Gets tasks for specified Executor Id
-     *
-     * @param user
-     *            User currently working (used to check rights only!)
-     * @param executorId
-     *            Executor whose tasks are returned (for group - tasks of actors from group, not group itself).
-     * @param batchPresentation
-     * @return
-     */
-    public List<WfTask> getExecutorTasks(User user, Long executorId, BatchPresentation batchPresentation);
-
-    /**
      * Gets all process tasks.
-     *
+     * 
      * @param user
      *            authorized user
      * @param processId
@@ -80,7 +68,7 @@ public interface TaskService {
 
     /**
      * Reassigns task to another executor.
-     *
+     * 
      * @param previousOwner
      *            old executor (check for multi-threaded change)
      * @param newOwner
@@ -92,7 +80,7 @@ public interface TaskService {
 
     /**
      * Reassigns tasks using TaskAssigner.
-     *
+     * 
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -103,7 +91,7 @@ public interface TaskService {
 
     /**
      * Reassigns task using TaskAssigner.
-     *
+     * 
      * @param user
      *            authorized user
      * @return whether task was successfully reassigned
@@ -112,7 +100,7 @@ public interface TaskService {
 
     /**
      * Completes task by id.
-     *
+     * 
      * @param user
      *            authorized user
      * @param taskId
@@ -124,12 +112,12 @@ public interface TaskService {
      * @throws TaskDoesNotExistException
      * @throws ValidationException
      */
-    public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId)
-            throws TaskDoesNotExistException, ValidationException;
+    public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
+            ValidationException;
 
     /**
      * Marks task as read.
-     *
+     * 
      * @param user
      *            authorized user
      * @param taskId
@@ -140,7 +128,7 @@ public interface TaskService {
 
     /**
      * Delegate task to another users or groups.
-     *
+     * 
      * @param user
      *            authorized user
      * @param taskId

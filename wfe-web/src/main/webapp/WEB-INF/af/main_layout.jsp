@@ -107,9 +107,6 @@
 				<div id="filtersHelpDialog" style="display: none;">
 					<bean:message key="content.filters.help"/>
 				</div>
-				<div id="observableTasksHelpDialog" style="display: none;">
-					<bean:message key="content.observable_tasks.help"/>
-				</div>
 			</td>
 			<td valign="top"   height="100%" width="85%">
 				<hr>

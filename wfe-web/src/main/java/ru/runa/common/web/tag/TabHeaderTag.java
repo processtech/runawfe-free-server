@@ -48,7 +48,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Represents tabs for managing different secured objects types. Created on 04.10.2004
- *
+ * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
  */
@@ -103,9 +103,6 @@ public class TabHeaderTag extends TagSupport {
                 }
                 tr.addElement(td);
                 td.addElement(a);
-                if (FORWARDS.get(i).getMenuMessage() == MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS) {
-                    td.addElement("<a href='javascript:showObservableTasksHelp();' style='color: red; text-decoration: none;'>*</a>");
-                }
             }
         } else {
             TR tr = new TR();

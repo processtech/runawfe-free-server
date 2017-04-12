@@ -69,7 +69,4 @@
 </wf:listObservableTasksForm>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
-<tiles:put name="head" type="string">
-	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/manage_observable_tasks.do?tabForwardName=manage_observable_tasks"/>'">
-</tiles:put>
 </tiles:insert>

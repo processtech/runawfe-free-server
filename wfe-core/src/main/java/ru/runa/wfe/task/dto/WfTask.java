@@ -64,6 +64,7 @@ public class WfTask implements Serializable {
     private boolean firstOpen;
     private boolean acquiredBySubstitution;
     private Integer multitaskIndex;
+    private boolean readOnly;
 
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
@@ -171,6 +172,14 @@ public class WfTask implements Serializable {
 
     public Integer getMultitaskIndex() {
         return multitaskIndex;
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     public void addVariable(WfVariable variable) {

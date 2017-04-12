@@ -28,7 +28,6 @@ import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.VariableDBSources;
-import ru.runa.wfe.presentation.filter.ObservableExecutorNameFilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.var.Variable;
 
@@ -76,9 +75,8 @@ public class TaskObservableClassPresentation extends ClassPresentation {
                         "ru.runa.wf.web.html.TaskAssignmentDateTDBuilder", new Object[] {}).setVisible(false),
                 new FieldDescriptor(TASK_DURATION, String.class.getName(), new DefaultDBSource(Task.class, null), false, FieldFilterMode.NONE,
                         "ru.runa.wf.web.html.TaskDurationTDBuilder", new Object[] {}).setVisible(false),
-                new FieldDescriptor(TASK_OBSERVABLE_EXECUTOR, ObservableExecutorNameFilterCriteria.class.getName(), new DefaultDBSource(Task.class,
-                        "executor.name"), false, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ObservableTasksTDBuilder", new Object[] {})
-                        .setShowable(false) });
+                new FieldDescriptor(TASK_OBSERVABLE_EXECUTOR, String.class.getName(), new DefaultDBSource(Task.class, null), false,
+                        FieldFilterMode.APPLICATION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false) });
     }
 
     public static final ClassPresentation getInstance() {

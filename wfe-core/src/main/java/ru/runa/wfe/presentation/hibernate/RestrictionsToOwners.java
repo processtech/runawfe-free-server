@@ -21,7 +21,6 @@ public class RestrictionsToOwners {
     private final String ownersDBPath;
 
     public RestrictionsToOwners(Collection<?> owners, String ownersDBPath) {
-        super();
         this.owners = owners;
         this.ownersDBPath = ownersDBPath;
         if (ownersDBPath != null && owners == null) {
