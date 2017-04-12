@@ -24,6 +24,7 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
+import ru.runa.wfe.presentation.VariableDBSource;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.var.Variable;
 
@@ -42,28 +43,6 @@ public class ProcessClassPresentation extends ClassPresentation {
 
     private static final ClassPresentation INSTANCE = new ProcessClassPresentation();
 
-    private static class VariableDBSource extends DefaultDBSource {
-        public VariableDBSource(Class<?> sourceObject) {
-            super(sourceObject, "stringValue");
-        }
-
-        @Override
-        public String getJoinExpression(String alias) {
-            return classNameSQL + ".id=" + alias + ".process";
-        }
-    }
-
-    private static class SubProcessDBSource extends DefaultDBSource {
-        public SubProcessDBSource(Class<?> sourceObject, String valueDBPath) {
-            super(sourceObject, valueDBPath);
-        }
-
-        @Override
-        public String getJoinExpression(String alias) {
-            return "CAST(" + ClassPresentation.classNameSQL + ".id AS VARCHAR(128))" + " = " + alias + ".hierarchyIds";
-        }
-    }
-
     private ProcessClassPresentation() {
         super(Process.class, "", true, new FieldDescriptor[] {
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDBSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
@@ -77,7 +56,7 @@ public class ProcessClassPresentation extends ClassPresentation {
                 new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDBSource(Process.class, "deployment.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "version" }),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(),
-                        new SubProcessDBSource[] { new SubProcessDBSource(Process.class, "hierarchyIds") }, true, FieldFilterMode.DATABASE,
+                        new SubProcessDBSource(Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}, true),
                 new FieldDescriptor(PROCESS_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.ProcessVariableTDBuilder", new Object[] {}, true),
