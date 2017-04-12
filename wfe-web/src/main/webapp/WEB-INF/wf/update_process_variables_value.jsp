@@ -1,3 +1,4 @@
+<%@page import="ru.runa.common.web.Commons"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.web.form.IdForm" %>
 <%@ page import="ru.runa.wf.web.form.TaskIdForm" %>
@@ -10,9 +11,14 @@
 <tiles:put name="head" type="string">
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page="/js/trumbowyg.js" />" charset="utf-8">c=0;</script>
+<% if (!"en".equals(Commons.getLocale(pageContext).getLanguage())) { %>
+	<script type="text/javascript" src="/wfe/js/trumbowyg-langs/<%= Commons.getLocale(pageContext).getLanguage() %>.min.js"></script>
+<% } %>
 	<script type="text/javascript" src="<html:rewrite page="/js/taskformutils.js" />">c=0;</script> 
 	<script type="text/javascript" src="<html:rewrite page="/js/updateprocessvariablesutils.js" />">c=0;</script>	
 	<script type="text/javascript">var id = <%= Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME)) %>;</script>
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/trumbowyg.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/fileupload.css" />">
 </tiles:put>
 
