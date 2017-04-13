@@ -506,7 +506,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return null;
             }
             if (BigDecimal.class.isInstance(param1)) {
-                return ((BigDecimal) param1).setScale(num, RoundingMode.HALF_UP);
+                return ((BigDecimal) param1).setScale(num, RoundingMode.UP);
             } else {
                 if (num <= 0) {
                     return actions.roundUpFunction(d);
@@ -540,7 +540,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return null;
             }
             if (BigDecimal.class.isInstance(param1)) {
-                return ((BigDecimal) param1).setScale(num, RoundingMode.HALF_DOWN);
+                return ((BigDecimal) param1).setScale(num, RoundingMode.DOWN);
             } else {
                 if (num <= 0) {
                     return actions.roundDownFunction(d);
