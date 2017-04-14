@@ -39,7 +39,7 @@ public class GetCompiledReportParametersDescription implements ReportConfigurati
                 }
                 parameters.put(jrParam.getName(), jrParam.getDescription());
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new ReportFileIncorrectException(e);
         }
         return parameters;

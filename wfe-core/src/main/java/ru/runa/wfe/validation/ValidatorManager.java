@@ -12,6 +12,9 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -23,14 +26,11 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
 public class ValidatorManager {
     private static final Log log = LogFactory.getLog(ValidatorManager.class);
     private static Map<String, String> validatorRegistrations = new HashMap<String, String>();
     private static final String CONFIG = "validators.xml";
-    private static Properties validatorProperties = ClassLoaderUtil.getLocalizedProperties("validators", ValidatorManager.class);
+    private static Properties validatorProperties = ClassLoaderUtil.getLocalizedProperties("validators", ValidatorManager.class, null);
 
     private static ValidatorManager instance;
 

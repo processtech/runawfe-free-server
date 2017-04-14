@@ -33,8 +33,8 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.report.web.MessagesReport;
 import ru.runa.report.web.action.AnalyzeReportAction;
 import ru.runa.report.web.action.RedeployReportAction;
-import ru.runa.wfe.report.dto.ReportDto;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "manageReportForm")
@@ -55,10 +55,10 @@ public class ManageReportFormTag extends BaseReportFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         ServletRequest request = pageContext.getRequest();
-        List<ReportParameterDto> parameters = (List<ReportParameterDto>) request.getAttribute(DeployReportFormTag.REPORT_PARAMETERS);
+        List<WfReportParameter> parameters = (List<WfReportParameter>) request.getAttribute(DeployReportFormTag.REPORT_PARAMETERS);
 
         if (parameters == null) {
-            ReportDto report = Delegates.getReportService().getReportDefinition(getUser(), reportId);
+            WfReport report = Delegates.getReportService().getReportDefinition(getUser(), reportId);
             parameters = report.getParameters();
             request.setAttribute(AnalyzeReportAction.REPORT_NAME_PARAM, report.getName());
             request.setAttribute(AnalyzeReportAction.REPORT_DESCRIPTION_PARAM, report.getDescription());

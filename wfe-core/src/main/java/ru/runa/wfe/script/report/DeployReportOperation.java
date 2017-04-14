@@ -7,8 +7,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import ru.runa.wfe.report.dto.ReportDto;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
@@ -48,22 +48,22 @@ public class DeployReportOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         String category = Strings.isNullOrEmpty(reportType) ? "Script" : reportType;
-        ReportDto reportDto = new ReportDto(null, reportName, reportDescription, category, null);
-        final Map<String, ReportParameterDto> reportFileParameters = Maps.newHashMap();
-        for (ReportParameterDto p : context.getReportLogic().analyzeReportFile(reportDto, context.getExternalResource(reportFile))) {
+        WfReport reportDto = new WfReport(null, reportName, reportDescription, category, null);
+        final Map<String, WfReportParameter> reportFileParameters = Maps.newHashMap();
+        for (WfReportParameter p : context.getReportLogic().analyzeReportFile(reportDto, context.getExternalResource(reportFile))) {
             reportFileParameters.put(p.getInternalName(), p);
         }
 
-        List<ReportParameterDto> reportParameters = Lists.transform(parameters, new Function<XmlReportParameter, ReportParameterDto>() {
+        List<WfReportParameter> reportParameters = Lists.transform(parameters, new Function<XmlReportParameter, WfReportParameter>() {
             int position = 0;
 
             @Override
-            public ReportParameterDto apply(XmlReportParameter input) {
-                return new ReportParameterDto(input.name, reportFileParameters.get(input.innerName).getDescription(), input.innerName, ++position,
+            public WfReportParameter apply(XmlReportParameter input) {
+                return new WfReportParameter(input.name, reportFileParameters.get(input.innerName).getDescription(), input.innerName, ++position,
                         input.type.getType(), input.required);
             }
         });
-        reportDto = new ReportDto(null, reportName, reportDescription, category, reportParameters);
+        reportDto = new WfReport(null, reportName, reportDescription, category, reportParameters);
         context.getReportLogic().deployReport(context.getUser(), reportDto, context.getExternalResource(reportFile));
     }
 
