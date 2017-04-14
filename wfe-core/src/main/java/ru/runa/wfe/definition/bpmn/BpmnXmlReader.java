@@ -8,6 +8,11 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -49,11 +54,8 @@ import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.lang.bpmn2.ParallelGateway;
 import ru.runa.wfe.lang.bpmn2.TextAnnotation;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
+import ru.runa.wfe.lang.jpdl.Action;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class BpmnXmlReader {
     private static final String RUNA_NAMESPACE = "http://runa.ru/wfe/xml";
@@ -119,6 +121,8 @@ public class BpmnXmlReader {
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
     private static final String CANCEL_ACTIVITY = "cancelActivity";
     private static final String TYPE = "type";
+    private static final String ACTION_HANDLER = "actionHandler";
+    private static final String EVENT_TYPE = "eventType";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -179,6 +183,7 @@ public class BpmnXmlReader {
 
             // 3: verify
             verifyElements(processDefinition);
+
         } catch (Exception e) {
             throw new InvalidDefinitionException(processDefinition.getName(), e);
         }
@@ -289,6 +294,7 @@ public class BpmnXmlReader {
             if (properties.containsKey(ASYNC_COMPLETION_MODE)) {
                 taskNode.setCompletionMode(AsyncCompletionMode.valueOf(properties.get(ASYNC_COMPLETION_MODE)));
             }
+            readActionHandlers(processDefinition, taskNode, element);
         }
         if (node instanceof VariableContainerNode) {
             VariableContainerNode variableContainerNode = (VariableContainerNode) node;
@@ -324,8 +330,8 @@ public class BpmnXmlReader {
         }
         if (node instanceof BaseMessageNode) {
             BaseMessageNode baseMessageNode = (BaseMessageNode) node;
-            baseMessageNode.setEventType(MessageEventType.valueOf(element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE),
-                    MessageEventType.message.name())));
+            baseMessageNode
+                    .setEventType(MessageEventType.valueOf(element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE), MessageEventType.message.name())));
         }
         if (node instanceof SendMessageNode) {
             SendMessageNode sendMessageNode = (SendMessageNode) node;
@@ -413,6 +419,7 @@ public class BpmnXmlReader {
             source.addLeavingTransition(transition);
             // set destinationNode of the transition
             target.addArrivingTransition(transition);
+            readActionHandlers(processDefinition, transition, element);
         }
     }
 
@@ -475,4 +482,36 @@ public class BpmnXmlReader {
             node.validate();
         }
     }
+
+    private void readActionHandlers(ProcessDefinition processDefinition, GraphElement ge, Element e) {
+        Element extElements = e.element(EXTENSION_ELEMENTS);
+        if (extElements != null) {
+            List<Element> actionHandlers = extElements.elements(QName.get(ACTION_HANDLER, RUNA_NAMESPACE));
+            for (Element actionHandler : actionHandlers) {
+                Element element = actionHandler;
+                Map<String, String> extProps = parseExtensionProperties(element);
+                String eventType = extProps.get(EVENT_TYPE);
+                if (eventType != null) {
+                    String className = extProps.get(CLASS);
+                    if (className == null) {
+                        throw new InvalidDefinitionException(processDefinition.getName(), "no className specified in " + element.asXML());
+                    }
+                    String configuration = extProps.get(CONFIG);
+                    Delegation delegation = new Delegation(className, configuration);
+                    // check
+                    try {
+                        delegation.getInstance();
+                    } catch (Exception x) {
+                        throw Throwables.propagate(x);
+                    }
+                    Action action = new Action();
+                    action.setName(element.attributeValue(NAME));
+                    action.setDelegation(delegation);
+                    action.setParentElement(ge);
+                    ge.getEventNotNull(eventType).addAction(action);
+                }
+            }
+        }
+    }
+
 }
