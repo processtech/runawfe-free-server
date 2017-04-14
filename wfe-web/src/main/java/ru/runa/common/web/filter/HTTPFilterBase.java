@@ -68,4 +68,12 @@ public abstract class HTTPFilterBase implements Filter {
             log.error("forwarding to login page failed", e);
         }
     }
+
+    protected void forwardToPage(HttpServletRequest request, HttpServletResponse response, String page) {
+        try {
+            request.getRequestDispatcher(page).forward(request, response);
+        } catch (Exception e) {
+            log.error("forwarding to page failed", e);
+        }
+    }
 }
