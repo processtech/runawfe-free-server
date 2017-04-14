@@ -40,6 +40,7 @@ import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskCompletionBy;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskDoesNotExistException;
+import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
@@ -193,10 +194,13 @@ public class TaskLogic extends WFCommonLogic {
 
     public WfTask getTask(User user, Long taskId) {
         Task task = taskDAO.getNotNull(taskId);
+        WfTask wfTask = taskObjectFactory.create(task, user.getActor(), false, null);
         if (!executorLogic.isAdministrator(user)) {
-            checkCanParticipate(user.getActor(), task);
+            if (checkCanParticipate(user.getActor(), task) == null) {
+                wfTask.setReadOnly(true);
+            }
         }
-        return taskObjectFactory.create(task, user.getActor(), false, null);
+        return wfTask;
     }
 
     public Long getProcessId(User user, Long taskId) {
@@ -208,6 +212,9 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
+        if (batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation) {
+            return taskListBuilder.getTasks(user.getActor(), batchPresentation);
+        }
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");
         }
@@ -322,4 +329,5 @@ public class TaskLogic extends WFCommonLogic {
         Task task = taskDAO.getNotNull(taskId);
         return taskAssigner.assignTask(task);
     }
+
 }

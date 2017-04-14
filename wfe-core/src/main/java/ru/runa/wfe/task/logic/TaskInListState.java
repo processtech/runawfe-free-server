@@ -26,7 +26,6 @@ public class TaskInListState {
     private final Actor actor;
 
     public TaskInListState(Task task, Actor actor, boolean acquiredBySubstitution) {
-        super();
         this.task = task;
         this.actor = actor;
         this.acquiredBySubstitution = acquiredBySubstitution;
