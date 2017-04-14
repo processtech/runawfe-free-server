@@ -19,6 +19,7 @@ import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -278,6 +279,11 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
     }
 
     @Override
+    public Object onFormattedTextString(FormattedTextFormat textFormat, VariableDefinition variableDefinition) {
+        return defaultFormatProcessing(variableDefinition);
+    }
+
+    @Override
     public Object onUserType(UserTypeFormat userTypeFormat, VariableDefinition variableDefinition) {
         UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
         boolean allComponentsAreIgnored = true;
@@ -302,7 +308,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
 
     /**
      * Default value extract algorithm, if no other is specified in on* method.
-     *
+     * 
      * @param variableDefinition
      *            Variable definition which variable value is extracted.
      * @return Returns variable value

@@ -23,15 +23,10 @@ $(function() {
 		deleteFile($(this).attr("inputId"));
 	});
 	$(".tabs").tabs();
-	$(".inputText").jqte({
-		blur: function() {
-			$(".jqte_toolbar").hide(true);
-		},
-		focus: function() {
-			$(".jqte_toolbar").show(true);
-		}
+	$(".inputFormattedText").trumbowyg({
+	    lang: currentBrowserLanguage,
+	    svgPath : 'css/trumbowyg.svg'
 	});
-	$(".jqte_toolbar").hide(true);
 });
 
 function initFileInput(dropzone) {

@@ -21,7 +21,6 @@
   	<meta http-equiv="Pragma" content="no-cache">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/main.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/jquery-ui-1.9.2.custom.css" />">
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/jquery-te-1.4.0.css" />">
 	<script type="text/javascript">
 		var saveSuccessMessage = "<bean:message key="adminkit.script.save.success" />";
 		var executionSuccessMessage = "<bean:message key="adminkit.script.execution.success" />";
@@ -30,8 +29,9 @@
 		var buttonSupportMessage = "<bean:message key="button.support" />";
 		var loadingMessage = "<bean:message key="message.loading" />";
 		var buttonCancelMessage = "<bean:message key="button.cancel" />";
+		var currentBrowserLanguage = "<%= Commons.getLocale(pageContext).getLanguage() %>";
 	</script>
-	<script type="text/javascript" src="<html:rewrite page="/js/jquery-1.7.1.min.js" />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page="/js/jquery-1.8.3.min.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.cookie.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery-ui-1.9.2.custom.min.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.ui.mask.js" />">c=0;</script>
@@ -42,7 +42,6 @@
 	<script type="text/javascript" src="/wfe/js/i18n/jquery.ui.timepicker-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <% } %>
 	<script type="text/javascript" src="<html:rewrite page="/js/common.js" />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page="/js/jquery-te-1.4.0.min.js" />" charset="utf-8">c=0;</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 		  $(document).ajaxError(function(event, request, settings, exception) {

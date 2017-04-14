@@ -77,6 +77,7 @@
   <artifact enabled="true" name="ru.runa.wfe.var.format.ProcessIdFormat" label="Ссылка на процесс"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.StringFormat" label="Строка"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.TextFormat" label="Текст"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.FormattedTextFormat" label="Форматированный текст"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.FileFormat" label="Файл"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.BooleanFormat" label="Флаг (логическое выражение)"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.LongFormat" label="Целое число"/>
