@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.InvalidSessionException;
+import ru.runa.wfe.user.User;
 
 /**
  * This filter checks that the user session is active.
@@ -38,10 +39,15 @@ public class HTTPSessionFilter extends HTTPFilterBase {
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String query = request.getRequestURI();
+        User user = (User) Commons.getSessionAttribute(request.getSession(), User.class.getName());
+        if (user != null && query.equals("/wfe/")){
+            forwardToPage(request, response, "manage_tasks.do");
+        }
         if (query.endsWith("do") && !query.endsWith("/start.do") && !query.endsWith("login.do") && !query.endsWith("version")) {
             try {
                 Commons.getUser(request.getSession());
             } catch (InvalidSessionException e) {
+                request.setAttribute("forwardUrl", request.getRequestURI());
                 forwardToLoginPage(request, response, e);
                 return;
             }
