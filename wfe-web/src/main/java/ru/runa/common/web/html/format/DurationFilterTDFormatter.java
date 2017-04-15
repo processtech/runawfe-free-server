@@ -55,7 +55,7 @@ public class DurationFilterTDFormatter extends FilterTDFormatter {
             DurationEnum[] filterValues = Arrays.copyOfRange(DurationEnum.values(), DurationEnum.minutes.ordinal(), DurationEnum.values().length);
             for (DurationEnum value : filterValues) {
                 String name = value.name();
-                select.addElement(HTMLUtils.createOption(name, Messages.getMessage(name, pageContext), name.equals(selectedDuration)));
+                select.addElement(HTMLUtils.createOption(name, Messages.getMessage(value.getMessageKey(), pageContext), name.equals(selectedDuration)));
             }
             filterInputTd.addElement(select);
             filterInputTd.addElement(Entities.NBSP);

@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
+import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Form;
@@ -254,6 +255,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 }
             }
         } catch (Exception e) {
+            LogFactory.getLog(getClass()).warn("Unable to buildBatchTable", e);
             table.addElement(e.toString());
         }
         return table;

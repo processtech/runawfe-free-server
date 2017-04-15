@@ -32,6 +32,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wf.web.form.StartProcessForm;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -50,9 +51,13 @@ import ru.runa.wfe.user.Profile;
 public class StartProcessAction extends ActionBase {
 
     @Override
-    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-        IdForm idForm = (IdForm) form;
-        Long definitionId = idForm.getId();
+    public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
+        StartProcessForm startProcessForm = (StartProcessForm) actionForm;
+        Long definitionId = startProcessForm.getId();
+        if (startProcessForm.getName() != null) {
+            WfDefinition definition = Delegates.getDefinitionService().getLatestProcessDefinition(getLoggedUser(request), startProcessForm.getName());
+            definitionId = definition.getId();
+        }
         ActionForward successForward = null;
         try {
             saveToken(request);
@@ -64,10 +69,7 @@ public class StartProcessAction extends ActionBase {
                 WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);
                 Long processId = Delegates.getExecutionService().startProcess(getLoggedUser(request), definition.getName(), null);
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
-
-                addMessage(request, new ActionMessage(MessagesProcesses.PROCESS_STARTED.getKey(), processId.toString()));
                 successForward = mapping.findForward(Resources.FORWARD_SUCCESS);
-
                 if (WebResources.isAutoShowForm()) {
                     Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
                     ActionForward forward = AutoShowFormHelper.getNextActionForward(getLoggedUser(request), mapping, profile, processId);
