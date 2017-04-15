@@ -23,7 +23,6 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 
 import org.apache.ecs.Entities;
-import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.IMG;
@@ -37,7 +36,10 @@ import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.common.web.Commons;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesBatch;
 import ru.runa.common.web.MessagesCommon;
@@ -59,8 +61,6 @@ import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "tableViewSetupForm")
 public class TableViewSetupFormTag extends AbstractReturningTag implements BatchedTag {
@@ -137,13 +137,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             Select selectSize = new Select(TableViewSetupForm.VIEW_SIZE_NAME);
             int[] allowedSizes = BatchPresentationConsts.getAllowedViewSizes();
             for (int i = 0; i < allowedSizes.length; i++) {
-                Option option = new Option();
-                option.setValue(allowedSizes[i]);
-                option.addElement(String.valueOf(allowedSizes[i]));
-                if (activeBatchPresentation.getRangeSize() == allowedSizes[i]) {
-                    option.setSelected(true);
-                }
-                selectSize.addElement(option);
+                boolean isSelected = activeBatchPresentation.getRangeSize() == allowedSizes[i];
+                selectSize.addElement(HTMLUtils.createOption(allowedSizes[i], String.valueOf(allowedSizes[i]), isSelected));
             }
             td.addElement(selectSize);
         }
@@ -202,19 +197,10 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             td.addElement(MessagesBatch.SHARED_SELECT_LABEL.message(pageContext));
             td.addElement(Entities.NBSP);
             Select selectShared = new Select(TableViewSetupForm.SHARED_TYPE_NAME);
-            Option optionNo = new Option();
-            optionNo.setValue(TableViewSetupForm.SHARED_TYPE_NO);
-            optionNo.addElement(MessagesBatch.SHARED_OPTION_NO.message(pageContext));
-            Option optionShared = new Option();
-            optionShared.setValue(TableViewSetupForm.SHARED_TYPE_SHARED);
-            optionShared.addElement(MessagesBatch.SHARED_OPTION_YES.message(pageContext));
-            if (!activeBatchPresentation.isShared()) {
-                optionNo.setSelected(true);
-            } else {
-                optionShared.setSelected(true);
-            }
-            selectShared.addElement(optionNo);
-            selectShared.addElement(optionShared);
+            selectShared.addElement(HTMLUtils.createOption(TableViewSetupForm.SHARED_TYPE_NO, MessagesBatch.SHARED_OPTION_NO.message(pageContext),
+                    !activeBatchPresentation.isShared()));
+            selectShared.addElement(HTMLUtils.createOption(TableViewSetupForm.SHARED_TYPE_SHARED,
+                    MessagesBatch.SHARED_OPTION_YES.message(pageContext), activeBatchPresentation.isShared()));
             td.addElement(selectShared);
         } else {
             // user can only "save as" shared batch presentation as private
@@ -316,8 +302,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         }
         { // field display position section
             if (field.isShowable()) {
-                Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS, createPositionOptions(batchPresentation,
-                        fieldIdx));
+                Select displayFieldPositionSelect = new Select(TableViewSetupForm.DISPLAY_POSITIONS,
+                        createPositionOptions(batchPresentation, fieldIdx));
                 tr.addElement(new TD(displayFieldPositionSelect));
                 if (fieldDisplayPosition >= 0 && !isEditable) {
                     displayFieldPositionSelect.selectOption(fieldDisplayPosition + 1);
@@ -332,8 +318,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             if (field.sortable) {
                 Select sortingModeSelect = new Select(TableViewSetupForm.SORTING_MODE_NAMES, createSortModeOptions());
                 tr.addElement(new TD(sortingModeSelect));
-                Select sortingFieldPositoinSelect = new Select(TableViewSetupForm.SORTING_POSITIONS, createPositionOptions(batchPresentation,
-                        fieldIdx));
+                Select sortingFieldPositoinSelect = new Select(TableViewSetupForm.SORTING_POSITIONS,
+                        createPositionOptions(batchPresentation, fieldIdx));
                 tr.addElement(new TD(sortingFieldPositoinSelect));
                 selectSortingMode(batchPresentation, fieldIdx, sortingModeSelect, sortingFieldPositoinSelect);
 
@@ -341,7 +327,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 if (batchPresentation.isFieldGroupped(fieldIdx)) {
                     groupingInput.setChecked(true);
                 }
-                tr.addElement(new TD(groupingInput).addElement(new Input(Input.HIDDEN, TableViewSetupForm.SORTING_FIELD_IDS, String.valueOf(fieldIdx))));
+                tr.addElement(
+                        new TD(groupingInput).addElement(new Input(Input.HIDDEN, TableViewSetupForm.SORTING_FIELD_IDS, String.valueOf(fieldIdx))));
             } else {
                 for (int idx = 0; idx < 3; ++idx) {
                     tr.addElement(new TD());
@@ -352,9 +339,9 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         // filtering
         if (field.filterMode != FieldFilterMode.NONE) {
             FilterTDFormatter formatter = FilterFormatsFactory.getFormatter(batchPresentation.getAllFields()[fieldIdx].fieldType);
-            tr.addElement(formatter.format(pageContext, batchPresentation.getFieldFilteredCriteria(fieldIdx), fieldIdx,
-                    batchPresentation.isFieldFiltered(fieldIdx)).addElement(
-                            new Input(Input.HIDDEN, TableViewSetupForm.FILTERING_FIELD_IDS, String.valueOf(fieldIdx))));
+            tr.addElement(formatter
+                    .format(pageContext, batchPresentation.getFieldFilteredCriteria(fieldIdx), fieldIdx, batchPresentation.isFieldFiltered(fieldIdx))
+                    .addElement(new Input(Input.HIDDEN, TableViewSetupForm.FILTERING_FIELD_IDS, String.valueOf(fieldIdx))));
         } else {
             tr.addElement(new TD());
         }
@@ -362,7 +349,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         return tr;
     }
 
-    protected void selectSortingMode(BatchPresentation batchPresentation, int fieldIndex, Select sortingModeSelect, Select sortingFieldPositoinSelect) {
+    protected void selectSortingMode(BatchPresentation batchPresentation, int fieldIndex, Select sortingModeSelect,
+            Select sortingFieldPositoinSelect) {
         if (batchPresentation.isSortingField(fieldIndex)) {
             int sortedFieldIndex = batchPresentation.getSortingFieldPosition(fieldIndex);
             if (batchPresentation.getFieldsToSortModes()[sortedFieldIndex]) {
@@ -380,7 +368,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
     protected Option[] createPositionOptions(BatchPresentation batchPresentation, int fieldIdx) {
         FieldDescriptor[] fields = batchPresentation.getAllFields();
         if (fields[fieldIdx].displayName.startsWith(ClassPresentation.editable_prefix)) {
-            return new Option[] { new Option("-1").addElement(new StringElement(MessagesBatch.OPTION_NONE.message(pageContext))) };
+            return new Option[] { HTMLUtils.createOption("-1", MessagesBatch.OPTION_NONE.message(pageContext), false) };
         }
         int fieldsCount = fields.length;
         for (int i = fields.length - 1; i >= 0; --i) {
@@ -390,30 +378,27 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         }
 
         Option[] positionOptions = new Option[fieldsCount + 1];
-        positionOptions[0] = new Option("-1").addElement(new StringElement(MessagesBatch.OPTION_NONE.message(pageContext)));
+        positionOptions[0] = HTMLUtils.createOption("-1", MessagesBatch.OPTION_NONE.message(pageContext), false);
         for (int position = 1; position < positionOptions.length; position++) {
             String positionString = String.valueOf(position).intern();
             String positionIdString = String.valueOf(position - 1).intern();
-            positionOptions[position] = new Option(positionIdString).addElement(positionString);
+            positionOptions[position] = HTMLUtils.createOption(positionIdString, positionString, false);
         }
         return positionOptions;
     }
 
     protected Option[] createSortModeOptions() {
-        Option[] sortingModesOptions = { new Option(TableViewSetupForm.ASC_SORTING_MODE).addElement(MessagesBatch.SORT_ASC.message(pageContext)),
-                new Option(TableViewSetupForm.DSC_SORTING_MODE).addElement(MessagesBatch.SORT_DESC.message(pageContext)) };
+        Option[] sortingModesOptions = {
+                HTMLUtils.createOption(TableViewSetupForm.ASC_SORTING_MODE, MessagesBatch.SORT_ASC.message(pageContext), false),
+                HTMLUtils.createOption(TableViewSetupForm.DSC_SORTING_MODE, MessagesBatch.SORT_DESC.message(pageContext), false) };
         return sortingModesOptions;
     }
 
     private TR getHeaderRow() {
         TR tr = new TR();
-        String[] headerNames = {
-                MessagesBatch.FIELD_NAMES.message(pageContext),
-                MessagesBatch.DISPLAY_POSITION.message(pageContext),
-                MessagesBatch.SORTING_TYPE.message(pageContext),
-                MessagesBatch.SORTING_POSITION.message(pageContext),
-                MessagesBatch.GROUPING.message(pageContext),
-                MessagesBatch.FILTER_CRITERIA.message(pageContext)
+        String[] headerNames = { MessagesBatch.FIELD_NAMES.message(pageContext), MessagesBatch.DISPLAY_POSITION.message(pageContext),
+                MessagesBatch.SORTING_TYPE.message(pageContext), MessagesBatch.SORTING_POSITION.message(pageContext),
+                MessagesBatch.GROUPING.message(pageContext), MessagesBatch.FILTER_CRITERIA.message(pageContext)
                         + " <a href='javascript:showFiltersHelp();' style='color: red; text-decoration: none;'>*</a>" };
         for (int i = 0; i < headerNames.length; i++) {
             tr.addElement(new TH(headerNames[i]));
