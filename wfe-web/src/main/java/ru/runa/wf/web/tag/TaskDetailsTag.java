@@ -81,7 +81,7 @@ public class TaskDetailsTag extends BatchReturningTitledFormTag {
                 task.addVariable(variable);
             }
         }
-        this.buttonEnabled = task.isGroupAssigned();
+        this.buttonEnabled = task.isGroupAssigned() && !task.isReadOnly();
         String url = getReturnAction() + "?" + IdForm.ID_INPUT_NAME + "=" + taskId + "&" + ProcessForm.ACTOR_ID_INPUT_NAME + "=" + actorId;
         tdFormElement.addElement(ListTasksFormTag.buildTasksTable(pageContext, batchPresentation, Lists.newArrayList(task), url, true));
         tdFormElement.addElement(new Input(Input.HIDDEN, IdForm.ID_INPUT_NAME, String.valueOf(taskId)));

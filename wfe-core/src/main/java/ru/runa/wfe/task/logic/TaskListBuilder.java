@@ -106,8 +106,8 @@ public class TaskListBuilder implements ITaskListBuilder {
     @Autowired
     private ExecutorLogic executorLogic;
 
-    public TaskListBuilder(TaskCache cache) {
-        taskCache = cache;
+    public TaskListBuilder(TaskCache taskCache) {
+        this.taskCache = taskCache;
     }
 
     @Override
@@ -119,13 +119,8 @@ public class TaskListBuilder implements ITaskListBuilder {
             return cached.getData();
         }
 
-        List<TaskInListState> tasksState = null;
-        if (batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation) {
-            tasksState = loadObservableTasks(actor, batchPresentation);
-        } else {
-            tasksState = loadMyAndGroupsAndSubstitutedTasks(actor, batchPresentation);
-            tasksState.addAll(loadAdministrativeTasks(actor));
-        }
+        List<TaskInListState> tasksState = loadMyAndGroupsAndSubstitutedTasks(actor, batchPresentation);
+        tasksState.addAll(loadAdministrativeTasks(actor));
 
         List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
         Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(getTasksProcesses(tasksState), variableNames);
@@ -149,14 +144,58 @@ public class TaskListBuilder implements ITaskListBuilder {
         return result;
     }
 
-    private String getObservableExecutorNameTemplate(BatchPresentation batchPresentation) {
-        for (Map.Entry<Integer, FilterCriteria> entry : batchPresentation.getFilteredFields().entrySet()) {
-            FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
-            if (field.displayName.equals(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
-                return entry.getValue().getFilterTemplates()[0];
+    public List<WfTask> getObservableTasks(Actor actor, BatchPresentation batchPresentation) {
+        Preconditions.checkNotNull(batchPresentation, "batchPresentation");
+        Preconditions.checkArgument(batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation);
+        List<TaskInListState> tasksState = loadObservableTasks(actor, batchPresentation);
+        List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
+        Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(getTasksProcesses(tasksState), variableNames);
+        HashSet<Long> openedTasks = new HashSet<Long>(taskDAO.getOpenedTasks(actor.getId(), getTasksIds(tasksState)));
+        List<WfTask> result = new ArrayList<WfTask>();
+        for (TaskInListState state : tasksState) {
+            WfTask wfTask = taskObjectFactory.create(state.getTask(), state.getActor(), state.isAcquiredBySubstitution(), null,
+                    !openedTasks.contains(state.getTask().getId()));
+            if (!Utils.isNullOrEmpty(variableNames)) {
+                Process process = state.getTask().getProcess();
+                ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
+                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
+                for (String variableName : variableNames) {
+                    wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
+                }
+            }
+            result.add(wfTask);
+        }
+        return result;
+    }
+
+    public Set<Executor> getObservableExecutors(Actor actor, String observableExecutorNameTemplate) {
+        Set<Executor> executorsByMembership = getExecutorsToGetTasks(actor, false);
+        if (Utils.isNullOrEmpty(observableExecutorNameTemplate)) {
+            observableExecutorNameTemplate = "%";
+        }
+        observableExecutorNameTemplate = observableExecutorNameTemplate.replace('*', '%').replace('?', '_');
+        List<Executor> executorsLikeName = executorDAO.getExecutorsLikeName(observableExecutorNameTemplate);
+        Set<Executor> observableExecutors = Sets.newHashSet();
+        for (Executor executor : executorsLikeName) {
+            addObservableExecutor(executor, observableExecutors);
+        }
+        Set<Executor> executorsToGetTasks = Sets.newHashSet();
+        if (executorDAO.isAdministrator(actor)) {
+            executorsToGetTasks.addAll(observableExecutors);
+        } else {
+            for (Executor executor : executorsByMembership) {
+                for (Executor taskOwner : observableExecutors) {
+                    boolean taskOwnerIsActor = taskOwner instanceof Actor;
+                    Permission viewTasksPermission = taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS;
+                    if (permissionDAO.permissionExists(executor, viewTasksPermission, taskOwner)
+                            && (taskOwnerIsActor || permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner))
+                            && permissionDAO.permissionExists(executor, ExecutorPermission.READ, taskOwner)) {
+                        executorsToGetTasks.add(taskOwner);
+                    }
+                }
             }
         }
-        return "";
+        return executorsToGetTasks;
     }
 
     /**
@@ -278,34 +317,14 @@ public class TaskListBuilder implements ITaskListBuilder {
         return tasksState;
     }
 
-    public Set<Executor> getObservableExecutors(Actor actor, String observableExecutorNameTemplate) {
-        Set<Executor> executorsByMembership = getExecutorsToGetTasks(actor, false);
-        if (Utils.isNullOrEmpty(observableExecutorNameTemplate)) {
-            observableExecutorNameTemplate = "%";
-        }
-        observableExecutorNameTemplate = observableExecutorNameTemplate.replace('*', '%').replace('?', '_');
-        List<Executor> executorsLikeName = executorDAO.getExecutorsLikeName(observableExecutorNameTemplate);
-        Set<Executor> observableExecutors = Sets.newHashSet();
-        for (Executor executor : executorsLikeName) {
-            addObservableExecutor(executor, observableExecutors);
-        }
-        Set<Executor> executorsToGetTasks = Sets.newHashSet();
-        if (executorDAO.isAdministrator(actor)) {
-            executorsToGetTasks.addAll(observableExecutors);
-        } else {
-            for (Executor executor : executorsByMembership) {
-                for (Executor taskOwner : observableExecutors) {
-                    boolean taskOwnerIsActor = taskOwner instanceof Actor;
-                    Permission viewTasksPermission = taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS;
-                    if (permissionDAO.permissionExists(executor, viewTasksPermission, taskOwner)
-                            && (taskOwnerIsActor || permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner))
-                            && permissionDAO.permissionExists(executor, ExecutorPermission.READ, taskOwner)) {
-                        executorsToGetTasks.add(taskOwner);
-                    }
-                }
+    private String getObservableExecutorNameTemplate(BatchPresentation batchPresentation) {
+        for (Map.Entry<Integer, FilterCriteria> entry : batchPresentation.getFilteredFields().entrySet()) {
+            FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
+            if (field.displayName.equals(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR)) {
+                return entry.getValue().getFilterTemplates()[0];
             }
         }
-        return executorsToGetTasks;
+        return "";
     }
 
     @SuppressWarnings("unchecked")
