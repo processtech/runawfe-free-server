@@ -38,10 +38,8 @@ function updateTemplateOnAddUNIQUENAME(element, rowIndex) {
 	});
 	$.each(element.attributes, function() {
 		if(this.specified) {
-			alert(this.value);
-	    	this.value = this.value.replace(/\{\}/, "[" + rowIndex + "]");
-			alert(this.value);
-    	}
+			this.value = this.value.replace(/\{\}/, "[" + rowIndex + "]");
+		}
   	});
 }
 	
