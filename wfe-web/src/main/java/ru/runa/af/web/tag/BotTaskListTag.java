@@ -43,6 +43,7 @@ import ru.runa.af.web.action.UpdateBotTasksAction;
 import ru.runa.af.web.form.BotTasksForm;
 import ru.runa.af.web.system.TaskHandlerClassesInformation;
 import ru.runa.common.web.Commons;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdsForm;
@@ -123,7 +124,7 @@ public class BotTaskListTag extends TitledFormTag {
         @Override
         public TR build() {
             TR tr = new TR();
-            tr.addElement(new TH().setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesBot.LABEL_BOT_TASK_DETAILS.message(context)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesBot.LABEL_BOT_TASK_SEQUENTIAL.message(context)).setClass(Resources.CLASS_LIST_TABLE_TH));
             return tr;
@@ -190,7 +191,8 @@ public class BotTaskListTag extends TitledFormTag {
         private TD buildNameTD(BotTask task) {
             TD resTD = new TD();
             resTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-            Input input = new Input(Input.TEXT, BotTasksForm.BOT_TASK_INPUT_NAME_PREFIX + task.getId() + BotTasksForm.NAME_INPUT_NAME, task.getName());
+            Input input = new Input(Input.TEXT, BotTasksForm.BOT_TASK_INPUT_NAME_PREFIX + task.getId() + BotTasksForm.NAME_INPUT_NAME,
+                    task.getName());
             input.setDisabled(disabled);
             input.setSize(nameSize);
             resTD.addElement(input);
@@ -284,8 +286,8 @@ public class BotTaskListTag extends TitledFormTag {
             jsLink.append(Commons.getActionUrl(BotTaskConfigurationDownloadAction.DOWNLOAD_BOT_TASK_CONFIGURATION_ACTION_PATH, parameterMap,
                     pageContext, PortletUrlType.Action));
             jsLink.append("','");
-            jsLink.append(Commons.getActionUrl(UpdateBotTaskConfigurationAction.UPDATE_TASK_HANDLER_CONF_ACTION_PATH, "id", task.getId(),
-                    pageContext, PortletUrlType.Action));
+            jsLink.append(Commons.getActionUrl(UpdateBotTaskConfigurationAction.UPDATE_TASK_HANDLER_CONF_ACTION_PATH, "id", task.getId(), pageContext,
+                    PortletUrlType.Action));
             jsLink.append("','");
             jsLink.append(MessagesCommon.BUTTON_SAVE.message(pageContext));
             jsLink.append("','");

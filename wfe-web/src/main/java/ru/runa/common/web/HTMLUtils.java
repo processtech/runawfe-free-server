@@ -52,6 +52,11 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.form.IdForm;
@@ -73,11 +78,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 
 public class HTMLUtils {
     private static final Log log = LogFactory.getLog(HTMLUtils.class);
@@ -318,7 +318,8 @@ public class HTMLUtils {
     private static Pattern getPatternForTag(String tagName) {
         final String pattern = "<\\s*%s(\\s+.*>|>)";
         if (!patternForTagCache.containsKey(tagName)) {
-            patternForTagCache.put(tagName, Pattern.compile(String.format(pattern, tagName), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
+            patternForTagCache.put(tagName,
+                    Pattern.compile(String.format(pattern, tagName), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
         }
         return patternForTagCache.get(tagName);
     }
@@ -328,9 +329,18 @@ public class HTMLUtils {
 
         for (String element : blockElements) {
             Pattern pattern = getPatternForTag(element);
-            if (pattern.matcher(html).find())
+            if (pattern.matcher(html).find()) {
                 return true;
+            }
         }
         return false;
     }
+
+    public static Input createSelectionStatusPropagator() {
+        Input propagator = new Input(Input.CHECKBOX);
+        propagator.setClass("selectionStatusPropagator");
+        propagator.addAttribute("onchange", "propagateSelectionStatus(this);");
+        return propagator;
+    }
+
 }
