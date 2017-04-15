@@ -23,15 +23,16 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class VariableDefinition implements Serializable {
@@ -164,7 +165,7 @@ public class VariableDefinition implements Serializable {
     }
 
     public Object getDefaultValue() {
-        return defaultValue;
+        return Utils.getContainerCopy(defaultValue);
     }
 
     public void setDefaultValue(Object defaultValue) {
@@ -240,7 +241,7 @@ public class VariableDefinition implements Serializable {
 
     /**
      * Applies operation depends on variable format type.
-     *
+     * 
      * @param operation
      *            Operation, applied to format.
      * @param context
