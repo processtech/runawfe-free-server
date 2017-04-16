@@ -6,7 +6,6 @@ import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Label;
-import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
@@ -14,6 +13,7 @@ import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
@@ -64,11 +64,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
                 Select variablesSelect = new Select("variableSelect");
                 variablesSelect.setID("variableSelect");
                 for (VariableDefinition variable : variables) {
-                    Option option = new Option();
-                    option.setValue(variable.getName());
-                    option.addElement(variable.getName());
-
-                    variablesSelect.addElement(option);
+                    variablesSelect.addElement(HTMLUtils.createOption(variable.getName(), false));
                 }
 
                 TD selectTd = new TD();

@@ -111,6 +111,96 @@ public enum ReportParameterType {
         public <TResult, TData> TResult processBy(ReportParameterTypeVisitor<TResult, TData> visitor, TData data) {
             return visitor.onCheckedBoolean(data);
         }
+    },
+
+    /**
+     * Select Actor.
+     */
+    ACTOR_ID(Long.class) {
+        @Override
+        public String getDescription() {
+            return "User Id";
+        }
+
+        @Override
+        public <TResult, TData> TResult processBy(ReportParameterTypeVisitor<TResult, TData> visitor, TData data) {
+            return visitor.onActorId(data);
+        }
+    },
+
+    /**
+     * Select Actor.
+     */
+    ACTOR_NAME(String.class) {
+        @Override
+        public String getDescription() {
+            return "User Name";
+        }
+
+        @Override
+        public <TResult, TData> TResult processBy(ReportParameterTypeVisitor<TResult, TData> visitor, TData data) {
+            return visitor.onActorName(data);
+        }
+    },
+
+    /**
+     * Select Group.
+     */
+    GROUP_ID(Long.class) {
+        @Override
+        public String getDescription() {
+            return "Group Id";
+        }
+
+        @Override
+        public <TResult, TData> TResult processBy(ReportParameterTypeVisitor<TResult, TData> visitor, TData data) {
+            return visitor.onGroupId(data);
+        }
+    },
+
+    /**
+     * Select Group.
+     */
+    GROUP_NAME(String.class) {
+        @Override
+        public String getDescription() {
+            return "Group Name";
+        }
+
+        @Override
+        public <TResult, TData> TResult processBy(ReportParameterTypeVisitor<TResult, TData> visitor, TData data) {
+            return visitor.onGroupName(data);
+        }
+    },
+
+    /**
+     * Select Actor or Group.
+     */
+    EXECUTOR_ID(Long.class) {
+        @Override
+        public String getDescription() {
+            return "User or Group Id";
+        }
+
+        @Override
+        public <TResult, TData> TResult processBy(ReportParameterTypeVisitor<TResult, TData> visitor, TData data) {
+            return visitor.onExecutorId(data);
+        }
+    },
+
+    /**
+     * Select Actor or Group.
+     */
+    EXECUTOR_NAME(String.class) {
+        @Override
+        public String getDescription() {
+            return "User or Group Name";
+        }
+
+        @Override
+        public <TResult, TData> TResult processBy(ReportParameterTypeVisitor<TResult, TData> visitor, TData data) {
+            return visitor.onExecutorName(data);
+        }
     };
 
     /**
@@ -137,7 +227,7 @@ public enum ReportParameterType {
 
     /**
      * Returns java type that corresponds to parameter type.
-     * 
+     *
      * @return java type that corresponds to parameter type.
      */
     public final Class<?> getJavaType() {
@@ -146,7 +236,7 @@ public enum ReportParameterType {
 
     /**
      * Converts java type to correspondent parameter type.
-     * 
+     *
      * @param javaType
      *            java type of the parameter.
      * @return parameter type.
@@ -158,14 +248,14 @@ public enum ReportParameterType {
 
     /**
      * Returns parameters description that can be shown to user.
-     * 
+     *
      * @return parameters description that can be shown to user..
      */
     public abstract String getDescription();
 
     /**
      * Applies operation to parameter type.
-     * 
+     *
      * @param visitor
      *            Operation that can be applied depending on parameter type.
      * @param data
@@ -177,7 +267,7 @@ public enum ReportParameterType {
 
     /**
      * Interface of the operation that can be applied to parameter type.
-     * 
+     *
      * @param <TResult>
      *            Result type of operation being applied.
      * @param <TData>
@@ -186,7 +276,7 @@ public enum ReportParameterType {
     public interface ReportParameterTypeVisitor<TResult, TData> {
         /**
          * Called for string parameter.
-         * 
+         *
          * @param data
          *            Data supplied to operation.
          * @return result of operation being applied.
@@ -195,62 +285,122 @@ public enum ReportParameterType {
 
         /**
          * Called for number parameter
-         * 
+         *
          * @param data
          *            Data supplied to operation.
-         * 
+         *
          * @return result of operation being applied.
          */
         TResult onNumber(TData data);
 
         /**
          * Called for date parameter
-         * 
+         *
          * @param data
          *            Data supplied to operation.
-         * 
+         *
          * @return result of operation being applied.
          */
         TResult onDate(TData data);
 
         /**
          * Called for flag (boolean) parameter (unchecked by default).
-         * 
+         *
          * @param data
          *            Data supplied to operation.
-         * 
+         *
          * @return result of operation being applied.
          */
         TResult onUncheckedBoolean(TData data);
 
         /**
          * Called for flag (boolean) parameter (checked by default).
-         * 
+         *
          * @param data
          *            Data supplied to operation.
-         * 
+         *
          * @return result of operation being applied.
          */
         TResult onCheckedBoolean(TData data);
 
         /**
          * Called for parameter with BP type selection or null for all types.
-         * 
+         *
          * @param data
          *            Data supplied to operation.
-         * 
+         *
          * @return result of operation being applied.
          */
         TResult onProcessNameOrNull(TData data);
 
         /**
          * Called for parameter with BP swimlane selection.
-         * 
+         *
          * @param data
          *            Data supplied to operation.
-         * 
+         *
          * @return result of operation being applied.
          */
         TResult onSwimlane(TData data);
+
+        /**
+         * Called for User Id.
+         *
+         * @param data
+         *            Data supplied to operation.
+         *
+         * @return result of operation being applied.
+         */
+        TResult onActorId(TData data);
+
+        /**
+         * Called for Group Id.
+         *
+         * @param data
+         *            Data supplied to operation.
+         *
+         * @return result of operation being applied.
+         */
+        TResult onGroupId(TData data);
+
+        /**
+         * Called for User or Group Id.
+         *
+         * @param data
+         *            Data supplied to operation.
+         *
+         * @return result of operation being applied.
+         */
+        TResult onExecutorId(TData data);
+
+        /**
+         * Called for User Name.
+         *
+         * @param data
+         *            Data supplied to operation.
+         *
+         * @return result of operation being applied.
+         */
+        TResult onActorName(TData data);
+
+        /**
+         * Called for Group Name.
+         *
+         * @param data
+         *            Data supplied to operation.
+         *
+         * @return result of operation being applied.
+         */
+        TResult onGroupName(TData data);
+
+        /**
+         * Called for User or Group Name.
+         *
+         * @param data
+         *            Data supplied to operation.
+         *
+         * @return result of operation being applied.
+         */
+        TResult onExecutorName(TData data);
     }
 }

@@ -1,5 +1,6 @@
 package ru.runa.wfe;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -9,13 +10,13 @@ public abstract class LocalizableException extends InternalApplicationException 
 
     private final Object[] details;
 
-    public LocalizableException(String message, Object... details) {
-        super(message);
+    public LocalizableException(String messageKey, Object... details) {
+        super(messageKey);
         this.details = details;
     }
 
-    public LocalizableException(String message, Throwable cause, Object... details) {
-        super(message, cause);
+    public LocalizableException(String messageKey, Throwable cause, Object... details) {
+        super(messageKey, cause);
         this.details = details;
     }
 
@@ -23,8 +24,19 @@ public abstract class LocalizableException extends InternalApplicationException 
 
     @Override
     public String getLocalizedMessage() {
+        return getLocalizedMessage(null);
+    }
+
+    /**
+     * Load localized message for specified locale.
+     * 
+     * @param locale
+     *            Preferred locale to load message.
+     * @return Returns loaded localized message.
+     */
+    public String getLocalizedMessage(Locale locale) {
         try {
-            Properties properties = ClassLoaderUtil.getLocalizedProperties(getResourceBaseName(), getClass());
+            Properties properties = ClassLoaderUtil.getLocalizedProperties(getResourceBaseName(), getClass(), locale);
             String s = properties.getProperty(getMessage());
             if (s != null) {
                 if (details != null) {

@@ -32,6 +32,8 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.base.Strings;
+
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateSubstitutionCriteriaAction;
 import ru.runa.af.web.form.SubstitutionCriteriaForm;
@@ -47,8 +49,6 @@ import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.ss.SubstitutionCriteria;
-
-import com.google.common.base.Strings;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateSubstitutionCriteriaForm")
 public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
@@ -111,8 +111,8 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
         }
 
         public Table buildTable() {
-            SubstitutionCriteria substitutionCriteria = getIdentifiableId() != null ? Delegates.getSubstitutionService().getCriteria(getUser(),
-                    getIdentifiableId()) : null;
+            SubstitutionCriteria substitutionCriteria = getIdentifiableId() != null
+                    ? Delegates.getSubstitutionService().getCriteria(getUser(), getIdentifiableId()) : null;
             Table table = new Table();
             table.setID("paramsTable");
             table.setClass(Resources.CLASS_LIST_TABLE);
@@ -149,18 +149,11 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
             List<FunctionDef> definitions = SubstitutionCriteriaDefinitions.getAll(getUser());
             Option[] options = new Option[definitions.size()];
             for (int i = 0; i < options.length; i++) {
-                options[i] = new Option(definitions.get(i).getClassName());
-                options[i].addElement(definitions.get(i).getLabel());
-            }
-            for (Option option : options) {
-                if (option.getValue().equals(selectedValue)) {
-                    option.setSelected(true);
-                    break;
-                }
+                String value = definitions.get(i).getClassName();
+                options[i] = HTMLUtils.createOption(value, definitions.get(i).getLabel(), value.equals(selectedValue));
             }
             return options;
         }
-
     }
 
     private TR createParameterTR(int index, String label, Element element) {
