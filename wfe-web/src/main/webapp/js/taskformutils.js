@@ -23,7 +23,7 @@ $(function() {
 		deleteFile($(this).attr("inputId"));
 	});
 	$(".tabs").tabs();
-	$(".inputText").trumbowyg({
+	$(".inputText").filter(filterTemplatesElements).trumbowyg({
 	    lang: currentBrowserLanguage,
 	    svgPath : 'css/trumbowyg.svg'
 	});

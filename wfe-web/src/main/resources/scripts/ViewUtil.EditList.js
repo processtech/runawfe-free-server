@@ -73,4 +73,10 @@ function updateIndexesUNIQUENAME(div) {
 	var indexesInput = div.find("input[name$='.indexes']").filter(filterTemplatesElements).first();
 	indexesInput.val(ids);
 	console.log("List size = " + getSizeUNIQUENAME());
+	
+	div.find(".inputText").filter(filterTemplatesElements).trumbowyg({
+	    lang: currentBrowserLanguage,
+	    svgPath : 'css/trumbowyg.svg'
+	})
+	
 }
