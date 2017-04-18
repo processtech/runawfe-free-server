@@ -1,4 +1,4 @@
-<%@page import="ru.runa.wfe.commons.GitProperties"%>
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -13,7 +13,7 @@
 		id = Long.parseLong(idParameter);
 	}
 %>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/substitutionCriteria.js?"+GitProperties.getCommit() %>' />"></script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/substitutionCriteria.js?"+Version.getHash() %>' />"></script>
 	<wf:updateSubstitutionCriteriaForm identifiableId="<%= id %>" />
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

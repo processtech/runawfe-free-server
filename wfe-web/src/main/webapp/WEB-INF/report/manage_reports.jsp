@@ -1,4 +1,4 @@
-<%@page import="ru.runa.wfe.commons.GitProperties"%>
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -13,8 +13,8 @@
 <% if (WebResources.isBulkDeploymentElements()) { %>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/bulkuploadutils.js?"+GitProperties.getCommit() %>' />">c=0;</script>
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+GitProperties.getCommit() %>' />">
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/bulkuploadutils.js?"+Version.getHash() %>' />">c=0;</script>
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
 <% } %>
 </tiles:put>
 

@@ -1,4 +1,4 @@
-<%@page import="ru.runa.wfe.commons.GitProperties"%>
+<%@page import="ru.runa.common.Version"%>
 <%@page import="java.io.IOException"%>
 <%@page import="java.net.URL"%>
 <%@page import="ru.runa.common.web.MessagesOther"%>
@@ -16,10 +16,10 @@
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
 <tiles:put name="head" type="string">
-	<script language="javascript" src="<html:rewrite page='<%="/js/dhtmlxgantt/dhtmlxgantt.js?"+GitProperties.getCommit() %>'/>" type="text/javascript" charset="utf-8"></script>
+	<script language="javascript" src="<html:rewrite page='<%="/js/dhtmlxgantt/dhtmlxgantt.js?"+Version.getHash() %>'/>" type="text/javascript" charset="utf-8"></script>
 	<script language="javascript" src="http://export.dhtmlx.com/gantt/api.js" type="text/javascript" charset="utf-8"></script>
-	<link rel="stylesheet" href="<html:rewrite page='<%="/css/dhtmlxgantt.css?"+GitProperties.getCommit() %>' />" type="text/css" media="screen" title="no title" charset="utf-8" />
-	<script language="javascript" src="<html:rewrite page='<%="/js/dhtmlxgantt/locale/locale.js?"+GitProperties.getCommit() %>'/>" type="text/javascript" charset="utf-8"></script>
+	<link rel="stylesheet" href="<html:rewrite page='<%="/css/dhtmlxgantt.css?"+Version.getHash() %>' />" type="text/css" media="screen" title="no title" charset="utf-8" />
+	<script language="javascript" src="<html:rewrite page='<%="/js/dhtmlxgantt/locale/locale.js?"+Version.getHash() %>'/>" type="text/javascript" charset="utf-8"></script>
 	<script language="javascript" src="<html:rewrite page="/js/dhtmlxgantt/locale/locale_" /><%= RequestUtils.getUserLocale(request, null).getLanguage() %>.js" type="text/javascript" charset="utf-8"></script>
 
 <style type="text/css">

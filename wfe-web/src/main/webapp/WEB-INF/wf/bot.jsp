@@ -1,4 +1,4 @@
-<%@page import="ru.runa.wfe.commons.GitProperties"%>
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" isErrorPage="true" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
@@ -8,8 +8,8 @@
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
 <tiles:put name="head" type="string">
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor/codemirror.js?"+GitProperties.getCommit() %>' />">c=0;</script> 
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor.js?"+GitProperties.getCommit() %>' />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor/codemirror.js?"+Version.getHash() %>' />">c=0;</script> 
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor.js?"+Version.getHash() %>' />">c=0;</script>
 </tiles:put>
 
 	<tiles:put name="body" type="string">

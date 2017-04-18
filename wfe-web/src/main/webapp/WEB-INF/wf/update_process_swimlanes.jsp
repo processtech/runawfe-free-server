@@ -1,4 +1,4 @@
-<%@page import="ru.runa.wfe.commons.GitProperties"%>
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ page import="ru.runa.common.web.form.IdForm" %>
 <%@ page import="ru.runa.wf.web.form.TaskIdForm" %>
@@ -10,7 +10,7 @@
 
 <tiles:put name="head" type="string">
 	<script type="text/javascript">var id = <%= Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME)) %>;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/updateprocessswimlanesutils.js?"+GitProperties.getCommit() %>' />"></script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/updateprocessswimlanesutils.js?"+Version.getHash() %>' />"></script>
 </tiles:put>
 
 <tiles:put name="body" type="string" >

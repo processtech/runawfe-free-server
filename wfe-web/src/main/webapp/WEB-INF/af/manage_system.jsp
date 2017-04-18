@@ -1,4 +1,4 @@
-<%@page import="ru.runa.wfe.commons.GitProperties"%>
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -61,9 +61,9 @@
 		});
 	});
 	</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor/codemirror.js?"+GitProperties.getCommit() %>' />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/scripteditor.js?"+GitProperties.getCommit() %>' />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/errorviewer.js?"+GitProperties.getCommit() %>' />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor/codemirror.js?"+Version.getHash() %>' />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/scripteditor.js?"+Version.getHash() %>' />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/errorviewer.js?"+Version.getHash() %>' />">c=0;</script>
 </tiles:put>
 
 <tiles:put name="body" type="string" >
