@@ -1,3 +1,4 @@
+<%@page import="ru.runa.wfe.commons.GitProperties"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -13,9 +14,9 @@
 <% if (WebResources.isAjaxFileInputEnabled()) { %>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />"></script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />"></script>
-	<script type="text/javascript" src="<html:rewrite page="/js/taskformutils.js" />"></script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+GitProperties.getCommit() %>' />"></script>
 	<script type="text/javascript">var id = <%= Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME)) %></script>
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/fileupload.css" />">
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+GitProperties.getCommit() %>' />">
 <% 
    }
    for (String url : WebResources.getTaskFormExternalJsLibs()) {
