@@ -25,6 +25,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
 
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -33,7 +34,7 @@ import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.IFileVariable;
-import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
@@ -180,6 +181,9 @@ public class DocxUtils {
             }
             if (!Strings.isNullOrEmpty(selector)) {
                 value = variableProvider.getValue(selector);
+                if (value != null) {
+                    return value;
+                }
             }
         }
         if (!Strings.isNullOrEmpty(selector)) {
@@ -608,7 +612,13 @@ public class DocxUtils {
                         WfVariable containerVariable = variableProvider.getVariable(placeholder);
                         if (containerVariable != null) {
                             int index = containerVariable.getValue() instanceof Map ? 1 : 0;
-                            valueFormat = FormatCommons.createComponent(containerVariable, index);
+                            if (containerVariable.getDefinition().getFormatComponentUserTypes() != null
+                                    && containerVariable.getDefinition().getFormatComponentUserTypes().length > index
+                                    && containerVariable.getDefinition().getFormatComponentUserTypes()[index] != null) {
+                                valueFormat = new UserTypeFormat(containerVariable.getDefinition().getFormatComponentUserTypes()[index]);
+                            } else {
+                                valueFormat = ClassLoaderUtil.instantiate(containerVariable.getDefinition().getFormatComponentClassNames()[index]);
+                            }
                         }
                     } else {
                         if (!placeholder.startsWith(GROOVY)) {
