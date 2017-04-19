@@ -1,3 +1,4 @@
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -15,12 +16,12 @@
 <% if (WebResources.isAjaxFileInputEnabled()) { %>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page="/js/taskformutils.js" />">c=0;</script>
-	<script type="text/javascript" src="/wfe/js/i18n/delegate.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page="/js/delegate.dialog.js" />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/taskformutils.js?"+Version.getHash() %>' />"></script>
+	<script type="text/javascript" src="/wfe/js/i18n/delegate.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js?<%=Version.getHash()%>">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/delegate.dialog.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript">var id = <%= Long.parseLong(request.getParameter(IdForm.ID_INPUT_NAME)) %>;</script>
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/fileupload.css" />">
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/delegate.dialog.css" />">
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/delegate.dialog.css?"+Version.getHash() %>' />">
 <% 
    }
    for (String url : WebResources.getTaskFormExternalJsLibs()) {

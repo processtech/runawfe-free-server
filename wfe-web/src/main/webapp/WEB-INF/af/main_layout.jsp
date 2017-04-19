@@ -19,7 +19,7 @@
   	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
   	<meta http-equiv="Cache-Control" content="no-cache">
   	<meta http-equiv="Pragma" content="no-cache">
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/main.css" />">
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/main.css?"+Version.getHash() %>' />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/jquery-ui-1.9.2.custom.css" />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/jquery-te-1.4.0.css" />">
 	<script type="text/javascript">
@@ -41,7 +41,7 @@
 	<script type="text/javascript" src="/wfe/js/i18n/jquery.ui.datepicker-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 	<script type="text/javascript" src="/wfe/js/i18n/jquery.ui.timepicker-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <% } %>
-	<script type="text/javascript" src="<html:rewrite page="/js/common.js" />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/common.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery-te-1.4.0.min.js" />" charset="utf-8">c=0;</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
