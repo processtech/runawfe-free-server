@@ -44,6 +44,7 @@ import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.GroupFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
@@ -319,6 +320,18 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         Object value = context.variable.getValue();
         TextArea result = new TextArea().setName(variableName).setDisabled(context.readonly);
         result.setClass("inputText");
+        if (value != null) {
+            result.setTagText(textFormat.format(value));
+        }
+        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+    }
+
+    @Override
+    public GenerateHtmlForVariableResult onFormattedTextString(FormattedTextFormat textFormat, GenerateHtmlForVariableContext context) {
+        String variableName = context.variable.getDefinition().getName();
+        Object value = context.variable.getValue();
+        TextArea result = new TextArea().setName(variableName).setDisabled(context.readonly);
+        result.setClass("inputFormattedText");
         if (value != null) {
             result.setTagText(textFormat.formatHtml(user, webHelper, context.processId, variableName, value));
         }

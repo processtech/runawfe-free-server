@@ -37,6 +37,7 @@ import ru.runa.af.web.action.UpdateSubstitutionAction;
 import ru.runa.af.web.form.SubstitutionForm;
 import ru.runa.af.web.orgfunction.SubstitutionHelper;
 import ru.runa.common.web.Commons;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
@@ -107,7 +108,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
         @Override
         public TR build() {
             TR tr = new TR();
-            tr.addElement(new TH().setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTORS_CRITERIA.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTORS_ENABLED.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
@@ -154,8 +155,8 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
                 Map<String, Object> downParams = new HashMap<String, Object>();
                 downParams.put(IdsForm.IDS_INPUT_NAME, substitution.getId());
                 downParams.put(IdsForm.ID_INPUT_NAME, substitution.getActorId());
-                A moveDownHref = new A(Commons.getActionUrl(SwitchSubstitutionsPositionsAction.ACTION_PATH, downParams, pageContext,
-                        PortletUrlType.Action));
+                A moveDownHref = new A(
+                        Commons.getActionUrl(SwitchSubstitutionsPositionsAction.ACTION_PATH, downParams, pageContext, PortletUrlType.Action));
                 IMG moveDownIMG = new IMG(Commons.getUrl(Resources.SORT_DESC_IMAGE, pageContext, PortletUrlType.Resource), 0);
                 moveDownIMG.setAlt(Resources.SORT_DESC_ALT);
                 moveDownHref.addElement(moveDownIMG);

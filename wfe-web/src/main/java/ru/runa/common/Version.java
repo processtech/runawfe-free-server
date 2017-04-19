@@ -20,4 +20,8 @@ public class Version {
     public static String getBuildInfo() {
         return buildInfo;
     }
+    
+    public static String getHash(){
+    	return GitProperties.getCommit();
+    }
 }

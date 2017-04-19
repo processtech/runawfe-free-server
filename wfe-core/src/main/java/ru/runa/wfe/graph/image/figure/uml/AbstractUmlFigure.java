@@ -33,8 +33,8 @@ public abstract class AbstractUmlFigure extends AbstractFigure {
                 int shiftX = (ActionUtils.ACTION_DELIM + 2) + actionsCount * (ActionUtils.ACTION_SIZE + (ActionUtils.ACTION_DELIM + 3));
                 int shiftY = ActionUtils.ACTION_SIZE + 6;
                 graphics.setColor(DrawProperties.getBackgroundColor());
-                graphics.fillRect(getRectangle().x + getRectangle().width - 4 - shiftX, getRectangle().y + getRectangle().height - 4 - shiftY,
-                        shiftX, shiftY);
+                graphics.fillRect(getRectangle().x + getRectangle().width - 4 - DrawProperties.GRID_SIZE - shiftX,
+                        getRectangle().y + getRectangle().height - 4 - DrawProperties.GRID_SIZE - shiftY, shiftX, shiftY);
             }
             for (int i = 0; i < actionsCount; i++) {
                 Point loc = ActionUtils.getActionLocationOnNode(i, coords, getClass() == TaskNodeFigure.class);

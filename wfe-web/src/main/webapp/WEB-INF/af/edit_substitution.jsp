@@ -1,3 +1,4 @@
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -18,7 +19,7 @@
 	}
 	boolean terminator = "true".equals(request.getParameter("terminator"));
 %>
-	<script type="text/javascript" src="<html:rewrite page="/js/substitution.js" />"></script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/substitution.js?"+Version.getHash() %>' />"></script>
 	<wf:updateSubstitutionForm identifiableId="<%= id %>" terminator="<%= terminator %>" actorId="<%= actorId %>" />
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

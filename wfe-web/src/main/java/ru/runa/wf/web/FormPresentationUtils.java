@@ -42,6 +42,8 @@ import ru.runa.wf.web.action.LoadProcessDefinitionHtmlFileAction;
 import ru.runa.wf.web.form.DefinitionFileForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
@@ -234,6 +236,34 @@ public class FormPresentationUtils {
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
+    }
+
+    /**
+     * Rules:
+     * 
+     * 1) don't handling multiple input (we cannot do this properly; they are handled in according tags.
+     * 
+     * 2) Don't fill long strings due to java.lang.ArrayIndexOutOfBoundsException at java.lang.String.getChars(String.java:854) at
+     * org.apache.xml.serializer.WriterToUTF8Buffered .write(WriterToUTF8Buffered.java:347)
+     * 
+     * 3) User input has precedence on variables
+     * 
+     * @param valueArray
+     *            http values
+     * @return <code>null</code> or replacement value
+     */
+    private static String getStringValue(String name, IVariableProvider variableProvider, Map<String, String[]> userInput) {
+        if (userInput != null && userInput.get(name) != null && userInput.get(name).length == 1 && userInput.get(name)[0].length() < 1000) {
+            return userInput.get(name)[0];
+        }
+        if (name.endsWith(VariableFormatContainer.SIZE_SUFFIX) || name.contains(".")) {
+            return null;
+        }
+        WfVariable variable = variableProvider.getVariable(name);
+        if (variable != null) {
+            return variable.getDefinition().getFormatNotNull().format(variable.getValue());
+        }
+        return null;
     }
 
     private static String getErrorText(PageContext pageContext, Map<String, String> errors, String inputName) {

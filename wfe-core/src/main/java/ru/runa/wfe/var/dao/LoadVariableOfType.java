@@ -19,6 +19,7 @@ import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -146,6 +147,11 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     @Override
     public Object onTextString(TextFormat textFormat, LoadVariableOfTypeContext context) {
+        return loadSimpleVariable(textFormat, context);
+    }
+
+    @Override
+    public Object onFormattedTextString(FormattedTextFormat textFormat, LoadVariableOfTypeContext context) {
         return loadSimpleVariable(textFormat, context);
     }
 
