@@ -44,6 +44,7 @@ import ru.runa.wf.web.form.DefinitionFileForm;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Charsets;
@@ -54,9 +55,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- *
+ * 
  * Created on 21.02.2007
- *
+ * 
  */
 public class FormPresentationUtils {
     private static final Log log = LogFactory.getLog(FormPresentationUtils.class);
@@ -314,14 +315,14 @@ public class FormPresentationUtils {
 
     /**
      * Rules:
-     *
+     * 
      * 1) don't handling multiple input (we cannot do this properly; they are handled in according tags.
-     *
+     * 
      * 2) Don't fill long strings due to java.lang.ArrayIndexOutOfBoundsException at java.lang.String.getChars(String.java:854) at
      * org.apache.xml.serializer.WriterToUTF8Buffered .write(WriterToUTF8Buffered.java:347)
-     *
+     * 
      * 3) User input has precedence on variables
-     *
+     * 
      * @param valueArray
      *            http values
      * @return <code>null</code> or replacement value
@@ -333,9 +334,9 @@ public class FormPresentationUtils {
         if (name.endsWith(VariableFormatContainer.SIZE_SUFFIX) || name.contains(".")) {
             return null;
         }
-        Object value = variableProvider.getValue(name);
-        if (value instanceof String || value instanceof Number || value instanceof Boolean) {
-            return String.valueOf(value);
+        WfVariable variable = variableProvider.getVariable(name);
+        if (variable != null) {
+            return variable.getDefinition().getFormatNotNull().format(variable.getValue());
         }
         return null;
     }
@@ -384,7 +385,7 @@ public class FormPresentationUtils {
     }
 
     private static void addClassAttribute(Element element, String cssClass) {
-        String cssClasses = element.getAttribute(CSS_CLASS_ATTR) +  " " + cssClass;
+        String cssClasses = element.getAttribute(CSS_CLASS_ATTR) + " " + cssClass;
         element.setAttribute(CSS_CLASS_ATTR, cssClasses);
     }
 

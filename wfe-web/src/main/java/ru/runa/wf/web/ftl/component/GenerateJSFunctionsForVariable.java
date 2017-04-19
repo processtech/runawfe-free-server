@@ -11,6 +11,7 @@ import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -124,6 +125,11 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
 
     @Override
     public String onTextString(TextFormat textFormat, WfVariable variable) {
+        return "";
+    }
+
+    @Override
+    public String onFormattedTextString(FormattedTextFormat textFormat, WfVariable context) {
         return "";
     }
 
