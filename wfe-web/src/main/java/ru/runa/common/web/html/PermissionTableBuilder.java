@@ -28,6 +28,9 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm;
 import ru.runa.common.web.HTMLUtils;
@@ -41,9 +44,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Builds HTML Table of executors with their own permissions on given identifiable.
@@ -87,7 +87,7 @@ public class PermissionTableBuilder {
 
     private TR createTableHeaderTR() {
         TR tr = new TR();
-        tr.addElement(new TH().setClass(Resources.CLASS_PERMISSION_TABLE_TH));
+        tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
         tr.addElement(new TH(MessagesExecutor.EXECUTOR_NAME.message(pageContext)).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
         for (Permission permission : permissions) {
             String permissioni18nName = Messages.getMessage(permission.getName(), pageContext);

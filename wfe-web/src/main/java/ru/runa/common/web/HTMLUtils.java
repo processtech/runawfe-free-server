@@ -359,4 +359,12 @@ public class HTMLUtils {
         }
         return false;
     }
+
+    public static Input createSelectionStatusPropagator() {
+        Input propagator = new Input(Input.CHECKBOX);
+        propagator.setClass("selectionStatusPropagator");
+        propagator.addAttribute("onchange", "propagateSelectionStatus(this);");
+        return propagator;
+    }
+
 }

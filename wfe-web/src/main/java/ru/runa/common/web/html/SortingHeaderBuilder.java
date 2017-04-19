@@ -25,12 +25,14 @@ import javax.servlet.jsp.PageContext;
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
+import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 
 import com.google.common.collect.Maps;
 
 import ru.runa.common.web.Commons;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.SetSortingAction;
@@ -85,6 +87,9 @@ public class SortingHeaderBuilder implements HeaderBuilder {
         }
         TR tr = new TR();
         createCells(tr, createEmptyStrings(getAditionalNumberOfPrefixEmptyCells()));
+        if (prefixNames.length > 0) {
+            prefixNames[0] = Entities.PLUSMN;
+        }
         createCells(tr, prefixNames);
         fillHeaderTR(batchPresentation.getDisplayFields(), sortedFieldsIdModeMap, tr);
         createCells(tr, suffixNames);
@@ -147,13 +152,20 @@ public class SortingHeaderBuilder implements HeaderBuilder {
 
     private void createCells(TR tr, String[] names) {
         for (int i = 0; i < names.length; i++) {
-            TH header = new TH();
-            header.addElement(names[i]);
-            tr.addElement(header);
-            if (names[i] == Entities.NBSP) {
-                header.setClass(Resources.CLASS_EMPTY20_TABLE_TD);
-            } else {
+            if (names[i] == Entities.PLUSMN) {
+                TD header = new TD();
                 header.setClass(Resources.CLASS_LIST_TABLE_TH);
+                header.addElement(HTMLUtils.createSelectionStatusPropagator());
+                tr.addElement(header);
+            } else {
+                TH header = new TH();
+                header.addElement(names[i]);
+                if (names[i] == Entities.NBSP) {
+                    header.setClass(Resources.CLASS_EMPTY20_TABLE_TD);
+                } else {
+                    header.setClass(Resources.CLASS_LIST_TABLE_TH);
+                }
+                tr.addElement(header);
             }
         }
     }
