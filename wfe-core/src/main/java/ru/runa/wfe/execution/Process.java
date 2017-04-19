@@ -22,7 +22,6 @@
 package ru.runa.wfe.execution;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -51,10 +50,10 @@ import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
 import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.AsyncCompletionMode;
@@ -166,16 +165,6 @@ public class Process extends IdentifiableBase {
         this.endDate = endDate;
     }
 
-    @Column(name = "EXECUTION_STATUS", nullable = false)
-    @Enumerated(EnumType.STRING)
-    public ExecutionStatus getExecutionStatus() {
-        return executionStatus;
-    }
-
-    public void setExecutionStatus(ExecutionStatus executionStatus) {
-        this.executionStatus = executionStatus;
-    }
-
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
@@ -200,6 +189,16 @@ public class Process extends IdentifiableBase {
         this.rootToken = rootToken;
     }
 
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    public ExecutionStatus getExecutionStatus() {
+        return executionStatus;
+    }
+
+    public void setExecutionStatus(ExecutionStatus executionStatus) {
+        this.executionStatus = executionStatus;
+    }
+
     /**
      * Ends this process and all the tokens in it.
      * 
@@ -212,9 +211,10 @@ public class Process extends IdentifiableBase {
             return;
         }
         log.info("Ending " + this + " by " + canceller);
-        ProcessExecutionErrors.removeProcessErrors(id);
+        Errors.removeProcessErrors(id);
+        TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
         // end the main path of execution
-        rootToken.end(executionContext, canceller);
+        rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
         // mark this process as ended
         setEndDate(new Date());
         setExecutionStatus(ExecutionStatus.ENDED);
@@ -260,7 +260,7 @@ public class Process extends IdentifiableBase {
                     }
                 }
             }
-            task.end(executionContext, TaskCompletionInfo.createForProcessEnd(id));
+            task.end(executionContext, taskCompletionInfo);
         }
         if (parentNodeProcess == null) {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
@@ -303,15 +303,6 @@ public class Process extends IdentifiableBase {
     private void endSubprocessAndTasksOnMainProcessEndRecursively(ExecutionContext executionContext, Actor canceller) {
         List<Process> subprocesses = executionContext.getSubprocesses();
         if (subprocesses.size() > 0) {
-            ProcessDefinition processDefinition = executionContext.getProcessDefinition();
-            List<Node> nodes = processDefinition.getNodes(true);
-            HashMap<String, SubprocessNode> subProcessesStates = new HashMap<String, SubprocessNode>(subprocesses.size());
-            for (Node node : nodes) {
-                if (node instanceof SubprocessNode) {
-                    SubprocessNode subprocessNode = (SubprocessNode) node;
-                    subProcessesStates.put(subprocessNode.getSubProcessName(), subprocessNode);
-                }
-            }
             IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             for (Process subProcess : subprocesses) {
                 ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
@@ -335,11 +326,12 @@ public class Process extends IdentifiableBase {
                     }
                 }
 
-                String subProcessName = subProcessDefinition.getName();
-                SubprocessNode subprocessState = subProcessesStates.get(subProcessName);
-
-                if (subprocessState.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
-                    subProcess.end(subExecutionContext, canceller);
+                if (!subProcess.hasEnded()) {
+                    NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDAO().findBySubProcessId(subProcess.getId());
+                    SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
+                    if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
+                        subProcess.end(subExecutionContext, canceller);
+                    }
                 }
             }
         }

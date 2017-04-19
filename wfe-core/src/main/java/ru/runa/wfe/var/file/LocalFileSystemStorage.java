@@ -12,19 +12,25 @@ import ru.runa.wfe.var.Variable;
 import com.google.common.io.Files;
 
 public class LocalFileSystemStorage implements IFileVariableStorage {
-    private static File storageDir = new File(SystemProperties.getLocalFileStoragePath());
 
-    static {
+    static File storageDir;
+
+    static synchronized File getLocalFileStorage() {
+        if (storageDir != null) {
+            return storageDir;
+        }
+        storageDir = new File(SystemProperties.getLocalFileStoragePath());
         if (SystemProperties.isLocalFileStorageEnabled()) {
             storageDir.mkdirs();
         }
+        return storageDir;
     }
 
     public static File getContentFile(String path, boolean create) {
-        File file = new File(storageDir, path);
+        File file = new File(getLocalFileStorage(), path);
         if (create) {
-            file.getParentFile().mkdirs();
             try {
+                file.getParentFile().mkdirs();
                 file.createNewFile();
             } catch (IOException e) {
                 throw new InternalApplicationException("Unable to create file '" + file + "'");

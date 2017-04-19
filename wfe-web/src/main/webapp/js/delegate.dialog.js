@@ -4,20 +4,20 @@ function delegateTaskDialog(btn) {
     var taskId = parseInt(button.attr("data-taskid"));
     if($.delegateDialog == undefined) {
         var dialog = $("<div>", {id : "delegateDialog"});
-        $('<input class="filter" placeholder="фильтр" />' +
-        '<label><input class="keepCurrent" type="checkbox">Добавить текущих исполнителей</label>' +
+        $('<input class="filter" placeholder="' + $.delegateDialogStatic.filter+'" />' +
+        '<label><input class="keepCurrent" type="checkbox">' + $.delegateDialogStatic.addCurrentExecutors+'</label>' +
         '<table><tr>' +
         '<td>' +
         '<fieldset class="set search">' +
-        '<legend>Поиск исполнителей</legend>' +
+        '<legend>' + $.delegateDialogStatic.searchExecutors + '</legend>' +
         '<fieldset class="actor">' +
-        '<legend>Пользователи</legend>' +
+        '<legend>'+$.delegateDialogStatic.users+'</legend>' +
         '<div class="paging"></div>' +
         '<ul class="actor">' +
         '</ul>' +
         '</fieldset>' +
         '<fieldset class="group">' +
-        '<legend>Группы</legend>' +
+        '<legend>'+$.delegateDialogStatic.groups+'</legend>' +
         '<div class="paging"></div>' +
         '<ul class="group">' +
         '</ul>' +
@@ -26,14 +26,14 @@ function delegateTaskDialog(btn) {
         '</td>' +
         '<td>' +
         '<fieldset class="set selected">' +
-        '<legend>Выбранные исполнители</legend>' +
+        '<legend>'+$.delegateDialogStatic.selectedExecutors+'</legend>' +
         '<fieldset class="actor">' +
-        '<legend>Пользователи</legend>' +
+        '<legend>'+$.delegateDialogStatic.users+'</legend>' +
         '<ul class="actor">' +
         '</ul>' +
         '</fieldset>' +
         '<fieldset class="group">' +
-        '<legend>Группы</legend>' +
+        '<legend>'+$.delegateDialogStatic.groups+'</legend>' +
         '<ul class="group">' +
         '</ul>' +
         '</fieldset>' +
@@ -41,19 +41,19 @@ function delegateTaskDialog(btn) {
         '</td>' +
         '</table>').appendTo(dialog);
         $.delegateDialog = dialog.dialog({
-            width: 600,
-            height: 500,
+            width: 850,
+            height: 600,
             buttons: [
-            	{
-                    text: "Снять выделение",
-                    click: function() {
-                        reset();
-                    }
-                },
                 {
-                    text: "Делегировать",
+                    text: $.delegateDialogStatic.delegate,
                     click: function() {
                         submitDelegateDialog();
+                    }
+                },
+            	{
+                    text: $.delegateDialogStatic.unselect,
+                    click: function() {
+                        reset();
                     }
                 }
             ]
@@ -84,7 +84,7 @@ function delegateTaskDialog(btn) {
     var hint = undefined;
 
     function request(data, rev, callback) {
-        data = $.extend({perPage: 10, page: 0, excludeme: true}, data);
+        data = $.extend({perPage: 4000, page: 0, excludeme: true}, data);
         $.ajax({
             type:"POST",
             url:"/wfe/ajaxcmd?command=ajaxActorsList",

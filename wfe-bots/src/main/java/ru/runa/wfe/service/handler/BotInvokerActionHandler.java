@@ -20,14 +20,11 @@ package ru.runa.wfe.service.handler;
 import java.util.List;
 
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.commons.DeferredTransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandlerBase;
-import ru.runa.wfe.service.delegate.BotInvokerServiceDelegate;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 /**
@@ -62,45 +59,9 @@ public class BotInvokerActionHandler extends ActionHandlerBase {
                 log.warn("No botstation can be found for invocation " + configuration);
                 return;
             }
-            TransactionListeners.addListener(new BotInvokerRunnable(botStation), true);
+            TransactionListeners.addListener(new BotStationDeferredInvoker(botStation), true);
         } catch (Exception e) {
             log.error("Unable to invoke bot station due to " + e);
-        }
-    }
-
-    public class BotInvokerRunnable extends DeferredTransactionListener {
-        private final BotStation botStation;
-
-        public BotInvokerRunnable(BotStation botStation) {
-            this.botStation = botStation;
-        }
-
-        @Override
-        public void run() {
-            try {
-                log.info("Invoking " + botStation);
-                BotInvokerServiceDelegate.getService(botStation).invokeBots(botStation);
-            } catch (Exception e) {
-                log.warn("Unable to invoke " + botStation, e);
-            }
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof BotInvokerRunnable) {
-                return Objects.equal(botStation, ((BotInvokerRunnable) obj).botStation);
-            }
-            return super.equals(obj);
-        }
-
-        @Override
-        public int hashCode() {
-            return botStation.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return Objects.toStringHelper(getClass()).add("botStation", botStation).toString();
         }
     }
 

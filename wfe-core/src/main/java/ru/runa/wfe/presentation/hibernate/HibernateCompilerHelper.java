@@ -49,8 +49,8 @@ public final class HibernateCompilerHelper {
         if (field.fieldState == FieldState.DISABLED) {
             return false;
         }
-        final List<FieldDescriptor> dysplayFields = Arrays.asList(batchPresentation.getDisplayFields());
-        if (!field.isWeakJoin && dysplayFields.contains(field)) {
+        final List<FieldDescriptor> displayFields = Arrays.asList(batchPresentation.getDisplayFields());
+        if (displayFields.contains(field)) {
             return true;
         }
         FieldDescriptor[] allFields = batchPresentation.getAllFields();
@@ -60,12 +60,10 @@ public final class HibernateCompilerHelper {
                 break;
             }
         }
-        return batchPresentation.isFieldFiltered(idx)
-                && field.filterMode == FieldFilterMode.DATABASE
-                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx))
-                && field.sortable
-                && (!field.displayName.startsWith(ClassPresentation.filterable_prefix) || field.displayName
-                        .startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
+        return batchPresentation.isFieldFiltered(idx) && field.filterMode == FieldFilterMode.DATABASE
+                || (batchPresentation.isSortingField(idx) || batchPresentation.isFieldGroupped(idx)) && field.sortable
+                        && (!field.displayName.startsWith(ClassPresentation.filterable_prefix)
+                                || field.displayName.startsWith(ClassPresentation.filterable_prefix) && batchPresentation.isFieldGroupped(idx));
     }
 
     /**
@@ -80,7 +78,23 @@ public final class HibernateCompilerHelper {
      * @return Parsed identifier.
      */
     public static String getIdentifier(StringBuilder sqlRequest, String tableName, boolean forwardSearch) {
-        return getIdentifier(sqlRequest, sqlRequest.indexOf(" ", sqlRequest.indexOf(tableName)), forwardSearch);
+        int fromIndex = getFromClauseIndex(sqlRequest);
+        return getIdentifier(sqlRequest, sqlRequest.indexOf(" ", sqlRequest.indexOf(tableName, fromIndex)), forwardSearch);
+    }
+
+    /**
+     * Returns string index, where from clause begins.
+     *
+     * @param queryString
+     *            Query string.
+     * @return Returns string index, where from clause begins.
+     */
+    public static int getFromClauseIndex(StringBuilder queryString) {
+        int fromIndex = queryString.indexOf(" from ");
+        if (-1 == fromIndex) {
+            fromIndex = queryString.indexOf(" FROM ");
+        }
+        return fromIndex;
     }
 
     /**

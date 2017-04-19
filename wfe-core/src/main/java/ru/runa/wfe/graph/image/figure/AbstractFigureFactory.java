@@ -4,7 +4,7 @@ import ru.runa.wfe.lang.Node;
 
 public abstract class AbstractFigureFactory {
 
-    public abstract AbstractFigure createFigure(Node node, boolean useEgdingOnly);
+    public abstract AbstractFigure createFigure(Node node, boolean useEdgingOnly);
 
-    public abstract TransitionFigureBase createTransitionFigure();
+    public abstract TransitionFigure createTransitionFigure();
 }

@@ -60,9 +60,6 @@ public class RedeployProcessTDBuilder extends BaseTDBuilder {
     @Override
     public String getValue(Object object, Env env) {
         String result = MessagesProcesses.LABEL_REDEPLOY_PROCESS_DEFINIION.message(env.getPageContext());
-        if (result == null) {
-            result = "";
-        }
         return result;
     }
 }

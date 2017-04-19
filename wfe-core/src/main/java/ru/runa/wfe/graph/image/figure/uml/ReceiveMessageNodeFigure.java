@@ -7,13 +7,12 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 
 import ru.runa.wfe.graph.DrawProperties;
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.util.AngleInfo;
 import ru.runa.wfe.graph.image.util.Line;
 import ru.runa.wfe.graph.image.util.LineUtils;
 import ru.runa.wfe.lang.Transition;
 
-public class ReceiveMessageNodeFigure extends AbstractFigure {
+public class ReceiveMessageNodeFigure extends AbstractUmlFigure {
 
     @Override
     public Point getTransitionPoint(Transition transition, double x, double y) {
@@ -35,7 +34,7 @@ public class ReceiveMessageNodeFigure extends AbstractFigure {
     @Override
     public void fill(Graphics2D graphics) {
         graphics.fillPolygon(createPolygon());
-        if (!minimized && hasTimer) {
+        if (!node.isGraphMinimizedView() && hasTimer) {
             graphics.fillOval(coords[0], coords[1] + coords[3] - DrawProperties.GRID_SIZE * 2, DrawProperties.GRID_SIZE * 2,
                     DrawProperties.GRID_SIZE * 2);
         }
@@ -44,11 +43,11 @@ public class ReceiveMessageNodeFigure extends AbstractFigure {
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {
         graphics.drawPolygon(createPolygon());
-        if (!useEgdingOnly) {
+        if (!useEdgingOnly) {
             Rectangle r = getRectangle();
             drawTextInfo(graphics, (int) r.getHeight() / 2 - DrawProperties.getFontSize());
         }
-        if (!minimized && hasTimer) {
+        if (!node.isGraphMinimizedView() && hasTimer) {
             // Clean area for timer
             Color orig = graphics.getColor();
             graphics.setColor(DrawProperties.getBackgroundColor());

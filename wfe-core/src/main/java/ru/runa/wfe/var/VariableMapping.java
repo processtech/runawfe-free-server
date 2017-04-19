@@ -27,15 +27,15 @@ import com.google.common.base.Objects;
 
 public class VariableMapping implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final String USAGE_READ = "read";
-    private static final String USAGE_WRITE = "write";
-    private static final String USAGE_SYNC = "sync";
-    private static final String USAGE_MULTIINSTANCE_LINK = "multiinstancelink";
-    private static final String USAGE_SELECTOR = "selector";
-    private static final String USAGE_TEXT = "text";
-    private static final String USAGE_DISCRIMINATOR_VARIABLE = "variable";
-    private static final String USAGE_DISCRIMINATOR_GROUP = "group";
-    private static final String USAGE_DISCRIMINATOR_RELATION = "relation";
+    public static final String USAGE_READ = "read";
+    public static final String USAGE_WRITE = "write";
+    public static final String USAGE_SYNC = "sync";
+    public static final String USAGE_MULTIINSTANCE_LINK = "multiinstancelink";
+    public static final String USAGE_SELECTOR = "selector";
+    public static final String USAGE_TEXT = "text";
+    public static final String USAGE_DISCRIMINATOR_VARIABLE = "variable";
+    public static final String USAGE_DISCRIMINATOR_GROUP = "group";
+    public static final String USAGE_DISCRIMINATOR_RELATION = "relation";
 
     private String name;
     private String mappedName;

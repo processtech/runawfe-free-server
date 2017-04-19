@@ -12,13 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.service.ArchiveInitializerService;
-import ru.runa.wfe.service.interceptors.CacheNotifier;
+import ru.runa.wfe.service.interceptors.CacheReloader;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.logic.archiving.ArchivingInitializerLogic;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors({ CacheNotifier.class, EjbExceptionSupport.class, SpringBeanAutowiringInterceptor.class })
+@Interceptors({ CacheReloader.class, EjbExceptionSupport.class, SpringBeanAutowiringInterceptor.class })
 public class ArchiveInitializerServiceBean implements ArchiveInitializerService {
 
     @Resource

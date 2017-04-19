@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import ru.runa.wfe.commons.DBType;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 
 public class AddBatchPresentationIsSharedPatch extends DBPatch {
@@ -17,7 +18,8 @@ public class AddBatchPresentationIsSharedPatch extends DBPatch {
 
     @Override
     protected void applyPatch(Session session) throws Exception {
-        session.createSQLQuery("UPDATE BATCH_PRESENTATION SET SHARED = 0").executeUpdate();
+        String initialValue = dbType == DBType.ORACLE ? "0" : "FALSE";
+        session.createSQLQuery("UPDATE BATCH_PRESENTATION SET SHARED = " + initialValue).executeUpdate();
     }
 
     @Override

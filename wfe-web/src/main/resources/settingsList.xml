@@ -15,18 +15,6 @@
 			<value>false</value>
 		</property>
 		<property title="file.variable.local.storage.enableforfilesgreaterthan" pattern="\d*"/>
-		<property title="authentication.domain.name" />
-		<property title="authentication.ldap.server.url" />
-		<property title="authentication.ldap.userName.format" />
-		<property title="ldap.synchronizer.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
-		<property title="ldap.connection.provider.url" />
-		<property title="ldap.connection.principal" />
-		<property title="ldap.connection.password" />
-		<property title="ldap.synchronizer.ou" />
-		<property title="ldap.synchronizer.create.executors" />
 		<property title="date.format.pattern" />
 		<property title="executionServiceAPI.updateVariables.enabled">
 			<value>true</value>
@@ -52,13 +40,19 @@
 		<property title="timertask.start.millis.job.execution" pattern="\d*" />
 		<property title="timertask.period.millis.unassigned.tasks.execution" pattern="\d*" />
 		<property title="timertask.start.millis.unassigned.tasks.execution" pattern="\d*" />
-		<property title="timertask.period.millis.ldap.sync" pattern="\d*" />
-		<property title="timertask.start.millis.ldap.sync" pattern="\d*" />
 		<property title="trusted.authentication.enabled">
 			<value>true</value>
 			<value>false</value>
 		</property>
 		<property title="auto.invocation.local.botstation.enabled">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.comments.collisions.allowed">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="definition.comments.empty.allowed">
 			<value>true</value>
 			<value>false</value>
 		</property>
@@ -92,14 +86,6 @@
 			<value>false</value>
 		</property>
 		<property title="ntlm.domain" />
-		<property title="synchronization.ldap.link.enabled">
-			<value>true</value>
-			<value>false</value>
-		</property>
-		<property title="synchronization.ldap.create.executors">
-			<value>true</value>
-			<value>false</value>
-		</property>
 		<property title="process.variables.displayJavaType">
 			<value>true</value>
 			<value>false</value>

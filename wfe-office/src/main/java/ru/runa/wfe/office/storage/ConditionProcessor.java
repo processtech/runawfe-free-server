@@ -127,7 +127,7 @@ public class ConditionProcessor {
                 }
             } else {
                 sb.append(SPACE);
-                if (previousAttributeValue != null && (previousAttributeValue instanceof Date) && operators.contains(previousOperator)) {
+                if (previousAttributeValue != null && previousAttributeValue instanceof Date && operators.contains(previousOperator)) {
                     // handle date string value. For example: [startDate] > '16.05.2015'
                     sb.append(getTime(token));
                 } else {

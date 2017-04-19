@@ -58,6 +58,8 @@ import com.google.common.collect.Lists;
 public class BatchPresentation implements Cloneable, Serializable {
     private static final long serialVersionUID = 6631653373163613071L;
 
+    public final static String REFERENCE_SIGN = "\u2192"; // HTML entity (&rarr;) = '->' RIGHTWARDS ARROW
+
     private Long id;
     private Long version;
     private ClassPresentationType type;
@@ -395,11 +397,10 @@ public class BatchPresentation implements Cloneable, Serializable {
         return ArraysCommons.contains(getFields().groupIds, fieldId);
     }
 
-    public FilterCriteria getFieldFilteredCriteria(int fieldId) {
-        FilterCriteria filterCriteria = getFields().filters.get(fieldId);
+    public FilterCriteria getFieldFilteredCriteria(int fieldIndex) {
+        FilterCriteria filterCriteria = getFields().filters.get(fieldIndex);
         if (filterCriteria == null) {
-            String fieldType = getAllFields()[fieldId].fieldType;
-            filterCriteria = FilterCriteriaFactory.createFilterCriteria(fieldType);
+            filterCriteria = FilterCriteriaFactory.createFilterCriteria(this, fieldIndex);
         }
         return filterCriteria;
     }
@@ -449,18 +450,20 @@ public class BatchPresentation implements Cloneable, Serializable {
 
     @Override
     public BatchPresentation clone() {
+        // TODO breaks contract
         BatchPresentation clone = new BatchPresentation();
         clone.category = category;
         clone.name = name;
         clone.type = type;
         clone.fields = FieldsSerializer.fromDataSafe(type, FieldsSerializer.toData(type, getFields()));
+        clone.rangeSize = rangeSize;
         clone.createDate = new Date();
         return clone;
     }
 
     /**
      * Get helper to hold fields set (such us fields to display, sort and so on).
-     *
+     * 
      * @return Helper to current {@link BatchPresentation}.
      */
     @Transient
@@ -482,4 +485,5 @@ public class BatchPresentation implements Cloneable, Serializable {
         }
         return result;
     }
+
 }

@@ -9,8 +9,8 @@ import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.AbstractFigureFactory;
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
-import ru.runa.wfe.graph.image.figure.uml.UMLFigureFactory;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
+import ru.runa.wfe.graph.image.figure.uml.UmlFigureFactory;
 import ru.runa.wfe.history.graph.HistoryGraphForkNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphGenericNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphJoinNodeModel;
@@ -19,18 +19,18 @@ import ru.runa.wfe.history.graph.HistoryGraphNodeVisitor;
 import ru.runa.wfe.history.graph.HistoryGraphParallelNodeModel;
 import ru.runa.wfe.history.graph.HistoryGraphTransitionModel;
 import ru.runa.wfe.history.layout.NodeLayoutData;
-import ru.runa.wfe.job.CreateTimerAction;
 import ru.runa.wfe.lang.Bendpoint;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
+import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 
 /**
  * Operation to create figures for history graph painting.
  */
 public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFiguresContext> {
 
-    private final AbstractFigureFactory factory = new UMLFigureFactory();
+    private final AbstractFigureFactory factory = new UmlFigureFactory();
 
     public CreateGraphFigures() {
         super();
@@ -100,9 +100,8 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
     }
 
     /**
-     * Returns {@link NodeType} for node. EXCLUSIVE_GATEWAY is replaced with
-     * DECISION and PARALLEL_GATEWAY replaced with FORK or JOIN
-     * 
+     * Returns {@link NodeType} for node. EXCLUSIVE_GATEWAY is replaced with DECISION and PARALLEL_GATEWAY replaced with FORK or JOIN
+     *
      * @param nodeId
      *            Node id.
      * @return
@@ -127,7 +126,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
         Color color = hasOutTransition || isFinalNode ? DrawProperties.getHighlightColor() : DrawProperties.getBaseColor();
         RenderHits renderHits = new RenderHits(color, hasOutTransition, !hasOutTransition);
         nodeFigure.setRenderHits(renderHits);
-        nodeFigure.setType(getNodeType(node));
+        // nodeFigure.setType(getNodeType(node));
         data.setFigure(nodeFigure);
     }
 
@@ -158,7 +157,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
             wfeTransition.getBendpoints().add(new Bendpoint(x, y));
         }
 
-        TransitionFigureBase figure = factory.createTransitionFigure();
+        TransitionFigure figure = factory.createTransitionFigure();
         figure.init(wfeTransition, fromNodeFigure.getFigure(), toNodeFigure.getFigure(), false);
         figure.setRenderHits(new RenderHits(DrawProperties.getTransitionColor()));
         if (wfeTransition.isTimerTransition()) {
@@ -169,7 +168,7 @@ public class CreateGraphFigures implements HistoryGraphNodeVisitor<CreateGraphFi
 
     static String getTimerInfo(Node node) {
         try {
-            List<CreateTimerAction> actions = node.getTimerActions(false);
+            List<CreateTimerAction> actions = CreateTimerAction.getNodeTimerActions(node, false);
             if (actions.size() == 0) {
                 return "No timer";
             }

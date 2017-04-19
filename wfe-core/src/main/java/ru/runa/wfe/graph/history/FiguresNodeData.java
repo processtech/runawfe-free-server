@@ -5,7 +5,7 @@ import java.util.List;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
-import ru.runa.wfe.graph.image.figure.TransitionFigureBase;
+import ru.runa.wfe.graph.image.figure.TransitionFigure;
 import ru.runa.wfe.history.graph.HistoryGraphNode;
 
 /**
@@ -28,7 +28,7 @@ public class FiguresNodeData {
     /**
      * Figures for leaving transition.
      */
-    private final List<TransitionFigureBase> transitions = new ArrayList<TransitionFigureBase>();
+    private final List<TransitionFigure> transitions = new ArrayList<TransitionFigure>();
 
     public boolean isFiguresInitializeRequired() {
         boolean initialized = isFiguresInitialized;
@@ -44,11 +44,11 @@ public class FiguresNodeData {
         this.figure = figure;
     }
 
-    public List<TransitionFigureBase> getTransitions() {
+    public List<TransitionFigure> getTransitions() {
         return transitions;
     }
 
-    public void addTransition(TransitionFigureBase transition) {
+    public void addTransition(TransitionFigure transition) {
         transitions.add(transition);
     }
 

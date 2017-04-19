@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.extension.handler;
@@ -37,6 +37,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import com.google.common.io.Closeables;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -63,7 +64,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Executes SQL.
- * 
+ *
  * @author dofs[197@gmail.com]
  */
 public class SQLActionHandler extends ActionHandlerBase {
@@ -96,7 +97,7 @@ public class SQLActionHandler extends ActionHandlerBase {
                         log.debug("Preparing call " + query.getSql());
                         ps = conn.prepareCall(query.getSql());
                     } else {
-                        String unknownQueryClassName = (query == null ? "null" : query.getClass().getName());
+                        String unknownQueryClassName = query == null ? "null" : query.getClass().getName();
                         throw new Exception("Unknown query type:" + unknownQueryClassName);
                     }
                     fillQueryParameters(ps, variableProvider, query);
@@ -162,11 +163,13 @@ public class SQLActionHandler extends ActionHandlerBase {
             if (newValue instanceof Blob) {
                 ObjectInputStream ois = new ObjectInputStream(((Blob) newValue).getBinaryStream());
                 newValue = ois.readObject();
+                Closeables.closeQuietly(ois);
             }
             if (newValue instanceof byte[]) {
                 ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) newValue);
                 ObjectInputStream ois = new ObjectInputStream(bais);
                 newValue = ois.readObject();
+                Closeables.closeQuietly(ois);
             }
             in.add(result.getVariableName(), newValue);
             out.put(result.getVariableName(), newValue);

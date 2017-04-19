@@ -1,5 +1,7 @@
 package ru.runa.wfe.report.impl;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
@@ -53,6 +55,43 @@ public class ReportParameterParseOperation implements ReportParameterTypeVisitor
 
     @Override
     public Object onSwimlane(String data) {
+        return data;
+    }
+
+    @Override
+    public Object onActorId(String data) {
+        return onExecutorId(data);
+    }
+
+    @Override
+    public Object onGroupId(String data) {
+        return onExecutorId(data);
+    }
+
+    @Override
+    public Object onExecutorId(String data) {
+        try {
+            if (Strings.isNullOrEmpty(data)) {
+                return null;
+            }
+            return Long.parseLong(data);
+        } catch (Exception e) {
+            throw new InternalApplicationException("Value " + data + " is not all digits", e);
+        }
+    }
+
+    @Override
+    public Object onActorName(String data) {
+        return data;
+    }
+
+    @Override
+    public Object onGroupName(String data) {
+        return data;
+    }
+
+    @Override
+    public Object onExecutorName(String data) {
         return data;
     }
 }

@@ -32,6 +32,7 @@ import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.utils.MultiNodeParameters;
 import ru.runa.wfe.task.Task;
@@ -114,7 +115,7 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) {
+    protected void execute(ExecutionContext executionContext) throws Exception {
         TaskDefinition taskDefinition = getFirstTaskNotNull();
         MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
         List<?> data = (List<?>) parameters.getDiscriminatorValue();
@@ -152,19 +153,15 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     private boolean createTasksByDiscriminator(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
-        String script = discriminatorCondition;
-        if (Utils.isNullOrEmpty(script)) {
-            // TODO temporary
-            script = (String) executionContext.getVariableValue("multitask condition");
-        }
+        Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
         List<Integer> ignoredIndexes = Lists.newArrayList();
-        if (!Utils.isNullOrEmpty(script)) {
+        if (!Utils.isNullOrEmpty(discriminatorCondition)) {
             GroovyScriptExecutor scriptExecutor = new GroovyScriptExecutor();
             MapVariableProvider variableProvider = new MapVariableProvider(new HashMap<String, Object>());
             for (int index = 0; index < data.size(); index++) {
                 variableProvider.add("item", data.get(index));
                 variableProvider.add("index", index);
-                boolean result = (Boolean) scriptExecutor.evaluateScript(variableProvider, script);
+                boolean result = (Boolean) scriptExecutor.evaluateScript(variableProvider, discriminatorCondition);
                 if (!result) {
                     ignoredIndexes.add(index);
                 }

@@ -342,7 +342,7 @@
 	<bean id="relationLogic" class="ru.runa.wfe.relation.logic.RelationLogic" />
 	<bean id="substitutionLogic" class="ru.runa.wfe.ss.logic.SubstitutionLogic" />
 	<bean id="auditLogic" class="ru.runa.wfe.audit.logic.AuditLogic" />
-	<bean id="ldapLogic" class="ru.runa.wfe.security.logic.LDAPLogic" />
+	<bean id="ldapLogic" class="ru.runa.wfe.security.logic.LdapLogic" />
 	<bean id="definitionLogic" class="ru.runa.wfe.definition.logic.DefinitionLogic" />
 	<bean id="executionLogic" class="ru.runa.wfe.execution.logic.ExecutionLogic" />
 	<bean id="taskLogic" class="ru.runa.wfe.task.logic.TaskLogic" />
@@ -384,15 +384,6 @@
 			</bean>
 		</property>
 	</bean>
-	<bean id="ldapSynchronizerTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-		<property name="delay" value="${timertask.start.millis.ldap.sync}" />
-		<property name="period" value="${timertask.period.millis.ldap.sync}" />
-		<property name="timerTask">
-			<bean class="ru.runa.wfe.job.impl.LDAPSynchronizerTask">
-				<property name="transactionalExecutor" ref="ldapLogic" />
-			</bean>
-		</property>
-	</bean>
 	
 	<bean id="removeUnusedTemporaryGroupsTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
 		<property name="delay" value="${timertask.start.millis.remove.temp.groups}" />
@@ -423,7 +414,6 @@
 				<ref bean="jobExecutorTask" />
 				<!-- ref bean="cacheUsageStatisticTask" / -->
 				<ref bean="tasksAssignTask" />
-				<ref bean="ldapSynchronizerTask" />
 				<ref bean="removeUnusedTemporaryGroupsTask" />
 				<ref bean="aggregatedHistoryImportTask" />
 			</list>
@@ -437,5 +427,7 @@
 	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
 	
 	<bean id="nodeAsyncExecutor" class="ru.runa.wfe.execution.async.JMSNodeAsyncExecutor" />
+	
+	<bean id="botStationTaskNotifier" class="ru.runa.wfe.service.handler.BotStationTaskNotifier" />
 	
 </beans>

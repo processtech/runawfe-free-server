@@ -23,10 +23,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 import ru.runa.wfe.graph.DrawProperties;
-import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.lang.Transition;
 
-public class TaskNodeFigure extends AbstractFigure {
+public class TaskNodeFigure extends AbstractUmlFigure {
 
     @Override
     public Point getTransitionPoint(Transition transition, double x, double y) {
@@ -39,12 +38,12 @@ public class TaskNodeFigure extends AbstractFigure {
     @Override
     public void fill(Graphics2D graphics) {
         Rectangle rect = getRectangle();
-        if (minimized) {
+        if (node.isGraphMinimizedView()) {
             graphics.fillRect(rect.x, rect.y, rect.width, rect.height);
         } else {
             graphics.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 20, 10);
         }
-        if (!minimized && hasTimer) {
+        if (!node.isGraphMinimizedView() && hasTimer) {
             graphics.fillOval(coords[0], coords[1] + coords[3] - DrawProperties.GRID_SIZE * 2, DrawProperties.GRID_SIZE * 2,
                     DrawProperties.GRID_SIZE * 2);
         }
@@ -53,16 +52,16 @@ public class TaskNodeFigure extends AbstractFigure {
     @Override
     public void draw(Graphics2D graphics, boolean cleanMode) {
         Rectangle rect = getRectangle();
-        if (minimized) {
+        if (node.isGraphMinimizedView()) {
             graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
         } else {
             graphics.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 20, 10);
         }
-        if (!minimized) {
+        if (!node.isGraphMinimizedView()) {
             drawActions(graphics);
             drawTextInfo(graphics, 1);
         }
-        if (!minimized && hasTimer) {
+        if (!node.isGraphMinimizedView() && hasTimer) {
             // Clean area for timer
             Color orig = graphics.getColor();
             graphics.setColor(DrawProperties.getBackgroundColor());
@@ -87,11 +86,6 @@ public class TaskNodeFigure extends AbstractFigure {
 
     @Override
     public Rectangle getRectangle() {
-        if (minimized) {
-            return new Rectangle(coords[0] + DrawProperties.GRID_SIZE / 2, coords[1] + DrawProperties.GRID_SIZE / 2, DrawProperties.GRID_SIZE,
-                    DrawProperties.GRID_SIZE);
-        }
-        return new Rectangle(coords[0] + DrawProperties.GRID_SIZE, coords[1], coords[2] - DrawProperties.GRID_SIZE, coords[3]
-                - DrawProperties.GRID_SIZE);
+        return new Rectangle(coords[0], coords[1], coords[2], coords[3]);
     }
 }

@@ -23,6 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +52,11 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.form.IdForm;
@@ -71,11 +78,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 
 public class HTMLUtils {
     private static final Log log = LogFactory.getLog(HTMLUtils.class);
@@ -161,6 +163,30 @@ public class HTMLUtils {
             element = div;
         }
         return createRow(label, element);
+    }
+
+    public static Option createOption(String value, boolean isSelected) {
+        return createOption(value, value, isSelected);
+    }
+
+    public static Option createOption(String value, String label, boolean isSelected) {
+        Option option = new Option();
+        option.setValue(value == null ? "" : value);
+        option.addElement(label);
+        if (isSelected) {
+            option.setSelected(isSelected);
+        }
+        return option;
+    }
+
+    public static Option createOption(int value, String label, boolean isSelected) {
+        Option option = new Option();
+        option.setValue(value);
+        option.addElement(label);
+        if (isSelected) {
+            option.setSelected(isSelected);
+        }
+        return option;
     }
 
     public static Input createInput(String name, String value) {
@@ -267,19 +293,18 @@ public class HTMLUtils {
                     result[i] = "null";
                     continue;
                 }
-                String executors = "{ ";
+                final StringBuilder executors = new StringBuilder("{ ");
                 for (Long id : ids) {
                     try {
                         Executor executor = Delegates.getExecutorService().getExecutor(user, id);
-                        executors += pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString();
-                        executors += "&nbsp;";
+                        executors.append(pageContext != null ? createExecutorElement(pageContext, executor) : executor.toString()).append("&nbsp;");
                     } catch (Exception e) {
                         log.debug("could not get executor by " + id + ": " + e.getMessage());
-                        executors += id + "&nbsp;";
+                        executors.append(id).append("&nbsp;");
                     }
                 }
-                executors += "}";
-                result[i] = executors;
+                executors.append("}");
+                result[i] = executors.toString();
             } else if (arguments[i] instanceof ProcessIdValue) {
                 Long processId = ((ProcessIdValue) arguments[i]).getId();
                 if (processId == null) {
@@ -310,5 +335,28 @@ public class HTMLUtils {
             }
         }
         return result;
+    }
+
+    private static Map<String, Pattern> patternForTagCache = Maps.newHashMap();
+
+    private static Pattern getPatternForTag(String tagName) {
+        final String pattern = "<\\s*%s(\\s+.*>|>)";
+        if (!patternForTagCache.containsKey(tagName)) {
+            patternForTagCache.put(tagName,
+                    Pattern.compile(String.format(pattern, tagName), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
+        }
+        return patternForTagCache.get(tagName);
+    }
+
+    public static boolean checkForBlockElements(String html) {
+        Set<String> blockElements = WebResources.getHtmlBlockElements();
+
+        for (String element : blockElements) {
+            Pattern pattern = getPatternForTag(element);
+            if (pattern.matcher(html).find()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

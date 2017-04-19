@@ -30,7 +30,10 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 public class GroupState {
 
     public static enum StateType {
-        TYPE_NO_MORE_ELEMENTS, TYPE_START_STATE, TYPE_EMPTY_STATE, TYPE_NORMAL_STATE
+        TYPE_NO_MORE_ELEMENTS,
+        TYPE_START_STATE,
+        TYPE_EMPTY_STATE,
+        TYPE_NORMAL_STATE
     };
 
     public static final GroupState STATE_NO_MORE_ELEMENTS = new GroupState(GroupState.StateType.TYPE_NO_MORE_ELEMENTS);
@@ -117,7 +120,7 @@ public class GroupState {
     public String getGroupId() {
         StringBuilder buf = new StringBuilder();
         for (int i = 0; i <= groupIndex; i++) {
-            buf.append(batchPresentation.getGrouppedFields()[i].dbSources[0].getValueDBPath(null));
+            buf.append(batchPresentation.getGrouppedFields()[i].dbSources[0].getValueDBPath(null, null));
             buf.append(((TDBuilder) batchPresentation.getGrouppedFields()[i].getTDBuilder()).getSeparatedValues(items.get(itemIndex), env)[separatedValueNum[i]]);
         }
         return buf.toString();
@@ -148,8 +151,7 @@ public class GroupState {
     }
 
     /**
-     * @return true if groupping nested all properties and this group state is
-     *         item in last nesting level
+     * @return true if groupping nested all properties and this group state is item in last nesting level
      */
     private boolean isItemHasntVisibleFields() {
         return ((!isGroupHeader()) && (getGroupIndex() == batchPresentation.getAllFields().length));
@@ -194,8 +196,7 @@ public class GroupState {
     }
 
     /**
-     * Factiry method for creating next group state based on batchPresentation
-     * and collection of items
+     * Factiry method for creating next group state based on batchPresentation and collection of items
      */
     public GroupState buildNextState(BatchPresentation batchPresentation) {
         GroupState nextState = new GroupState(items, batchPresentation, builders, env);
@@ -231,8 +232,7 @@ public class GroupState {
     }
 
     /**
-     * Adjusts group and item indexes in next group state based on visibility
-     * and other parameters of this group state
+     * Adjusts group and item indexes in next group state based on visibility and other parameters of this group state
      * 
      * @param items
      *            to iterate
@@ -260,8 +260,7 @@ public class GroupState {
     }
 
     /**
-     * Sets next group state visible or no based on this group state and
-     * batchPresentation
+     * Sets next group state visible or no based on this group state and batchPresentation
      * 
      * @param batchPresentation
      *            to use
@@ -281,9 +280,8 @@ public class GroupState {
     }
 
     /**
-     * Method must be invoked when current group state is: group header and not
-     * visible Then we iterate through items to find next item index for which
-     * next group state would be visible
+     * Method must be invoked when current group state is: group header and not visible Then we iterate through items to find next item index for
+     * which next group state would be visible
      */
     private boolean findItemIndexForNextStateBasedOnInvisibleGroupState(GroupState nextState) {
         while (isNextStateIsSubstateOfState(this, nextState)) {
@@ -307,8 +305,7 @@ public class GroupState {
     }
 
     /**
-     * Find group index for next group state based on equality of values of
-     * items for which group states are building
+     * Find group index for next group state based on equality of values of items for which group states are building
      * 
      * @param nextState
      */

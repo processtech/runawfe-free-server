@@ -4,10 +4,10 @@ import javax.servlet.jsp.PageContext;
 
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.Input;
-import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.form.TableViewSetupForm;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
@@ -26,16 +26,10 @@ public class UserOrGroupFilterTDFormatter extends FilterTDFormatter {
             selected = Integer.parseInt(stringConditions[1]);
         }
         Select select = new Select(TableViewSetupForm.FILTER_CRITERIA);
-        Option falseOption = new Option();
-        falseOption.setValue(0);
-        falseOption.addElement(Messages.getMessage("label.not_including_groups", pageContext));
-        falseOption.setSelected(0 == selected);
-        select.addElement(falseOption);
-        Option trueOption = new Option();
-        trueOption.setValue(1);
-        trueOption.addElement(Messages.getMessage("label.including_groups", pageContext));
-        trueOption.setSelected(1 == selected);
-        select.addElement(trueOption);
+        // false select element
+        select.addElement(HTMLUtils.createOption(0, Messages.getMessage("label.not_including_groups", pageContext), 0 == selected));
+        // true select element
+        select.addElement(HTMLUtils.createOption(1, Messages.getMessage("label.including_groups", pageContext), 1 == selected));
         td.addElement(select);
         td.addElement(Entities.NBSP);
     }

@@ -1,19 +1,19 @@
 /*
  * This file is part
  of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.report.web.tag;
@@ -30,6 +30,11 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
@@ -39,19 +44,14 @@ import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.report.web.MessagesReport;
 import ru.runa.report.web.action.BuildReportAction;
 import ru.runa.wfe.report.ReportPermission;
-import ru.runa.wfe.report.dto.ReportDto;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.ReportGenerationType;
 import ru.runa.wfe.report.impl.ReportGenerationType.ReportGenerationTypeVisitor;
 import ru.runa.wfe.report.impl.ReportParameterModel;
 import ru.runa.wfe.report.impl.ReportParameterModel.ListValuesData;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "buildReportForm")
 public class BuildReportFormTag extends IdentifiableFormTag {
@@ -62,7 +62,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
     @Override
     protected void fillFormData(TD tdFormElement) {
         tdFormElement.addElement(HTMLUtils.createInput("HIDDEN", IdForm.ID_INPUT_NAME, Long.toString(getIdentifiableId())));
-        ReportDto report = getIdentifiable();
+        WfReport report = getIdentifiable();
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
         tdFormElement.addElement(table);
@@ -71,7 +71,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
         tr.addElement(new TH(MessagesCommon.HEADER_PARAMETER_VALUE.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
         table.addElement(tr);
         Map<String, String> parameterDescriptions = Maps.newHashMap();
-        for (ReportParameterDto parameter : report.getParameters()) {
+        for (WfReportParameter parameter : report.getParameters()) {
             parameterDescriptions.put(parameter.getInternalName(), parameter.getDescription());
             ReportParameterCreateModelOperation createModelOperation = new ReportParameterCreateModelOperation(getUser());
             ReportParameterModel model = parameter.getType().processBy(createModelOperation, parameter);
@@ -90,12 +90,8 @@ public class BuildReportFormTag extends IdentifiableFormTag {
 
                     @Override
                     public Option apply(ListValuesData input) {
-                        Option option = new Option();
-                        option.setLabel(input.getValueName());
-                        if (input.getValue() != null) {
-                            option.setValue((String) input.getValue());
-                        }
-                        return option;
+                        String value = input.getValue() != null ? input.getValue().toString() : null;
+                        return HTMLUtils.createOption(value, input.getValueName(), false);
                     }
                 });
                 table.addElement(HTMLUtils.createSelectRow(parameter.getUserName(), paramHtmlName, options.toArray(new Option[options.size()]), true,
@@ -108,17 +104,13 @@ public class BuildReportFormTag extends IdentifiableFormTag {
     private Select createBuildTypeSelect() {
         String selectedValue = pageContext.getRequest().getParameter(BUILD_TYPE);
         Option[] options = new Option[ReportGenerationType.values().length];
-        int selected = 0;
         for (int i = 0; i < options.length; i++) {
-            String description = ReportGenerationType.values()[i].processBy(new ReportGenerationTypeNameVisitor()).message(pageContext);
-            options[i] = new Option(description, ReportGenerationType.values()[i].toString(), description);
-            if (ReportGenerationType.values()[i].toString().equals(selectedValue)) {
-                options[i].setSelected(true);
-            }
+            ReportGenerationType value = ReportGenerationType.values()[i];
+            String description = value.processBy(new ReportGenerationTypeNameVisitor()).message(pageContext);
+            options[i] = HTMLUtils.createOption(value.toString(), description, value.toString().equals(selectedValue));
         }
         Select select = new Select(BUILD_TYPE, options);
         select.setID(BUILD_TYPE);
-        select.selectOption(selected);
         return select;
     }
 
@@ -143,11 +135,11 @@ public class BuildReportFormTag extends IdentifiableFormTag {
     }
 
     @Override
-    protected ReportDto getIdentifiable() {
+    protected WfReport getIdentifiable() {
         return Delegates.getReportService().getReportDefinition(getUser(), getIdentifiableId());
     }
 
-    class ReportGenerationTypeNameVisitor implements ReportGenerationTypeVisitor<StrutsMessage> {
+    static final class ReportGenerationTypeNameVisitor implements ReportGenerationTypeVisitor<StrutsMessage> {
 
         @Override
         public StrutsMessage onHtml() {

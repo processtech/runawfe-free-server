@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.af.web.tag;
@@ -27,7 +27,6 @@ import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
-import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
@@ -43,6 +42,7 @@ import ru.runa.af.web.action.UpdateBotTasksAction;
 import ru.runa.af.web.form.BotTasksForm;
 import ru.runa.af.web.system.TaskHandlerClassesInformation;
 import ru.runa.common.web.Commons;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdsForm;
@@ -112,7 +112,7 @@ public class BotTaskListTag extends TitledFormTag {
         return UpdateBotTasksAction.UPDATE_BOT_TASKS_ACTION_PATH;
     }
 
-    class BotTaskHeaderBuilder implements HeaderBuilder {
+    static class BotTaskHeaderBuilder implements HeaderBuilder {
 
         private final PageContext context;
 
@@ -190,7 +190,8 @@ public class BotTaskListTag extends TitledFormTag {
         private TD buildNameTD(BotTask task) {
             TD resTD = new TD();
             resTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-            Input input = new Input(Input.TEXT, BotTasksForm.BOT_TASK_INPUT_NAME_PREFIX + task.getId() + BotTasksForm.NAME_INPUT_NAME, task.getName());
+            Input input = new Input(Input.TEXT, BotTasksForm.BOT_TASK_INPUT_NAME_PREFIX + task.getId() + BotTasksForm.NAME_INPUT_NAME,
+                    task.getName());
             input.setDisabled(disabled);
             input.setSize(nameSize);
             resTD.addElement(input);
@@ -206,22 +207,15 @@ public class BotTaskListTag extends TitledFormTag {
             String taskHandlerClazz = task.getTaskHandlerClassName();
             boolean isHandlerPresent = false;
             for (String className : TaskHandlerClassesInformation.getClassNames()) {
-                Option option = new Option();
-                if (className.equalsIgnoreCase(taskHandlerClazz)) {
-                    option.setSelected(true);
+                boolean isCurrent = className.equalsIgnoreCase(taskHandlerClazz);
+                if (isCurrent) {
                     isHandlerPresent = true;
                 }
-                option.setValue(className);
-                option.addElement(className);
-                select.addElement(option);
+                select.addElement(HTMLUtils.createOption(className, isCurrent));
             }
             if (!isHandlerPresent) {
-                Option option = new Option();
-                option.setSelected(true);
                 String handlerName = MessagesBot.LABEL_UNKNOWN_BOT_HANDLER.message(pageContext) + ": " + taskHandlerClazz;
-                option.setValue(handlerName);
-                option.addElement(handlerName);
-                select.addElement(option);
+                select.addElement(HTMLUtils.createOption(handlerName, true));
             }
             resTD.addElement(select);
             return resTD;
@@ -284,8 +278,8 @@ public class BotTaskListTag extends TitledFormTag {
             jsLink.append(Commons.getActionUrl(BotTaskConfigurationDownloadAction.DOWNLOAD_BOT_TASK_CONFIGURATION_ACTION_PATH, parameterMap,
                     pageContext, PortletUrlType.Action));
             jsLink.append("','");
-            jsLink.append(Commons.getActionUrl(UpdateBotTaskConfigurationAction.UPDATE_TASK_HANDLER_CONF_ACTION_PATH, "id", task.getId(),
-                    pageContext, PortletUrlType.Action));
+            jsLink.append(Commons.getActionUrl(UpdateBotTaskConfigurationAction.UPDATE_TASK_HANDLER_CONF_ACTION_PATH, "id", task.getId(), pageContext,
+                    PortletUrlType.Action));
             jsLink.append("','");
             jsLink.append(MessagesCommon.BUTTON_SAVE.message(pageContext));
             jsLink.append("','");

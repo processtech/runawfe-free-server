@@ -43,4 +43,9 @@ public class DoubleFormat extends VariableFormat {
         return format.format(obj);
     }
 
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onDouble(this, context);
+    }
+
 }

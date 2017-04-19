@@ -64,10 +64,10 @@
         options: {
             // The drop target element(s), by the default the complete document.
             // Set to null to disable drag & drop support:
-            dropZone: $(document),
+            dropZone: null, // $(document),
             // The paste target element(s), by the default the complete document.
             // Set to null to disable paste support:
-            pasteZone: $(document),
+            pasteZone: null, // $(document),
             // The file input field(s), that are listened to for change events.
             // If undefined, it is set to the file input fields inside
             // of the widget element on plugin initialization.

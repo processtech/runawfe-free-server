@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 /**
  * BigDecimal variable support.
- * 
+ *
  * @author dofs
  * @since 4.0
  */
@@ -30,4 +30,8 @@ public class BigDecimalFormat extends VariableFormat {
         return obj.toString();
     }
 
+    @Override
+    public <TResult, TContext> TResult processBy(VariableFormatVisitor<TResult, TContext> operation, TContext context) {
+        return operation.onBigDecimal(this, context);
+    }
 }

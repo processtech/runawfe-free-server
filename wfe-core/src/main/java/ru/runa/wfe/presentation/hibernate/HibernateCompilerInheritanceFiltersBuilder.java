@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.DBSource;
+import ru.runa.wfe.presentation.DBSource.AccessType;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
@@ -148,7 +149,7 @@ public class HibernateCompilerInheritanceFiltersBuilder {
     private List<String> buildFiltersForField(FieldDescriptor field, FilterCriteria criteria) {
         List<String> result = new LinkedList<String>();
         for (DBSource dbSource : field.dbSources) {
-            if (dbSource.getValueDBPath(null) == null) {
+            if (dbSource.getValueDBPath(AccessType.FILTER, null) == null) {
                 continue;
             }
             String condition = createDbSourceFilterCriteria(field, dbSource, criteria.getFilterTemplates());
@@ -182,14 +183,11 @@ public class HibernateCompilerInheritanceFiltersBuilder {
      * @return HQL condition string to filter by database source.
      */
     private String createDbSourceFilterCriteria(FieldDescriptor field, DBSource dbSource, String[] filterTemplates) {
-        FilterCriteria fieldsToFilterCriteria = FilterCriteriaFactory.createFilterCriteria(dbSource.getSourceObject().getName());
-        if (fieldsToFilterCriteria == null) {
-            return null;
-        }
+        FilterCriteria fieldsToFilterCriteria = FilterCriteriaFactory.createFilterCriteria(dbSource.getSourceObject());
         try {
             fieldsToFilterCriteria.applyFilterTemplates(filterTemplates);
-            return fieldsToFilterCriteria.buildWhereCondition(dbSource.getValueDBPath(hqlBuilder.getAliasMapping().getAlias(field)),
-                    hqlBuilder.getPlaceholders());
+            return fieldsToFilterCriteria.buildWhereCondition(
+                    dbSource.getValueDBPath(AccessType.FILTER, hqlBuilder.getAliasMapping().getAlias(field)), hqlBuilder.getPlaceholders());
         } catch (Exception e) {
             log.error("Filter can't be applied to field with inheritance. Field name is " + field.displayName + ", database source is "
                     + dbSource.getSourceObject().getName(), e);

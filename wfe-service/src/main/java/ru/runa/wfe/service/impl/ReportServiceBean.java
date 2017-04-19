@@ -16,8 +16,8 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.report.dto.ReportDto;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.logic.ReportLogic;
 import ru.runa.wfe.service.decl.ReportServiceLocal;
 import ru.runa.wfe.service.decl.ReportServiceRemote;
@@ -39,7 +39,7 @@ public class ReportServiceBean implements ReportServiceLocal, ReportServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public List<ReportDto> getReportDefinitions(@WebParam(name = "user") User user,
+    public List<WfReport> getReportDefinitions(@WebParam(name = "user") User user,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "enablePaging") boolean enablePaging) {
         Preconditions.checkArgument(user != null, "user");
         if (batchPresentation == null) {
@@ -50,7 +50,7 @@ public class ReportServiceBean implements ReportServiceLocal, ReportServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public ReportDto getReportDefinition(@WebParam(name = "user") User user, @WebParam(name = "id") Long id) {
+    public WfReport getReportDefinition(@WebParam(name = "user") User user, @WebParam(name = "id") Long id) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(id != null, "id");
         return reportLogic.getReportDefinition(user, id);
@@ -58,7 +58,7 @@ public class ReportServiceBean implements ReportServiceLocal, ReportServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public List<ReportParameterDto> analyzeReportFile(@WebParam(name = "report") ReportDto report,
+    public List<WfReportParameter> analyzeReportFile(@WebParam(name = "report") WfReport report,
             @WebParam(name = "reportFileContent") byte[] reportFileContent) {
         Preconditions.checkArgument(report != null, "report");
         Preconditions.checkArgument(reportFileContent != null, "reportFileContent");
@@ -67,7 +67,7 @@ public class ReportServiceBean implements ReportServiceLocal, ReportServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public void deployReport(@WebParam(name = "user") User user, @WebParam(name = "report") ReportDto report, @WebParam(name = "file") byte[] file) {
+    public void deployReport(@WebParam(name = "user") User user, @WebParam(name = "report") WfReport report, @WebParam(name = "file") byte[] file) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(report != null, "report");
         Preconditions.checkArgument(file != null, "file");
@@ -76,7 +76,7 @@ public class ReportServiceBean implements ReportServiceLocal, ReportServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public void redeployReport(@WebParam(name = "user") User user, @WebParam(name = "report") ReportDto report, @WebParam(name = "file") byte[] file) {
+    public void redeployReport(@WebParam(name = "user") User user, @WebParam(name = "report") WfReport report, @WebParam(name = "file") byte[] file) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(report != null, "report");
         reportLogic.redeployReport(user, report, file);

@@ -27,5 +27,4 @@ public class SaveFileToFileSystemHandler extends CommonParamBasedHandler {
         file.createNewFile();
         Files.write(fileVariable.getData(), file);
     }
-
 }

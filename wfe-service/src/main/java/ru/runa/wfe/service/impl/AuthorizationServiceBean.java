@@ -33,6 +33,8 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.Identifiable;
@@ -47,8 +49,6 @@ import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Implements AuthorizationService as bean. Created on 20.07.2004
@@ -89,6 +89,7 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(permission != null, "permission");
         Preconditions.checkArgument(identifiables != null, "identifiables");
+        Preconditions.checkArgument(!identifiables.contains(null), "identifiables element");
         return authorizationLogic.isAllowed(user, permission, identifiables);
     }
 

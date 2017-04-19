@@ -32,11 +32,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.invoker.BotInvoker;
-import ru.runa.wfe.execution.logic.ProcessExecutionErrors;
+import ru.runa.wfe.commons.CoreErrorProperties;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -63,8 +65,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     private BotStation botStation;
 
     /**
-     * Checking botInvokerInvocation.isDone() leads to run() method called only
-     * once per moment.
+     * Checking botInvokerInvocation.isDone() leads to run() method called only once per moment.
      */
     @Override
     public synchronized void invokeBots(BotStation botStation, boolean resetFailedDelay) {
@@ -116,6 +117,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     }
 
     private void configure() {
+        String botStationErrorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_STATION_CONFIGURATION_ERROR, botStation.getName());
         try {
             if (botStation.getVersion() != configurationVersion) {
                 log.info("Will update bots configuration.");
@@ -126,6 +128,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
                 botExecutors.clear();
                 List<Bot> bots = Delegates.getBotService().getBots(botStationUser, botStation.getId());
                 for (Bot bot : bots) {
+                    String botErrorMessage = CoreErrorProperties.getMessage(CoreErrorProperties.BOT_CONFIGURATION_ERROR, bot.getUsername());
                     try {
                         log.info("Configuring " + bot.getUsername());
                         User user = Delegates.getAuthenticationService().authenticateByLoginPassword(bot.getUsername(), bot.getPassword());
@@ -137,24 +140,25 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
                         } else {
                             botExecutors.put(bot, new WorkflowBotExecutor(user, bot, tasks));
                         }
-                        ProcessExecutionErrors.removeBotTaskConfigurationError(bot, null);
-                    } catch (Exception e) {
-                        log.error("Unable to configure " + bot);
-                        ProcessExecutionErrors.addBotTaskConfigurationError(bot, null, e);
+                        Errors.removeSystemError(botErrorMessage);
+                    } catch (Throwable th) {
+                        log.error("Unable to configure " + bot, th);
+                        Errors.addSystemError(new ConfigurationException(botErrorMessage, th));
                     }
                 }
                 configurationVersion = botStation.getVersion();
             } else {
                 log.debug("bots configuration is up to date, version = " + botStation.getVersion());
             }
+            Errors.removeSystemError(botStationErrorMessage);
         } catch (Throwable th) {
-            log.error("Botstation configuration error. ", th);
+            log.error("Botstation configuration error", th);
+            Errors.addSystemError(new ConfigurationException(botStationErrorMessage, th));
         }
     }
 
     /**
-     * Checking botInvokerInvocation.isDone() in synchronized invokeBots method
-     * leads to run() method called only once per moment.
+     * Checking botInvokerInvocation.isDone() in synchronized invokeBots method leads to run() method called only once per moment.
      */
     @Override
     public void run() {
@@ -181,9 +185,8 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     }
 
     /**
-     * Schedules all task for bot. Each parallel tasks scheduled as self.
-     * Sequential tasks is grouped for sequential execution.
-     *
+     * Schedules all task for bot. Each parallel tasks scheduled as self. Sequential tasks is grouped for sequential execution.
+     * 
      * @param botExecutor
      *            Bot execution data.
      * @param tasks
@@ -226,7 +229,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
 
     /**
      * Schedules new tasks for sequential bot.
-     *
+     * 
      * @param botExecutor
      *            Component, used to create new bot task executors.
      */
@@ -253,8 +256,7 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     }
 
     /**
-     * forked from java.util.concurrent.Executors.DefaultThreadFactory due to
-     * private access to this class
+     * forked from java.util.concurrent.Executors.DefaultThreadFactory due to private access to this class
      */
     private static class BotNamedThreadFactory implements ThreadFactory {
         static final AtomicInteger poolNumber = new AtomicInteger(1), threadNumber = new AtomicInteger(1);

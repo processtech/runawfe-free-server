@@ -6,6 +6,7 @@ public enum NodeType {
     ACTION_NODE,
     END_PROCESS,
     WAIT_STATE,
+    TIMER,
     TASK_STATE,
     FORK,
     JOIN,

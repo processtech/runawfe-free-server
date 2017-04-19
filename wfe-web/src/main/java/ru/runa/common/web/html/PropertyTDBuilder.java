@@ -28,11 +28,6 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 
 public class PropertyTDBuilder extends BaseTDBuilder {
-
-    static enum AuthState {
-        ALWAYS_ENABLE, ALWAYS_DISABLE, ASK_WFE
-    }
-
     private final String propertyName;
     private final AuthState authState;
 
@@ -90,4 +85,11 @@ public class PropertyTDBuilder extends BaseTDBuilder {
     public int getSeparatedValuesCount(Object object, Env env) {
         return 1;
     }
+
+    static enum AuthState {
+        ALWAYS_ENABLE,
+        ALWAYS_DISABLE,
+        ASK_WFE
+    }
+
 }

@@ -24,6 +24,7 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
+import ru.runa.wfe.presentation.VariableDBSources;
 import ru.runa.wfe.presentation.filter.TaskDurationFilterCriteria;
 import ru.runa.wfe.presentation.filter.UserOrGroupFilterCriteria;
 import ru.runa.wfe.security.Permission;
@@ -32,7 +33,7 @@ import ru.runa.wfe.var.Variable;
 
 /**
  * Created on 22.10.2005
- *
+ * 
  */
 public class ProcessWithTasksClassPresentation extends ClassPresentation {
     public static final String PROCESS_ID = "batch_presentation.process.id";
@@ -53,17 +54,6 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
 
     private static final ClassPresentation INSTANCE = new ProcessWithTasksClassPresentation();
 
-    private static class VariableDBSource extends DefaultDBSource {
-        public VariableDBSource(Class<?> sourceObject) {
-            super(sourceObject, "stringValue");
-        }
-
-        @Override
-        public String getJoinExpression(String alias) {
-            return classNameSQL + ".id=" + alias + ".process";
-        }
-    }
-
     private static class ChildDBSource extends DefaultDBSource {
 
         public ChildDBSource(Class<?> sourceObject, String valueDBPath) {
@@ -72,7 +62,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
 
         @Override
         public String getJoinExpression(String alias) {
-            return alias + ".process = " + classNameSQL;
+            return alias + ".process.id";
         }
     }
 
@@ -86,7 +76,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
         }
 
         @Override
-        public String getValueDBPath(String parAlias) {
+        public String getValueDBPath(AccessType accessType, String parAlias) {
             final String alias = parAlias == null ? "" : parAlias + ".";
             final String first = makeDbPath(alias, valueDBPath);
             final String second = makeDbPath(alias, secondDBPath);
@@ -112,7 +102,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
         }
 
         @Override
-        public String getValueDBPath(String parAlias) {
+        public String getValueDBPath(AccessType accessType, String parAlias) {
             final String alias = parAlias == null ? "" : parAlias + ".";
             final String first = alias + valueDBPath;
             final String second = alias + secondDBPath;
@@ -120,19 +110,8 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
         }
     }
 
-    private static class SubProcessDBSource extends DefaultDBSource {
-        public SubProcessDBSource(Class<?> sourceObject, String valueDBPath) {
-            super(sourceObject, valueDBPath);
-        }
-
-        @Override
-        public String getJoinExpression(String alias) {
-            return "CAST(" + ClassPresentation.classNameSQL + ".id AS VARCHAR(128))" + " = " + alias + ".hierarchyIds";
-        }
-    }
-
     private ProcessWithTasksClassPresentation() {
-        super(Process.class, "", true, true, new FieldDescriptor[] {
+        super(Process.class, "", true, new FieldDescriptor[] {
                 new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDBSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "id" }),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDBSource(Process.class, "deployment.name"), true,
@@ -146,29 +125,30 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                 new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDBSource(Process.class, "executionStatus"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_EXECUTOR, UserOrGroupFilterCriteria.class.getName(), new ChildDBSource(Task.class, "executor.name"), false,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "executor" })
-            .setShowable(false),
+                        FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(),
+                                "executor" }).setShowable(false),
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new ChildDBSource(Task.class, "swimlane.name"), false,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "swimlane" })
-            .setShowable(false),
-                new FieldDescriptor(TASK_NAME, String.class.getName(), new ChildDBSource(Task.class, "name"), false, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "taskName" }).setShowable(false),
+                        FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(),
+                                "swimlane" }).setShowable(false),
+                new FieldDescriptor(TASK_NAME, String.class.getName(), new ChildDBSource(Task.class, "name"), false,
+                        FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(),
+                                "taskName" }).setShowable(false),
                 new FieldDescriptor(TASK_DURATION, TaskDurationFilterCriteria.class.getName(), new DeltaDataChildDBSource(Task.class, "deadlineDate",
-                            "createDate"), false, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(),
-                    "taskDuration" }).setShowable(false),
+                        "createDate"), false, FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
+                        new Permission(), "taskDuration" }).setShowable(false),
                 new FieldDescriptor(TASK_DURATION_CURRENT, TaskDurationFilterCriteria.class.getName(), new DeltaDataChildDBSource(Task.class,
-                            "$current_date", "createDate"), false, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
-                        new Permission(), "currentTaskDuration" }).setShowable(false),
+                        "$current_date", "createDate"), false, FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder",
+                        new Object[] { new Permission(), "currentTaskDuration" }).setShowable(false),
                 new FieldDescriptor(TASK_CREATE_DATE, Date.class.getName(), new ChildDBSource(Task.class, "createDate"), false,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
+                        FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
                 new FieldDescriptor(TASK_TAKE_DATE, Date.class.getName(), new NotNullChildDBSource(Task.class, "executor", "swimlane.createDate"),
-                        false, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
+                        false, FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new ChildDBSource(Task.class, "deadlineDate"), false,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
-                new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(),
-                        new SubProcessDBSource[] { new SubProcessDBSource(Process.class, "hierarchyIds") }, true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}, true),
-                new FieldDescriptor(PROCESS_VARIABLE, String.class.getName(), new VariableDBSource(Variable.class), true, FieldFilterMode.DATABASE,
+                        FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
+                new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(), new SubProcessDBSource(
+                        Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {},
+                        true),
+                new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDBSources.get(null), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.ProcessVariableTDBuilder", new Object[] {}, true) });
     }
 

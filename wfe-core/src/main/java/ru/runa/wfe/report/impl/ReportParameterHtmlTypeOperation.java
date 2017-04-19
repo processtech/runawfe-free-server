@@ -4,7 +4,6 @@ import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
 
 /**
  * Operation to get HTML type for parameter.
- * 
  */
 public class ReportParameterHtmlTypeOperation implements ReportParameterTypeVisitor<String, Object> {
 
@@ -40,6 +39,36 @@ public class ReportParameterHtmlTypeOperation implements ReportParameterTypeVisi
 
     @Override
     public String onSwimlane(Object data) {
+        return "text";
+    }
+
+    @Override
+    public String onActorId(Object data) {
+        return "text";
+    }
+
+    @Override
+    public String onGroupId(Object data) {
+        return "text";
+    }
+
+    @Override
+    public String onExecutorId(Object data) {
+        return "text";
+    }
+
+    @Override
+    public String onActorName(Object data) {
+        return "text";
+    }
+
+    @Override
+    public String onGroupName(Object data) {
+        return "text";
+    }
+
+    @Override
+    public String onExecutorName(Object data) {
         return "text";
     }
 }

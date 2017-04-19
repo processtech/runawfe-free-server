@@ -179,9 +179,6 @@ public class CommonLogic {
             if (name.equals(SystemProperties.TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME)) {
                 bean = "tasksAssignTask";
             }
-            if (name.equals(SystemProperties.TIMERTASK_PERIOD_MILLIS_LDAP_SYNC_NAME)) {
-                bean = "ldapSynchronizerTask";
-            }
             if (bean != null) {
                 try {
                     Long period = SystemProperties.getResources().getLongProperty(name, 60000);

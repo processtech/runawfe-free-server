@@ -44,9 +44,8 @@ public class FieldDescriptor {
     public final String displayName;
 
     /**
-     * Field type as class name (i. e. String.class.getName()). Used to get appreciate {@link FilterCriteria} and FilterTDFormatter (see web
-     * project). So, filter representation is depends on this field. {@link Calendar} will be created for {@link Date}, editor field for String and
-     * so on.
+     * Field type as class name (i. e. String.class.getName()). Used to get appreciate {@link FilterCriteria} and FilterTDFormatter (see web project).
+     * So, filter representation is depends on this field. {@link Calendar} will be created for {@link Date}, editor field for String and so on.
      */
     public final String fieldType;
 
@@ -93,8 +92,8 @@ public class FieldDescriptor {
     public final Object[] tdBuilderParams;
 
     /**
-     * Components, to access field values from HQL/SQL. If more then one components supplied, then first component must describe access to base
-     * class and other components must describe access to inherited objects.
+     * Components, to access field values from HQL/SQL. If more then one components supplied, then first component must describe access to base class
+     * and other components must describe access to inherited objects.
      */
     public final DBSource[] dbSources;
 
@@ -105,8 +104,8 @@ public class FieldDescriptor {
     public final boolean isWeakJoin;
 
     /**
-     * Ordinal field index in {@link BatchPresentation}. All fields in {@link ClassPresentation} has -1, but {@link BatchPresentation} creates
-     * fields with indexes using createConcretteField.
+     * Ordinal field index in {@link BatchPresentation}. All fields in {@link ClassPresentation} has -1, but {@link BatchPresentation} creates fields
+     * with indexes using createConcretteField.
      */
     public final int fieldIdx;
 
@@ -117,12 +116,12 @@ public class FieldDescriptor {
 
     /**
      * Creates field description.
-     *
+     * 
      * @param displayName
      *            Struts property, which will be used to get field display name.
      * @param fieldType
      *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
+     * @param dbSource
      *            Components, to access field values from HQL/SQL.
      * @param sortable
      *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
@@ -131,15 +130,15 @@ public class FieldDescriptor {
      * @param fieldState
      *            Field display and HQL/SQL affecting state.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource dbSources, boolean sortable, FieldFilterMode filterMode,
+    public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, FieldFilterMode filterMode,
             FieldState fieldState) {
-        this(displayName, fieldType, new DBSource[] { dbSources }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, null, null,
+        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, null, null,
                 false, -1, fieldState);
     }
 
     /**
      * Creates field description.
-     *
+     * 
      * @param displayName
      *            Struts property, which will be used to get field display name.
      * @param fieldType
@@ -163,7 +162,7 @@ public class FieldDescriptor {
 
     /**
      * Creates field description.
-     *
+     * 
      * @param displayName
      *            Struts property, which will be used to get field display name.
      * @param fieldType
@@ -191,7 +190,7 @@ public class FieldDescriptor {
 
     /**
      * Creates field description.
-     *
+     * 
      * @param displayName
      *            Struts property, which will be used to get field display name.
      * @param fieldType
@@ -215,50 +214,6 @@ public class FieldDescriptor {
                 tdBuilderParams, isWeakJoin, -1, null);
     }
 
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
-     *            Components, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
-            String tdBuilder, Object[] tdBuilderParams) {
-        this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
-                false, -1, null);
-    }
-
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
-     *            Components, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     * @param isWeakJoin
-     *            If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping.
-     */
     public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
             String tdBuilder, Object[] tdBuilderParams, boolean isWeakJoin) {
         this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
@@ -267,7 +222,7 @@ public class FieldDescriptor {
 
     /**
      * Creates field description.
-     *
+     * 
      * @param displayName
      *            Struts property, which will be used to get field display name.
      * @param fieldType
@@ -304,6 +259,9 @@ public class FieldDescriptor {
         this.isWeakJoin = isWeakJoin;
         this.fieldIdx = fieldIdx;
         this.fieldState = fieldState == null ? loadFieldState(displayName) : fieldState;
+        if (filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION && sortable) {
+            throw new InternalApplicationException("DATABASE_ID_RESTRICTION must not be used on filterable fields.");
+        }
     }
 
     @Override
@@ -326,7 +284,7 @@ public class FieldDescriptor {
 
     /**
      * Creates {@link FieldDescriptor} instance with same parameters as current, but with provided field index.
-     *
+     * 
      * @param fieldIdx
      *            Index, assigned to field.
      * @return {@link FieldDescriptor} instance with provided index.
@@ -338,7 +296,7 @@ public class FieldDescriptor {
 
     /**
      * Creates removable field for editable field. If this method called not to editable field, null will be returned.
-     *
+     * 
      * @param value
      *            Value, inserted by user to editable field editor.
      * @param fieldIdx
@@ -358,7 +316,7 @@ public class FieldDescriptor {
 
     /**
      * Returns preferred object to display this field value in web interface.
-     *
+     * 
      * @return TDBuilder instance.
      */
     public Object getTDBuilder() {
@@ -388,7 +346,7 @@ public class FieldDescriptor {
 
     /**
      * Loads preferred object to display this field value in web interface.
-     *
+     * 
      * @return TDBuilder instance.
      */
     private Object loadTDBuilder() {
@@ -415,7 +373,7 @@ public class FieldDescriptor {
 
     /**
      * Load field state from properties file. If property loading fails, return ENABLED.
-     *
+     * 
      * @param displayName
      *            Field display name.
      * @return Field state, loaded from properties file.
