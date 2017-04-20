@@ -121,6 +121,9 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
             if (task.isEscalated()) {
                 return "escalatedTask";
             }
+            if (task.isDelegated()) {
+                return "delegatedTask";
+            }
             if (task.isAcquiredBySubstitution()) {
                 return "substitutionTask";
             }

@@ -1,7 +1,6 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.LogFactory;
@@ -17,8 +16,6 @@ import ru.runa.wf.web.tag.ListTasksFormTag;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.BatchPresentationConsts;
-import ru.runa.wfe.presentation.DefaultBatchPresentations;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -28,40 +25,24 @@ import ru.runa.wfe.task.logic.TaskListBuilder;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
-import com.google.common.collect.Maps;
-
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listObservableTasksForm")
 public class ListObservableTasksFormTag extends ListTasksFormTag {
     private static final long serialVersionUID = 1L;
     private Long executorId;
-    private BatchPresentation executorBatchPresentation;
 
     @Attribute(required = false, rtexprvalue = true)
     public void setExecutorId(Long executorId) {
         this.executorId = executorId;
-        if (executorId != 0) {
+        if (executorId != null) {
             Executor executor = Delegates.getExecutorService().getExecutor(getUser(), executorId);
-            executorBatchPresentation = DefaultBatchPresentations.get(BatchPresentationConsts.ID_OBSERVABLE_TASKS, true);
-            executorBatchPresentation.setName(executor.getName());
-            Map<Integer, FilterCriteria> filterMap = Maps.newHashMap();
-            int fieldIndex = executorBatchPresentation.getClassPresentation().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
-            filterMap.put(fieldIndex, new StringFilterCriteria(executor.getName()));
-            executorBatchPresentation.setFilteredFields(filterMap);
-        } else {
-            executorBatchPresentation = null;
+            BatchPresentation batchPresentation = getBatchPresentation();
+            int fieldIndex = batchPresentation.getClassPresentation().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
+            batchPresentation.getFilteredFields().put(fieldIndex, new StringFilterCriteria(executor.getName()));
         }
     }
 
     public Long getExecutorId() {
         return executorId;
-    }
-
-    @Override
-    public BatchPresentation getBatchPresentation() {
-        if (executorBatchPresentation != null) {
-            return executorBatchPresentation;
-        }
-        return super.getBatchPresentation();
     }
 
     @Override

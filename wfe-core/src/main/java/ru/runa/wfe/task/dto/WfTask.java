@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDeadlineUtils;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -160,6 +161,10 @@ public class WfTask implements Serializable {
 
     public boolean isEscalated() {
         return escalated;
+    }
+
+    public boolean isDelegated() {
+        return owner instanceof DelegationGroup;
     }
 
     public boolean isGroupAssigned() {
