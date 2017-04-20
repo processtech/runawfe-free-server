@@ -67,6 +67,7 @@ public class ActionUtils {
         Point p = new Point(coords[0] + coords[2] - shift - ACTION_SIZE, coords[1] + coords[3] - 3 * ACTION_SIZE / 2);
         if (minusGrid) {
             p.y -= DrawProperties.GRID_SIZE;
+            p.x -= DrawProperties.GRID_SIZE;
         }
         return p;
     }

@@ -43,4 +43,34 @@ public class IsFixedListPropertyOperation implements ReportParameterTypeVisitor<
     public Boolean onSwimlane(Object data) {
         return true;
     }
+
+    @Override
+    public Boolean onActorId(Object data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onGroupId(Object data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onExecutorId(Object data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onActorName(Object data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onGroupName(Object data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onExecutorName(Object data) {
+        return true;
+    }
 }

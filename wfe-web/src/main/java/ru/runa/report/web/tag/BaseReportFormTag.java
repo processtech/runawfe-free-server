@@ -21,12 +21,12 @@ import ru.runa.report.web.action.AnalyzeReportAction;
 import ru.runa.report.web.form.DeployReportForm;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.report.ReportParameterType;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReportParameter;
 
 public abstract class BaseReportFormTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
 
-    protected void createVariablesTable(TD tdFormElement, List<ReportParameterDto> parameters) {
+    protected void createVariablesTable(TD tdFormElement, List<WfReportParameter> parameters) {
         Table headerTable = new Table();
         headerTable.setClass(Resources.CLASS_BOX_TITLE);
         String variablesHeader = MessagesReport.LABEL_REPORT_VARIABLES.message(pageContext);
@@ -36,7 +36,7 @@ public abstract class BaseReportFormTag extends TitledFormTag {
         table.setClass(Resources.CLASS_LIST_TABLE);
         table.addElement(getHeaderRow());
         int idx = 0;
-        for (ReportParameterDto parameter : parameters) {
+        for (WfReportParameter parameter : parameters) {
             TR tr = new TR();
             tr.addElement(new TD(createPositionSelect(idx, parameters.size())).setClass(Resources.CLASS_LIST_TABLE_TD));
             Input userName = HTMLUtils.createInput(DeployReportForm.VAR_USER_NAMES, parameter.getUserName());
@@ -60,24 +60,19 @@ public abstract class BaseReportFormTag extends TitledFormTag {
 
     private Select createTypeSelect(ReportParameterType currentType) {
         Option[] options = new Option[ReportParameterType.values().length];
-        int selected = 0;
         for (int i = 0; i < options.length; i++) {
-            String description = ReportParameterType.values()[i].getDescription();
-            options[i] = new Option(description, ReportParameterType.values()[i].toString(), description);
-            if (ReportParameterType.values()[i] == currentType) {
-                selected = i;
-            }
+            ReportParameterType value = ReportParameterType.values()[i];
+            options[i] = HTMLUtils.createOption(value.toString(), value.getDescription(), value == currentType);
         }
         Select select = new Select(DeployReportForm.VAR_TYPE, options);
         select.setID(DeployReportForm.VAR_TYPE);
-        select.selectOption(selected);
         return select;
     }
 
     private Select createPositionSelect(int currentPosition, int positionCount) {
         Option[] options = new Option[positionCount];
         for (int i = 0; i < options.length; i++) {
-            options[i] = new Option(Integer.toString(i + 1), i + 1, Integer.toString(i + 1) );
+            options[i] = HTMLUtils.createOption(i + 1, Integer.toString(i + 1), false);
         }
         Select select = new Select(DeployReportForm.VAR_POSITION, options);
         select.setID(DeployReportForm.VAR_POSITION);
@@ -92,7 +87,7 @@ public abstract class BaseReportFormTag extends TitledFormTag {
                 MessagesReport.LABEL_REPORT_VAR_DESCRIPTION.message(pageContext), MessagesReport.LABEL_REPORT_VAR_TYPE.message(pageContext),
                 MessagesReport.LABEL_REPORT_VAR_REQUIRED.message(pageContext) };
         for (int i = 0; i < headerNames.length; i++) {
-            tr.addElement(new TH(headerNames[i]));
+            tr.addElement(new TH(headerNames[i]).setClass(Resources.CLASS_LIST_TABLE_TH));
         }
         return tr;
     }

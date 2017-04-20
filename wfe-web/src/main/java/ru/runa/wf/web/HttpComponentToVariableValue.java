@@ -20,6 +20,7 @@ import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -176,6 +177,11 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
     }
 
     @Override
+    public Object onFormattedTextString(FormattedTextFormat textFormat, HttpComponentToVariableValueContext context) {
+        return convertDefault(textFormat, context);
+    }
+
+    @Override
     public Object onUserType(UserTypeFormat userTypeFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(userTypeFormat, context);
     }
@@ -187,7 +193,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
 
     /**
      * Default conversation implementation: assume value is String and try to parse it.
-     *
+     * 
      * @param format
      *            Variable format.
      * @param context
@@ -209,7 +215,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
 
     /**
      * Save exception in errors if required and continue execution.
-     *
+     * 
      * @param context
      *            Operation context.
      * @param valueToFormat
