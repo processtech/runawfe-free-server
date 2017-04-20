@@ -90,13 +90,8 @@ public class BuildReportFormTag extends IdentifiableFormTag {
 
                     @Override
                     public Option apply(ListValuesData input) {
-                        Option option = new Option();
-                        option.setLabel(input.getValueName());
-                        if (input.getValue() != null) {
-                            option.setValue(input.getValue().toString());
-                            option.addElement(input.getValue().toString());
-                        }
-                        return option;
+                        String value = input.getValue() != null ? input.getValue().toString() : null;
+                        return HTMLUtils.createOption(value, input.getValueName(), false);
                     }
                 });
                 table.addElement(HTMLUtils.createSelectRow(parameter.getUserName(), paramHtmlName, options.toArray(new Option[options.size()]), true,
@@ -109,17 +104,13 @@ public class BuildReportFormTag extends IdentifiableFormTag {
     private Select createBuildTypeSelect() {
         String selectedValue = pageContext.getRequest().getParameter(BUILD_TYPE);
         Option[] options = new Option[ReportGenerationType.values().length];
-        int selected = 0;
         for (int i = 0; i < options.length; i++) {
-            String description = ReportGenerationType.values()[i].processBy(new ReportGenerationTypeNameVisitor()).message(pageContext);
-            options[i] = new Option(description, ReportGenerationType.values()[i].toString(), description);
-            if (ReportGenerationType.values()[i].toString().equals(selectedValue)) {
-                options[i].setSelected(true);
-            }
+            ReportGenerationType value = ReportGenerationType.values()[i];
+            String description = value.processBy(new ReportGenerationTypeNameVisitor()).message(pageContext);
+            options[i] = HTMLUtils.createOption(value.toString(), description, value.toString().equals(selectedValue));
         }
         Select select = new Select(BUILD_TYPE, options);
         select.setID(BUILD_TYPE);
-        select.selectOption(selected);
         return select;
     }
 

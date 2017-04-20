@@ -60,24 +60,19 @@ public abstract class BaseReportFormTag extends TitledFormTag {
 
     private Select createTypeSelect(ReportParameterType currentType) {
         Option[] options = new Option[ReportParameterType.values().length];
-        int selected = 0;
         for (int i = 0; i < options.length; i++) {
-            String description = ReportParameterType.values()[i].getDescription();
-            options[i] = new Option(description, ReportParameterType.values()[i].toString(), description);
-            if (ReportParameterType.values()[i] == currentType) {
-                selected = i;
-            }
+            ReportParameterType value = ReportParameterType.values()[i];
+            options[i] = HTMLUtils.createOption(value.toString(), value.getDescription(), value == currentType);
         }
         Select select = new Select(DeployReportForm.VAR_TYPE, options);
         select.setID(DeployReportForm.VAR_TYPE);
-        select.selectOption(selected);
         return select;
     }
 
     private Select createPositionSelect(int currentPosition, int positionCount) {
         Option[] options = new Option[positionCount];
         for (int i = 0; i < options.length; i++) {
-            options[i] = new Option(Integer.toString(i + 1), i + 1, Integer.toString(i + 1));
+            options[i] = HTMLUtils.createOption(i + 1, Integer.toString(i + 1), false);
         }
         Select select = new Select(DeployReportForm.VAR_POSITION, options);
         select.setID(DeployReportForm.VAR_POSITION);

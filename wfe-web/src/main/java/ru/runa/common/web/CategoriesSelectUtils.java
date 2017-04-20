@@ -11,7 +11,6 @@ import javax.servlet.jsp.PageContext;
 
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.Input;
-import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 
@@ -86,7 +85,8 @@ public class CategoriesSelectUtils {
     static Select getSelectElement(Iterator<String[]> typesIterator, String selectedValue, String[] entityType, PageContext pageContext) {
         Select select = new Select(TYPE_SEL);
         select.setID("hierarchyTypeSelect");
-        select.addElement(createOption(MessagesCommon.NO_TYPE_SELECTED.message(pageContext), TYPE_DEFAULT, TYPE_DEFAULT.equals(selectedValue)));
+        select.addElement(
+                HTMLUtils.createOption(TYPE_DEFAULT, MessagesCommon.NO_TYPE_SELECTED.message(pageContext), TYPE_DEFAULT.equals(selectedValue)));
         while (typesIterator.hasNext()) {
             String[] type = typesIterator.next();
 
@@ -100,18 +100,8 @@ public class CategoriesSelectUtils {
             fullTypeBuild.append(type[type.length - 1]);
             String fullType = fullTypeBuild.toString();
             boolean selected = selectedValue == null && Arrays.equals(type, entityType) || fullType.equals(selectedValue);
-            select.addElement(createOption(typeBuild.toString(), fullType, selected));
+            select.addElement(HTMLUtils.createOption(fullType, typeBuild.toString(), selected));
         }
         return select;
-    }
-
-    private static Option createOption(String labelMessage, String value, boolean selected) {
-        Option option = new Option();
-        option.addElement(labelMessage);
-        option.setValue(value);
-        if (selected) {
-            option.setSelected(selected);
-        }
-        return option;
     }
 }

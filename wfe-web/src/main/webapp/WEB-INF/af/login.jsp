@@ -1,3 +1,4 @@
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" session="false" %>
 <%@ page import="java.net.URLDecoder" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -18,7 +19,7 @@
 <html:html lang="true">
   <head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/main.css" />">
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/main.css?"+Version.getHash() %>' />">
   </head>
 	<body>
 	<center>

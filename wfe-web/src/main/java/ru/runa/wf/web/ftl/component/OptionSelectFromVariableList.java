@@ -11,7 +11,7 @@ import ru.runa.wfe.var.ISelectable;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
-public class LegacySelectFromList extends FormComponent implements FormComponentSubmissionPostProcessor {
+public class OptionSelectFromVariableList extends FormComponent implements FormComponentSubmissionPostProcessor {
     private static final long serialVersionUID = 1L;
 
     @Override

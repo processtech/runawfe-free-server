@@ -125,3 +125,29 @@ function showFiltersHelp() {
 		}]
 	});
 }
+
+// TODO jquery usage is preferred
+function propagateSelectionStatus(checkBox) {
+	var checkBoxField = checkBox.parentNode;
+	var header = checkBoxField.parentNode;
+	var rowFields = header.children;
+	var headerLength = rowFields.length;
+	for (i = 0; i < headerLength; i++) {
+		if (rowFields[i] == checkBoxField) {
+			break;
+		}
+	}
+	if (i < headerLength) {
+		var table = header.parentNode;
+		var rows = table.children;
+		for (j = 1; j < rows.length; j++) {
+			if (rows[j].children.length == headerLength) {
+				var childCheckBoxField = rows[j].children.item(i);
+				var childCheckBox = childCheckBoxField.children.item(0);
+				if (childCheckBox.disabled == false) {
+					childCheckBox.checked = checkBox.checked;
+				}
+			}
+		}
+	}
+}
