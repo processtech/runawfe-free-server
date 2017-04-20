@@ -18,6 +18,7 @@ import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -144,6 +145,11 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onTextString(TextFormat textFormat, ConvertToSimpleVariablesContext context) {
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
+    }
+
+    @Override
+    public List<ConvertToSimpleVariablesResult> onFormattedTextString(FormattedTextFormat textFormat, ConvertToSimpleVariablesContext context) {
         return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
     }
 

@@ -1,8 +1,10 @@
 package ru.runa.wfe.report.dto;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.report.ReportParameterType;
 
-public class ReportParameterDto {
+public class WfReportParameter {
     private String userName;
     private String description;
     private String internalName;
@@ -10,11 +12,11 @@ public class ReportParameterDto {
     private ReportParameterType type;
     private boolean isRequired;
 
-    public ReportParameterDto() {
+    public WfReportParameter() {
         super();
     }
 
-    public ReportParameterDto(String userName, String description, String internalName, int position, ReportParameterType type, boolean isRequired) {
+    public WfReportParameter(String userName, String description, String internalName, int position, ReportParameterType type, boolean isRequired) {
         super();
         this.userName = userName;
         this.description = description;
@@ -91,7 +93,7 @@ public class ReportParameterDto {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ReportParameterDto other = (ReportParameterDto) obj;
+        WfReportParameter other = (WfReportParameter) obj;
         if (internalName == null) {
             if (other.internalName != null) {
                 return false;
@@ -118,4 +120,21 @@ public class ReportParameterDto {
         return true;
     }
 
+    /**
+     * Check for equality on data, loaded from report definition.
+     *
+     * @param other
+     *            Object for comparison.
+     * @return Returns true, if other object has same report parameters as current and false otherwise.
+     */
+    public boolean weekEquals(WfReportParameter other) {
+        if (Strings.isNullOrEmpty(internalName)) {
+            if (!Strings.isNullOrEmpty(other.internalName)) {
+                return false;
+            }
+        } else if (!internalName.equals(other.internalName)) {
+            return false;
+        }
+        return true;
+    }
 }
