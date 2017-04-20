@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractSelectFromList extends FormComponent implements FormComponentSubmissionHandler {
+public abstract class AbstractCheckboxSelectFromVariableList extends FormComponent implements FormComponentSubmissionHandler {
     private static final long serialVersionUID = 1L;
 
     protected abstract boolean isMultiple();
@@ -27,13 +27,14 @@ public abstract class AbstractSelectFromList extends FormComponent implements Fo
         String variableName = getParameterAsString(0);
         List<Object> selectedValues = variableProvider.getValue(List.class, variableName);
         String listVariableName = getParameterAsString(1);
+        boolean horizontalLayout = "horizontal".equals(getParameterAsString(2));
         WfVariable listVariable = variableProvider.getVariableNotNull(listVariableName);
         VariableFormat componentFormat = FormatCommons.createComponent(listVariable, 0);
         List<Object> list = (List<Object>) listVariable.getValue();
         if (list == null) {
             list = Lists.newArrayList();
         }
-        StringBuffer html = new StringBuffer();
+        StringBuilder html = new StringBuilder();
         html.append("<div class=\"selectFromList\">");
         for (int i = 0; i < list.size(); i++) {
             Object option = list.get(i);
@@ -56,7 +57,10 @@ public abstract class AbstractSelectFromList extends FormComponent implements Fo
             html.append(" style=\"width: 30px;\">");
             html.append("<label for=\"").append(id).append("\">");
             html.append(label);
-            html.append("</label><br>");
+            html.append("</label>");
+            if (!horizontalLayout) {
+                html.append("<br>");
+            }
         }
         html.append("</div>");
         return html;
