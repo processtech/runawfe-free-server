@@ -33,9 +33,12 @@ import ru.runa.common.web.action.ActionBase;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
+import java.util.Enumeration;
+import java.util.Map;
+
 /**
  * Created on 09.08.2004
- * 
+ *
  * @struts:action path="/login" name="loginForm" validate="true" input =
  *                "/start.do"
  * @struts.action-forward name="success" path="/manage_tasks.do" redirect =
@@ -56,8 +59,8 @@ public class LoginAction extends ActionBase {
             ProfileHttpSessionHelper.reloadProfile(request.getSession());
             TabHttpSessionHelper.setTabForwardName(DEFAULT_TAB_FORWARD_NAME, request.getSession());
             saveToken(request);
-            if (request.getParameter("forwardUrl") != null) {
-                return new ActionForward(request.getParameter("forwardUrl"));
+            if (request.getParameter("forwardUrl") != null && request.getParameter("forwardUrl").isEmpty() != true) {
+                return new ActionForward(request.getParameter("forwardUrl"), true);
             } else {
                 return mapping.findForward(Resources.FORWARD_SUCCESS);
             }

@@ -6,6 +6,13 @@
 <% 
 	String userName = request.getParameter("login") == null ? "" : URLDecoder.decode(request.getParameter("login"), "utf-8");
 	String userPwd = request.getParameter("password") == null ? "" : URLDecoder.decode(request.getParameter("password"), "utf-8");
+	String forwardUrl = request.getAttribute("forwardUrl") == null ? "" : URLDecoder.decode(request.getAttribute("forwardUrl").toString(), "utf-8");
+	if (forwardUrl.contains("/wfe")){
+		forwardUrl = forwardUrl.substring("/wfe".length());
+	}
+	if (request.getQueryString() != null && request.getQueryString().isEmpty() != true){
+		forwardUrl += "?" + request.getQueryString();
+	}
 %>
 
 <html:html lang="true">
@@ -40,6 +47,7 @@
 			  				</tr>
 							<tr>
 								<td>
+									<input type="hidden" name="forwardUrl" value="<%= forwardUrl %>">
 									<html:submit>
 										<bean:message key="login.page.login.button"/>
 									</html:submit>
