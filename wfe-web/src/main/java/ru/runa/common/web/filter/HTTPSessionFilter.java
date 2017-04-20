@@ -42,6 +42,7 @@ public class HTTPSessionFilter extends HTTPFilterBase {
         User user = (User) Commons.getSessionAttribute(request.getSession(), User.class.getName());
         if (user != null && query.equals("/wfe/")){
             forwardToPage(request, response, "manage_tasks.do");
+            return;
         }
         if (query.endsWith("do") && !query.endsWith("/start.do") && !query.endsWith("login.do") && !query.endsWith("version")) {
             try {
