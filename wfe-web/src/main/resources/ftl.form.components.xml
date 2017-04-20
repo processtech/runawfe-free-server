@@ -14,10 +14,13 @@
 	<component name="GroupMembers" class="ru.runa.wf.web.ftl.component.GroupMembers" />
 	<component name="InputVariable" class="ru.runa.wf.web.ftl.component.InputVariable" />
 	<component name="MultiLanguageExample" class="ru.runa.wf.web.ftl.component.MultiLanguageExample" />
-	<component name="MultipleSelectFromList" class="ru.runa.wf.web.ftl.component.MultipleSelectFromList" />
 	<component name="DisplayMultipleSelectInList" class="ru.runa.wf.web.ftl.component.DisplayMultipleSelectInList" />
-	<component name="SelectFromList" class="ru.runa.wf.web.ftl.component.SelectFromList" />
-	<component name="ChooseValueFromList" class="ru.runa.wf.web.ftl.component.ChooseValueFromList" />
+	<component name="MultipleSelectFromList" class="ru.runa.wf.web.ftl.component.MultipleSelectFromList" />
+	<component name="CheckboxSelectFromVariableList" class="ru.runa.wf.web.ftl.component.CheckboxSelectFromVariableList" />
+	<component name="SelectFromList" class="ru.runa.wf.web.ftl.component.OptionSelectFromVariableList" />
+	<component name="OptionSelectFromVariableList" class="ru.runa.wf.web.ftl.component.OptionSelectFromVariableList" />
+	<component name="ChooseValueFromList" class="ru.runa.wf.web.ftl.component.SelectFromValueList" />
+	<component name="SelectFromValueList" class="ru.runa.wf.web.ftl.component.SelectFromValueList" />
 	<component name="ViewFile" class="ru.runa.wf.web.ftl.component.ViewFile" />
 	<component name="TreeviewSupport" class="ru.runa.wf.web.ftl.component.TreeviewSupport" />
 	<component name="GetExecutorEmails" class="ru.runa.wf.web.ftl.component.GetExecutorEmails" />

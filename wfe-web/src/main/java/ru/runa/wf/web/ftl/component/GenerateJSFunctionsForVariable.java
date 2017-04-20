@@ -33,6 +33,7 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
     private boolean onTimeCalled;
     private boolean onDateTimeCalled;
     private boolean onFileCalled;
+    private boolean onFormattedTextCalled;
 
     @Override
     public String onDate(DateFormat dateFormat, WfVariable variable) {
@@ -130,6 +131,10 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
 
     @Override
     public String onFormattedTextString(FormattedTextFormat textFormat, WfVariable context) {
+        if (!onFormattedTextCalled) {
+            onFormattedTextCalled = true;
+            return "div.find('.inputFormattedText').filter(filterTemplatesElements).trumbowyg({ lang: currentBrowserLanguage, svgPath : 'css/trumbowyg.svg' });";
+        }
         return "";
     }
 
