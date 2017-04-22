@@ -60,6 +60,7 @@ public class WfTask implements Serializable {
     private Date creationDate;
     private Date deadlineDate;
     private Date deadlineWarningDate;
+    private Date assignDate;
     private boolean escalated;
     private boolean firstOpen;
     private boolean acquiredBySubstitution;
@@ -86,6 +87,7 @@ public class WfTask implements Serializable {
         this.creationDate = task.getCreateDate();
         this.deadlineDate = task.getDeadlineDate();
         this.deadlineWarningDate = TaskDeadlineUtils.getDeadlineWarningDate(task);
+        this.assignDate = task.getAssignDate();
         this.targetActor = targetActor;
         this.escalated = escalated;
         this.acquiredBySubstitution = acquiredBySubstitution;
@@ -155,6 +157,10 @@ public class WfTask implements Serializable {
 
     public Date getDeadlineWarningDate() {
         return deadlineWarningDate;
+    }
+
+    public Date getAssignDate() {
+        return assignDate;
     }
 
     public boolean isEscalated() {

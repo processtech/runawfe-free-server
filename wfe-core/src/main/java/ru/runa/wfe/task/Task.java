@@ -93,6 +93,7 @@ public class Task implements Assignable {
     private Executor executor;
     private Date createDate;
     private Date deadlineDate;
+    private Date assignDate;
     private String deadlineDateExpression;
     private Token token;
     private Swimlane swimlane;
@@ -177,6 +178,15 @@ public class Task implements Assignable {
 
     public void setDeadlineDate(Date deadlineDate) {
         this.deadlineDate = deadlineDate;
+    }
+
+    @Column(name = "ASSIGN_DATE")
+    public Date getAssignDate() {
+        return assignDate;
+    }
+
+    public void setAssignDate(Date assignDate) {
+        this.assignDate = assignDate;
     }
 
     @Column(name = "DEADLINE_DATE_EXPRESSION")
@@ -272,6 +282,7 @@ public class Task implements Assignable {
             executionContext.addLog(new TaskAssignLog(this, executor));
             // do the actual assignment
             setExecutor(executor);
+            setAssignDate(new Date());
             InteractionNode node = (InteractionNode) executionContext.getProcessDefinition().getNodeNotNull(nodeId);
             ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
             node.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_ASSIGN);
