@@ -61,13 +61,15 @@ public class ActionUtils {
         return new Point(x, y);
     }
 
-    public static Point getActionLocationOnNode(int i, int[] coords, boolean minusGrid) {
+    public static Point getActionLocationOnNode(int i, int[] coords, boolean xMinusGrid, boolean yMinusGrid) {
         // invert visuals
         int shift = (ACTION_DELIM + 2) + i * (ACTION_SIZE + (ACTION_DELIM + 2));
         Point p = new Point(coords[0] + coords[2] - shift - ACTION_SIZE, coords[1] + coords[3] - 3 * ACTION_SIZE / 2);
-        if (minusGrid) {
-            p.y -= DrawProperties.GRID_SIZE;
+        if (xMinusGrid) {
             p.x -= DrawProperties.GRID_SIZE;
+        }
+        if (yMinusGrid) {
+            p.y -= DrawProperties.GRID_SIZE;
         }
         return p;
     }
