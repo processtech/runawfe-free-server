@@ -329,9 +329,11 @@ public class Task implements Assignable {
             delete();
             return;
         }
-        InteractionNode interactionNode = (InteractionNode) node;
-        ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
-        interactionNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
+        if (completionInfo.getCompletionBy() != TaskCompletionBy.PROCESS_END) {
+            InteractionNode interactionNode = (InteractionNode) node;
+            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
+            interactionNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
+        }
         delete();
     }
 
