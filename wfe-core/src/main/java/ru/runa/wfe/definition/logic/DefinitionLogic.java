@@ -297,16 +297,16 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public List<ProcessDefinitionChange> getChanges(Long definitionId) {
         List<ProcessDefinitionChange> result = new ArrayList<>();
-        String definitionName = deploymentDAO.get(definitionId).getName();
+        String definitionName = getDefinition(definitionId).getName();
         List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
             Deployment deployment = listOfDeployments.get(m);
+            ProcessDefinition processDefinition = getDefinition(deployment.getId());
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
+            if (processDefinition.getProcessFiles().containsKey(fileName)) {
+                byte[] definitionXml = processDefinition.getProcessFiles().get(fileName);
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
@@ -329,17 +329,62 @@ public class DefinitionLogic extends WFCommonLogic {
         return result;
     }
 
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        String definitionName = getDefinition(definitionId).getName();
+        List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
+        if (n > listOfDeployments.size()) {
+            n = new Long(listOfDeployments.size());
+        }
+        if (n < 0) {
+            n = new Long(0);
+        }
+        if (n > 0) {
+            int previousCount = 0;
+            for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
+                Deployment deployment = listOfDeployments.get(m);
+                ProcessDefinition processDefinition = getDefinition(deployment.getId());
+                int currentVersion = deployment.getVersion().intValue();
+                String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
+                if (processDefinition.getProcessFiles().containsKey(fileName)) {
+                    byte[] definitionXml = processDefinition.getProcessFiles().get(fileName);
+                    Document document = XmlUtils.parseWithoutValidation(definitionXml);
+                    List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
+                    List<VersionInfo> versionInfos = Lists.newArrayList();
+
+                    for (int j = previousCount; j < versionList.size(); j++) {
+                        if (currentVersion > listOfDeployments.size() - n.intValue()) {
+                            Element versionInfoElement = versionList.get(j);
+                            VersionInfo versionInfo = new VersionInfo();
+                            versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
+                            versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
+                            versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
+                            versionInfos.add(versionInfo);
+                        }
+                        previousCount++;
+                    }
+
+                    for (VersionInfo versionInfo : versionInfos) {
+                        result.add(new ProcessDefinitionChange(currentVersion, versionInfo));
+                    }
+                }
+
+            }
+        }
+        return result;
+    }
+
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         List<ProcessDefinitionChange> result = new ArrayList<>();
         List<Deployment> listOfDeployments = deploymentDAO.findAllDeploymentVersions(definitionName);
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
             Deployment deployment = listOfDeployments.get(m);
+            ProcessDefinition processDefinition = getDefinition(deployment.getId());
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
+            if (processDefinition.getProcessFiles().containsKey(fileName)) {
+                byte[] definitionXml = processDefinition.getProcessFiles().get(fileName);
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();
@@ -369,11 +414,11 @@ public class DefinitionLogic extends WFCommonLogic {
         int previousCount = 0;
         for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
             Deployment deployment = listOfDeployments.get(m);
+            ProcessDefinition processDefinition = getDefinition(deployment.getId());
             int currentVersion = deployment.getVersion().intValue();
             String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
+            if (processDefinition.getProcessFiles().containsKey(fileName)) {
+                byte[] definitionXml = processDefinition.getProcessFiles().get(fileName);
                 Document document = XmlUtils.parseWithoutValidation(definitionXml);
                 List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
                 List<VersionInfo> versionInfos = Lists.newArrayList();

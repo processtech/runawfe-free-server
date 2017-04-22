@@ -298,6 +298,10 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return definitionLogic.getChanges(definitionId);
     }
 
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n){
+        return definitionLogic.getLastChanges(definitionId, n);
+    }
+
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
         return definitionLogic.findChanges(definitionName, version1, version2);
     }

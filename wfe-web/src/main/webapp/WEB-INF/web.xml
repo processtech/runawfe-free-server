@@ -105,7 +105,12 @@
 		<servlet-name>getComponentInput</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.GetComponentInputServlet</servlet-class>
 	</servlet>
-	
+
+	<servlet>
+		<servlet-name>versionChanges</servlet-name>
+		<servlet-class>ru.runa.wf.web.servlet.VersionChangesServlet</servlet-class>
+	</servlet>
+
 	<servlet>
 		<servlet-name>version</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.VersionServlet</servlet-class>
@@ -161,6 +166,11 @@
 	<servlet-mapping>
 		<servlet-name>getComponentInput</servlet-name>
 		<url-pattern>/getComponentInput</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>versionChanges</servlet-name>
+		<url-pattern>/versionChanges</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
