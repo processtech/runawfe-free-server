@@ -26,6 +26,19 @@ public class ProcessLogFilter implements Serializable {
         this.processId = processId;
     }
 
+    public ProcessLogFilter(ProcessLogFilter filter) {
+        this.rootClassName = filter.rootClassName;
+        this.idFrom = filter.idFrom;
+        this.idTo = filter.idTo;
+        this.createDateFrom = filter.createDateFrom;
+        this.createDateTo = filter.createDateTo;
+        this.processId = filter.processId;
+        this.tokenId = filter.tokenId;
+        this.nodeId = filter.nodeId;
+        this.includeSubprocessLogs = filter.includeSubprocessLogs;
+        this.severities = filter.severities;
+    }
+
     public String getRootClassName() {
         return rootClassName;
     }
@@ -109,4 +122,5 @@ public class ProcessLogFilter implements Serializable {
     public void setSeverities(List<Severity> severities) {
         this.severities = severities;
     }
+
 }
