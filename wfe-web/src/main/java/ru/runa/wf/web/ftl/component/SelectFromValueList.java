@@ -8,7 +8,7 @@ import ru.runa.wfe.var.dto.WfVariable;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
-public class ChooseValueFromList extends FormComponent {
+public class SelectFromValueList extends FormComponent {
     private static final long serialVersionUID = 1L;
 
     protected List<String> getOptions() {

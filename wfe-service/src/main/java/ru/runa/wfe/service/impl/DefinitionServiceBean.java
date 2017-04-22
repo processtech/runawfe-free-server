@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -294,15 +293,19 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return definitionLogic.getProcessDefinitionHistory(user, name);
     }
 
-    public List<ProcessDefinitionChange> getChanges(Long definitionId){
+    @Override
+    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
         return definitionLogic.getChanges(definitionId);
     }
 
-    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
+    @Override
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
+        return definitionLogic.getLastChanges(definitionId, n);
+    }
+
+    @Override
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         return definitionLogic.findChanges(definitionName, version1, version2);
     }
 
-    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2){
-        return definitionLogic.findChanges(date1, date2);
-    }
 }

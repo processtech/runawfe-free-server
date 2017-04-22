@@ -1,42 +1,44 @@
 package ru.runa.wfe.definition;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.util.Date;
 
+import com.google.common.base.Objects;
+
+/**
+ * Represents comment for process definition version.
+ */
 public class ProcessDefinitionChange implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long version;
-    private Calendar date;
+    private Date date;
     private String author;
     private String comment;
 
     public ProcessDefinitionChange() {
-        this.version = Long.valueOf(-1);
-        this.date = Calendar.getInstance();
-        this.author = "";
-        this.comment = "";
     }
 
-    public ProcessDefinitionChange(long version, VersionInfo versionInfo) {
+    public ProcessDefinitionChange(Date date, String author, String comment) {
+        this.date = date;
+        this.author = author != null ? author.intern() : null;
+        this.comment = comment != null ? comment.intern() : null;
+    }
+
+    public ProcessDefinitionChange(Long version, ProcessDefinitionChange change) {
         this.version = version;
-        this.date = versionInfo.getDate();
-        this.author = versionInfo.getAuthor();
-        this.comment = versionInfo.getComment();
+        this.date = change.getDate();
+        this.author = change.getAuthor();
+        this.comment = change.getComment();
     }
 
+    /**
+     * @return process definition version or <code>null</code> if unknown yet
+     */
     public Long getVersion() {
         return this.version;
     }
 
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    public void setDate(Calendar date) {
-        this.date = date;
-    }
-
-    public Calendar getDate() {
+    public Date getDate() {
         return this.date;
     }
 
@@ -44,15 +46,23 @@ public class ProcessDefinitionChange implements Serializable {
         return this.author;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
     public String getComment() {
         return this.comment;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ProcessDefinitionChange) {
+            // version is not used in equality
+            ProcessDefinitionChange o = (ProcessDefinitionChange) obj;
+            return Objects.equal(o.date, date) && Objects.equal(o.author, author) && Objects.equal(o.comment, comment);
+        }
+        return super.equals(obj);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(date, author, comment);
     }
 }

@@ -40,7 +40,7 @@ import ru.runa.wfe.user.Profile;
 
 /**
  * Created on 18.08.2004
- *
+ * 
  * @struts:action path="/startProcess" name="idForm" validate="true" input = "/WEB-INF/wf/manage_process_definitions.jsp"
  * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
  * @struts.action-forward name="failure" path="/manage_process_definitions.do" redirect = "true"
@@ -51,8 +51,8 @@ import ru.runa.wfe.user.Profile;
 public class StartProcessAction extends ActionBase {
 
     @Override
-    public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
-        StartProcessForm startProcessForm = (StartProcessForm) actionForm;
+    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        StartProcessForm startProcessForm = (StartProcessForm) form;
         Long definitionId = startProcessForm.getId();
         if (startProcessForm.getName() != null) {
             WfDefinition definition = Delegates.getDefinitionService().getLatestProcessDefinition(getLoggedUser(request), startProcessForm.getName());

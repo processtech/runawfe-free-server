@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 
 /**
  * shared code with {@link InputVariable}.
- *
+ * 
  * @author dofs
  * @since 4.0.5
  */
@@ -30,9 +30,9 @@ public class EditLinkedLists extends FormComponent {
         List<WfVariable> variables = Lists.newArrayList();
         List<VariableFormat> componentFormats = Lists.newArrayList();
         List<List<?>> lists = Lists.newArrayList();
-        StringBuffer rowTemplate = new StringBuffer();
-        StringBuffer jsHandlers = new StringBuffer();
-        StringBuffer jsVariableNamesArray = new StringBuffer();
+        StringBuilder rowTemplate = new StringBuilder();
+        StringBuilder jsHandlers = new StringBuilder();
+        StringBuilder jsVariableNamesArray = new StringBuilder();
         String uniqueName = null;
         int i = 3;
         int rowsCount = 0;
@@ -57,14 +57,14 @@ public class EditLinkedLists extends FormComponent {
             variables.add(variable);
             componentFormats.add(componentFormat);
             lists.add(list);
-            String jsHandler = ViewUtil.getComponentJSFunction(variable);
+            WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
+            String jsHandler = ViewUtil.getComponentJSFunction(templateComponentVariable);
             if (jsHandlers.indexOf(jsHandler, 0) == -1) {
                 jsHandlers.append(jsHandler);
             }
             rowTemplate.append("<td>");
-            WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
             String inputComponentHtml = getComponentInput(templateComponentVariable, true);
-            inputComponentHtml = inputComponentHtml.replaceAll("\"", "'");
+            inputComponentHtml = inputComponentHtml.replaceAll("\"", "'").replaceAll("\n", "");
             rowTemplate.append(inputComponentHtml);
             rowTemplate.append("</td>");
             if (list.size() > rowsCount) {

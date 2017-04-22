@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service.delegate;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -256,7 +254,7 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<ProcessDefinitionChange> getChanges(Long definitionId){
+    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
         try {
             return getDefinitionService().getChanges(definitionId);
         } catch (Exception e) {
@@ -265,18 +263,18 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
         try {
-            return getDefinitionService().findChanges(definitionName, version1, version2);
+            return getDefinitionService().getLastChanges(definitionId, n);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2){
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         try {
-            return getDefinitionService().findChangesWithin(date1, date2);
+            return getDefinitionService().findChanges(definitionName, version1, version2);
         } catch (Exception e) {
             throw handleException(e);
         }

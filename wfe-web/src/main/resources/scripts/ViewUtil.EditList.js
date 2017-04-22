@@ -18,9 +18,9 @@ function initUNIQUENAME(addButtonElement) {
 			var rowIndex = rows.length < 1 ? 0 : parseInt(rows.last().attr("row")) + 1;
 			console.log("Adding row " + rowIndex);
 			var copy = div.find("div[template]").first().clone();
-			copy.find("[name]").each(function(){
-			    $(this).attr("name", $(this).attr("name").replace(/\{\}/, "[" + rowIndex + "]"));
-			}); 
+			copy.children().each(function() {
+				updateTemplateOnAddUNIQUENAME(this, rowIndex);
+			});
 			var e = "<div current row='" + rowIndex + "' name='VARIABLE' style='margin-bottom:4px;'>";
 			e += copy.html();
 			e += "</div>";
@@ -30,6 +30,17 @@ function initUNIQUENAME(addButtonElement) {
 			$("#UNIQUENAME").trigger("onRowAdded", [rowIndex]);
 		});
 	});
+}
+
+function updateTemplateOnAddUNIQUENAME(element, rowIndex) {
+	$(element).children().each(function() {
+		updateTemplateOnAddUNIQUENAME(this, rowIndex);
+	});
+	$.each(element.attributes, function() {
+		if(this.specified) {
+			this.value = this.value.replace(/\{\}/, "[" + rowIndex + "]");
+		}
+  	});
 }
 	
 function getSizeUNIQUENAME() {
@@ -73,10 +84,4 @@ function updateIndexesUNIQUENAME(div) {
 	var indexesInput = div.find("input[name$='.indexes']").filter(filterTemplatesElements).first();
 	indexesInput.val(ids);
 	console.log("List size = " + getSizeUNIQUENAME());
-	
-	div.find(".inputFormattedText").filter(filterTemplatesElements).trumbowyg({
-	    lang: currentBrowserLanguage,
-	    svgPath : 'css/trumbowyg.svg'
-	})
-	
 }
