@@ -61,6 +61,7 @@ import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.format.VariableInputSupport;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 /**
@@ -163,14 +164,14 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         VariableFormat componentFormat = FormatCommons.createComponent(context.variable, 0);
         WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(context.variable, -1, componentFormat, null);
         StringBuffer supportJs = new StringBuffer();
+        GenerateHtmlForVariableResult templateComponentResult = componentFormat.processBy(this, context.copyFor(templateComponentVariable));
         if (!context.readonly) {
-            GenerateHtmlForVariableResult generatedComponentHtmlData = componentFormat.processBy(this, context.CopyFor(templateComponentVariable));
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);
             substitutions.put("UNIQUENAME", scriptingVariableName);
             substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(templateComponentVariable));
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
-            supportJs.append(generatedComponentHtmlData.scriptContent).append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
+            supportJs.append(templateComponentResult.scriptContent).append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
         }
         List<Object> list = TypeConversionUtil.convertTo(List.class, context.variable.getValue());
         if (list == null) {
@@ -182,17 +183,15 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (!context.readonly) {
             WfVariable indexesVariable = ViewUtil.createListIndexesVariable(context.variable, list.size());
             result.addElement(ViewUtil.getHiddenInput(indexesVariable));
-
             Div templateElementDiv = createTemplateElement(context);
-            GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.CopyFor(templateComponentVariable));
-            templateElementDiv.addElement(componentGeneratedHtml.htmlStructureContent.replace("[]", "{}"));
+            templateElementDiv.addElement(templateComponentResult.htmlStructureContent.replace("[]", "{}"));
             templateElementDiv.addElement(createRemoveElement(context));
             result.addElement(templateElementDiv);
         }
         for (int row = 0; row < list.size(); row++) {
             Object value = list.get(row);
             WfVariable componentVariable = ViewUtil.createListComponentVariable(context.variable, row, componentFormat, value);
-            GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.CopyFor(componentVariable));
+            GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.copyFor(componentVariable));
             Div rowElement = createCollectionRowElement(context, row, componentGeneratedHtml);
             supportJs.append(componentGeneratedHtml.scriptContent);
             if (!context.readonly) {
@@ -226,9 +225,9 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             substitutions.put("UNIQUENAME", scriptingVariableName);
             substitutions.put("COMPONENT_JS_HANDLER", keyJsHandler + "\n" + valueJsHandler);
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
-            GenerateHtmlForVariableResult generatedKeyHtmlData = keyFormat.processBy(this, context.CopyFor(templateComponentVariableKey));
+            GenerateHtmlForVariableResult generatedKeyHtmlData = keyFormat.processBy(this, context.copyFor(templateComponentVariableKey));
             String keyComponentJs = generatedKeyHtmlData.scriptContent;
-            GenerateHtmlForVariableResult generatedValueHtmlData = valueFormat.processBy(this, context.CopyFor(templateComponentVariableValue));
+            GenerateHtmlForVariableResult generatedValueHtmlData = valueFormat.processBy(this, context.copyFor(templateComponentVariableValue));
             String valueComponentJs = generatedValueHtmlData.scriptContent;
             supportJs.append(keyComponentJs).append(valueComponentJs).append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
         }
@@ -244,8 +243,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             result.addElement(ViewUtil.getHiddenInput(indexesVariable));
 
             Div templateElementDiv = createTemplateElement(context);
-            GenerateHtmlForVariableResult componentGeneratedHtmlKey = keyFormat.processBy(this, context.CopyFor(templateComponentVariableKey));
-            GenerateHtmlForVariableResult componentGeneratedHtmlValue = valueFormat.processBy(this, context.CopyFor(templateComponentVariableValue));
+            GenerateHtmlForVariableResult componentGeneratedHtmlKey = keyFormat.processBy(this, context.copyFor(templateComponentVariableKey));
+            GenerateHtmlForVariableResult componentGeneratedHtmlValue = valueFormat.processBy(this, context.copyFor(templateComponentVariableValue));
             templateElementDiv.addElement(componentGeneratedHtmlKey.htmlStructureContent.replace("[]", "{}"));
             templateElementDiv.addElement(componentGeneratedHtmlValue.htmlStructureContent.replace("[]", "{}"));
             templateElementDiv.addElement(createRemoveElement(context));
@@ -255,9 +254,9 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             for (Object key : map.keySet()) {
                 row++;
                 WfVariable keyComponentVariable = ViewUtil.createMapKeyComponentVariable(context.variable, row, key);
-                GenerateHtmlForVariableResult keyGeneratedHtml = keyFormat.processBy(this, context.CopyFor(keyComponentVariable));
+                GenerateHtmlForVariableResult keyGeneratedHtml = keyFormat.processBy(this, context.copyFor(keyComponentVariable));
                 WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(context.variable, row, key);
-                GenerateHtmlForVariableResult valueGeneratedHtml = valueFormat.processBy(this, context.CopyFor(valueComponentVariable));
+                GenerateHtmlForVariableResult valueGeneratedHtml = valueFormat.processBy(this, context.copyFor(valueComponentVariable));
 
                 String htmlStructureContent = keyGeneratedHtml.htmlStructureContent + valueGeneratedHtml.htmlStructureContent;
                 String scriptContent = keyGeneratedHtml.scriptContent + valueGeneratedHtml.scriptContent;
@@ -283,13 +282,13 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
                 keyTd.setClass("list");
                 tr.addElement(keyTd);
                 WfVariable keyComponentVariable = ViewUtil.createMapKeyComponentVariable(context.variable, row, key);
-                GenerateHtmlForVariableResult keyGeneratedHtml = keyFormat.processBy(this, context.CopyFor(keyComponentVariable));
+                GenerateHtmlForVariableResult keyGeneratedHtml = keyFormat.processBy(this, context.copyFor(keyComponentVariable));
                 keyTd.addElement(createCollectionRowElement(context, row, keyGeneratedHtml));
                 TD valueTd = new TD();
                 valueTd.setClass("list");
                 tr.addElement(valueTd);
                 WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(context.variable, row, key);
-                GenerateHtmlForVariableResult valueGeneratedHtml = valueFormat.processBy(this, context.CopyFor(valueComponentVariable));
+                GenerateHtmlForVariableResult valueGeneratedHtml = valueFormat.processBy(this, context.copyFor(valueComponentVariable));
                 valueTd.addElement(createCollectionRowElement(context, row, valueGeneratedHtml));
 
                 supportJs.append(keyGeneratedHtml.scriptContent);
@@ -439,24 +438,17 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (!WebResources.isAjaxFileInputEnabled()) {
             return "<input type=\"file\" name=\"" + variableName + "\" class=\"inputFile\" />";
         }
-        String id = null;
-        UploadedFile file = null;
-        if (webHelper != null) {
-            // TODO: taskId transmit to the method
-            id = webHelper.getRequest().getParameter("id");
-            if (id == null) {
-                throw new InternalApplicationException("id not found");
-            }
-            file = FormSubmissionUtils.getUploadedFilesMap(webHelper.getRequest()).get(id + FormSubmissionUtils.FILES_MAP_QUALIFIER + variableName);
-            if (value != null && file == null) {
-                file = new UploadedFile(value);
-                if (enabled) {
-                    // #766, load file content only for input file component
-                    file.setContent(value.getData());
-                }
-                String fileKey = id + FormSubmissionUtils.FILES_MAP_QUALIFIER + variableName;
-                FormSubmissionUtils.getUploadedFilesMap(webHelper.getRequest()).put(fileKey, file);
-            }
+        Preconditions.checkNotNull(webHelper, "webHelper");
+        String id = webHelper.getRequest().getParameter("id");
+        UploadedFile file = FormSubmissionUtils.getUserInputFiles(webHelper.getRequest(), id).get(variableName);
+        if (value != null && file == null) {
+            // display file
+            file = new UploadedFile(value);
+            FormSubmissionUtils.addUserInputFile(webHelper.getRequest(), id, variableName, file);
+        } else if (value == null && file != null) {
+            // sf1095
+            file = null;
+            FormSubmissionUtils.removeUserInputFile(webHelper.getRequest(), id, variableName);
         }
         String attachImageUrl = "";
         String loadingImageUrl = "";

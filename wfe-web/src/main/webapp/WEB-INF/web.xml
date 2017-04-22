@@ -97,11 +97,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>upload1095</servlet-name>
-		<servlet-class>ru.runa.wf.web.servlet.Servlet1095</servlet-class>
-	</servlet>
-	
-	<servlet>
 		<servlet-name>bulkUpload</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.BulkUploadServlet</servlet-class>
 	</servlet>
@@ -158,11 +153,6 @@
 		<url-pattern>/upload</url-pattern>
 	</servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>upload1095</servlet-name>
-		<url-pattern>/upload1095</url-pattern>
-	</servlet-mapping>
-	
 	<servlet-mapping>
 		<servlet-name>bulkUpload</servlet-name>
 		<url-pattern>/bulkUpload</url-pattern>
