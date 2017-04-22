@@ -48,8 +48,7 @@ import ru.runa.wfe.user.Profile;
 /**
  * Created on 26.01.2005
  *
- * @struts:action path="/tableViewSetup" name="tableViewSetupForm"
- *                validate="false" parameter = "dispatch"
+ * @struts:action path="/tableViewSetup" name="tableViewSetupForm" validate="false" parameter = "dispatch"
  */
 public class TableViewSetupFormAction extends LookupDispatchAction {
     private static final String DEFAULT_VIEW_SETUP_NAME = " ";
@@ -76,7 +75,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             applyBatchPresentation(batchPresentation, tableViewSetupForm);
         } catch (Exception e) {
             ActionMessages errors = getErrors(request);
-            ActionExceptionHelper.addException(errors, e);
+            ActionExceptionHelper.addException(errors, e, request.getLocale());
             saveErrors(request.getSession(), errors);
         }
         return new ActionForward(tableViewSetupForm.getReturnAction(), true);
@@ -109,7 +108,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             } else {
                 int arrayPos = ArraysCommons.findPosition(tableViewSetupForm.getSortPositionsIds(), idx);
                 Map<Integer, String[]> m = tableViewSetupForm.getFieldsToFilterCriteriasMap();
-                m.remove(new Integer(idx));
+                m.remove(Integer.valueOf(idx));
                 Map<Integer, FilterCriteria> result = FilterFormatsFactory.getParser().parse(batchPresentation, m);
                 for (int fieldIdx : batchPresentation.getFilteredFields().keySet()) {
                     if (fields[fieldIdx].fieldState != FieldState.ENABLED) {
@@ -117,14 +116,14 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
                     }
                 }
                 batchPresentation.setFilteredFields(result);
-                int[] groupFields = arrayPos == -1 ? tableViewSetupForm.getSortPositionsIds() : ArraysCommons.remove(
-                        tableViewSetupForm.getSortPositionsIds(), arrayPos);
-                boolean[] sortModes = arrayPos == -1 ? tableViewSetupForm.getSortingModes() : ArraysCommons.remove(
-                        tableViewSetupForm.getSortingModes(), arrayPos);
+                int[] groupFields = arrayPos == -1 ? tableViewSetupForm.getSortPositionsIds()
+                        : ArraysCommons.remove(tableViewSetupForm.getSortPositionsIds(), arrayPos);
+                boolean[] sortModes = arrayPos == -1 ? tableViewSetupForm.getSortingModes()
+                        : ArraysCommons.remove(tableViewSetupForm.getSortingModes(), arrayPos);
                 batchPresentation.setFieldsToSort(groupFields, sortModes);
                 arrayPos = ArraysCommons.findPosition(tableViewSetupForm.getFieldsToGroupIds(), idx);
-                groupFields = arrayPos == -1 ? tableViewSetupForm.getFieldsToGroupIds() : ArraysCommons.remove(
-                        tableViewSetupForm.getFieldsToGroupIds(), arrayPos);
+                groupFields = arrayPos == -1 ? tableViewSetupForm.getFieldsToGroupIds()
+                        : ArraysCommons.remove(tableViewSetupForm.getFieldsToGroupIds(), arrayPos);
                 batchPresentation.setFieldsToGroup(groupFields);
             }
         }
@@ -170,7 +169,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             ProfileHttpSessionHelper.setProfile(profile, request.getSession());
         } catch (Exception e) {
             ActionMessages errors = getErrors(request);
-            ActionExceptionHelper.addException(errors, e);
+            ActionExceptionHelper.addException(errors, e, request.getLocale());
             saveErrors(request.getSession(), errors);
             ProfileHttpSessionHelper.reloadProfile(request.getSession());
         }
@@ -193,7 +192,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             ProfileHttpSessionHelper.setProfile(profile, request.getSession());
         } catch (Exception e) {
             ActionMessages errors = getErrors(request);
-            ActionExceptionHelper.addException(errors, e);
+            ActionExceptionHelper.addException(errors, e, request.getLocale());
             saveErrors(request.getSession(), errors);
             ProfileHttpSessionHelper.reloadProfile(request.getSession());
         }
@@ -209,7 +208,7 @@ public class TableViewSetupFormAction extends LookupDispatchAction {
             ProfileHttpSessionHelper.setProfile(profile, request.getSession());
         } catch (Exception e) {
             ActionMessages errors = getErrors(request);
-            ActionExceptionHelper.addException(errors, e);
+            ActionExceptionHelper.addException(errors, e, request.getLocale());
             saveErrors(request.getSession(), errors);
             ProfileHttpSessionHelper.reloadProfile(request.getSession());
         }

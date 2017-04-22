@@ -72,7 +72,7 @@ public class FieldsSerializer {
         }
         elements = root.element(FILTERS).elements(I);
         for (Element element : elements) {
-            Integer key = new Integer(element.attributeValue(INDEX_ATTR));
+            Integer key = Integer.valueOf(element.attributeValue(INDEX_ATTR));
             FilterCriteria criteria = ClassLoaderUtil.instantiate(element.attributeValue(FILTER_CLASS_ATTR));
             List<String> templates = Lists.newArrayList();
             for (Element tplElement : (List<Element>) element.elements(FILTER_TEMPLATE)) {
@@ -83,7 +83,7 @@ public class FieldsSerializer {
         }
         elements = root.element(DYNAMICS).elements(I);
         for (Element element : elements) {
-            fields.dynamics.add(new DynamicField(Long.valueOf(element.attributeValue(INDEX_ATTR)), element.attributeValue(VALUE_ATTR)));
+            fields.dynamics.add(new DynamicField(Long.parseLong(element.attributeValue(INDEX_ATTR)), element.attributeValue(VALUE_ATTR)));
         }
         Element expandedBlocksElement = root.element(EXPANDED_BLOCKS);
         if (expandedBlocksElement != null) {

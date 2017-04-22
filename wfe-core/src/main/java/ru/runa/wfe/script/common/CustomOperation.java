@@ -27,12 +27,13 @@ public class CustomOperation extends ScriptOperation {
 
     @XmlMixed
     @XmlAnyElement
+    // TODO no used
     public List elementContent = Lists.newArrayList();
 
     @Override
     public void validate(ScriptExecutionContext context) {
         try {
-            CustomAdminScriptJob job = ClassLoaderUtil.instantiate(jobClass);
+            ClassLoaderUtil.instantiate(jobClass);
         } catch (Exception e) {
             throw new ScriptValidationException(this, e);
         }

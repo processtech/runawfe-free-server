@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import ru.runa.wfe.validation.FieldValidator;
-import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.UserType;
+import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 public class ContainerElementsRequiredValidator extends FieldValidator {
@@ -39,7 +39,9 @@ public class ContainerElementsRequiredValidator extends FieldValidator {
     }
 
     private void checkValue(String variableName, Object value, boolean requireContainerType) {
-        if (value instanceof Collection) {
+        if (value == null) {
+            getValidatorContext().addFieldError(variableName, getMessage());
+        } else if (value instanceof Collection) {
             int index = 0;
             for (Object object : (Collection<?>) value) {
                 String itemVariableName = variableName + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
@@ -64,10 +66,8 @@ public class ContainerElementsRequiredValidator extends FieldValidator {
             }
         } else if (requireContainerType) {
             addError("Unexpected variable type: " + value.getClass());
-        } else {
-            if (value == null || (value instanceof String && ((String) value).isEmpty())) {
-                getValidatorContext().addFieldError(variableName, getMessage());
-            }
+        } else if (value instanceof String && ((String) value).isEmpty()) {
+            getValidatorContext().addFieldError(variableName, getMessage());
         }
     }
 

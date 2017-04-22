@@ -11,6 +11,7 @@ import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -32,6 +33,7 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
     private boolean onTimeCalled;
     private boolean onDateTimeCalled;
     private boolean onFileCalled;
+    private boolean onFormattedTextCalled;
 
     @Override
     public String onDate(DateFormat dateFormat, WfVariable variable) {
@@ -128,14 +130,23 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
     }
 
     @Override
+    public String onFormattedTextString(FormattedTextFormat textFormat, WfVariable context) {
+        if (!onFormattedTextCalled) {
+            onFormattedTextCalled = true;
+            return "div.find('.inputFormattedText').filter(filterTemplatesElements).trumbowyg({ lang: currentBrowserLanguage, svgPath : 'css/trumbowyg.svg' });";
+        }
+        return "";
+    }
+
+    @Override
     public String onUserType(UserTypeFormat userTypeFormat, WfVariable variable) {
-        String componentJsHandlers = "";
+        StringBuilder componentJsHandlers = new StringBuilder();
         for (VariableDefinition variableDefinition : userTypeFormat.getUserType().getAttributes()) {
             VariableFormat nestedFormat = FormatCommons.create(variableDefinition);
             WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(variable, variableDefinition, null);
-            componentJsHandlers += nestedFormat.processBy(this, componentVariable);
+            componentJsHandlers.append(nestedFormat.processBy(this, componentVariable));
         }
-        return componentJsHandlers;
+        return componentJsHandlers.toString();
     }
 
     @Override

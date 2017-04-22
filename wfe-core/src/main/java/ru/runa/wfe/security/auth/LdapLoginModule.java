@@ -20,6 +20,7 @@ package ru.runa.wfe.security.auth;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -30,15 +31,15 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.security.logic.LdapProperties;
 import ru.runa.wfe.user.Actor;
 
 import com.google.common.collect.Maps;
 
 /**
  * MS Active Directory based login module.
- *
+ * 
  * @since 2.0
  */
 public class LdapLoginModule extends LoginModuleBase {
@@ -46,18 +47,8 @@ public class LdapLoginModule extends LoginModuleBase {
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, SystemProperties.getResources().getStringProperty("authentication.ldap.server.url"));
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put("java.naming.ldap.version", "3");
         super.initialize(subject, callbackHandler, sharedState, options);
-    }
-
-    private String getCredential(String username) {
-        Map<String, String> variables = Maps.newHashMap();
-        variables.put("domain.name", SystemProperties.getResources().getStringProperty("authentication.domain.name"));
-        variables.put("username", username);
-        return ExpressionEvaluator.substitute(SystemProperties.getResources().getStringProperty("authentication.ldap.userName.format"), variables);
+        env.putAll(LdapProperties.getAllProperties());
     }
 
     @Override
@@ -75,11 +66,22 @@ public class LdapLoginModule extends LoginModuleBase {
             throw new LoginException("No password was provided.");
         }
         String password = new String(tmpPasswordChars);
-        env.put(Context.SECURITY_PRINCIPAL, getCredential(actorName));
+        env.put(Context.SECURITY_PRINCIPAL, formatUsername(actorName));
         env.put(Context.SECURITY_CREDENTIALS, password);
-        DirContext ctx = new InitialDirContext(env);
-        ctx.close();
+        try {
+            DirContext ctx = new InitialDirContext(env);
+            ctx.close();
+        } catch (AuthenticationException e) {
+            log.warn(e);
+            throw new LoginException("invalid login or password");
+        }
         return executorDAO.getActorCaseInsensitive(actorName);
+    }
+
+    private String formatUsername(String username) {
+        Map<String, String> variables = Maps.newHashMap();
+        variables.put("username", username);
+        return ExpressionEvaluator.substitute(LdapProperties.getAuthenticationUsernameFormat(), variables);
     }
 
 }

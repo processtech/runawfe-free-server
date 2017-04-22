@@ -9,7 +9,6 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.tldgen.annotations.BodyContent;
 
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
@@ -33,7 +32,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Display tasks history for process.
- * 
+ *
  * @author riven 18.08.2012
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showTasksHistory")
@@ -113,11 +112,9 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
         @Override
         public TR build() {
             TR tr = new TR();
-            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_TASK_NAME.message(pageContext))
-                    .setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_TASK_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_EXECUTOR.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
-            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_START_DATE.message(pageContext))
-                    .setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_START_DATE.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_END_DATE.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesProcesses.LABEL_TASK_HISTORY_TABLE_DURATION.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             return tr;

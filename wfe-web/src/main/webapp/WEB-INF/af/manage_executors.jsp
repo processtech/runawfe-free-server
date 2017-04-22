@@ -40,7 +40,7 @@ $(document).ready(function() {
 	&nbsp;&nbsp;&nbsp;
 	<wf:createGroupLink />
 <%
-if (ru.runa.common.WebResources.isLDAPSynchronizationEnabled()) {
+if (ru.runa.wfe.security.logic.LdapProperties.isSynchronizationEnabled()) {
 %>
 	&nbsp;&nbsp;&nbsp;
 	<wf:synchronizeExecutorsLink />

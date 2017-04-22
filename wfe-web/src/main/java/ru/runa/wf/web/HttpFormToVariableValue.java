@@ -19,6 +19,7 @@ import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -60,6 +61,10 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
     public HttpFormToVariableValue(Map<String, ? extends Object> userInput, IExecutorLoader executorLoader) {
         this.userInput = userInput;
         componentToVariableValue = new HttpComponentToVariableValue(executorLoader, errors);
+    }
+
+    public Map<String, String> getErrors() {
+        return errors;
     }
 
     @Override
@@ -274,14 +279,24 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
     }
 
     @Override
+    public Object onFormattedTextString(FormattedTextFormat textFormat, VariableDefinition variableDefinition) {
+        return defaultFormatProcessing(variableDefinition);
+    }
+
+    @Override
     public Object onUserType(UserTypeFormat userTypeFormat, VariableDefinition variableDefinition) {
         UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
+        boolean allComponentsAreIgnored = true;
         for (VariableDefinition expandedDefinition : variableDefinition.expandUserType(false)) {
             Object componentValue = expandedDefinition.processBy(this, expandedDefinition);
             if (!Objects.equal(FormSubmissionUtils.IGNORED_VALUE, componentValue)) {
                 String attributeName = expandedDefinition.getName().substring(variableDefinition.getName().length() + 1);
                 userTypeMap.put(attributeName, componentValue);
+                allComponentsAreIgnored = false;
             }
+        }
+        if (allComponentsAreIgnored) {
+            return FormSubmissionUtils.IGNORED_VALUE;
         }
         return userTypeMap;
     }
@@ -293,7 +308,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
 
     /**
      * Default value extract algorithm, if no other is specified in on* method.
-     *
+     * 
      * @param variableDefinition
      *            Variable definition which variable value is extracted.
      * @return Returns variable value

@@ -66,7 +66,7 @@ public class JpdlXmlReader {
     private LocalizationDAO localizationDAO;
 
     private final Document document;
-    private final boolean waitStateCompatibility = true;
+    private static final boolean waitStateCompatibility = true;
 
     private static final String INVALID_ATTR = "invalid";
     private static final String ACCESS_ATTR = "access";
@@ -383,7 +383,8 @@ public class JpdlXmlReader {
             if (SystemProperties.isV3CompatibilityMode()) {
                 name = element.attributeValue(NAME_ATTR, node.getName());
             } else {
-                name = node.getNodeId() + "/timer-" + timerNumber++;
+                name = node.getNodeId() + (TimerJob.ESCALATION_NAME.equals(element.attributeValue(NAME_ATTR)) ? "/" + TimerJob.ESCALATION_NAME : "")
+                        + "/timer-" + timerNumber++;
             }
             CreateTimerAction createTimerAction = ApplicationContextFactory.createAutowiredBean(CreateTimerAction.class);
             createTimerAction.setNodeId(node.getNodeId());

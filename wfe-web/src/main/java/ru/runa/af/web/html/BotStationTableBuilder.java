@@ -64,7 +64,7 @@ public class BotStationTableBuilder {
         tr.setClass(Resources.CLASS_LIST_TABLE_TH);
         Input input = new Input(Input.CHECKBOX, IdsForm.IDS_INPUT_NAME, Long.toString(botStation.getId()));
         input.setChecked(false);
-        String path = Commons.getActionUrl("bot_station.do", "botStationId", new Long(botStation.getId()), pageContext, PortletUrlType.Render);
+        String path = Commons.getActionUrl("bot_station.do", "botStationId", botStation.getId(), pageContext, PortletUrlType.Render);
         tr.addElement(new TD(input).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(new A(path, botStation.getName())).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TD(new A(path, botStation.getAddress() != null ? botStation.getAddress() : "")).setClass(Resources.CLASS_LIST_TABLE_TD));
@@ -74,7 +74,7 @@ public class BotStationTableBuilder {
     private TR createTableHeaderTR() {
         TR tr = new TR();
         tr.setClass(Resources.CLASS_LIST_TABLE_TH);
-        tr.addElement(new TH("").setWidth("20").setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setWidth("20").setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TH(MessagesBot.LABEL_BOT_STATION_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TH(MessagesBot.LABEL_BOT_STATION_ADDRESS.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;

@@ -17,22 +17,22 @@
  */
 package ru.runa.report.web.action;
 
-import java.io.FileInputStream;
-import java.io.OutputStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.io.Closeables;
 import org.apache.commons.io.IOUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.action.ActionBase;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Created on 06.10.2004
- * 
+ *
  * @struts:action path="/reportResource" validate="false"
  */
 public class GetReportResourceAction extends ActionBase {
@@ -45,15 +45,17 @@ public class GetReportResourceAction extends ActionBase {
             String id = request.getParameter("id");
             String fileName = System.getProperty("jboss.server.temp.dir") + "/reports/" + uid + "/" + id;
 
-            FileInputStream inputStream = new FileInputStream(fileName);
-
             response.setContentType("application");
-            OutputStream os = response.getOutputStream();
-            IOUtils.copy(inputStream, os);
-            os.flush();
-
+            FileInputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(fileName);
+                IOUtils.copy(inputStream, response.getOutputStream());
+                response.getOutputStream().flush();
+            } finally {
+                Closeables.closeQuietly(inputStream);
+            }
             return null;
-        } catch (Exception e) {
+        } catch (Exception e){
             return null;
         }
     }

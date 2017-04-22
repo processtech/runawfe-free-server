@@ -21,7 +21,7 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.IdLinkBaseTag;
-import ru.runa.wfe.report.dto.ReportDto;
+import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -32,7 +32,7 @@ public class GrantPermissionsOnReportLinkTag extends IdLinkBaseTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        ReportDto report = Delegates.getReportService().getReportDefinition(getUser(), getIdentifiableId());
+        WfReport report = Delegates.getReportService().getReportDefinition(getUser(), getIdentifiableId());
         return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_PERMISSIONS, report);
     }
 

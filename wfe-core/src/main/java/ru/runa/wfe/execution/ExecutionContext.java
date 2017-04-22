@@ -64,6 +64,7 @@ import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.VariableFormat;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -73,7 +74,6 @@ public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
     private final ProcessDefinition processDefinition;
     private final Token token;
-    private Task task;
     private final Map<String, Object> transientVariables = Maps.newHashMap();
 
     private final VariableLoader variableLoader;
@@ -136,7 +136,6 @@ public class ExecutionContext {
 
     public ExecutionContext(ProcessDefinition processDefinition, Task task) {
         this(processDefinition, task.getToken());
-        this.task = task;
     }
 
     /**
@@ -175,7 +174,8 @@ public class ExecutionContext {
      * @return task or <code>null</code>
      */
     public Task getTask() {
-        return task;
+        List<Task> tasks = taskDAO.findByProcessAndNodeId(token.getProcess(), token.getNodeId());
+        return tasks.isEmpty() ? null : tasks.get(0);
     }
 
     public NodeProcess getParentNodeProcess() {
@@ -280,8 +280,8 @@ public class ExecutionContext {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(),
                 baseProcessVariableLoader, variableDAO);
-        for (ConvertToSimpleVariablesResult simpleVariables : variableDefinition.getFormatNotNull()
-                .processBy(new ConvertToSimpleVariables(), context)) {
+        VariableFormat variableFormat = variableDefinition.getFormatNotNull();
+        for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
             Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
             setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
         }

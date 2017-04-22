@@ -88,12 +88,60 @@ public class XmlReportParameter {
             public ReportParameterType getType() {
                 return ReportParameterType.BOOLEAN_CHECKED;
             }
+        },
+
+        @XmlEnumValue(value = "ActorId")
+        ACTOR_ID {
+            @Override
+            public ReportParameterType getType() {
+                return ReportParameterType.ACTOR_ID;
+            }
+        },
+
+        @XmlEnumValue(value = "GroupId")
+        GROUP_ID {
+            @Override
+            public ReportParameterType getType() {
+                return ReportParameterType.GROUP_ID;
+            }
+        },
+
+        @XmlEnumValue(value = "ActorOrGroupId")
+        EXECUTOR_ID {
+            @Override
+            public ReportParameterType getType() {
+                return ReportParameterType.EXECUTOR_ID;
+            }
+        },
+
+        @XmlEnumValue(value = "ActorName")
+        ACTOR_NAME {
+            @Override
+            public ReportParameterType getType() {
+                return ReportParameterType.ACTOR_NAME;
+            }
+        },
+
+        @XmlEnumValue(value = "GroupName")
+        GROUP_NAME {
+            @Override
+            public ReportParameterType getType() {
+                return ReportParameterType.GROUP_NAME;
+            }
+        },
+
+        @XmlEnumValue(value = "ActorOrGroupName")
+        EXECUTOR_NAME {
+            @Override
+            public ReportParameterType getType() {
+                return ReportParameterType.EXECUTOR_NAME;
+            }
         };
 
         public abstract ReportParameterType getType();
     }
 
-    public class TypyToXmlConverter implements ReportParameterTypeVisitor<XmlReportParameterType, Object> {
+    public static final class TypeToXmlConverter implements ReportParameterTypeVisitor<XmlReportParameterType, Object> {
 
         @Override
         public XmlReportParameterType onString(Object data) {
@@ -128,6 +176,36 @@ public class XmlReportParameter {
         @Override
         public XmlReportParameterType onSwimlane(Object data) {
             return XmlReportParameterType.SWIMLANE;
+        }
+
+        @Override
+        public XmlReportParameterType onActorId(Object data) {
+            return XmlReportParameterType.ACTOR_ID;
+        }
+
+        @Override
+        public XmlReportParameterType onGroupId(Object data) {
+            return XmlReportParameterType.GROUP_ID;
+        }
+
+        @Override
+        public XmlReportParameterType onExecutorId(Object data) {
+            return XmlReportParameterType.EXECUTOR_ID;
+        }
+
+        @Override
+        public XmlReportParameterType onActorName(Object data) {
+            return XmlReportParameterType.ACTOR_NAME;
+        }
+
+        @Override
+        public XmlReportParameterType onGroupName(Object data) {
+            return XmlReportParameterType.GROUP_NAME;
+        }
+
+        @Override
+        public XmlReportParameterType onExecutorName(Object data) {
+            return XmlReportParameterType.EXECUTOR_NAME;
         }
     }
 }

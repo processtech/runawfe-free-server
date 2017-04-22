@@ -43,8 +43,8 @@ public class Delegation implements Serializable {
     }
 
     public Delegation(String className, String configuration) {
-        this.className = className;
-        this.configuration = configuration;
+        this.className = null == className ? null : className.intern();
+        this.configuration = null == configuration ? null : configuration.intern();
     }
 
     /**

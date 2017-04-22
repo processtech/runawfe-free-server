@@ -29,7 +29,7 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTDBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.report.dto.ReportDto;
+import ru.runa.wfe.report.dto.WfReport;
 
 /**
  * @author Gordienko_m
@@ -42,7 +42,7 @@ public class ReportPropertiesTDBuilder extends BaseTDBuilder {
 
     @Override
     public TD build(Object object, Env env) {
-        ReportDto report = (ReportDto) object;
+        WfReport report = (WfReport) object;
         ConcreteElement startLink;
 
         if (isEnabled(object, env)) {
@@ -60,9 +60,6 @@ public class ReportPropertiesTDBuilder extends BaseTDBuilder {
     @Override
     public String getValue(Object object, Env env) {
         String result = MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext());
-        if (result == null) {
-            result = "";
-        }
         return result;
     }
 }

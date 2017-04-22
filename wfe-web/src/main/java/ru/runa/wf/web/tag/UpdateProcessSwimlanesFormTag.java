@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.ecs.html.Div;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Label;
-import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
@@ -13,7 +12,10 @@ import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.base.Strings;
+
 import ru.runa.common.WebResources;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
@@ -72,13 +74,7 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
             Select swimlaneSelect = new Select("swimlaneSelect");
             swimlaneSelect.setID("swimlaneSelect");
             for (WfSwimlane swimlane : swimlanes) {
-                Option option = new Option();
-                option.setValue(swimlane.getDefinition().getName());
-                option.addElement(swimlane.getDefinition().getName());
-                if (swimlane.equals(swimlanes.get(0))) {
-                    option.setSelected(true);
-                }
-                swimlaneSelect.addElement(option);
+                swimlaneSelect.addElement(HTMLUtils.createOption(swimlane.getDefinition().getName(), swimlane.equals(swimlanes.get(0))));
             }
 
             TD selectTd = new TD();
@@ -118,18 +114,13 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
             Select newExecutorSelect = new Select("newExecutorSelect");
             newExecutorSelect.setID("newExecutorSelect");
             for (Executor executor : allowedExecutors) {
-                Option option = new Option();
-                option.setValue(executor.getId().intValue());
+                String label = executor.getName();
                 if (executor instanceof Actor) {
-                    option.addElement(executor.getFullName() != null && !executor.getFullName().isEmpty() ? executor.getFullName() : executor
-                            .getName());
+                    label = !Strings.isNullOrEmpty(executor.getFullName()) ? executor.getFullName() : executor.getName();
                 } else if (executor instanceof Group) {
-                    option.addElement(executor.getName() != null && !executor.getName().isEmpty() ? executor.getName() : executor.getFullName());
+                    label = !Strings.isNullOrEmpty(executor.getName()) ? executor.getName() : executor.getFullName();
                 }
-                if (executor.equals(allowedExecutors.get(0))) {
-                    option.setSelected(true);
-                }
-                newExecutorSelect.addElement(option);
+                newExecutorSelect.addElement(HTMLUtils.createOption(executor.getId().intValue(), label, executor.equals(allowedExecutors.get(0))));
             }
             inputTd.addElement(newExecutorSelect);
 

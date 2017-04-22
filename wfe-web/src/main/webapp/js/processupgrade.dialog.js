@@ -46,12 +46,12 @@ function selectProcessUpgrageVersionDialog(link) {
         definitionsTable.empty();
         var headers = $("<tr class='list'>");
         $("<th class='list'></td>").appendTo(headers);
-        $("<th class='list'>Версия</td>").appendTo(headers);
-        $("<th class='list'>Дата загрузки</td>").appendTo(headers);
-        $("<th class='list'>Автор загрузки</td>").appendTo(headers);
-        $("<th class='list'>Дата обновления</td>").appendTo(headers);
-        $("<th class='list'>Автор обновления</td>").appendTo(headers);
-        $("<th class='list'>Описание</td>").appendTo(headers);
+        $("<th class='list'>" + $.processUpgradeDialogStatic.version + "</td>").appendTo(headers);
+        $("<th class='list'>" + $.processUpgradeDialogStatic.dateUpload + "</td>").appendTo(headers);
+        $("<th class='list'>" + $.processUpgradeDialogStatic.authorUpload + "</td>").appendTo(headers);
+        $("<th class='list'>" + $.processUpgradeDialogStatic.dateUpdate + "</td>").appendTo(headers);
+        $("<th class='list'>" + $.processUpgradeDialogStatic.authorUpdate + "</td>").appendTo(headers);
+        $("<th class='list'>" + $.processUpgradeDialogStatic.description + "</td>").appendTo(headers);
         headers.appendTo(definitionsTable);
         $.each(data.data, function(k, v) {
             var row = $("<tr class='list'>");

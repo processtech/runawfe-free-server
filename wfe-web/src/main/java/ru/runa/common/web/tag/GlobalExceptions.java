@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.common.web.tag;
@@ -27,7 +27,7 @@ import ru.runa.common.web.ActionExceptionHelper;
 
 /**
  * Created on 07.09.2004
- * 
+ *
  * Tag translate global JSP exceptions declared in web.xml into Struts ActionErrors and save them
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "globalExceptions")
@@ -40,7 +40,7 @@ public class GlobalExceptions extends TagSupport {
     public int doStartTag() {
         Exception exception = (Exception) pageContext.getRequest().getAttribute(EXCEPTION_REQUEST_ATTRIBUTE_NAME);
         if (exception != null) {
-            ActionExceptionHelper.addException(getActionErrors(), exception);
+            ActionExceptionHelper.addException(getActionErrors(), exception, pageContext.getRequest().getLocale());
         }
         return SKIP_BODY;
     }

@@ -154,7 +154,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         table.addElement(processIdTR);
         String idName = Messages.getMessage(ProcessClassPresentation.PROCESS_ID, pageContext);
         processIdTR.addElement(new TD(idName).setClass(Resources.CLASS_LIST_TABLE_TD));
-        processIdTR.addElement(new TD(new Long(process.getId()).toString()).setClass(Resources.CLASS_LIST_TABLE_TD));
+        processIdTR.addElement(new TD(String.valueOf(process.getId())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         TR versionTR = new TR();
         table.addElement(versionTR);

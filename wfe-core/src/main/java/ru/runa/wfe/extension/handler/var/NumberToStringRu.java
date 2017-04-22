@@ -57,9 +57,9 @@ public class NumberToStringRu {
     }
 
     public static String numberToString(long number, Word word) {
-        String answer = "";
+        StringBuilder answer = new StringBuilder();
         if (number < 0) {
-            answer = "минус";
+            answer.append("минус");
             number *= -1;
         }
         for (int a = words.length - 1; a >= 0; a--) {
@@ -73,23 +73,23 @@ public class NumberToStringRu {
             }
             if (val > 0) {
                 if (answer.length() > 0) {
-                    answer += " ";
+                    answer.append(" ");
                 }
-                answer += shortNumberToString((int) val, words[a]);
+                answer.append(shortNumberToString((int) val, words[a]));
                 number = number % st;
             }
         }
         if (number > 0 || answer.length() == 0) {
             if (answer.length() > 0) {
-                answer += " ";
+                answer.append(" ");
             }
-            answer += shortNumberToString((int) number, word);
+            answer.append(shortNumberToString((int) number, word));
         } else {
-            answer += " " + word.s[2];
+            answer.append(" ").append(word.s[2]);
         }
         char first = (char) (answer.charAt(0) + 'А' - 'а');
-        answer = "" + first + answer.substring(1);
-        return answer;
+        answer.append(first).append(answer.substring(1));
+        return answer.toString();
     }
 
     private static String shortNumberToString(int number, Word word) {

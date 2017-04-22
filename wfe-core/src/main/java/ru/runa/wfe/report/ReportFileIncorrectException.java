@@ -1,24 +1,10 @@
 package ru.runa.wfe.report;
 
-import ru.runa.wfe.InternalApplicationException;
-
-public class ReportFileIncorrectException extends InternalApplicationException {
+public class ReportFileIncorrectException extends ReportException {
 
     private static final long serialVersionUID = 1L;
 
-    public ReportFileIncorrectException() {
-        super();
-    }
-
-    public ReportFileIncorrectException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ReportFileIncorrectException(String message) {
-        super(message);
-    }
-
     public ReportFileIncorrectException(Throwable cause) {
-        super(cause);
+        super("error.report.incorrect.file");
     }
 }

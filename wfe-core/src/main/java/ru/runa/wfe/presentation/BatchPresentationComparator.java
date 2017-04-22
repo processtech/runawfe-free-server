@@ -41,9 +41,9 @@ public class BatchPresentationComparator implements Comparator<Executor> {
         try {
             for (int i = 0; i < sortingFields.length; i++) {
                 Comparable<Comparable<?>> field1 = (Comparable<Comparable<?>>) PropertyUtils.getProperty(o1,
-                        sortingFields[i].dbSources[0].getValueDBPath(null));
+                        sortingFields[i].dbSources[0].getValueDBPath(null, null));
                 Comparable<Comparable<?>> field2 = (Comparable<Comparable<?>>) PropertyUtils.getProperty(o2,
-                        sortingFields[i].dbSources[0].getValueDBPath(null));
+                        sortingFields[i].dbSources[0].getValueDBPath(null, null));
                 result = field1.compareTo(field2);
                 if (!sortingOrder[i]) {
                     result *= -1;

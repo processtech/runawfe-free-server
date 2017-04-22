@@ -28,7 +28,7 @@ import ru.runa.wfe.commons.CalendarUtil;
 
 /**
  * is part of a day that can for example be used to represent business hours.
- * 
+ *
  * modified on 06.03.2009 by gavrusev_sergei
  */
 public class JbpmDayPart {

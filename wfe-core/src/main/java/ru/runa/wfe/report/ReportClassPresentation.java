@@ -22,7 +22,6 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
-import ru.runa.wfe.presentation.SubstringDBSource;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
 
 /**
@@ -41,7 +40,7 @@ public class ReportClassPresentation extends ClassPresentation {
         super(ReportDefinition.class, null, false, new FieldDescriptor[] {
                 new FieldDescriptor(NAME, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ReportDefinition.class, "name"), true, 1,
                         BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, PropertyTdBuilder, new Object[] { ReportPermission.READ, "name" }),
-                new FieldDescriptor(DESCRIPTION, AnywhereStringFilterCriteria.class.getName(), new SubstringDBSource(ReportDefinition.class,
+                new FieldDescriptor(DESCRIPTION, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ReportDefinition.class,
                         "description"), true, FieldFilterMode.DATABASE, PropertyTdBuilder, new Object[] { ReportPermission.READ, "description" }),
                 new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ReportDefinition.class, "category"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}, true) });

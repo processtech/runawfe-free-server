@@ -79,6 +79,7 @@ class TaskCacheImpl extends BaseCacheImpl implements ManageableTaskCache {
 
         @Override
         public boolean equals(Object obj) {
+            // TODO "equals" method breaks contract
             if (obj instanceof TaskCacheImpl.BatchPresentationFieldEquals) {
                 return batchPresentation.fieldEquals(((TaskCacheImpl.BatchPresentationFieldEquals) obj).batchPresentation);
             } else if (obj instanceof BatchPresentation) {
