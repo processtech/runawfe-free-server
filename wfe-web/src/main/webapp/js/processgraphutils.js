@@ -3,6 +3,21 @@ $(document).ready(function() {
 	$(document).tooltip({ 
 		track: true
 	});
+	$("area").tooltip({ 
+		track: true,
+		close: function(event, ui) {
+			ui.tooltip.hover(
+				function () {
+					$(this).stop(true).fadeTo(400, 1); 
+				},
+				function () {
+					$(this).fadeOut("400", function(){
+						$(this).remove(); 
+					})
+				}
+			);
+		}
+	});
 	$(document).delegate(".multiInstanceBox", "mouseover", function() {
 		var attr = $(this).attr("bgcolor");
 		if (typeof attr === "undefined" || attr !== false) {
