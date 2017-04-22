@@ -107,8 +107,8 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>versionChanges</servlet-name>
-		<servlet-class>ru.runa.wf.web.servlet.VersionChangesServlet</servlet-class>
+		<servlet-name>processDefinitionChanges</servlet-name>
+		<servlet-class>ru.runa.wf.web.servlet.ProcessDefinitionChangesServlet</servlet-class>
 	</servlet>
 
 	<servlet>
@@ -169,8 +169,8 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>versionChanges</servlet-name>
-		<url-pattern>/versionChanges</url-pattern>
+		<servlet-name>processDefinitionChanges</servlet-name>
+		<url-pattern>/processDefinitionChanges</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
