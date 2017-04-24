@@ -20,6 +20,7 @@ import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.logic.SwimlaneUtils;
+import ru.runa.wfe.lang.Action;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.BaseTaskNode;
@@ -54,7 +55,6 @@ import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.lang.bpmn2.ParallelGateway;
 import ru.runa.wfe.lang.bpmn2.TextAnnotation;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
-import ru.runa.wfe.lang.jpdl.Action;
 import ru.runa.wfe.var.VariableMapping;
 
 public class BpmnXmlReader {

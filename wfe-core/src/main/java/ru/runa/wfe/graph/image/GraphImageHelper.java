@@ -1,12 +1,12 @@
 package ru.runa.wfe.graph.image;
 
 import ru.runa.wfe.job.TimerJob;
+import ru.runa.wfe.lang.Action;
+import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
-import ru.runa.wfe.lang.jpdl.Action;
-import ru.runa.wfe.lang.jpdl.ActionEvent;
 import ru.runa.wfe.lang.jpdl.CancelTimerAction;
 import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 

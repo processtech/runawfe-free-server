@@ -38,8 +38,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.lang.jpdl.Action;
-import ru.runa.wfe.lang.jpdl.ActionEvent;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class GraphElement implements Serializable, Cloneable {
