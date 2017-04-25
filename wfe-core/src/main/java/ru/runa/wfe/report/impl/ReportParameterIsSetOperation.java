@@ -1,8 +1,8 @@
 package ru.runa.wfe.report.impl;
 
-import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
-
 import com.google.common.base.Strings;
+
+import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
 
 /**
  * Operation of checking if the report parameter is set.
@@ -41,6 +41,36 @@ public class ReportParameterIsSetOperation implements ReportParameterTypeVisitor
 
     @Override
     public Boolean onSwimlane(String data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onActorId(String data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onGroupId(String data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onExecutorId(String data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onActorName(String data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onGroupName(String data) {
+        return true;
+    }
+
+    @Override
+    public Boolean onExecutorName(String data) {
         return true;
     }
 }

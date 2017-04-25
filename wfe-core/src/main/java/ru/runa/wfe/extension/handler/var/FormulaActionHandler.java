@@ -18,9 +18,11 @@
 package ru.runa.wfe.extension.handler.var;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
+
+import com.google.common.collect.Lists;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -36,8 +38,6 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 
-import com.google.common.collect.Lists;
-
 //TODO introduce strict mode and throw exceptions there
 public class FormulaActionHandler extends ActionHandlerBase {
     private ExecutionContext context;
@@ -46,9 +46,9 @@ public class FormulaActionHandler extends ActionHandlerBase {
     private int nowPosition = 0;
     private static final String oneSymbolTokens = "=()+-*/!<>&|^'\",\n;";
     private static final String[] operations = { "&|^", // priority 0
-        "<!=>", // priority 1
-        "+-", // priority 2
-        "*/" // priority 3
+            "<!=>", // priority 1
+            "+-", // priority 2
+            "*/" // priority 3
     };
     private boolean stringVariableToken = false;
     private boolean quo = false;
@@ -505,10 +505,14 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 incorrectParameters(s);
                 return null;
             }
-            if (num <= 0) {
-                return actions.roundUpFunction(d);
+            if (BigDecimal.class.isInstance(param1)) {
+                return ((BigDecimal) param1).setScale(num, RoundingMode.UP);
+            } else {
+                if (num <= 0) {
+                    return actions.roundUpFunction(d);
+                }
+                return actions.roundUpFunction(d, num);
             }
-            return actions.roundUpFunction(d, num);
         }
         if (s.equals("round_down")) {
             Object param1 = parsePriority0();
@@ -535,10 +539,14 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 incorrectParameters(s);
                 return null;
             }
-            if (num <= 0) {
-                return actions.roundDownFunction(d);
+            if (BigDecimal.class.isInstance(param1)) {
+                return ((BigDecimal) param1).setScale(num, RoundingMode.DOWN);
+            } else {
+                if (num <= 0) {
+                    return actions.roundDownFunction(d);
+                }
+                return actions.roundDownFunction(d, num);
             }
-            return actions.roundDownFunction(d, num);
         }
         if (s.equals("round")) {
             Object param1 = parsePriority0();
@@ -565,14 +573,14 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 incorrectParameters(s);
                 return null;
             }
-            if (num <= 0) {
-                return actions.roundFunction(d);
-            }
             if (BigDecimal.class.isInstance(param1)) {
-                BigDecimal bd = (BigDecimal) param1;
-                return bd.round(new MathContext(num));
+                return ((BigDecimal) param1).setScale(num, RoundingMode.HALF_UP);
+            } else {
+                if (num <= 0) {
+                    return actions.roundFunction(d);
+                }
+                return actions.roundFunction(d, num);
             }
-            return actions.roundFunction(d, num);
         }
         if (s.equals("number_to_string_ru")) {
             Object param1 = parsePriority0();
@@ -765,8 +773,8 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 parameters.add(param);
                 token = nextToken();
                 if (token == null) {
-                    throw new InternalApplicationException("Unable to parse function " + function + " parameters from configuration: "
-                            + configuration);
+                    throw new InternalApplicationException(
+                            "Unable to parse function " + function + " parameters from configuration: " + configuration);
                 }
             } while (!token.equals(")"));
             return function.execute(parameters.toArray(new Object[parameters.size()]));
