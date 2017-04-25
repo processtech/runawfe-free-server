@@ -22,7 +22,7 @@ public abstract class ActionBase extends Action {
 
     protected void addError(HttpServletRequest request, Exception e) {
         ActionMessages errors = getActionMessages(request, Globals.ERROR_KEY);
-        ActionExceptionHelper.addException(errors, e);
+        ActionExceptionHelper.addException(errors, e, request.getLocale());
         saveErrors(request.getSession(), errors);
     }
 

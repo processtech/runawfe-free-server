@@ -31,18 +31,13 @@ import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
  */
 public class FilterParserImpl implements FiltersParser {
 
-    private FilterCriteria createFilterCriteria(String fieldType) {
-        return FilterCriteriaFactory.createFilterCriteria(fieldType);
-    }
-
     @Override
     public Map<Integer, FilterCriteria> parse(BatchPresentation batchPresentation, Map<Integer, String[]> fieldsToFilterTemplatedMap) {
         Map<Integer, FilterCriteria> newFilteredFieldsMap = new HashMap<Integer, FilterCriteria>();
         for (Map.Entry<Integer, String[]> entry : fieldsToFilterTemplatedMap.entrySet()) {
             int fieldIndex = entry.getKey();
             String[] templates = entry.getValue();
-            String fieldType = batchPresentation.getAllFields()[fieldIndex].fieldType;
-            FilterCriteria filterCriteria = createFilterCriteria(fieldType);
+            FilterCriteria filterCriteria = FilterCriteriaFactory.createFilterCriteria(batchPresentation, fieldIndex);
             filterCriteria.applyFilterTemplates(templates);
             newFilteredFieldsMap.put(fieldIndex, filterCriteria);
         }

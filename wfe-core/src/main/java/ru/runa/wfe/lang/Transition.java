@@ -26,7 +26,6 @@ import java.util.List;
 
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.lang.jpdl.ActionEvent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

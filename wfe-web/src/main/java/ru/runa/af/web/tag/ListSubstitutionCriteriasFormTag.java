@@ -38,6 +38,7 @@ import ru.runa.af.web.action.DeleteSubstitutionCriteriasAction;
 import ru.runa.af.web.action.UpdateSubstitutionCriteriaAction;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.MessagesConfirmation;
 import ru.runa.common.web.Resources;
@@ -83,8 +84,8 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
     protected void fillFormData(TD tdFormElement) {
         SubstitutionCriteriaTableBuilder tableBuilder = new SubstitutionCriteriaTableBuilder(pageContext);
         tdFormElement.addElement(tableBuilder.buildTable());
-        tdFormElement.addElement(new Input(Input.HIDDEN, SubstitutionCriteriasForm.REMOVE_METHOD_INPUT_NAME,
-                SubstitutionCriteriasForm.REMOVE_METHOD_CONFIRM));
+        tdFormElement.addElement(
+                new Input(Input.HIDDEN, SubstitutionCriteriasForm.REMOVE_METHOD_INPUT_NAME, SubstitutionCriteriasForm.REMOVE_METHOD_CONFIRM));
         if (substitutionCriteriaIds != null && !substitutionCriteriaIds.isEmpty()) {
             StringBuilder javascript = new StringBuilder(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_USED_BY.message(pageContext)).append(":<ul>");
             ArrayList<Long> ids = arrayFromString(substitutionCriteriaIds);
@@ -156,7 +157,7 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
 
         private TR createTableHeaderTR() {
             TR tr = new TR();
-            tr.addElement(new TH().setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_TYPE.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_CONF.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));

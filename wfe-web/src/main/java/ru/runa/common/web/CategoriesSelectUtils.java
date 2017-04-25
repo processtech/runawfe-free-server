@@ -7,20 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.Input;
-import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
-
-import ru.runa.wfe.commons.Utils;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.commons.Utils;
 
 public class CategoriesSelectUtils {
     private static final String TYPE_TYPE = "type";
@@ -55,11 +53,10 @@ public class CategoriesSelectUtils {
      * @param request
      *            Request, processing by server.
      * @param allowEmpty
-     *            Flag, equals true, if empty (no) type selection is allowed and
-     *            false otherwise (exception will be thrown).
+     *            Flag, equals true, if empty (no) type selection is allowed and false otherwise (exception will be thrown).
      * @return Returns full selected type.
      */
-    public static List<String> extract(HttpServletRequest request) {
+    public static List<String> extract(ServletRequest request) {
         List<String> fullType;
         String paramType = request.getParameter(CategoriesSelectUtils.TYPE_TYPE);
         String paramTypeSelected = request.getParameter(CategoriesSelectUtils.TYPE_SEL);
@@ -88,7 +85,8 @@ public class CategoriesSelectUtils {
     static Select getSelectElement(Iterator<String[]> typesIterator, String selectedValue, String[] entityType, PageContext pageContext) {
         Select select = new Select(TYPE_SEL);
         select.setID("hierarchyTypeSelect");
-        select.addElement(createOption(MessagesCommon.NO_TYPE_SELECTED.message(pageContext), TYPE_DEFAULT, TYPE_DEFAULT.equals(selectedValue)));
+        select.addElement(
+                HTMLUtils.createOption(TYPE_DEFAULT, MessagesCommon.NO_TYPE_SELECTED.message(pageContext), TYPE_DEFAULT.equals(selectedValue)));
         while (typesIterator.hasNext()) {
             String[] type = typesIterator.next();
 
@@ -102,18 +100,8 @@ public class CategoriesSelectUtils {
             fullTypeBuild.append(type[type.length - 1]);
             String fullType = fullTypeBuild.toString();
             boolean selected = selectedValue == null && Arrays.equals(type, entityType) || fullType.equals(selectedValue);
-            select.addElement(createOption(typeBuild.toString(), fullType, selected));
+            select.addElement(HTMLUtils.createOption(fullType, typeBuild.toString(), selected));
         }
         return select;
-    }
-
-    private static Option createOption(String labelMessage, String value, boolean selected) {
-        Option option = new Option();
-        option.addElement(labelMessage);
-        option.setValue(value);
-        if (selected) {
-            option.setSelected(selected);
-        }
-        return option;
     }
 }

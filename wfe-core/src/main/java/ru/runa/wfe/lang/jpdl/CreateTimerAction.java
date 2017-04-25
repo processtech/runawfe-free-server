@@ -25,15 +25,17 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.lang.Action;
+import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.GraphElement;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 public class CreateTimerAction extends Action {
     private static final long serialVersionUID = 1L;
@@ -87,7 +89,7 @@ public class CreateTimerAction extends Action {
         for (ActionEvent actionEvent : graphElement.getEvents().values()) {
             for (Action action : actionEvent.getActions()) {
                 if (action instanceof CreateTimerAction) {
-                    if (!includeEscalation && TimerJob.ESCALATION_NAME.equals(action.getName())) {
+                    if (!includeEscalation && action.getName().contains(TimerJob.ESCALATION_NAME)) {
                         continue;
                     }
                     list.add((CreateTimerAction) action);

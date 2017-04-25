@@ -25,6 +25,11 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.GraphImageHelper;
@@ -34,10 +39,6 @@ import ru.runa.wfe.graph.image.util.GraphicsMath;
 import ru.runa.wfe.lang.Bendpoint;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public class TransitionFigure {
     protected String timerInfo;
@@ -148,7 +149,9 @@ public class TransitionFigure {
         }
         if (figureFrom.useEdgingOnly) {
             // Cleaning old transitions
-            graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH));
+            if (isJpdlCanvas()) {
+                graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH));
+            }
             graphics.setColor(DrawProperties.getBackgroundColor());
             graphics.drawPolyline(xPoints, yPoints, xPoints.length);
         }
@@ -162,7 +165,7 @@ public class TransitionFigure {
             graphics.drawPolyline(xPoints, yPoints, xPoints.length);
         }
 
-        if (actionsCount > 0) {
+        if (actionsCount > 0 && isJpdlCanvas()) {
             Point p = new Point(xPoints[1], yPoints[1]);
             boolean fromTimer = transition.isTimerTransition();
             if (ActionUtils.areActionsFitInLine(actionsCount, start, p, fromTimer, exclusive)) {
@@ -249,4 +252,9 @@ public class TransitionFigure {
     public void setExclusive(boolean exclusive) {
         this.exclusive = exclusive;
     }
+
+    protected boolean isJpdlCanvas() {
+        return transition.getProcessDefinition().getDeployment().getLanguage().equals(Language.JPDL);
+    }
+
 }

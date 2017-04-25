@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.runa.wfe.report.ReportParameterType;
-import ru.runa.wfe.report.dto.ReportParameterDto;
+import ru.runa.wfe.report.dto.WfReportParameter;
 
 /**
  * Parameter model that is required in order to build report.
@@ -50,7 +50,7 @@ public class ReportParameterModel {
     public ReportParameterModel() {
     }
 
-    public ReportParameterModel(ReportParameterDto parameterDto) {
+    public ReportParameterModel(WfReportParameter parameterDto) {
         this.name = parameterDto.getUserName();
         this.type = parameterDto.getType();
         this.innerName = parameterDto.getInternalName();

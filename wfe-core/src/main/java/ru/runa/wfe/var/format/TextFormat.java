@@ -5,11 +5,12 @@ import ru.runa.wfe.user.User;
 
 /**
  * Text format for string representable as text areas.
- *
+ * 
  * @author dofs
  * @since 4.0
  */
 public class TextFormat extends StringFormat implements VariableDisplaySupport {
+    private static final boolean CLEAN_HTML = "true".equals(System.getProperty("compatibility.text.clean.format"));
 
     @Override
     public String getName() {
@@ -17,8 +18,18 @@ public class TextFormat extends StringFormat implements VariableDisplaySupport {
     }
 
     @Override
+    protected String convertToStringValue(Object object) {
+        if (CLEAN_HTML && object != null) {
+            String noHtmlString = object.toString().replaceAll("\\<br>|\\</p>|\\</div>", "\n");
+            noHtmlString = object.toString().replaceAll("\\<.*?>", "");
+            return noHtmlString;
+        }
+        return super.convertToStringValue(object);
+    }
+
+    @Override
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
-        return (String) object;
+        return super.formatHtml(user, webHelper, processId, name, object).replaceAll("\n", "<br>");
     }
 
     @Override
