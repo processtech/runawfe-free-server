@@ -12,6 +12,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
@@ -51,20 +58,12 @@ import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.dao.IExecutorDAO;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDAO;
-
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Task list builder component.
@@ -152,6 +151,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(getTasksProcesses(tasksState), variableNames);
         HashSet<Long> openedTasks = new HashSet<Long>(taskDAO.getOpenedTasks(actor.getId(), getTasksIds(tasksState)));
         List<WfTask> result = new ArrayList<WfTask>();
+        boolean administrator = executorDAO.isAdministrator(actor);
         for (TaskInListState state : tasksState) {
             WfTask wfTask = taskObjectFactory.create(state.getTask(), state.getActor(), state.isAcquiredBySubstitution(), null,
                     !openedTasks.contains(state.getTask().getId()));
@@ -163,13 +163,24 @@ public class TaskListBuilder implements ITaskListBuilder {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
                 }
             }
+            if (!administrator) {
+                Executor executor = state.getTask().getExecutor();
+                if (executor instanceof Actor) {
+                    if (!permissionDAO.permissionExists(actor, ActorPermission.READ, executor)) {
+                        wfTask.setOwner(Actor.UNAUTHORIZED_ACTOR);
+                    }
+                } else {
+                    if (!permissionDAO.permissionExists(actor, GroupPermission.READ, executor)) {
+                        wfTask.setOwner(Group.UNAUTHORIZED_GROUP);
+                    }
+                }
+            }
             result.add(wfTask);
         }
         return result;
     }
 
     public Set<Executor> getObservableExecutors(Actor actor, String observableExecutorNameTemplate) {
-        Set<Executor> executorsByMembership = getExecutorsToGetTasks(actor, false);
         if (Utils.isNullOrEmpty(observableExecutorNameTemplate)) {
             observableExecutorNameTemplate = "%";
         }
@@ -183,14 +194,20 @@ public class TaskListBuilder implements ITaskListBuilder {
         if (executorDAO.isAdministrator(actor)) {
             executorsToGetTasks.addAll(observableExecutors);
         } else {
-            for (Executor executor : executorsByMembership) {
+            for (Executor executor : getExecutorsToGetTasks(actor, false)) {
                 for (Executor taskOwner : observableExecutors) {
                     boolean taskOwnerIsActor = taskOwner instanceof Actor;
                     Permission viewTasksPermission = taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS;
-                    if (permissionDAO.permissionExists(executor, viewTasksPermission, taskOwner)
-                            && (taskOwnerIsActor || permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner))
-                            && permissionDAO.permissionExists(executor, ExecutorPermission.READ, taskOwner)) {
+                    if (permissionDAO.permissionExists(executor, viewTasksPermission, taskOwner)) {
                         executorsToGetTasks.add(taskOwner);
+                    } else if (!taskOwnerIsActor && permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner)) {
+                        Set<Actor> children = executorDAO.getGroupActors((Group) taskOwner);
+                        for (Actor child : children) {
+                            if (permissionDAO.permissionExists(executor, ActorPermission.VIEW_TASKS, child)) {
+                                executorsToGetTasks.add(taskOwner);
+                                break;
+                            }
+                        }
                     }
                 }
             }

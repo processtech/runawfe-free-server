@@ -1,6 +1,7 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.LogFactory;
@@ -9,6 +10,8 @@ import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.wf.web.MessagesProcesses;
@@ -16,6 +19,7 @@ import ru.runa.wf.web.tag.ListTasksFormTag;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -34,10 +38,28 @@ public class ListObservableTasksFormTag extends ListTasksFormTag {
     public void setExecutorId(Long executorId) {
         this.executorId = executorId;
         if (executorId != null) {
-            Executor executor = Delegates.getExecutorService().getExecutor(getUser(), executorId);
-            BatchPresentation batchPresentation = getBatchPresentation();
-            int fieldIndex = batchPresentation.getClassPresentation().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
-            batchPresentation.getFilteredFields().put(fieldIndex, new StringFilterCriteria(executor.getName()));
+            String executorTasksPresentationName = MessagesProcesses.TITLE_EXECUTOR_TASKS.message(pageContext);
+            BatchPresentation executorTasksPresentation = null;
+            for (BatchPresentation presentation : getProfile().getBatchPresentations(getBatchPresentationId())) {
+                if (executorTasksPresentationName.equals(presentation.getName())) {
+                    executorTasksPresentation = presentation;
+                    break;
+                }
+            }
+            if (executorTasksPresentation != null) {
+                Delegates.getProfileService().deleteBatchPresentation(getUser(), executorTasksPresentation);
+            }
+            executorTasksPresentation = BatchPresentationFactory.OBSERVABLE_TASKS.createDefault(getBatchPresentationId());
+            executorTasksPresentation.setName(executorTasksPresentationName);
+            FilterCriteria executorNameCriteria = new StringFilterCriteria();
+            executorNameCriteria.applyFilterTemplates(new String[] { Delegates.getExecutorService().getExecutor(getUser(), executorId).getName() });
+            Map<Integer, FilterCriteria> filterMap = Maps.newHashMap();
+            filterMap.put(executorTasksPresentation.getClassPresentation().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR),
+                    executorNameCriteria);
+            executorTasksPresentation.setFilteredFields(filterMap);
+            Delegates.getProfileService().createBatchPresentation(getUser(), executorTasksPresentation);
+            Delegates.getProfileService().setActiveBatchPresentation(getUser(), getBatchPresentationId(), executorTasksPresentationName);
+            ProfileHttpSessionHelper.reloadProfile(pageContext.getSession());
         }
     }
 

@@ -21,6 +21,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_TASKS = new StrutsMessage("title.tasks");
     public static final StrutsMessage TITLE_OBSERVABLE_TASKS = new StrutsMessage("title.observable.tasks");
     public static final StrutsMessage TITLE_OBSERVABLE_EXECUTORS = new StrutsMessage("title.observable.executors");
+    public static final StrutsMessage TITLE_EXECUTOR_TASKS = new StrutsMessage("title.executor_tasks");
     public static final StrutsMessage TITLE_ACTOR_TASKS = new StrutsMessage("title.actor_tasks");
     public static final StrutsMessage TITLE_GROUP_TASKS = new StrutsMessage("title.group_tasks");
     public static final StrutsMessage TITLE_TASK_FORM = new StrutsMessage("title.task_form");

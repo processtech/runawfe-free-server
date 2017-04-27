@@ -12,9 +12,6 @@
 	String executorIdString = request.getParameter("executorId");
 	Long executorId = executorIdString != null ? Long.valueOf(executorIdString) : null;
 	String returnAction = "/manage_observable_tasks.do";
-	if (executorId != null) {
-		returnAction += "?executorId=" + executorId;
-	}
 %>
 <wf:listObservableTasksForm batchPresentationId="listObservableTasksForm" buttonAlignment="right" returnAction="<%= returnAction %>" executorId="<%= executorId %>" >
 	<script>
