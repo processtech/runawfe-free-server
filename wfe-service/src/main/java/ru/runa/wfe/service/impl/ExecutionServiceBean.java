@@ -19,7 +19,6 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -194,37 +193,10 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(filter != null, "filter");
-        Preconditions.checkArgument(variables != null, "variables");
-        long processId = filter.getProcessId();
-        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, filter, variables);
-        for (WfVariable variable : result.getVariables()) {
-            FileVariablesUtil.proxyFileVariables(user, processId, variable);
-        }
-        return result;
-    }
-
-    @WebMethod(exclude = true)
-    @Override
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId);
-        for (WfVariable variable : result.getVariables()) {
-            FileVariablesUtil.proxyFileVariables(user, processId, variable);
-        }
-        return result;
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        Preconditions.checkArgument(variables != null, "variables");
-        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId, variables);
         for (WfVariable variable : result.getVariables()) {
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
         }
