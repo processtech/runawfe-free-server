@@ -19,7 +19,6 @@ package ru.runa.wfe.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -211,23 +210,6 @@ public interface ExecutionService {
     public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) throws ProcessDoesNotExistException;
 
     /**
-     * Gets specified process variables state on specified date.
-     * 
-     * @param user
-     *            authorized user
-     * @param filter
-     *            Criteria for filtering logs.
-     * @param variables
-     *            Variables to load.
-     * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
-     * 
-     *             TODO 2505 useless method
-     */
-    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
-            throws ProcessDoesNotExistException;
-
-    /**
      * Get process variable state for completed task.
      * 
      * @param user
@@ -240,25 +222,6 @@ public interface ExecutionService {
      * @throws ProcessDoesNotExistException
      */
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException;
-
-    /**
-     * Get process variable state for completed task.
-     * 
-     * @param user
-     *            Authorized user.
-     * @param processId
-     *            Process id to load variables.
-     * @param taskId
-     *            Task id or null, for loading start form state.
-     * @param variables
-     *            Variables to load.
-     * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
-     * 
-     *             TODO 2505 useless method
-     */
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
-            throws ProcessDoesNotExistException;
 
     /**
      * Gets variable by name from process.

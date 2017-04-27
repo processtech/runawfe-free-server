@@ -32,7 +32,7 @@ public class FileUploadServlet extends HttpServlet {
             throw new InternalApplicationException("id not found");
         }
         String inputId = MultipartRequestHandler.uploadByApacheFileUpload(request, file);
-        FormSubmissionUtils.getUploadedFilesMap(request).put(id + FormSubmissionUtils.FILES_MAP_QUALIFIER + inputId, file);
+        FormSubmissionUtils.addUserInputFile(request, id, inputId, file);
 
         // 2. Set response type to json
         // response.setContentType("application/json");
@@ -54,11 +54,11 @@ public class FileUploadServlet extends HttpServlet {
             throw new InternalApplicationException("id not found");
         }
         if ("delete".equals(action)) {
-            FormSubmissionUtils.getUploadedFilesMap(request).remove(id + FormSubmissionUtils.FILES_MAP_QUALIFIER + inputId);
+            FormSubmissionUtils.removeUserInputFile(request, id, inputId);
         }
         if ("view".equals(action)) {
-            Map<String, UploadedFile> map = FormSubmissionUtils.getUploadedFilesMap(request);
-            UploadedFile file = map.get(id + FormSubmissionUtils.FILES_MAP_QUALIFIER + inputId);
+            Map<String, UploadedFile> map = FormSubmissionUtils.getUserInputFiles(request, id);
+            UploadedFile file = map.get(inputId);
             if (file == null) {
                 LogFactory.getLog(getClass()).error("No session file found by '" + inputId + "', all files = " + map);
                 return;

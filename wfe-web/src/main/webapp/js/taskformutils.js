@@ -45,7 +45,6 @@ function initFileInput(dropzone) {
 			statusImg.attr("src", "/wfe/images/delete.png");
 			statusImg.addClass("inputFileDelete");
 			statusText.html("<a href='/wfe/upload?action=view&inputId=" + inputId + "&id=" + id + "'>" + label + "</a>");
-			func1095(true, id, inputId);
 		},
 		progressall: function (e, data) {
 			var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -97,21 +96,4 @@ function deleteFile(inputId) {
 			}
 		}
 	});
-}
-
-/**
- * Bug fix #1095
- */
-function func1095(flag, id, inputId) {
-	jQuery.ajax({
-		type: "GET",
-		url: "/wfe/upload1095",
-		data: {
-			upload: flag,
-			id: id,
-			file: inputId
-		}
-	}).fail(function() {
-		alert("Didn't work fix for bug 1095")
-	})
 }

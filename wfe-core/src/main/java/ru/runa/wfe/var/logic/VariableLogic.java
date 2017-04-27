@@ -57,7 +57,6 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
@@ -78,7 +77,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Variables access logic.
- *
+ * 
  * @author Dofs
  * @since 2.0
  */
@@ -132,11 +131,6 @@ public class VariableLogic extends WFCommonLogic {
         }
     }
 
-    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables)
-            throws ProcessDoesNotExistException {
-        return filterHistoricalVariables(variables, getHistoricalVariables(user, filter));
-    }
-
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) throws ProcessDoesNotExistException {
         ProcessLogFilter filter = new ProcessLogFilter();
         filter.setProcessId(processId);
@@ -187,11 +181,6 @@ public class VariableLogic extends WFCommonLogic {
         filter.setCreateDateFrom(dateFrom.getTime());
         WfVariableHistoryState completeTaskState = getHistoricalVariableOnRange(user, filter);
         return completeTaskState;
-    }
-
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables)
-            throws ProcessDoesNotExistException {
-        return filterHistoricalVariables(variables, getHistoricalVariables(user, processId, taskId));
     }
 
     public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
@@ -272,7 +261,7 @@ public class VariableLogic extends WFCommonLogic {
 
     /**
      * Removes from processes state variables, which is in sync state with base process and BaseProcessMode is on.
-     *
+     * 
      * @param processStateOnTime
      *            Loaded from history state for process and all it's base processes.
      * @param baseProcessVariableLoader
@@ -304,35 +293,8 @@ public class VariableLogic extends WFCommonLogic {
     }
 
     /**
-     * Filter historical variables result to return only specified variables.
-     *
-     * @param variables
-     *            Variables to return.
-     * @param historicalVariables
-     *            Full historical variables state.
-     * @return Returns specified variables historical state.
-     */
-    private WfVariableHistoryState filterHistoricalVariables(Set<String> variables, WfVariableHistoryState historicalVariables) {
-        IVariableProvider toDateProvider = new MapVariableProvider(historicalVariables.getVariables(), true);
-        IVariableProvider fromDateProvider = new MapVariableProvider(historicalVariables.getStartDateRangeVariables(), true);
-        List<WfVariable> toDateResult = Lists.newArrayList();
-        List<WfVariable> startDateRangeResult = Lists.newArrayList();
-        for (String variableName : variables) {
-            WfVariable toDateState = toDateProvider.getVariable(variableName);
-            WfVariable fromDateState = fromDateProvider.getVariable(variableName);
-            if (toDateState != null) {
-                toDateResult.add(toDateState);
-            }
-            if (fromDateState != null) {
-                startDateRangeResult.add(fromDateState);
-            }
-        }
-        return new WfVariableHistoryState(startDateRangeResult, toDateResult, historicalVariables.getSimpleVariablesChanged());
-    }
-
-    /**
      * Load process and all base processes state from logs according to filter.
-     *
+     * 
      * @param user
      *            Authorized user.
      * @param process
@@ -350,7 +312,7 @@ public class VariableLogic extends WFCommonLogic {
         for (Map.Entry<Process, Map<String, Object>> entry : processToVariables.entrySet()) {
             final Process currentProcess = entry.getKey();
             Map<String, Object> processVariables = entry.getValue();
-            Map<String, Variable<?>>  newMap = Maps.newHashMap();
+            Map<String, Variable<?>> newMap = Maps.newHashMap();
             result.put(currentProcess, newMap);
             for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
                 ProcessDefinition definition = getDefinition(varProcess);
@@ -375,7 +337,7 @@ public class VariableLogic extends WFCommonLogic {
 
     /**
      * Load simple (as it stored in database/logs) variables state for process and all his base processes.
-     *
+     * 
      * @param user
      *            Authorized user.
      * @param process
@@ -397,7 +359,7 @@ public class VariableLogic extends WFCommonLogic {
 
     /**
      * Load simple variables (as it stored in database/logs) for process with specified filter parameters.
-     *
+     * 
      * @param user
      *            Authorized user.
      * @param process
@@ -410,26 +372,22 @@ public class VariableLogic extends WFCommonLogic {
      */
     private Map<String, Object> loadVariablesForProcessFromLogs(User user, Process process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
-        Long processId = filter.getProcessId();
-        try {
-            filter.setProcessId(process.getId());
-            HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
-            // TODO 2505 load from db only VariableLogs?
-            for (VariableLog variableLog : auditLogic.getProcessLogs(user, filter).getLogs(VariableLog.class)) {
-                String variableName = variableLog.getVariableName();
-                if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {
-                    simpleVariablesChanged.add(variableName);
-                }
-                if (variableLog instanceof VariableDeleteLog) {
-                    processVariables.remove(variableName);
-                    continue;
-                }
-                processVariables.put(variableName, variableLog.getVariableNewValue());
+        ProcessLogFilter localFilter = new ProcessLogFilter(filter);
+        localFilter.setRootClassName(VariableLog.class.getName());
+        localFilter.setProcessId(process.getId());
+        HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
+        for (VariableLog variableLog : auditLogic.getProcessLogs(user, localFilter).getLogs(VariableLog.class)) {
+            String variableName = variableLog.getVariableName();
+            if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {
+                simpleVariablesChanged.add(variableName);
             }
-            return processVariables;
-        } finally {
-            filter.setProcessId(processId);
+            if (variableLog instanceof VariableDeleteLog) {
+                processVariables.remove(variableName);
+                continue;
+            }
+            processVariables.put(variableName, variableLog.getVariableNewValue());
         }
+        return processVariables;
     }
 
     private Process getBaseProcess(User user, Process process) {

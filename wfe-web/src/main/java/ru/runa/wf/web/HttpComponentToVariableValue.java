@@ -6,9 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
 
-import ru.runa.common.WebResources;
 import ru.runa.wf.web.servlet.UploadedFile;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.user.IExecutorLoader;
@@ -127,9 +125,6 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
                 } catch (Exception e) {
                     throw Throwables.propagate(e);
                 }
-            }
-            if (SystemProperties.isV3CompatibilityMode() || !WebResources.isAjaxFileInputEnabled()) {
-                return FormSubmissionUtils.IGNORED_VALUE;
             }
         } else if (context.value instanceof UploadedFile) {
             UploadedFile uploadedFile = (UploadedFile) context.value;

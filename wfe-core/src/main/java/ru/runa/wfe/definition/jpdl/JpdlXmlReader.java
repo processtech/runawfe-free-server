@@ -383,7 +383,8 @@ public class JpdlXmlReader {
             if (SystemProperties.isV3CompatibilityMode()) {
                 name = element.attributeValue(NAME_ATTR, node.getName());
             } else {
-                name = node.getNodeId() + "/timer-" + timerNumber++;
+                name = node.getNodeId() + (TimerJob.ESCALATION_NAME.equals(element.attributeValue(NAME_ATTR)) ? "/" + TimerJob.ESCALATION_NAME : "")
+                        + "/timer-" + timerNumber++;
             }
             CreateTimerAction createTimerAction = ApplicationContextFactory.createAutowiredBean(CreateTimerAction.class);
             createTimerAction.setNodeId(node.getNodeId());
