@@ -23,10 +23,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.commons.PropertyResources;
-
-import com.google.common.collect.Lists;
 
 public final class DrawProperties {
     private static final Log log = LogFactory.getLog(DrawProperties.class);
@@ -37,8 +37,9 @@ public final class DrawProperties {
     public static final double TRANSITION_SM_L = 2.5 / Math.tan(TRANSITION_SM_ANGLE);
     public static final int GRID_SIZE = 12;
 
-    public static final int TRANSITION_CLEAN_WIDTH = 10;
-    public static final int FIGURE_CLEAN_WIDTH = 5;
+    public static final float TRANSITION_CLEAN_WIDTH = 10;
+    public static final float TRANSITION_CLEAN_WIDTH2 = 3;
+    public static final float FIGURE_CLEAN_WIDTH = 5;
 
     public static Color getBackgroundColor() {
         return getColorProperty("backgroundColor", Color.WHITE);

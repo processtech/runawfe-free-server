@@ -140,17 +140,33 @@ public class TransitionFigure {
         if (!Objects.equal(end, points.get(points.size() - 1)) || points.size() == 1) {
             points.add(end);
         }
-
         int[] xPoints = new int[points.size()];
         int[] yPoints = new int[points.size()];
         for (int i = 0; i < points.size(); i++) {
             xPoints[i] = points.get(i).x;
             yPoints[i] = points.get(i).y;
         }
+
+        double angle = GraphicsMath.getAngle(xPoints[xPoints.length - 1], yPoints[yPoints.length - 1], xPoints[xPoints.length - 2],
+                yPoints[yPoints.length - 2]);
+        double delta = DrawProperties.TRANSITION_SM_ANGLE;
+        double hypotenuse = DrawProperties.TRANSITION_SM_L / Math.cos(delta);
+        int xLeft = (int) Math.round(end.x + hypotenuse * Math.cos(angle - delta));
+        int xRight = (int) Math.round(end.x + hypotenuse * Math.cos(angle + delta));
+        int yLeft = (int) Math.round(end.y - hypotenuse * Math.sin(angle - delta));
+        int yRight = (int) Math.round(end.y - hypotenuse * Math.sin(angle + delta));
+        int[] xSmPoints = new int[] { end.x, xLeft, xRight };
+        int[] ySmPoints = new int[] { end.y, yLeft, yRight };
+        graphics.setColor(DrawProperties.getBackgroundColor());
+        graphics.setStroke(new BasicStroke(DrawProperties.FIGURE_CLEAN_WIDTH));
+        graphics.drawPolygon(xSmPoints, ySmPoints, xSmPoints.length);
+
         if (figureFrom.useEdgingOnly) {
             // Cleaning old transitions
             if (isJpdlCanvas()) {
                 graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH));
+            } else {
+                graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH2));
             }
             graphics.setColor(DrawProperties.getBackgroundColor());
             graphics.drawPolyline(xPoints, yPoints, xPoints.length);
@@ -184,42 +200,10 @@ public class TransitionFigure {
         }
 
         if (exclusive) {
-            Point from = new Point(start);
-            double angle = GraphicsMath.getAngle(xPoints[0], yPoints[0], xPoints[1], yPoints[1]);
-            if (transition.isTimerTransition()) {
-                from.x += DrawProperties.GRID_SIZE * Math.cos(angle);
-                from.y += DrawProperties.GRID_SIZE * Math.sin(angle);
-            }
-            double delta = 2 * DrawProperties.TRANSITION_SM_ANGLE;
-            double hypotenuse = 8;
-            int xLeft = (int) Math.round(from.x + hypotenuse * Math.cos(angle - delta));
-            int xRight = (int) Math.round(from.x + hypotenuse * Math.cos(angle + delta));
-            int xEnd = (int) Math.round(from.x + 2 * hypotenuse * Math.cos(angle));
-            int yLeft = (int) Math.round(from.y - hypotenuse * Math.sin(angle - delta));
-            int yRight = (int) Math.round(from.y - hypotenuse * Math.sin(angle + delta));
-            int yEnd = (int) Math.round(from.y - 2 * hypotenuse * Math.sin(angle));
-            int[] xSmPoints = new int[] { from.x, xLeft, xEnd, xRight };
-            int[] ySmPoints = new int[] { from.y, yLeft, yEnd, yRight };
-            if (renderHits.isPassed()) {
-                graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
-            } else {
-                graphics.setColor(DrawProperties.getBackgroundColor());
-                graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
-                graphics.setColor(color);
-                graphics.drawPolygon(xSmPoints, ySmPoints, xSmPoints.length);
-            }
+            drawExclusiveSymbol(graphics, start, xPoints, yPoints, color);
         }
 
-        double angle = GraphicsMath.getAngle(xPoints[xPoints.length - 1], yPoints[yPoints.length - 1], xPoints[xPoints.length - 2],
-                yPoints[yPoints.length - 2]);
-        double delta = DrawProperties.TRANSITION_SM_ANGLE;
-        double hypotenuse = DrawProperties.TRANSITION_SM_L / Math.cos(delta);
-        int xLeft = (int) Math.round(end.x + hypotenuse * Math.cos(angle - delta));
-        int xRight = (int) Math.round(end.x + hypotenuse * Math.cos(angle + delta));
-        int yLeft = (int) Math.round(end.y - hypotenuse * Math.sin(angle - delta));
-        int yRight = (int) Math.round(end.y - hypotenuse * Math.sin(angle + delta));
-        int[] xSmPoints = new int[] { end.x, xLeft, xRight };
-        int[] ySmPoints = new int[] { end.y, yLeft, yRight };
+        graphics.setColor(color);
         graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
 
         if (!figureFrom.useEdgingOnly && !transition.getName().startsWith("tr")) {
@@ -246,6 +230,33 @@ public class TransitionFigure {
             }
             graphics.setColor(DrawProperties.getTextColor());
             graphics.drawString(drawString, xStart, (int) (yStart + textBounds.getHeight() - padding));
+        }
+    }
+
+    private void drawExclusiveSymbol(Graphics2D graphics, Point start, int[] xPoints, int[] yPoints, Color color) {
+        Point from = new Point(start);
+        double angle = GraphicsMath.getAngle(xPoints[0], yPoints[0], xPoints[1], yPoints[1]);
+        if (transition.isTimerTransition()) {
+            from.x += DrawProperties.GRID_SIZE * Math.cos(angle);
+            from.y += DrawProperties.GRID_SIZE * Math.sin(angle);
+        }
+        double delta = 2 * DrawProperties.TRANSITION_SM_ANGLE;
+        double hypotenuse = 8;
+        int xLeft = (int) Math.round(from.x + hypotenuse * Math.cos(angle - delta));
+        int xRight = (int) Math.round(from.x + hypotenuse * Math.cos(angle + delta));
+        int xEnd = (int) Math.round(from.x + 2 * hypotenuse * Math.cos(angle));
+        int yLeft = (int) Math.round(from.y - hypotenuse * Math.sin(angle - delta));
+        int yRight = (int) Math.round(from.y - hypotenuse * Math.sin(angle + delta));
+        int yEnd = (int) Math.round(from.y - 2 * hypotenuse * Math.sin(angle));
+        int[] xSmPoints = new int[] { from.x, xLeft, xEnd, xRight };
+        int[] ySmPoints = new int[] { from.y, yLeft, yEnd, yRight };
+        if (renderHits.isPassed()) {
+            graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
+        } else {
+            graphics.setColor(DrawProperties.getBackgroundColor());
+            graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
+            graphics.setColor(color);
+            graphics.drawPolygon(xSmPoints, ySmPoints, xSmPoints.length);
         }
     }
 

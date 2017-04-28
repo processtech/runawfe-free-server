@@ -14,7 +14,8 @@ public class GraphImageHelper {
     public static int processActionsInEvent(ActionEvent actionEvent) {
         int result = 0;
         for (Action action : actionEvent.getActions()) {
-            if (action instanceof CreateTimerAction || action instanceof CancelTimerAction || action.getName().contains(TimerJob.ESCALATION_NAME)) {
+            if (action instanceof CreateTimerAction || action instanceof CancelTimerAction
+                    || (action.getName() != null && action.getName().contains(TimerJob.ESCALATION_NAME))) {
                 continue;
             }
             result++;
