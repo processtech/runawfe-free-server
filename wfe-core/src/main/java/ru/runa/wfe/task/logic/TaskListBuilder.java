@@ -41,7 +41,6 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.IBatchPresentationCompilerFactory;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
-import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
@@ -60,7 +59,8 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
-import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.TemporaryGroup;
+import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDAO;
@@ -81,7 +81,7 @@ public class TaskListBuilder implements ITaskListBuilder {
     @Autowired
     private IWfTaskFactory taskObjectFactory;
     @Autowired
-    private IExecutorDAO executorDAO;
+    private ExecutorDAO executorDAO;
     @Autowired
     private ISubstitutionLogic substitutionLogic;
     @Autowired
@@ -190,15 +190,23 @@ public class TaskListBuilder implements ITaskListBuilder {
         for (Executor executor : executorsLikeName) {
             addObservableExecutor(executor, observableExecutors);
         }
+        List<TemporaryGroup> tempGroups = executorDAO.getTemporaryGroups();
         Set<Executor> executorsToGetTasks = Sets.newHashSet();
         if (executorDAO.isAdministrator(actor)) {
             executorsToGetTasks.addAll(observableExecutors);
+            for (Executor taskOwner : observableExecutors) {
+                for (TemporaryGroup tempGroup : tempGroups) {
+                    if (executorDAO.getGroupChildren(tempGroup).contains(taskOwner)) {
+                        executorsToGetTasks.add(tempGroup);
+                    }
+                }
+            }
         } else {
             for (Executor executor : getExecutorsToGetTasks(actor, false)) {
                 for (Executor taskOwner : observableExecutors) {
                     boolean taskOwnerIsActor = taskOwner instanceof Actor;
-                    Permission viewTasksPermission = taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS;
-                    if (permissionDAO.permissionExists(executor, viewTasksPermission, taskOwner)) {
+                    if (permissionDAO.permissionExists(executor, taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS,
+                            taskOwner)) {
                         executorsToGetTasks.add(taskOwner);
                     } else if (!taskOwnerIsActor && permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner)) {
                         Set<Actor> children = executorDAO.getGroupActors((Group) taskOwner);
@@ -206,6 +214,13 @@ public class TaskListBuilder implements ITaskListBuilder {
                             if (permissionDAO.permissionExists(executor, ActorPermission.VIEW_TASKS, child)) {
                                 executorsToGetTasks.add(taskOwner);
                                 break;
+                            }
+                        }
+                    }
+                    if (executorsToGetTasks.contains(taskOwner)) {
+                        for (TemporaryGroup tempGroup : tempGroups) {
+                            if (executorDAO.getGroupChildren(tempGroup).contains(taskOwner)) {
+                                executorsToGetTasks.add(tempGroup);
                             }
                         }
                     }
