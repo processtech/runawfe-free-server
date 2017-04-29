@@ -120,23 +120,22 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
 
     @Override
     public Object onList(ListFormat listFormat, VariableDefinition variableDefinition) {
-        List<Integer> indexes = null;
         String sizeInputName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
         String indexesInputName = variableDefinition.getName() + FormSubmissionUtils.INDEXES_SUFFIX;
         VariableFormat componentFormat = FormatCommons.createComponent(variableDefinition, 0);
         List<Object> list = null;
         String[] stringsIndexes = (String[]) userInput.get(indexesInputName);
-        if (stringsIndexes == null || stringsIndexes.length != 1) {
+        if (stringsIndexes == null) {
             if (userInput.containsKey(sizeInputName)) {
                 // js dynamic way
                 String[] stringsSize = (String[]) userInput.get(sizeInputName);
                 if (stringsSize == null || stringsSize.length != 1) {
-                    log.error("Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
+                    errors.put(variableDefinition.getName(), "Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
                     return FormSubmissionUtils.IGNORED_VALUE;
                 }
                 int listSize = TypeConversionUtil.convertTo(int.class, stringsSize[0]);
                 list = Lists.newArrayListWithExpectedSize(listSize);
-                indexes = Lists.newArrayListWithExpectedSize(listSize);
+                List<Integer> indexes = Lists.newArrayListWithExpectedSize(listSize);
                 for (int i = 0; indexes.size() < listSize && i < 1000; i++) {
                     String checkString = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
                             + VariableFormatContainer.COMPONENT_QUALIFIER_END;
@@ -177,15 +176,14 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
                 return list;
             }
         } else {
-            int listSize = !stringsIndexes[0].equals("") ? stringsIndexes[0].toString().split(",").length : 0;
-            list = Lists.newArrayListWithExpectedSize(listSize);
-            if (listSize > 0) {
-                indexes = Lists.newArrayListWithExpectedSize(listSize);
-                String[] stringIndexes = stringsIndexes[0].toString().split(",");
+            if (stringsIndexes.length != 1) {
+                errors.put(variableDefinition.getName(), "Incorrect '" + indexesInputName + "' value submitted: " + Arrays.toString(stringsIndexes));
+                return FormSubmissionUtils.IGNORED_VALUE;
+            }
+            String[] stringIndexes = stringsIndexes[0].split(",");
+            list = Lists.newArrayListWithExpectedSize(stringIndexes.length);
+            if (stringIndexes.length > 0) {
                 for (String index : stringIndexes) {
-                    indexes.add(TypeConversionUtil.convertTo(int.class, index));
-                }
-                for (Integer index : indexes) {
                     String name = variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
                             + VariableFormatContainer.COMPONENT_QUALIFIER_END;
                     String scriptingName = variableDefinition.getScriptingName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + index
@@ -213,7 +211,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
         if (stringsIndexes == null || stringsIndexes.length != 1) {
             String[] stringsSize = (String[]) userInput.get(sizeInputName);
             if (stringsSize == null || stringsSize.length != 1) {
-                log.error("Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
+                errors.put(variableDefinition.getName(), "Incorrect '" + sizeInputName + "' value submitted: " + Arrays.toString(stringsSize));
                 return FormSubmissionUtils.IGNORED_VALUE;
             }
             int mapSize = TypeConversionUtil.convertTo(int.class, stringsSize[0]);
@@ -230,7 +228,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
                 }
             }
             if (indexes.size() != mapSize) {
-                errors.put(variableDefinition.getName(), ". Not all list items found. Expected:'" + mapSize + "', found:'" + indexes.size());
+                errors.put(variableDefinition.getName(), "Not all list items found. Expected:'" + mapSize + "', found:'" + indexes.size());
             }
         } else {
             int mapSize = !stringsIndexes[0].equals("") ? stringsIndexes[0].toString().split(",").length : 0;

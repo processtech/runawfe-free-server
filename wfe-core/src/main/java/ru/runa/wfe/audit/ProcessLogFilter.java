@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 
 public class ProcessLogFilter implements Serializable {
     private static final long serialVersionUID = 1L;
+    private String rootClassName = ProcessLog.class.getName();
     private Long idFrom;
     private Long idTo;
     private Date createDateFrom;
@@ -23,6 +24,27 @@ public class ProcessLogFilter implements Serializable {
 
     public ProcessLogFilter(Long processId) {
         this.processId = processId;
+    }
+
+    public ProcessLogFilter(ProcessLogFilter filter) {
+        this.rootClassName = filter.rootClassName;
+        this.idFrom = filter.idFrom;
+        this.idTo = filter.idTo;
+        this.createDateFrom = filter.createDateFrom;
+        this.createDateTo = filter.createDateTo;
+        this.processId = filter.processId;
+        this.tokenId = filter.tokenId;
+        this.nodeId = filter.nodeId;
+        this.includeSubprocessLogs = filter.includeSubprocessLogs;
+        this.severities = filter.severities;
+    }
+
+    public String getRootClassName() {
+        return rootClassName;
+    }
+
+    public void setRootClassName(String rootClassName) {
+        this.rootClassName = rootClassName;
     }
 
     public Long getIdFrom() {
@@ -100,4 +122,5 @@ public class ProcessLogFilter implements Serializable {
     public void setSeverities(List<Severity> severities) {
         this.severities = severities;
     }
+
 }
