@@ -65,6 +65,7 @@ public abstract class Executor extends IdentifiableBase implements Comparable<Ex
     private static final long serialVersionUID = 1L;
 
     public static final String UNAUTHORIZED_EXECUTOR_NAME = "__unauthorized__";
+    public static final String TEMPORARY_EXECUTOR_NAME = "__temporary__";
 
     private Long id;
     private Long version;

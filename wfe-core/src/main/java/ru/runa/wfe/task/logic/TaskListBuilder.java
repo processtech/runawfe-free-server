@@ -170,7 +170,9 @@ public class TaskListBuilder implements ITaskListBuilder {
                         wfTask.setOwner(Actor.UNAUTHORIZED_ACTOR);
                     }
                 } else {
-                    if (!permissionDAO.permissionExists(actor, GroupPermission.READ, executor)) {
+                    if (executor instanceof TemporaryGroup) {
+                        wfTask.setOwner(Group.TEMPORARY_GROUP);
+                    } else if (!permissionDAO.permissionExists(actor, GroupPermission.READ, executor)) {
                         wfTask.setOwner(Group.UNAUTHORIZED_GROUP);
                     }
                 }
