@@ -8,7 +8,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.var.UserType;
@@ -23,13 +22,13 @@ import ru.runa.wfe.var.format.VariableFormat;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class MultipleSelectFromListUserVariables extends AbstractListUserVariables implements FormComponentSubmissionHandler {
+public class LegacyMultipleSelectFromListUserVariables extends LegacyAbstractListUserVariables implements FormComponentSubmissionHandler {
     private static final long serialVersionUID = 1L;
 
     @Override
     protected Object renderRequest() throws Exception {
         initFields();
-        return ViewUtil.getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName),
+        return getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName),
                 variableProvider.getVariableNotNull(dectVariableName), variableProvider.getProcessId(), sortField,
                 displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE);
     }
@@ -38,7 +37,6 @@ public class MultipleSelectFromListUserVariables extends AbstractListUserVariabl
     public Map<String, ? extends Object> extractVariables(Interaction interaction, VariableDefinition variableDefinition,
             Map<String, ? extends Object> userInput, Map<String, String> formatErrors) throws Exception {
         Map<String, Object> result = Maps.newHashMap();
-        // TODO use index for submission
         Object raw = userInput.get(getVariableNameForSubmissionProcessing());
         String json = null;
         VariableFormat format = FormatCommons.create(variableDefinition);

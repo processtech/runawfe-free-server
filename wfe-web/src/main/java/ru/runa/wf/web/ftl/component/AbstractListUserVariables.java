@@ -1,38 +1,55 @@
-package ru.runa.wf.web.ftl.component.legacy;
+package ru.runa.wf.web.ftl.component;
 
 import java.util.List;
 
 import ru.runa.wfe.commons.ftl.FormComponent;
-import ru.runa.wfe.var.UserTypeMap;
 
-abstract class AbstractListUserVariables extends FormComponent {
+import com.google.common.collect.Lists;
+
+public abstract class AbstractListUserVariables extends FormComponent {
     private static final long serialVersionUID = 1L;
 
-    protected List<UserTypeMap> list;
     protected String variableName;
     protected String dectVariableName;
     protected DisplayMode displayMode;
     protected String sortField;
+    protected List<String> displayFields;
 
     protected void initFields() {
-        if (getClass().equals(DisplayListUserVariables.class)) {
+        if (getClass().equals(DisplayUserTypeList.class)) {
             variableName = getParameterAsString(0);
             displayMode = DisplayMode.fromString(getParameterAsString(1));
             sortField = getParameterAsString(2);
-        } else if (getClass().equals(MultipleSelectFromListUserVariables.class)) {
+            displayFields = getOptions(3);
+        } else if (getClass().equals(MultipleSelectFromUserTypeList.class)) {
             variableName = getParameterAsString(1);
-            list = variableProvider.getValue(List.class, variableName);
             dectVariableName = getParameterAsString(0);
             displayMode = DisplayMode.fromString(getParameterAsString(2));
             sortField = getParameterAsString(3);
+            displayFields = getOptions(4);
         }
+    }
+
+    protected List<String> getOptions(int numParam) {
+        List<String> list = Lists.newArrayList();
+        int i = numParam;
+        while (true) {
+            String option = getParameterAsString(i);
+            if (option == null) {
+                break;
+            }
+            list.add(option);
+            i++;
+        }
+        return list;
     }
 
     @Override
     abstract protected Object renderRequest() throws Exception;
 
     public enum DisplayMode {
-        TWO_DIMENTIONAL_TABLE("two-dimentional"), MULTI_DIMENTIONAL_TABLE("multi-dimentional");
+        TWO_DIMENTIONAL_TABLE("two-dimentional"),
+        MULTI_DIMENTIONAL_TABLE("multi-dimentional");
 
         private final String mode;
 

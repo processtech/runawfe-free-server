@@ -83,5 +83,15 @@ function updateIndexesUNIQUENAME(div) {
 	});
 	var indexesInput = div.find("input[name$='.indexes']").filter(filterTemplatesElements).first();
 	indexesInput.val(ids);
-	console.log("List size = " + getSizeUNIQUENAME());
+	console.log("UNIQUENAME size = " + getSizeUNIQUENAME());
+}
+
+function createListElementRegExp(s) {
+	s = s.replace(/\[/g, '\\[');
+	s = s.replace(/\]/g, '\\]');
+	return new RegExp(s + '\\[\\]','g');		
+}
+
+function createDoubleSubLineRegExp() {
+	return new RegExp('__','g');		
 }
