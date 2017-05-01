@@ -1,28 +1,23 @@
 package ru.runa.wf.web.ftl.component;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.FormSubmissionUtils;
-import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.web.WebHelper;
-import ru.runa.wfe.commons.web.WebUtils;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.UserType;
-import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.format.EditableCheckBoxFormat;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.MapFormat;
@@ -36,8 +31,6 @@ import com.google.common.collect.Maps;
 
 public class ViewUtil {
     private static final Log log = LogFactory.getLog(ViewUtil.class);
-
-    private static final Random random = new Random(System.currentTimeMillis());
 
     public static String createExecutorSelect(User user, WfVariable variable) {
         return GenerateHtmlForVariable.createExecutorSelect(user, variable);
@@ -145,68 +138,6 @@ public class ViewUtil {
         return html;
     }
 
-    public static final String getUserTypeListTable(User user, WebHelper webHelper, WfVariable variable, WfVariable dectSelectVariable,
-            Long processId, UserTableColumns columns) {
-        if (!(variable.getValue() instanceof List)) {
-            return "";
-        }
-        final String uniquename = String.format("%s_%x", variable.getDefinition().getScriptingNameWithoutDots(), random.nextInt());
-        final StringBuilder result = new StringBuilder(255);
-        result.append("<link rel='stylesheet' type='text/css' href='/wfe/css/tablesorter.css'>\n");
-        result.append("<script src='/wfe/js/jquery.tablesorter.min.js' type='text/javascript'></script>\n");
-
-        final InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.UserTypeListTables.js", ViewUtil.class);
-        final Map<String, String> substitutions = new HashMap<String, String>();
-        substitutions.put("UNIQUENAME", uniquename);
-        StringBuilder headers = new StringBuilder();
-        if (!columns.getNoSortableColumns().isEmpty()) {
-            headers.append("headers: {");
-            boolean noFirst = false;
-            for (Integer column : columns.getNoSortableColumns()) {
-                if (noFirst) {
-                    headers.append(",");
-                } else {
-                    noFirst = true;
-                }
-                headers.append(column).append(": {sorter: false}");
-            }
-            headers.append("},");
-        }
-        substitutions.put("HEADERS", headers.toString());
-        substitutions.put("SORTCOLUMN", columns.getSortColumn().toString());
-        result.append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
-
-        result.append("<table id='").append(uniquename).append("' class='tablesorter'>\n");
-        result.append("\t<thead>\n\t\t<tr>\n");
-        for (final VariableDefinition attribute : columns.createAttributes()) {
-            final String attributeName;
-            if (attribute.getFormatClassName().equals(EditableCheckBoxFormat.class.getName())) {
-                attributeName = "<input type='checkBox' name='check_all' style='margin: 3px 3px 3px 4px; width: 30px;'";
-            } else {
-                attributeName = attribute.getName();
-            }
-            result.append("\t\t\t<th>").append(attributeName).append("</th>\n");
-        }
-        result.append("\t\t</tr>\n\t</thead>\n");
-
-        result.append("\t<tbody>\n");
-        for (final Object row : (List<?>) variable.getValue()) {
-            if (!(row instanceof UserTypeMap)) {
-                return "";
-            }
-            final UserTypeMap typedRow = (UserTypeMap) row;
-            result.append("\t\t<tr>");
-            for (final WfVariable col : columns.createValues(typedRow)) {
-                result.append("\t\t\t<td>").append(getOutput(user, webHelper, processId, col)).append("</td>\n");
-            }
-            result.append("\t\t</tr>\n");
-        }
-        result.append("\t</tbody>\n");
-
-        result.append("</table>\n");
-        return result.toString();
-    }
-
     public static String getComponentInput(User user, WebHelper webHelper, WfVariable variable) {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
         GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, 0L, false);
@@ -278,6 +209,30 @@ public class ViewUtil {
         params.put(WebHelper.PARAM_ID, logId);
         String href = webHelper.getActionUrl(WebHelper.ACTION_DOWNLOAD_LOG_FILE, params);
         return "<a href=\"" + href + "\">" + fileName + "</>";
+    }
+
+    public static String wrapInputVariable(WfVariable variable, String componentHtml) {
+        String tagToUse = "span";
+        if (HTMLUtils.checkForBlockElements(componentHtml)) {
+            tagToUse = "div";
+        }
+        String html = "<" + tagToUse + " class=\"inputVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\"";
+        html += " variable='" + variable.getDefinition().getName() + "'>";
+        html += componentHtml;
+        html += "</" + tagToUse + ">";
+        return html;
+    }
+
+    public static String wrapDisplayVariable(WfVariable variable, String componentHtml) {
+        String tagToUse = "span";
+        if (HTMLUtils.checkForBlockElements(componentHtml)) {
+            tagToUse = "div";
+        }
+        String html = "<" + tagToUse + " class=\"displayVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\"";
+        html += " variable='" + variable.getDefinition().getName() + "'>";
+        html += componentHtml;
+        html += "</" + tagToUse + ">";
+        return html;
     }
 
 }

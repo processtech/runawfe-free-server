@@ -1,13 +1,18 @@
 package ru.runa.wf.web.ftl.component;
 
-public class DisplayUserTypeList extends AbstractListUserVariables {
+import java.util.List;
+
+import ru.runa.wfe.var.dto.WfVariable;
+
+public class DisplayUserTypeList extends AbstractUserTypeList {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected Object renderRequest() throws Exception {
-        initFields();
-        return ViewUtil.getUserTypeListTable(user, webHelper, variableProvider.getVariableNotNull(variableName), null, variableProvider
-                .getProcessId(), new UserTableColumns(variableProvider.getVariableNotNull(variableName), sortField, displayFields,
-                displayMode == DisplayMode.MULTI_DIMENTIONAL_TABLE));
+    protected UserTypeListModel parseParameters() {
+        String variableName = getParameterAsString(0);
+        WfVariable variable = variableProvider.getVariableNotNull(variableName);
+        boolean componentView = getParameterAs(boolean.class, 1);
+        List<String> displayFields = getMultipleParameter(2);
+        return new UserTypeListModel(variable, displayFields, componentView, null);
     }
 }

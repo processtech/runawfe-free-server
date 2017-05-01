@@ -1,6 +1,5 @@
 package ru.runa.wf.web.ftl.component;
 
-import ru.runa.common.web.HTMLUtils;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -18,15 +17,6 @@ public class DisplayVariable extends FormComponent {
         } else {
             componentHtml = ViewUtil.getOutput(user, webHelper, variableProvider.getProcessId(), variable);
         }
-
-        String tagToUse = "span";
-        if (HTMLUtils.checkForBlockElements(componentHtml)) {
-            tagToUse = "div";
-        }
-
-        String html = "<" + tagToUse + " class=\"displayVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\">";
-        html += componentHtml;
-        html += "</" + tagToUse + ">";
-        return html;
+        return ViewUtil.wrapDisplayVariable(variable, componentHtml);
     }
 }
