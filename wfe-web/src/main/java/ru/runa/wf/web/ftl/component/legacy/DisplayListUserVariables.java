@@ -1,4 +1,6 @@
-package ru.runa.wf.web.ftl.component;
+package ru.runa.wf.web.ftl.component.legacy;
+
+import ru.runa.wf.web.ftl.component.ViewUtil;
 
 
 public class DisplayListUserVariables extends AbstractListUserVariables {
