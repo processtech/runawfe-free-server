@@ -11,6 +11,7 @@ import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
@@ -27,40 +28,29 @@ public class EditLinkedLists extends FormComponent {
         boolean allowToAddElements = getParameterAs(boolean.class, 0);
         boolean allowToChangeElements = getParameterAs(boolean.class, 1);
         boolean allowToDeleteElements = getParameterAs(boolean.class, 2);
+        List<String> variableNames = getMultipleParameter(3);
         List<WfVariable> variables = Lists.newArrayList();
         List<VariableFormat> componentFormats = Lists.newArrayList();
         List<List<?>> lists = Lists.newArrayList();
         StringBuilder rowTemplate = new StringBuilder();
-        StringBuilder jsHandlers = new StringBuilder();
-        StringBuilder jsVariableNamesArray = new StringBuilder();
-        String uniqueName = null;
-        int i = 3;
+        List<String> jsHandlers = Lists.newArrayList();
+        List<String> jsVariableNames = Lists.newArrayList();
         int rowsCount = 0;
-        while (true) {
-            String variableName = getParameterAsString(i);
-            if (variableName == null) {
-                break;
-            }
+        for (String variableName : variableNames) {
             WfVariable variable = variableProvider.getVariableNotNull(variableName);
-            if (rowsCount == 0) {
-                uniqueName = variable.getDefinition().getScriptingNameWithoutDots();
-            }
             VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
             List<Object> list = TypeConversionUtil.convertTo(List.class, variable.getValue());
             if (list == null) {
                 list = new ArrayList<Object>();
             }
-            if (variables.size() != 0) {
-                jsVariableNamesArray.append(", ");
-            }
-            jsVariableNamesArray.append("\"").append(variableName).append("\"");
+            jsVariableNames.add("\"" + variableName + "\"");
             variables.add(variable);
             componentFormats.add(componentFormat);
             lists.add(list);
             WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
             String jsHandler = ViewUtil.getComponentJSFunction(templateComponentVariable);
-            if (jsHandlers.indexOf(jsHandler, 0) == -1) {
-                jsHandlers.append(jsHandler);
+            if (!jsHandlers.contains(jsHandler)) {
+                jsHandlers.add(jsHandler);
             }
             rowTemplate.append("<td>");
             String inputComponentHtml = getComponentInput(templateComponentVariable, true);
@@ -70,17 +60,17 @@ public class EditLinkedLists extends FormComponent {
             if (list.size() > rowsCount) {
                 rowsCount = list.size();
             }
-            i++;
         }
         if (variables.size() > 0) {
+            String uniqueName = variables.get(0).getDefinition().getScriptingNameWithoutDots();
             StringBuffer html = new StringBuffer();
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("ROW_TEMPLATE", rowTemplate.toString());
-            substitutions.put("JS_HANDLERS", jsHandlers.toString());
-            substitutions.put("VARIABLE_NAMES", jsVariableNamesArray.toString());
+            substitutions.put("JS_HANDLERS", Joiner.on("\n").join(jsHandlers));
+            substitutions.put("VARIABLE_NAMES", Joiner.on(", ").join(jsVariableNames));
             substitutions.put("UNIQUENAME", uniqueName);
             html.append(exportScript(substitutions, false));
-            html.append("<table id=\"ell").append(uniqueName).append("\" class=\"editLinkedLists\" rowsCount=\"").append(rowsCount).append("\">");
+            html.append("<table id=\"ell").append(uniqueName).append("\" class=\"editLinkedLists\">");
             String operationsColumn = null;
             if (allowToAddElements || allowToDeleteElements) {
                 operationsColumn = "<th style=\"width: 30px;\">";

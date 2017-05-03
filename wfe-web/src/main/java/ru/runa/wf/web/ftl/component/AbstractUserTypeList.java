@@ -1,5 +1,6 @@
 package ru.runa.wf.web.ftl.component;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import freemarker.template.TemplateModelException;
 
 public abstract class AbstractUserTypeList extends FormComponent {
     private static final long serialVersionUID = 1L;
-    private static final BeansWrapper BEANS_WRAPPER;
+    protected static final BeansWrapper BEANS_WRAPPER;
     static {
         BeansWrapperBuilder builder = new BeansWrapperBuilder(Configuration.VERSION_2_3_23);
         builder.setUseModelCache(true);
@@ -32,7 +33,7 @@ public abstract class AbstractUserTypeList extends FormComponent {
     @Override
     protected Object renderRequest() throws Exception {
         UserTypeListModel model = parseParameters();
-        String template = ClassLoaderUtil.getAsString("templates/AbstractUserTypeList.ftl", getClass());
+        String template = ClassLoaderUtil.getAsString("templates/" + getClass().getSimpleName() + ".ftl", getClass());
         SimpleHash map = new SimpleHash(BEANS_WRAPPER);
         map.put("model", model);
         return FreemarkerProcessor.process(template, map);
@@ -41,22 +42,32 @@ public abstract class AbstractUserTypeList extends FormComponent {
     protected abstract UserTypeListModel parseParameters();
 
     public class UserTypeListModel {
-        private final WfVariable variable;
-        private final UserType userType;
-        private final List<String> attributeNames;
-        private final boolean componentView;
-        private final WfVariable selectableVariable;
+        protected final WfVariable variable;
+        protected final UserType userType;
+        protected final List<String> attributeNames;
+        protected final boolean componentView;
 
-        public UserTypeListModel(WfVariable variable, List<String> attributeNames, boolean componentView, WfVariable selectableVariable) {
+        public UserTypeListModel(WfVariable variable, List<String> attributeNames, boolean componentView) {
             this.variable = variable;
             this.userType = ((UserTypeFormat) FormatCommons.createComponent(variable, 0)).getUserType();
             this.attributeNames = attributeNames;
             this.componentView = componentView;
-            this.selectableVariable = selectableVariable;
         }
 
         public WfVariable getVariable() {
             return variable;
+        }
+
+        public List<UserTypeMap> getVariableValue() {
+            List<UserTypeMap> list = (List<UserTypeMap>) getVariable().getValue();
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            return list;
+        }
+
+        public String getUniqueName() {
+            return variable.getDefinition().getScriptingNameWithoutDots();
         }
 
         public List<VariableDefinition> getAttributes() {
@@ -71,23 +82,21 @@ public abstract class AbstractUserTypeList extends FormComponent {
             return attributes;
         }
 
-        public WfVariable getSelectableVariable() {
-            return selectableVariable;
-        }
-
-        public boolean isSelectable() {
-            return selectableVariable != null;
-        }
-
         public String getValue(TemplateModel arg0, TemplateModel arg1) throws TemplateModelException {
             UserTypeMap userTypeMap = (UserTypeMap) BEANS_WRAPPER.unwrap(arg0);
             VariableDefinition attributeDefinition = (VariableDefinition) BEANS_WRAPPER.unwrap(arg1);
-            WfVariable variable = userTypeMap.getAttributeValue(attributeDefinition.getName());
+            WfVariable variable = getAttributeVariable(userTypeMap, attributeDefinition);
             if (componentView) {
                 return ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), variable);
             } else {
                 return ViewUtil.getOutput(user, webHelper, variableProvider.getProcessId(), variable);
             }
+        }
+
+        protected WfVariable getAttributeVariable(UserTypeMap userTypeMap, VariableDefinition attributeDefinition) {
+            WfVariable attributeVariable = userTypeMap.getAttributeValue(attributeDefinition.getName());
+            int index = getVariableValue().indexOf(userTypeMap);
+            return ViewUtil.createUserTypeListComponentVariable(variable, index, attributeVariable);
         }
     }
 }

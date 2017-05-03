@@ -1,16 +1,11 @@
 package ru.runa.wfe.var.format;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -20,19 +15,16 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
 public class UserTypeFormat extends VariableFormat implements VariableDisplaySupport {
     private static final Log log = LogFactory.getLog(UserTypeFormat.class);
     private final UserType userType;
-    private final List<String> displayFields;
 
     public UserTypeFormat(UserType userType) {
-        this(userType, null);
-    }
-
-    public UserTypeFormat(UserType userType, List<String> displayFields) {
         Preconditions.checkNotNull(userType);
         this.userType = userType;
-        this.displayFields = displayFields;
     }
 
     @Override
@@ -107,17 +99,9 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
     @Override
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
         UserTypeMap userTypeMap = (UserTypeMap) object;
-        final List<VariableDefinition> attributes = new ArrayList<VariableDefinition>();
-        if (null != displayFields && !displayFields.isEmpty()) {
-            for (final String field : displayFields) {
-                attributes.add(getUserType().getAttribute(field));
-            }
-        } else {
-            attributes.addAll(userType.getAttributes());
-        }
         StringBuffer b = new StringBuffer();
         b.append("<table class=\"list usertype\">");
-        for (VariableDefinition attributeDefinition : attributes) {
+        for (VariableDefinition attributeDefinition : userType.getAttributes()) {
             b.append("<tr>");
             b.append("<td class=\"list\">").append(attributeDefinition.getName()).append("</td>");
             VariableFormat attributeFormat = FormatCommons.create(attributeDefinition);

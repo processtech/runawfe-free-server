@@ -104,6 +104,16 @@ public class ViewUtil {
         return createVariable(name, scriptingName, attributeDefinition.getFormatNotNull(), value);
     }
 
+    public static WfVariable createUserTypeListComponentVariable(WfVariable containerVariable, int index, WfVariable attributeVariable) {
+        String name = containerVariable.getDefinition().getName();
+        name += VariableFormatContainer.COMPONENT_QUALIFIER_START + index + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+        name += UserType.DELIM + attributeVariable.getDefinition().getName();
+        String scriptingName = containerVariable.getDefinition().getScriptingName();
+        scriptingName += VariableFormatContainer.COMPONENT_QUALIFIER_START + index + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+        scriptingName += UserType.DELIM + attributeVariable.getDefinition().getScriptingName();
+        return createVariable(name, scriptingName, attributeVariable.getDefinition().getFormatNotNull(), attributeVariable.getValue());
+    }
+
     public static String getHiddenInput(WfVariable variable) {
         String stringValue = variable.getStringValue();
         if (stringValue == null) {

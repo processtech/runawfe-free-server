@@ -13,6 +13,6 @@ public class DisplayUserTypeList extends AbstractUserTypeList {
         WfVariable variable = variableProvider.getVariableNotNull(variableName);
         boolean componentView = getParameterAs(boolean.class, 1);
         List<String> displayFields = getMultipleParameter(2);
-        return new UserTypeListModel(variable, displayFields, componentView, null);
+        return new UserTypeListModel(variable, displayFields, componentView);
     }
 }

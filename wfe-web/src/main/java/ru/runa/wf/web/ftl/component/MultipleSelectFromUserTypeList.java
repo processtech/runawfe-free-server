@@ -23,7 +23,7 @@ public class MultipleSelectFromUserTypeList extends AbstractUserTypeList impleme
         boolean componentView = getParameterAs(boolean.class, 2);
         WfVariable displayVariable = variableProvider.getVariableNotNull(displayVariableName);
         List<String> displayFields = getMultipleParameter(3);
-        return new UserTypeListModel(displayVariable, displayFields, componentView, inputVariable);
+        return new SelectUserTypeListModel(displayVariable, displayFields, componentView, inputVariable);
     }
 
     @Override
@@ -42,4 +42,18 @@ public class MultipleSelectFromUserTypeList extends AbstractUserTypeList impleme
         result.put(getVariableNameForSubmissionProcessing(), selected);
         return result;
     }
+
+    public class SelectUserTypeListModel extends UserTypeListModel {
+        private final WfVariable inputVariable;
+
+        public SelectUserTypeListModel(WfVariable variable, List<String> attributeNames, boolean componentView, WfVariable inputVariable) {
+            super(variable, attributeNames, componentView);
+            this.inputVariable = inputVariable;
+        }
+
+        public WfVariable getInputVariable() {
+            return inputVariable;
+        }
+    }
+
 }

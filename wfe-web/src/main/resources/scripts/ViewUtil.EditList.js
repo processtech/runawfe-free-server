@@ -16,7 +16,6 @@ function initUNIQUENAME(addButtonElement) {
 			var div = $(this).closest("div").parent().closest("div");
 			var rows = div.find("div[row][current][name='VARIABLE']");
 			var rowIndex = rows.length < 1 ? 0 : parseInt(rows.last().attr("row")) + 1;
-			console.log("Adding row " + rowIndex);
 			var copy = div.find("div[template]").first().clone();
 			copy.children().each(function() {
 				updateTemplateOnAddUNIQUENAME(this, rowIndex);
@@ -40,22 +39,14 @@ function updateTemplateOnAddUNIQUENAME(element, rowIndex) {
 		if(this.specified) {
 			this.value = this.value.replace(/\{\}/, "[" + rowIndex + "]");
 		}
-  	});
-}
-	
-function getSizeUNIQUENAME() {
-	if ($("input[name='VARIABLE.indexes']").length > 0) {
-		return parseInt($("input[name='VARIABLE.indexes']").val().split(',').length);
-	} else {
-		return 0;
-	}
+	});
 }
 
 function removeUNIQUENAME(button) {
 	var div = $(button).closest("div");
 	var listDiv = div.parent().closest("div").parent().closest("div");
 	var rowIndex = parseInt(div.attr("row"));
-	console.log("Removing row ", rowIndex);
+	$("#UNIQUENAME").trigger("onBeforeRowRemoved", [rowIndex]);
 	div.find(".inputFileDelete").each(function() {
 		$(this).click();
 	});
@@ -73,25 +64,13 @@ function removeAllUNIQUENAME() {
 	});
 	$("input[name='VARIABLE.indexes']").val("");
 	$("#UNIQUENAME").trigger("onAllRowsRemoved");
-	console.log("Removed all rows");
 }
 
 function updateIndexesUNIQUENAME(div) {
-	var ids = "";
+	var ids = [];
 	div.find("div[row][current][name='VARIABLE']").filter(filterTemplatesElements).each(function() {
-		ids == "" ? ids = $(this).attr('row') : ids += "," + $(this).attr('row') ; 
+		ids.push($(this).attr("row")); 
 	});
 	var indexesInput = div.find("input[name$='.indexes']").filter(filterTemplatesElements).first();
 	indexesInput.val(ids);
-	console.log("UNIQUENAME size = " + getSizeUNIQUENAME());
-}
-
-function createListElementRegExp(s) {
-	s = s.replace(/\[/g, '\\[');
-	s = s.replace(/\]/g, '\\]');
-	return new RegExp(s + '\\[\\]','g');		
-}
-
-function createDoubleSubLineRegExp() {
-	return new RegExp('__','g');		
 }
