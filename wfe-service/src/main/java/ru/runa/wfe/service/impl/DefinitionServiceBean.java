@@ -40,6 +40,7 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.dto.WfNode;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.DefinitionServiceLocal;
@@ -130,13 +131,17 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public Node getNode(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+    public WfNode getNode(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
             @WebParam(name = "nodeId") String nodeId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionId != null, "definitionId");
         Preconditions.checkArgument(nodeId != null, "nodeId");
         ProcessDefinition processDefinition = definitionLogic.getDefinition(definitionId);
-        return processDefinition.getNode(nodeId);
+        Node node = processDefinition.getNode(nodeId);
+        if (node != null) {
+            return new WfNode(node);
+        }
+        return null;
     }
 
     @Override
