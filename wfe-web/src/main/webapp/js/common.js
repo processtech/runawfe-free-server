@@ -26,6 +26,7 @@ $(document).ready(function() {
 			$("#newHierarchyTypeName").attr("disabled", "true");
 		}
 	});
+	$(".selectionStatusPropagator").change(propagateSelectionStatus);
 });
 
 function filterTemplatesElements() {
@@ -126,28 +127,10 @@ function showFiltersHelp() {
 	});
 }
 
-// TODO jquery usage is preferred
-function propagateSelectionStatus(checkBox) {
-	var checkBoxField = checkBox.parentNode;
-	var header = checkBoxField.parentNode;
-	var rowFields = header.children;
-	var headerLength = rowFields.length;
-	for (i = 0; i < headerLength; i++) {
-		if (rowFields[i] == checkBoxField) {
-			break;
-		}
-	}
-	if (i < headerLength) {
-		var table = header.parentNode;
-		var rows = table.children;
-		for (j = 1; j < rows.length; j++) {
-			if (rows[j].children.length == headerLength) {
-				var childCheckBoxField = rows[j].children.item(i);
-				var childCheckBox = childCheckBoxField.children.item(0);
-				if (childCheckBox.disabled == false) {
-					childCheckBox.checked = checkBox.checked;
-				}
-			}
-		}
-	}
+function propagateSelectionStatus() {
+	var table = $(this).closest("table");
+	var checked = $(this).prop("checked");
+	table.find("tr td:first-child").find("input[type='checkbox']:enabled").each(function() {
+		$(this).prop("checked", checked);
+	});
 }

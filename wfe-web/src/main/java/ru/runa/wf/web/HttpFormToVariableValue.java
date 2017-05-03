@@ -4,9 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.user.IExecutorLoader;
 import ru.runa.wfe.var.UserTypeMap;
@@ -41,7 +38,6 @@ import com.google.common.collect.Maps;
  * Extract variable value for variable definition, passed as operation context.
  */
 public class HttpFormToVariableValue implements VariableFormatVisitor<Object, VariableDefinition> {
-    private static final Log log = LogFactory.getLog(HttpFormToVariableValue.class);
 
     /**
      * User inputs. Map from field name to field value.
@@ -120,12 +116,12 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
 
     @Override
     public Object onList(ListFormat listFormat, VariableDefinition variableDefinition) {
-        String sizeInputName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
         String indexesInputName = variableDefinition.getName() + FormSubmissionUtils.INDEXES_SUFFIX;
         VariableFormat componentFormat = FormatCommons.createComponent(variableDefinition, 0);
         List<Object> list = null;
         String[] stringsIndexes = (String[]) userInput.get(indexesInputName);
         if (stringsIndexes == null) {
+            String sizeInputName = variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
             if (userInput.containsKey(sizeInputName)) {
                 // js dynamic way
                 String[] stringsSize = (String[]) userInput.get(sizeInputName);

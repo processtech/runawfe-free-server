@@ -44,7 +44,7 @@ public class DisplayLinkedLists extends FormComponent {
         }
         if (variables.size() > 0) {
             StringBuffer html = new StringBuffer();
-            html.append("<table class=\"displayLinkedLists\" rowsCount=\"").append(rowsCount).append("\">");
+            html.append("<table class=\"displayLinkedLists\">");
             html.append(ViewUtil.generateTableHeader(variables, variableProvider, null));
             for (int row = 0; row < rowsCount; row++) {
                 renderRow(html, variables, lists, componentFormats, componentView, row);

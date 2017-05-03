@@ -7,9 +7,6 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
@@ -17,6 +14,9 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 public class UserTypeFormat extends VariableFormat implements VariableDisplaySupport {
     private static final Log log = LogFactory.getLog(UserTypeFormat.class);
