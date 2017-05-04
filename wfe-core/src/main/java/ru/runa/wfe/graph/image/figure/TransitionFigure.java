@@ -23,12 +23,19 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
@@ -41,6 +48,16 @@ import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
 
 public class TransitionFigure {
+
+    private static BufferedImage BPMN_ACTION_ICON;
+    static {
+        try {
+            BPMN_ACTION_ICON = ImageIO.read(ClassLoaderUtil.getAsStreamNotNull("image/bpmn/action.png", TransitionFigure.class));
+        } catch (IOException e) {
+            Throwables.propagate(e);
+        }
+    }
+
     protected String timerInfo;
 
     protected AbstractFigure figureFrom;
@@ -163,17 +180,20 @@ public class TransitionFigure {
 
         if (figureFrom.useEdgingOnly) {
             // Cleaning old transitions
-            if (isJpdlCanvas()) {
-                graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH));
-            } else {
-                graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH2));
-            }
+            graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH));
             graphics.setColor(DrawProperties.getBackgroundColor());
             graphics.drawPolyline(xPoints, yPoints, xPoints.length);
         }
 
         graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_DRAW_WIDTH));
         graphics.setColor(color);
+
+        if (actionsCount > 0 && !isJpdlCanvas() && transition.getProcessDefinition().isGraphActionsEnabled()) {
+            for (int i = 1; i <= actionsCount; i++) {
+                Point point = getConnectionMidpoint(start, end, i * .1);
+                graphics.drawImage(BPMN_ACTION_ICON, null, point.x - BPMN_ACTION_ICON.getWidth() / 2, point.y - BPMN_ACTION_ICON.getHeight() / 2);
+            }
+        }
 
         if (smoothLines) {
             extragraphics.drawSmoothPolyline(xPoints, yPoints, xPoints.length);
@@ -266,6 +286,59 @@ public class TransitionFigure {
 
     protected boolean isJpdlCanvas() {
         return transition.getProcessDefinition().getDeployment().getLanguage().equals(Language.JPDL);
+    }
+
+    private Point getConnectionMidpoint(Point start, Point end, double part) {
+        Point ret = null;
+        Point[] pointsArray = new Point[bendpoints.size() + 2];
+        {
+            pointsArray[0] = start;
+            int i = 1;
+            for (Iterator<Point> iter = bendpoints.iterator(); iter.hasNext();) {
+                pointsArray[i] = new Point();
+                pointsArray[i++].setLocation(iter.next());
+            }
+            pointsArray[i] = end;
+        }
+        double completeDistance = getDistance(pointsArray);
+        double absDistanceToRelPoint = completeDistance * part;
+        double distanceSum = 0;
+        for (int i = 0; i < pointsArray.length - 1; i++) {
+            double oldDistanceSum = distanceSum;
+            Point currentPoint = pointsArray[i];
+            Point nextPoint = pointsArray[i + 1];
+            double additionalDistanceToNext = getDistance(currentPoint, nextPoint);
+            distanceSum += additionalDistanceToNext;
+            if (distanceSum >= absDistanceToRelPoint) {
+                double thisRelative = ((completeDistance * part) - oldDistanceSum) / additionalDistanceToNext;
+                ret = getMidpoint(currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y, thisRelative);
+                break;
+            }
+        }
+        return ret;
+    }
+
+    private static double getDistance(Point start, Point end) {
+        int xDist = end.x - start.x;
+        int yDist = end.y - start.y;
+        double ret = Math.sqrt((xDist * xDist) + (yDist * yDist));
+        return ret;
+    }
+
+    private static double getDistance(Point[] points) {
+        double ret = 0;
+        for (int i = 0; i < points.length - 1; i++) {
+            Point currentPoint = points[i];
+            Point nextPoint = points[i + 1];
+            ret += getDistance(currentPoint, nextPoint);
+        }
+        return ret;
+    }
+
+    private static Point getMidpoint(int startX, int startY, int endX, int endY, double d) {
+        int midX = (int) Math.round((startX + d * (endX - startX)));
+        int midY = (int) Math.round((startY + d * (endY - startY)));
+        return new Point(midX, midY);
     }
 
 }

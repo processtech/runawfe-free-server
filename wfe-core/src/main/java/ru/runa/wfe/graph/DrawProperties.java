@@ -38,7 +38,6 @@ public final class DrawProperties {
     public static final int GRID_SIZE = 12;
 
     public static final float TRANSITION_CLEAN_WIDTH = 10;
-    public static final float TRANSITION_CLEAN_WIDTH2 = 3;
     public static final float FIGURE_CLEAN_WIDTH = 5;
 
     public static Color getBackgroundColor() {
