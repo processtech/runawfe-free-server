@@ -24,10 +24,10 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-import ru.runa.wfe.security.SecuredObjectType;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+
+import ru.runa.wfe.security.SecuredObjectType;
 
 /**
  * Actor represents a real user of system that could perform different actions.
@@ -36,7 +36,7 @@ import com.google.common.base.Strings;
 @DiscriminatorValue(value = "N")
 public class Actor extends Executor {
     private static final long serialVersionUID = -582492651083909598L;
-    public static final Actor UNAUTHORIZED_ACTOR = new Actor("__unauthorized__", null);
+    public static final Actor UNAUTHORIZED_ACTOR = new Actor(UNAUTHORIZED_EXECUTOR_NAME, null);
 
     private Long code;
     private boolean active = true;

@@ -72,7 +72,6 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
@@ -225,7 +224,7 @@ public class HTMLUtils {
         String result;
         if (executor == null) {
             result = "";
-        } else if (Actor.UNAUTHORIZED_ACTOR.getName().equals(executor.getName())) {
+        } else if (Executor.UNAUTHORIZED_EXECUTOR_NAME.equals(executor.getName())) {
             result = MessagesExecutor.UNAUTHORIZED_EXECUTOR_NAME.message(pageContext);
         } else if (executor instanceof EscalationGroup) {
             result = MessagesExecutor.ESCALATION_GROUP_NAME.message(pageContext);
@@ -253,8 +252,11 @@ public class HTMLUtils {
         if (Strings.isNullOrEmpty(executorName)) {
             return new StringElement(executorName);
         }
-        String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, IdForm.ID_INPUT_NAME, executor.getId(), pageContext,
-                PortletUrlType.Render);
+        String url = "";
+        if (!Executor.UNAUTHORIZED_EXECUTOR_NAME.equals(executor.getName())) {
+            url = Commons.getActionUrl(WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, IdForm.ID_INPUT_NAME, executor.getId(), pageContext,
+                    PortletUrlType.Render);
+        }
         return new A(url, executorName);
     }
 
