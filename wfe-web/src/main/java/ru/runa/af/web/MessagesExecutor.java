@@ -5,7 +5,6 @@ import ru.runa.common.web.StrutsMessage;
 public final class MessagesExecutor {
 
     public static final StrutsMessage UNAUTHORIZED_EXECUTOR_NAME = new StrutsMessage("label.executor.unauthorized");
-    public static final StrutsMessage TEMPORARY_EXECUTOR_NAME = new StrutsMessage("label.executor.temporary");
 
     public static final StrutsMessage TITLE_EXECUTORS = new StrutsMessage("title.executors");
     public static final StrutsMessage CREATE_ACTOR = new StrutsMessage("button.create_actor");

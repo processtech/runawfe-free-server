@@ -170,9 +170,7 @@ public class TaskListBuilder implements ITaskListBuilder {
                         wfTask.setOwner(Actor.UNAUTHORIZED_ACTOR);
                     }
                 } else {
-                    if (executor instanceof TemporaryGroup) {
-                        wfTask.setOwner(Group.TEMPORARY_GROUP);
-                    } else if (!permissionDAO.permissionExists(actor, GroupPermission.READ, executor)) {
+                    if (!(executor instanceof TemporaryGroup) && !permissionDAO.permissionExists(actor, GroupPermission.READ, executor)) {
                         wfTask.setOwner(Group.UNAUTHORIZED_GROUP);
                     }
                 }
@@ -192,16 +190,11 @@ public class TaskListBuilder implements ITaskListBuilder {
         for (Executor executor : executorsLikeName) {
             addObservableExecutor(executor, observableExecutors);
         }
-        List<TemporaryGroup> tempGroups = executorDAO.getTemporaryGroups();
         Set<Executor> executorsToGetTasks = Sets.newHashSet();
         if (executorDAO.isAdministrator(actor)) {
             executorsToGetTasks.addAll(observableExecutors);
             for (Executor taskOwner : observableExecutors) {
-                for (TemporaryGroup tempGroup : tempGroups) {
-                    if (executorDAO.getGroupChildren(tempGroup).contains(taskOwner)) {
-                        executorsToGetTasks.add(tempGroup);
-                    }
-                }
+                executorsToGetTasks.addAll(executorDAO.getTemporaryGroupsByExecutor(taskOwner));
             }
         } else {
             for (Executor executor : getExecutorsToGetTasks(actor, false)) {
@@ -220,11 +213,7 @@ public class TaskListBuilder implements ITaskListBuilder {
                         }
                     }
                     if (executorsToGetTasks.contains(taskOwner)) {
-                        for (TemporaryGroup tempGroup : tempGroups) {
-                            if (executorDAO.getGroupChildren(tempGroup).contains(taskOwner)) {
-                                executorsToGetTasks.add(tempGroup);
-                            }
-                        }
+                        executorsToGetTasks.addAll(executorDAO.getTemporaryGroupsByExecutor(taskOwner));
                     }
                 }
             }

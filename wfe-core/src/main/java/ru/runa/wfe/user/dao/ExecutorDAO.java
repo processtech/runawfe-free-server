@@ -299,6 +299,11 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         });
     }
 
+    public List<Group> getTemporaryGroupsByExecutor(Executor executor) {
+        return getHibernateTemplate()
+                .find("select egm.group from ExecutorGroupMembership egm, TemporaryGroup tg where egm.executor=? and egm.group=tg", executor);
+    }
+
     /**
      * Create executor (save it to database). Generate code property for {@linkplain Actor} with code == 0.
      * 
@@ -886,6 +891,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         return getHibernateTemplate().find("from Executor where name like ?", nameTemplate);
     }
 
+    @Override
     public boolean isAdministrator(Actor actor) {
         try {
             Group administratorsGroup = (Group) getExecutor(SystemProperties.getAdministratorsGroupName());

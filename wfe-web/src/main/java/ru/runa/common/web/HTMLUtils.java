@@ -226,8 +226,6 @@ public class HTMLUtils {
             result = "";
         } else if (Executor.UNAUTHORIZED_EXECUTOR_NAME.equals(executor.getName())) {
             result = MessagesExecutor.UNAUTHORIZED_EXECUTOR_NAME.message(pageContext);
-        } else if (Executor.TEMPORARY_EXECUTOR_NAME.equals(executor.getName())) {
-            result = MessagesExecutor.TEMPORARY_EXECUTOR_NAME.message(pageContext);
         } else if (executor instanceof EscalationGroup) {
             result = MessagesExecutor.ESCALATION_GROUP_NAME.message(pageContext);
         } else if (executor instanceof TemporaryGroup) {
@@ -255,7 +253,7 @@ public class HTMLUtils {
             return new StringElement(executorName);
         }
         String url = "";
-        if (!(Executor.UNAUTHORIZED_EXECUTOR_NAME.equals(executor.getName()) || Executor.TEMPORARY_EXECUTOR_NAME.equals(executor.getName()))) {
+        if (!Executor.UNAUTHORIZED_EXECUTOR_NAME.equals(executor.getName())) {
             url = Commons.getActionUrl(WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, IdForm.ID_INPUT_NAME, executor.getId(), pageContext,
                     PortletUrlType.Render);
         }
