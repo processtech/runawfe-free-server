@@ -38,6 +38,7 @@ public class WfToken implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long parentId;
     private Long id;
+    private Long processId;
     private String name;
     private Date startDate;
     private Date endDate;
@@ -53,15 +54,15 @@ public class WfToken implements Serializable {
     public WfToken(Token token, ProcessDefinition processDefinition) {
         parentId = token.getParent() != null ? token.getParent().getId() : null;
         id = token.getId();
+        processId = token.getProcess().getId();
         name = token.getName();
         startDate = token.getStartDate();
         endDate = token.getEndDate();
         node = token.getNodeNotNull(processDefinition);
+        transitionId = token.getTransitionId();
         executionStatus = token.getExecutionStatus();
         errorDate = token.getErrorDate();
         errorMessage = token.getErrorMessage();
-        // TODO transitionId?
-        // TODO processId?
     }
 
     public Long getParentId() {
@@ -70,6 +71,10 @@ public class WfToken implements Serializable {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getProcessId() {
+        return processId;
     }
 
     public String getName() {
