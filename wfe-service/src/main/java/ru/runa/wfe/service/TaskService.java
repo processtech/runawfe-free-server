@@ -113,7 +113,7 @@ public interface TaskService {
      * @throws ValidationException
      */
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
-    ValidationException;
+            ValidationException;
 
     /**
      * Marks task as read.

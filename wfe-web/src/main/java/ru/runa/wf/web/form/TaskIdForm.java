@@ -18,7 +18,6 @@
 
 package ru.runa.wf.web.form;
 
-import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.IdNameForm;
 
 /**

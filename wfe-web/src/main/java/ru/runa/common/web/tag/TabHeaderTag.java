@@ -48,7 +48,7 @@ import ru.runa.wfe.user.User;
 
 /**
  * Represents tabs for managing different secured objects types. Created on 04.10.2004
- *
+ * 
  * @author Vitaliy S aka Yilativs
  * @author Gordienko_m
  */
@@ -70,6 +70,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SYSTEM, ASystem.INSTANCE));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS, ASystem.INSTANCE));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
     }
 
     @Attribute(required = false, rtexprvalue = true)

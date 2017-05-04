@@ -9,9 +9,11 @@
 
 <tiles:put name="body" type="string">
 <%
-	String returnAction = "/manage_tasks.do";
+	String executorIdString = request.getParameter("executorId");
+	Long executorId = executorIdString != null ? Long.valueOf(executorIdString) : null;
+	String returnAction = "/manage_observable_tasks.do";
 %>
-<wf:listTasksForm batchPresentationId="listTasksForm" buttonAlignment="right" returnAction="<%= returnAction %>" >
+<wf:listObservableTasksForm batchPresentationId="listObservableTasksForm" buttonAlignment="right" returnAction="<%= returnAction %>" executorId="<%= executorId %>" >
 	<script>
 	var helpVisible = false;
 	$().ready(function() {
@@ -38,8 +40,8 @@
 				</td>
 			</tr></tbody></table>
 		</div>
-		<wf:viewControlsHideableBlock hideableBlockId="listTasksForm"  returnAction="<%= returnAction %>" >
-			<wf:tableViewSetupForm batchPresentationId="listTasksForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
+		<wf:viewControlsHideableBlock hideableBlockId="listObservableTasksForm"  returnAction="<%= returnAction %>" >
+			<wf:tableViewSetupForm batchPresentationId="listObservableTasksForm" returnAction="<%= returnAction %>" excelExportAction="/exportExcelTasks" />
 		</wf:viewControlsHideableBlock>
 		<div id="helpContentDiv" style="display: none;">
 			<table>
@@ -66,10 +68,7 @@
 			</table>
 		</div>
 	</div>	
-</wf:listTasksForm>
+</wf:listObservableTasksForm>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />
-<tiles:put name="head" type="string">
-	<meta http-equiv="refresh" content="180; URL='<html:rewrite action="/manage_tasks.do?tabForwardName=manage_tasks"/>'">
-</tiles:put>
 </tiles:insert>
