@@ -115,10 +115,7 @@ public class MultiTaskNode extends BaseTaskNode {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        TaskDefinition taskDefinition = getFirstTaskNotNull();
-        MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
-        List<?> data = (List<?>) parameters.getDiscriminatorValue();
-        boolean tasksCreated = createTasks(executionContext, taskDefinition, data);
+        boolean tasksCreated = createTasks(executionContext, getFirstTaskNotNull());
         if (!tasksCreated) {
             log.debug("no tasks were created in " + this);
         }
@@ -129,8 +126,10 @@ public class MultiTaskNode extends BaseTaskNode {
         }
     }
 
-    private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
-        if (creationMode == MultiTaskCreationMode.BY_EXECUTORS) {
+    private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition) {
+        List<?> data = (List<?>) new MultiNodeParameters(executionContext, this).getDiscriminatorValue();
+        VariableMapping mapping = new VariableMapping(getDiscriminatorVariableName(), null, getDiscriminatorUsage());
+        if (!mapping.isMultiinstanceLinkByVariable() || getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
             return createTasksByExecutors(executionContext, taskDefinition, data);
         } else {
             return createTasksByDiscriminator(executionContext, taskDefinition, data);
