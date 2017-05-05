@@ -43,6 +43,7 @@ import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddAssignDateColumnPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddBatchPresentationIsSharedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnForEmbeddedBotTaskFileName;
 import ru.runa.wfe.commons.dbpatch.impl.AddColumnsToSubstituteEscalatedTasksPatch;
@@ -88,7 +89,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
- *
+ * 
  * @author Dofs
  */
 public class InitializerLogic {
@@ -162,6 +163,7 @@ public class InitializerLogic {
         patches.add(AddVariableUniqueKeyPatch.class);
         patches.add(AddTokenErrorDataPatch.class);
         patches.add(AddTitleAndDepartmentColumnsToActorPatch.class);
+        patches.add(AddAssignDateColumnPatch.class);
         dbPatches = Collections.unmodifiableList(patches);
     };
 
@@ -229,7 +231,7 @@ public class InitializerLogic {
 
     /**
      * Initialize database.
-     *
+     * 
      * @param daoHolder
      *            Helper object for getting DAO's.
      */

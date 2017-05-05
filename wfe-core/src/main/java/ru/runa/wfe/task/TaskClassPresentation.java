@@ -75,6 +75,7 @@ public class TaskClassPresentation extends ClassPresentation {
                         "ru.runa.wf.web.html.TaskAssignmentDateTDBuilder", new Object[] {}).setVisible(false),
                 new FieldDescriptor(TASK_DURATION, String.class.getName(), new DefaultDBSource(Task.class, null), false, FieldFilterMode.NONE,
                         "ru.runa.wf.web.html.TaskDurationTDBuilder", new Object[] {}).setVisible(false) });
+
     }
 
     public static final ClassPresentation getInstance() {

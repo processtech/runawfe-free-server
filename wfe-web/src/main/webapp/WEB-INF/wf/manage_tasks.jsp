@@ -55,6 +55,10 @@
 					<td style="width: 100px; border: 1px solid gray; margin: 5px;">&nbsp;</td>
 					<td class="help" style="background-color: white;"><bean:message key="tasks.help.escalatedTask" /></td>
 				</tr>
+				<tr class="delegatedTask">
+					<td style="width: 100px; border: 1px solid gray; margin: 5px;">&nbsp;</td>
+					<td class="help" style="background-color: white;"><bean:message key="tasks.help.delegatedTask" /></td>
+				</tr>
 				<tr class="substitutionTask">
 					<td style="width: 100px; border: 1px solid gray; margin: 5px;">&nbsp;</td>
 					<td class="help" style="background-color: white;"><bean:message key="tasks.help.substitutionTask" /></td>

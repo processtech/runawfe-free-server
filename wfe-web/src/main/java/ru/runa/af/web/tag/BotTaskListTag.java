@@ -123,7 +123,7 @@ public class BotTaskListTag extends TitledFormTag {
         @Override
         public TR build() {
             TR tr = new TR();
-            tr.addElement(new TH().setClass(Resources.CLASS_LIST_TABLE_TH));
+            tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesBot.LABEL_BOT_TASK_DETAILS.message(context)).setClass(Resources.CLASS_LIST_TABLE_TH));
             tr.addElement(new TH(MessagesBot.LABEL_BOT_TASK_SEQUENTIAL.message(context)).setClass(Resources.CLASS_LIST_TABLE_TH));
             return tr;

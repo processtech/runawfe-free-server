@@ -35,10 +35,9 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
 
     /**
      * Create instance of operation to set starting process readable flag.
-     *
+     * 
      * @param subprocessesInstanstances
-     *            Instances of subprocesses, which must be added to graph
-     *            elements.
+     *            Instances of subprocesses, which must be added to graph elements.
      * @param subject
      *            Current subject.
      */
@@ -82,23 +81,27 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
             element.setEmbeddedSubprocessGraphWidth(subprocessDefinition.getGraphConstraints()[2]);
             element.setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);
         } else {
+            Process lastSubProcess = null;
             for (NodeProcess nodeProcess : nodeProcesses) {
                 if (Objects.equal(nodeProcess.getNodeId(), element.getNodeId())) {
-                    element.setSubprocessId(nodeProcess.getSubProcess().getId());
-                    element.setSubprocessAccessible(hasReadPermission(nodeProcess.getSubProcess()));
-                    break;
+                    if (lastSubProcess == null || lastSubProcess.getId().compareTo(nodeProcess.getSubProcess().getId()) < 0) {
+                        lastSubProcess = nodeProcess.getSubProcess();
+                    }
                 }
+            }
+            if (lastSubProcess != null) {
+                element.setSubprocessId(lastSubProcess.getId());
+                element.setSubprocessAccessible(hasReadPermission(lastSubProcess));
             }
         }
     }
 
     /**
      * Check READ permission on process instance for current subject.
-     *
+     * 
      * @param process
      *            Process instance to check READ permission.
-     * @return true, if current actor can read process definition and false
-     *         otherwise.
+     * @return true, if current actor can read process definition and false otherwise.
      */
     private boolean hasReadPermission(Process process) {
         PermissionDAO permissionDAO = ApplicationContextFactory.getPermissionDAO();

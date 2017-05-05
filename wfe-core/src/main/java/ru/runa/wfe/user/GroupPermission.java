@@ -19,9 +19,9 @@ package ru.runa.wfe.user;
 
 import java.util.List;
 
-import ru.runa.wfe.security.Permission;
-
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.security.Permission;
 
 /**
  * Created on 10.09.2004
@@ -33,6 +33,7 @@ public class GroupPermission extends ExecutorPermission {
     public static final Permission LIST_GROUP = new GroupPermission((byte) 3, "permission.list_group");
     public static final Permission ADD_TO_GROUP = new GroupPermission((byte) 4, "permission.add_to_group");
     public static final Permission REMOVE_FROM_GROUP = new GroupPermission((byte) 5, "permission.remove_from_group");
+    public static final Permission VIEW_TASKS = new GroupPermission((byte) 6, "permission.view_group_tasks");
 
     private static final List<Permission> GROUP_PERMISSIONS = fillPermissions();
 
@@ -55,6 +56,7 @@ public class GroupPermission extends ExecutorPermission {
         result.add(LIST_GROUP);
         result.add(ADD_TO_GROUP);
         result.add(REMOVE_FROM_GROUP);
+        result.add(VIEW_TASKS);
         return result;
     }
 }

@@ -70,8 +70,9 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, definitions.size());
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION),
-                new StartProcessTDBuilder() }, batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(
+                new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION), new StartProcessTDBuilder() },
+                batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
                 pageContext);
