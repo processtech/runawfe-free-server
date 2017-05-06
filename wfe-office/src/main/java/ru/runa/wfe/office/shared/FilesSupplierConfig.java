@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import com.google.common.io.Files;
+import com.google.common.net.MediaType;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
@@ -15,9 +18,6 @@ import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
-
-import com.google.common.io.Files;
-import com.google.common.net.MediaType;
 
 public abstract class FilesSupplierConfig {
     protected String inputFilePath;
@@ -91,7 +91,7 @@ public abstract class FilesSupplierConfig {
         File file = new File(path);
         if (file.exists() && !file.isDirectory()) {
             try {
-                return Files.newInputStreamSupplier(file).getInput();
+                return Files.asByteSource(file).openStream();
             } catch (IOException e) {
                 throw new InternalApplicationException("Unable to read input file from location '" + path + "'");
             }
@@ -135,7 +135,7 @@ public abstract class FilesSupplierConfig {
                 }
             }
             try {
-                return Files.newOutputStreamSupplier(file).getOutput();
+                return Files.asByteSink(file).openStream();
             } catch (IOException e) {
                 throw new InternalApplicationException("Unable to write output file to location '" + file.getAbsolutePath() + "'", e);
             }
