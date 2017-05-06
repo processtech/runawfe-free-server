@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.UserType;
@@ -31,8 +33,6 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
-
-import com.google.common.collect.Lists;
 
 /**
  * Operation for converting variable to simple variables, which may be stored to database without additional transformations.
@@ -103,8 +103,8 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String sizeVariableName = context.getVariableDefinition().getName() + VariableFormatContainer.SIZE_SUFFIX;
         WfVariable oldSizeVariable = context.loadCurrentVariableStat(sizeVariableName);
         int maxSize = newSize;
-        if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Integer) {
-            maxSize = Math.max((Integer) oldSizeVariable.getValue(), newSize);
+        if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Number) {
+            maxSize = Math.max(((Number) oldSizeVariable.getValue()).intValue(), newSize);
         }
         VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
         results.add(new ConvertToSimpleVariablesResult(sizeDefinition, context.getValue() != null ? newSize : null, false));
