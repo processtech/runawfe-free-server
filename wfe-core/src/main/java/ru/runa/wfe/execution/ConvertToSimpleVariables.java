@@ -113,12 +113,11 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
         UserType[] formatComponentUserTypes = context.getVariableDefinition().getFormatComponentUserTypes();
         UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
-        List<?> list = (List<?>) context.getValue();
         for (int i = 0; i < maxSize; i++) {
             String name = context.getVariableDefinition().getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
                     + VariableFormatContainer.COMPONENT_QUALIFIER_END;
             VariableDefinition definition = new VariableDefinition(name, null, componentFormat, componentUserType);
-            Object object = list != null && list.size() > i ? list.get(i) : null;
+            Object object = i < newSize ? TypeConversionUtil.getListValue(context.getValue(), i) : null;
             results.addAll(definition.getFormatNotNull().processBy(this, context.createFor(definition, object)));
         }
         if (SystemProperties.isV4ListVariableCompatibilityMode()) {
