@@ -19,7 +19,7 @@
 		<#list model.variableValue as row>
 		<tr row="${row?index}">
 			<#list model.attributes as attribute>
-			<td class="list">${model.getValue(row, attribute)}</td>
+			<td class="list">${model.getValue(row, attribute, row?index)}</td>
 			</#list>
 			<#if model.allowToAddElements || model.allowToDeleteElements>
 			<th class="list">

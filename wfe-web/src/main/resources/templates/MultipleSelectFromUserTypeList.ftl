@@ -10,9 +10,9 @@
 	<tbody>
 		<#list model.variableValue as row>
 		<tr>			
-			<td class="list"><input name="${model.inputVariable.definition.name}" type="checkbox" value="${row?index}"></td>
+			<td class="list"><input name="${model.inputVariable.definition.name}" type="checkbox" value="${row?index}" ${model.getChecked(row)} /></td>
 			<#list model.attributes as attribute>
-			<td class="list">${model.getValue(row, attribute)}</td>
+			<td class="list">${model.getValue(row, attribute, row?index)}</td>
 			</#list>
 		</tr>
 		</#list>

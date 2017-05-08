@@ -2,14 +2,16 @@ package ru.runa.wf.web.ftl.component;
 
 import java.util.List;
 
+import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 
-public class EditUserTypeList extends AbstractUserTypeList {
+public class EditUserTypeList extends AbstractUserTypeList implements FormComponentSubmissionPostProcessor {
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -21,6 +23,23 @@ public class EditUserTypeList extends AbstractUserTypeList {
         boolean allowToChangeElements = getParameterAs(boolean.class, 3);
         List<String> attributeNames = getMultipleParameter(4);
         return new EditUserTypeListModel(variable, attributeNames, allowToAddElements, allowToChangeElements, allowToDeleteElements);
+    }
+
+    @Override
+    public Object postProcessValue(Object input) throws Exception {
+        List<UserTypeMap> list = (List<UserTypeMap>) input;
+        if (!list.isEmpty()) {
+            // reset boolean values which are not presented in columns list (#152#note-26).
+            List<String> attributeNames = getMultipleParameter(4);
+            for (VariableDefinition definition : list.get(0).getUserType().getAttributes()) {
+                if (BooleanFormat.class.getName().equals(definition.getFormat()) && !attributeNames.contains(definition.getName())) {
+                    for (UserTypeMap userTypeMap : list) {
+                        userTypeMap.remove(definition.getName());
+                    }
+                }
+            }
+        }
+        return list;
     }
 
     public class EditUserTypeListModel extends UserTypeListModel {
@@ -45,14 +64,14 @@ public class EditUserTypeList extends AbstractUserTypeList {
         }
 
         @Override
-        public String getValue(TemplateModel arg0, TemplateModel arg1) throws TemplateModelException {
+        public String getValue(TemplateModel arg0, TemplateModel arg1, Number index) throws TemplateModelException {
             if (allowToChangeElements) {
                 UserTypeMap userTypeMap = (UserTypeMap) BEANS_WRAPPER.unwrap(arg0);
                 VariableDefinition attributeDefinition = (VariableDefinition) BEANS_WRAPPER.unwrap(arg1);
-                WfVariable variable = getAttributeVariable(userTypeMap, attributeDefinition);
+                WfVariable variable = getAttributeVariable(userTypeMap, attributeDefinition, index);
                 return ViewUtil.getComponentInput(user, webHelper, variable);
             }
-            return super.getValue(arg0, arg1);
+            return super.getValue(arg0, arg1, index);
         }
 
         public String getTemplateValue(TemplateModel arg0) throws TemplateModelException {
@@ -61,6 +80,7 @@ public class EditUserTypeList extends AbstractUserTypeList {
                     + definition.getName();
             WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
             String inputComponentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
+            // TODO embedded lists are not supported
             return inputComponentHtml.replaceAll("\"", "'").replaceAll("\n", "");
         }
 

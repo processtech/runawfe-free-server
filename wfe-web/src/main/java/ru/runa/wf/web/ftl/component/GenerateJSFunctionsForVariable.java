@@ -133,7 +133,7 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
     public String onFormattedTextString(FormattedTextFormat textFormat, WfVariable context) {
         if (!onFormattedTextCalled) {
             onFormattedTextCalled = true;
-            return "div.find('.inputFormattedText').filter(filterTemplatesElements).trumbowyg({ lang: currentBrowserLanguage, svgPath : 'css/trumbowyg.svg' });";
+            return "$('.inputFormattedText').filter(filterTemplatesElements).trumbowyg({ lang: currentBrowserLanguage, svgPath : 'css/trumbowyg.svg' });";
         }
         return "";
     }

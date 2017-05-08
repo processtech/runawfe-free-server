@@ -312,10 +312,9 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
         VariableFormat format = FormatCommons.create(variableDefinition);
         Object value = userInput.get(variableDefinition.getName());
         Object result = format.processBy(componentToVariableValue, new HttpComponentToVariableValueContext(variableDefinition.getName(), value));
-        if (value != null) {
+        if (value != null || result != null) {
             return result;
-        } else {
-            return result != null ? result : FormSubmissionUtils.IGNORED_VALUE;
         }
+        return FormSubmissionUtils.IGNORED_VALUE;
     }
 }
