@@ -19,9 +19,9 @@ package ru.runa.wfe.user;
 
 import java.util.List;
 
-import ru.runa.wfe.security.Permission;
-
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.security.Permission;
 
 /**
  * Created on 10.09.2004
@@ -31,6 +31,7 @@ public class ActorPermission extends ExecutorPermission {
     private static final long serialVersionUID = 7900437485850107134L;
 
     public static final Permission UPDATE_STATUS = new ActorPermission((byte) 3, "permission.update_actor_status");
+    public static final Permission VIEW_TASKS = new ActorPermission((byte) 4, "permission.view_actor_tasks");
     private static final List<Permission> PERMISSIONS = fillPermissions();
 
     public ActorPermission() {
@@ -50,6 +51,7 @@ public class ActorPermission extends ExecutorPermission {
         List<Permission> superPermissions = new ExecutorPermission().getAllPermissions();
         List<Permission> result = Lists.newArrayList(superPermissions);
         result.add(UPDATE_STATUS);
+        result.add(VIEW_TASKS);
         return result;
     }
 

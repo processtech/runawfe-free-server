@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.UserType;
@@ -31,8 +33,6 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
-
-import com.google.common.collect.Lists;
 
 /**
  * Operation for converting variable to simple variables, which may be stored to database without additional transformations.
@@ -103,8 +103,8 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String sizeVariableName = context.getVariableDefinition().getName() + VariableFormatContainer.SIZE_SUFFIX;
         WfVariable oldSizeVariable = context.loadCurrentVariableStat(sizeVariableName);
         int maxSize = newSize;
-        if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Integer) {
-            maxSize = Math.max((Integer) oldSizeVariable.getValue(), newSize);
+        if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Number) {
+            maxSize = Math.max(((Number) oldSizeVariable.getValue()).intValue(), newSize);
         }
         VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
         results.add(new ConvertToSimpleVariablesResult(sizeDefinition, context.getValue() != null ? newSize : null, false));
@@ -113,12 +113,11 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
         UserType[] formatComponentUserTypes = context.getVariableDefinition().getFormatComponentUserTypes();
         UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
-        List<?> list = (List<?>) context.getValue();
         for (int i = 0; i < maxSize; i++) {
             String name = context.getVariableDefinition().getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
                     + VariableFormatContainer.COMPONENT_QUALIFIER_END;
             VariableDefinition definition = new VariableDefinition(name, null, componentFormat, componentUserType);
-            Object object = list != null && list.size() > i ? list.get(i) : null;
+            Object object = i < newSize ? TypeConversionUtil.getListValue(context.getValue(), i) : null;
             results.addAll(definition.getFormatNotNull().processBy(this, context.createFor(definition, object)));
         }
         if (SystemProperties.isV4ListVariableCompatibilityMode()) {
