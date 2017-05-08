@@ -6,9 +6,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
 
-import com.google.common.base.Throwables;
-
 import ru.runa.wf.web.servlet.UploadedFile;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.user.IExecutorLoader;
@@ -32,6 +31,8 @@ import ru.runa.wfe.var.format.TimeFormat;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
+
+import com.google.common.base.Throwables;
 
 /**
  * Try to convert simple object to variable value.
@@ -110,9 +111,6 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
 
     @Override
     public Object onFile(FileFormat fileFormat, HttpComponentToVariableValueContext context) {
-        if (context.value == null) {
-            return null;
-        }
         if (context.value instanceof FormFile) {
             FormFile formFile = (FormFile) context.value;
             if (formFile.getFileSize() > 0) {
@@ -133,8 +131,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
                 return uploadedFile.getFileVariable();
             }
             if (uploadedFile.getContent() == null) {
-                // null for display component
-                return null;
+                throw new InternalApplicationException("No content submitted for " + uploadedFile);
             }
             return new FileVariable(uploadedFile.getName(), uploadedFile.getContent(), uploadedFile.getMimeType());
         }
@@ -188,7 +185,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
 
     /**
      * Default conversation implementation: assume value is String and try to parse it.
-     *
+     * 
      * @param format
      *            Variable format.
      * @param context
@@ -210,7 +207,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
 
     /**
      * Save exception in errors if required and continue execution.
-     *
+     * 
      * @param context
      *            Operation context.
      * @param valueToFormat
