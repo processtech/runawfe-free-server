@@ -1,10 +1,12 @@
 package ru.runa.wfe.commons;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.jms.Connection;
@@ -34,6 +36,7 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
@@ -45,6 +48,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
@@ -185,6 +189,72 @@ public class Utils {
         Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
     }
 
+    public static String getMessageSelectorValue(IVariableProvider variableProvider, BaseMessageNode messageNode, VariableMapping mapping) {
+        String testValue = mapping.getMappedName();
+        if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
+            return String.valueOf(variableProvider.getProcessId());
+        } else if (Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED.equals(testValue)) {
+            return variableProvider.getProcessDefinitionName();
+        } else if (Variables.CURRENT_NODE_NAME_WRAPPED.equals(testValue)) {
+            return messageNode.getName();
+        } else if (Variables.CURRENT_NODE_ID_WRAPPED.equals(testValue)) {
+            return messageNode.getNodeId();
+        } else {
+            Object value = ExpressionEvaluator.evaluateVariable(variableProvider, testValue);
+            return TypeConversionUtil.convertTo(String.class, value);
+        }
+    }
+
+    public static String getReceiveMessageNodeHash(IVariableProvider variableProvider, BaseMessageNode messageNode) {
+        int hash = 0;
+        if (messageNode.getEventType() == MessageEventType.error && messageNode.getParentElement() instanceof Node) {
+            hash += Objects.hashCode(BaseMessageNode.EVENT_TYPE + MessageEventType.error.name());
+            hash += Objects.hashCode(BaseMessageNode.ERROR_EVENT_PROCESS_ID + String.valueOf(variableProvider.getProcessId()));
+            hash += Objects.hashCode(BaseMessageNode.ERROR_EVENT_NODE_ID + ((Node) messageNode.getParentElement()).getNodeId());
+        } else {
+            for (VariableMapping mapping : messageNode.getVariableMappings()) {
+                if (mapping.isPropertySelector()) {
+                    hash += Objects.hashCode(mapping.getName() + getMessageSelectorValue(variableProvider, messageNode, mapping));
+                }
+            }
+        }
+        return String.valueOf(hash);
+    }
+
+    public static String getObjectMessageStrictHash(ObjectMessage message) throws JMSException {
+        return String.valueOf(sum(getObjectMessageSelectorHashes(message)));
+    }
+
+    public static Set<String> getObjectMessageCombinationHashes(ObjectMessage message) throws JMSException {
+        Set<Integer> hashes = getObjectMessageSelectorHashes(message);
+        Set<String> result = Sets.newHashSet();
+        for (Set<Integer> sets : Sets.powerSet(hashes)) {
+            result.add(String.valueOf(sum(sets)));
+        }
+        return result;
+    }
+
+    private static Set<Integer> getObjectMessageSelectorHashes(ObjectMessage message) throws JMSException {
+        Set<Integer> hashes = Sets.newHashSet();
+        Enumeration<String> propertyNames = message.getPropertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = propertyNames.nextElement();
+            if (!propertyName.startsWith("JMS")) {
+                hashes.add(Objects.hashCode(propertyName + message.getStringProperty(propertyName)));
+            }
+        }
+        return hashes;
+    }
+
+    private static int sum(Collection<Integer> collection) {
+        // int sum = list.stream().mapToInt(Integer::intValue).sum();
+        int sum = 0;
+        for (int i : collection) {
+            sum = sum + i;
+        }
+        return sum;
+    }
+
     public static void sendNodeAsyncExecutionMessage(Long processId, Long tokenId, String nodeId) {
         Connection connection = null;
         Session session = null;
@@ -232,7 +302,7 @@ public class Utils {
     public static String toString(ObjectMessage message, boolean html) {
         try {
             StringBuffer buffer = new StringBuffer();
-            buffer.append(message.toString());
+            buffer.append(message.getJMSMessageID());
             buffer.append(html ? "<br>" : "\n");
             if (message.getJMSExpiration() != 0) {
                 buffer.append("{JMSExpiration=").append(CalendarUtil.formatDateTime(new Date(message.getJMSExpiration()))).append("}");

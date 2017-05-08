@@ -92,6 +92,7 @@ public class Token implements Serializable {
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
     private Date errorDate;
     private String errorMessage;
+    private String messageHash;
 
     public Token() {
     }
@@ -274,6 +275,16 @@ public class Token implements Serializable {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    @Column(name = "MESSAGE_HASH", length = 1024)
+    @Index(name = "IX_MESSAGE_HASH")
+    public String getMessageHash() {
+        return messageHash;
+    }
+
+    public void setMessageHash(String messageHash) {
+        this.messageHash = messageHash;
     }
 
     public void fail(Throwable throwable) {
