@@ -61,6 +61,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddTokenMessageHashPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
@@ -75,7 +76,14 @@ import ru.runa.wfe.commons.dbpatch.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskOpenedByExecutorsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
+import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.impl.JobTask;
+import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
@@ -164,17 +172,24 @@ public class InitializerLogic {
         patches.add(AddTokenErrorDataPatch.class);
         patches.add(AddTitleAndDepartmentColumnsToActorPatch.class);
         patches.add(AddAssignDateColumnPatch.class);
+        patches.add(AddTokenMessageHashPatch.class);
         dbPatches = Collections.unmodifiableList(patches);
     };
 
     @Autowired
-    protected ConstantDAO constantDAO;
+    private ConstantDAO constantDAO;
     @Autowired
-    protected ExecutorDAO executorDAO;
+    private ExecutorDAO executorDAO;
     @Autowired
-    protected PermissionDAO permissionDAO;
+    private PermissionDAO permissionDAO;
     @Autowired
-    protected LocalizationDAO localizationDAO;
+    private LocalizationDAO localizationDAO;
+    @Autowired
+    private TokenDAO tokenDAO;
+    @Autowired
+    private ProcessDAO processDAO;
+    @Autowired
+    private IProcessDefinitionLoader processDefinitionLoader;
 
     /**
      * Initialize database if needed.
@@ -187,6 +202,8 @@ public class InitializerLogic {
             } else {
                 initializeDatabase(transaction);
             }
+            permissionDAO.init();
+            postProcessPatches(transaction);
             String localizedFileName = "localizations." + Locale.getDefault().getLanguage() + ".xml";
             InputStream stream = ClassLoaderUtil.getAsStream(localizedFileName, getClass());
             if (stream == null) {
@@ -224,18 +241,12 @@ public class InitializerLogic {
     }
 
     /**
-     * Backups database if needed.
-     */
-    public void backupDatabase(UserTransaction transaction) {
-    }
-
-    /**
      * Initialize database.
      * 
      * @param daoHolder
      *            Helper object for getting DAO's.
      */
-    protected void initializeDatabase(UserTransaction transaction) {
+    private void initializeDatabase(UserTransaction transaction) {
         log.info("database is not initialized. initializing...");
         SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
         schemaExport.create(true, true);
@@ -253,7 +264,7 @@ public class InitializerLogic {
     /**
      * Inserts initial data on database creation stage
      */
-    protected void insertInitialData() {
+    private void insertInitialData() {
         // create privileged Executors
         String administratorName = SystemProperties.getAdministratorName();
         Actor admin = new Actor(administratorName, administratorName, administratorName);
@@ -282,7 +293,7 @@ public class InitializerLogic {
     /**
      * Apply patches to initialized database.
      */
-    protected void applyPatches(UserTransaction transaction, int dbVersion) {
+    private void applyPatches(UserTransaction transaction, int dbVersion) {
         log.info("Database version: " + dbVersion + ", code version: " + dbPatches.size());
         while (dbVersion < dbPatches.size()) {
             DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(dbVersion));
@@ -304,4 +315,26 @@ public class InitializerLogic {
         }
     }
 
+    // this method is outside patches because relies on hibernate entities
+    // may be add some method for this case in DBPatch?
+    private void postProcessPatches(UserTransaction transaction) {
+        try {
+            transaction.begin();
+            List<Token> tokens = tokenDAO.findByMessageHashIsNullAndExecutionStatusIsActive();
+            if (!tokens.isEmpty()) {
+                log.info("Updating " + tokens.size() + " tokens message hash");
+                for (Token token : tokens) {
+                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+                    BaseMessageNode messageNode = (BaseMessageNode) processDefinition.getNodeNotNull(token.getNodeId());
+                    ExecutionContext executionContext = new ExecutionContext(processDefinition, token.getProcess());
+                    String messageHash = Utils.getReceiveMessageNodeHash(executionContext.getVariableProvider(), messageNode);
+                    token.setMessageHash(messageHash);
+                }
+            }
+            transaction.commit();
+        } catch (Throwable th) {
+            log.error("Can't apply post-processor of AddTokenMessageHashPatch", th);
+            Utils.rollbackTransaction(transaction);
+        }
+    }
 }
