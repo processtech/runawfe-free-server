@@ -10,7 +10,7 @@
 		<#list model.variableValue as row>
 		<tr>			
 			<#list model.attributes as attribute>
-			<td class="list">${model.getValue(row, attribute)}</td>
+			<td class="list">${model.getValue(row, attribute, row?index)}</td>
 			</#list>
 		</tr>
 		</#list>

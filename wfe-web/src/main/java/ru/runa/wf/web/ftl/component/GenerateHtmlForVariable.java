@@ -117,7 +117,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     @Override
     public GenerateHtmlForVariableResult onExecutor(ExecutorFormat executorFormat, GenerateHtmlForVariableContext context) {
         return new GenerateHtmlForVariableResult(context, createExecutorSelect(user, context.variable.getDefinition().getName(), executorFormat,
-                context.variable.getValue(), true), null);
+                context.variable.getValue(), !context.readonly), null);
     }
 
     @Override

@@ -82,10 +82,10 @@ public abstract class AbstractUserTypeList extends FormComponent {
             return attributes;
         }
 
-        public String getValue(TemplateModel arg0, TemplateModel arg1) throws TemplateModelException {
+        public String getValue(TemplateModel arg0, TemplateModel arg1, Number index) throws TemplateModelException {
             UserTypeMap userTypeMap = (UserTypeMap) BEANS_WRAPPER.unwrap(arg0);
             VariableDefinition attributeDefinition = (VariableDefinition) BEANS_WRAPPER.unwrap(arg1);
-            WfVariable variable = getAttributeVariable(userTypeMap, attributeDefinition);
+            WfVariable variable = getAttributeVariable(userTypeMap, attributeDefinition, index);
             if (componentView) {
                 return ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), variable);
             } else {
@@ -93,10 +93,9 @@ public abstract class AbstractUserTypeList extends FormComponent {
             }
         }
 
-        protected WfVariable getAttributeVariable(UserTypeMap userTypeMap, VariableDefinition attributeDefinition) {
+        protected WfVariable getAttributeVariable(UserTypeMap userTypeMap, VariableDefinition attributeDefinition, Number index) {
             WfVariable attributeVariable = userTypeMap.getAttributeValue(attributeDefinition.getName());
-            int index = getVariableValue().indexOf(userTypeMap);
-            return ViewUtil.createUserTypeListComponentVariable(variable, index, attributeVariable);
+            return ViewUtil.createUserTypeListComponentVariable(variable, index.intValue(), attributeVariable);
         }
     }
 }

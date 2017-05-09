@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.user.IExecutorLoader;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
@@ -176,7 +177,7 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
                 errors.put(variableDefinition.getName(), "Incorrect '" + indexesInputName + "' value submitted: " + Arrays.toString(stringsIndexes));
                 return FormSubmissionUtils.IGNORED_VALUE;
             }
-            String[] stringIndexes = stringsIndexes[0].split(",");
+            String[] stringIndexes = Utils.isNullOrEmpty(stringsIndexes[0]) ? new String[0] : stringsIndexes[0].split(",");
             list = Lists.newArrayListWithExpectedSize(stringIndexes.length);
             if (stringIndexes.length > 0) {
                 for (String index : stringIndexes) {
@@ -311,10 +312,9 @@ public class HttpFormToVariableValue implements VariableFormatVisitor<Object, Va
         VariableFormat format = FormatCommons.create(variableDefinition);
         Object value = userInput.get(variableDefinition.getName());
         Object result = format.processBy(componentToVariableValue, new HttpComponentToVariableValueContext(variableDefinition.getName(), value));
-        if (value != null) {
+        if (value != null || result != null) {
             return result;
-        } else {
-            return result != null ? result : FormSubmissionUtils.IGNORED_VALUE;
         }
+        return FormSubmissionUtils.IGNORED_VALUE;
     }
 }

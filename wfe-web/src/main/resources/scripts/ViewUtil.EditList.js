@@ -13,7 +13,7 @@ function initUNIQUENAME(addButtonElement) {
 	updateIndexesUNIQUENAME(addButton.closest("div").parent().closest("div"));
 	addButton.each(function() {
 		$(this).click(function() {
-			var div = $(this).closest("div").parent().closest("div");
+			var div = $(this).closest("div.editList");
 			var rows = div.find("div[row][current][name='VARIABLE']");
 			var rowIndex = rows.length < 1 ? 0 : parseInt(rows.last().attr("row")) + 1;
 			var copy = div.find("div[template]").first().clone();
