@@ -75,10 +75,11 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
         if (context.value == null) {
             return null;
         }
+        String stringValue = context.getStringValueToFormat();
         try {
-            return TypeConversionUtil.convertToExecutor(context.getStringValue(), executorLoader);
+            return TypeConversionUtil.convertToExecutor(stringValue, executorLoader);
         } catch (Exception e) {
-            saveErrorAndContinue(context, context.getStringValue(), e);
+            saveErrorAndContinue(context, stringValue, e);
         }
         return null;
     }
@@ -195,10 +196,11 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
         if (context.value == null) {
             return null;
         }
+        String stringValue = context.getStringValueToFormat();
         try {
-            return format.parse(context.getStringValue());
+            return format.parse(stringValue);
         } catch (Exception e) {
-            saveErrorAndContinue(context, context.getStringValue(), e);
+            saveErrorAndContinue(context, stringValue, e);
         }
         return null;
     }
