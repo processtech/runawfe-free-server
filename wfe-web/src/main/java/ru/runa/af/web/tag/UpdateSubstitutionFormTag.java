@@ -192,17 +192,10 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
         private Option[] getCriteriaOptions(String selectedValue) {
             List<SubstitutionCriteria> criterias = Delegates.getSubstitutionService().getAllCriterias(getUser());
             Option[] options = new Option[criterias.size() + 1];
-            options[0] = new Option("");
-            options[0].addElement(MessagesExecutor.SUBSTITUTION_ALWAYS.message(pageContext));
+            options[0] = HTMLUtils.createOption("", MessagesExecutor.SUBSTITUTION_ALWAYS.message(pageContext), "".equals(selectedValue));
             for (int i = 1; i < options.length; i++) {
-                options[i] = new Option(String.valueOf(criterias.get(i - 1).getId()));
-                options[i].addElement(criterias.get(i - 1).getName());
-            }
-            for (Option option : options) {
-                if (option.getValue().equals(selectedValue)) {
-                    option.setSelected(true);
-                    break;
-                }
+                String value = String.valueOf(criterias.get(i - 1).getId());
+                options[i] = HTMLUtils.createOption(value, criterias.get(i - 1).getName(), value.equals(selectedValue));
             }
             return options;
         }
@@ -211,14 +204,8 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
             List<FunctionDef> definitions = SubstitutionDefinitions.getAll(getUser());
             Option[] options = new Option[definitions.size()];
             for (int i = 0; i < options.length; i++) {
-                options[i] = new Option(definitions.get(i).getClassName());
-                options[i].addElement(definitions.get(i).getLabel());
-            }
-            for (Option option : options) {
-                if (selectedValue.equals(option.getValue())) {
-                    option.setSelected(true);
-                    break;
-                }
+                String value = String.valueOf(definitions.get(i).getClassName());
+                options[i] = HTMLUtils.createOption(value, definitions.get(i).getLabel(), value.equals(selectedValue));
             }
             return options;
         }

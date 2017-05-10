@@ -75,7 +75,7 @@ public class BotTableBuilder {
     private TR createTableHeaderTR() {
         TR tr = new TR();
         tr.setClass(Resources.CLASS_LIST_TABLE_TH);
-        tr.addElement(new TH("").setWidth("20").setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setWidth("20").setClass(Resources.CLASS_LIST_TABLE_TD));
         tr.addElement(new TH(MessagesBot.LABEL_BOT_NAME.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
     }

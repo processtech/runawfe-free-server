@@ -6,9 +6,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
 
-import ru.runa.common.WebResources;
 import ru.runa.wf.web.servlet.UploadedFile;
-import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.user.IExecutorLoader;
@@ -20,6 +19,7 @@ import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -111,9 +111,6 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
 
     @Override
     public Object onFile(FileFormat fileFormat, HttpComponentToVariableValueContext context) {
-        if (context.value == null) {
-            return FormSubmissionUtils.IGNORED_VALUE;
-        }
         if (context.value instanceof FormFile) {
             FormFile formFile = (FormFile) context.value;
             if (formFile.getFileSize() > 0) {
@@ -127,9 +124,6 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
                     throw Throwables.propagate(e);
                 }
             }
-            if (SystemProperties.isV3CompatibilityMode() || !WebResources.isAjaxFileInputEnabled()) {
-                return FormSubmissionUtils.IGNORED_VALUE;
-            }
         } else if (context.value instanceof UploadedFile) {
             UploadedFile uploadedFile = (UploadedFile) context.value;
             if (uploadedFile.getFileVariable() instanceof FileVariableProxy) {
@@ -137,12 +131,11 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
                 return uploadedFile.getFileVariable();
             }
             if (uploadedFile.getContent() == null) {
-                // null for display component
-                return FormSubmissionUtils.IGNORED_VALUE;
+                throw new InternalApplicationException("No content submitted for " + uploadedFile);
             }
             return new FileVariable(uploadedFile.getName(), uploadedFile.getContent(), uploadedFile.getMimeType());
         }
-        return FormSubmissionUtils.IGNORED_VALUE;
+        return null;
     }
 
     @Override
@@ -176,6 +169,11 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
     }
 
     @Override
+    public Object onFormattedTextString(FormattedTextFormat textFormat, HttpComponentToVariableValueContext context) {
+        return convertDefault(textFormat, context);
+    }
+
+    @Override
     public Object onUserType(UserTypeFormat userTypeFormat, HttpComponentToVariableValueContext context) {
         return convertDefault(userTypeFormat, context);
     }
@@ -187,7 +185,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
 
     /**
      * Default conversation implementation: assume value is String and try to parse it.
-     *
+     * 
      * @param format
      *            Variable format.
      * @param context
@@ -209,7 +207,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
 
     /**
      * Save exception in errors if required and continue execution.
-     *
+     * 
      * @param context
      *            Operation context.
      * @param valueToFormat

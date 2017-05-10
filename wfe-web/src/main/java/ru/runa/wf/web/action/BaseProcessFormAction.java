@@ -45,15 +45,14 @@ import com.google.common.base.Strings;
 
 /**
  * Created on 15.12.2005
- *
+ * 
  */
 public abstract class BaseProcessFormAction extends ActionBase {
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-        Map<String, String> userInputErrors = null;
-        ActionForward forward = null;
         try {
+            ActionForward forward = null;
             User user = getLoggedUser(request);
             Profile profile = ProfileHttpSessionHelper.getProfile(request.getSession());
             // TODO fix bug when working from 2 browser tabs (token saved in
@@ -72,13 +71,15 @@ public abstract class BaseProcessFormAction extends ActionBase {
                 forward = new ActionForward("/manage_tasks.do", true);
                 log.warn(getLoggedUser(request) + " will be forwarded to tasklist due invalid token");
             }
+            return forward;
         } catch (TaskDoesNotExistException e) {
             // In this case we must go to success forwarding, because of this
             // task is absent and form can't be displayed
             addError(request, e);
-            forward = mapping.findForward(Resources.FORWARD_SUCCESS);
+            return mapping.findForward(Resources.FORWARD_SUCCESS);
         } catch (ValidationException e) {
-            userInputErrors = e.getConcatenatedFieldErrors("<br>");
+            Map<String, String> userInputErrors = e.getConcatenatedFieldErrors("<br>");
+            FormSubmissionUtils.saveUserInputErrors(request, userInputErrors);
             if (e.getGlobalErrors().size() > 0) {
                 for (String message : e.getGlobalErrors()) {
                     if (Strings.isNullOrEmpty(message)) {
@@ -91,13 +92,10 @@ public abstract class BaseProcessFormAction extends ActionBase {
             } else {
                 addError(request, new ActionMessage(MessagesException.MESSAGE_VALIDATION_ERROR.getKey()));
             }
-            forward = getErrorForward(mapping, form);
         } catch (Exception e) {
             addError(request, e);
-            forward = getErrorForward(mapping, form);
         }
-        FormSubmissionUtils.saveUserFormInput(request, form, userInputErrors);
-        return forward;
+        return getErrorForward(mapping, form);
     }
 
     protected Map<String, Object> getFormVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction,

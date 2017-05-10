@@ -139,7 +139,7 @@ public class WFCommonLogic extends CommonLogic {
         return false;
     }
 
-    protected TaskCompletionBy checkCanParticipate(Actor actor, Task task) {
+    protected TaskCompletionBy getTaskParticipationRole(Actor actor, Task task) {
         Executor taskExecutor = task.getExecutor();
         if (taskExecutor != null) {
             if (taskExecutor instanceof Actor) {
@@ -167,7 +167,15 @@ public class WFCommonLogic extends CommonLogic {
                 log.warn(e);
             }
         }
-        throw new AuthorizationException(actor + " has no pemission to participate as " + taskExecutor + " in " + task);
+        return null;
+    }
+
+    protected TaskCompletionBy checkCanParticipate(Actor actor, Task task) {
+        TaskCompletionBy taskCompletionBy = getTaskParticipationRole(actor, task);
+        if (taskCompletionBy == null) {
+            throw new AuthorizationException(actor + " has no pemission to participate as " + task.getExecutor() + " in " + task);
+        }
+        return taskCompletionBy;
     }
 
     private Set<Actor> getAssignedActors(Task task) {
@@ -201,7 +209,7 @@ public class WFCommonLogic extends CommonLogic {
 
     /**
      * Loads graph presentation elements for process definition.
-     *
+     * 
      * @param user
      *            Current user.
      * @param id

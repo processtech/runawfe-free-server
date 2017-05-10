@@ -52,6 +52,11 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.form.IdForm;
@@ -67,17 +72,11 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 
 public class HTMLUtils {
     private static final Log log = LogFactory.getLog(HTMLUtils.class);
@@ -165,6 +164,30 @@ public class HTMLUtils {
         return createRow(label, element);
     }
 
+    public static Option createOption(String value, boolean isSelected) {
+        return createOption(value, value, isSelected);
+    }
+
+    public static Option createOption(String value, String label, boolean isSelected) {
+        Option option = new Option();
+        option.setValue(value == null ? "" : value);
+        option.addElement(label);
+        if (isSelected) {
+            option.setSelected(isSelected);
+        }
+        return option;
+    }
+
+    public static Option createOption(int value, String label, boolean isSelected) {
+        Option option = new Option();
+        option.setValue(value);
+        option.addElement(label);
+        if (isSelected) {
+            option.setSelected(isSelected);
+        }
+        return option;
+    }
+
     public static Input createInput(String name, String value) {
         return createInput(Input.TEXT, name, value, true, false);
     }
@@ -201,7 +224,7 @@ public class HTMLUtils {
         String result;
         if (executor == null) {
             result = "";
-        } else if (Actor.UNAUTHORIZED_ACTOR.getName().equals(executor.getName())) {
+        } else if (Executor.UNAUTHORIZED_EXECUTOR_NAME.equals(executor.getName())) {
             result = MessagesExecutor.UNAUTHORIZED_EXECUTOR_NAME.message(pageContext);
         } else if (executor instanceof EscalationGroup) {
             result = MessagesExecutor.ESCALATION_GROUP_NAME.message(pageContext);
@@ -229,14 +252,17 @@ public class HTMLUtils {
         if (Strings.isNullOrEmpty(executorName)) {
             return new StringElement(executorName);
         }
-        String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, IdForm.ID_INPUT_NAME, executor.getId(), pageContext,
-                PortletUrlType.Render);
+        String url = "";
+        if (!Executor.UNAUTHORIZED_EXECUTOR_NAME.equals(executor.getName())) {
+            url = Commons.getActionUrl(WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, IdForm.ID_INPUT_NAME, executor.getId(), pageContext,
+                    PortletUrlType.Render);
+        }
         return new A(url, executorName);
     }
 
     /**
      * Substitutes arguments for process history logs
-     * 
+     *
      * @param user
      * @param pageContext
      *            can be <code>null</code>
@@ -318,7 +344,8 @@ public class HTMLUtils {
     private static Pattern getPatternForTag(String tagName) {
         final String pattern = "<\\s*%s(\\s+.*>|>)";
         if (!patternForTagCache.containsKey(tagName)) {
-            patternForTagCache.put(tagName, Pattern.compile(String.format(pattern, tagName), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
+            patternForTagCache.put(tagName,
+                    Pattern.compile(String.format(pattern, tagName), Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
         }
         return patternForTagCache.get(tagName);
     }
@@ -328,9 +355,18 @@ public class HTMLUtils {
 
         for (String element : blockElements) {
             Pattern pattern = getPatternForTag(element);
-            if (pattern.matcher(html).find())
+            if (pattern.matcher(html).find()) {
                 return true;
+            }
         }
         return false;
     }
+
+    public static Input createSelectionStatusPropagator() {
+        Input propagator = new Input(Input.CHECKBOX);
+        propagator.setClass("selectionStatusPropagator");
+        propagator.addAttribute("onchange", "propagateSelectionStatus(this);");
+        return propagator;
+    }
+
 }

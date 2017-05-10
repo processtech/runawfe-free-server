@@ -245,8 +245,6 @@ public class LdapLogic {
             for (Executor executor : ldapExecutors) {
                 if (executor instanceof Group) {
                     ldapGroupsToDelete.add((Group) executor);
-                    log.info("Deleting " + executor);
-                    changesCount++;
                 }
             }
         }
@@ -325,7 +323,8 @@ public class LdapLogic {
         if (LdapProperties.isSynchronizationDeleteExecutors() && ldapGroupsToDelete.size() > 0) {
             executorDAO.removeExecutorsFromGroup(ldapGroupsToDelete, importGroup);
             executorDAO.addExecutorsToGroup(ldapGroupsToDelete, wasteGroup);
-            changesCount++;
+            log.info("Deleting " + ldapGroupsToDelete);
+            changesCount += ldapGroupsToDelete.size();
         }
         return changesCount;
     }

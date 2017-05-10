@@ -11,6 +11,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import com.google.common.collect.Maps;
+import com.google.common.io.Files;
+
 import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -24,18 +27,12 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
-
 /**
  * Created on 26.05.2014
  *
- * @struts:action path="/bulkDeployProcessDefinition" name="fileForm"
- *                validate="false"
- * @struts.action-forward name="success" path="/manage_process_definitions.do"
- *                        redirect = "true"
- * @struts.action-forward name="failure" path="/manage_process_definitions.do"
- *                        redirect = "false"
+ * @struts:action path="/bulkDeployProcessDefinition" name="fileForm" validate="false"
+ * @struts.action-forward name="success" path="/manage_process_definitions.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/manage_process_definitions.do" redirect = "false"
  */
 public class BulkDeployProcessDefinitionAction extends ActionBase {
     public static final String ACTION_PATH = "/bulkDeployProcessDefinition";
@@ -86,7 +83,11 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                     uploadedParFiles.remove(key);
                 }
             }
-            return getSuccessAction(mapping);
+            if (uploadedParFiles.isEmpty()) {
+                return getSuccessAction(mapping);
+            } else {
+                return getErrorForward(mapping);
+            }
         } catch (Exception e) {
             addError(request, e);
             return getErrorForward(mapping);

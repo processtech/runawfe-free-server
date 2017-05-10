@@ -31,6 +31,7 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
  */
 public class StringFilterTDFormatter extends FilterTDFormatter {
 
+    @Override
     public void formatTd(TD td, PageContext pageContext, FilterCriteria filterCriteria, int fieldIndex) {
         String[] stringConditions = filterCriteria.getFilterTemplates();
         Input filterInput = new Input(Input.TEXT, TableViewSetupForm.FILTER_CRITERIA, stringConditions[0]);

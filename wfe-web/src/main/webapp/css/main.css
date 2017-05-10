@@ -117,6 +117,9 @@ tr.deadlineExists td {
 tr.escalatedTask td {
 	background-color: #ef8ff8;
 }
+tr.delegatedTask td {
+	background-color: aquamarine;
+}
 tr.substitutionTask td {
 	background-color: #ffff9d;
 }

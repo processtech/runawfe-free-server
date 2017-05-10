@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.presentation.hibernate;
@@ -36,7 +36,7 @@ public class HibernateCompilerLeftJoinBuilder {
 
     /**
      * Creates instance to applies left join to SQL query.
-     * 
+     *
      * @param batchPresentation
      *            {@link BatchPresentation}, used to build SQL query.
      */
@@ -46,7 +46,7 @@ public class HibernateCompilerLeftJoinBuilder {
 
     /**
      * Injects left joins into SQL query.
-     * 
+     *
      * @param sqlRequest
      *            SQL query to inject left joins.
      */
@@ -67,7 +67,7 @@ public class HibernateCompilerLeftJoinBuilder {
                 leftJoins.add(left);
             }
         }
-        int fromIdx = sqlRequest.indexOf("from");
+        int fromIdx = HibernateCompilerHelper.getFromClauseIndex(sqlRequest);
         for (LeftJoinDescription left : leftJoins) {
             int insertIdx = sqlRequest.indexOf(left.rootTableName, fromIdx) + left.rootTableName.length();
             sqlRequest.insert(insertIdx, " ").insert(insertIdx + 1, left.leftJoinExpression);
@@ -76,7 +76,7 @@ public class HibernateCompilerLeftJoinBuilder {
 
     /**
      * Removes join for field and replaces it with left join.
-     * 
+     *
      * @param sqlRequest
      *            SQL query to inject left joins.
      * @param field
@@ -105,7 +105,7 @@ public class HibernateCompilerLeftJoinBuilder {
 
     /**
      * Get from query condition statement for removable field. E. q. it returns something like this: (var.name = 'name').
-     * 
+     *
      * @param sqlRequest
      *            SQL query to inject left joins.
      * @param joinedTableAlias
@@ -131,7 +131,7 @@ public class HibernateCompilerLeftJoinBuilder {
     /**
      * Get root join table alias from join restriction statement. Root join table is a table, we joining to (it must be placed right before 'left
      * join' statement).
-     * 
+     *
      * @param joinedTableAlias
      *            SQL alias name, assigned to joining table.
      * @param restriction
@@ -150,7 +150,7 @@ public class HibernateCompilerLeftJoinBuilder {
 
     /**
      * Get joins restrictions. E. q. something like processInst.ID = variableInst.ID
-     * 
+     *
      * @param sqlRequest
      *            SQL query to inject left joins.
      * @param joinedTableAlias
@@ -160,10 +160,7 @@ public class HibernateCompilerLeftJoinBuilder {
     private String getJoinRestriction(StringBuilder sqlRequest, String joinedTableAlias) {
         String restriction;
         // Join Restriction conditions must be in result query first
-        int fromIndex = sqlRequest.indexOf(" from ");
-        if (-1 == fromIndex) {
-            fromIndex = sqlRequest.indexOf(" FROM ");
-        }
+        int fromIndex = HibernateCompilerHelper.getFromClauseIndex(sqlRequest);
         int restrFrom = -1;
         int restrictionIndex = fromIndex;
         while (-1 == restrFrom) {
@@ -204,14 +201,15 @@ public class HibernateCompilerLeftJoinBuilder {
 
     /**
      * Remove left joining table from 'from' clause. It will be added there later with left join.
-     * 
+     *
      * @param sqlRequest
      *            SQL request to remove joined table.
      * @param tableName
      *            Table name, which must be left joined.
      */
     private void removeJoinedTable(StringBuilder sqlRequest, String tableName) {
-        int fromPosition = sqlRequest.indexOf(tableName);
+        int fromIndex = HibernateCompilerHelper.getFromClauseIndex(sqlRequest);
+        int fromPosition = sqlRequest.indexOf(tableName, fromIndex);
         int toPosition = sqlRequest.indexOf(",", fromPosition);
         int tmpPos = sqlRequest.indexOf(" where ", fromPosition);
         if ((tmpPos != -1 && tmpPos < toPosition) || toPosition == -1) {

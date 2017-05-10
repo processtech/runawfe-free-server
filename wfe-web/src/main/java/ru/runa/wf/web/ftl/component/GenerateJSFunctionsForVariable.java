@@ -11,6 +11,7 @@ import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -32,6 +33,7 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
     private boolean onTimeCalled;
     private boolean onDateTimeCalled;
     private boolean onFileCalled;
+    private boolean onFormattedTextCalled;
 
     @Override
     public String onDate(DateFormat dateFormat, WfVariable variable) {
@@ -124,6 +126,15 @@ public class GenerateJSFunctionsForVariable implements VariableFormatVisitor<Str
 
     @Override
     public String onTextString(TextFormat textFormat, WfVariable variable) {
+        return "";
+    }
+
+    @Override
+    public String onFormattedTextString(FormattedTextFormat textFormat, WfVariable context) {
+        if (!onFormattedTextCalled) {
+            onFormattedTextCalled = true;
+            return "div.find('.inputFormattedText').filter(filterTemplatesElements).trumbowyg({ lang: currentBrowserLanguage, svgPath : 'css/trumbowyg.svg' });";
+        }
         return "";
     }
 

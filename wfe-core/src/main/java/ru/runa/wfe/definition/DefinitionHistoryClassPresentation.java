@@ -23,7 +23,6 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
-import ru.runa.wfe.presentation.SubstringDBSource;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
 import ru.runa.wfe.user.Actor;
 
@@ -49,12 +48,12 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                         // display name field type DB source isSort filter mode
                         // get value/show in web getter parameters
                         new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), true,
-                    FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
+                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
                                         DefinitionPermission.START_PROCESS, "name" }),
                         new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDBSource(Deployment.class, "version"), true,
                                 FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { DefinitionPermission.READ,
                                         "version" }),
-                        new FieldDescriptor(DESCRIPTION, String.class.getName(), new SubstringDBSource(Deployment.class, "description"), true,
+                        new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Deployment.class, "description"), true,
                                 FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
                         new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(Deployment.class, "category"),
                                 true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}, true),

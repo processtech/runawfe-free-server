@@ -40,11 +40,11 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.PolymorphismType;
 
-import ru.runa.wfe.security.IdentifiableBase;
-import ru.runa.wfe.user.jaxb.ExecutorAdapter;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+
+import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.user.jaxb.ExecutorAdapter;
 
 /*
  * Created on 01.07.2004
@@ -63,6 +63,8 @@ import com.google.common.base.Preconditions;
 @XmlJavaTypeAdapter(ExecutorAdapter.class)
 public abstract class Executor extends IdentifiableBase implements Comparable<Executor> {
     private static final long serialVersionUID = 1L;
+
+    public static final String UNAUTHORIZED_EXECUTOR_NAME = "__unauthorized__";
 
     private Long id;
     private Long version;

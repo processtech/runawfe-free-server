@@ -27,7 +27,6 @@ import javax.servlet.jsp.JspWriter;
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
-import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
@@ -37,6 +36,7 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.BatchPresentationsVisibility;
 import ru.runa.common.web.Commons;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesBatch;
 import ru.runa.common.web.ProfileHttpSessionHelper;
@@ -139,22 +139,14 @@ public class ViewControlsHideableBlockAjaxTag extends AbstractReturningTag {
 
         for (BatchPresentation batchPresentation : profile.getBatchPresentations(getHideableBlockId())) {
             String batchPresentationName = batchPresentation.getName();
-            Option option = new Option();
             Map<String, String> params = new HashMap<String, String>();
             params.put(BatchPresentationForm.BATCH_PRESENTATION_ID, activeBatchPresentation.getCategory());
             params.put(BatchPresentationForm.BATCH_PRESENTATION_NAME, batchPresentation.getName());
             params.put(ReturnActionForm.RETURN_ACTION, getReturnAction());
             String actionUrl = Commons.getActionUrl(ChangeActiveBatchPresentationAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
-            option.setValue(actionUrl);
-            if (batchPresentation.isDefault()) {
-                option.addElement(Messages.getMessage(batchPresentationName, pageContext));
-            } else {
-                option.addElement(batchPresentationName);
-            }
-            if (batchPresentationName.equals(activeBatchPresentation.getName())) {
-                option.setSelected(true);
-            }
-            select.addElement(option);
+            String label = batchPresentation.isDefault() ? Messages.getMessage(batchPresentationName, pageContext) : batchPresentationName;
+            boolean isSelected = batchPresentationName.equals(activeBatchPresentation.getName());
+            select.addElement(HTMLUtils.createOption(actionUrl, label, isSelected));
         }
         select.setOnChange("document.location=this.options[this.selectedIndex].value");
         td.addElement(select);

@@ -37,6 +37,7 @@ import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
 
@@ -338,6 +339,30 @@ public class Utils {
             return string.substring(0, limit);
         }
         return string;
+    }
+
+    public static Object getContainerCopy(Object object) {
+        if (object instanceof List) {
+            List copy = Lists.newArrayList();
+            for (Object item : (List) object) {
+                copy.add(getContainerCopy(item));
+            }
+            return copy;
+        } else if (object instanceof UserTypeMap) {
+            UserTypeMap userTypeMap = (UserTypeMap) object;
+            UserTypeMap copy = new UserTypeMap(userTypeMap.getUserType());
+            for (Map.Entry<String, Object> entry : userTypeMap.entrySet()) {
+                copy.put(entry.getKey(), getContainerCopy(entry.getValue()));
+            }
+            return copy;
+        } else if (object instanceof Map) {
+            Map copy = Maps.newHashMap();
+            for (Map.Entry entry : ((Map<Object, Object>) object).entrySet()) {
+                copy.put(entry.getKey(), getContainerCopy(entry.getValue()));
+            }
+            return copy;
+        }
+        return object;
     }
 
 }

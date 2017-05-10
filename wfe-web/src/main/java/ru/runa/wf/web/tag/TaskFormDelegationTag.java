@@ -11,6 +11,7 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wfe.service.delegate.Delegates;
 
 /**
  * Created on 27.03.2015
@@ -30,17 +31,15 @@ public class TaskFormDelegationTag extends VisibleTag {
         TR row = new TR();
         TD col = new TD();
         col.setAlign("right");
-
-        Button button = new Button();
-        button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASK.message(pageContext)));
-        button.addAttribute("data-taskid", taskId.intValue());
-        button.setOnClick("delegateTaskDialog(this)");
-
-        col.addElement(button);
-
+        if (!Delegates.getTaskService().getTask(getUser(), taskId).isReadOnly()) {
+            Button button = new Button();
+            button.addElement(new StringElement(MessagesProcesses.BUTTON_DELEGATE_TASK.message(pageContext)));
+            button.addAttribute("data-taskid", taskId.intValue());
+            button.setOnClick("delegateTaskDialog(this)");
+            col.addElement(button);
+        }
         row.addElement(col);
         table.addElement(row);
-
         return table;
     }
 

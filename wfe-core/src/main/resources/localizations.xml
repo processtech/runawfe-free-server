@@ -71,6 +71,7 @@
   <artifact enabled="true" name="ru.runa.wfe.var.format.DoubleFormat" label="Double"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.ExecutorFormat" label="Executor"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.FileFormat" label="File"/>
+  <artifact enabled="true" name="ru.runa.wfe.var.format.FormattedTextFormat" label="Formatted text"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.GroupFormat" label="Group"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.ListFormat" label="List"/>
   <artifact enabled="true" name="ru.runa.wfe.var.format.LongFormat" label="Long"/>

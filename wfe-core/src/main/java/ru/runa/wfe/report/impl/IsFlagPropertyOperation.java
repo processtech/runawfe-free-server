@@ -43,4 +43,34 @@ public class IsFlagPropertyOperation implements ReportParameterTypeVisitor<Boole
     public Boolean onSwimlane(Object data) {
         return false;
     }
+
+    @Override
+    public Boolean onActorId(Object data) {
+        return false;
+    }
+
+    @Override
+    public Boolean onGroupId(Object data) {
+        return false;
+    }
+
+    @Override
+    public Boolean onExecutorId(Object data) {
+        return false;
+    }
+
+    @Override
+    public Boolean onActorName(Object data) {
+        return false;
+    }
+
+    @Override
+    public Boolean onGroupName(Object data) {
+        return false;
+    }
+
+    @Override
+    public Boolean onExecutorName(Object data) {
+        return false;
+    }
 }

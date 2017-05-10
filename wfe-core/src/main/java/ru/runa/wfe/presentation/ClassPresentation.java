@@ -1,25 +1,25 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.presentation;
 
-import ru.runa.wfe.InternalApplicationException;
-
 import com.google.common.base.Objects;
+
+import ru.runa.wfe.InternalApplicationException;
 
 /**
  * Presentation class, contains information about persistent class and object properties, what can be used in batch presentation.
@@ -70,13 +70,8 @@ public class ClassPresentation {
     private final boolean withPaging;
 
     /**
-     * Flag, equals true, if need to distinct result.
-     */
-    private final boolean distinct;
-
-    /**
      * Creates class presentation instance.
-     * 
+     *
      * @param clazz
      *            Root persistent class.
      * @param classRestrictions
@@ -87,29 +82,10 @@ public class ClassPresentation {
      *            Fields (properties), available via {@link BatchPresentation}.
      */
     public ClassPresentation(Class<?> clazz, String classRestrictions, boolean withPaging, FieldDescriptor[] fields) {
-        this(clazz, classRestrictions, withPaging, false, fields);
-    }
-
-    /**
-     * Creates class presentation instance.
-     * 
-     * @param clazz
-     *            Root persistent class.
-     * @param classRestrictions
-     *            Predefined restrictions for root persistent object.
-     * @param withPaging
-     *            Flag, equals true, if paging is enabled for persistent class loading; false otherwise.
-     * @param distinct
-     *            Flag, equals true, if need to distinct result.
-     * @param fields
-     *            Fields (properties), available via {@link BatchPresentation}.
-     */
-    public ClassPresentation(Class<?> clazz, String classRestrictions, boolean withPaging, boolean distinct, FieldDescriptor[] fields) {
         this.clazz = clazz;
         this.classRestrictions = classRestrictions;
         this.fields = fields;
         this.withPaging = withPaging;
-        this.distinct = distinct;
     }
 
     /**
@@ -147,13 +123,6 @@ public class ClassPresentation {
      */
     public boolean isWithPaging() {
         return withPaging;
-    }
-
-    /**
-     * @return Flag, equals true, if need to distinct result.
-     */
-    public boolean isDistinct() {
-        return distinct;
     }
 
     @Override
