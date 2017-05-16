@@ -23,12 +23,19 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
@@ -41,6 +48,16 @@ import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
 
 public class TransitionFigure {
+
+    private static BufferedImage BPMN_ACTION_ICON;
+    static {
+        try {
+            BPMN_ACTION_ICON = ImageIO.read(ClassLoaderUtil.getAsStreamNotNull("image/bpmn/action.png", TransitionFigure.class));
+        } catch (IOException e) {
+            Throwables.propagate(e);
+        }
+    }
+
     protected String timerInfo;
 
     protected AbstractFigure figureFrom;
@@ -140,24 +157,43 @@ public class TransitionFigure {
         if (!Objects.equal(end, points.get(points.size() - 1)) || points.size() == 1) {
             points.add(end);
         }
-
         int[] xPoints = new int[points.size()];
         int[] yPoints = new int[points.size()];
         for (int i = 0; i < points.size(); i++) {
             xPoints[i] = points.get(i).x;
             yPoints[i] = points.get(i).y;
         }
+
+        double angle = GraphicsMath.getAngle(xPoints[xPoints.length - 1], yPoints[yPoints.length - 1], xPoints[xPoints.length - 2],
+                yPoints[yPoints.length - 2]);
+        double delta = DrawProperties.TRANSITION_SM_ANGLE;
+        double hypotenuse = DrawProperties.TRANSITION_SM_L / Math.cos(delta);
+        int xLeft = (int) Math.round(end.x + hypotenuse * Math.cos(angle - delta));
+        int xRight = (int) Math.round(end.x + hypotenuse * Math.cos(angle + delta));
+        int yLeft = (int) Math.round(end.y - hypotenuse * Math.sin(angle - delta));
+        int yRight = (int) Math.round(end.y - hypotenuse * Math.sin(angle + delta));
+        int[] xSmPoints = new int[] { end.x, xLeft, xRight };
+        int[] ySmPoints = new int[] { end.y, yLeft, yRight };
+        graphics.setColor(DrawProperties.getBackgroundColor());
+        graphics.setStroke(new BasicStroke(DrawProperties.FIGURE_CLEAN_WIDTH));
+        graphics.drawPolygon(xSmPoints, ySmPoints, xSmPoints.length);
+
         if (figureFrom.useEdgingOnly) {
             // Cleaning old transitions
-            if (isJpdlCanvas()) {
-                graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH));
-            }
+            graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_CLEAN_WIDTH));
             graphics.setColor(DrawProperties.getBackgroundColor());
             graphics.drawPolyline(xPoints, yPoints, xPoints.length);
         }
 
         graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_DRAW_WIDTH));
         graphics.setColor(color);
+
+        if (actionsCount > 0 && !isJpdlCanvas() && transition.getProcessDefinition().isGraphActionsEnabled()) {
+            for (int i = 1; i <= actionsCount; i++) {
+                Point point = getConnectionMidpoint(start, end, i * .1);
+                graphics.drawImage(BPMN_ACTION_ICON, null, point.x - BPMN_ACTION_ICON.getWidth() / 2, point.y - BPMN_ACTION_ICON.getHeight() / 2);
+            }
+        }
 
         if (smoothLines) {
             extragraphics.drawSmoothPolyline(xPoints, yPoints, xPoints.length);
@@ -184,42 +220,10 @@ public class TransitionFigure {
         }
 
         if (exclusive) {
-            Point from = new Point(start);
-            double angle = GraphicsMath.getAngle(xPoints[0], yPoints[0], xPoints[1], yPoints[1]);
-            if (transition.isTimerTransition()) {
-                from.x += DrawProperties.GRID_SIZE * Math.cos(angle);
-                from.y += DrawProperties.GRID_SIZE * Math.sin(angle);
-            }
-            double delta = 2 * DrawProperties.TRANSITION_SM_ANGLE;
-            double hypotenuse = 8;
-            int xLeft = (int) Math.round(from.x + hypotenuse * Math.cos(angle - delta));
-            int xRight = (int) Math.round(from.x + hypotenuse * Math.cos(angle + delta));
-            int xEnd = (int) Math.round(from.x + 2 * hypotenuse * Math.cos(angle));
-            int yLeft = (int) Math.round(from.y - hypotenuse * Math.sin(angle - delta));
-            int yRight = (int) Math.round(from.y - hypotenuse * Math.sin(angle + delta));
-            int yEnd = (int) Math.round(from.y - 2 * hypotenuse * Math.sin(angle));
-            int[] xSmPoints = new int[] { from.x, xLeft, xEnd, xRight };
-            int[] ySmPoints = new int[] { from.y, yLeft, yEnd, yRight };
-            if (renderHits.isPassed()) {
-                graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
-            } else {
-                graphics.setColor(DrawProperties.getBackgroundColor());
-                graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
-                graphics.setColor(color);
-                graphics.drawPolygon(xSmPoints, ySmPoints, xSmPoints.length);
-            }
+            drawExclusiveSymbol(graphics, start, xPoints, yPoints, color);
         }
 
-        double angle = GraphicsMath.getAngle(xPoints[xPoints.length - 1], yPoints[yPoints.length - 1], xPoints[xPoints.length - 2],
-                yPoints[yPoints.length - 2]);
-        double delta = DrawProperties.TRANSITION_SM_ANGLE;
-        double hypotenuse = DrawProperties.TRANSITION_SM_L / Math.cos(delta);
-        int xLeft = (int) Math.round(end.x + hypotenuse * Math.cos(angle - delta));
-        int xRight = (int) Math.round(end.x + hypotenuse * Math.cos(angle + delta));
-        int yLeft = (int) Math.round(end.y - hypotenuse * Math.sin(angle - delta));
-        int yRight = (int) Math.round(end.y - hypotenuse * Math.sin(angle + delta));
-        int[] xSmPoints = new int[] { end.x, xLeft, xRight };
-        int[] ySmPoints = new int[] { end.y, yLeft, yRight };
+        graphics.setColor(color);
         graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
 
         if (!figureFrom.useEdgingOnly && !transition.getName().startsWith("tr")) {
@@ -249,12 +253,92 @@ public class TransitionFigure {
         }
     }
 
+    private void drawExclusiveSymbol(Graphics2D graphics, Point start, int[] xPoints, int[] yPoints, Color color) {
+        Point from = new Point(start);
+        double angle = GraphicsMath.getAngle(xPoints[0], yPoints[0], xPoints[1], yPoints[1]);
+        if (transition.isTimerTransition()) {
+            from.x += DrawProperties.GRID_SIZE * Math.cos(angle);
+            from.y += DrawProperties.GRID_SIZE * Math.sin(angle);
+        }
+        double delta = 2 * DrawProperties.TRANSITION_SM_ANGLE;
+        double hypotenuse = 8;
+        int xLeft = (int) Math.round(from.x + hypotenuse * Math.cos(angle - delta));
+        int xRight = (int) Math.round(from.x + hypotenuse * Math.cos(angle + delta));
+        int xEnd = (int) Math.round(from.x + 2 * hypotenuse * Math.cos(angle));
+        int yLeft = (int) Math.round(from.y - hypotenuse * Math.sin(angle - delta));
+        int yRight = (int) Math.round(from.y - hypotenuse * Math.sin(angle + delta));
+        int yEnd = (int) Math.round(from.y - 2 * hypotenuse * Math.sin(angle));
+        int[] xSmPoints = new int[] { from.x, xLeft, xEnd, xRight };
+        int[] ySmPoints = new int[] { from.y, yLeft, yEnd, yRight };
+        if (renderHits.isPassed()) {
+            graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
+        } else {
+            graphics.setColor(DrawProperties.getBackgroundColor());
+            graphics.fillPolygon(xSmPoints, ySmPoints, xSmPoints.length);
+            graphics.setColor(color);
+            graphics.drawPolygon(xSmPoints, ySmPoints, xSmPoints.length);
+        }
+    }
+
     public void setExclusive(boolean exclusive) {
         this.exclusive = exclusive;
     }
 
     protected boolean isJpdlCanvas() {
         return transition.getProcessDefinition().getDeployment().getLanguage().equals(Language.JPDL);
+    }
+
+    private Point getConnectionMidpoint(Point start, Point end, double part) {
+        Point ret = null;
+        Point[] pointsArray = new Point[bendpoints.size() + 2];
+        {
+            pointsArray[0] = start;
+            int i = 1;
+            for (Iterator<Point> iter = bendpoints.iterator(); iter.hasNext();) {
+                pointsArray[i] = new Point();
+                pointsArray[i++].setLocation(iter.next());
+            }
+            pointsArray[i] = end;
+        }
+        double completeDistance = getDistance(pointsArray);
+        double absDistanceToRelPoint = completeDistance * part;
+        double distanceSum = 0;
+        for (int i = 0; i < pointsArray.length - 1; i++) {
+            double oldDistanceSum = distanceSum;
+            Point currentPoint = pointsArray[i];
+            Point nextPoint = pointsArray[i + 1];
+            double additionalDistanceToNext = getDistance(currentPoint, nextPoint);
+            distanceSum += additionalDistanceToNext;
+            if (distanceSum >= absDistanceToRelPoint) {
+                double thisRelative = ((completeDistance * part) - oldDistanceSum) / additionalDistanceToNext;
+                ret = getMidpoint(currentPoint.x, currentPoint.y, nextPoint.x, nextPoint.y, thisRelative);
+                break;
+            }
+        }
+        return ret;
+    }
+
+    private static double getDistance(Point start, Point end) {
+        int xDist = end.x - start.x;
+        int yDist = end.y - start.y;
+        double ret = Math.sqrt((xDist * xDist) + (yDist * yDist));
+        return ret;
+    }
+
+    private static double getDistance(Point[] points) {
+        double ret = 0;
+        for (int i = 0; i < points.length - 1; i++) {
+            Point currentPoint = points[i];
+            Point nextPoint = points[i + 1];
+            ret += getDistance(currentPoint, nextPoint);
+        }
+        return ret;
+    }
+
+    private static Point getMidpoint(int startX, int startY, int endX, int endY, double d) {
+        int midX = (int) Math.round((startX + d * (endX - startX)));
+        int midY = (int) Math.round((startY + d * (endY - startY)));
+        return new Point(midX, midY);
     }
 
 }

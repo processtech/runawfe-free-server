@@ -13,6 +13,7 @@ import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.Severity;
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
@@ -20,11 +21,12 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
  * DAO for {@link ProcessLog}.
- *
+ * 
  * @author dofs
  * @since 4.0
  */
@@ -103,12 +105,14 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
     @SuppressWarnings("unchecked")
     @Override
     public List<ProcessLog> getAll(final ProcessLogFilter filter) {
+        Preconditions.checkArgument(ProcessLog.class.isAssignableFrom(ClassLoaderUtil.loadClass(filter.getRootClassName())),
+                "invalid filter root class name");
         return getHibernateTemplate().executeFind(new HibernateCallback<List<ProcessLog>>() {
 
             @Override
             public List<ProcessLog> doInHibernate(Session session) {
                 boolean filterBySeverity = filter.getSeverities().size() != 0 && filter.getSeverities().size() != Severity.values().length;
-                String hql = "from ProcessLog where processId = :processId";
+                String hql = "from " + filter.getRootClassName() + " where processId = :processId";
                 if (filter.getIdFrom() != null) {
                     hql += " and id >= :idFrom";
                 }
