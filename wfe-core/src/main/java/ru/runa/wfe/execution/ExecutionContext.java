@@ -54,6 +54,8 @@ import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
@@ -68,6 +70,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class ExecutionContext {
@@ -232,7 +235,7 @@ public class ExecutionContext {
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
             Swimlane swimlane = swimlaneDAO.findOrCreate(getProcess(), swimlaneDefinition);
-            swimlane.assignExecutor(this, TypeConversionUtil.convertTo(Executor.class, value), true);
+            swimlane.assignExecutor(this, (Executor) convertValueForVariableType(swimlaneDefinition.toVariableDefinition(), value), true);
             return;
         }
         VariableDefinition variableDefinition = getProcessDefinition().getVariable(name, false);
@@ -298,6 +301,15 @@ public class ExecutionContext {
         if (!definedClass.isAssignableFrom(value.getClass())) {
             if (SystemProperties.isVariableAutoCastingEnabled()) {
                 try {
+                    if (Executor.class.isAssignableFrom(definedClass) && value instanceof List) {
+                        Group tmpGroup = TemporaryGroup.create(getProcess().getId(), variableDefinition.getName());
+                        List<Executor> executors = Lists.newArrayList();
+                        for (Object executorIdentity : (List) value) {
+                            executors.add(TypeConversionUtil.convertTo(Executor.class, executorIdentity));
+                        }
+                        tmpGroup = ApplicationContextFactory.getExecutorLogic().saveTemporaryGroup(tmpGroup, executors);
+                        return tmpGroup;
+                    }
                     return TypeConversionUtil.convertTo(definedClass, value);
                 } catch (Exception e) {
                     throw new InternalApplicationException("Variable '" + variableDefinition.getName() + "' defined as '" + definedClass
