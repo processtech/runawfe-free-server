@@ -60,7 +60,8 @@ public class MultipleSelectFromUserTypeList extends AbstractUserTypeList impleme
 
         public String getChecked(TemplateModel arg0) throws TemplateModelException {
             UserTypeMap userTypeMap = (UserTypeMap) BEANS_WRAPPER.unwrap(arg0);
-            boolean checked = ((List<UserTypeMap>) getInputVariable().getValue()).contains(userTypeMap);
+            List<UserTypeMap> selectedList = (List<UserTypeMap>) getInputVariable().getValue();
+            boolean checked = selectedList != null && selectedList.contains(userTypeMap);
             if (checked) {
                 return "checked='true'";
             }

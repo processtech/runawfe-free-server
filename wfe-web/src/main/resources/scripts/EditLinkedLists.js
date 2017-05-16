@@ -9,13 +9,14 @@ $(document).ready(function() {
 	$('#ellUNIQUENAMEButtonAdd').click(function() {
 		var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
 		lastIndexUNIQUENAME = rowIndex;
-		var e = "<tr row='" + rowIndex + "'>";
-		e += ellUNIQUENAMERowTemplate.replace(/\[\]/g, "[" + rowIndex + "]");
-		e += "<td><input type='button' value=' - ' onclick='ellUNIQUENAMERemoveRow(this);' /></td>";
-		e += "</tr>";
-		$('#ellUNIQUENAME').append(e);
+		var rowElementHtml = "<tr row='" + rowIndex + "'>";
+		rowElementHtml += ellUNIQUENAMERowTemplate.replace(/\[\]/g, "[" + rowIndex + "]");
+		rowElementHtml += "<td><input type='button' value=' - ' onclick='ellUNIQUENAMERemoveRow(this);' /></td>";
+		rowElementHtml += "</tr>";
+		var rowElement = $(rowElementHtml);
+		$('#ellUNIQUENAME').append(rowElement);
 		ellUNIQUENAMEUpdateIndexes(1);
-		JS_HANDLERS
+		initComponents(rowElement);
 		$("#ellUNIQUENAME").trigger("onRowAdded", [rowIndex]);
 	});
 });

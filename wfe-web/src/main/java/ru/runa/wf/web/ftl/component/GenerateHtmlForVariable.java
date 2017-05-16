@@ -1,6 +1,5 @@
 package ru.runa.wf.web.ftl.component;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -21,10 +20,8 @@ import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
-import ru.runa.wfe.commons.web.WebUtils;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -91,7 +88,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (value instanceof Date) {
             result.setValue(CalendarUtil.formatDate((Date) value));
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
@@ -101,7 +98,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (value instanceof Date) {
             result.setValue(CalendarUtil.formatTime((Date) value));
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
@@ -111,13 +108,13 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (value instanceof Date) {
             result.setValue(CalendarUtil.formatDateTime((Date) value));
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
     public GenerateHtmlForVariableResult onExecutor(ExecutorFormat executorFormat, GenerateHtmlForVariableContext context) {
         return new GenerateHtmlForVariableResult(context, createExecutorSelect(user, context.variable.getDefinition().getName(), executorFormat,
-                context.variable.getValue(), !context.readonly), null);
+                context.variable.getValue(), !context.readonly));
     }
 
     @Override
@@ -127,7 +124,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (value instanceof Boolean && (Boolean) value) {
             result.setChecked(true);
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
@@ -149,30 +146,20 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     public GenerateHtmlForVariableResult onFile(FileFormat fileFormat, GenerateHtmlForVariableContext context) {
         String variableName = context.variable.getDefinition().getName();
         Object value = context.variable.getValue();
-        return new GenerateHtmlForVariableResult(context, getFileComponent(webHelper, variableName, (IFileVariable) value, !context.readonly), null);
+        return new GenerateHtmlForVariableResult(context, getFileComponent(webHelper, variableName, (IFileVariable) value, !context.readonly));
     }
 
     @Override
     public GenerateHtmlForVariableResult onHidden(HiddenFormat hiddenFormat, GenerateHtmlForVariableContext context) {
-        return new GenerateHtmlForVariableResult(context, hiddenFormat.getInputHtml(user, webHelper, context.variable), null);
+        return new GenerateHtmlForVariableResult(context, hiddenFormat.getInputHtml(user, webHelper, context.variable));
     }
 
     @Override
     public GenerateHtmlForVariableResult onList(ListFormat listFormat, GenerateHtmlForVariableContext context) {
-        String variableName = context.variable.getDefinition().getName();
         String scriptingVariableName = context.variable.getDefinition().getScriptingNameWithoutDots();
         VariableFormat componentFormat = FormatCommons.createComponent(context.variable, 0);
         WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(context.variable, -1, componentFormat, null);
-        StringBuffer supportJs = new StringBuffer();
         GenerateHtmlForVariableResult templateComponentResult = componentFormat.processBy(this, context.copyFor(templateComponentVariable));
-        if (!context.readonly) {
-            Map<String, String> substitutions = new HashMap<String, String>();
-            substitutions.put("VARIABLE", variableName);
-            substitutions.put("UNIQUENAME", scriptingVariableName);
-            substitutions.put("COMPONENT_JS_HANDLER", ViewUtil.getComponentJSFunction(templateComponentVariable));
-            InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
-            supportJs.append(templateComponentResult.scriptContent).append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
-        }
         List<Object> list = TypeConversionUtil.convertTo(List.class, context.variable.getValue());
         if (list == null) {
             list = new ArrayList<Object>();
@@ -184,7 +171,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             WfVariable indexesVariable = ViewUtil.createListIndexesVariable(context.variable, list.size());
             result.addElement(ViewUtil.getHiddenInput(indexesVariable));
             Div templateElementDiv = createTemplateElement(context);
-            templateElementDiv.addElement(templateComponentResult.htmlStructureContent.replace("[]", "{}"));
+            templateElementDiv.addElement(templateComponentResult.content.replace("[]", "{}"));
             templateElementDiv.addElement(createRemoveElement(context));
             result.addElement(templateElementDiv);
         }
@@ -193,7 +180,6 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             WfVariable componentVariable = ViewUtil.createListComponentVariable(context.variable, row, componentFormat, value);
             GenerateHtmlForVariableResult componentGeneratedHtml = componentFormat.processBy(this, context.copyFor(componentVariable));
             Div rowElement = createCollectionRowElement(context, row, componentGeneratedHtml);
-            supportJs.append(componentGeneratedHtml.scriptContent);
             if (!context.readonly) {
                 rowElement.addElement(createRemoveElement(context));
                 result.addElement(new Div().addElement(rowElement));
@@ -202,35 +188,18 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             }
         }
         if (!context.readonly) {
-            result.addElement(createAddElement(context));
+            result.addElement(createAddElement());
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), supportJs.toString());
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
     public GenerateHtmlForVariableResult onMap(MapFormat mapFormat, GenerateHtmlForVariableContext context) {
-        String variableName = context.variable.getDefinition().getName();
         String scriptingVariableName = context.variable.getDefinition().getScriptingNameWithoutDots();
         VariableFormat keyFormat = FormatCommons.createComponent(context.variable, 0);
         VariableFormat valueFormat = FormatCommons.createComponent(context.variable, 1);
         WfVariable templateComponentVariableKey = ViewUtil.createMapKeyComponentVariable(context.variable, -1, null);
         WfVariable templateComponentVariableValue = ViewUtil.createMapValueComponentVariable(context.variable, -1, null);
-        StringBuffer supportJs = new StringBuffer();
-        if (!context.readonly) {
-            GenerateJSFunctionsForVariable generateJsForComponent = new GenerateJSFunctionsForVariable();
-            String keyJsHandler = keyFormat.processBy(generateJsForComponent, templateComponentVariableKey);
-            String valueJsHandler = valueFormat.processBy(generateJsForComponent, templateComponentVariableValue);
-            Map<String, String> substitutions = new HashMap<String, String>();
-            substitutions.put("VARIABLE", variableName);
-            substitutions.put("UNIQUENAME", scriptingVariableName);
-            substitutions.put("COMPONENT_JS_HANDLER", keyJsHandler + "\n" + valueJsHandler);
-            InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.EditList.js", ViewUtil.class);
-            GenerateHtmlForVariableResult generatedKeyHtmlData = keyFormat.processBy(this, context.copyFor(templateComponentVariableKey));
-            String keyComponentJs = generatedKeyHtmlData.scriptContent;
-            GenerateHtmlForVariableResult generatedValueHtmlData = valueFormat.processBy(this, context.copyFor(templateComponentVariableValue));
-            String valueComponentJs = generatedValueHtmlData.scriptContent;
-            supportJs.append(keyComponentJs).append(valueComponentJs).append(WebUtils.getFormComponentScript(javascriptStream, substitutions));
-        }
         Map<Object, Object> map = TypeConversionUtil.convertTo(Map.class, context.variable.getValue());
         if (map == null) {
             map = new HashMap<Object, Object>();
@@ -245,8 +214,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             Div templateElementDiv = createTemplateElement(context);
             GenerateHtmlForVariableResult componentGeneratedHtmlKey = keyFormat.processBy(this, context.copyFor(templateComponentVariableKey));
             GenerateHtmlForVariableResult componentGeneratedHtmlValue = valueFormat.processBy(this, context.copyFor(templateComponentVariableValue));
-            templateElementDiv.addElement(componentGeneratedHtmlKey.htmlStructureContent.replace("[]", "{}"));
-            templateElementDiv.addElement(componentGeneratedHtmlValue.htmlStructureContent.replace("[]", "{}"));
+            templateElementDiv.addElement(componentGeneratedHtmlKey.content.replace("[]", "{}"));
+            templateElementDiv.addElement(componentGeneratedHtmlValue.content.replace("[]", "{}"));
             templateElementDiv.addElement(createRemoveElement(context));
             result.addElement(templateElementDiv);
 
@@ -258,17 +227,12 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
                 WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(context.variable, row, key);
                 GenerateHtmlForVariableResult valueGeneratedHtml = valueFormat.processBy(this, context.copyFor(valueComponentVariable));
 
-                String htmlStructureContent = keyGeneratedHtml.htmlStructureContent + valueGeneratedHtml.htmlStructureContent;
-                String scriptContent = keyGeneratedHtml.scriptContent + valueGeneratedHtml.scriptContent;
-                Div elementRow = createCollectionRowElement(context, row, new GenerateHtmlForVariableResult(context, htmlStructureContent,
-                        scriptContent));
+                String htmlStructureContent = keyGeneratedHtml.content + valueGeneratedHtml.content;
+                Div elementRow = createCollectionRowElement(context, row, new GenerateHtmlForVariableResult(context, htmlStructureContent));
                 elementRow.addElement(createRemoveElement(context));
                 result.addElement(new Div().addElement(elementRow));
-
-                supportJs.append(keyGeneratedHtml.scriptContent);
-                supportJs.append(valueGeneratedHtml.scriptContent);
             }
-            result.addElement(createAddElement(context));
+            result.addElement(createAddElement());
         } else {
             Table table = new Table();
             table.setClass("list");
@@ -290,12 +254,9 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
                 WfVariable valueComponentVariable = ViewUtil.createMapValueComponentVariable(context.variable, row, key);
                 GenerateHtmlForVariableResult valueGeneratedHtml = valueFormat.processBy(this, context.copyFor(valueComponentVariable));
                 valueTd.addElement(createCollectionRowElement(context, row, valueGeneratedHtml));
-
-                supportJs.append(keyGeneratedHtml.scriptContent);
-                supportJs.append(valueGeneratedHtml.scriptContent);
             }
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), supportJs.toString());
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
@@ -311,7 +272,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             String variableName = context.getVariableName();
             result.setValue(stringFormat.formatHtml(user, webHelper, context.processId, variableName, value));
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
@@ -323,7 +284,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (value != null) {
             result.setTagText(textFormat.format(value));
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
@@ -335,7 +296,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (value != null) {
             result.setTagText(textFormat.formatHtml(user, webHelper, context.processId, variableName, value));
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
@@ -346,7 +307,6 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (userTypeMap == null) {
             userTypeMap = new UserTypeMap(userType);
         }
-        StringBuffer supportJs = new StringBuffer();
         Table result = new Table();
         result.setClass("list");
         for (VariableDefinition attributeDefinition : userType.getAttributes()) {
@@ -362,11 +322,10 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             WfVariable componentVariable = ViewUtil.createUserTypeComponentVariable(context.variable, attributeDefinition, attributeValue);
             GenerateHtmlForVariableResult attributeGeneratedHtml = componentVariable.getDefinition().getFormatNotNull()
                     .processBy(this, new GenerateHtmlForVariableContext(componentVariable, context.processId, context.readonly));
-            valueTd.addElement(attributeGeneratedHtml.htmlStructureContent);
+            valueTd.addElement(attributeGeneratedHtml.content);
             TR.addElement(valueTd);
-            supportJs.append(attributeGeneratedHtml.scriptContent);
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), supportJs.toString());
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     @Override
@@ -374,8 +333,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         WfVariable variable = context.variable;
         if (!context.readonly) {
             if (variableFormat instanceof VariableInputSupport) {
-                return new GenerateHtmlForVariableResult(context, ((VariableInputSupport) variableFormat).getInputHtml(user, webHelper, variable),
-                        null);
+                return new GenerateHtmlForVariableResult(context, ((VariableInputSupport) variableFormat).getInputHtml(user, webHelper, variable));
             } else {
                 throw new InternalApplicationException("No input method implemented for " + variableFormat);
             }
@@ -383,7 +341,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
             if (variableFormat instanceof VariableDisplaySupport) {
                 VariableDisplaySupport displaySupport = (VariableDisplaySupport) variableFormat;
                 return new GenerateHtmlForVariableResult(context, displaySupport.formatHtml(user, webHelper, context.processId, variable
-                        .getDefinition().getName(), variable.getValue()), null);
+                        .getDefinition().getName(), variable.getValue()));
             }
             throw new InternalApplicationException("No output method implemented for " + variableFormat);
         }
@@ -467,7 +425,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         html += "<div class=\"dropzone\" " + (file != null ? hideStyle : "") + ">";
         html += "<label class=\"inputFileAttach\">";
         html += "<div class=\"inputFileAttachButtonDiv\"><img src=\"" + attachImageUrl + "\" />" + uploadFileTitle + "</div>";
-        html += "<input class=\"inputFile inputFileAjax\" name=\"" + variableName + "\" type=\"file\"" + (enabled ? "current" : "") + ">";
+        html += "<input class=\"inputFile inputFileAjax\" name=\"" + variableName + "\" type=\"file\">";
         html += "</label></div>";
         html += "<div class=\"progressbar\" " + (file == null ? hideStyle : "") + ">";
         html += "<div class=\"line\" style=\"width: " + (file != null ? "10" : "") + "0%;\"></div>";
@@ -504,7 +462,7 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         if (value instanceof Number) {
             result.setValue(value.toString());
         }
-        return new GenerateHtmlForVariableResult(context, result.toString(), null);
+        return new GenerateHtmlForVariableResult(context, result.toString());
     }
 
     /**
@@ -559,23 +517,19 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
         removeButton.setType("button");
         removeButton.setValue(" - ");
         removeButton.setStyle("width: 30px;");
-        removeButton.setOnClick("remove" + context.getScriptingNameWithoutDots() + "(this);");
+        removeButton.setClass("remove");
         return removeButton;
     }
 
     /**
-     * Generates add button for list and so on containers.
-     * 
-     * @param context
-     *            HTML generation context.
-     * @return Returns add button.
+     * @return add button for list and so on containers.
      */
-    private Div createAddElement(GenerateHtmlForVariableContext context) {
+    private Div createAddElement() {
         Div result = new Div();
         Input addButton = new Input();
         result.addElement(addButton);
         addButton.setType("button");
-        addButton.setID("btnAdd" + context.getScriptingNameWithoutDots());
+        addButton.setClass("add");
         addButton.setStyle("width: 30px;");
         addButton.setValue(" + ");
         return result;
@@ -595,9 +549,8 @@ public class GenerateHtmlForVariable implements VariableFormatVisitor<GenerateHt
     private Div createCollectionRowElement(GenerateHtmlForVariableContext context, int row, GenerateHtmlForVariableResult componentGeneratedHtml) {
         Div rowElement = new Div();
         rowElement.addAttribute("row", row);
-        rowElement.addAttribute("current", "");
         rowElement.addAttribute("name", context.getVariableName());
-        rowElement.addElement(componentGeneratedHtml.htmlStructureContent);
+        rowElement.addElement(componentGeneratedHtml.content);
         return rowElement;
     }
 }

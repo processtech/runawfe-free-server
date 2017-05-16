@@ -41,6 +41,7 @@
 	<script type="text/javascript" src="/wfe/js/i18n/jquery.ui.datepicker-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 	<script type="text/javascript" src="/wfe/js/i18n/jquery.ui.timepicker-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
 <% } %>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/jquery.edit-list.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/common.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
