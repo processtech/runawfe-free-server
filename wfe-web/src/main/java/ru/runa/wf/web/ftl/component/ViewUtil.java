@@ -152,19 +152,14 @@ public class ViewUtil {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
         GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, 0L, false);
         GenerateHtmlForVariableResult generatedResult = variableFormat.processBy(new GenerateHtmlForVariable(user, webHelper), context);
-        return generatedResult.htmlStructureContent + "\n" + generatedResult.scriptContent;
+        return generatedResult.content;
     }
 
     public static String getComponentOutput(User user, WebHelper webHelper, Long processId, WfVariable variable) {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
         GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, processId, true);
         GenerateHtmlForVariableResult generatedResult = variableFormat.processBy(new GenerateHtmlForVariable(user, webHelper), context);
-        return generatedResult.htmlStructureContent + "\n" + generatedResult.scriptContent;
-    }
-
-    public static String getComponentJSFunction(WfVariable variable) {
-        VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
-        return variableFormat.processBy(new GenerateJSFunctionsForVariable(), variable);
+        return generatedResult.content;
     }
 
     public static String getOutput(User user, WebHelper webHelper, Long processId, WfVariable variable) {

@@ -8,12 +8,7 @@ $(document).ready(function() {
 	$(document).tooltip({ 
 		track: true
 	});
-	
-	// http://trentrichardson.com/examples/timepicker/
-	$(".inputTime").filter(filterTemplatesElements).timepicker({ ampm: false, seconds: false });
-	// http://docs.jquery.com/UI/Datepicker
-	$(".inputDate").filter(filterTemplatesElements).datepicker({ dateFormat: "dd.mm.yy", buttonImage: "/wfe/images/calendar.gif" });
-	$(".inputDateTime").filter(filterTemplatesElements).datetimepicker({ dateFormat: "dd.mm.yy" });
+	initComponents($(document));
 	// confirmation dialog
 	$.confirmDialog = $("<div></div>").dialog({
 		minWidth: 400, minHeight: 200, modal: true, autoOpen: false
@@ -28,6 +23,17 @@ $(document).ready(function() {
 	});
 	$(".selectionStatusPropagator").change(propagateSelectionStatus);
 });
+
+function initComponents(container) {
+	// http://trentrichardson.com/examples/timepicker/
+	container.find(".inputTime").filter(filterTemplatesElements).timepicker({ ampm: false, seconds: false });
+	// http://docs.jquery.com/UI/Datepicker
+	container.find(".inputDate").filter(filterTemplatesElements).datepicker({ dateFormat: "dd.mm.yy", buttonImage: "/wfe/images/calendar.gif" });
+	container.find(".inputDateTime").filter(filterTemplatesElements).datetimepicker({ dateFormat: "dd.mm.yy" });
+	container.find(".editList").filter(filterTemplatesElements).each(function () {
+		$(this).editList();
+	});
+}
 
 function filterTemplatesElements() {
 	return $(this).parents('[template]').length < 1;

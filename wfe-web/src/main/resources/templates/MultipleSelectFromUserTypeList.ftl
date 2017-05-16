@@ -1,3 +1,4 @@
+<div class="inputVariable ${model.uniqueName}" variable="${model.variable.definition.name}">
 <table class="userTypeList list">
 	<thead>
 		<tr>
@@ -18,3 +19,4 @@
 		</#list>
 	</tbody>
 </table>
+</div>

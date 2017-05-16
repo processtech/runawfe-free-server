@@ -1,3 +1,4 @@
+<div class="inputVariable ${model.uniqueName}" variable="${model.variable.definition.name}">
 <input type="hidden" name="${model.variable.definition.name}.indexes" value="" autocomplete="off" />
 
 <table class="userTypeList list" id="eutl${model.uniqueName}">
@@ -39,7 +40,7 @@ var lastIndex${model.uniqueName} = -1;
 $(document).ready(function() {
 	eutl${model.uniqueName}UpdateIndexes(0);
 	lastIndex${model.uniqueName} = $("#eutl${model.uniqueName} tr[row]").length - 1;
-	$("#eutl${model.uniqueName} .add").click(function() {
+	$("#eutl${model.uniqueName} th .add").click(function() {
 		var rowIndex = parseInt(lastIndex${model.uniqueName}) + 1;
 		lastIndex${model.uniqueName} = rowIndex;
 		var template = "";
@@ -55,12 +56,14 @@ $(document).ready(function() {
 		template += "</th>";
 		</#if>
 		template += "</tr>";
-		template = template.replace(/\[\]/g, "[" + rowIndex + "]");
-		$("#eutl${model.uniqueName}").append(template);
+		var rowElementHtml = template.replace(/\[\]/g, "[" + rowIndex + "]");
+		var rowElement = $(template);
+		rowElement.children().each(function() {
+			updateAfterTemplateCopy(this, rowIndex);
+		});
+		$("#eutl${model.uniqueName}").append(rowElement);
 		eutl${model.uniqueName}UpdateIndexes(1);
-		<#list model.attributes as attribute>
-		${model.getTemplateScript(attribute)}
-		</#list>
+		initComponents(rowElement);
 		$("#eutl${model.uniqueName}").trigger("onRowAdded", [rowIndex]);
 	});
 	$("#eutl${model.uniqueName}").on("click", ".remove", function() {
@@ -74,14 +77,25 @@ $(document).ready(function() {
 		eutl${model.uniqueName}UpdateIndexes(-1);
 		$("#eutl${model.uniqueName}").trigger("onRowRemoved", [rowIndex]);
 	});
+	function updateAfterTemplateCopy(element, rowIndex) {
+		$(element).children().each(function() {
+			updateAfterTemplateCopy(this, rowIndex);
+		});
+		$.each(element.attributes, function() {
+			if (this.specified) {
+				this.value = this.value.replace(/\{\}/, "[" + rowIndex + "]");
+			}
+		});
+	}
+	function eutl${model.uniqueName}UpdateIndexes(delta) {
+		var ids = [];
+		$("#eutl${model.uniqueName} tr[row]").each(function() {
+			ids.push($(this).attr("row")); 
+		});
+		var idsString = ids.join(",");
+		$("input[name='${model.variable.definition.name}.indexes']").val(idsString);
+	}
 });
 
-function eutl${model.uniqueName}UpdateIndexes(delta) {
-	var ids = [];
-	$("#eutl${model.uniqueName} tr[row]").each(function() {
-		ids.push($(this).attr("row")); 
-	});
-	var idsString = ids.join(",");
-	$("input[name$='indexes']").val(idsString);
-}
 </script>
+</div>

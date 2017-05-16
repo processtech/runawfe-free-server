@@ -33,7 +33,6 @@ public class EditLinkedLists extends FormComponent {
         List<VariableFormat> componentFormats = Lists.newArrayList();
         List<List<?>> lists = Lists.newArrayList();
         StringBuilder rowTemplate = new StringBuilder();
-        List<String> jsHandlers = Lists.newArrayList();
         List<String> jsVariableNames = Lists.newArrayList();
         int rowsCount = 0;
         for (String variableName : variableNames) {
@@ -48,10 +47,6 @@ public class EditLinkedLists extends FormComponent {
             componentFormats.add(componentFormat);
             lists.add(list);
             WfVariable templateComponentVariable = ViewUtil.createListComponentVariable(variable, -1, componentFormat, null);
-            String jsHandler = ViewUtil.getComponentJSFunction(templateComponentVariable);
-            if (!jsHandlers.contains(jsHandler)) {
-                jsHandlers.add(jsHandler);
-            }
             rowTemplate.append("<td>");
             String inputComponentHtml = getComponentInput(templateComponentVariable, true);
             inputComponentHtml = inputComponentHtml.replaceAll("\"", "'").replaceAll("\n", "");
@@ -66,7 +61,6 @@ public class EditLinkedLists extends FormComponent {
             StringBuffer html = new StringBuffer();
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("ROW_TEMPLATE", rowTemplate.toString());
-            substitutions.put("JS_HANDLERS", Joiner.on("\n").join(jsHandlers));
             substitutions.put("VARIABLE_NAMES", Joiner.on(", ").join(jsVariableNames));
             substitutions.put("UNIQUENAME", uniqueName);
             html.append(exportScript(substitutions, false));

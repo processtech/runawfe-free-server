@@ -80,16 +80,8 @@ public class EditUserTypeList extends AbstractUserTypeList implements FormCompon
                     + definition.getName();
             WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
             String inputComponentHtml = ViewUtil.getComponentInput(user, webHelper, templateComponentVariable);
-            // TODO embedded lists are not supported
-            return inputComponentHtml.replaceAll("\"", "'").replaceAll("\n", "");
+            return inputComponentHtml.replaceAll("\"", "'").replaceAll("\n", "").replace("[]", "{}");
         }
 
-        public String getTemplateScript(TemplateModel arg0) throws TemplateModelException {
-            VariableDefinition definition = (VariableDefinition) BEANS_WRAPPER.unwrap(arg0);
-            String suffix = VariableFormatContainer.COMPONENT_QUALIFIER_START + VariableFormatContainer.COMPONENT_QUALIFIER_END + "."
-                    + definition.getName();
-            WfVariable templateComponentVariable = ViewUtil.createComponentVariable(variable, suffix, definition.getFormatNotNull(), null);
-            return ViewUtil.getComponentJSFunction(templateComponentVariable);
-        }
     }
 }
