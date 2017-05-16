@@ -173,6 +173,9 @@ public class ReceiveMessageBean implements MessageListener {
                 protected void doExecuteInTransaction() throws Exception {
                     log.info("Handling " + message + " for " + data);
                     Token token = tokenDAO.getNotNull(data.tokenId);
+                    if (!Objects.equal(token.getNodeId(), data.node.getNodeId())) {
+                        throw new InternalApplicationException(token + " not in " + data.node.getNodeId());
+                    }
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
                     ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
                     executionContext.activateTokenIfHasPreviousError();
