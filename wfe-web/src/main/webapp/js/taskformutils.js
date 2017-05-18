@@ -27,10 +27,12 @@ initComponents = function(container) {
 		initFileInput($(this));
 	});
 	container.find(".tabs").tabs();
-	container.find(".inputFormattedText").filter(filterTemplatesElements).trumbowyg({
-	    lang: currentBrowserLanguage,
-	    svgPath: "css/trumbowyg.svg"
-	});
+	if ($.fn.trumbowyg) {
+		container.find(".inputFormattedText").filter(filterTemplatesElements).trumbowyg({
+		    lang: currentBrowserLanguage,
+		    svgPath: "css/trumbowyg.svg"
+		});
+	}
 	return commonInitComponents(container);
 }
 
