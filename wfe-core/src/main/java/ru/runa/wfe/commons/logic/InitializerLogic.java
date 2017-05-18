@@ -84,7 +84,6 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 /**
@@ -238,7 +237,7 @@ public class InitializerLogic {
     protected void initializeDatabase(UserTransaction transaction) {
         log.info("database is not initialized. initializing...");
         SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
-        schemaExport.create(true, true);
+        schemaExport.execute(true, true, false, true);
         try {
             transaction.begin();
             insertInitialData();
@@ -246,7 +245,7 @@ public class InitializerLogic {
             transaction.commit();
         } catch (Throwable th) {
             Utils.rollbackTransaction(transaction);
-            throw Throwables.propagate(th);
+            log.info("unable to insert initial data", th);
         }
     }
 
