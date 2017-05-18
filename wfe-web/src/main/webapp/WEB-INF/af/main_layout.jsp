@@ -16,6 +16,7 @@
 %>
 <html:html lang="true">
   <head>
+  	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
   	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
   	<meta http-equiv="Cache-Control" content="no-cache">
   	<meta http-equiv="Pragma" content="no-cache">
