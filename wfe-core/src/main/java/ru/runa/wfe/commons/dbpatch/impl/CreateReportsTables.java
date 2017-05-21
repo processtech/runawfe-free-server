@@ -7,18 +7,11 @@ import java.util.List;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.collect.Lists;
 
 public class CreateReportsTables extends DBPatch {
 
@@ -38,7 +31,7 @@ public class CreateReportsTables extends DBPatch {
 
     /**
      * Creates table, indexes e.t.c for {@link ReportParameter}.
-     *
+     * 
      * @return Returns list of sql commands for table creation.
      */
     private List<String> createReportParametersTable() {
@@ -60,7 +53,7 @@ public class CreateReportsTables extends DBPatch {
 
     /**
      * Creates table, indexes e.t.c for {@link ReportDefinition}.
-     *
+     * 
      * @return Returns list of sql commands for table creation.
      */
     private List<String> createReportsTable() {
@@ -83,11 +76,5 @@ public class CreateReportsTables extends DBPatch {
 
     @Override
     protected void applyPatch(Session session) throws Exception {
-        String administratorName = SystemProperties.getAdministratorName();
-        Actor admin = executorDAO.getActor(administratorName);
-        String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-        Group adminGroup = executorDAO.getGroup(administratorsGroupName);
-        List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-        permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
     }
 }
