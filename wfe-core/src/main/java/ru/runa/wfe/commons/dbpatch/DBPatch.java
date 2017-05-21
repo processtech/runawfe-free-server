@@ -18,7 +18,9 @@ import com.google.common.collect.Lists;
 
 /**
  * Interface for database patch (Applied during version update).
- *
+ * 
+ * It's allowed to use only raw SQL because hibernate mappings could not work in old DB version.
+ * 
  * @author Dofs
  */
 public abstract class DBPatch {

@@ -319,6 +319,24 @@ public class InitializerLogic {
     // may be add some method for this case in DBPatch?
     private void postProcessPatches(UserTransaction transaction) {
         try {
+            // v44
+            transaction.begin();
+            if (permissionDAO.getPrivilegedExecutors(SecuredObjectType.REPORT).isEmpty()) {
+                log.info("Adding " + SecuredObjectType.REPORT + " tokens message hash");
+                String administratorName = SystemProperties.getAdministratorName();
+                Actor admin = executorDAO.getActor(administratorName);
+                String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
+                Group adminGroup = executorDAO.getGroup(administratorsGroupName);
+                List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
+                permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
+            }
+            transaction.commit();
+        } catch (Throwable th) {
+            log.error("Can't apply post-processor of CreateReportsTables", th);
+            Utils.rollbackTransaction(transaction);
+        }
+        try {
+            // v54
             transaction.begin();
             List<Token> tokens = tokenDAO.findByMessageHashIsNullAndExecutionStatusIsActive();
             if (!tokens.isEmpty()) {
