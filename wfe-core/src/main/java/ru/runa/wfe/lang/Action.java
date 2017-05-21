@@ -19,13 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.lang.jpdl;
+package ru.runa.wfe.lang;
 
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
-import ru.runa.wfe.lang.Delegation;
-import ru.runa.wfe.lang.GraphElement;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
