@@ -63,13 +63,16 @@ public class PermissionDAO extends CommonDAO {
     private final Map<SecuredObjectType, Set<Executor>> privelegedExecutors = Maps.newHashMap();
     private final Set<Long> privelegedExecutorIds = Sets.newHashSet();
 
+    public PermissionDAO() {
+        for (SecuredObjectType type : SecuredObjectType.values()) {
+            privelegedExecutors.put(type, new HashSet<Executor>());
+        }
+    }
+
     /**
      * Called once after patches are successfully applied
      */
     public void init() throws Exception {
-        for (SecuredObjectType type : SecuredObjectType.values()) {
-            privelegedExecutors.put(type, new HashSet<Executor>());
-        }
         List<PrivelegedMapping> list = getHibernateTemplate().find("from PrivelegedMapping m");
         for (PrivelegedMapping mapping : list) {
             privelegedExecutors.get(mapping.getType()).add(mapping.getExecutor());
