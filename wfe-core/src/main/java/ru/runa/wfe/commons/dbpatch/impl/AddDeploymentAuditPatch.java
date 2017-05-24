@@ -33,7 +33,7 @@ public class AddDeploymentAuditPatch extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         session.createSQLQuery("DELETE FROM SYSTEM_LOG WHERE DISCRIMINATOR = 'PDUpd'").executeUpdate();
     }
 

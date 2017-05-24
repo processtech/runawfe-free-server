@@ -20,7 +20,7 @@ public class AddHierarchyProcess extends DBPatch {
     }
 
     @Override
-    public void applyPatch(Session session) {
+    public void executeDML(Session session) {
         ScrollableResults scrollableResults = session.createSQLQuery("SELECT ID_, SUPERPROCESSTOKEN_ FROM JBPM_PROCESSINSTANCE").scroll(
                 ScrollMode.FORWARD_ONLY);
         while (scrollableResults.next()) {

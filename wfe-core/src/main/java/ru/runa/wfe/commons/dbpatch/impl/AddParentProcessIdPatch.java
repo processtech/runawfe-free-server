@@ -21,7 +21,7 @@ public class AddParentProcessIdPatch extends DBPatch {
     }
 
     @Override
-    public void applyPatch(Session session) {
+    public void executeDML(Session session) {
         ScrollableResults scrollableResults = session.createSQLQuery("SELECT ID, TREE_PATH FROM BPM_PROCESS").scroll(ScrollMode.FORWARD_ONLY);
         SQLQuery query = session.createSQLQuery("UPDATE BPM_PROCESS SET PARENT_ID = :parentId WHERE ID = :id");
         while (scrollableResults.next()) {

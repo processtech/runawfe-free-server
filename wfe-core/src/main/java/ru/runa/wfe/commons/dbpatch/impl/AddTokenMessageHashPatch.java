@@ -4,10 +4,23 @@ import java.sql.Types;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.ProcessDefinition;
 
-public class AddTokenMessageHashPatch extends DBPatch {
+public class AddTokenMessageHashPatch extends DBPatch implements IDbPatchPostProcessor {
+    @Autowired
+    TokenDAO tokenDAO;
+    @Autowired
+    ProcessDefinitionLoader processDefinitionLoader;
 
     @Override
     protected List<String> getDDLQueriesBefore() {
@@ -18,6 +31,17 @@ public class AddTokenMessageHashPatch extends DBPatch {
     }
 
     @Override
-    public void applyPatch(Session session) throws Exception {
+    public void postExecute(Session session) throws Exception {
+        List<Token> tokens = tokenDAO.findByMessageHashIsNullAndExecutionStatusIsActive();
+        if (!tokens.isEmpty()) {
+            log.info("Updating " + tokens.size() + " tokens message hash");
+            for (Token token : tokens) {
+                ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+                BaseMessageNode messageNode = (BaseMessageNode) processDefinition.getNodeNotNull(token.getNodeId());
+                ExecutionContext executionContext = new ExecutionContext(processDefinition, token.getProcess());
+                String messageHash = Utils.getReceiveMessageNodeHash(executionContext.getVariableProvider(), messageNode);
+                token.setMessageHash(messageHash);
+            }
+        }
     }
 }

@@ -3,8 +3,6 @@ package ru.runa.wfe.commons.dbpatch.impl;
 import java.sql.Types;
 import java.util.List;
 
-import org.hibernate.Session;
-
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 
 public class AddTitleAndDepartmentColumnsToActorPatch extends DBPatch {
@@ -16,10 +14,6 @@ public class AddTitleAndDepartmentColumnsToActorPatch extends DBPatch {
         sql.add(getDDLCreateColumn("EXECUTOR", new ColumnDef("DEPARTMENT", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024))));
         sql.add(getDDLModifyColumn("EXECUTOR", "PHONE", dialect.getTypeName(Types.VARCHAR, 1024, 1024, 1024)));
         return sql;
-    }
-
-    @Override
-    protected void applyPatch(Session session) throws Exception {
     }
 
 }

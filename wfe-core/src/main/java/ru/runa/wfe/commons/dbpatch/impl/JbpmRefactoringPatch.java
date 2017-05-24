@@ -535,7 +535,7 @@ public class JbpmRefactoringPatch extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         try {
             session.createSQLQuery("SELECT COUNT(*) FROM JBPM_ID_USER").uniqueResult();
             jbpmIdTablesExist = true;
