@@ -43,6 +43,7 @@ import ru.runa.wfe.commons.dao.ConstantDAO;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.EmptyPatch;
 import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
 import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
@@ -64,7 +65,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
-import ru.runa.wfe.commons.dbpatch.impl.AddTokenMessageHashPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddTokenMessageSelectorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
@@ -170,7 +171,8 @@ public class InitializerLogic {
         patches.add(AddTokenErrorDataPatch.class);
         patches.add(AddTitleAndDepartmentColumnsToActorPatch.class);
         patches.add(AddAssignDateColumnPatch.class);
-        patches.add(AddTokenMessageHashPatch.class);
+        patches.add(EmptyPatch.class);
+        patches.add(AddTokenMessageSelectorPatch.class);
         dbPatches = Collections.unmodifiableList(patches);
     };
 

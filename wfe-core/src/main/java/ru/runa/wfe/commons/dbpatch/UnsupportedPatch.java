@@ -2,6 +2,12 @@ package ru.runa.wfe.commons.dbpatch;
 
 import org.hibernate.Session;
 
+/**
+ * This patch cannot be executed. Used to boundary allowed patches.
+ * 
+ * @author Dofs
+ * 
+ */
 public class UnsupportedPatch extends DBPatch {
 
     @Override

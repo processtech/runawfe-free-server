@@ -95,13 +95,13 @@ public class ReceiveMessageBean implements MessageListener {
             List<Token> tokens;
             if (SystemProperties.isProcessExecutionMessageHashEnabled()) {
                 if (SystemProperties.isProcessExecutionMessageHashOnlyStrictComplianceHandling()) {
-                    String messageHash = Utils.getObjectMessageStrictHash(message);
-                    tokens = tokenDAO.findByMessageHashAndExecutionStatusIsActive(messageHash);
-                    log.debug("Checking " + tokens.size() + " tokens by messageHash = " + messageHash);
+                    String messageSelector = Utils.getObjectMessageStrictSelector(message);
+                    tokens = tokenDAO.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
+                    log.debug("Checking " + tokens.size() + " tokens by messageSelector = " + messageSelector);
                 } else {
-                    Set<String> messageHashes = Utils.getObjectMessageCombinationHashes(message);
-                    tokens = tokenDAO.findByMessageHashInAndExecutionStatusIsActive(messageHashes);
-                    log.debug("Checking " + tokens.size() + " tokens by messageHash = " + messageHashes);
+                    Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(message);
+                    tokens = tokenDAO.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
+                    log.debug("Checking " + tokens.size() + " tokens by messageSelectors = " + messageSelectors);
                 }
             } else {
                 tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
