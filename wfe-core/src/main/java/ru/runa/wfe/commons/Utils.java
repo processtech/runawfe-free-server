@@ -1,12 +1,11 @@
 package ru.runa.wfe.commons;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.jms.Connection;
@@ -44,6 +43,7 @@ import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -59,6 +59,8 @@ public class Utils {
     private static Queue bpmMessageQueue;
     private static Queue emailQueue;
     private static Queue nodeAsyncExecutionQueue;
+    private static final String MESSAGE_SELECTOR_DELIMITER = ",";
+    private static final String MESSAGE_SELECTOR_VALUE_DELIMITER = "=";
 
     private static InitialContext getInitialContext() throws NamingException {
         if (initialContext == null) {
@@ -205,54 +207,52 @@ public class Utils {
         }
     }
 
-    public static String getReceiveMessageNodeHash(IVariableProvider variableProvider, BaseMessageNode messageNode) {
-        int hash = 0;
+    public static String getReceiveMessageNodeSelector(IVariableProvider variableProvider, BaseMessageNode messageNode) {
+        List<String> selectors = Lists.newArrayList();
         if (messageNode.getEventType() == MessageEventType.error && messageNode.getParentElement() instanceof Node) {
-            hash += Objects.hashCode(BaseMessageNode.EVENT_TYPE + MessageEventType.error.name());
-            hash += Objects.hashCode(BaseMessageNode.ERROR_EVENT_PROCESS_ID + String.valueOf(variableProvider.getProcessId()));
-            hash += Objects.hashCode(BaseMessageNode.ERROR_EVENT_NODE_ID + ((Node) messageNode.getParentElement()).getNodeId());
+            selectors.add(BaseMessageNode.EVENT_TYPE + MESSAGE_SELECTOR_VALUE_DELIMITER + MessageEventType.error.name());
+            selectors
+                    .add(BaseMessageNode.ERROR_EVENT_PROCESS_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + String.valueOf(variableProvider.getProcessId()));
+            selectors.add(BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER
+                    + ((Node) messageNode.getParentElement()).getNodeId());
         } else {
             for (VariableMapping mapping : messageNode.getVariableMappings()) {
                 if (mapping.isPropertySelector()) {
-                    hash += Objects.hashCode(mapping.getName() + getMessageSelectorValue(variableProvider, messageNode, mapping));
+                    selectors.add(mapping.getName() + MESSAGE_SELECTOR_VALUE_DELIMITER
+                            + getMessageSelectorValue(variableProvider, messageNode, mapping));
                 }
             }
         }
-        return String.valueOf(hash);
+        Collections.sort(selectors);
+        return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(selectors);
     }
 
-    public static String getObjectMessageStrictHash(ObjectMessage message) throws JMSException {
-        return String.valueOf(sum(getObjectMessageSelectorHashes(message)));
+    public static String getObjectMessageStrictSelector(ObjectMessage message) throws JMSException {
+        return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(getObjectMessageSelectorSelectors(message));
     }
 
-    public static Set<String> getObjectMessageCombinationHashes(ObjectMessage message) throws JMSException {
-        Set<Integer> hashes = getObjectMessageSelectorHashes(message);
+    public static Set<String> getObjectMessageCombinationSelectors(ObjectMessage message) throws JMSException {
+        List<String> selectors = getObjectMessageSelectorSelectors(message);
         Set<String> result = Sets.newHashSet();
-        for (Set<Integer> sets : Sets.powerSet(hashes)) {
-            result.add(String.valueOf(sum(sets)));
+        for (Set<String> set : Sets.powerSet(Sets.newHashSet(selectors))) {
+            List<String> list = Lists.newArrayList(set);
+            Collections.sort(list);
+            result.add(Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(list));
         }
         return result;
     }
 
-    private static Set<Integer> getObjectMessageSelectorHashes(ObjectMessage message) throws JMSException {
-        Set<Integer> hashes = Sets.newHashSet();
+    private static List<String> getObjectMessageSelectorSelectors(ObjectMessage message) throws JMSException {
+        List<String> selectors = Lists.newArrayList();
         Enumeration<String> propertyNames = message.getPropertyNames();
         while (propertyNames.hasMoreElements()) {
             String propertyName = propertyNames.nextElement();
             if (!propertyName.startsWith("JMS")) {
-                hashes.add(Objects.hashCode(propertyName + message.getStringProperty(propertyName)));
+                selectors.add(propertyName + MESSAGE_SELECTOR_VALUE_DELIMITER + message.getStringProperty(propertyName));
             }
         }
-        return hashes;
-    }
-
-    private static int sum(Collection<Integer> collection) {
-        // int sum = list.stream().mapToInt(Integer::intValue).sum();
-        int sum = 0;
-        for (int i : collection) {
-            sum = sum + i;
-        }
-        return sum;
+        Collections.sort(selectors);
+        return selectors;
     }
 
     public static void sendNodeAsyncExecutionMessage(Long processId, Long tokenId, String nodeId) {

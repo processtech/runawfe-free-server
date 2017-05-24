@@ -26,6 +26,8 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.CacheMode;
+import org.hibernate.Session;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -41,6 +43,8 @@ import ru.runa.wfe.commons.dao.ConstantDAO;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.EmptyPatch;
+import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
 import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAssignDateColumnPatch;
@@ -61,7 +65,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
-import ru.runa.wfe.commons.dbpatch.impl.AddTokenMessageHashPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddTokenMessageSelectorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
@@ -77,13 +81,9 @@ import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskOpenedByExecutorsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.impl.JobTask;
-import ru.runa.wfe.lang.BaseMessageNode;
-import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
@@ -171,7 +171,8 @@ public class InitializerLogic {
         patches.add(AddTokenErrorDataPatch.class);
         patches.add(AddTitleAndDepartmentColumnsToActorPatch.class);
         patches.add(AddAssignDateColumnPatch.class);
-        patches.add(AddTokenMessageHashPatch.class);
+        patches.add(EmptyPatch.class);
+        patches.add(AddTokenMessageSelectorPatch.class);
         dbPatches = Collections.unmodifiableList(patches);
     };
 
@@ -202,7 +203,9 @@ public class InitializerLogic {
                 initializeDatabase(transaction);
             }
             permissionDAO.init();
-            postProcessPatches(transaction);
+            if (databaseVersion != null) {
+                postProcessPatches(transaction, databaseVersion);
+            }
             String localizedFileName = "localizations." + Locale.getDefault().getLanguage() + ".xml";
             InputStream stream = ClassLoaderUtil.getAsStream(localizedFileName, getClass());
             if (stream == null) {
@@ -292,66 +295,49 @@ public class InitializerLogic {
     /**
      * Apply patches to initialized database.
      */
-    private void applyPatches(UserTransaction transaction, int dbVersion) {
-        log.info("Database version: " + dbVersion + ", code version: " + dbPatches.size());
-        while (dbVersion < dbPatches.size()) {
-            DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(dbVersion));
-            dbVersion++;
-            log.info("Applying patch " + patch + " (" + dbVersion + ")");
+    private void applyPatches(UserTransaction transaction, int databaseVersion) {
+        log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
+        while (databaseVersion < dbPatches.size()) {
+            DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
+            databaseVersion++;
+            log.info("Applying patch " + patch + " (" + databaseVersion + ")");
             try {
                 transaction.begin();
-                patch.executeDDLBefore();
-                patch.executeDML();
-                patch.executeDDLAfter();
-                constantDAO.setDatabaseVersion(dbVersion);
+                Session session = ApplicationContextFactory.getCurrentSession();
+                patch.executeDDLBefore(session);
+                session.setCacheMode(CacheMode.IGNORE);
+                patch.executeDML(session);
+                session.flush();
+                patch.executeDDLAfter(session);
+                constantDAO.setDatabaseVersion(databaseVersion);
                 transaction.commit();
-                log.info("Patch " + patch.getClass().getName() + "(" + dbVersion + ") is applied to database successfully.");
+                log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is applied to database successfully.");
             } catch (Throwable th) {
-                log.error("Can't apply patch " + patch.getClass().getName() + "(" + dbVersion + ").", th);
+                log.error("Can't apply patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);
                 Utils.rollbackTransaction(transaction);
                 break;
             }
         }
     }
 
-    // this method is outside patches because relies on hibernate entities
-    // may be add some method for this case in DBPatch?
-    private void postProcessPatches(UserTransaction transaction) {
-        try {
-            // v44
-            transaction.begin();
-            if (permissionDAO.getPrivilegedExecutors(SecuredObjectType.REPORT).isEmpty()) {
-                log.info("Adding " + SecuredObjectType.REPORT + " tokens message hash");
-                String administratorName = SystemProperties.getAdministratorName();
-                Actor admin = executorDAO.getActor(administratorName);
-                String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-                Group adminGroup = executorDAO.getGroup(administratorsGroupName);
-                List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-                permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
-            }
-            transaction.commit();
-        } catch (Throwable th) {
-            log.error("Can't apply post-processor of CreateReportsTables", th);
-            Utils.rollbackTransaction(transaction);
-        }
-        try {
-            // v54
-            transaction.begin();
-            List<Token> tokens = tokenDAO.findByMessageHashIsNullAndExecutionStatusIsActive();
-            if (!tokens.isEmpty()) {
-                log.info("Updating " + tokens.size() + " tokens message hash");
-                for (Token token : tokens) {
-                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
-                    BaseMessageNode messageNode = (BaseMessageNode) processDefinition.getNodeNotNull(token.getNodeId());
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, token.getProcess());
-                    String messageHash = Utils.getReceiveMessageNodeHash(executionContext.getVariableProvider(), messageNode);
-                    token.setMessageHash(messageHash);
+    private void postProcessPatches(UserTransaction transaction, Integer databaseVersion) {
+        while (databaseVersion < dbPatches.size()) {
+            DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
+            databaseVersion++;
+            if (patch instanceof IDbPatchPostProcessor) {
+                log.info("Post-processing patch " + patch + " (" + databaseVersion + ")");
+                try {
+                    transaction.begin();
+                    Session session = ApplicationContextFactory.getCurrentSession();
+                    ((IDbPatchPostProcessor) patch).postExecute(session);
+                    transaction.commit();
+                    log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is post-processed successfully.");
+                } catch (Throwable th) {
+                    log.error("Can't post-process patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);
+                    Utils.rollbackTransaction(transaction);
+                    break;
                 }
             }
-            transaction.commit();
-        } catch (Throwable th) {
-            log.error("Can't apply post-processor of AddTokenMessageHashPatch", th);
-            Utils.rollbackTransaction(transaction);
         }
     }
 }

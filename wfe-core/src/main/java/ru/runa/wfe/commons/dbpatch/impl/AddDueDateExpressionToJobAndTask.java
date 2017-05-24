@@ -24,8 +24,6 @@ package ru.runa.wfe.commons.dbpatch.impl;
 import java.sql.Types;
 import java.util.List;
 
-import org.hibernate.Session;
-
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 
 public class AddDueDateExpressionToJobAndTask extends DBPatch {
@@ -38,7 +36,4 @@ public class AddDueDateExpressionToJobAndTask extends DBPatch {
         return sql;
     }
 
-    @Override
-    protected void applyPatch(Session session) throws Exception {
-    }
 }

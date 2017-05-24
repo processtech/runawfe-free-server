@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.CacheMode;
 import org.hibernate.Session;
 import org.hibernate.dialect.Dialect;
 
@@ -19,8 +18,6 @@ import com.google.common.collect.Lists;
 /**
  * Interface for database patch (Applied during version update).
  * 
- * It's allowed to use only raw SQL because hibernate mappings could not work in old DB version.
- * 
  * @author Dofs
  */
 public abstract class DBPatch {
@@ -28,19 +25,11 @@ public abstract class DBPatch {
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
     protected final DBType dbType = ApplicationContextFactory.getDBType();
 
-    protected boolean skipDatabaseSpecificDDL() {
-        return "true".equals(System.getProperty("patch.skip.advanced.ddl"));
-    }
-
     /**
      * Execute patch DDL statements before DML (non-transacted mode in most databases).
      */
-    public final void executeDDLBefore() throws Exception {
-        executeDDL("[DDLBefore]", getDDLQueriesBefore());
-    }
-
-    public final void internalExecuteDDLBefore(Session session) throws Exception {
-        internalExecuteDDL("[DDLBefore]", getDDLQueriesBefore(), session);
+    public final void executeDDLBefore(Session session) throws Exception {
+        executeDDL(session, "[DDLBefore]", getDDLQueriesBefore());
     }
 
     protected List<String> getDDLQueriesBefore() {
@@ -48,40 +37,28 @@ public abstract class DBPatch {
     }
 
     /**
-     * Execute patch DML statements (in one transaction).
+     * Execute patch DML statements in one transaction.
+     * 
+     * It's allowed to use only raw SQL because hibernate mappings could not work in old DB version.
+     * 
+     * This is preferable way to patch database (@see {@link IDbPatchPostProcessor}).
      */
-    public final void executeDML() throws Exception {
-        internalExecuteDML(ApplicationContextFactory.getCurrentSession());
-    }
+    public void executeDML(Session session) throws Exception {
 
-    public final void internalExecuteDML(Session session) throws Exception {
-        session.setCacheMode(CacheMode.IGNORE);
-        applyPatch(session);
-        session.flush();
     }
-
-    protected abstract void applyPatch(Session session) throws Exception;
 
     /**
      * Execute patch DDL statements after DML (non-transacted mode in most databases).
      */
-    public final void executeDDLAfter() throws Exception {
-        executeDDL("[DDLAfter]", getDDLQueriesAfter());
-    }
-
-    public final void internalExecuteDDLAfter(Session session) throws Exception {
-        internalExecuteDDL("[DDLAfter]", getDDLQueriesAfter(), session);
+    public final void executeDDLAfter(Session session) throws Exception {
+        executeDDL(session, "[DDLAfter]", getDDLQueriesAfter());
     }
 
     protected List<String> getDDLQueriesAfter() {
         return Lists.newArrayList();
     }
 
-    private void executeDDL(String category, List<String> queries) throws Exception {
-        internalExecuteDDL(category, queries, ApplicationContextFactory.getCurrentSession());
-    }
-
-    private void internalExecuteDDL(String category, List<String> queries, Session session) throws Exception {
+    private void executeDDL(Session session, String category, List<String> queries) throws Exception {
         for (String query : queries) {
             if (!Strings.isNullOrEmpty(query)) {
                 log.info(category + ": " + query);

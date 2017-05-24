@@ -21,7 +21,7 @@ public class AddProcessAndTokenExecutionStatusPatch extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         session.createSQLQuery("UPDATE BPM_PROCESS SET EXECUTION_STATUS='ENDED' WHERE END_DATE IS NOT NULL").executeUpdate();
         session.createSQLQuery("UPDATE BPM_PROCESS SET EXECUTION_STATUS='ACTIVE' WHERE END_DATE IS NULL").executeUpdate();
         session.createSQLQuery("UPDATE BPM_TOKEN SET EXECUTION_STATUS='ENDED' WHERE END_DATE IS NOT NULL").executeUpdate();

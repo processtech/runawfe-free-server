@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 public class TaskEndDateRemovalPatch extends DBPatch {
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         log.info("Deleted completed tasks: " + session.createSQLQuery("DELETE FROM BPM_TASK WHERE END_DATE IS NOT NULL").executeUpdate());
     }
 

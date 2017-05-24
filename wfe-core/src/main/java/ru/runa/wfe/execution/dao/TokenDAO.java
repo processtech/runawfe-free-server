@@ -37,18 +37,18 @@ public class TokenDAO extends GenericDAO<Token> {
                 nodeId, ExecutionStatus.ENDED);
     }
 
-    public List<Token> findByMessageHashIsNullAndExecutionStatusIsActive() {
-        return getHibernateTemplate().find("from Token where nodeType=? and messageHash=null and executionStatus=?", NodeType.RECEIVE_MESSAGE,
+    public List<Token> findByMessageSelectorIsNullAndExecutionStatusIsActive() {
+        return getHibernateTemplate().find("from Token where nodeType=? and messageSelector=null and executionStatus=?", NodeType.RECEIVE_MESSAGE,
                 ExecutionStatus.ACTIVE);
     }
 
-    public List<Token> findByMessageHashAndExecutionStatusIsActive(String messageHash) {
-        return getHibernateTemplate().find("from Token where messageHash=? and executionStatus=?", messageHash, ExecutionStatus.ACTIVE);
+    public List<Token> findByMessageSelectorAndExecutionStatusIsActive(String messageSelector) {
+        return getHibernateTemplate().find("from Token where messageSelector=? and executionStatus=?", messageSelector, ExecutionStatus.ACTIVE);
     }
 
-    public List<Token> findByMessageHashInAndExecutionStatusIsActive(Collection<String> messageHashes) {
-        return getHibernateTemplate().findByNamedParam("from Token where messageHash in (:hashes) and executionStatus=:status",
-                new String[] { "hashes", "status" }, new Object[] { messageHashes, ExecutionStatus.ACTIVE });
+    public List<Token> findByMessageSelectorInAndExecutionStatusIsActive(Collection<String> messageSelectors) {
+        return getHibernateTemplate().findByNamedParam("from Token where messageSelector in (:selectors) and executionStatus=:status",
+                new String[] { "selectors", "status" }, new Object[] { messageSelectors, ExecutionStatus.ACTIVE });
     }
 
 }

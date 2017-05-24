@@ -45,7 +45,7 @@ public class TaskOpenedByExecutorsPatch extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         String q;
         log.info("Processing opened tasks");
         q = "SELECT ID, EXECUTOR_ID FROM BPM_TASK WHERE FIRST_OPEN=0";
