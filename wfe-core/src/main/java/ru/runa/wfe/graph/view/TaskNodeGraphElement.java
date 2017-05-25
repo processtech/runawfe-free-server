@@ -42,7 +42,9 @@ public class TaskNodeGraphElement extends NodeGraphElement {
     public void initialize(Node node, int[] graphConstraints) {
         super.initialize(node, graphConstraints);
         TaskDefinition taskDefinition = ((InteractionNode) node).getFirstTaskNotNull();
-        swimlaneName = taskDefinition.getSwimlane().getName();
+        if (null != taskDefinition.getSwimlane()) {
+            swimlaneName = taskDefinition.getSwimlane().getName();
+        }
         minimized = node.isGraphMinimizedView();
     }
 
