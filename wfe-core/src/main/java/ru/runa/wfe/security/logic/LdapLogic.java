@@ -198,8 +198,10 @@ public class LdapLogic {
                             actor.setDepartment(department);
                         }
                         if (!actor.isActive()) {
-                            actor.setActive(true);
-                            changes.add(new AttributeChange("active", "false", "true"));
+                            if (LdapProperties.isSynchronizationUserStatusEnabled()) {
+                                actor.setActive(true);
+                                changes.add(new AttributeChange("active", "false", "true"));
+                            }
                             if (executorDAO.removeExecutorFromGroup(actor, wasteGroup)) {
                                 changes.add(new Change("waste group removal"));
                             }
@@ -218,14 +220,17 @@ public class LdapLogic {
             }
         }
         if (LdapProperties.isSynchronizationDeleteExecutors() && ldapActorsToDelete.size() > 0) {
-            for (Actor actor : ldapActorsToDelete) {
-                actor.setActive(false);
-                executorDAO.update(actor);
-                log.info("Deleting " + actor);
-                changesCount++;
+            if (LdapProperties.isSynchronizationUserStatusEnabled()) {
+                for (Actor actor : ldapActorsToDelete) {
+                    actor.setActive(false);
+                    executorDAO.update(actor);
+                    log.info("Inactivating " + actor);
+                    changesCount++;
+                }
             }
             executorDAO.removeExecutorsFromGroup(ldapActorsToDelete, importGroup);
             executorDAO.addExecutorsToGroup(ldapActorsToDelete, wasteGroup);
+            changesCount += ldapActorsToDelete.size();
         }
         return changesCount;
     }
@@ -323,7 +328,7 @@ public class LdapLogic {
         if (LdapProperties.isSynchronizationDeleteExecutors() && ldapGroupsToDelete.size() > 0) {
             executorDAO.removeExecutorsFromGroup(ldapGroupsToDelete, importGroup);
             executorDAO.addExecutorsToGroup(ldapGroupsToDelete, wasteGroup);
-            log.info("Deleting " + ldapGroupsToDelete);
+            log.info("Inactivating " + ldapGroupsToDelete);
             changesCount += ldapGroupsToDelete.size();
         }
         return changesCount;
