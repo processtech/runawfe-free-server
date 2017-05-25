@@ -25,19 +25,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.utils.MultiNodeParameters;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
@@ -128,8 +129,7 @@ public class MultiTaskNode extends BaseTaskNode {
 
     private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition) {
         List<?> data = (List<?>) new MultiNodeParameters(executionContext, this).getDiscriminatorValue();
-        VariableMapping mapping = new VariableMapping(getDiscriminatorVariableName(), null, getDiscriminatorUsage());
-        if (!mapping.isMultiinstanceLinkByVariable() || getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
+        if (getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
             return createTasksByExecutors(executionContext, taskDefinition, data);
         } else {
             return createTasksByDiscriminator(executionContext, taskDefinition, data);
@@ -166,12 +166,13 @@ public class MultiTaskNode extends BaseTaskNode {
             log.info("Ignored indexes: " + ignoredIndexes);
         }
         int tasksCounter = 0;
-        Executor executor = getInitializedSwimlaneNotNull(executionContext, taskDefinition).getExecutor();
+        Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
+        Executor executor = swimlane.getExecutor();
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, null, executor, index);
+            taskFactory.create(executionContext, taskDefinition, swimlane, executor, index);
             tasksCounter++;
         }
         return tasksCounter > 0;
