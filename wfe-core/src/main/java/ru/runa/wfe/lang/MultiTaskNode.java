@@ -32,7 +32,6 @@ import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.utils.MultiNodeParameters;
 import ru.runa.wfe.task.Task;
@@ -116,10 +115,7 @@ public class MultiTaskNode extends BaseTaskNode {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        TaskDefinition taskDefinition = getFirstTaskNotNull();
-        MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
-        List<?> data = (List<?>) parameters.getDiscriminatorValue();
-        boolean tasksCreated = createTasks(executionContext, taskDefinition, data);
+        boolean tasksCreated = createTasks(executionContext, getFirstTaskNotNull());
         if (!tasksCreated) {
             log.debug("no tasks were created in " + this);
         }
@@ -130,8 +126,10 @@ public class MultiTaskNode extends BaseTaskNode {
         }
     }
 
-    private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
-        if (creationMode == MultiTaskCreationMode.BY_EXECUTORS) {
+    private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition) {
+        List<?> data = (List<?>) new MultiNodeParameters(executionContext, this).getDiscriminatorValue();
+        VariableMapping mapping = new VariableMapping(getDiscriminatorVariableName(), null, getDiscriminatorUsage());
+        if (!mapping.isMultiinstanceLinkByVariable() || getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
             return createTasksByExecutors(executionContext, taskDefinition, data);
         } else {
             return createTasksByDiscriminator(executionContext, taskDefinition, data);
@@ -153,7 +151,6 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     private boolean createTasksByDiscriminator(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
-        Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
         List<Integer> ignoredIndexes = Lists.newArrayList();
         if (!Utils.isNullOrEmpty(discriminatorCondition)) {
             GroovyScriptExecutor scriptExecutor = new GroovyScriptExecutor();
@@ -169,11 +166,12 @@ public class MultiTaskNode extends BaseTaskNode {
             log.info("Ignored indexes: " + ignoredIndexes);
         }
         int tasksCounter = 0;
+        Executor executor = getInitializedSwimlaneNotNull(executionContext, taskDefinition).getExecutor();
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, swimlane, swimlane.getExecutor(), index);
+            taskFactory.create(executionContext, taskDefinition, null, executor, index);
             tasksCounter++;
         }
         return tasksCounter > 0;
