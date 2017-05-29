@@ -129,7 +129,9 @@ public class MultiTaskNode extends BaseTaskNode {
 
     private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition) {
         List<?> data = (List<?>) new MultiNodeParameters(executionContext, this).getDiscriminatorValue();
-        if (getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
+        VariableMapping mapping = new VariableMapping(getDiscriminatorVariableName(), null, getDiscriminatorUsage());
+        // #305#note-49
+        if (!mapping.isMultiinstanceLinkByVariable() || getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
             return createTasksByExecutors(executionContext, taskDefinition, data);
         } else {
             return createTasksByDiscriminator(executionContext, taskDefinition, data);
