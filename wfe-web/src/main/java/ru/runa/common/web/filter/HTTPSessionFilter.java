@@ -44,7 +44,7 @@ public class HTTPSessionFilter extends HTTPFilterBase {
             forwardToPage(request, response, "manage_tasks.do");
             return;
         }
-        if (query.endsWith("do") && !query.endsWith("/start.do") && !query.endsWith("login.do") && !query.endsWith("version")) {
+        if ((query.endsWith("/monitoring") || (query.endsWith("do") && !query.endsWith("/start.do") && !query.endsWith("login.do") && !query.endsWith("version")))) {
             try {
                 Commons.getUser(request.getSession());
             } catch (InvalidSessionException e) {
