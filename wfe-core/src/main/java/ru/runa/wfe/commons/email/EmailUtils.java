@@ -1,9 +1,13 @@
 package ru.runa.wfe.commons.email;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.activation.DataHandler;
 import javax.activation.MimetypesFileTypeMap;
@@ -24,6 +28,7 @@ import javax.mail.util.ByteArrayDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
@@ -209,6 +214,50 @@ public class EmailUtils {
         return Joiner.on(", ").join(emails);
     }
 
+    public static boolean isProcessNameMatching(String processName, ProcessNameFilter includeFilter, ProcessNameFilter excludeFilter) {
+        if (includeFilter != null && !includeFilter.isMatching(processName)) {
+            return false;
+        }
+        if (excludeFilter != null && excludeFilter.isMatching(processName)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static List<String> filterEmails(final List<String> emailsToSend, EmailsFilter includeFilter, EmailsFilter excludeFilter) {
+        List<String> filteredEmailsToSend = new LinkedList<>(emailsToSend);
+        for (Iterator<String> i = filteredEmailsToSend.iterator(); i.hasNext();) {
+            String email = i.next();
+            if ((includeFilter != null) && (!includeFilter.isMatching(email))) {
+                i.remove();
+                continue;
+            }
+
+            if ((excludeFilter != null) && excludeFilter.isMatching(email)) {
+                i.remove();
+            }
+        }
+        return new ArrayList<>(filteredEmailsToSend);
+    }
+
+    /**
+     * Validates and creates e-mail filter object
+     * 
+     * @param pattern
+     * @return filter object
+     */
+    public static EmailsFilter validateAndCreateEmailsFilter(final String filterStr) {
+        if (filterStr == null) {
+            return null;
+        }
+        List<String> filters = Arrays.asList(filterStr.split(","));
+        return filters.isEmpty() ? null : EmailsFilter.create(filters);
+    }
+
+    public static ProcessNameFilter validateAndCreateProcessNameFilter(final List<String> filters) {
+        return ProcessNameFilter.create(filters);
+    }
+
     private static class PasswordAuthenticator extends Authenticator {
         private final String username;
         private final String password;
@@ -221,6 +270,111 @@ public class EmailUtils {
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication(username, password);
+        }
+    }
+
+    private static abstract class RegexFilter {
+        private final List<String> filters;
+        private final List<Pattern> patterns;
+
+        private RegexFilter(final List<String> filters) {
+            this.filters = filters;
+            this.patterns = new ArrayList<>(filters.size());
+            for (String filter : filters) {
+                patterns.add(Pattern.compile(filter, Pattern.CASE_INSENSITIVE));
+            }
+        }
+
+        boolean isMatching(String input) {
+            for (Pattern p : patterns) {
+                if (p.matcher(input).matches()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return filters.toString();
+        }
+    }
+
+    private static abstract class WildcardFilter extends RegexFilter {
+
+        private final List<String> filters;
+
+        private WildcardFilter(final List<String> filters) {
+            super(filtersToRegex(filters));
+            this.filters = filters;
+        }
+
+        private static List<String> filtersToRegex(final List<String> filters) {
+            List<String> results = new ArrayList<>(filters.size());
+            for (String filter : filters) {
+                results.add(filterToRegex(filter));
+            }
+            return results;
+        }
+
+        private static String filterToRegex(String filter) {
+            return filter.replace(".", "\\.").replace("*", ".*").replace('?', '.');
+        }
+
+        @Override
+        public String toString() {
+            return filters.toString();
+        }
+    }
+
+    public static final class ProcessNameFilter extends RegexFilter {
+
+        private ProcessNameFilter(final List<String> filters) {
+            super(filters);
+        }
+
+        private static ProcessNameFilter create(List<String> filters) {
+            return new ProcessNameFilter(new ArrayList<>(filters));
+        }
+    }
+
+    public static final class EmailsFilter extends WildcardFilter {
+
+        private EmailsFilter(final List<String> filters) {
+            super(filters);
+        }
+
+        private static EmailsFilter create(List<String> filters) {
+            for (String filter : filters) {
+                filter = filter.trim();
+                if (!isEmailsFilterValid(filter)) {
+                    throw new ConfigurationException("Incorrect email filter pattern: " + filter);
+                }
+            }
+            return new EmailsFilter(filters);
+        }
+
+        static boolean isEmailsFilterValid(String f) {
+            int atCount = 0;
+            for (int i = 0; i < f.length(); i++) {
+                char ch = f.charAt(i);
+                if (((ch >= 'a') && (ch <= 'z')) || ((ch >= '0') && (ch <= '9')) || (ch == '_') || (ch == '.')) {
+                    continue;
+                }
+                if (ch == '?' || ch == '*') {
+                    continue;
+                }
+                if (atCount == 0 && ch == '@') {
+                    atCount++;
+                    continue;
+                }
+                return false;
+            }
+            if (atCount == 0) {
+                return false;
+            }
+            final String[] parts = f.split("@", 2);
+            return !(parts[0].isEmpty() || parts[1].isEmpty());
         }
     }
 
