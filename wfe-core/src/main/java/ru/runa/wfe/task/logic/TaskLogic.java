@@ -66,7 +66,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Task logic.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -160,7 +160,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -272,7 +272,7 @@ public class TaskLogic extends WFCommonLogic {
         if (keepCurrentOwners) {
             if (currentOwner instanceof TemporaryGroup) {
                 ((List<Executor>) executors).addAll(executorDAO.getGroupChildren((Group) currentOwner));
-            } else {
+            } else if (currentOwner != null) {
                 ((List<Executor>) executors).add(executorDAO.getExecutor(currentOwner.getId()));
             }
         }
