@@ -34,7 +34,17 @@ public class EmailTaskNotifier implements ITaskNotifier {
     private boolean enabled = true;
     private boolean onlyIfTaskActorEmailDefined = false;
     private byte[] configBytes;
+    
+    /**
+     * TODO: marked for removal
+     */
     private List<Long> excludedProcessIds;
+
+    private EmailUtils.EmailsFilter includeEmailsFilter;
+    private EmailUtils.EmailsFilter excludeEmailsFilter;
+    
+    private EmailUtils.ProcessNameFilter includeProcessNameFilter;
+    private EmailUtils.ProcessNameFilter excludeProcessNameFilter;
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -81,12 +91,25 @@ public class EmailTaskNotifier implements ITaskNotifier {
                 log.debug("Ignored due to excluded process id " + rootProcessId);
                 return;
             }
+            
+            final String processName = task.getProcess().getDeployment().getName();
+            if (! EmailUtils.isProcessNameMatching(processName,
+                    includeProcessNameFilter, excludeProcessNameFilter)) {
+                log.debug("Ignored due to excluded process name " + processName);
+                return;
+            }
+            
             EmailConfig config = EmailConfigParser.parse(configBytes);
             List<String> emailsToSend = EmailUtils.getEmails(task.getExecutor());
             List<String> emailsWereSent = EmailUtils.getEmails(previousExecutor);
             emailsToSend.removeAll(emailsWereSent);
-            if (onlyIfTaskActorEmailDefined && emailsToSend.size() == 0) {
+            if (onlyIfTaskActorEmailDefined && emailsToSend.isEmpty()) {
                 log.debug("Ignored due to empty emails, previously emails were sent: " + emailsWereSent);
+                return;
+            }
+            emailsToSend = EmailUtils.filterEmails(emailsToSend, includeEmailsFilter, excludeEmailsFilter);
+            if (emailsToSend.isEmpty()) {
+                log.debug("Ignored due to empty emails after email filter has been applied");
                 return;
             }
             String emails = EmailUtils.concatenateEmails(emailsToSend);
@@ -102,6 +125,22 @@ public class EmailTaskNotifier implements ITaskNotifier {
         } catch (Exception e) {
             log.warn("", e);
         }
+    }
+
+	public void setIncludeEmailsFilter(String includeEmailsFilter) {
+		this.includeEmailsFilter = EmailUtils.validateAndCreateEmailsFilter(includeEmailsFilter);
+	}
+
+	public void setExcludeEmailsFilter(String excludeEmailsFilter) {
+		this.excludeEmailsFilter = EmailUtils.validateAndCreateEmailsFilter(excludeEmailsFilter);
+	}
+	
+    public void setIncludeProcessNameFilter(List<String> includeProcessNameFilter) {
+        this.includeProcessNameFilter = EmailUtils.validateAndCreateProcessNameFilter(includeProcessNameFilter);
+    }
+
+    public void setExcludeProcessNameFilter(List<String> excludeProcessNameFilter) {
+        this.excludeProcessNameFilter = EmailUtils.validateAndCreateProcessNameFilter(excludeProcessNameFilter);
     }
 
 }
