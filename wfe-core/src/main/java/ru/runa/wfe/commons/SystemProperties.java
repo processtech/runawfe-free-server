@@ -315,12 +315,12 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", false);
     }
 
-    public static boolean isProcessExecutionMessageHashEnabled() {
-        return RESOURCES.getBooleanProperty("process.execution.message.hash.enabled", true);
+    public static boolean isProcessExecutionMessagePredefinedSelectorEnabled() {
+        return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.enabled", true);
     }
 
-    public static boolean isProcessExecutionMessageHashOnlyStrictComplianceHandling() {
-        return RESOURCES.getBooleanProperty("process.execution.message.hash.only.strict.compliance.handling", false);
+    public static boolean isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling() {
+        return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
 }

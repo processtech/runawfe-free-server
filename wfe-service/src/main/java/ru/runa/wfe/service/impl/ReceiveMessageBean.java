@@ -93,8 +93,8 @@ public class ReceiveMessageBean implements MessageListener {
             errorEventData = ErrorEventData.match(message);
             transaction.begin();
             List<Token> tokens;
-            if (SystemProperties.isProcessExecutionMessageHashEnabled()) {
-                if (SystemProperties.isProcessExecutionMessageHashOnlyStrictComplianceHandling()) {
+            if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
+                if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
                     String messageSelector = Utils.getObjectMessageStrictSelector(message);
                     tokens = tokenDAO.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
                     log.debug("Checking " + tokens.size() + " tokens by messageSelector = " + messageSelector);
