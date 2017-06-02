@@ -32,6 +32,9 @@ public class ColumnExpansionOperation extends AbstractIteratorOperation {
         if (iterateBy == IterateBy.indexes) {
             return String.valueOf(key);
         }
+        if (iterateBy == IterateBy.numbers) {
+            return String.valueOf(((Number) key).longValue() + 1);
+        }
         if (iterateBy == IterateBy.items) {
             int index = TypeConversionUtil.convertTo(Integer.class, key);
             List<?> list = (List<?>) containerVariable.getValue();

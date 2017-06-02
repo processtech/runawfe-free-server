@@ -1,5 +1,6 @@
 package ru.runa.wfe.var.dao;
 
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -15,7 +16,7 @@ public class LoadVariableOfTypeContext {
     /**
      * Process instance loading variable from.
      */
-    public final ru.runa.wfe.execution.Process process;
+    public final Process process;
 
     /**
      * Variable loader to get variables from database.
@@ -29,7 +30,7 @@ public class LoadVariableOfTypeContext {
 
     /**
      * Creates operation context for {@link LoadVariableOfType}.
-     *
+     * 
      * @param processDefinition
      *            Process definition for loading variable process.
      * @param process
@@ -39,9 +40,8 @@ public class LoadVariableOfTypeContext {
      * @param variableDefinition
      *            Loading variable definition.
      */
-    public LoadVariableOfTypeContext(ProcessDefinition processDefinition, ru.runa.wfe.execution.Process process, VariableLoader variableLoader,
+    public LoadVariableOfTypeContext(ProcessDefinition processDefinition, Process process, VariableLoader variableLoader,
             VariableDefinition variableDefinition) {
-        super();
         this.processDefinition = processDefinition;
         this.process = process;
         this.variableLoader = variableLoader;
@@ -50,12 +50,12 @@ public class LoadVariableOfTypeContext {
 
     /**
      * Creates context copy for loading specified variable.
-     *
+     * 
      * @param variableDefinition
      *            Variable definition for loading variable variable.
      * @return Returns context copy for loading variable.
      */
-    public LoadVariableOfTypeContext сreateFor(VariableDefinition variableDefinition) {
+    public LoadVariableOfTypeContext createFor(VariableDefinition variableDefinition) {
         return new LoadVariableOfTypeContext(processDefinition, process, variableLoader, variableDefinition);
 
     }

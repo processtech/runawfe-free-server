@@ -11,11 +11,11 @@ import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
-import ru.runa.wfe.lang.jpdl.ActionEvent;
 import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.user.Executor;
@@ -61,11 +61,7 @@ public class TaskFactory {
         executionContext.addLog(new TaskCreateLog(task));
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);
-        if (swimlane != null) {
-            task.assignExecutor(executionContext, swimlane.getExecutor(), false);
-        } else {
-            task.assignExecutor(executionContext, executor, false);
-        }
+        task.assignExecutor(executionContext, executor != null ? executor : swimlane.getExecutor(), false);
         return task;
     }
 

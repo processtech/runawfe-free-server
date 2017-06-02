@@ -19,7 +19,7 @@ public class AddSequentialFlagToBot extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         for (String table : new String[] { "BOT", "BOT_TASK" }) {
             String sql = "UPDATE " + table + " SET IS_SEQUENTIAL=:isSeq WHERE IS_SEQUENTIAL IS NULL";
             SQLQuery query = session.createSQLQuery(sql);

@@ -175,14 +175,14 @@ public class DocxFileChangerTest extends Assert {
         // testDocx(true, "decisions.docx", data);
     }
 
-    private WfVariable createVariable(String name, String format, Object value) {
+    protected WfVariable createVariable(String name, String format, Object value) {
         VariableDefinition definition = new VariableDefinition(name, null);
         definition.setFormat(format);
         WfVariable variable = new WfVariable(definition, value);
         return variable;
     }
 
-    private void testDocx(boolean strictMode, String templateFileName, Map<String, Object> data) throws IOException {
+    protected void testDocx(boolean strictMode, String templateFileName, Map<String, Object> data) throws IOException {
         for (String appPrefix : prefixes) {
             String appTemplateFileName = appPrefix + templateFileName;
             InputStream templateInputStream = ClassLoaderUtil.getAsStream(appTemplateFileName, getClass());

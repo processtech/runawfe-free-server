@@ -104,4 +104,8 @@ public class LdapProperties {
         return RESOURCES.getBooleanProperty("synchronization.empty.attribute.enabled", false);
     }
 
+    public static boolean isSynchronizationUserStatusEnabled() {
+        return RESOURCES.getBooleanProperty("synchronization.user.status.enabled", false);
+    }
+
 }

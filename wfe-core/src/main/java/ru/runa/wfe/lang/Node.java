@@ -34,7 +34,6 @@ import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
-import ru.runa.wfe.lang.jpdl.ActionEvent;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
 import com.google.common.base.Objects;

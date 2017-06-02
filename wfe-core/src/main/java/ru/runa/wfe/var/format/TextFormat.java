@@ -21,7 +21,7 @@ public class TextFormat extends StringFormat implements VariableDisplaySupport {
     protected String convertToStringValue(Object object) {
         if (CLEAN_HTML && object != null) {
             String noHtmlString = object.toString().replaceAll("\\<br>|\\</p>|\\</div>", "\n");
-            noHtmlString = object.toString().replaceAll("\\<.*?>", "");
+            noHtmlString = noHtmlString.replaceAll("\\<.*?>", "");
             return noHtmlString;
         }
         return super.convertToStringValue(object);
@@ -29,6 +29,7 @@ public class TextFormat extends StringFormat implements VariableDisplaySupport {
 
     @Override
     public String formatHtml(User user, WebHelper webHelper, Long processId, String name, Object object) {
+        object = convertToStringValue(object);
         return super.formatHtml(user, webHelper, processId, name, object).replaceAll("\n", "<br>");
     }
 

@@ -4,7 +4,6 @@ import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.commons.dbpatch.DBPatch;
@@ -28,7 +27,7 @@ public class CreateAdminScriptTables extends DBPatch {
 
     /**
      * Creates table, indexes e.t.c for {@link AdminScript}.
-     *
+     * 
      * @return Returns list of sql commands for table creation.
      */
     private List<String> createAdminScriptTable() {
@@ -43,7 +42,4 @@ public class CreateAdminScriptTables extends DBPatch {
         return sql;
     }
 
-    @Override
-    protected void applyPatch(Session session) throws Exception {
-    }
 }

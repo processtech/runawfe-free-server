@@ -9,7 +9,7 @@ import ru.runa.wfe.commons.dbpatch.DBPatch;
 public class TaskCreateLogSeverityChangedPatch extends DBPatch {
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         SQLQuery updateQuery = session.createSQLQuery("UPDATE BPM_LOG SET SEVERITY=:severity WHERE DISCRIMINATOR='1'");
         updateQuery.setString("severity", Severity.INFO.name());
         updateQuery.executeUpdate();

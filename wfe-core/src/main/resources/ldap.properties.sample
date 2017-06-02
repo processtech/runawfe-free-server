@@ -44,6 +44,7 @@ synchronization.organization.units = ou=Admins;ou=User_policy
 synchronization.create.executors.enabled = true
 synchronization.update.executors.enabled = true
 synchronization.delete.executors.enabled = true
+synchronization.user.status.enabled = true
 # types
 synchronization.object.class.filter = (objectclass={0})
 synchronization.user.object.class = user
