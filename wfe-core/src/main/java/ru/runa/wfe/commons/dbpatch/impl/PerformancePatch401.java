@@ -40,7 +40,7 @@ public class PerformancePatch401 extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         for (SecuredObjectType type : SecuredObjectType.values()) {
             String q = "UPDATE PERMISSION_MAPPING SET TYPE_ID=" + type.ordinal() + " WHERE TYPE='" + type.name() + "'";
             log.info("Updated permission mappings (" + type + "): " + session.createSQLQuery(q).executeUpdate());

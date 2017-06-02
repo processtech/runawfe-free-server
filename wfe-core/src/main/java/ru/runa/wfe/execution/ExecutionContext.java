@@ -66,7 +66,9 @@ import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDAOFallback;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -286,7 +288,7 @@ public class ExecutionContext {
         VariableFormat variableFormat = variableDefinition.getFormatNotNull();
         for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
             Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
-            setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
+            setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue, false);
         }
     }
 
@@ -323,7 +325,8 @@ public class ExecutionContext {
         return value;
     }
 
-    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value) {
+    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value,
+            boolean autoExtend) {
         VariableLog resultingVariableLog = null;
         Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
@@ -345,7 +348,7 @@ public class ExecutionContext {
                 ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
                 log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
                         + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
-                VariableLog parentVariableLog = setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
+                VariableLog parentVariableLog = setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value, true);
                 if (parentVariableLog != null) {
                     VariableLog markingVariableLog = parentVariableLog.getContentCopy();
                     markingVariableLog.setVariableName(variableDefinition.getName());
@@ -357,6 +360,26 @@ public class ExecutionContext {
                     variable = variableCreator.create(token.getProcess(), variableDefinition, value);
                     resultingVariableLog = variable.setValue(this, value, variableDefinition.getFormatNotNull());
                     variableDAO.create(variable);
+                    if (autoExtend && variableDefinition.getName().contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)) {
+                        String autoExtendVariableName = variableDefinition.getName();
+                        while (autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)
+                                && autoExtendVariableName.contains(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
+                            int listIndexStart = autoExtendVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
+                            int listIndexEnd = autoExtendVariableName.lastIndexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                            String listVariableName = autoExtendVariableName.substring(0, listIndexStart);
+                            String sizeVariableName = listVariableName + VariableFormatContainer.SIZE_SUFFIX;
+                            VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
+                            Number oldSize = (Number) variableLoader.getVariableValue(processDefinition, token.getProcess(), sizeDefinition);
+                            int listIndex = Integer.parseInt(autoExtendVariableName.substring(listIndexStart
+                                    + VariableFormatContainer.COMPONENT_QUALIFIER_START.length(), listIndexEnd));
+                            int newSize = listIndex + 1;
+                            if (oldSize == null || oldSize.intValue() < newSize) {
+                                log.debug("Auto-extending list " + listVariableName + " size: " + oldSize + " -> " + newSize);
+                                setSimpleVariableValue(processDefinition, token, sizeDefinition, newSize, false);
+                            }
+                            autoExtendVariableName = listVariableName;
+                        }
+                    }
                 }
             }
         } else {
@@ -378,7 +401,7 @@ public class ExecutionContext {
                 ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
                 log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
                         + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
-                setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
+                setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value, false);
             }
         }
         if (value instanceof Date) {

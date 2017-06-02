@@ -8,12 +8,7 @@ $(document).ready(function() {
 	$(document).tooltip({ 
 		track: true
 	});
-	
-	// http://trentrichardson.com/examples/timepicker/
-	$(".inputTime").filter(filterTemplatesElements).timepicker({ ampm: false, seconds: false });
-	// http://docs.jquery.com/UI/Datepicker
-	$(".inputDate").filter(filterTemplatesElements).datepicker({ dateFormat: "dd.mm.yy", buttonImage: "/wfe/images/calendar.gif" });
-	$(".inputDateTime").filter(filterTemplatesElements).datetimepicker({ dateFormat: "dd.mm.yy" });
+	initComponents($(document));
 	// confirmation dialog
 	$.confirmDialog = $("<div></div>").dialog({
 		minWidth: 400, minHeight: 200, modal: true, autoOpen: false
@@ -26,7 +21,19 @@ $(document).ready(function() {
 			$("#newHierarchyTypeName").attr("disabled", "true");
 		}
 	});
+	$(".selectionStatusPropagator").change(propagateSelectionStatus);
 });
+
+function initComponents(container) {
+	// http://trentrichardson.com/examples/timepicker/
+	container.find(".inputTime").filter(filterTemplatesElements).timepicker({ ampm: false, seconds: false });
+	// http://docs.jquery.com/UI/Datepicker
+	container.find(".inputDate").filter(filterTemplatesElements).datepicker({ dateFormat: "dd.mm.yy", buttonImage: "/wfe/images/calendar.gif" });
+	container.find(".inputDateTime").filter(filterTemplatesElements).datetimepicker({ dateFormat: "dd.mm.yy" });
+	container.find(".editList").filter(filterTemplatesElements).each(function () {
+		$(this).editList();
+	});
+}
 
 function filterTemplatesElements() {
 	return $(this).parents('[template]').length < 1;
@@ -126,28 +133,10 @@ function showFiltersHelp() {
 	});
 }
 
-// TODO jquery usage is preferred
-function propagateSelectionStatus(checkBox) {
-	var checkBoxField = checkBox.parentNode;
-	var header = checkBoxField.parentNode;
-	var rowFields = header.children;
-	var headerLength = rowFields.length;
-	for (i = 0; i < headerLength; i++) {
-		if (rowFields[i] == checkBoxField) {
-			break;
-		}
-	}
-	if (i < headerLength) {
-		var table = header.parentNode;
-		var rows = table.children;
-		for (j = 1; j < rows.length; j++) {
-			if (rows[j].children.length == headerLength) {
-				var childCheckBoxField = rows[j].children.item(i);
-				var childCheckBox = childCheckBoxField.children.item(0);
-				if (childCheckBox.disabled == false) {
-					childCheckBox.checked = checkBox.checked;
-				}
-			}
-		}
-	}
+function propagateSelectionStatus() {
+	var table = $(this).closest("table");
+	var checked = $(this).prop("checked");
+	table.find("tr td:first-child").find("input[type='checkbox']:enabled").each(function() {
+		$(this).prop("checked", checked);
+	});
 }

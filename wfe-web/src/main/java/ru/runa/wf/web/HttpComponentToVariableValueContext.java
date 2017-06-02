@@ -24,7 +24,7 @@ public class HttpComponentToVariableValueContext {
 
     /**
      * Get string value for converting to variable value. All other types of value will cause exception.
-     *
+     * 
      * @return
      */
     public String getStringValueToFormat() {

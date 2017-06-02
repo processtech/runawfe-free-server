@@ -4,13 +4,11 @@ import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.hibernate.Session;
-
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 
 public class AddSettingsTable extends DBPatch {
 
-	@Override
+    @Override
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = super.getDDLQueriesAfter();
         List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
@@ -23,9 +21,6 @@ public class AddSettingsTable extends DBPatch {
         sql.add(getDDLCreateTable("BPM_SETTING", columns, null));
         sql.add(getDDLCreateSequence("SEQ_BPM_SETTING"));
         return sql;
-	}
-	
-	@Override
-	protected void applyPatch(Session session) throws Exception {	}
+    }
 
 }

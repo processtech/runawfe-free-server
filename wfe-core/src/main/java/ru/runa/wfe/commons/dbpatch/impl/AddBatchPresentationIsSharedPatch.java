@@ -17,7 +17,7 @@ public class AddBatchPresentationIsSharedPatch extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         String initialValue = dbType == DBType.ORACLE ? "0" : "FALSE";
         session.createSQLQuery("UPDATE BATCH_PRESENTATION SET SHARED = " + initialValue).executeUpdate();
     }

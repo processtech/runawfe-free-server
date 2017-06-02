@@ -3,14 +3,11 @@ package ru.runa.wfe.commons.dbpatch.impl;
 import java.sql.Types;
 import java.util.List;
 
-import org.hibernate.Session;
-
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 
 /**
  * 
- * Add index column in task for multi task element with element as discriminator
- * value (not assigning task).
+ * Add index column in task for multi task element with element as discriminator value (not assigning task).
  * 
  * @author kanaal @since 4.2.1
  */
@@ -23,7 +20,4 @@ public class AddMultiTaskIndexToTaskPatch extends DBPatch {
         return sql;
     }
 
-    @Override
-    protected void applyPatch(Session session) throws Exception {
-    }
 }

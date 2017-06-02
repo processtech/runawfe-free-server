@@ -28,7 +28,7 @@ public class AddColumnsToSubstituteEscalatedTasksPatch extends DBPatch {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         List<Object[]> bundles = session.createSQLQuery("SELECT ID, DESCRIPTION FROM EXECUTOR WHERE DISCRIMINATOR IN ('E', 'T')").list();
 
         for (Object[] bundle : bundles) {

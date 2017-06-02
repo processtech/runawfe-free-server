@@ -1,4 +1,4 @@
-package ru.runa.wf.web.ftl.component;
+package ru.runa.wf.web.ftl.component.legacy;
 
 import java.util.Collection;
 import java.util.Collections;

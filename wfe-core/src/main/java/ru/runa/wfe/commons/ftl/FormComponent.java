@@ -18,6 +18,7 @@ import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.TemplateMethodModelEx;
@@ -85,7 +86,7 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
 
     /**
      * Invoked on page rendering
-     *
+     * 
      * @return component html
      */
     protected abstract Object renderRequest() throws Exception;
@@ -142,6 +143,19 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
             return defaultValue;
         }
         return value;
+    }
+
+    protected List<String> getMultipleParameter(int i) {
+        List<String> list = Lists.newArrayList();
+        while (true) {
+            String option = getParameterAsString(i);
+            if (option == null) {
+                break;
+            }
+            list.add(option);
+            i++;
+        }
+        return list;
     }
 
     protected String exportScript(Map<String, String> substitutions, boolean globalScope) {

@@ -52,11 +52,6 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.form.IdForm;
@@ -77,6 +72,11 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
+
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 
 public class HTMLUtils {
     private static final Log log = LogFactory.getLog(HTMLUtils.class);
@@ -262,7 +262,7 @@ public class HTMLUtils {
 
     /**
      * Substitutes arguments for process history logs
-     *
+     * 
      * @param user
      * @param pageContext
      *            can be <code>null</code>
@@ -365,7 +365,6 @@ public class HTMLUtils {
     public static Input createSelectionStatusPropagator() {
         Input propagator = new Input(Input.CHECKBOX);
         propagator.setClass("selectionStatusPropagator");
-        propagator.addAttribute("onchange", "propagateSelectionStatus(this);");
         return propagator;
     }
 

@@ -75,11 +75,11 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
         if (context.value == null) {
             return null;
         }
-        final String valueToFormat = context.getStringValueToFormat();
+        String stringValue = context.getStringValueToFormat();
         try {
-            return TypeConversionUtil.convertToExecutor(valueToFormat, executorLoader);
+            return TypeConversionUtil.convertToExecutor(stringValue, executorLoader);
         } catch (Exception e) {
-            saveErrorAndContinue(context, valueToFormat, e);
+            saveErrorAndContinue(context, stringValue, e);
         }
         return null;
     }
@@ -89,9 +89,9 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
         Object value = context.value;
         if (value == null) {
             // HTTP FORM doesn't pass unchecked checkbox value
-            value = Boolean.FALSE.toString();
+            return Boolean.FALSE;
         }
-        return convertDefault(booleanFormat, new HttpComponentToVariableValueContext(context.variableName, value));
+        return convertDefault(booleanFormat, context);
     }
 
     @Override
@@ -196,11 +196,11 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
         if (context.value == null) {
             return null;
         }
-        final String valueToFormat = context.getStringValueToFormat();
+        String stringValue = context.getStringValueToFormat();
         try {
-            return format.parse(valueToFormat);
+            return format.parse(stringValue);
         } catch (Exception e) {
-            saveErrorAndContinue(context, valueToFormat, e);
+            saveErrorAndContinue(context, stringValue, e);
         }
         return null;
     }
