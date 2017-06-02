@@ -145,7 +145,7 @@ public class SystemProperties {
 
     /**
      * Change this value sync with DB.
-     *
+     * 
      * @return max string value
      */
     public static int getStringVariableValueLength() {
@@ -313,6 +313,14 @@ public class SystemProperties {
 
     public static boolean isSwimlaneAutoInitializationEnabled() {
         return RESOURCES.getBooleanProperty("process.swimlane.auto.initialization.enabled", false);
+    }
+
+    public static boolean isProcessExecutionMessagePredefinedSelectorEnabled() {
+        return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.enabled", true);
+    }
+
+    public static boolean isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling() {
+        return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
 }

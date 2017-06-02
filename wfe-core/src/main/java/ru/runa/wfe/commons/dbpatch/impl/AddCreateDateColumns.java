@@ -49,7 +49,7 @@ public class AddCreateDateColumns extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         Calendar fakeCreateCalendar = CalendarUtil.getZeroTimeCalendar(Calendar.getInstance());
         fakeCreateCalendar.set(Calendar.DAY_OF_YEAR, 1);
         Date fakeCreateDate = fakeCreateCalendar.getTime();

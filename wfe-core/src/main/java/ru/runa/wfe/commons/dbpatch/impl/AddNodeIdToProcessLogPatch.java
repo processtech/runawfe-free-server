@@ -29,7 +29,7 @@ public class AddNodeIdToProcessLogPatch extends DBPatch {
     }
 
     @Override
-    protected void applyPatch(Session session) throws Exception {
+    public void executeDML(Session session) throws Exception {
         String q;
         String inCollection = "('1','2','3','5','9','S','6','N','L','B','Z','7','8')";
         q = "SELECT COUNT(*) FROM BPM_LOG WHERE DISCRIMINATOR IN " + inCollection + " AND CONTENT IS NOT NULL";

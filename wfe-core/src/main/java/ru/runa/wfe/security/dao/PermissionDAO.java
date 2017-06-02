@@ -29,11 +29,6 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
@@ -50,6 +45,11 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 /**
  * Permission DAO level implementation via Hibernate.
  * 
@@ -63,20 +63,20 @@ public class PermissionDAO extends CommonDAO {
     private final Map<SecuredObjectType, Set<Executor>> privelegedExecutors = Maps.newHashMap();
     private final Set<Long> privelegedExecutorIds = Sets.newHashSet();
 
-    @Override
-    protected void initDao() throws Exception {
+    public PermissionDAO() {
         for (SecuredObjectType type : SecuredObjectType.values()) {
             privelegedExecutors.put(type, new HashSet<Executor>());
         }
-        try {
-            List<PrivelegedMapping> list = getHibernateTemplate().find("from PrivelegedMapping m");
-            for (PrivelegedMapping mapping : list) {
-                privelegedExecutors.get(mapping.getType()).add(mapping.getExecutor());
-                privelegedExecutorIds.add(mapping.getExecutor().getId());
-            }
-        } catch (Exception e) {
-            log.error("priveleged executors was not loaded (if this exception occurs in empty DB just ignore it)");
-            log.debug("", e);
+    }
+
+    /**
+     * Called once after patches are successfully applied
+     */
+    public void init() throws Exception {
+        List<PrivelegedMapping> list = getHibernateTemplate().find("from PrivelegedMapping m");
+        for (PrivelegedMapping mapping : list) {
+            privelegedExecutors.get(mapping.getType()).add(mapping.getExecutor());
+            privelegedExecutorIds.add(mapping.getExecutor().getId());
         }
     }
 
@@ -199,8 +199,8 @@ public class PermissionDAO extends CommonDAO {
 
                 @Override
                 public List<PermissionMapping> doInHibernate(Session session) {
-                    Query query = session.createQuery(
-                            "from PermissionMapping where identifiableId in (:identifiableIds) and type=:type and mask=:mask and executor in (:executors)");
+                    Query query = session
+                            .createQuery("from PermissionMapping where identifiableId in (:identifiableIds) and type=:type and mask=:mask and executor in (:executors)");
                     query.setParameterList("identifiableIds", identifiableIds);
                     query.setParameter("type", securedObjectType);
                     query.setParameter("mask", permission.getMask());
@@ -415,8 +415,7 @@ public class PermissionDAO extends CommonDAO {
      *            {@linkplain SecuredObjectType} types, used to check permissions.
      * @return Count of {@link Identifiable}'s for which executors have permission on.
      */
-    public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission,
-            SecuredObjectType[] securedObjectTypes) {
+    public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission, SecuredObjectType[] securedObjectTypes) {
         TimeMeasurer timeMeasurer = new TimeMeasurer(logger, 1000);
         timeMeasurer.jobStarted();
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, permission, securedObjectTypes);
@@ -427,17 +426,15 @@ public class PermissionDAO extends CommonDAO {
     }
 
     public boolean permissionExists(Permission permission, Identifiable resource) {
-        return getHibernateTemplate()
-                .find("select pm.identifiableId from PermissionMapping pm where pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
-                        resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask())
-                .size() > 0;
+        return getHibernateTemplate().find(
+                "select pm.identifiableId from PermissionMapping pm where pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
+                resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask()).size() > 0;
     }
 
     public boolean permissionExists(Executor executor, Permission permission, Identifiable resource) {
-        return getHibernateTemplate()
-                .find("select pm.identifiableId from PermissionMapping pm where pm.executor = ? and pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
-                        executor, resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask())
-                .size() > 0;
+        return getHibernateTemplate().find(
+                "select pm.identifiableId from PermissionMapping pm where pm.executor = ? and pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
+                executor, resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask()).size() > 0;
     }
 
 }
