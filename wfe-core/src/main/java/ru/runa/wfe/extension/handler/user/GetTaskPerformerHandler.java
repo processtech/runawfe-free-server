@@ -13,7 +13,7 @@ import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-public class GetExecutorBySubstitutorHandler extends CommonParamBasedHandler {
+public class GetTaskPerformerHandler extends CommonParamBasedHandler {
 
 	@Autowired
 	private ProcessLogDAO processLogDAO;
