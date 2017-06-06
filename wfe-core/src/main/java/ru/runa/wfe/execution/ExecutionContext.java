@@ -242,6 +242,9 @@ public class ExecutionContext {
         }
         VariableDefinition variableDefinition = getProcessDefinition().getVariable(name, false);
         if (variableDefinition == null) {
+            if (value == null) {
+                return;
+            }
             throw new InternalApplicationException("Variable '" + name + "' is not defined in process definition");
         }
         setVariableValue(variableDefinition, value);
