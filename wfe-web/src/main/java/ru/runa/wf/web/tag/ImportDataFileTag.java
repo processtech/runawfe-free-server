@@ -11,7 +11,6 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
@@ -24,7 +23,7 @@ public class ImportDataFileTag extends TitledFormTag {
 
     @Override
     public boolean isVisible() {
-        return WebResources.getBooleanProperty("action.datafile.enabled", false);
+        return WebResources.isImportExportEnabled();
     }
 
     @Override
