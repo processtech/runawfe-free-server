@@ -390,4 +390,11 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(processId != null, "processId");
         executionLogic.suspendProcess(user, processId);
     }
+
+    @Override
+    @WebResult(name = "result")
+    public int activateFailedProcesses(@WebParam(name = "user") User user) {
+        Preconditions.checkArgument(user != null, "user");
+        return executionLogic.activateFailedProcesses(user);
+    }
 }

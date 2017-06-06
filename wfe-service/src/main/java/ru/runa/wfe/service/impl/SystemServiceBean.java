@@ -42,13 +42,9 @@ import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
-import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.service.decl.SystemServiceLocal;
 import ru.runa.wfe.service.decl.SystemServiceRemote;
@@ -134,10 +130,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
         for (List<ProcessError> list : Errors.getProcessErrors().values()) {
             result.addAll(list);
         }
-        BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
-        int index = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
-        batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
-        List<WfProcess> processes = executionLogic.getProcesses(user, batchPresentation);
+        List<WfProcess> processes = executionLogic.getFailedProcesses(user);
         for (WfProcess process : processes) {
             populateExecutionErrors(user, result, process.getId());
         }

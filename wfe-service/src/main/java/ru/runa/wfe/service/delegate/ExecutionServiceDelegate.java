@@ -291,4 +291,14 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
             throw handleException(e);
         }
     }
+
+    @Override
+    public int activateFailedProcesses(User user) {
+        try {
+            return getExecutionService().activateFailedProcesses(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }

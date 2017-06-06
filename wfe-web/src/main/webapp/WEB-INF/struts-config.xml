@@ -282,6 +282,10 @@
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
+		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
+		</action>
 		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
 			name="idForm" scope="request">
 			<forward name="success" path="/manage_process.do" redirect="true" />

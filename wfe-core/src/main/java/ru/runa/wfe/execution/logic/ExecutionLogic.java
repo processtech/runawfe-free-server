@@ -22,13 +22,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -50,6 +43,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -74,6 +68,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
+import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
@@ -85,6 +80,12 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Process execution logic.
@@ -113,7 +114,7 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public List<WfProcess> getProcesses(User user, BatchPresentation batchPresentation) {
-        List<Object> data = getPersistentObjects(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES, true);
+        List<Process> data = getPersistentObjects(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES, true);
         return toWfProcesses(data, batchPresentation.getDynamicFieldsToDisplay(true));
     }
 
@@ -338,9 +339,8 @@ public class ExecutionLogic extends WFCommonLogic {
         Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newDeploymentVersion);
         process.setDeployment(nextDeployment);
         processDAO.update(process);
-        processLogDAO.addLog(
-                new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(), newDeploymentVersion),
-                process, null);
+        processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
+                newDeploymentVersion), process, null);
         return true;
     }
 
@@ -395,6 +395,34 @@ public class ExecutionLogic extends WFCommonLogic {
         log.info("Process " + processId + " suspended");
     }
 
+    public List<WfProcess> getFailedProcesses(User user) {
+        if (!executorLogic.isAdministrator(user)) {
+            throw new InternalApplicationException("Only administrator can activate process");
+        }
+        List<Process> processes = getFailedProcessesInternal(user);
+        return toWfProcesses(processes, null);
+    }
+
+    public int activateFailedProcesses(User user) {
+        if (!executorLogic.isAdministrator(user)) {
+            throw new InternalApplicationException("Only administrator can activate process");
+        }
+        List<Process> processes = getFailedProcessesInternal(user);
+        log.info("Activating " + processes.size() + " failed processes");
+        for (Process process : processes) {
+            activateProcessWithSubprocesses(user, process);
+        }
+        return processes.size();
+    }
+
+    private List<Process> getFailedProcessesInternal(User user) {
+        BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+        int index = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
+        batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
+        List<Process> processes = getPersistentObjects(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES, false);
+        return processes;
+    }
+
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
         List<WfToken> result = Lists.newArrayList();
         List<Token> tokens = tokenDAO.findByProcessAndExecutionStatusIsNotEnded(process);
@@ -411,17 +439,7 @@ public class ExecutionLogic extends WFCommonLogic {
         return processes;
     }
 
-    private List<WfProcess> toWfProcesses(List<? extends Object> data, List<String> variableNamesToInclude) {
-        List<Process> processes = Lists.transform(data, new Function<Object, Process>() {
-
-            @Override
-            public Process apply(Object input) {
-                if (input instanceof Process) {
-                    return (Process) input;
-                }
-                return (Process) ((Object[]) input)[0];
-            }
-        });
+    private List<WfProcess> toWfProcesses(List<Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
         Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
         for (Process process : processes) {

@@ -387,4 +387,12 @@ public interface ExecutionService {
      */
     public void suspendProcess(User user, Long processId);
 
+    /**
+     * Activates all failed processes.
+     * 
+     * @param user
+     *            authorized user
+     */
+    public int activateFailedProcesses(User user);
+
 }

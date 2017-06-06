@@ -23,6 +23,8 @@ import ru.runa.common.web.html.TRRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesError;
+import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wf.web.action.ActivateFailedProcessesAction;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.error.ProcessError;
@@ -45,6 +47,7 @@ public class ShowProcessErrorsTag extends VisibleTag {
     @Override
     protected ConcreteElement getEndElement() {
         List<TR> rows = Lists.newArrayList();
+        boolean areFailedProcessesExist = false;
         for (ProcessError processError : Delegates.getSystemService().getAllProcessErrors(getUser())) {
             Long processId = processError.getProcessId();
             Map<String, Object> params = Maps.newHashMap();
@@ -70,6 +73,7 @@ public class ShowProcessErrorsTag extends VisibleTag {
                 deleteTd = new TD(a);
             } else {
                 deleteTd = new TD();
+                areFailedProcessesExist = true;
             }
             tr.addElement(deleteTd.setClass(Resources.CLASS_LIST_TABLE_TD));
             rows.add(tr);
@@ -84,11 +88,18 @@ public class ShowProcessErrorsTag extends VisibleTag {
         }
         filters.append("</div>");
         resultElement.addElement(filters.toString());
-        ErrorsHeaderBuilder tasksHistoryHeaderBuilder = new ErrorsHeaderBuilder();
+        ErrorsHeaderBuilder headerBuilder = new ErrorsHeaderBuilder();
         RowBuilder rowBuilder = new TRRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
-        Table table = tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder);
+        Table table = tableBuilder.build(headerBuilder, rowBuilder);
         resultElement.addElement(table);
+        if (areFailedProcessesExist) {
+            Div div = new Div();
+            div.setStyle("float: right;");
+            div.addElement(new A(Commons.getActionUrl(ActivateFailedProcessesAction.ACTION_PATH, pageContext, PortletUrlType.Render),
+                    MessagesProcesses.ACTIVATE_FAILED_PROCESSES.message(pageContext)));
+            resultElement.addElement(div);
+        }
         return resultElement;
     }
 
