@@ -89,7 +89,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Process execution logic.
- * 
+ *
  * @author Dofs
  * @since 2.0
  */
@@ -378,8 +378,12 @@ public class ExecutionLogic extends WFCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new InternalApplicationException("Only administrator can activate process");
         }
-        activateProcessWithSubprocesses(user, processDAO.getNotNull(processId));
-        TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        Process process = processDAO.getNotNull(processId);
+        boolean resetCaches = process.getExecutionStatus() == ExecutionStatus.SUSPENDED;
+        activateProcessWithSubprocesses(user, process);
+        if (resetCaches) {
+            TransactionListeners.addListener(new CacheResetTransactionListener(), true);
+        }
         log.info("Process " + processId + " activated");
     }
 
@@ -396,31 +400,11 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public List<WfProcess> getFailedProcesses(User user) {
-        if (!executorLogic.isAdministrator(user)) {
-            throw new InternalApplicationException("Only administrator can activate process");
-        }
-        List<Process> processes = getFailedProcessesInternal(user);
-        return toWfProcesses(processes, null);
-    }
-
-    public int activateFailedProcesses(User user) {
-        if (!executorLogic.isAdministrator(user)) {
-            throw new InternalApplicationException("Only administrator can activate process");
-        }
-        List<Process> processes = getFailedProcessesInternal(user);
-        log.info("Activating " + processes.size() + " failed processes");
-        for (Process process : processes) {
-            activateProcessWithSubprocesses(user, process);
-        }
-        return processes.size();
-    }
-
-    private List<Process> getFailedProcessesInternal(User user) {
         BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
         int index = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
         batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
         List<Process> processes = getPersistentObjects(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES, false);
-        return processes;
+        return toWfProcesses(processes, null);
     }
 
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
@@ -472,13 +456,14 @@ public class ExecutionLogic extends WFCommonLogic {
             throw new InternalApplicationException(process + " already activated");
         }
         for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
-            nodeAsyncExecutor.execute(process.getId(), token.getId(), token.getNodeId());
-            token.setExecutionStatus(ExecutionStatus.ACTIVE);
+            nodeAsyncExecutor.execute(token, false);
         }
         for (Token token : tokenDAO.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
         }
-        process.setExecutionStatus(ExecutionStatus.ACTIVE);
+        if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
+            process.setExecutionStatus(ExecutionStatus.ACTIVE);
+        }
         processLogDAO.addLog(new ProcessActivateLog(user.getActor()), process, null);
         List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
         for (Process subprocess : subprocesses) {

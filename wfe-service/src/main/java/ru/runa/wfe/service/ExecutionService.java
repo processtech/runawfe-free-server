@@ -40,7 +40,7 @@ import ru.runa.wfe.var.file.FileVariable;
 
 /**
  * Process execution service.
- * 
+ *
  * @author Dofs
  * @since 4.0
  */
@@ -48,7 +48,7 @@ public interface ExecutionService {
 
     /**
      * Starts new process by definition.
-     * 
+     *
      * @param user
      *            authorized user
      * @param definitionName
@@ -60,11 +60,11 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-            ValidationException;
+    ValidationException;
 
     /**
      * Starts new process by definition.
-     * 
+     *
      * @param user
      *            authorized user
      * @param definitionId
@@ -76,11 +76,11 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-            ValidationException;
+    ValidationException;
 
     /**
      * Gets process count for {@link BatchPresentation}.
-     * 
+     *
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -90,7 +90,7 @@ public interface ExecutionService {
 
     /**
      * Gets processes for {@link BatchPresentation}.
-     * 
+     *
      * @param user
      *            authorized user
      * @param batchPresentation
@@ -100,7 +100,7 @@ public interface ExecutionService {
 
     /**
      * Gets process by id.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -112,7 +112,7 @@ public interface ExecutionService {
 
     /**
      * Gets parent process if this process will be started as subprocess.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -124,7 +124,7 @@ public interface ExecutionService {
 
     /**
      * Get all subprocesses (recursively) by process id.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -138,7 +138,7 @@ public interface ExecutionService {
 
     /**
      * Cancels process by id.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -149,7 +149,7 @@ public interface ExecutionService {
 
     /**
      * Gets all initialized process roles.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -161,7 +161,7 @@ public interface ExecutionService {
 
     /**
      * Assigns role by name to specified executor.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -176,7 +176,7 @@ public interface ExecutionService {
 
     /**
      * Gets all process variables.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -188,7 +188,7 @@ public interface ExecutionService {
 
     /**
      * Gets all process variables in batch mode.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processIds
@@ -199,7 +199,7 @@ public interface ExecutionService {
 
     /**
      * Gets all process variables state on specified date.
-     * 
+     *
      * @param user
      *            authorized user
      * @param filter
@@ -211,7 +211,7 @@ public interface ExecutionService {
 
     /**
      * Get process variable state for completed task.
-     * 
+     *
      * @param user
      *            Authorized user.
      * @param processId
@@ -225,7 +225,7 @@ public interface ExecutionService {
 
     /**
      * Gets variable by name from process.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -239,7 +239,7 @@ public interface ExecutionService {
 
     /**
      * Gets variable by name from process for specified task.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -255,7 +255,7 @@ public interface ExecutionService {
 
     /**
      * Gets file variable value by name from process.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -269,7 +269,7 @@ public interface ExecutionService {
 
     /**
      * Updates process variables without any signalling.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -282,7 +282,7 @@ public interface ExecutionService {
 
     /**
      * Gets process diagram as PNG image.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -301,7 +301,7 @@ public interface ExecutionService {
 
     /**
      * Gets process graph elements for diagram.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -315,7 +315,7 @@ public interface ExecutionService {
 
     /**
      * Gets process graph element for diagram.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -334,14 +334,14 @@ public interface ExecutionService {
 
     /**
      * Upgrades running process to specified version of deployed definition. This is not safe operation, use it with caution.
-     * 
+     *
      * @return false if version equal to current process definition version
      */
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version);
 
     /**
      * Get all active jobs (recursively) by process id.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -355,7 +355,7 @@ public interface ExecutionService {
 
     /**
      * Get all active tokens (recursively) by process id.
-     * 
+     *
      * @param user
      *            authorized user
      * @param processId
@@ -369,7 +369,7 @@ public interface ExecutionService {
 
     /**
      * Activates suspended process by id.
-     * 
+     *
      * @param user
      *            authorized user
      * @param id
@@ -379,20 +379,12 @@ public interface ExecutionService {
 
     /**
      * Suspends active process by id.
-     * 
+     *
      * @param user
      *            authorized user
      * @param id
      *            process id
      */
     public void suspendProcess(User user, Long processId);
-
-    /**
-     * Activates all failed processes.
-     * 
-     * @param user
-     *            authorized user
-     */
-    public int activateFailedProcesses(User user);
 
 }

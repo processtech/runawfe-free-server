@@ -18,6 +18,7 @@
 package ru.runa.wf.web.action;
 
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +32,12 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.ProcessClassPresentation;
+import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationFactory;
+import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.service.delegate.Delegates;
 
 /**
@@ -42,7 +49,19 @@ public class ActivateFailedProcessesAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         try {
-            int count = Delegates.getExecutionService().activateFailedProcesses(getLoggedUser(request));
+            BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
+            int index = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
+            batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
+            List<WfProcess> processes = Delegates.getExecutionService().getProcesses(getLoggedUser(request), batchPresentation);
+            int count = 0;
+            for (WfProcess process : processes) {
+                try {
+                    Delegates.getExecutionService().activateProcess(getLoggedUser(request), process.getId());
+                    count++;
+                } catch (Exception e) {
+                    log.warn("Unable to activate failed " + process + ": " + e);
+                }
+            }
             addMessage(request, new ActionMessage(MessagesProcesses.FAILED_PROCESSES_ACTIVATED.getKey(), count));
         } catch (Exception e) {
             addError(request, e);

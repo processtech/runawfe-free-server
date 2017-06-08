@@ -292,13 +292,4 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
         }
     }
 
-    @Override
-    public int activateFailedProcesses(User user) {
-        try {
-            return getExecutionService().activateFailedProcesses(user);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
-    }
-
 }
