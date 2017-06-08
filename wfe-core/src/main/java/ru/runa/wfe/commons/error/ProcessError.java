@@ -56,4 +56,13 @@ public class ProcessError extends SystemError {
         }
         return super.equals(obj);
     }
+
+    @Override
+    public int compareTo(SystemError o) {
+        if (o instanceof ProcessError) {
+            // desc
+            return ((ProcessError) o).processId.compareTo(processId);
+        }
+        return super.compareTo(o);
+    }
 }
