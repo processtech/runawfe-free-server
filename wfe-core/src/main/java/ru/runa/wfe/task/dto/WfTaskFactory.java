@@ -87,7 +87,7 @@ public class WfTaskFactory implements IWfTaskFactory {
             }
         }
         WfTask wfTask = new WfTask(task, targetActor, escalated, acquiredBySubstitution, firstOpen);
-        if (variableNamesToInclude != null) {
+        if (variableNamesToInclude != null && !variableNamesToInclude.isEmpty()) {
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(deployment.getId());
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
             for (String variableName : variableNamesToInclude) {

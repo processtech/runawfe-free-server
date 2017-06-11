@@ -76,7 +76,7 @@ public abstract class AbstractUserTypeList extends FormComponent {
                 attributes.addAll(userType.getAttributes());
             } else {
                 for (final String field : attributeNames) {
-                    attributes.add(userType.getAttribute(field));
+                    attributes.add(userType.getAttributeNotNull(field));
                 }
             }
             return attributes;
