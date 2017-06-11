@@ -287,11 +287,15 @@ public class Token implements Serializable {
         this.messageSelector = messageSelector;
     }
 
-    public void fail(Throwable throwable) {
+    public boolean fail(Throwable throwable) {
+        boolean stateChanged = getExecutionStatus() != ExecutionStatus.FAILED;
         setExecutionStatus(ExecutionStatus.FAILED);
         setErrorDate(new Date());
         // safe for unicode
-        setErrorMessage(Utils.getCuttedString(throwable.toString(), 1024 / 2));
+        String errorMessage = Utils.getCuttedString(throwable.toString(), 1024 / 2);
+        stateChanged |= !Objects.equal(errorMessage, getErrorMessage());
+        setErrorMessage(errorMessage);
+        return stateChanged;
     }
 
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
