@@ -24,29 +24,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.user.TemporaryGroup;
+import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 
 /**
  * Executor for removal of unused temporary groups.
- *
+ * 
  * @author Pavel Perminov
  */
 public class RemoveUnusedTemporaryGroupsExecutor extends TransactionalExecutor {
     @Autowired
     private ExecutorLogic executorLogic;
     @Autowired
+    private ExecutorDAO executorDAO;
+    @Autowired
     private ProcessDAO processDAO;
 
     @Override
     protected void doExecuteInTransaction() {
-        List<TemporaryGroup> groups = executorLogic.getTemporaryGroups();
+        List<TemporaryGroup> groups = executorDAO.getTemporaryGroupsForEndedProcesses();
         log.debug("Starting with " + groups.size() + " groups");
+        int count = 0;
         for (TemporaryGroup group : groups) {
             if (processDAO.getDependentProcessIds(group).isEmpty()) {
-                log.info(group + " is not referenced anymore and will be removed");
+                log.debug(group + " is not referenced anymore and will be removed");
                 executorLogic.remove(group);
+                count++;
             }
         }
+        log.debug("Removed " + count + " groups");
     }
 
 }

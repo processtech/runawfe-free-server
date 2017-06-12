@@ -48,7 +48,6 @@ import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.SystemExecutors;
-import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
 
@@ -339,10 +338,6 @@ public class ExecutorLogic extends CommonLogic {
             addNewExecutorsToGroup(temporaryGroup, newGroupExecutors);
         }
         return temporaryGroup;
-    }
-
-    public List<TemporaryGroup> getTemporaryGroups() {
-        return executorDAO.getTemporaryGroups();
     }
 
     private void addNewExecutorsToGroup(Group temporaryGroup, Collection<? extends Executor> newGroupExecutors) {
