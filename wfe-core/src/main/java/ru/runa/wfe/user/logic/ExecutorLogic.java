@@ -128,6 +128,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void remove(Executor executor) {
+        log.info("Removing " + executor);
         if (permissionDAO.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }

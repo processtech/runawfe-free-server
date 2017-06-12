@@ -42,17 +42,11 @@ public class RemoveUnusedTemporaryGroupsExecutor extends TransactionalExecutor {
 
     @Override
     protected void doExecuteInTransaction() {
-        List<TemporaryGroup> groups = executorDAO.getTemporaryGroupsForEndedProcesses();
-        log.debug("Starting with " + groups.size() + " groups");
-        int count = 0;
+        List<TemporaryGroup> groups = executorDAO.getUnusedTemporaryGroups();
+        log.debug("Removing " + groups.size() + " groups");
         for (TemporaryGroup group : groups) {
-            if (processDAO.getDependentProcessIds(group).isEmpty()) {
-                log.debug(group + " is not referenced anymore and will be removed");
-                executorLogic.remove(group);
-                count++;
-            }
+            executorLogic.remove(group);
         }
-        log.debug("Removed " + count + " groups");
     }
 
 }

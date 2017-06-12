@@ -36,7 +36,6 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDAO;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
@@ -289,14 +288,14 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         });
     }
 
-    public List<TemporaryGroup> getTemporaryGroupsForEndedProcesses() {
-        return getHibernateTemplate().find("from TemporaryGroup where processId in (select id from Process where executionStatus=?)",
-                ExecutionStatus.ENDED);
+    public List<TemporaryGroup> getUnusedTemporaryGroups() {
+        String query = "select tg from TemporaryGroup tg where tg.processId not in (select process.id from Swimlane where executor=tg) and tg.processId not in (select process.id from Task where executor=tg)";
+        return getHibernateTemplate().find(query);
     }
 
     public List<Group> getTemporaryGroupsByExecutor(Executor executor) {
-        return getHibernateTemplate().find(
-                "select egm.group from ExecutorGroupMembership egm, TemporaryGroup tg where egm.executor=? and egm.group=tg", executor);
+        String query = "select egm.group from ExecutorGroupMembership egm, TemporaryGroup tg where egm.executor=? and egm.group=tg";
+        return getHibernateTemplate().find(query, executor);
     }
 
     /**
