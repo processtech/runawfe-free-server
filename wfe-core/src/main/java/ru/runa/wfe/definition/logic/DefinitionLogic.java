@@ -38,6 +38,7 @@ import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -119,20 +120,24 @@ public class DefinitionLogic extends WFCommonLogic {
         } else {
             definition.getDeployment().setCategory(oldDeployment.getCategory());
         }
-        ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment.getContent());
-        boolean containsAllPreviousComments = definition.getChanges().containsAll(oldDefinition.getChanges());
-        if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
-            if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
-                        + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
+        try {
+            ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment.getContent());
+            boolean containsAllPreviousComments = definition.getChanges().containsAll(oldDefinition.getChanges());
+            if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
+                if (containsAllPreviousComments != true) {
+                    throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
+                            + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
+                }
             }
-        }
-        if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
-            if (containsAllPreviousComments && definition.getChanges().size() == oldDefinition.getChanges().size()) {
-                throw new InternalApplicationException("The new version of definition must contain more than " + oldDefinition.getChanges().size()
-                        + " version comments. Uploaded definition contains " + definition.getChanges().size()
-                        + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
+            if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
+                if (containsAllPreviousComments && definition.getChanges().size() == oldDefinition.getChanges().size()) {
+                    throw new InternalApplicationException("The new version of definition must contain more than "
+                            + oldDefinition.getChanges().size() + " version comments. Uploaded definition contains " + definition.getChanges().size()
+                            + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
+                }
             }
+        } catch (InvalidDefinitionException e) {
+            log.warn(oldDeployment + ": " + e);
         }
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
@@ -143,7 +148,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     /**
      * Updates process definition.
-     * 
+     *
      * @param user
      * @param definitionId
      * @param processArchiveBytes
@@ -450,7 +455,7 @@ public class DefinitionLogic extends WFCommonLogic {
         for (Number deploymentId : deploymentIds) {
             ProcessDefinition processDefinition = getDefinition(deploymentId.longValue());
             for (ProcessDefinitionChange change : processDefinition.getChanges()) {
-                if ((ignoredChanges != null && ignoredChanges.contains(change)) || result.contains(change)) {
+                if (ignoredChanges != null && ignoredChanges.contains(change) || result.contains(change)) {
                     continue;
                 }
                 result.add(new ProcessDefinitionChange(processDefinition.getDeployment().getVersion(), change));
