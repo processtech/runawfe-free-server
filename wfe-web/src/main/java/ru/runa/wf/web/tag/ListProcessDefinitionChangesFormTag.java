@@ -67,89 +67,56 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
         final String DATE = "process_definition_changes.date";
         final String AUTHOR = "process_definition_changes.author";
         final String COMMENT = "process_definition_changes.comment";
-
-        List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().getChanges(getProcessDefinitionId());
+        List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().getLastChanges(getProcessDefinitionId(), 5L);
         if (!changes.isEmpty()) {
             Table table = new Table();
             tdFormElement.addElement(table);
             table.setClass(Resources.CLASS_LIST_TABLE);
-            table.setStyle("border-style : hidden;");
+            table.setID("processDefinitionChanges");
             TR headerTR = new TR();
             table.addElement(headerTR);
-            headerTR.setStyle("border-style: solid; border-width : 1px;");
             headerTR.addElement(new TH(Messages.getMessage(VERSION, pageContext)).setWidth("15%").setClass(Resources.CLASS_LIST_TABLE_TH));
             headerTR.addElement(new TH(Messages.getMessage(DATE, pageContext)).setWidth("13%").setClass(Resources.CLASS_LIST_TABLE_TH));
             headerTR.addElement(new TH(Messages.getMessage(AUTHOR, pageContext)).setWidth("13%").setClass(Resources.CLASS_LIST_TABLE_TH));
             headerTR.addElement(new TH(Messages.getMessage(COMMENT, pageContext)).setClass(Resources.CLASS_LIST_TABLE_TH));
 
             long currentVersion = 0;
-            long rowCount = 0;
             for (int i = changes.size() - 1; i >= 0; i--) {
                 ProcessDefinitionChange change = changes.get(i);
                 if (change.getVersion() <= Delegates.getDefinitionService().getProcessDefinition(getUser(), getProcessDefinitionId()).getVersion()
                         && change.getComment().isEmpty() != true) {
                     TR row = new TR();
                     table.addElement(row);
-                    row.setStyle("border-top-style:hidden;" + "border-left-style:hidden;" + "border-right-style:hidden;");
-                    if (rowCount > 2) {
-                        row.addAttribute("class", "earlyComments");
-                        row.setStyle(row.getAttribute("style") + "display:none;");
-                    }
-
                     TD versionTD = new TD();
                     versionTD.setClass(Resources.CLASS_LIST_TABLE_TD);
                     if (currentVersion == change.getVersion()) {
-                        versionTD.setStyle("border-top-style:hidden;" + "border-left-style:hidden;" + "border-right-style:hidden;");
+                        versionTD.setStyle("border-top-style:hidden;");
                     } else {
                         versionTD.setTagText(change.getVersion().toString());
-                        row.setStyle(row.getAttribute("style") + "border-top-style: solid; border-width: 1px;");
-                        versionTD.setStyle("border-top-style: solid; border-width: 1px;");
-
                     }
                     row.addElement(versionTD);
 
                     TD dateTimeTD = new TD(CalendarUtil.formatDateTime(change.getDate()));
                     dateTimeTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-                    dateTimeTD.setStyle("font-style : italic; " + "border-top-style:hidden;" + "border-left-style:hidden;"
-                            + "border-right-style:hidden;");
 
                     TD authorTD = new TD(change.getAuthor());
                     authorTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-                    authorTD.setStyle("font-style : italic; " + "border-top-style:hidden;" + "border-left-style:hidden;"
-                            + "border-right-style:hidden;");
 
                     TD commentTD = new TD(change.getComment());
                     commentTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-                    commentTD.setStyle("border-top-style:hidden;" + "border-left-style:hidden;" + "border-right-style:hidden;");
-
-                    if (currentVersion != change.getVersion()) {
-                        dateTimeTD.setStyle(dateTimeTD.getAttribute("style") + "border-top-style:solid; border-width:1px;");
-                        authorTD.setStyle(authorTD.getAttribute("style") + "border-top-style:solid; border-width:1px;");
-                        commentTD.setStyle("border-top-style:solid; border-width:1px;");
-                        currentVersion = change.getVersion();
-                    }
 
                     row.addElement(dateTimeTD);
                     row.addElement(authorTD);
                     row.addElement(commentTD);
-                    rowCount++;
+                    currentVersion = change.getVersion();
                 }
             }
 
-            if (changes.size() > 3) {
-                Table tableShowHideEarlyComments = new Table();
-                tdFormElement.addElement(tableShowHideEarlyComments);
-                TR tr = new TR();
-                tableShowHideEarlyComments.addElement(tr);
-                A link = new A();
-                link.setHref("#showHideEarlyComments");
-                link.setName("showHideEarlyComments");
-                String script = "jQuery( \".earlyComments\" ).slideToggle(\"fast\");";
-                link.setOnClick(script);
-                link.addElement(Messages.getMessage("process_definition_changes.showHideEarlyComments", pageContext));
-                TD showMore = new TD().addElement(link);
-                tr.addElement(showMore);
-            }
+            A link = new A();
+            link.setHref("/wfe/processDefinitionChanges?action=loadAllChanges&id=" + getProcessDefinitionId());
+            link.setID("showAllProcessDefinitionChanges");
+            link.addElement(Messages.getMessage("process_definition_changes.showAllChanges", pageContext));
+            tdFormElement.addElement(link);
         }
     }
 

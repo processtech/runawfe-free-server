@@ -2,19 +2,24 @@ package ru.runa.wfe.commons.dao;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
 
 import com.google.common.base.Preconditions;
 
 /**
  * General DAO implementation (type-safe generic DAO pattern).
- *
+ * 
  * @author dofs
  * @since 4.0
- *
+ * 
  * @param <T>
  *            entity class
  */
@@ -40,7 +45,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Load entity from database by id.
-     *
+     * 
      * @return entity.
      */
     public T getNotNull(Long id) {
@@ -51,7 +56,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Checks that entity is not null. Throws exception in that case. Used in *NotNull methods. Expected to be overriden in subclasses.
-     *
+     * 
      * @param entity
      *            test entity
      * @param identity
@@ -67,7 +72,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Load all entities from database.
-     *
+     * 
      * @return entities list, not <code>null</code>.
      */
     public List<T> getAll() {
@@ -76,7 +81,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Finds entities.
-     *
+     * 
      * @param hql
      *            Hibernate query
      * @param parameters
@@ -84,14 +89,27 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      * @return first entity from list or <code>null</code>
      */
     @Override
-    protected T findFirstOrNull(String hql, Object... parameters) {
-        List<T> list = getHibernateTemplate().find(hql, parameters);
+    protected T findFirstOrNull(final String hql, final Object... parameters) {
+        List<T> list = getHibernateTemplate().executeFind(new HibernateCallback<List<T>>() {
+
+            @Override
+            public List<T> doInHibernate(Session session) throws HibernateException, SQLException {
+                Query query = session.createQuery(hql);
+                query.setMaxResults(1);
+                if (parameters != null) {
+                    for (int i = 0; i < parameters.length; i++) {
+                        query.setParameter(i, parameters[i]);
+                    }
+                }
+                return query.list();
+            }
+        });
         return getFirstOrNull(list);
     }
 
     /**
      * Saves transient entity.
-     *
+     * 
      * @return saved entity.
      */
     public T create(T entity) {
@@ -101,7 +119,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
 
     /**
      * Updates entity.
-     *
+     * 
      * @param entity
      *            detached entity
      */
