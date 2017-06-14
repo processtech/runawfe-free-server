@@ -6,12 +6,8 @@
 
 	<filter>
 		<filter-name>monitoring</filter-name>
-		<filter-class>net.bull.javamelody.MonitoringFilter</filter-class>
+		<filter-class>ru.runa.common.web.filter.JavamelodyMonitoringFilter</filter-class>
 	</filter>
-	<filter-mapping>
-		<filter-name>monitoring</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 	<listener>
 		<listener-class>net.bull.javamelody.SessionListener</listener-class>
 	</listener>
@@ -33,9 +29,6 @@
 		<filter-class>ru.runa.common.web.filter.XSSFilter</filter-class>
 	</filter>
 
-	<!-- To use non XDoclet filter-mappings, create a filter-mappings.xml file 
-		that contains the additional filter-mappings and place it in your project's 
-		merge dir. -->
 	<filter-mapping>
 		<filter-name>ntlmfilter</filter-name>
 		<url-pattern>/*</url-pattern>
@@ -43,6 +36,10 @@
 	<filter-mapping>
 		<filter-name>session</filter-name>
 		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>monitoring</filter-name>
+		<url-pattern>/monitoring</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>krbfilter</filter-name>
