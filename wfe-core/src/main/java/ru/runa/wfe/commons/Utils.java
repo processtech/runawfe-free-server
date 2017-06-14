@@ -255,7 +255,7 @@ public class Utils {
         return selectors;
     }
 
-    public static void sendNodeAsyncExecutionMessage(Long processId, Long tokenId, String nodeId) {
+    public static void sendNodeAsyncExecutionMessage(Token token, boolean retry) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -265,10 +265,11 @@ public class Utils {
             session = connection.createSession(true, Session.SESSION_TRANSACTED);
             sender = session.createProducer(nodeAsyncExecutionQueue);
             ObjectMessage message = session.createObjectMessage();
-            message.setLongProperty("processId", processId);
-            message.setLongProperty("tokenId", tokenId);
-            message.setStringProperty("nodeId", nodeId);
-            log.debug("sending node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
+            message.setLongProperty("processId", token.getProcess().getId());
+            message.setLongProperty("tokenId", token.getId());
+            message.setStringProperty("nodeId", token.getNodeId());
+            message.setBooleanProperty("retry", retry);
+            log.debug("sending node async execution request for " + token + ", retry=" + retry + "}");
             sender.send(message);
         } catch (Exception e) {
             throw Throwables.propagate(e);
@@ -393,8 +394,8 @@ public class Utils {
             @Override
             protected void doExecuteInTransaction() throws Exception {
                 Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
-                if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
-                    token.fail(throwable);
+                boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
+                if (stateChanged) {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
                     ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
                     processError.setThrowable(throwable);

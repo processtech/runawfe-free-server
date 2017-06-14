@@ -1,6 +1,7 @@
 package ru.runa.wfe.execution.async;
 
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.execution.Token;
 
 /**
  *
@@ -9,8 +10,8 @@ import ru.runa.wfe.commons.Utils;
 public class JMSNodeAsyncExecutor implements INodeAsyncExecutor {
 
     @Override
-    public void execute(Long processId, Long tokenId, String nodeId) {
-        Utils.sendNodeAsyncExecutionMessage(processId, tokenId, nodeId);
+    public void execute(Token token, boolean retry) {
+        Utils.sendNodeAsyncExecutionMessage(token, retry);
     }
 
 }

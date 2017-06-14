@@ -1,11 +1,13 @@
 package ru.runa.wfe.execution.async;
 
+import ru.runa.wfe.execution.Token;
+
 /**
  *
  * @author Alex Chernyshev
  */
 public interface INodeAsyncExecutor {
 
-    void execute(Long processId, Long tokenId, String nodeId);
+    void execute(Token token, boolean retry);
 
 }

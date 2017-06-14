@@ -190,4 +190,8 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("process.task.filters.enabled", true);
     }
 
+    public static boolean isImportExportEnabled() {
+        return RESOURCES.getBooleanProperty("import.export.enabled", true);
+    }
+
 }

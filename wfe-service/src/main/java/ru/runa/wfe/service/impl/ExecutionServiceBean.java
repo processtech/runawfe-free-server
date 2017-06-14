@@ -390,4 +390,5 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(processId != null, "processId");
         executionLogic.suspendProcess(user, processId);
     }
+
 }
