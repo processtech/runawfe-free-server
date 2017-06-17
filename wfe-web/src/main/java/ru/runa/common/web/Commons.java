@@ -20,7 +20,6 @@ package ru.runa.common.web;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,6 +35,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.taglib.TagUtils;
 
 import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
 import com.google.common.base.Charsets;
@@ -49,6 +49,7 @@ import com.google.common.collect.Maps;
 public class Commons {
     private static final TagUtils tagUtils = TagUtils.getInstance();
     private static final String LOGGED_USER_ATTRIBUTE_NAME = User.class.getName();
+    private static final String LOGGED_USER_IS_ADMIN_ATTRIBUTE_NAME = User.class.getName() + "_admin";
 
     /**
      * Add parameters to provided ActionForward
@@ -213,33 +214,21 @@ public class Commons {
     }
 
     public static Object getSessionAttribute(HttpSession session, String attributeName) {
-        Object retVal = null;
         try {
-            retVal = session.getAttribute(attributeName);
-            if (retVal == null) {
-                retVal = session.getAttribute("?" + attributeName);
-            }
-            if (retVal == null) {
-                Enumeration<String> attributes = session.getAttributeNames();
-                while (attributes.hasMoreElements()) {
-                    String attribute = attributes.nextElement();
-                    if (attribute.endsWith(attributeName)) {
-                        retVal = session.getAttribute(attribute);
-                        break;
-                    }
-                }
-            }
+            return session.getAttribute(attributeName);
         } catch (IllegalStateException e) {
+            return null;
         }
-        return retVal;
     }
 
     public static void setUser(User user, HttpSession session) {
         session.setAttribute(LOGGED_USER_ATTRIBUTE_NAME, user);
+        session.setAttribute(LOGGED_USER_IS_ADMIN_ATTRIBUTE_NAME, Delegates.getExecutorService().isAdministrator(user));
     }
 
     public static void setUser(User user, PortletSession session) {
         session.setAttribute(LOGGED_USER_ATTRIBUTE_NAME, user);
+        session.setAttribute(LOGGED_USER_IS_ADMIN_ATTRIBUTE_NAME, Delegates.getExecutorService().isAdministrator(user));
     }
 
     public static void removeUser(HttpSession session) {
@@ -247,15 +236,19 @@ public class Commons {
     }
 
     public static User getUser(HttpSession session) {
-        try {
-            User user = (User) getSessionAttribute(session, LOGGED_USER_ATTRIBUTE_NAME);
-            if (user == null) {
-                throw new InvalidSessionException("Session does not contain subject.");
-            }
-            return user;
-        } catch (IllegalStateException e) {
+        User user = (User) getSessionAttribute(session, LOGGED_USER_ATTRIBUTE_NAME);
+        if (user == null) {
             throw new InvalidSessionException("Session does not contain subject.");
         }
+        return user;
+    }
+
+    public static boolean isAdministrator(HttpSession session) {
+        Boolean value = (Boolean) getSessionAttribute(session, LOGGED_USER_IS_ADMIN_ATTRIBUTE_NAME);
+        if (value != null) {
+            return value;
+        }
+        return false;
     }
 
 }
