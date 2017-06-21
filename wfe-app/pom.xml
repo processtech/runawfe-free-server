@@ -8,7 +8,6 @@
 	<name>RunaWFE application</name>
 
 	<modules>
-		<module>../jasperreports-html-component</module>
 		<module>../wfe-core</module>
 		<module>../wfe-service</module>
 		<module>../wfe-bots</module>
