@@ -33,6 +33,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String SCRIPTING_NAME = "scriptingName";
     private static final String USER_TYPE = "usertype";
     private static final String DESCRIPTION = "description";
+    private static final String STORE_TYPE = "storeType";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -122,6 +123,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 LogFactory.getLog(getClass()).error("Unable to format default value '" + name + "' in " + processDefinition, e);
             }
         }
+        variableDefinition.setStoreType(element.attributeValue(STORE_TYPE));
         return variableDefinition;
     }
 

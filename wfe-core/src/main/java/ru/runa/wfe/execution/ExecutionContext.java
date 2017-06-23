@@ -286,6 +286,16 @@ public class ExecutionContext {
 
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
+        switch (variableDefinition.getStoreType()) {
+        case BLOB:
+            setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value, false);
+            break;
+        default:
+            setVariableValueDefault(variableDefinition, value);
+        }
+    }
+
+    private void setVariableValueDefault(VariableDefinition variableDefinition, Object value) {
         ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(),
                 baseProcessVariableLoader, variableDAO);
         VariableFormat variableFormat = variableDefinition.getFormatNotNull();
