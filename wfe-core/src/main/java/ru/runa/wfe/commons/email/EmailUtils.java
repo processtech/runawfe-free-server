@@ -246,12 +246,8 @@ public class EmailUtils {
      * @param pattern
      * @return filter object
      */
-    public static EmailsFilter validateAndCreateEmailsFilter(final String filterStr) {
-        if (filterStr == null) {
-            return null;
-        }
-        List<String> filters = Arrays.asList(filterStr.split(","));
-        return filters.isEmpty() ? null : EmailsFilter.create(filters);
+    public static EmailsFilter validateAndCreateEmailsFilter(final List<String> filters) {
+        return EmailsFilter.create(filters);
     }
 
     public static ProcessNameFilter validateAndCreateProcessNameFilter(final List<String> filters) {
@@ -334,7 +330,7 @@ public class EmailUtils {
         }
 
         private static ProcessNameFilter create(List<String> filters) {
-            return new ProcessNameFilter(new ArrayList<>(filters));
+            return new ProcessNameFilter(filters);
         }
     }
 

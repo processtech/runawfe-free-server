@@ -59,11 +59,11 @@ public class EmailTaskNotifier implements ITaskNotifier {
         }
     }
 
-    public void setIncludeEmailsFilter(String includeEmailsFilter) {
+    public void setIncludeEmailsFilter(List<String> includeEmailsFilter) {
         this.includeEmailsFilter = EmailUtils.validateAndCreateEmailsFilter(includeEmailsFilter);
     }
 
-    public void setExcludeEmailsFilter(String excludeEmailsFilter) {
+    public void setExcludeEmailsFilter(List<String> excludeEmailsFilter) {
         this.excludeEmailsFilter = EmailUtils.validateAndCreateEmailsFilter(excludeEmailsFilter);
     }
 
