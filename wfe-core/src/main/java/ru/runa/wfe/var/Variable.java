@@ -58,6 +58,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 import ru.runa.wfe.var.format.VariableFormat;
 
 import com.google.common.base.Objects;
@@ -200,7 +201,7 @@ public abstract class Variable<T extends Object> {
             throw new InternalApplicationException(this + " does not support new value '" + newValue + "' of '" + newValue.getClass() + "'");
         }
         Object oldValue = getStorableValue();
-        setStringValue(newValue != null ? toString(newValue, format) : null);
+        setStringValue(newValue != null && !(converter instanceof SerializableToByteArrayConverter) ? toString(newValue, format) : null);
         if (converter != null && oldValue != null) {
             oldValue = converter.revert(oldValue);
         }
