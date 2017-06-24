@@ -297,10 +297,6 @@
 					<name>appserver</name>
 				</property>
 			</activation>
-			<properties>
-				<enable.resteasy.start></enable.resteasy.start>
-				<enable.resteasy.end></enable.resteasy.end>
-			</properties>
 		</profile>
 		<profile>
 			<id>simulation</id>

@@ -112,23 +112,6 @@
 		<servlet-name>version</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.VersionServlet</servlet-class>
 	</servlet>
-    
-	${enable.resteasy.start}
-	<context-param>
-		<param-name>resteasy.jndi.resources</param-name>
-		<param-value>
-			java:app/wfe-service-4.0.5/BotServiceBean!ru.runa.wfe.service.decl.BotServiceLocal
-		</param-value>
-	</context-param>
-	<servlet>
-		<servlet-name>resteasy</servlet-name>
-		<servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>resteasy</servlet-name>
-		<url-pattern>/rest/*</url-pattern>
-	</servlet-mapping>
-	${enable.resteasy.end}
 
 	<servlet-mapping>
 		<servlet-name>action</servlet-name>

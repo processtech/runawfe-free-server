@@ -62,6 +62,7 @@ public abstract class BaseProcessFormAction extends ActionBase {
                 Long processId = executeProcessFromAction(request, form, mapping, profile);
                 if (WebResources.isAutoShowForm()) {
                     forward = AutoShowFormHelper.getNextActionForward(user, mapping, profile, processId);
+                    FormSubmissionUtils.removePreviousUserInputVariables(request);
                 }
                 if (forward == null) {
                     forward = mapping.findForward(Resources.FORWARD_SUCCESS);

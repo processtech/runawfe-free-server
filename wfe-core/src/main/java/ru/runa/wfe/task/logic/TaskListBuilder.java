@@ -12,13 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
@@ -65,13 +58,20 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDAO;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 /**
  * Task list builder component.
  * 
  * @author Dofs
  * @since 4.0
  */
-public class TaskListBuilder implements ITaskListBuilder {
+public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBuilder {
     protected static final int CAN_I_SUBSTITUTE = 1;
     protected static final int SUBSTITUTION_APPLIES = 0x10;
 
@@ -143,6 +143,7 @@ public class TaskListBuilder implements ITaskListBuilder {
         return result;
     }
 
+    @Override
     public List<WfTask> getObservableTasks(Actor actor, BatchPresentation batchPresentation) {
         Preconditions.checkNotNull(batchPresentation, "batchPresentation");
         Preconditions.checkArgument(batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation);
