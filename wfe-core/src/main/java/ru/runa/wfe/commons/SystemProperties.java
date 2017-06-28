@@ -322,5 +322,12 @@ public class SystemProperties {
     public static boolean isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling() {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
-
+    
+    public static List<String> getUserDefaultPermissions(){
+    	return RESOURCES.getMultipleStringProperty("user.default.permissions");
+    }
+    
+    public static List<String> getGroupDefaultPermissions(){
+    	return RESOURCES.getMultipleStringProperty("group.default.permissions");
+    }
 }
