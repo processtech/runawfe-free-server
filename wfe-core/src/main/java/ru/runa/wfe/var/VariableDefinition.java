@@ -32,6 +32,7 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -49,6 +50,7 @@ public class VariableDefinition implements Serializable {
     private UserType[] formatComponentUserTypes;
     private boolean publicAccess;
     private Object defaultValue;
+    private VariableStoreType storeType = VariableStoreType.DEFAULT;
     private transient VariableFormat variableFormat;
 
     public VariableDefinition() {
@@ -255,7 +257,7 @@ public class VariableDefinition implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("name", getName()).add("format", format).toString();
+        return Objects.toStringHelper(this).add("name", getName()).add("format", format).add("storeType", storeType).toString();
     }
 
     public static String toScriptingName(String variableName) {
@@ -276,6 +278,14 @@ public class VariableDefinition implements Serializable {
         }
         String scriptingName = String.valueOf(chars).intern();
         return scriptingName;
+    }
+
+    public VariableStoreType getStoreType() {
+        return storeType;
+    }
+
+    public void setStoreType(String storeType) {
+        this.storeType = !Strings.isNullOrEmpty(storeType) ? VariableStoreType.valueOf(storeType.toUpperCase()) : VariableStoreType.DEFAULT;
     }
 
 }
