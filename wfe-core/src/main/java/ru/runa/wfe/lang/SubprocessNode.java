@@ -9,6 +9,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -96,8 +97,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected ProcessDefinition getSubProcessDefinition() {
         Long version = getProcessDefinition().getDeployment().getVersion();
         if (version < 0) {
-            Deployment deployment = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
-            return processDefinitionLoader.getDefinition(deployment.getId());
+            try {
+                Deployment deployment = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
+                return processDefinitionLoader.getDefinition(deployment.getId());
+            } catch (DefinitionDoesNotExistException e) {
+                if (!"true".equals(System.getProperty("subprocess.negative.version.fallback.to.last.version"))) {
+                    throw e;
+                }
+            }
         }
         return processDefinitionLoader.getLatestDefinition(subProcessName);
     }
@@ -132,8 +139,8 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             if (copyValue) {
                 Object value = variableProvider.getValue(variableName);
                 if (value != null) {
-                    log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value
-                            + " of " + value.getClass());
+                    log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value + " of "
+                            + value.getClass());
                     variables.put(mappedName, value);
                 } else {
                     log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
