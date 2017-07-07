@@ -408,6 +408,22 @@
 		</property>
 	</bean>
 	
+	<bean id="expiredTaskNotifierHandler" class="ru.runa.wfe.extension.handler.ExpiredTaskNotifierHandler">
+        <property name="configuration" value="expired.email.config.xml" />
+    </bean>
+    
+    <bean id="expiredNotifierTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+        <property name="delay" value="60000" />
+        <property name="period" value="60000" />
+        <property name="timerTask">
+            <bean class="ru.runa.wfe.job.impl.NotifierJobTask">
+                <property name="transactionalExecutor">
+                    <bean class="ru.runa.wfe.job.impl.NotifierJobTaskExecutor" />
+                </property>
+            </bean>
+        </property>
+    </bean>
+	
 	<bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
 		<property name="scheduledTimerTasks">
 			<list>
@@ -416,6 +432,7 @@
 				<ref bean="tasksAssignTask" />
 				<ref bean="removeUnusedTemporaryGroupsTask" />
 				<ref bean="aggregatedHistoryImportTask" />
+				<ref bean="expiredNotifierTask" />
 			</list>
 		</property>
 	</bean>
