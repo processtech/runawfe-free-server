@@ -33,7 +33,7 @@ import ru.runa.wfe.var.Variable;
 
 /**
  * Created on 22.10.2005
- * 
+ *
  */
 public class ProcessWithTasksClassPresentation extends ClassPresentation {
     public static final String PROCESS_ID = "batch_presentation.process.id";
@@ -146,10 +146,9 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new ChildDBSource(Task.class, "deadlineDate"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(), new SubProcessDBSource(
-                        Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {},
-                        true),
+                        Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}),
                 new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDBSources.get(null), true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.ProcessVariableTDBuilder", new Object[] {}, true) });
+                        "ru.runa.wf.web.html.ProcessVariableTDBuilder", new Object[] {}) });
     }
 
     public static final ClassPresentation getInstance() {
