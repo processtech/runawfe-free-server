@@ -66,7 +66,7 @@ public class TaskObservableClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_VARIABLE, Variable.class.getName(), VariableDBSources.get("process"), true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.TaskVariableTDBuilder", new Object[] {}, true),
+                        "ru.runa.wf.web.html.TaskVariableTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDBSource(Task.class, "deadlineDate"), true, 1,
                         BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDeadlineTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_CREATE_DATE, Date.class.getName(), new DefaultDBSource(Task.class, "createDate"), true,
