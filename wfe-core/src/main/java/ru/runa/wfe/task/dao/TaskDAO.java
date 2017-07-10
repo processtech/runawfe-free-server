@@ -85,6 +85,13 @@ public class TaskDAO extends GenericDAO<Task> {
                 new String[] { "actorId", "tasksIds" }, new Object[] { actorId, tasksIds });
     }
 
+    /**
+     * @return return all not expired tasks.
+     */
+    public List<Task> getAllNotExpiredTasks() {
+        return getHibernateTemplate().find("from Task where deadlineDate < current_timestamp");
+    }
+
     public void deleteAll(Process process) {
         log.debug("deleting tasks for process " + process.getId());
         getHibernateTemplate().bulkUpdate("delete from Task where process=?", process);
