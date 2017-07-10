@@ -18,6 +18,7 @@
 package ru.runa.wfe.security;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.commons.SystemProperties;
 
 /**
  * Class represents permissions on any {@link SecuredObject}. Every type of {@link SecuredObject} can own subclass of this class which represent set
@@ -45,6 +48,46 @@ public class Permission implements Serializable {
      * Update permission. Update permission usually allows change object state.
      */
     public static final Permission UPDATE_PERMISSIONS = new Permission(1, "permission.update_permissions");
+
+    /**
+     * Default user permissions.
+     * 
+     * @return
+     */
+    public static final List<Permission> getUserDefaultPermissions(SecuredObjectType s) {
+        List<Permission> defPermList = new ArrayList<>();
+        List<String> defProperties = SystemProperties.getUserDefaultPermissions();
+        if (!defProperties.isEmpty()) {
+            for (String prop : defProperties) {
+                for (Permission p : s.getAllPermissions()) {
+                    if (p.getName().equals(prop)) {
+                        defPermList.add(p);
+                    }
+                }
+            }
+        }
+        return defPermList;
+    }
+
+    /**
+     * Default group permissions.
+     * 
+     * @return
+     */
+    public static final List<Permission> getGroupDefaultPermissions(SecuredObjectType s) {
+        List<Permission> defPermList = new ArrayList<>();
+        List<String> defProperties = SystemProperties.getGroupDefaultPermissions();
+        if (!defProperties.isEmpty()) {
+            for (String prop : defProperties) {
+                for (Permission p : s.getAllPermissions()) {
+                    if (p.getName().equals(prop)) {
+                        defPermList.add(p);
+                    }
+                }
+            }
+        }
+        return defPermList;
+    }
 
     /**
      * All defined permissions.
