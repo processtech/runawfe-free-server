@@ -39,7 +39,6 @@ import ru.runa.wfe.commons.SystemProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Permission implements Serializable {
     private static final long serialVersionUID = -3672653529467591904L;
-
     /**
      * Read permission. Read permission usually allows read/get object.
      */
@@ -50,42 +49,25 @@ public class Permission implements Serializable {
     public static final Permission UPDATE_PERMISSIONS = new Permission(1, "permission.update_permissions");
 
     /**
-     * Default user permissions.
+     * Default executor permissions.
      * 
      * @return
      */
-    public static final List<Permission> getUserDefaultPermissions(SecuredObjectType s) {
+    public static final List<Permission> getDefaultPermissions(SecuredObjectType securedObjectType) {
         List<Permission> defPermList = new ArrayList<>();
-        List<String> defProperties = SystemProperties.getUserDefaultPermissions();
-        if (!defProperties.isEmpty()) {
-            for (String prop : defProperties) {
-                for (Permission p : s.getAllPermissions()) {
-                    if (p.getName().equals(prop)) {
-                        defPermList.add(p);
-                    }
-                }
-            }
-        }
-        return defPermList;
-    }
+        Permission permission = securedObjectType.getNoPermission();
 
-    /**
-     * Default group permissions.
-     * 
-     * @return
-     */
-    public static final List<Permission> getGroupDefaultPermissions(SecuredObjectType s) {
-        List<Permission> defPermList = new ArrayList<>();
-        List<String> defProperties = SystemProperties.getGroupDefaultPermissions();
+        List<String> defProperties = SystemProperties.getDefaultPermissions(securedObjectType.toString().toLowerCase() + ".default.permissions");
         if (!defProperties.isEmpty()) {
             for (String prop : defProperties) {
-                for (Permission p : s.getAllPermissions()) {
+                for (Permission p : permission.getAllPermissions()) {
                     if (p.getName().equals(prop)) {
                         defPermList.add(p);
                     }
                 }
             }
         }
+
         return defPermList;
     }
 

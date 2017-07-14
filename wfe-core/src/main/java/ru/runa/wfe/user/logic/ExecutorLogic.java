@@ -41,7 +41,6 @@ import ru.runa.wfe.relation.dao.RelationPairDAO;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.security.WeakPasswordException;
 import ru.runa.wfe.ss.dao.SubstitutionDAO;
@@ -149,13 +148,7 @@ public class ExecutorLogic extends CommonLogic {
 
     public <T extends Executor> T create(User user, T executor) {
         checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.CREATE_EXECUTOR);
-        Collection<Permission> selfPermissions;
-        SecuredObjectType securedObjectType = executor.getSecuredObjectType();
-        if (executor instanceof Group) {
-            selfPermissions = Permission.getGroupDefaultPermissions(securedObjectType);
-        } else {
-            selfPermissions = Permission.getUserDefaultPermissions(securedObjectType);
-        }
+        Collection<Permission> selfPermissions = Permission.getDefaultPermissions(executor.getSecuredObjectType());
         executorDAO.create(executor);
         postCreateExecutor(user, executor, selfPermissions);
         return executor;

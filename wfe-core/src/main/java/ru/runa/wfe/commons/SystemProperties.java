@@ -323,11 +323,7 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
-    public static List<String> getUserDefaultPermissions() {
-        return RESOURCES.getMultipleStringProperty("user.default.permissions");
-    }
-
-    public static List<String> getGroupDefaultPermissions() {
-        return RESOURCES.getMultipleStringProperty("group.default.permissions");
+    public static List<String> getDefaultPermissions(String permissions) {
+        return RESOURCES.getMultipleStringProperty(permissions);
     }
 }
