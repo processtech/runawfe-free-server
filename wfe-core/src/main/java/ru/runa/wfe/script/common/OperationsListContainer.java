@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.batch.ReplicateBatchPresentationOperation;
 import ru.runa.wfe.script.botstation.AddConfigurationsToBotOperation;
@@ -26,6 +28,8 @@ import ru.runa.wfe.script.executor.DeleteExecutorsOperation;
 import ru.runa.wfe.script.executor.RemoveExecutorsFromGroupOperation;
 import ru.runa.wfe.script.executor.SetActorInactiveOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnActorOperation;
+import ru.runa.wfe.script.permission.AddPermissionsOnAllActorsOperation;
+import ru.runa.wfe.script.permission.AddPermissionsOnAllGroupsOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnBotStationOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnDefinitionOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnGroupOperation;
@@ -67,8 +71,6 @@ import ru.runa.wfe.script.relation.CreateRelationOperation;
 import ru.runa.wfe.script.report.DeployReportOperation;
 import ru.runa.wfe.script.substitution.ChangeSubstitutionOperation;
 
-import com.google.common.collect.Lists;
-
 @XmlTransient
 public abstract class OperationsListContainer {
     @XmlElements({
@@ -87,6 +89,8 @@ public abstract class OperationsListContainer {
             @XmlElement(name = RemovePermissionsOnGroupOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemovePermissionsOnGroupOperation.class),
             @XmlElement(name = SetPermissionsOnGroupOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOnGroupOperation.class),
             @XmlElement(name = RemoveAllPermissionsFromExecutorOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemoveAllPermissionsFromExecutorOperation.class),
+            @XmlElement(name = AddPermissionsOnAllActorsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOnAllActorsOperation.class),
+            @XmlElement(name = AddPermissionsOnAllGroupsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOnAllGroupsOperation.class),
 
             @XmlElement(name = AddPermissionsOnSystemOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOnSystemOperation.class),
             @XmlElement(name = RemovePermissionsOnSystemOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemovePermissionsOnSystemOperation.class),

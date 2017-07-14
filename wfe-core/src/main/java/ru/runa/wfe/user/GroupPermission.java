@@ -37,6 +37,10 @@ public class GroupPermission extends ExecutorPermission {
 
     private static final List<Permission> GROUP_PERMISSIONS = fillPermissions();
 
+    {
+        DEFAULT_PERMISSIONS = "group.default.permissions";
+    }
+
     private GroupPermission(byte maskPower, String name) {
         super(maskPower, name);
     }

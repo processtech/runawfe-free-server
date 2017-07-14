@@ -34,6 +34,10 @@ public class ActorPermission extends ExecutorPermission {
     public static final Permission VIEW_TASKS = new ActorPermission((byte) 4, "permission.view_actor_tasks");
     private static final List<Permission> PERMISSIONS = fillPermissions();
 
+    {
+        DEFAULT_PERMISSIONS = "user.default.permissions";
+    }
+
     public ActorPermission() {
         super();
     }

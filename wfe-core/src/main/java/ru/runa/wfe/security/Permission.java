@@ -31,6 +31,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.user.Executor;
 
 /**
  * Class represents permissions on any {@link SecuredObject}. Every type of {@link SecuredObject} can own subclass of this class which represent set
@@ -39,7 +40,7 @@ import ru.runa.wfe.commons.SystemProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Permission implements Serializable {
     private static final long serialVersionUID = -3672653529467591904L;
-
+    public String DEFAULT_PERMISSIONS;
     /**
      * Read permission. Read permission usually allows read/get object.
      */
@@ -50,42 +51,25 @@ public class Permission implements Serializable {
     public static final Permission UPDATE_PERMISSIONS = new Permission(1, "permission.update_permissions");
 
     /**
-     * Default user permissions.
+     * Default executor permissions.
      * 
      * @return
      */
-    public static final List<Permission> getUserDefaultPermissions(SecuredObjectType s) {
+    public static final <T extends Executor> List<Permission> getDefaultPermissions(T executor) {
         List<Permission> defPermList = new ArrayList<>();
-        List<String> defProperties = SystemProperties.getUserDefaultPermissions();
-        if (!defProperties.isEmpty()) {
-            for (String prop : defProperties) {
-                for (Permission p : s.getAllPermissions()) {
-                    if (p.getName().equals(prop)) {
-                        defPermList.add(p);
-                    }
-                }
-            }
-        }
-        return defPermList;
-    }
+        Permission permission = executor.getSecuredObjectType().getNoPermission();
 
-    /**
-     * Default group permissions.
-     * 
-     * @return
-     */
-    public static final List<Permission> getGroupDefaultPermissions(SecuredObjectType s) {
-        List<Permission> defPermList = new ArrayList<>();
-        List<String> defProperties = SystemProperties.getGroupDefaultPermissions();
+        List<String> defProperties = SystemProperties.getDefaultPermissions(permission.DEFAULT_PERMISSIONS);
         if (!defProperties.isEmpty()) {
             for (String prop : defProperties) {
-                for (Permission p : s.getAllPermissions()) {
+                for (Permission p : permission.getAllPermissions()) {
                     if (p.getName().equals(prop)) {
                         defPermList.add(p);
                     }
                 }
             }
         }
+
         return defPermList;
     }
 

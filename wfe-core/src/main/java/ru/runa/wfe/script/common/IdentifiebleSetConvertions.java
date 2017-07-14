@@ -2,13 +2,13 @@ package ru.runa.wfe.script.common;
 
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.Identifiable;
-
-import com.google.common.collect.Sets;
 
 public final class IdentifiebleSetConvertions {
 
@@ -28,12 +28,20 @@ public final class IdentifiebleSetConvertions {
         return actors;
     }
 
+    public static Set<Identifiable> getActors(ScriptExecutionContext context) {
+        return context.getExecutorLogic().getActors(context.getUser());
+    }
+
     public static Set<Identifiable> getGroups(ScriptExecutionContext context, Set<String> groupNames) {
         Set<Identifiable> groups = Sets.newHashSet();
         for (String groupName : groupNames) {
             groups.add(context.getExecutorLogic().getGroup(context.getUser(), groupName));
         }
         return groups;
+    }
+
+    public static Set<Identifiable> getGroups(ScriptExecutionContext context) {
+        return context.getExecutorLogic().getGroups(context.getUser());
     }
 
     public static Set<Identifiable> getRelations(ScriptExecutionContext context, Set<String> relationNames) {
