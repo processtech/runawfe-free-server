@@ -28,6 +28,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
@@ -36,6 +40,7 @@ import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.relation.dao.RelationPairDAO;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.AuthorizationException;
+import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.security.WeakPasswordException;
@@ -50,10 +55,6 @@ import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Created on 14.03.2005
@@ -103,12 +104,30 @@ public class ExecutorLogic extends CommonLogic {
         return checkPermissionsOnExecutor(user, executorDAO.getActor(name), Permission.READ);
     }
 
+    public Set<Identifiable> getActors(User user) {
+        Set<Identifiable> actors = Sets.newHashSet();
+        List<Actor> actorsList = checkPermissionsOnExecutors(user, executorDAO.getActors(), Permission.READ);
+        for (Actor actor : actorsList) {
+            actors.add(actor);
+        }
+        return actors;
+    }
+
     public Actor getActorCaseInsensitive(String login) {
         return executorDAO.getActorCaseInsensitive(login);
     }
 
     public Group getGroup(User user, String name) {
         return checkPermissionsOnExecutor(user, executorDAO.getGroup(name), Permission.READ);
+    }
+
+    public Set<Identifiable> getGroups(User user) {
+        Set<Identifiable> groups = Sets.newHashSet();
+        List<Group> groupsList = checkPermissionsOnExecutors(user, executorDAO.getGroups(), Permission.READ);
+        for (Group group : groupsList) {
+            groups.add(group);
+        }
+        return groups;
     }
 
     public Executor getExecutor(User user, String name) {
@@ -148,12 +167,7 @@ public class ExecutorLogic extends CommonLogic {
 
     public <T extends Executor> T create(User user, T executor) {
         checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.CREATE_EXECUTOR);
-        Collection<Permission> selfPermissions;
-        if (executor instanceof Group) {
-            selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
-        } else {
-            selfPermissions = Lists.newArrayList(Permission.READ);
-        }
+        Collection<Permission> selfPermissions = Permission.getDefaultPermissions(executor);
         executorDAO.create(executor);
         postCreateExecutor(user, executor, selfPermissions);
         return executor;

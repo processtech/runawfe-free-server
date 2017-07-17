@@ -33,6 +33,13 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDAO;
@@ -48,13 +55,6 @@ import ru.runa.wfe.user.ExecutorGroupMembership;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.cache.ExecutorCache;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * DAO for managing executors.
@@ -130,6 +130,14 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     @Override
     public Actor getActor(String name) {
         return getExecutor(Actor.class, name);
+    }
+
+    public List<Actor> getActors() {
+        return getHibernateTemplate().find("from Actor a");
+    }
+
+    public List<Group> getGroups() {
+        return getHibernateTemplate().find("from Group g");
     }
 
     /**
@@ -248,7 +256,8 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     /**
      * Returns identities of {@linkplain Actor} and all his groups recursively. Actor identity is always result[0], but groups identities order is not
-     * specified. </br> For example G1 contains A1 and G2 contains G1. In this case:</br>
+     * specified. </br>
+     * For example G1 contains A1 and G2 contains G1. In this case:</br>
      * <code>getActorAndGroupsIds(A1) == {A1.id, G1.id, G2.id}.</code>
      * 
      * @param actor
@@ -413,8 +422,8 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     /**
-     * Load all {@linkplain Executor}s according to {@linkplain BatchPresentation}.</br> <b>Paging is not enabled. Really ALL executors is
-     * loading.</b>
+     * Load all {@linkplain Executor}s according to {@linkplain BatchPresentation}.</br>
+     * <b>Paging is not enabled. Really ALL executors is loading.</b>
      * 
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load executors.
@@ -425,7 +434,8 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     /**
-     * Load all {@linkplain Actor}s according to {@linkplain BatchPresentation} .</br> <b>Paging is not enabled. Really ALL actors is loading.</b>
+     * Load all {@linkplain Actor}s according to {@linkplain BatchPresentation} .</br>
+     * <b>Paging is not enabled. Really ALL actors is loading.</b>
      * 
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load actors.
@@ -436,7 +446,8 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     /**
-     * Load all {@linkplain Group}s.</br> <b>Paging is not enabled. Really ALL groups is loading.</b>
+     * Load all {@linkplain Group}s.</br>
+     * <b>Paging is not enabled. Really ALL groups is loading.</b>
      * 
      * @return {@linkplain Group}s.
      */
@@ -525,8 +536,9 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     /**
-     * Returns true if executor belongs to group recursively or false in any other case.</br> For example G1 contains G2, G2 contains A1. In this
-     * case:</br> <code>isExecutorInGroup(A1,G2) == true;</code>
+     * Returns true if executor belongs to group recursively or false in any other case.</br>
+     * For example G1 contains G2, G2 contains A1. In this case:</br>
+     * <code>isExecutorInGroup(A1,G2) == true;</code>
      * 
      * @param executor
      *            An executor to check if it in group.
@@ -539,7 +551,8 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     /**
-     * Returns group children (first level children, not recursively).</br> For example G1 contains G2, G2 contains A1 and A2. In this case:</br>
+     * Returns group children (first level children, not recursively).</br>
+     * For example G1 contains G2, G2 contains A1 and A2. In this case:</br>
      * <code> getGroupChildren(G2) == {A1, A2}</code><br/>
      * <code> getGroupChildren(G1) == {G2} </code>
      * 
@@ -611,9 +624,9 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     /**
-     * Returns an array of actors from group (first level children, not recursively).</br> For example G1 contains G2 and A0, G2 contains A1 and A2.
-     * In this case: Only actor (non-group) executors are returned.</br> <code> getAllNonGroupExecutorsFromGroup(G2) returns {A1, A2}</code>;
-     * <code> getAllNonGroupExecutorsFromGroup(G1) returns {A0} </code>
+     * Returns an array of actors from group (first level children, not recursively).</br>
+     * For example G1 contains G2 and A0, G2 contains A1 and A2. In this case: Only actor (non-group) executors are returned.</br>
+     * <code> getAllNonGroupExecutorsFromGroup(G2) returns {A1, A2}</code>; <code> getAllNonGroupExecutorsFromGroup(G1) returns {A0} </code>
      * 
      * @param group
      *            {@linkplain Group}, to load actor children's.

@@ -3,11 +3,11 @@ package ru.runa.wfe.commons;
 import java.util.Calendar;
 import java.util.List;
 
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
-import ru.runa.wfe.lang.NodeType;
-
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.lang.NodeType;
 
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
@@ -323,4 +323,7 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
+    public static List<String> getDefaultPermissions(String permissions) {
+        return RESOURCES.getMultipleStringProperty(permissions);
+    }
 }
