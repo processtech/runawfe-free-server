@@ -18,7 +18,6 @@
 package ru.runa.wfe.security;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +28,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-
-import ru.runa.wfe.commons.SystemProperties;
 
 /**
  * Class represents permissions on any {@link SecuredObject}. Every type of {@link SecuredObject} can own subclass of this class which represent set
@@ -47,29 +44,6 @@ public class Permission implements Serializable {
      * Update permission. Update permission usually allows change object state.
      */
     public static final Permission UPDATE_PERMISSIONS = new Permission(1, "permission.update_permissions");
-
-    /**
-     * Default executor permissions.
-     * 
-     * @return
-     */
-    public static final List<Permission> getDefaultPermissions(SecuredObjectType securedObjectType) {
-        List<Permission> defPermList = new ArrayList<>();
-        Permission permission = securedObjectType.getNoPermission();
-
-        List<String> defProperties = SystemProperties.getDefaultPermissions(securedObjectType.toString().toLowerCase() + ".default.permissions");
-        if (!defProperties.isEmpty()) {
-            for (String prop : defProperties) {
-                for (Permission p : permission.getAllPermissions()) {
-                    if (p.getName().equals(prop)) {
-                        defPermList.add(p);
-                    }
-                }
-            }
-        }
-
-        return defPermList;
-    }
 
     /**
      * All defined permissions.

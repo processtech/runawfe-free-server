@@ -28,10 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
@@ -54,6 +50,10 @@ import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Created on 14.03.2005
@@ -148,7 +148,7 @@ public class ExecutorLogic extends CommonLogic {
 
     public <T extends Executor> T create(User user, T executor) {
         checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.CREATE_EXECUTOR);
-        Collection<Permission> selfPermissions = Permission.getDefaultPermissions(executor.getSecuredObjectType());
+        Collection<Permission> selfPermissions = SystemProperties.getDefaultPermissions(executor.getSecuredObjectType());
         executorDAO.create(executor);
         postCreateExecutor(user, executor, selfPermissions);
         return executor;
