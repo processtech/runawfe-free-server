@@ -1,4 +1,4 @@
 # runawfe-server
 
-details visit to:
+Visit:
 http://www.runawfe.org/About
