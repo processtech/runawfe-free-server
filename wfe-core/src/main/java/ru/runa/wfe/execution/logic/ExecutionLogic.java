@@ -324,11 +324,45 @@ public class ExecutionLogic extends WFCommonLogic {
         }
     }
 
+    public boolean upgradeProcessesToDefinitionVersion(User user, Long processId, Long version) {
+
+        if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) { //todo: check here for new rules
+            throw new ConfigurationException(
+                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
+        }
+
+        Process currentProcess = processDAO.getNotNull(processId);
+        Deployment deployment = currentProcess.getDeployment();
+
+        long newDeploymentVersion = version != null ? version : deployment.getVersion() + 1;
+        if (newDeploymentVersion == deployment.getVersion()) {
+            return false;
+        }
+
+        Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newDeploymentVersion);
+
+        ProcessFilter filter = new ProcessFilter();
+            filter.setDefinitionName(deployment.getName());
+            filter.setDefinitionVersion(deployment.getVersion());
+            filter.setFinished(false);
+
+            List<Process> processes = processDAO.getProcesses(filter);
+
+            for (Process process : processes) {
+                process.setDeployment(nextDeployment);
+                processDAO.update(process);
+                processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
+                        newDeploymentVersion), process, null);
+            }
+        return true;
+    }
+
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
+
         Process process = processDAO.getNotNull(processId);
         // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
         Deployment deployment = process.getDeployment();

@@ -1,4 +1,5 @@
 <%@page import="ru.runa.common.Version"%>
+<%@page import="ru.runa.common.web.Commons"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
@@ -10,6 +11,8 @@
 
 <tiles:put name="head" type="string">
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
+	<script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/processesupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
 </tiles:put>
 
 <tiles:put name="body" type="string" >
