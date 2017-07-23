@@ -102,12 +102,14 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         String sizeVariableName = context.variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
         VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
-        if (size == null && SystemProperties.isV4ListVariableCompatibilityMode()) {
-            Variable<?> variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
-            if (variable != null) {
-                return processComplexVariables(context.processDefinition, context.variableDefinition, null, variable.getValue());
+        if (size == null) {
+            if (SystemProperties.isV4ListVariableCompatibilityMode()) {
+                Variable<?> variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
+                if (variable != null) {
+                    return processComplexVariables(context.processDefinition, context.variableDefinition, null, variable.getValue());
+                }
             }
-            return null;
+            return context.variableDefinition.getDefaultValue();
         }
         String[] formatComponentClassNames = context.variableDefinition.getFormatComponentClassNames();
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;

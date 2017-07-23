@@ -371,7 +371,7 @@ public class ExecutionContext {
             if (value != null && null != token && null != token.getProcess()) {
                 if (syncVariableDefinition == null || !subprocessSyncCache.isInBaseProcessIdMode(token.getProcess())) {
                     variable = variableCreator.create(token.getProcess(), variableDefinition, value);
-                    resultingVariableLog = variable.setValue(this, value, variableDefinition.getFormatNotNull());
+                    resultingVariableLog = variable.setValue(this, value, variableDefinition);
                     variableDAO.create(variable);
                     if (autoExtend && variableDefinition.getName().contains(VariableFormatContainer.COMPONENT_QUALIFIER_START)) {
                         String autoExtendVariableName = variableDefinition.getName();
@@ -406,7 +406,7 @@ public class ExecutionContext {
             }
             log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'"
                     + (value != null ? " of " + value.getClass() : ""));
-            resultingVariableLog = variable.setValue(this, value, variableDefinition.getFormatNotNull());
+            resultingVariableLog = variable.setValue(this, value, variableDefinition);
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
