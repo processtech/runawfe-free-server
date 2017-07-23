@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
+import ru.runa.wfe.var.impl.ByteArrayVariable;
 import ru.runa.wfe.var.impl.NullVariable;
 
 public class VariableCreator {
@@ -18,7 +20,7 @@ public class VariableCreator {
     private List<VariableType> types;
 
     @Autowired
-    private VariableType serializableVariableType;
+    private SerializableToByteArrayConverter serializableToByteArrayConverter;
 
     @Required
     public void setTypes(List<VariableType> types) {
@@ -61,19 +63,15 @@ public class VariableCreator {
         if (value == null) {
             variable = new NullVariable();
         } else if (variableDefinition.getStoreType() == VariableStoreType.BLOB && value instanceof Serializable) {
-            try {
-                variable = serializableVariableType.getVariableClass().newInstance();
-                variable.setConverter(serializableVariableType.getConverter());
-            } catch (Exception e) {
-                throw new InternalApplicationException("Unable to create variable " + serializableVariableType.getVariableClass(), e);
-            }
+            log.debug("Using blob storage");
+            variable = new ByteArrayVariable();
+            variable.setConverter(serializableToByteArrayConverter);
         } else {
             variable = create(value);
         }
         variable.setName(variableDefinition.getName());
         variable.setProcess(process);
         variable.setCreateDate(new Date());
-        log.info(String.format("create: variableDefinition: %s variable: %s converter: %s", variableDefinition, variable, variable.getConverter()));
         return variable;
     }
 

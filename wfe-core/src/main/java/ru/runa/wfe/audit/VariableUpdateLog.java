@@ -27,12 +27,11 @@ import javax.persistence.Transient;
 
 import ru.runa.wfe.audit.presentation.FileValue;
 import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.format.VariableFormat;
-import ru.runa.wfe.var.matcher.FileVariableMatcher;
+import ru.runa.wfe.var.VariableDefinition;
 
 /**
  * Logging variable update.
- *
+ * 
  * @author Dofs
  */
 @Entity
@@ -43,24 +42,18 @@ public class VariableUpdateLog extends VariableLog {
     public VariableUpdateLog() {
     }
 
-    public VariableUpdateLog(Variable<?> variable, Object oldValue, Object newValue, VariableFormat format) {
+    public VariableUpdateLog(Variable<?> variable, Object oldValue, Object newValue, VariableDefinition variableDefinition) {
         super(variable);
-        boolean saveOldValue = !(variable.getStorableValue() instanceof byte[]) || FileVariableMatcher.isFileOrListOfFiles(oldValue);
-        if (saveOldValue) {
-            // don't save previous big values, it can be found from previous
-            // records
-            addAttributeWithTruncation(ATTR_OLD_VALUE, variable.toString(oldValue, format));
-        }
-        setVariableNewValue(variable, newValue, format);
+        setVariableNewValue(variable, newValue, variableDefinition);
     }
 
     @Override
     @Transient
     public Object[] getPatternArguments() {
         if (isFileValue()) {
-            return new Object[] { getVariableName(), getAttribute(ATTR_OLD_VALUE), new FileValue(getId(), getVariableNewValueAttribute()) };
+            return new Object[] { getVariableName(), new FileValue(getId(), getVariableNewValueAttribute()) };
         }
-        return new Object[] { getVariableName(), getAttribute(ATTR_OLD_VALUE), getVariableNewValue() };
+        return new Object[] { getVariableName(), getVariableNewValue() };
     }
 
     @Override
