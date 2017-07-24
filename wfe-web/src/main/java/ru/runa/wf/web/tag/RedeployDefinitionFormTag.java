@@ -17,21 +17,15 @@
  */
 package ru.runa.wf.web.tag;
 
-import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.Element;
-import org.apache.ecs.Entities;
-import org.apache.ecs.StringElement;
 import org.apache.ecs.html.*;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.*;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.DefinitionCategoriesIterator;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.RedeployProcessDefinitionAction;
-import ru.runa.wf.web.action.UpgradeProcessToDefinitionVersionAction;
 import ru.runa.wf.web.action.UpgradeProcessesToDefinitionVersionAction;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -41,6 +35,8 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
+
+import javax.servlet.jsp.PageContext;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "redeployDefinitionForm")
 public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
@@ -63,17 +59,14 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         table.addElement(HTMLUtils.createCheckboxRow(MessagesProcesses.LABEL_UPDATE_CURRENT_VERSION.message(pageContext),
                 TYPE_UPDATE_CURRENT_VERSION, false, true, false));
 
-        //victor
-        //User user = Commons.getUser(pageContext.getSession());
-        WfProcess process = Delegates.getExecutionService().getProcess(user, getIdentifiableId());
+        if (SystemProperties.isUpgradeProcessInstancesToDefinitionVersionEnabled()) {
+            WfProcess process = Delegates.getExecutionService().getProcess(user, getIdentifiableId());
 
-        TR versionTR = new TR();
-        table.addElement(versionTR);
-        //String definitionVersion = Messages.getMessage(DefinitionClassPresentation.VERSION, pageContext);
-        //versionTR.addElement(new TD(definitionVersion).setClass(Resources.CLASS_LIST_TABLE_TD));
-        Element versionElement = new StringElement(String.valueOf(process.getVersion()));
-        versionElement = addUpgradeProcessesLinkIfRequired(process, versionElement);
-        versionTR.addElement(new TD(versionElement).setClass(Resources.CLASS_LIST_TABLE_TD));
+            TR upgradeProcessesTR = new TR();
+            table.addElement(upgradeProcessesTR);
+            Element upgradeProcessesElement = addUpgradeProcessesLink(process);
+            upgradeProcessesTR.addElement(new TD(upgradeProcessesElement).setClass(Resources.CLASS_LIST_TABLE_TD));
+        }
     }
 
     @Override
@@ -111,21 +104,16 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         return Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.REDEPLOY_DEFINITION, getIdentifiable());
     }
 
-    private Element addUpgradeProcessesLinkIfRequired(WfProcess process, Element versionElement) {
-        if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
-            return versionElement;
-        }
+    private Element addUpgradeProcessesLink(WfProcess process) {
         Div div = new Div();
-        div.addElement(versionElement);
-        div.addElement(Entities.NBSP);
         String url = Commons.getActionUrl(UpgradeProcessesToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(), pageContext,
                 PortletUrlType.Render);
-        A upgradeLink = new A(url, MessagesProcesses.PROCESSES_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
-        upgradeLink.addAttribute("data-processId", process.getId());
-        upgradeLink.addAttribute("data-definitionName", process.getName());
-        upgradeLink.addAttribute("data-definitionVersion", process.getVersion());
-        upgradeLink.setOnClick("selectProcessesUpgrageVersionDialog(this); return false;");
-        div.addElement(upgradeLink);
+        A upgradeProcessLink = new A(url, MessagesProcesses.PROCESSES_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
+        upgradeProcessLink.addAttribute("data-processId", process.getId());
+        upgradeProcessLink.addAttribute("data-definitionName", process.getName());
+        upgradeProcessLink.addAttribute("data-definitionVersion", process.getVersion());
+        upgradeProcessLink.setOnClick("selectProcessesUpgrageVersionDialog(this); return false;");
+        div.addElement(upgradeProcessLink);
         return div;
     }
 
