@@ -340,6 +340,13 @@ public interface ExecutionService {
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version);
 
     /**
+     * Upgrades running process to specified version of deployed definition. This is not safe operation, use it with caution.
+     *
+     * @return false if version equal to current process definition version
+     */
+    public boolean upgradeProcessesToDefinitionVersion(User user, Long processId, Long version);
+
+    /**
      * Get all active jobs (recursively) by process id.
      *
      * @param user
