@@ -73,7 +73,8 @@ function selectProcessUpgrageVersionDialog(link) {
 
 	function submitProcessUpgrade() {
 		var version = $("input[type='radio'][name='version']:checked").val();
-		window.location = $(link).attr("href") + "&version=" + version;
+		if(version != definitionVersion)
+		  window.location = $(link).attr("href") + "&version=" + version;
 	}
 
 	request();

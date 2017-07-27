@@ -59,7 +59,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         table.addElement(HTMLUtils.createCheckboxRow(MessagesProcesses.LABEL_UPDATE_CURRENT_VERSION.message(pageContext),
                 TYPE_UPDATE_CURRENT_VERSION, false, true, false));
 
-        if (SystemProperties.isUpgradeProcessInstancesToDefinitionVersionEnabled()) {
+        if (SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             WfProcess process = Delegates.getExecutionService().getProcess(user, getIdentifiableId());
 
             TR upgradeProcessesTR = new TR();
@@ -112,7 +112,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         upgradeProcessLink.addAttribute("data-processId", process.getId());
         upgradeProcessLink.addAttribute("data-definitionName", process.getName());
         upgradeProcessLink.addAttribute("data-definitionVersion", process.getVersion());
-        upgradeProcessLink.setOnClick("selectProcessesUpgrageVersionDialog(this); return false;");
+        upgradeProcessLink.setOnClick("selectProcessUpgrageVersionDialog(this); return false;");
         div.addElement(upgradeProcessLink);
         return div;
     }
