@@ -324,24 +324,14 @@ public class ExecutionLogic extends WFCommonLogic {
         }
     }
 
-    public boolean upgradeProcessesToDefinitionVersion(User user, Long wfDefinitionId, Long version) {
+    public boolean upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long version) {
 
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
-/*
-        Process currentProcess = processDAO.getNotNull(wfDefinitionId);
-        Deployment deployment = currentProcess.getDeployment();
 
-        long newDeploymentVersion = version != null ? version : deployment.getVersion() + 1;
-
-        if (newDeploymentVersion == deployment.getVersion()) {
-            return false;
-        }
-*/
-        Deployment deployment = deploymentDAO.findDeployment(wfDefinitionId);
-
+        Deployment deployment = deploymentDAO.findDeployment(definitionId);
         Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), version);
 
         ProcessFilter filter = new ProcessFilter();
