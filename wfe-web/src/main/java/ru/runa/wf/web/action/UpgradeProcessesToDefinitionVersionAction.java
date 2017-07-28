@@ -40,7 +40,6 @@ public class UpgradeProcessesToDefinitionVersionAction extends ActionBase {
         IdVersionForm form = (IdVersionForm) actionForm;
         try {
             if (Delegates.getExecutionService().upgradeProcessesToDefinitionVersion(getLoggedUser(request), form.getId(), form.getVersion())) {
-                //todo: change message
                 addMessage(request, new ActionMessage(MessagesProcesses.PROCESSES_UPGRADED_TO_DEFINITION_VERSION.getKey()));
             }
             return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), IdForm.ID_INPUT_NAME, form.getId());

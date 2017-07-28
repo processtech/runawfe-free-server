@@ -306,8 +306,8 @@
 		<action path="/upgradeProcessesToDefinitionVersion" type="ru.runa.wf.web.action.UpgradeProcessesToDefinitionVersionAction"
 				name="idVersionForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
 				unknown="false" validate="true">
-			<forward name="success" path="/manage_process.do" redirect="true" />
-			<forward name="failure" path="/manage_process.do" redirect="true" />
+			<forward name="success" path="/manage_processes.do" redirect="true" />
+			<forward name="failure" path="/manage_process_definition.do" redirect="true" />
 		</action>
 		<action path="/processDefinitionArchive"
 			type="ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction" name="idForm"
