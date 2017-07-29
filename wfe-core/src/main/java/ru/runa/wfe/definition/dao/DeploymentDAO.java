@@ -88,14 +88,6 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
         return deployment;
     }
 
-    public Deployment findDeployment(Long id) {
-        Deployment deployment = findFirstOrNull("from Deployment where id=?", id);
-        if (deployment == null) {
-            throw new DefinitionDoesNotExistException("Deployment ID " + id);
-        }
-        return deployment;
-    }
-
     /**
      * queries the database for definition names.
      */

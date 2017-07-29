@@ -17,10 +17,24 @@
  */
 package ru.runa.wf.web.tag;
 
+import javax.servlet.jsp.PageContext;
+
 import org.apache.ecs.Element;
-import org.apache.ecs.html.*;
+import org.apache.ecs.html.A;
+import org.apache.ecs.html.Div;
+import org.apache.ecs.html.Form;
+import org.apache.ecs.html.Input;
+import org.apache.ecs.html.TD;
+import org.apache.ecs.html.TR;
+import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-import ru.runa.common.web.*;
+
+import ru.runa.common.web.CategoriesSelectUtils;
+import ru.runa.common.web.Commons;
+import ru.runa.common.web.ConfirmationPopupHelper;
+import ru.runa.common.web.HTMLUtils;
+import ru.runa.common.web.Messages;
+import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.DefinitionCategoriesIterator;
@@ -31,14 +45,10 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import javax.servlet.jsp.PageContext;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "redeployDefinitionForm")
 public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
@@ -67,7 +77,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
             TR upgradeProcessesTR = new TR();
             table.addElement(upgradeProcessesTR);
             Element upgradeProcessesElement = addUpgradeProcessesLink(wfDefinition);
-            upgradeProcessesTR.addElement(new TD(upgradeProcessesElement).setClass(Resources.CLASS_LIST_TABLE_TD));
+            upgradeProcessesTR.addElement(new TD(upgradeProcessesElement).setColSpan(2).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
     }
 
@@ -106,21 +116,20 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         return Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.REDEPLOY_DEFINITION, getIdentifiable());
     }
 
-    private Element addUpgradeProcessesLink(WfDefinition wfDefinition) {
+    private Element addUpgradeProcessesLink(WfDefinition definition) {
         Div div = new Div();
-        String url = Commons.getActionUrl(UpgradeProcessesToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, wfDefinition.getId(), pageContext,
-                PortletUrlType.Render);
+        String url = Commons.getActionUrl(UpgradeProcessesToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, definition.getId(),
+                pageContext, PortletUrlType.Render);
         A upgradeProcessLink = new A(url, MessagesProcesses.PROCESSES_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
-        upgradeProcessLink.addAttribute("data-processId", wfDefinition.getId());
-        upgradeProcessLink.addAttribute("data-definitionName", wfDefinition.getName());
-        upgradeProcessLink.addAttribute("data-definitionVersion", wfDefinition.getVersion());
+        upgradeProcessLink.addAttribute("data-definitionName", definition.getName());
+        upgradeProcessLink.addAttribute("data-definitionVersion", definition.getVersion());
         upgradeProcessLink.setOnClick("selectProcessUpgrageVersionDialog(this); return false;");
         div.addElement(upgradeProcessLink);
         return div;
     }
 
     public static RedeployDefinitionFormTag getInstance() {
-        if( instance == null ) {
+        if (instance == null) {
             instance = new RedeployDefinitionFormTag();
         }
         return instance;

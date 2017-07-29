@@ -60,7 +60,7 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-    ValidationException;
+            ValidationException;
 
     /**
      * Starts new process by definition.
@@ -76,7 +76,7 @@ public interface ExecutionService {
      * @throws ValidationException
      */
     public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
-    ValidationException;
+            ValidationException;
 
     /**
      * Gets process count for {@link BatchPresentation}.
@@ -333,18 +333,18 @@ public interface ExecutionService {
     public void removeProcesses(User user, ProcessFilter filter) throws ParentProcessExistsException;
 
     /**
-     * Upgrades running process to specified version of deployed definition. This is not safe operation, use it with caution.
+     * Upgrades running process to specified version of deployed definition.
      *
      * @return false if version equal to current process definition version
      */
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version);
 
     /**
-     * Upgrades running process to specified version of deployed definition. This is not safe operation, use it with caution.
-     *
-     * @return false if version equal to current process definition version
+     * Upgrades all running processes of specified definition to another version of this definition.
+     * 
+     * @return upgraded processes count
      */
-    public boolean upgradeProcessesToDefinitionVersion(User user, Long processId, Long version);
+    public int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion);
 
     /**
      * Get all active jobs (recursively) by process id.

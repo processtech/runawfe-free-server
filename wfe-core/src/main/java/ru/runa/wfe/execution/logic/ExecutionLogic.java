@@ -324,30 +324,25 @@ public class ExecutionLogic extends WFCommonLogic {
         }
     }
 
-    public boolean upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long version) {
-
+    public int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
-
-        Deployment deployment = deploymentDAO.findDeployment(definitionId);
-        Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), version);
-
+        Deployment deployment = deploymentDAO.getNotNull(definitionId);
+        Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newVersion);
         ProcessFilter filter = new ProcessFilter();
-            filter.setDefinitionName(deployment.getName());
-            filter.setDefinitionVersion(deployment.getVersion());
-            filter.setFinished(false);
-
-            List<Process> processes = processDAO.getProcesses(filter);
-
-            for (Process process : processes) {
-                process.setDeployment(nextDeployment);
-                processDAO.update(process);
-                processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
-                        version), process, null);
-            }
-        return true;
+        filter.setDefinitionName(deployment.getName());
+        filter.setDefinitionVersion(deployment.getVersion());
+        filter.setFinished(false);
+        List<Process> processes = processDAO.getProcesses(filter);
+        for (Process process : processes) {
+            process.setDeployment(nextDeployment);
+            processDAO.update(process);
+            processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
+                    newVersion), process, null);
+        }
+        return processes.size();
     }
 
     public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version) {
@@ -355,7 +350,6 @@ public class ExecutionLogic extends WFCommonLogic {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
         }
-
         Process process = processDAO.getNotNull(processId);
         // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
         Deployment deployment = process.getDeployment();
