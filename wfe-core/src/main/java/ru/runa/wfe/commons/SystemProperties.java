@@ -223,10 +223,6 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("upgrade.process.to.definition.version.enabled", true);
     }
 
-    public static boolean isUpgradeProcessInstancesToDefinitionVersionEnabled() {
-        return RESOURCES.getBooleanProperty("upgrade.process.instances.to.definition.version.enabled", true);
-    }
-
     public static boolean isErrorEmailNotificationEnabled() {
         return getErrorEmailNotificationConfiguration() != null;
     }

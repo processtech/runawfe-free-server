@@ -31,6 +31,8 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -59,12 +61,12 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         table.addElement(HTMLUtils.createCheckboxRow(MessagesProcesses.LABEL_UPDATE_CURRENT_VERSION.message(pageContext),
                 TYPE_UPDATE_CURRENT_VERSION, false, true, false));
 
-        if (SystemProperties.isUpgradeProcessInstancesToDefinitionVersionEnabled()) {
-            WfProcess process = Delegates.getExecutionService().getProcess(user, getIdentifiableId());
+        if (SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
+            WfDefinition wfDefinition = Delegates.getDefinitionService().getProcessDefinition(user, getIdentifiableId());
 
             TR upgradeProcessesTR = new TR();
             table.addElement(upgradeProcessesTR);
-            Element upgradeProcessesElement = addUpgradeProcessesLink(process);
+            Element upgradeProcessesElement = addUpgradeProcessesLink(wfDefinition);
             upgradeProcessesTR.addElement(new TD(upgradeProcessesElement).setClass(Resources.CLASS_LIST_TABLE_TD));
         }
     }
@@ -104,15 +106,15 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
         return Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.REDEPLOY_DEFINITION, getIdentifiable());
     }
 
-    private Element addUpgradeProcessesLink(WfProcess process) {
+    private Element addUpgradeProcessesLink(WfDefinition wfDefinition) {
         Div div = new Div();
-        String url = Commons.getActionUrl(UpgradeProcessesToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(), pageContext,
+        String url = Commons.getActionUrl(UpgradeProcessesToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, wfDefinition.getId(), pageContext,
                 PortletUrlType.Render);
         A upgradeProcessLink = new A(url, MessagesProcesses.PROCESSES_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
-        upgradeProcessLink.addAttribute("data-processId", process.getId());
-        upgradeProcessLink.addAttribute("data-definitionName", process.getName());
-        upgradeProcessLink.addAttribute("data-definitionVersion", process.getVersion());
-        upgradeProcessLink.setOnClick("selectProcessesUpgrageVersionDialog(this); return false;");
+        upgradeProcessLink.addAttribute("data-processId", wfDefinition.getId());
+        upgradeProcessLink.addAttribute("data-definitionName", wfDefinition.getName());
+        upgradeProcessLink.addAttribute("data-definitionVersion", wfDefinition.getVersion());
+        upgradeProcessLink.setOnClick("selectProcessUpgrageVersionDialog(this); return false;");
         div.addElement(upgradeProcessLink);
         return div;
     }

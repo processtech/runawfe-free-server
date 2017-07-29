@@ -12,7 +12,7 @@
 <tiles:put name="head" type="string">
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/processesupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
 </tiles:put>
 
 <tiles:put name="body" type="string" >
