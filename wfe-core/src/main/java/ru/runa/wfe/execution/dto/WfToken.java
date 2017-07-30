@@ -25,8 +25,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.dto.WfNode;
 
 import com.google.common.base.Objects;
 
@@ -42,7 +42,7 @@ public class WfToken implements Serializable {
     private String name;
     private Date startDate;
     private Date endDate;
-    private Node node;
+    private WfNode node;
     private String transitionId;
     private ExecutionStatus executionStatus;
     private Date errorDate;
@@ -58,7 +58,7 @@ public class WfToken implements Serializable {
         name = token.getName();
         startDate = token.getStartDate();
         endDate = token.getEndDate();
-        node = token.getNodeNotNull(processDefinition);
+        node = new WfNode(token.getNodeNotNull(processDefinition));
         transitionId = token.getTransitionId();
         executionStatus = token.getExecutionStatus();
         errorDate = token.getErrorDate();
@@ -89,7 +89,7 @@ public class WfToken implements Serializable {
         return endDate;
     }
 
-    public Node getNode() {
+    public WfNode getNode() {
         return node;
     }
 
