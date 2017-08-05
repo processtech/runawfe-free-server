@@ -54,6 +54,13 @@ public class SystemProperties {
     }
 
     /**
+     * List variable back compatibility mode with version 4.2.x.
+     */
+    public static boolean isV4MapVariableCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.map.variable.compatibility", true);
+    }
+
+    /**
      * Using cache state machine or old cache implementation.
      */
     public static boolean useCacheStateMachine() {
