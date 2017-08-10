@@ -6,16 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.util.WfLists;
 import ru.runa.wfe.var.Variable;
-
-import com.google.common.collect.Maps;
 
 import com.google.common.collect.Maps;
 
@@ -93,12 +91,10 @@ public class VariableDAO extends GenericDAO<Variable> {
             }
         }
         List<Variable<?>> list = new ArrayList<>();
-        for (List<String> variableNamesPart : WfLists.partition(variableNames, SystemProperties.getDatabaseParametersCount())) {
-            for (List<Process> processesPart : WfLists.partition(processes, SystemProperties.getDatabaseParametersCount())) {
-                list.addAll(getHibernateTemplate().findByNamedParam("from Variable where process in (:processes) and name in (:variableNames)",///
-                        new String[]{"processes", "variableNames"},///
-                        new Object[]{processesPart, variableNamesPart}));
-            }
+        for (List<Process> processesPart : Lists.partition(Lists.newArrayList(processes), SystemProperties.getDatabaseParametersCount())) {
+            list.addAll(getHibernateTemplate().findByNamedParam("from Variable where process in (:processes) and name in (:variableNames)",///
+                    new String[]{"processes", "variableNames"},///
+                    new Object[]{processesPart, variableNames}));
         }
         for (Variable<?> variable : list) {
             result.get(variable.getProcess()).put(variable.getName(), variable);

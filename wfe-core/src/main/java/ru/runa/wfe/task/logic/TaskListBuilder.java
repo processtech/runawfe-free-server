@@ -55,7 +55,6 @@ import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-import ru.runa.wfe.util.WfLists;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDAO;
 
@@ -355,7 +354,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
     @SuppressWarnings("unchecked")
     private List<Task> loadTasks(BatchPresentation batchPresentation, Set<Executor> executorsToGetTasks) {
         List<Task> tasks = Lists.newArrayList();
-        for (List<Executor> list : WfLists.partition(Lists.newArrayList(executorsToGetTasks), SystemProperties.getDatabaseParametersCount())) {
+        for (List<Executor> list : Lists.partition(Lists.newArrayList(executorsToGetTasks), SystemProperties.getDatabaseParametersCount())) {
             CompilerParameters parameters = CompilerParameters.createNonPaged().addOwners(new RestrictionsToOwners(list, "executor"));
             tasks.addAll((List<Task>) batchPresentationCompilerFactory.createCompiler(batchPresentation).getBatch(parameters));
         }
