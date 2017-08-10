@@ -18,18 +18,23 @@
 package ru.runa.wf.web.tag;
 
 import org.apache.ecs.html.A;
+import org.apache.ecs.html.Input;
+import org.apache.ecs.html.Span;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Commons;
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
+import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction;
+import ru.runa.wf.web.action.SetProcessDefinitionSubprocessBindingDateAction;
 import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.web.PortletUrlType;
@@ -125,6 +130,51 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         String description = Messages.getMessage(DefinitionClassPresentation.DESCRIPTION, pageContext);
         descriptionTR.addElement(new TD(description).setClass(Resources.CLASS_LIST_TABLE_TD));
         descriptionTR.addElement(new TD(definition.getDescription()).setClass(Resources.CLASS_LIST_TABLE_TD));
+
+        TR subprocessBindingDateTr = new TR();
+        table.addElement(subprocessBindingDateTr);
+        String updateDateMessage = Messages.getMessage(DefinitionClassPresentation.SUBPROCESS_BINDING_DATE, pageContext);
+        subprocessBindingDateTr.addElement(new TD(updateDateMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
+        TD subprocessBindingDateTd = new TD();
+        subprocessBindingDateTd.setClass(Resources.CLASS_LIST_TABLE_TD + " subprocessBindingDate");
+        Span displayDataSpan = new Span();
+        if (definition.getSubprocessBindingDate() != null) {
+            displayDataSpan.addElement(CalendarUtil.formatDateTime(definition.getSubprocessBindingDate()));
+        }
+        displayDataSpan.setClass("displayData");
+        subprocessBindingDateTd.addElement(displayDataSpan);
+        Span editDataSpan = new Span();
+        editDataSpan.addElement(HTMLUtils.createInput(Input.HIDDEN, IdForm.ID_INPUT_NAME, definition.getId().toString()));
+        Input input = HTMLUtils.createInput("subprocessBindingDate", CalendarUtil.formatDateTime(definition.getSubprocessBindingDate()));
+        input.setClass("inputDateTime");
+        input.setStyle("width: 150px;");
+        editDataSpan.addElement(input);
+        editDataSpan.setClass("editData");
+        editDataSpan.setStyle("display: none;");
+        subprocessBindingDateTd.addElement(editDataSpan);
+        subprocessBindingDateTd.addElement(" (");
+        Span buttonsSpan = new Span();
+        buttonsSpan.setClass("buttons");
+        subprocessBindingDateTd.addElement(buttonsSpan);
+        A changeSubprocessBindingDateLink = new A("javascript:void(0);", MessagesCommon.BUTTON_CHANGE.message(pageContext));
+        changeSubprocessBindingDateLink.setClass("change");
+        buttonsSpan.addElement(changeSubprocessBindingDateLink);
+        A saveSubprocessBindingDateLink = new A("javascript:void(0);", MessagesCommon.BUTTON_APPLY.message(pageContext));
+        saveSubprocessBindingDateLink.setClass("apply");
+        saveSubprocessBindingDateLink.setStyle("display: none;");
+        buttonsSpan.addElement(saveSubprocessBindingDateLink);
+        A cancelSubprocessBindingDateLink = new A("javascript:void(0);", MessagesCommon.BUTTON_CANCEL.message(pageContext));
+        cancelSubprocessBindingDateLink.setClass("cancel");
+        cancelSubprocessBindingDateLink.setStyle("display: none;");
+        buttonsSpan.addElement(cancelSubprocessBindingDateLink);
+        subprocessBindingDateTd.addElement(buttonsSpan);
+        subprocessBindingDateTd.addElement(")");
+        subprocessBindingDateTr.addElement(subprocessBindingDateTd);
+    }
+
+    @Override
+    public String getAction() {
+        return SetProcessDefinitionSubprocessBindingDateAction.ACTION_PATH;
     }
 
     @Override

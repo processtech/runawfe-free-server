@@ -6,11 +6,11 @@ import ru.runa.common.WebResources;
 import ru.runa.common.web.html.BaseDateTDBuilder;
 import ru.runa.wfe.definition.dto.WfDefinition;
 
-public class DefinitionCreateDateTDBuilder extends BaseDateTDBuilder<WfDefinition> {
+public class DefinitionSubprocessBindingDateTDBuilder extends BaseDateTDBuilder<WfDefinition> {
 
     @Override
     protected Date getDate(WfDefinition object) {
-        return object.getCreateDate();
+        return object.getSubprocessBindingDate();
     }
 
     @Override

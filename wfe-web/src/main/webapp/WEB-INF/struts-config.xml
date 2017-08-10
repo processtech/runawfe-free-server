@@ -457,6 +457,12 @@
 			<forward name="failure" path="/manage_process_definition.do"
 				redirect="false" />
 		</action>
+		<action path="/setProcessDefinitionSubprocessBindingDate"
+			type="ru.runa.wf.web.action.SetProcessDefinitionSubprocessBindingDateAction" name="idForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_definition.do"
+				redirect="true" />
+		</action>
 		<action path="/grantReadPermissionOnProcessDefinition"
 			type="ru.runa.wf.web.action.GrantPermissionsOnProcessDefinitionAction"
 			name="idsForm" scope="request" input="/WEB-INF/wf/manage_process_definition.jsp"
