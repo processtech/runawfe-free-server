@@ -27,6 +27,7 @@ import java.util.Map;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
+import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
@@ -190,6 +191,16 @@ public class DefinitionLogic extends WFCommonLogic {
         addUpdatedDefinitionInProcessLog(user, deployment);
         log.debug("Process definition " + deployment + " was successfully updated");
         return new WfDefinition(deployment);
+    }
+
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) {
+        Deployment deployment = deploymentDAO.getNotNull(definitionId);
+        checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        Date oldDate = deployment.getSubprocessBindingDate();
+        deployment.setSubprocessBindingDate(date);
+        deploymentDAO.update(deployment);
+        log.info("ProcessDefinition subprocessBindingDate changed: " + CalendarUtil.formatDateTime(oldDate) + " -> "
+                + CalendarUtil.formatDateTime(date));
     }
 
     private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {

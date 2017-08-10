@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -47,27 +48,36 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition deployProcessDefinition(User user, byte[] process, List<String> categories) {
+    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) {
         try {
-            return getDefinitionService().deployProcessDefinition(user, process, categories);
+            return getDefinitionService().deployProcessDefinition(user, archive, categories);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfDefinition redeployProcessDefinition(User user, Long processId, byte[] processArchive, List<String> categories) {
+    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchive, List<String> categories) {
         try {
-            return getDefinitionService().redeployProcessDefinition(user, processId, processArchive, categories);
+            return getDefinitionService().redeployProcessDefinition(user, definitionId, processArchive, categories);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfDefinition updateProcessDefinition(User user, Long processId, byte[] processArchive) {
+    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchive) {
         try {
-            return getDefinitionService().updateProcessDefinition(user, processId, processArchive);
+            return getDefinitionService().updateProcessDefinition(user, definitionId, processArchive);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) throws DefinitionDoesNotExistException {
+        try {
+            getDefinitionService().setProcessDefinitionSubprocessBindingDate(user, definitionId, date);
         } catch (Exception e) {
             throw handleException(e);
         }

@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service;
 
+import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.definition.DefinitionAlreadyExistException;
@@ -96,6 +97,19 @@ public interface DefinitionService {
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
     DefinitionArchiveFormatException, DefinitionNameMismatchException;
+
+    /**
+     * Sets process definition subprocess binding date.
+     * 
+     * @param user
+     *            authorized user
+     * @param definitionId
+     *            process definition id
+     * @param date
+     *            can be <code>null</code>
+     * @throws DefinitionDoesNotExistException
+     */
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) throws DefinitionDoesNotExistException;
 
     /**
      * Gets only last version from process definition by name.
