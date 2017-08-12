@@ -49,8 +49,8 @@ public class GraphXmlParser implements ProcessArchiveParser {
             for (Element nodeElement : nodeElements) {
                 String nodeId = nodeElement.attributeValue("name");
                 GraphElement graphElement = processDefinition.getGraphElementNotNull(nodeId);
-                graphElement.setGraphConstraints(xOffset + Integer.parseInt(nodeElement.attributeValue("x")),
-                        yOffset + Integer.parseInt(nodeElement.attributeValue("y")), Integer.parseInt(nodeElement.attributeValue("width")),
+                graphElement.setGraphConstraints(Integer.parseInt(nodeElement.attributeValue("x")) - xOffset,
+                        Integer.parseInt(nodeElement.attributeValue("y")) - yOffset, Integer.parseInt(nodeElement.attributeValue("width")),
                         Integer.parseInt(nodeElement.attributeValue("height")));
                 Node transitionSource;
                 if (graphElement instanceof Node) {
@@ -69,8 +69,8 @@ public class GraphXmlParser implements ProcessArchiveParser {
                     Transition transition = transitionSource.getLeavingTransitionNotNull(transitionName);
                     List<Element> bendpointElements = transitionElement.elements(BENDPOINT_ELEMENT);
                     for (Element bendpointElement : bendpointElements) {
-                        Bendpoint bendpoint = new Bendpoint(xOffset + Integer.parseInt(bendpointElement.attributeValue("x")),
-                                yOffset + Integer.parseInt(bendpointElement.attributeValue("y")));
+                        Bendpoint bendpoint = new Bendpoint(Integer.parseInt(bendpointElement.attributeValue("x")) - xOffset,
+                                Integer.parseInt(bendpointElement.attributeValue("y")) - yOffset);
                         transition.getBendpoints().add(bendpoint);
                     }
                 }
