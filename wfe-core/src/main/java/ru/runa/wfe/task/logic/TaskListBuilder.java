@@ -150,7 +150,10 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
         List<TaskInListState> tasksState = loadObservableTasks(actor, batchPresentation);
         List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
         Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(getTasksProcesses(tasksState), variableNames);
-        HashSet<Long> openedTasks = new HashSet<Long>(taskDAO.getOpenedTasks(actor.getId(), getTasksIds(tasksState)));
+        HashSet<Long> openedTasks = new HashSet<Long>();
+        for (List<Long> partitionedTasksIds : Lists.partition(getTasksIds(tasksState), SystemProperties.getDatabaseParametersCount())) {
+            openedTasks.addAll(taskDAO.getOpenedTasks(actor.getId(), partitionedTasksIds));
+        }
         List<WfTask> result = new ArrayList<WfTask>();
         boolean administrator = executorDAO.isAdministrator(actor);
         for (TaskInListState state : tasksState) {
