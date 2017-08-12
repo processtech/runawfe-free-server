@@ -28,7 +28,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.VariableDefinition;
 
 @Entity
 @DiscriminatorValue(value = "D")
@@ -55,7 +55,7 @@ public class DateVariable extends Variable<Date> {
     }
 
     @Override
-    public String toString(Object value, VariableFormat format) {
-        return format.format(value);
+    public String toString(Object value, VariableDefinition variableDefinition) {
+        return variableDefinition.getFormatNotNull().format(value);
     }
 }

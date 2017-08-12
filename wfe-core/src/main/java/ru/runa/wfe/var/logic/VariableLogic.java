@@ -327,7 +327,7 @@ public class VariableLogic extends WFCommonLogic {
                         value = variableDefinition.getFormatNotNull().parse((String) value);
                     }
                     Variable<?> variable = variableCreator.create(varProcess, variableDefinition, value);
-                    variable.setValue(new ExecutionContext(definition, varProcess), value, variableDefinition.getFormatNotNull());
+                    variable.setValue(new ExecutionContext(definition, varProcess), value, variableDefinition);
                     newMap.put(variableName, variable);
                 }
             }

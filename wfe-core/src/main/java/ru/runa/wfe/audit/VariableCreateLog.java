@@ -27,11 +27,11 @@ import javax.persistence.Transient;
 
 import ru.runa.wfe.audit.presentation.FileValue;
 import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.VariableDefinition;
 
 /**
  * Logging variable creation.
- *
+ * 
  * @author Dofs
  */
 @Entity
@@ -42,9 +42,9 @@ public class VariableCreateLog extends VariableLog {
     public VariableCreateLog() {
     }
 
-    public VariableCreateLog(Variable<?> variable, Object newValue, VariableFormat format) {
+    public VariableCreateLog(Variable<?> variable, Object newValue, VariableDefinition variableDefinition) {
         super(variable);
-        setVariableNewValue(variable, newValue, format);
+        setVariableNewValue(variable, newValue, variableDefinition);
     }
 
     @Override
