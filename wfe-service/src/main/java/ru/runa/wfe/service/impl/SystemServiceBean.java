@@ -172,7 +172,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
                     // during feature integration
                     continue;
                 }
-                ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, token.getNode().getNodeId());
+                ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, token.getNode().getId());
                 processError.setNodeName(token.getNode().getName());
                 processError.setMessage(token.getErrorMessage());
                 processError.setOccurredDate(token.getErrorDate());
