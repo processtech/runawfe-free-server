@@ -112,7 +112,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
         } catch (final Throwable th) {
             // TODO does not work in case of timeout in handling transaction
             // ARJUNA016051: thread is already associated with a transaction!
-            Utils.failProcessExecution(context.getUserTransaction(), tokenId, th);
+            Utils.failProcessExecution(context.getUserTransaction(), tokenId, th, message.getJMSRedelivered());
             throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
         }
     }

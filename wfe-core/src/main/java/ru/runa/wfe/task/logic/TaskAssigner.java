@@ -11,7 +11,6 @@ import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.AssignmentHandler;
-import ru.runa.wfe.extension.assign.AssignmentException;
 import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -43,12 +42,7 @@ public class TaskAssigner {
             }
         } catch (Throwable th) {
             if (Errors.addProcessError(processError, task.getName(), th)) {
-                if (th instanceof AssignmentException) {
-                    log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "': "
-                            + th.getMessage());
-                } else {
-                    log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "'", th);
-                }
+                log.warn("Unable to assign task '" + task + "' in " + task.getProcess() + " with swimlane '" + task.getSwimlane() + "'", th);
             }
         }
         return false;
