@@ -27,6 +27,7 @@ import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 
 import com.google.common.base.Objects;
@@ -65,7 +66,10 @@ public class WfNode implements Serializable {
         }
         hasErrorEventHandler = node.hasErrorEventHandler();
         if (node instanceof InteractionNode) {
-            this.swimlaneName = ((InteractionNode) node).getFirstTaskNotNull().getSwimlane().getName();
+            SwimlaneDefinition swimlaneDefinition = ((InteractionNode) node).getFirstTaskNotNull().getSwimlane();
+            if (swimlaneDefinition != null) {
+                this.swimlaneName = swimlaneDefinition.getName();
+            }
         }
     }
 
