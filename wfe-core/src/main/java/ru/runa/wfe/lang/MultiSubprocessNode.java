@@ -7,9 +7,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
@@ -21,7 +18,8 @@ import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.lang.utils.MultiNodeParameters;
+import ru.runa.wfe.lang.utils.MultiinstanceUtils;
+import ru.runa.wfe.lang.utils.MultiinstanceUtils.Parameters;
 import ru.runa.wfe.var.ISelectable;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
@@ -30,6 +28,9 @@ import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class MultiSubprocessNode extends SubprocessNode {
     private static final long serialVersionUID = 1L;
@@ -49,7 +50,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     @Override
     protected void execute(ExecutionContext executionContext) {
         log.debug("Executing " + this + " with " + executionContext);
-        MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
+        Parameters parameters = MultiinstanceUtils.parse(executionContext, this);
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
         List<Process> subProcesses = Lists.newArrayList();
         ProcessDefinition subProcessDefinition = getSubProcessDefinition();
@@ -121,6 +122,7 @@ public class MultiSubprocessNode extends SubprocessNode {
             ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocess);
             processFactory.startSubprocess(executionContext, subExecutionContext);
         }
+        MultiinstanceUtils.autoExtendContainerVariables(executionContext, getVariableMappings(), data.size());
         if (subProcesses.size() == 0) {
             log.debug("Leaving multisubprocess state due to 0 subprocesses");
             super.leave(executionContext, null);
@@ -143,6 +145,9 @@ public class MultiSubprocessNode extends SubprocessNode {
             // pre AddSubProcessIndexColumn mode
             leaveBackCompatiblePre410(executionContext, transition);
         } else {
+            if (SystemProperties.isMultiSubprocessDataCompatibilityMode()) {
+                MultiinstanceUtils.autoExtendContainerVariables(executionContext, getVariableMappings(), nodeProcess.getIndex() + 1);
+            }
             for (VariableMapping variableMapping : variableMappings) {
                 // if this variable access is writable
                 if (variableMapping.isWritable()) {

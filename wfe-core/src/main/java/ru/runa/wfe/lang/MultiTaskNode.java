@@ -31,7 +31,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.utils.MultiNodeParameters;
+import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.MapVariableProvider;
@@ -128,14 +128,17 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition) {
-        List<?> data = (List<?>) new MultiNodeParameters(executionContext, this).getDiscriminatorValue();
-        VariableMapping mapping = new VariableMapping(getDiscriminatorVariableName(), null, getDiscriminatorUsage());
+        List<?> data = (List<?>) MultiinstanceUtils.parse(executionContext, this).getDiscriminatorValue();
+        VariableMapping discriminatorMapping = new VariableMapping(getDiscriminatorVariableName(), null, getDiscriminatorUsage());
+        boolean tasksCreated;
         // #305#note-49
-        if (!mapping.isMultiinstanceLinkByVariable() || getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
-            return createTasksByExecutors(executionContext, taskDefinition, data);
+        if (!discriminatorMapping.isMultiinstanceLinkByVariable() || getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
+            tasksCreated = createTasksByExecutors(executionContext, taskDefinition, data);
         } else {
-            return createTasksByDiscriminator(executionContext, taskDefinition, data);
+            tasksCreated = createTasksByDiscriminator(executionContext, taskDefinition, data);
         }
+        MultiinstanceUtils.autoExtendContainerVariables(executionContext, getVariableMappings(), data.size());
+        return tasksCreated;
     }
 
     private boolean createTasksByExecutors(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
