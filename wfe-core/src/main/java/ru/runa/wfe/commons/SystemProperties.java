@@ -58,6 +58,13 @@ public class SystemProperties {
     }
 
     /**
+     * MultiSubprocess pre 4.3.0 compatibility.
+     */
+    public static boolean isMultiSubprocessDataCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.multi.subprocess.data.compatibility", true);
+    }
+
+    /**
      * Using cache state machine or old cache implementation.
      */
     public static boolean useCacheStateMachine() {
