@@ -23,11 +23,12 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.Transition;
 
 import com.google.common.base.Objects;
@@ -66,9 +67,9 @@ public class WfNode implements Serializable {
         }
         hasErrorEventHandler = node.hasErrorEventHandler();
         if (node instanceof InteractionNode) {
-            SwimlaneDefinition swimlaneDefinition = ((InteractionNode) node).getFirstTaskNotNull().getSwimlane();
-            if (swimlaneDefinition != null) {
-                this.swimlaneName = swimlaneDefinition.getName();
+            TaskDefinition taskDefinition = (TaskDefinition) TypeConversionUtil.getListFirstValueOrNull(((InteractionNode) node).getTasks());
+            if (taskDefinition != null && taskDefinition.getSwimlane() != null) {
+                this.swimlaneName = taskDefinition.getSwimlane().getName();
             }
         }
     }
