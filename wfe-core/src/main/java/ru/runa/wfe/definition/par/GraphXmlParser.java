@@ -6,8 +6,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-import com.google.common.base.Throwables;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
@@ -18,6 +16,8 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
+
+import com.google.common.base.Throwables;
 
 public class GraphXmlParser implements ProcessArchiveParser {
     private static final String NODE_ELEMENT = "node";
@@ -44,6 +44,15 @@ public class GraphXmlParser implements ProcessArchiveParser {
                     Integer.parseInt(root.attributeValue("height")));
             int xOffset = Integer.parseInt(root.attributeValue("x", "0"));
             int yOffset = Integer.parseInt(root.attributeValue("y", "0"));
+            {
+                // fix for tnms1099 premature implementation
+                if (xOffset > 0) {
+                    xOffset = 0;
+                }
+                if (yOffset > 0) {
+                    yOffset = 0;
+                }
+            }
             processDefinition.setGraphActionsEnabled(Boolean.parseBoolean(root.attributeValue("showActions", "true")));
             List<Element> nodeElements = root.elements(NODE_ELEMENT);
             for (Element nodeElement : nodeElements) {
