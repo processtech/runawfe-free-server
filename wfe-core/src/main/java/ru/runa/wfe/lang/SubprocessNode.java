@@ -1,5 +1,6 @@
 package ru.runa.wfe.lang;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
@@ -98,6 +100,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         if (version < 0) {
             Deployment deployment = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
             return processDefinitionLoader.getDefinition(deployment.getId());
+        }
+        if (getProcessDefinition().getDeployment().getSubprocessBindingDate() != null) {
+            Date beforeDate = getProcessDefinition().getDeployment().getSubprocessBindingDate();
+            Number deploymentId = ApplicationContextFactory.getDeploymentDAO().findDeploymentIdLatestVersionBeforeDate(subProcessName, beforeDate);
+            if (deploymentId == null) {
+                throw new InternalApplicationException("No definition " + subProcessName + " found before " + CalendarUtil.formatDateTime(beforeDate));
+            }
+            return processDefinitionLoader.getDefinition(deploymentId.longValue());
         }
         return processDefinitionLoader.getLatestDefinition(subProcessName);
     }

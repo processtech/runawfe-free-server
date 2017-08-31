@@ -1,11 +1,15 @@
 package ru.runa.wfe.commons;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
@@ -51,6 +55,13 @@ public class SystemProperties {
      */
     public static boolean isV4ListVariableCompatibilityMode() {
         return RESOURCES.getBooleanProperty("v4.2.list.variable.compatibility", true);
+    }
+
+    /**
+     * MultiSubprocess pre 4.3.0 compatibility.
+     */
+    public static boolean isMultiSubprocessDataCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.multi.subprocess.data.compatibility", true);
     }
 
     /**
@@ -323,4 +334,24 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
+    /**
+     * @return default permissions by object type
+     */
+    public static List<Permission> getDefaultPermissions(SecuredObjectType securedObjectType) {
+        List<Permission> result = new ArrayList<>();
+        List<Permission> allPermissions = securedObjectType.getAllPermissions();
+        List<String> permissionNames = RESOURCES.getMultipleStringProperty(securedObjectType.toString().toLowerCase() + ".default.permissions");
+        for (String permissionName : permissionNames) {
+            Permission foundPermission = null;
+            for (Permission permission : allPermissions) {
+                if (permission.getName().equals(permissionName)) {
+                    foundPermission = permission;
+                    break;
+                }
+            }
+            Preconditions.checkArgument(foundPermission != null, permissionName);
+            result.add(foundPermission);
+        }
+        return result;
+    }
 }

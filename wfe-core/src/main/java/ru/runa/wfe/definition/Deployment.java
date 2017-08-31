@@ -47,6 +47,7 @@ public class Deployment extends Identifiable {
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private Date subprocessBindingDate;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -155,6 +156,15 @@ public class Deployment extends Identifiable {
 
     public void setUpdateActor(Actor updateActor) {
         this.updateActor = updateActor;
+    }
+
+    @Column(name = "SUBPROCESS_BINDING_DATE")
+    public Date getSubprocessBindingDate() {
+        return subprocessBindingDate;
+    }
+
+    public void setSubprocessBindingDate(Date subprocessBindingDate) {
+        this.subprocessBindingDate = subprocessBindingDate;
     }
 
     @Transient
