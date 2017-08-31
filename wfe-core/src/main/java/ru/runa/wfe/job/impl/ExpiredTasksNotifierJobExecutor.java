@@ -2,11 +2,14 @@ package ru.runa.wfe.job.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.timer.ScheduledTimerTask;
 
 import com.google.common.base.Throwables;
 import com.google.common.io.ByteStreams;
@@ -22,6 +25,8 @@ public class ExpiredTasksNotifierJobExecutor {
     private static final Log log = LogFactory.getLog(ExpiredTasksNotifierJobExecutor.class);
     @Autowired
     private TaskDAO taskDAO;
+    @Autowired
+    private ScheduledTimerTask expiredNotifierTask;
     private boolean enabled = true;
     private boolean onlyIfTaskActorEmailDefined = false;
     private String configLocation;
@@ -37,8 +42,14 @@ public class ExpiredTasksNotifierJobExecutor {
         if (!enabled || configBytes == null) {
             return;
         }
-        List<Task> tasks = taskDAO.getAllExpiredTasks();
+        Date curDate = Calendar.getInstance().getTime();
+        List<Task> tasks = taskDAO.getAllExpiredTasks(curDate);
         for (Task task : tasks) {
+
+            long notifierTaskPeriod = expiredNotifierTask.getPeriod();
+            if ((task.getDeadlineDate().getTime() + notifierTaskPeriod) < curDate.getTime()) {
+                continue;
+            }
 
             final String processName = task.getProcess().getDeployment().getName();
             if (!EmailUtils.isProcessNameMatching(processName, includeProcessNameFilter, excludeProcessNameFilter)) {

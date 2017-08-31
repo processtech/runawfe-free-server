@@ -22,6 +22,7 @@
 package ru.runa.wfe.task.dao;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
@@ -88,8 +89,8 @@ public class TaskDAO extends GenericDAO<Task> {
     /**
      * @return return all expired tasks.
      */
-    public List<Task> getAllExpiredTasks() {
-        return getHibernateTemplate().find("from Task where deadlineDate < current_timestamp");
+    public List<Task> getAllExpiredTasks(Date curDate) {
+        return getHibernateTemplate().find("from Task where deadlineDate < ?", curDate);
     }
 
     public void deleteAll(Process process) {
