@@ -74,7 +74,7 @@ public class TimerNode extends Node implements BoundaryEvent {
         timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDateExpression));
         timerJob.setRepeatDurationString(repeatDurationString);
         jobDAO.create(timerJob);
-        log.info("Created " + timerJob);
+        log.debug("Created " + timerJob);
         executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
     }
 
@@ -97,7 +97,7 @@ public class TimerNode extends Node implements BoundaryEvent {
             if (actionDelegation != null) {
                 try {
                     ActionHandler actionHandler = actionDelegation.getInstance();
-                    log.info("Executing delegation in " + this);
+                    log.debug("Executing delegation in " + this);
                     actionHandler.execute(executionContext);
                     executionContext.addLog(new ActionLog(this));
                 } catch (Exception e) {
@@ -109,7 +109,7 @@ public class TimerNode extends Node implements BoundaryEvent {
                 cancelBoundaryEvent(executionContext.getToken());
                 leave(executionContext);
             } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
-                log.info("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
+                log.debug("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
                 cancelBoundaryEvent(executionContext.getToken());
             } else if (repeatDurationString != null) {
                 // restart timer
@@ -120,10 +120,10 @@ public class TimerNode extends Node implements BoundaryEvent {
                     // ExecutionContext.updateRelatedObjectsDueToDateVariableChange
                     timerJob.setDueDateExpression(null);
                     timerJob.setDueDate(businessCalendar.apply(timerJob.getDueDate(), repeatDurationString));
-                    log.info("Restarting " + timerJob + " for repeat execution at " + CalendarUtil.formatDateTime(timerJob.getDueDate()));
+                    log.debug("Restarting " + timerJob + " for repeat execution at " + CalendarUtil.formatDateTime(timerJob.getDueDate()));
                 }
             } else {
-                log.info("Deleting " + timerJob + " after execution");
+                log.debug("Deleting " + timerJob + " after execution");
                 cancelBoundaryEvent(executionContext.getToken());
             }
             Errors.removeProcessError(processError);
