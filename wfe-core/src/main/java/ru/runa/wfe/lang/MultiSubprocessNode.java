@@ -66,7 +66,7 @@ public class MultiSubprocessNode extends SubprocessNode {
                     ignoredIndexes.add(index);
                 }
             }
-            log.info("Ignored indexes: " + ignoredIndexes);
+            log.debug("Ignored indexes: " + ignoredIndexes);
         }
         Map<String, Object> map = Maps.newHashMap();
         map.put(Variables.CURRENT_PROCESS_ID_WRAPPED, executionContext.getProcess().getId());

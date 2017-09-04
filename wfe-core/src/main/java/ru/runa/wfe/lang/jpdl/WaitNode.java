@@ -52,10 +52,10 @@ public class WaitNode extends Node {
                 if (executionContext.getNode() instanceof BaseTaskNode) {
                     ((BaseTaskNode) executionContext.getNode()).endTokenTasks(executionContext, TaskCompletionInfo.createForTimer());
                 }
-                log.info("Leaving " + timerJob + " from " + executionContext.getNode() + " by transition " + timerJob.getOutTransitionName());
+                log.debug("Leaving " + timerJob + " from " + executionContext.getNode() + " by transition " + timerJob.getOutTransitionName());
                 executionContext.getNode().leave(executionContext, transition);
             } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
-                log.info("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
+                log.debug("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
                 ApplicationContextFactory.getJobDAO().deleteTimersByName(timerJob.getToken(), timerJob.getName());
             } else if (timerJob.getRepeatDurationString() != null) {
                 // restart timer
@@ -66,10 +66,10 @@ public class WaitNode extends Node {
                     // ExecutionContext.updateRelatedObjectsDueToDateVariableChange
                     timerJob.setDueDateExpression(null);
                     timerJob.setDueDate(businessCalendar.apply(timerJob.getDueDate(), timerJob.getRepeatDurationString()));
-                    log.info("Restarting " + timerJob + " for repeat execution at " + CalendarUtil.formatDateTime(timerJob.getDueDate()));
+                    log.debug("Restarting " + timerJob + " for repeat execution at " + CalendarUtil.formatDateTime(timerJob.getDueDate()));
                 }
             } else {
-                log.info("Deleting " + timerJob + " after execution");
+                log.debug("Deleting " + timerJob + " after execution");
                 ApplicationContextFactory.getJobDAO().deleteTimersByName(timerJob.getToken(), timerJob.getName());
             }
             Errors.removeProcessError(processError);

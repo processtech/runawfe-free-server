@@ -168,7 +168,7 @@ public class MultiTaskNode extends BaseTaskNode {
                     ignoredIndexes.add(index);
                 }
             }
-            log.info("Ignored indexes: " + ignoredIndexes);
+            log.debug("Ignored indexes: " + ignoredIndexes);
         }
         int tasksCounter = 0;
         Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
