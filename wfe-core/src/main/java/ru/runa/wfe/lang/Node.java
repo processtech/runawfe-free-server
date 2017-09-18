@@ -178,7 +178,7 @@ public abstract class Node extends GraphElement {
      * called by a transition to pass execution to this node.
      */
     public void enter(ExecutionContext executionContext) {
-        log.info("Entering " + this + " with " + executionContext);
+        log.debug("Entering " + this + " with " + executionContext);
         Token token = executionContext.getToken();
         // update the runtime context information
         token.setNodeId(getNodeId());
@@ -216,7 +216,7 @@ public abstract class Node extends GraphElement {
 
     public final void handle(ExecutionContext executionContext) {
         try {
-            log.info("Executing " + this + " with " + executionContext);
+            log.debug("Executing " + this + " with " + executionContext);
             executionContext.activateTokenIfHasPreviousError();
             execute(executionContext);
         } catch (Throwable th) {
@@ -241,7 +241,7 @@ public abstract class Node extends GraphElement {
      * called by the implementation of this node to continue execution over the given transition.
      */
     public void leave(ExecutionContext executionContext, Transition transition) {
-        log.info("Leaving " + this + " with " + executionContext);
+        log.debug("Leaving " + this + " with " + executionContext);
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
             for (Token token : executionContext.getToken().getActiveChildren()) {

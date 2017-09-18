@@ -249,7 +249,6 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         String url = Commons.getActionUrl(UpgradeProcessToDefinitionVersionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, process.getId(), pageContext,
                 PortletUrlType.Render);
         A upgradeLink = new A(url, MessagesProcesses.PROCESS_UPGRADE_TO_DEFINITION_VERSION.message(pageContext));
-        upgradeLink.addAttribute("data-processId", process.getId());
         upgradeLink.addAttribute("data-definitionName", process.getName());
         upgradeLink.addAttribute("data-definitionVersion", process.getVersion());
         upgradeLink.setOnClick("selectProcessUpgrageVersionDialog(this); return false;");

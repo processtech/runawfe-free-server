@@ -236,6 +236,16 @@ public class TypeConversionUtil {
         }
     }
 
+    public static int getMapSize(Object value) {
+        if (value == null) {
+            return 0;
+        } else if (value instanceof Map) {
+            return ((Map<?, ?>) value).size();
+        } else {
+            throw new RuntimeException("Unsupported map type " + value.getClass());
+        }
+    }
+
     public static Object getListFirstValueOrNull(Object container) {
         int size = TypeConversionUtil.getListSize(container);
         return size > 0 ? TypeConversionUtil.getListValue(container, 0) : null;

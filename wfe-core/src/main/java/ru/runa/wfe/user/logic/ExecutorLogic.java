@@ -148,12 +148,7 @@ public class ExecutorLogic extends CommonLogic {
 
     public <T extends Executor> T create(User user, T executor) {
         checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.CREATE_EXECUTOR);
-        Collection<Permission> selfPermissions;
-        if (executor instanceof Group) {
-            selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
-        } else {
-            selfPermissions = Lists.newArrayList(Permission.READ);
-        }
+        Collection<Permission> selfPermissions = SystemProperties.getDefaultPermissions(executor.getSecuredObjectType());
         executorDAO.create(executor);
         postCreateExecutor(user, executor, selfPermissions);
         return executor;

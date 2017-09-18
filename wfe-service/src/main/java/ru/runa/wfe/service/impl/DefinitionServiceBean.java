@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -32,6 +33,7 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
@@ -93,6 +95,14 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         Preconditions.checkArgument(definitionId != null, "definitionId");
         Preconditions.checkArgument(processArchive != null, "processArchive");
         return definitionLogic.updateProcessDefinition(user, definitionId, processArchive);
+    }
+
+    @Override
+    public void setProcessDefinitionSubprocessBindingDate(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+            @WebParam(name = "date") Date date) throws DefinitionDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        definitionLogic.setProcessDefinitionSubprocessBindingDate(user, definitionId, date);
     }
 
     @Override

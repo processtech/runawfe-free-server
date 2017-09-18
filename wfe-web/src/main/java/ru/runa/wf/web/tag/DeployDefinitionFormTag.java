@@ -31,7 +31,7 @@ public class DeployDefinitionFormTag extends TitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        RedeployDefinitionFormTag.fillTD(tdFormElement, getForm(), null, getUser(), pageContext);
+        RedeployDefinitionFormTag.getInstance().fillTD(tdFormElement, getForm(), null, getUser(), pageContext);
     }
 
     @Override

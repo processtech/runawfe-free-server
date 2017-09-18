@@ -31,7 +31,8 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 
-import org.jfree.util.Log;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -65,6 +66,7 @@ import com.google.common.collect.Lists;
 @WebService(name = "SystemAPI", serviceName = "SystemWebService")
 @SOAPBinding
 public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemote {
+    private static final Log log = LogFactory.getLog(SystemServiceBean.class);
     @Autowired
     private AuditLogic auditLogic;
     @Autowired
@@ -172,14 +174,14 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
                     // during feature integration
                     continue;
                 }
-                ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, token.getNode().getNodeId());
+                ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, token.getNode().getId());
                 processError.setNodeName(token.getNode().getName());
                 processError.setMessage(token.getErrorMessage());
                 processError.setOccurredDate(token.getErrorDate());
                 list.add(processError);
             }
         } catch (Exception e) {
-            Log.warn("Unable to populate errors in process " + processId, e);
+            log.warn("Unable to populate errors in process " + processId, e);
             ProcessError processError = new ProcessError(ProcessErrorType.execution, processId, "");
             processError.setMessage("Unable to populate errors in this process");
             list.add(processError);
