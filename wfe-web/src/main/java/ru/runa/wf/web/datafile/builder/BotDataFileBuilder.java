@@ -40,6 +40,11 @@ public class BotDataFileBuilder implements DataFileBuilder {
                     }                    
                     zos.putNextEntry(new ZipEntry(PATH_TO_BOTTASK + getConfigurationName(botTask) + ".conf"));                                       
                     zos.write(conf);
+                    byte[] embeddedFile = botTask.getEmbeddedFile();
+                    if (embeddedFile != null && StringUtils.isNotEmpty(botTask.getEmbeddedFileName())) {
+                        zos.putNextEntry(new ZipEntry(PATH_TO_BOTTASK + botTask.getEmbeddedFileName()));
+                        zos.write(embeddedFile);
+                    }
                 }
             }
         }
@@ -80,6 +85,9 @@ public class BotDataFileBuilder implements DataFileBuilder {
         }
         if (StringUtils.isNotEmpty(botTask.getName())) {
             subElement.addAttribute(AdminScriptConstants.NAME_ATTRIBUTE_NAME, botTask.getName());
+        }
+        if (StringUtils.isNotEmpty(botTask.getEmbeddedFileName())) {
+            subElement.addAttribute(AdminScriptConstants.EMBEDDED_FILE_ATTRIBUTE_NAME, PATH_TO_BOTTASK + botTask.getEmbeddedFileName());
         }
         if (botTask.getConfiguration() != null && botTask.getConfiguration().length > 0) {           
             subElement.addAttribute(AdminScriptConstants.CONFIGURATION_STRING_ATTRIBUTE_NAME, getConfigurationName(botTask) + ".conf");
