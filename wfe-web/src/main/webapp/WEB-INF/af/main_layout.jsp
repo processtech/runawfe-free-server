@@ -65,7 +65,7 @@
 		<tr>
 			<td width="15%">
 				<a href="http://runawfe.org" target="new">
-					<img hspace="10" border="0" src="<html:rewrite page="/images/big_logo.png"/>" alt="Runa WFE">
+					<img hspace="10" border="0" src="<html:rewrite page="/images/big_logo.gif"/>" alt="Runa WFE">
 				</a>
 			</td>
 			<td width="85%" >

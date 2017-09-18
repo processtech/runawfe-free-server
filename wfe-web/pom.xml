@@ -309,7 +309,7 @@
 								<phase>prepare-package</phase>
 								<configuration>
 									<tasks>
-										<copy file="src/main/simulation/webapp/images/big_logo.png" tofile="${project.build.directory}/wfe-web-${project.version}/images/big_logo.png"
+										<copy file="src/main/webapp/images/big_logo.gif" tofile="${project.build.directory}/wfe-web-${project.version}/images/big_logo.gif"
 											overwrite="true" />
 										<copy file="src/main/webapp/WEB-INF/af/login.jsp" tofile="${project.build.directory}/wfe-web-${project.version}/WEB-INF/af/login.jsp"
 											overwrite="true" />

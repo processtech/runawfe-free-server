@@ -58,6 +58,13 @@ public class SystemProperties {
     }
 
     /**
+     * List variable back compatibility mode with version 4.2.x.
+     */
+    public static boolean isV4MapVariableCompatibilityMode() {
+        return RESOURCES.getBooleanProperty("v4.2.map.variable.compatibility", true);
+    }
+
+    /**
      * MultiSubprocess pre 4.3.0 compatibility.
      */
     public static boolean isMultiSubprocessDataCompatibilityMode() {

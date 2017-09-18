@@ -150,7 +150,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
             if (listVariableDefinition != null) {
                 return new VariableDefinition(name, null, LongFormat.class.getName(), null);
             }
-            log.debug("Unable to build list size variable by name '" + name + "'");
+            log.debug("Unable to build list (map) size variable by name '" + name + "'");
             return null;
         }
         return buildVariable(name);

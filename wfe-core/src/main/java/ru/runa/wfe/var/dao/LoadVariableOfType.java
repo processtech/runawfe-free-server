@@ -3,6 +3,7 @@ package ru.runa.wfe.var.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -127,14 +128,34 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     @Override
     public Object onMap(MapFormat mapFormat, LoadVariableOfTypeContext context) {
-        VariableDefinition variableDefinition = context.variableDefinition;
-        Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
-        if (variable == null) {
-            return variableDefinition.getDefaultValue();
+        Map<Object, Object> map = Maps.newHashMap();
+        String sizeVariableName = context.variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
+        VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
+        Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
+        if (size == null && SystemProperties.isV4MapVariableCompatibilityMode()) {
+            VariableDefinition variableDefinition = context.variableDefinition;
+            Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            if (variable == null) {
+                return variableDefinition.getDefaultValue();
+            }
+            Object value = variable.getValue();
+            value = processComplexVariables(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
+            return value;
         }
-        Object value = variable.getValue();
-        value = processComplexVariables(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
-        return value;
+        String[] componentFormats = context.variableDefinition.getFormatComponentClassNames();
+        UserType[] componentUserTypes = context.variableDefinition.getFormatComponentUserTypes();
+        String nameTemplate = context.variableDefinition.getName() +
+                VariableFormatContainer.COMPONENT_QUALIFIER_START + "%d%s" + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+        for (int i = 0; i < size.intValue(); i++) {
+            VariableDefinition componentKeyDefinition = new VariableDefinition(
+                    String.format(nameTemplate, i, VariableFormatContainer.MAP_KEY_SUFFIX), null, componentFormats[0], componentUserTypes[0]);
+            Object componentKey = componentKeyDefinition.getFormatNotNull().processBy(this, context.createFor(componentKeyDefinition));
+            VariableDefinition componentValueDefinition = new VariableDefinition(
+                    String.format(nameTemplate, i, VariableFormatContainer.MAP_VALUE_SUFFIX), null, componentFormats[1], componentUserTypes[1]);
+            Object componentValue = componentValueDefinition.getFormatNotNull().processBy(this, context.createFor(componentValueDefinition));
+            map.put(componentKey, componentValue);
+        }
+        return map;
     }
 
     @Override
