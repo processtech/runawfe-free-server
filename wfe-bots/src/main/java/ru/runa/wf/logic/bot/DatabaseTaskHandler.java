@@ -35,6 +35,10 @@ import javax.sql.DataSource;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -55,10 +59,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import ru.runa.wfe.var.file.IFileVariable;
 
 /**
  * @created on 01.04.2005
@@ -226,7 +227,7 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
             while (outParamIdx.contains(parameterIndex)) {
                 ++parameterIndex;
             }
-            ps.setObject(parameterIndex, value);
+            ps.setObject(parameterIndex, value instanceof IFileVariable ? ((IFileVariable) value).getData() : value);
             ++parameterIndex;
         }
     }
