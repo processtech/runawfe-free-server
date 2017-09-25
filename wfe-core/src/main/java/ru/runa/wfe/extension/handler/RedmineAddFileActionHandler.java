@@ -146,5 +146,5 @@ public class RedmineAddFileActionHandler extends ActionHandlerBase {
                 "<config><issueId>Integer</issueId><userName>String</userName>" + 
                 "<files><file name=\"File name\">File content base64</file></files></config>");
         }
-	}
+    }
 }

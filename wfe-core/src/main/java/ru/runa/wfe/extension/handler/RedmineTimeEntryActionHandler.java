@@ -120,5 +120,5 @@ public class RedmineTimeEntryActionHandler extends ActionHandlerBase {
                 "<comment>String</comment><hours>Float</hours>" + 
                 "<activityType>[DEVELOP|DESIGN|DESIGN|PM|REQUIREMENTS]</activityType></config>");
         }
-	}
+    }
 }
