@@ -65,7 +65,16 @@ function openConfirmPopup(element, cookieName, message, confirmMessage, cancelBu
 			window.location = element.href; 
 		}
 	} else {
-		$.confirmDialog.html("<p>" + message + "</p><p><input id=\"cookieCh\" type=\"checkbox\" value=\"\"> " + confirmMessage + "</p>"); 
+//		$.confirmDialog.html("<p>" + message + "</p><p><input id=\"cookieCh\" type=\"checkbox\" value=\"\"> " + confirmMessage + "</p>"); 
+		$.confirmDialog.html("");
+		
+		var confirmDialog = $("<div></div>").dialog({
+            create: function (event, ui) {
+                $(".ui-dialog-title").html('<input id=\"cookieCh\" type=\"checkbox\" value=\"\"/> ' + confirmMessage);
+            },
+            minWidth: 400, minHeight: 200, modal: true, autoOpen: false
+        });
+		
 		var buttons = {};
 		buttons[okButton] = function() {
 			if($("#cookieCh").is(":checked")) { 
@@ -83,10 +92,11 @@ function openConfirmPopup(element, cookieName, message, confirmMessage, cancelBu
 		}
 		buttons[cancelButton] = function() {
 			$(this).dialog("close");
+			$(this).dialog('destroy').remove();
 		};
-		$.confirmDialog.dialog("option", "buttons", buttons);
-		$.confirmDialog.dialog("option", "position", "center");
-		$.confirmDialog.dialog("open");
+		confirmDialog.dialog("option", "buttons", buttons);
+		confirmDialog.dialog("option", "position", "center");
+		confirmDialog.dialog("open");
 	}
 }
 
