@@ -75,6 +75,8 @@ function openConfirmPopup(element, cookieName, message, confirmMessage, cancelBu
             minWidth: 400, minHeight: 200, modal: true, autoOpen: false
         });
 		
+		confirmDialog.html("<p>" + message + "</p>");
+		
 		var buttons = {};
 		buttons[okButton] = function() {
 			if($("#cookieCh").is(":checked")) { 
