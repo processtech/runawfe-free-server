@@ -109,7 +109,7 @@ public class AdminkitScriptsAction extends ActionBase {
             }
         } catch (Throwable th) {
             log.error("admin scripts action", th);
-            setErrors(ajaxRequest, errors, request, response, th.getMessage());
+            setErrors(ajaxRequest, errors, request, response, th.toString());
         }
         if (ajaxRequest) {
             return null;
