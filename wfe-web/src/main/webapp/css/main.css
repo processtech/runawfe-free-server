@@ -283,3 +283,9 @@ tr.suspended td, span.suspended {
 tr.executor_group {
 	font-weight: bold;
 }
+
+.CodeMirror-wrapping {
+	border: 1px solid lightgrey;
+	padding: 1px;
+	margin-top: 10px;
+}
