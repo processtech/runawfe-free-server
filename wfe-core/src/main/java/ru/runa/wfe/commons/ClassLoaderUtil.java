@@ -151,6 +151,10 @@ public class ClassLoaderUtil {
         return properties;
     }
 
+    public static boolean checkResource(String resource) {
+    	return (getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + resource, ClassLoaderUtil.class) != null);
+    }
+    
     public static URL getAsURL(String resourceName, Class<?> callingClass) {
         Preconditions.checkNotNull(resourceName, "resourceName");
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
