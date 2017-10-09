@@ -35,13 +35,13 @@ import ru.runa.wfe.commons.PropertyResources;
 public class BotStationResources {
     private static final Log log = LogFactory.getLog(BotStationResources.class);
     private static PropertyResources RESOURCES;
-    
+
     static {
-    	if (ClassLoaderUtil.checkResource("botstation.properties")) {
-    		RESOURCES = new PropertyResources("botstation.properties", true, false);
-    	} else {
-    		RESOURCES = new PropertyResources("botstation.properties");
-    	}
+        if (ClassLoaderUtil.checkResource("botstation.properties")) {
+            RESOURCES = new PropertyResources("botstation.properties", true, false);
+        } else {
+            RESOURCES = new PropertyResources("botstation.properties");
+        }
     }
 
     public static BotLogger createBotLogger() {

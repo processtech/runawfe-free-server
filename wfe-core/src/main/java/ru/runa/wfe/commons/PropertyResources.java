@@ -69,44 +69,44 @@ public class PropertyResources {
         }
     }
 
-	public String getStringProperty(String name) {
-		if (databaseAvailable && useDatabase) {
-			if (settingDAO == null) {
-				try {
-					settingDAO = ApplicationContextFactory.getSettingDAO();
-				} catch (Exception e) {
-					log.error("No SettingDAO available", e);
-				}
-			}
-			if (settingDAO != null) {
-				// TODO ineffective implementation
-				synchronized (propertiesCache) {
-					String fullName = fileName + '#' + name;
-					if (propertiesCache.containsKey(fullName)) {
-						return propertiesCache.get(fullName);
-					}
-					try {
-						String value = settingDAO.getValue(fileName, name);
-						if (value == null) {
-							value = properties.getProperty(name);
-						}
-						if (value != null) {
-							value = value.trim();
-						}
-						propertiesCache.put(fullName, value);
-						return value;
-					} catch (Exception e) {
-						log.error("Database error", e);
-					}
-				}
-			}
-		}
-		String value = properties.getProperty(name);
-		if (value != null) {
-			return value.trim();
-		}
-		return null;
-	}
+    public String getStringProperty(String name) {
+        if (databaseAvailable && useDatabase) {
+            if (settingDAO == null) {
+                try {
+                    settingDAO = ApplicationContextFactory.getSettingDAO();
+                } catch (Exception e) {
+                    log.error("No SettingDAO available", e);
+                }
+            }
+            if (settingDAO != null) {
+                // TODO ineffective implementation
+                synchronized (propertiesCache) {
+                    String fullName = fileName + '#' + name;
+                    if (propertiesCache.containsKey(fullName)) {
+                        return propertiesCache.get(fullName);
+                    }
+                    try {
+                        String value = settingDAO.getValue(fileName, name);
+                        if (value == null) {
+                            value = properties.getProperty(name);
+                        }
+                        if (value != null) {
+                            value = value.trim();
+                        }
+                        propertiesCache.put(fullName, value);
+                        return value;
+                    } catch (Exception e) {
+                        log.error("Database error", e);
+                    }
+                }
+            }
+        }
+        String value = properties.getProperty(name);
+        if (value != null) {
+            return value.trim();
+        }
+        return null;
+    }
 
     public String getStringPropertyNotNull(String name) {
         String string = getStringProperty(name);
