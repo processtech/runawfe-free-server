@@ -28,6 +28,9 @@ public class TaskStatusFilterTDFormatter extends FilterTDFormatter {
         td.addElement(Entities.NBSP);
         td.addElement(new Input(Input.HIDDEN, TableViewSetupForm.FILTER_POSITIONS, String.valueOf(fieldIndex)));
         int selected = 0;
+        if (!stringConditions[1].isEmpty()) {
+            selected = Integer.parseInt(stringConditions[1]);
+        }
         Select select = new Select(TableViewSetupForm.FILTER_CRITERIA);
         select.addElement(HTMLUtils.createOption(0, Messages.getMessage("label.task_status.task_is_active", pageContext), 0 == selected));
         select.addElement(HTMLUtils.createOption(1, Messages.getMessage("label.task_status.task_has_assigned", pageContext), 1 == selected));

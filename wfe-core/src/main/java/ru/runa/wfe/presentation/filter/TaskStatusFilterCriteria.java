@@ -7,7 +7,7 @@ import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.presentation.hibernate.QueryParameter;
 
 /**
- * 
+ *
  * @author estet90
  * @since 4.3.0
  *
@@ -18,11 +18,11 @@ public class TaskStatusFilterCriteria extends FilterCriteria {
 	private static final int TASK_STATUS_ACTIVE = 0;
 	private static final int TASK_STATUS_HAS_ASSIGNED = 1;
 	private static final int TASK_STATUS_HAS_NOT_STARTED = 2;
-	
+
 	public TaskStatusFilterCriteria() {
 		super(2);
 	}
-    
+
 	@Override
 	public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
         StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
@@ -32,19 +32,24 @@ public class TaskStatusFilterCriteria extends FilterCriteria {
         paramStringBuilder.append(":");
         paramStringBuilder.append(alias);
         placeholders.put(alias, new QueryParameter(alias, expression.getValue()));
-        
+
         int taskStatus = TASK_STATUS_ACTIVE;
         if (!getFilterTemplate(1).isEmpty())
-        	taskStatus = Integer.parseInt(getFilterTemplate(1)); 
+        	taskStatus = Integer.parseInt(getFilterTemplate(1));
         StringBuilder where = new StringBuilder("( ");
         where.append(aliasedFieldName).append(paramStringBuilder);
-        if (taskStatus == TASK_STATUS_ACTIVE)
-        	where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = 0");
-        else if (taskStatus == TASK_STATUS_HAS_ASSIGNED)
-        	where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = 1");
-        //else if (taskStatus == TASK_STATUS_HAS_NOT_STARTED)
-        //TODO задача ещё не выполнялась
-        
+
+        switch (taskStatus) {
+            case TASK_STATUS_ACTIVE:
+                where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = 0");
+                break;
+            case TASK_STATUS_HAS_ASSIGNED:
+                where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = 1");
+                break;
+            case TASK_STATUS_HAS_NOT_STARTED:
+                where.delete(0, where.length()).append("taskaggreg1_.processId NOT IN (SELECT subquery2.processId FROM ru.runa.wfe.audit.aggregated.TaskAggregatedLog as subquery2 WHERE (subquery2.taskName=:subQuerytaskName)");
+        }
+
         where.append(")");
         return where.toString();
 	}
