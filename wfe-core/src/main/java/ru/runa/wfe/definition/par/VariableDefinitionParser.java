@@ -7,6 +7,11 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.xml.XmlUtils;
@@ -18,11 +23,6 @@ import ru.runa.wfe.var.VariableStoreType;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String FORMAT = "format";
@@ -98,8 +98,8 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 formatLabel = localizationDAO.getLocalized(variableDefinition.getFormatClassName());
                 formatLabel += VariableFormatContainer.COMPONENT_PARAMETERS_START;
                 String[] componentClassNames = variableDefinition.getFormatComponentClassNames();
-                formatLabel += Joiner.on(VariableFormatContainer.COMPONENT_PARAMETERS_DELIM).join(
-                        Lists.transform(Lists.newArrayList(componentClassNames), new Function<String, String>() {
+                formatLabel += Joiner.on(VariableFormatContainer.COMPONENT_PARAMETERS_DELIM)
+                        .join(Lists.transform(Lists.newArrayList(componentClassNames), new Function<String, String>() {
 
                             @Override
                             public String apply(String input) {

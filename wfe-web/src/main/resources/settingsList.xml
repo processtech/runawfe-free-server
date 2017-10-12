@@ -90,6 +90,10 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="process.variables.display.defaultValueParsingError">
+			<value>true</value>
+			<value>false</value>
+		</property>
 		<property title="view.logs.limit.lines.count" pattern="\d*"/>
 		<property title="view.logs.timeout.autoreload.seconds" pattern="\d*" />
 		
