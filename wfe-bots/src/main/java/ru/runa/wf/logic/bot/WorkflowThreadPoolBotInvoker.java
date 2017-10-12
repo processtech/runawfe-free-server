@@ -32,9 +32,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
@@ -46,6 +43,9 @@ import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
     private final Log log = LogFactory.getLog(WorkflowThreadPoolBotInvoker.class);
@@ -224,8 +224,8 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
             }
         }
         for (String taskName : sequentialTasks.keySet()) {
-            WorkflowSequentialBotTaskExecutor botTaskExecutor = new WorkflowSequentialBotTaskExecutor(botExecutor.getBot(),
-                    botExecutor.getBotTasks().get(taskName), sequentialTasks.get(taskName));
+            WorkflowSequentialBotTaskExecutor botTaskExecutor = new WorkflowSequentialBotTaskExecutor(botExecutor.getBot(), botExecutor.getBotTasks()
+                    .get(taskName), sequentialTasks.get(taskName));
             ScheduledFuture<?> future = executor.schedule(botTaskExecutor, 200, TimeUnit.MILLISECONDS);
             scheduledTasks.put(botTaskExecutor, future);
         }
