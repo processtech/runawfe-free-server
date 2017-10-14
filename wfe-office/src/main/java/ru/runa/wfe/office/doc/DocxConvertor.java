@@ -9,7 +9,6 @@ import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.PrettyXmlSerializer;
 import org.htmlcleaner.TagNode;
 import org.xhtmlrenderer.pdf.ITextRenderer;
-
 import com.lowagie.text.DocumentException;
 
 import ru.runa.wfe.var.format.FormattedTextFormat;
@@ -31,28 +30,30 @@ public class DocxConvertor {
      * @throws IOException
      * @throws DocumentException
      */
-    public byte[] formattedTextFormatToDocx(FormattedTextFormat textFormat, Object htmlText) throws IOException, DocumentException {
+    public static byte[] formattedTextFormatToDocx(FormattedTextFormat textFormat, Object htmlText) throws IOException, DocumentException {
         String html = textFormat.formatHtml(null, null, null, null, htmlText);
 
+        // обработка текста как HTML, запись в поток
         HtmlCleaner cleaner = new HtmlCleaner();
         CleanerProperties props = cleaner.getProperties();
         props.setCharset(StandardCharsets.UTF_8.name());
         TagNode node = cleaner.clean(html);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new PrettyXmlSerializer(props).writeToStream(node, outputStream);
+        ByteArrayOutputStream htmlOutputStream = new ByteArrayOutputStream();
+        new PrettyXmlSerializer(props).writeToStream(node, htmlOutputStream);
 
+        // запись данных из одного потока в другой с возмодностью преобразовать в PDF
         ITextRenderer renderer = new ITextRenderer();
-        renderer.setDocumentFromString(new String(outputStream.toByteArray(), StandardCharsets.UTF_8.name()));
+        renderer.setDocumentFromString(new String(htmlOutputStream.toByteArray(), StandardCharsets.UTF_8.name()));
+        htmlOutputStream.close();
+
+        // формирование массива байт
         renderer.layout();
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
         renderer.createPDF(pdfOutputStream);
-
         renderer.finishPDF();
-        pdfOutputStream.flush();
+        byte[] result = pdfOutputStream.toByteArray();
         pdfOutputStream.close();
 
-        byte[] result = outputStream.toByteArray();
-        outputStream.close();
         return result;
     }
 
