@@ -54,7 +54,6 @@ public class SettingDAO extends GenericDAO<Setting> {
             create(new Setting(fileName, name, value));
         } else {
             property.setValue(value);
-            update(property);
         }
     }
 
