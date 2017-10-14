@@ -22,7 +22,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.organization.name>runawfe.org</project.organization.name>
 		<spring.version>3.1.2.RELEASE</spring.version>
-		<docx4j.version>3.3.6</docx4j.version>
+		<htmlcleaner.version>2.21</htmlcleaner.version>
+		<flying-saucer.version>9.1.7</flying-saucer.version>
 		<project.build.cactus>false</project.build.cactus>
 		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
 		<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
@@ -266,19 +267,14 @@
 				<version>1.1</version>
 			</dependency>
 			<dependency>
-			    <groupId>org.docx4j</groupId>
-			    <artifactId>docx4j-ImportXHTML</artifactId>
-			    <version>${docx4j.version}</version>
-			    <exclusions>
-			        <exclusion>
-			            <groupId>xalan</groupId>
-			            <artifactId>xalan</artifactId>
-			        </exclusion>
-			        <exclusion>
-			            <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-			        </exclusion>
-			    </exclusions>
+				<groupId>org.xhtmlrenderer</groupId>
+				<artifactId>flying-saucer-pdf</artifactId>
+				<version>${flying-saucer.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sourceforge.htmlcleaner</groupId>
+				<artifactId>htmlcleaner</artifactId>
+				<version>${htmlcleaner.version}</version>
 			</dependency>
 
 			<dependency>

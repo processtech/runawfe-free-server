@@ -1,37 +1,59 @@
 package ru.runa.wfe.office.doc;
 
-import java.io.File;
-import java.io.OutputStream;
-import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
-import org.docx4j.openpackaging.exceptions.Docx4JException;
-import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.PrettyXmlSerializer;
+import org.htmlcleaner.TagNode;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import com.google.common.collect.Maps;
+import com.lowagie.text.DocumentException;
 
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.format.FormattedTextFormat;
 
+/**
+ * 
+ * @author estetis21
+ * @since 4.3.0
+ *
+ */
 public class DocxConvertor {
 
-    public void formattedTextFormatToDocx(FormattedTextFormat textFormat, Object htmlText) throws Docx4JException {
-        WordprocessingMLPackage wordMlPackage = WordprocessingMLPackage.createPackage();
-        XHTMLImporterImpl xhtmlImporter = new XHTMLImporterImpl(wordMlPackage);
+    /**
+     * перобразование HTML в PDF
+     * 
+     * @param textFormat переменная типа {@link FormattedTextFormat}
+     * @param htmlText текст, помещённый в поле ввода
+     * @return byte[]
+     * @throws IOException
+     * @throws DocumentException
+     */
+    public byte[] formattedTextFormatToDocx(FormattedTextFormat textFormat, Object htmlText) throws IOException, DocumentException {
         String html = textFormat.formatHtml(null, null, null, null, htmlText);
-        wordMlPackage.getMainDocumentPart().getContent().addAll(xhtmlImporter.convert(html, null));
 
-    }
+        HtmlCleaner cleaner = new HtmlCleaner();
+        CleanerProperties props = cleaner.getProperties();
+        props.setCharset(StandardCharsets.UTF_8.name());
+        TagNode node = cleaner.clean(html);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        new PrettyXmlSerializer(props).writeToStream(node, outputStream);
 
-    public static void execute(IVariableProvider variableProvider, FormattedTextFormat textFormat, Object htmlText) throws Docx4JException {
-        DocxConfig config = new DocxConfig();
-        WordprocessingMLPackage wordMlPackage = WordprocessingMLPackage.createPackage();
-        XHTMLImporterImpl xhtmlImporter = new XHTMLImporterImpl(wordMlPackage);
-        String html = textFormat.formatHtml(null, null, null, null, htmlText);
-        wordMlPackage.getMainDocumentPart().getContent().addAll(xhtmlImporter.convert(html, null));
-        wordMlPackage.save(new File(config.getDefaultOutputFileName()));
-        Map<String, Object> result = Maps.newHashMap();
-        OutputStream outputStream = config.getFileOutputStream(result, variableProvider, true);
+        ITextRenderer renderer = new ITextRenderer();
+        renderer.setDocumentFromString(new String(outputStream.toByteArray(), StandardCharsets.UTF_8.name()));
+        renderer.layout();
+        ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
+        renderer.createPDF(pdfOutputStream);
+
+        renderer.finishPDF();
+        pdfOutputStream.flush();
+        pdfOutputStream.close();
+
+        byte[] result = outputStream.toByteArray();
+        outputStream.close();
+        return result;
     }
 
 }
