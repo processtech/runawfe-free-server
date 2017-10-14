@@ -16,7 +16,7 @@ import ru.runa.wfe.var.format.FormattedTextFormat;
 
 /**
  * 
- * @author estetis21
+ * @author dkononov
  * @since 4.3.0
  *
  */
