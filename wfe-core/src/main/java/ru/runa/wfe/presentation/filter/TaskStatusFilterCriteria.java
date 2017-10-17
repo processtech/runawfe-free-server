@@ -47,7 +47,7 @@ public class TaskStatusFilterCriteria extends FilterCriteria {
                 where.append(" and ").append(aliasedFieldName.replace(".taskName", ".endReason")).append(" = 1");
                 break;
             case TASK_STATUS_HAS_NOT_STARTED:
-                where.delete(0, where.length()).append("taskaggreg1_.processId NOT IN (SELECT subquery2.processId FROM ru.runa.wfe.audit.aggregated.TaskAggregatedLog as subquery2 WHERE (subquery2.taskName=:subQuerytaskName)");
+                where.delete(0, where.length()).append("subQuery.processId NOT IN (SELECT subquery2.processId FROM ru.runa.wfe.audit.aggregated.TaskAggregatedLog as subquery2 WHERE (subquery2.taskName=:subQuerytaskName)");
         }
 
         where.append(")");
