@@ -377,7 +377,11 @@
 		<property name="delay" value="${timertask.start.millis.unassigned.tasks.execution}" />
 		<property name="period" value="${timertask.period.millis.unassigned.tasks.execution}" />
 		<property name="timerTask">
-			<bean class="ru.runa.wfe.job.impl.AssignStalledTasks" />
+			<bean class="ru.runa.wfe.job.impl.AssignStalledTasks">
+				<property name="transactionalExecutor">
+					<bean class="ru.runa.wfe.job.impl.AssignStalledTasksExecutor" />
+				</property>
+			</bean>
 		</property>
 	</bean>
 	

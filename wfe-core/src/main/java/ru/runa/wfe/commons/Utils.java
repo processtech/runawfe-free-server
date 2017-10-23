@@ -388,7 +388,7 @@ public class Utils {
         return string1.trim().equals(string2.trim());
     }
 
-    public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable, final boolean sendNotification) {
+    public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
         new TransactionalExecutor(transaction) {
 
             @Override
@@ -399,9 +399,7 @@ public class Utils {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
                     ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
                     processError.setThrowable(throwable);
-                    if (sendNotification) {
-                        Errors.sendEmailNotification(processError);
-                    }
+                    Errors.sendEmailNotification(processError);
                 }
             }
         }.executeInTransaction(true);

@@ -16,8 +16,6 @@ import ru.runa.wfe.user.ExecutorParticipatesInProcessesException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 
-import com.google.common.base.Throwables;
-
 public class AssignmentHelper {
     private static final Log log = LogFactory.getLog(AssignmentHelper.class);
 
@@ -63,11 +61,9 @@ public class AssignmentHelper {
             assignable.assignExecutor(executionContext, tmpGroup, true);
             log.info("Cascaded assignment done in " + assignable);
             return true;
-        } catch (AssignmentException e) {
-            log.warn("Unable to assign " + assignable + " in " + executionContext.getProcess() + ": " + e);
-            return false;
         } catch (Exception e) {
-            throw Throwables.propagate(e);
+            log.warn("Unable to assign " + assignable + " in " + executionContext.getProcess(), e);
+            return false;
         }
     }
 

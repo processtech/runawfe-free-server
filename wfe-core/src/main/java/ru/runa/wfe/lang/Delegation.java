@@ -31,7 +31,6 @@ import ru.runa.wfe.extension.Configurable;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Delegation implements Serializable {
@@ -55,14 +54,10 @@ public class Delegation implements Serializable {
         Preconditions.checkNotNull(className, "className in " + this);
     }
 
-    public <T extends Configurable> T getInstance() {
-        try {
-            Configurable configurable = ApplicationContextFactory.createAutowiredBean(className);
-            configurable.setConfiguration(configuration);
-            return (T) configurable;
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
-        }
+    public <T extends Configurable> T getInstance() throws Exception {
+        Configurable configurable = ApplicationContextFactory.createAutowiredBean(className);
+        configurable.setConfiguration(configuration);
+        return (T) configurable;
     }
 
     public String getConfiguration() {
