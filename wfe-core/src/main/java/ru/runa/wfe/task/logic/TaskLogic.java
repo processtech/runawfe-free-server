@@ -309,7 +309,7 @@ public class TaskLogic extends WFCommonLogic {
             try {
                 TimeMeasurer measurer = new TimeMeasurer(log, 100);
                 measurer.jobStarted();
-                if (taskAssigner.assignTask(task.getId())) {
+                if (taskAssigner.assignTask(task)) {
                     result++;
                 }
                 measurer.jobEnded("reassignment " + task);
@@ -324,7 +324,8 @@ public class TaskLogic extends WFCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");
         }
-        return taskAssigner.assignTask(taskId);
+        Task task = taskDAO.getNotNull(taskId);
+        return taskAssigner.assignTask(task);
     }
 
     public List<WfTask> getUnassignedTasks(User user) {

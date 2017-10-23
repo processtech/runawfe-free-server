@@ -25,8 +25,7 @@ public class TaskAssigner {
     private TaskDAO taskDAO;
 
     @Transactional
-    public boolean assignTask(Long taskId) {
-        Task task = taskDAO.getNotNull(taskId);
+    public boolean assignTask(Task task) {
         ProcessError processError = new ProcessError(ProcessErrorType.assignment, task.getProcess().getId(), task.getNodeId());
         try {
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(task.getProcess());
