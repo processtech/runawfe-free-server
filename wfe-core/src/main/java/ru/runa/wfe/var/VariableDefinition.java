@@ -19,6 +19,7 @@ package ru.runa.wfe.var;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,6 +27,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
+import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -37,6 +39,7 @@ import com.google.common.collect.Lists;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class VariableDefinition implements Serializable {
     private static final long serialVersionUID = 1L;
+    private static final Pattern listComponentQualifier = Pattern.compile("\\[[\\s]*(\\d{1,2})[\\s]*\\]");
 
     private boolean synthetic;
     private String name;
@@ -51,6 +54,8 @@ public class VariableDefinition implements Serializable {
     private Object defaultValue;
     private VariableStoreType storeType = VariableStoreType.DEFAULT;
     private transient VariableFormat variableFormat;
+    private boolean isListEntry;
+    private boolean isUserTypeField;
 
     public VariableDefinition() {
     }
@@ -63,6 +68,8 @@ public class VariableDefinition implements Serializable {
         } else {
             this.scriptingName = scriptingName.intern();
         }
+        isListEntry = listComponentQualifier.matcher(name).find();
+        isUserTypeField = name.contains(UserType.DELIM);
     }
 
     public VariableDefinition(String name, String scriptingName, VariableFormat variableFormat) {
@@ -287,4 +294,15 @@ public class VariableDefinition implements Serializable {
         this.storeType = storeType;
     }
 
+    public boolean isListEntry() {
+        return isListEntry;
+    }
+
+    public boolean isUserTypeField() {
+        return isUserTypeField;
+    }
+
+    public boolean isList() {
+        return variableFormat instanceof ListFormat;
+    }
 }

@@ -58,6 +58,7 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.VariableBlobLoader;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
@@ -70,6 +71,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -105,6 +107,7 @@ public class ExecutionContext {
     private JobDAO jobDAO;
     @Autowired
     private SwimlaneDAO swimlaneDAO;
+    private final VariableBlobLoader variableBlobLoader;
 
     protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
             Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
@@ -118,6 +121,7 @@ public class ExecutionContext {
             this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
         }
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
+        this.variableBlobLoader = new VariableBlobLoader(this, variableLoader);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
@@ -286,7 +290,9 @@ public class ExecutionContext {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         switch (variableDefinition.getStoreType()) {
         case BLOB: {
-            setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value);
+            if (setSimpleBlobVariableValue(getProcessDefinition(), getToken(), variableDefinition, value) == null) {
+                setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value);
+            }
             break;
         }
         case DEFAULT: {
@@ -295,7 +301,9 @@ public class ExecutionContext {
             VariableFormat variableFormat = variableDefinition.getFormatNotNull();
             for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
                 Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
-                setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
+                if (setSimpleBlobVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue) == null) {
+                    setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
+                }
             }
             break;
         }
@@ -336,6 +344,33 @@ public class ExecutionContext {
             }
         }
         return value;
+    }
+
+    private VariableLog setSimpleBlobVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition,
+            Object value) {
+        VariableLog result = null;
+        Variable<?> container = variableBlobLoader.getVariableContainer(variableDefinition);
+        if (container == null) {
+            return result;
+        }
+        result = variableBlobLoader.setVariableValue(container, variableDefinition, value);
+        variableDAO.update(container);
+        final BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
+        VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition, token.getProcess(),
+                variableBlobLoader.getVariableContainerDefinition(variableDefinition));
+        if (syncVariableDefinition != null) {
+            Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
+            Variable<?> synchVariable = variableLoader.get(parentToken.getProcess(), syncVariableDefinition.getName());
+            if (synchVariable == null) {
+                synchVariable = variableCreator.create(parentToken.getProcess(), syncVariableDefinition, container.getValue());
+                result = synchVariable.setValue(this, container.getValue(), syncVariableDefinition);
+                variableDAO.create(synchVariable);
+            } else {
+                result = synchVariable.setValue(this, container.getValue(), syncVariableDefinition);
+                variableDAO.update(synchVariable);
+            }
+        }
+        return result;
     }
 
     private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value) {
