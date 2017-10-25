@@ -65,7 +65,7 @@ function openConfirmPopup(element, cookieName, message, confirmMessage, cancelBu
 			window.location = element.href; 
 		}
 	} else {
-		$.confirmDialog.html("<p style=\"font-size: 11pt; font-style: italic;\"><input id=\"cookieCh\" type=\"checkbox\" value=\"\"> " + confirmMessage + "</p><p>" + message + "</p>"); 
+		$.confirmDialog.html("<p style=\"font-size: 8pt; font-style: italic;\"><input id=\"cookieCh\" type=\"checkbox\" value=\"\"> " + confirmMessage + "</p><p>" + message + "</p>"); 
 		
 		var buttons = {};
 		buttons[okButton] = function() {
