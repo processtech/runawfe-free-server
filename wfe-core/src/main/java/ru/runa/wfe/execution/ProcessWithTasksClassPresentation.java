@@ -19,6 +19,7 @@ package ru.runa.wfe.execution;
 
 import java.util.Date;
 
+import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
@@ -26,6 +27,7 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.VariableDBSources;
 import ru.runa.wfe.presentation.filter.TaskDurationFilterCriteria;
+import ru.runa.wfe.presentation.filter.TaskStatusFilterCriteria;
 import ru.runa.wfe.presentation.filter.UserOrGroupFilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
@@ -63,6 +65,18 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
         @Override
         public String getJoinExpression(String alias) {
             return alias + ".process.id";
+        }
+    }
+    
+    private static class TaskAggregatedLogDBSource extends DefaultDBSource {
+
+        public TaskAggregatedLogDBSource(Class<?> sourceObject, String valueDBPath) {
+            super(sourceObject, valueDBPath);
+        }
+
+        @Override
+        public String getJoinExpression(String alias) {
+            return alias + ".processId";
         }
     }
 
@@ -130,7 +144,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new ChildDBSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(),
                                 "swimlane" }).setShowable(false),
-                new FieldDescriptor(TASK_NAME, String.class.getName(), new ChildDBSource(Task.class, "name"), false,
+                new FieldDescriptor(TASK_NAME, TaskStatusFilterCriteria.class.getName(), new TaskAggregatedLogDBSource(TaskAggregatedLog.class, "taskName"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(),
                                 "taskName" }).setShowable(false),
                 new FieldDescriptor(TASK_DURATION, TaskDurationFilterCriteria.class.getName(), new DeltaDataChildDBSource(Task.class, "deadlineDate",
