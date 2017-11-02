@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<font-metrics metrics-version="2" type="TYPE0">
+	<font-name>HelveticaNeueCyr-Roman</font-name>
+	<full-name>HelveticaNeueCyr-Roman</full-name>
+	<family-name>HelveticaNeueCyr</family-name>
+	<embed/>
+	<cap-height>712</cap-height>
+	<x-height>516</x-height>
+	<ascender>714</ascender>
+	<descender>-198</descender>
+	<bbox>
+		<left>-29</left>
+		<bottom>-214</bottom>
+		<right>1068</right>
+		<top>899</top>
+	</bbox>
+	<flags>33</flags>
+	<stemv>0</stemv>
+	<italicangle>0</italicangle>
+	<subtype>TYPE0</subtype>
+	<multibyte-extras>
+		<cid-type>CIDFontType2</cid-type>
+		<default-width>0</default-width>
+		<bfranges>
+			<bf gi="3" ue="126" us="32"/>
+			<bf gi="98" ue="164" us="163"/>
+			<bf gi="100" ue="167" us="166"/>
+			<bf gi="102" ue="169" us="169"/>
+			<bf gi="103" ue="172" us="171"/>
+			<bf gi="105" ue="174" us="174"/>
+			<bf gi="106" ue="177" us="176"/>
+			<bf gi="108" ue="183" us="181"/>
+			<bf gi="111" ue="187" us="187"/>
+			<bf gi="112" ue="247" us="247"/>
+			<bf gi="113" ue="402" us="402"/>
+			<bf gi="114" ue="1036" us="1025"/>
+			<bf gi="126" ue="1103" us="1038"/>
+			<bf gi="192" ue="1116" us="1105"/>
+			<bf gi="204" ue="1119" us="1118"/>
+			<bf gi="206" ue="1169" us="1168"/>
+			<bf gi="208" ue="8212" us="8211"/>
+			<bf gi="210" ue="8218" us="8216"/>
+			<bf gi="213" ue="8222" us="8220"/>
+			<bf gi="216" ue="8226" us="8224"/>
+			<bf gi="219" ue="8230" us="8230"/>
+			<bf gi="220" ue="8240" us="8240"/>
+			<bf gi="221" ue="8250" us="8249"/>
+			<bf gi="223" ue="8470" us="8470"/>
+			<bf gi="224" ue="8482" us="8482"/>
+			<bf gi="225" ue="8710" us="8710"/>
+			<bf gi="226" ue="8730" us="8730"/>
+			<bf gi="227" ue="8734" us="8734"/>
+			<bf gi="228" ue="8776" us="8776"/>
+			<bf gi="229" ue="8800" us="8800"/>
+			<bf gi="230" ue="8805" us="8804"/>
+			<bf gi="232" ue="57345" us="57344"/>
+			<bf gi="0" ue="65535" us="65535"/>
+		</bfranges>
+		<cid-widths start-index="0">
+			<wx w="1000" xMax="0" xMin="0" yMax="0" yMin="0"/>
+			<wx w="0" xMax="0" xMin="0" yMax="0" yMin="0"/>
+			<wx w="333" xMax="0" xMin="0" yMax="0" yMin="0"/>
+			<wx w="278" xMax="0" xMin="0" yMax="0" yMin="0"/>
+			<wx w="259" xMax="182" xMin="77" yMax="712" yMin="0"/>
+			<wx w="426" xMax="323" xMin="103" yMax="696" yMin="418"/>
+			<wx w="556" xMax="542" xMin="14" yMax="696" yMin="0"/>
+			<wx w="556" xMax="519" xMin="31" yMax="788" yMin="-99"/>
+			<wx w="1000" xMax="913" xMin="93" yMax="731" yMin="-34"/>
+			<wx w="630" xMax="644" xMin="33" yMax="716" yMin="-15"/>
+			<wx w="278" xMax="171" xMin="106" yMax="696" yMin="418"/>
+			<wx w="259" xMax="269" xMin="48" yMax="725" yMin="-190"/>
+			<wx w="259" xMax="209" xMin="-12" yMax="725" yMin="-190"/>
+			<wx w="352" xMax="328" xMin="24" yMax="723" yMin="443"/>
+			<wx w="600" xMax="551" xMin="49" yMax="501" yMin="0"/>
+			<wx w="278" xMax="194" xMin="83" yMax="111" yMin="-148"/>
+			<wx w="389" xMax="340" xMin="49" yMax="320" yMin="236"/>
+			<wx w="278" xMax="194" xMin="83" yMax="111" yMin="0"/>
+			<wx w="333" xMax="351" xMin="-18" yMax="729" yMin="-17"/>
+			<wx w="556" xMax="514" xMin="41" yMax="709" yMin="-14"/>
+			<wx w="556" xMax="358" xMin="87" yMax="708" yMin="0"/>
+			<wx w="556" xMax="493" xMin="25" yMax="709" yMin="0"/>
+			<wx w="556" xMax="512" xMin="30" yMax="709" yMin="-14"/>
+			<wx w="556" xMax="515" xMin="28" yMax="709" yMin="0"/>
+			<wx w="556" xMax="509" xMin="35" yMax="696" yMin="-14"/>
+			<wx w="556" xMax="519" xMin="39" yMax="709" yMin="-14"/>
+			<wx w="556" xMax="504" xMin="46" yMax="696" yMin="0"/>
+			<wx w="556" xMax="515" xMin="40" yMax="709" yMin="-14"/>
+			<wx w="556" xMax="512" xMin="34" yMax="709" yMin="-14"/>
+			<wx w="278" xMax="194" xMin="83" yMax="516" yMin="0"/>
+			<wx w="278" xMax="194" xMin="83" yMax="516" yMin="-148"/>
+			<wx w="600" xMax="551" xMin="49" yMax="488" yMin="24"/>
+			<wx w="600" xMax="551" xMin="49" yMax="384" yMin="134"/>
+			<wx w="600" xMax="551" xMin="49" yMax="488" yMin="24"/>
+			<wx w="556" xMax="491" xMin="55" yMax="725" yMin="0"/>
+			<wx w="800" xMax="769" xMin="31" yMax="729" yMin="-17"/>
+			<wx w="648" xMax="656" xMin="-8" yMax="712" yMin="0"/>
+			<wx w="685" xMax="642" xMin="79" yMax="712" yMin="0"/>
+			<wx w="722" xMax="682" xMin="44" yMax="728" yMin="-17"/>
+			<wx w="704" xMax="664" xMin="79" yMax="712" yMin="0"/>
+			<wx w="611" xMax="577" xMin="79" yMax="712" yMin="0"/>
+			<wx w="574" xMax="548" xMin="80" yMax="712" yMin="0"/>
+			<wx w="759" xMax="697" xMin="44" yMax="727" yMin="-17"/>
+			<wx w="722" xMax="643" xMin="79" yMax="712" yMin="0"/>
+			<wx w="259" xMax="177" xMin="83" yMax="712" yMin="0"/>
+			<wx w="519" xMax="443" xMin="25" yMax="712" yMin="-17"/>
+			<wx w="667" xMax="669" xMin="79" yMax="712" yMin="0"/>
+			<wx w="556" xMax="552" xMin="80" yMax="712" yMin="0"/>
+			<wx w="871" xMax="791" xMin="80" yMax="712" yMin="0"/>
+			<wx w="722" xMax="645" xMin="75" yMax="712" yMin="0"/>
+			<wx w="760" xMax="721" xMin="39" yMax="729" yMin="-17"/>
+			<wx w="648" xMax="613" xMin="83" yMax="712" yMin="0"/>
+			<wx w="760" xMax="721" xMin="39" yMax="728" yMin="-61"/>
+			<wx w="685" xMax="658" xMin="79" yMax="712" yMin="0"/>
+			<wx w="648" xMax="611" xMin="39" yMax="726" yMin="-16"/>
+			<wx w="574" xMax="573" xMin="1" yMax="712" yMin="0"/>
+			<wx w="722" xMax="648" xMin="74" yMax="712" yMin="-15"/>
+			<wx w="611" xMax="613" xMin="-2" yMax="712" yMin="0"/>
+			<wx w="926" xMax="915" xMin="14" yMax="712" yMin="0"/>
+			<wx w="611" xMax="608" xMin="-5" yMax="712" yMin="0"/>
+			<wx w="648" xMax="648" xMin="3" yMax="712" yMin="0"/>
+			<wx w="611" xMax="585" xMin="17" yMax="712" yMin="0"/>
+			<wx w="259" xMax="261" xMin="72" yMax="723" yMin="-188"/>
+			<wx w="333" xMax="351" xMin="-18" yMax="729" yMin="-17"/>
+			<wx w="259" xMax="187" xMin="-2" yMax="723" yMin="-188"/>
+			<wx w="600" xMax="501" xMin="99" yMax="696" yMin="281"/>
+			<wx w="500" xMax="500" xMin="0" yMax="-75" yMin="-125"/>
+			<wx w="222" xMax="172" xMin="-24" yMax="732" yMin="590"/>
+			<wx w="537" xMax="521" xMin="36" yMax="530" yMin="-14"/>
+			<wx w="593" xMax="552" xMin="63" yMax="712" yMin="-15"/>
+			<wx w="537" xMax="508" xMin="38" yMax="531" yMin="-15"/>
+			<wx w="593" xMax="529" xMin="40" yMax="712" yMin="-14"/>
+			<wx w="537" xMax="511" xMin="37" yMax="531" yMin="-17"/>
+			<wx w="296" xMax="297" xMin="12" yMax="718" yMin="0"/>
+			<wx w="574" xMax="511" xMin="39" yMax="530" yMin="-210"/>
+			<wx w="556" xMax="492" xMin="64" yMax="712" yMin="0"/>
+			<wx w="222" xMax="154" xMin="68" yMax="712" yMin="0"/>
+			<wx w="222" xMax="156" xMin="-15" yMax="712" yMin="-208"/>
+			<wx w="519" xMax="513" xMin="64" yMax="712" yMin="0"/>
+			<wx w="222" xMax="154" xMin="68" yMax="712" yMin="0"/>
+			<wx w="853" xMax="789" xMin="64" yMax="530" yMin="0"/>
+			<wx w="556" xMax="492" xMin="64" yMax="530" yMin="0"/>
+			<wx w="574" xMax="537" xMin="37" yMax="531" yMin="-16"/>
+			<wx w="593" xMax="553" xMin="64" yMax="532" yMin="-199"/>
+			<wx w="593" xMax="529" xMin="41" yMax="532" yMin="-199"/>
+			<wx w="333" xMax="333" xMin="61" yMax="528" yMin="0"/>
+			<wx w="500" xMax="468" xMin="32" yMax="531" yMin="-16"/>
+			<wx w="315" xMax="285" xMin="10" yMax="669" yMin="-5"/>
+			<wx w="556" xMax="492" xMin="63" yMax="516" yMin="-14"/>
+			<wx w="500" xMax="486" xMin="14" yMax="516" yMin="0"/>
+			<wx w="758" xMax="741" xMin="17" yMax="516" yMin="0"/>
+			<wx w="518" xMax="509" xMin="9" yMax="516" yMin="0"/>
+			<wx w="500" xMax="491" xMin="8" yMax="516" yMin="-208"/>
+			<wx w="480" xMax="458" xMin="22" yMax="516" yMin="0"/>
+			<wx w="333" xMax="331" xMin="2" yMax="723" yMin="-188"/>
+			<wx w="222" xMax="144" xMin="78" yMax="786" yMin="-214"/>
+			<wx w="333" xMax="331" xMin="2" yMax="723" yMin="-188"/>
+			<wx w="600" xMax="562" xMin="38" yMax="330" yMin="186"/>
+			<wx w="556" xMax="543" xMin="47" yMax="720" yMin="-17"/>
+			<wx w="556" xMax="510" xMin="46" yMax="588" yMin="124"/>
+			<wx w="222" xMax="144" xMin="78" yMax="661" yMin="-89"/>
+			<wx w="556" xMax="516" xMin="37" yMax="722" yMin="-193"/>
+			<wx w="800" xMax="773" xMin="27" yMax="729" yMin="-16"/>
+			<wx w="463" xMax="399" xMin="50" yMax="427" yMin="100"/>
+			<wx w="600" xMax="551" xMin="49" yMax="384" yMin="133"/>
+			<wx w="400" xMax="383" xMin="18" yMax="729" yMin="362"/>
+			<wx w="400" xMax="351" xMin="49" yMax="710" yMin="407"/>
+			<wx w="600" xMax="551" xMin="49" yMax="500" yMin="-10"/>
+			<wx w="556" xMax="492" xMin="63" yMax="516" yMin="-199"/>
+			<wx w="600" xMax="546" xMin="37" yMax="712" yMin="-176"/>
+			<wx w="278" xMax="194" xMin="83" yMax="348" yMin="237"/>
+			<wx w="463" xMax="413" xMin="63" yMax="429" yMin="101"/>
+			<wx w="600" xMax="551" xMin="49" yMax="489" yMin="24"/>
+			<wx w="556" xMax="492" xMin="5" yMax="712" yMin="-167"/>
+			<wx w="611" xMax="577" xMin="79" yMax="874" yMin="0"/>
+			<wx w="746" xMax="711" xMin="1" yMax="712" yMin="-135"/>
+			<wx w="547" xMax="547" xMin="79" yMax="893" yMin="0"/>
+			<wx w="722" xMax="677" xMin="41" yMax="728" yMin="-17"/>
+			<wx w="648" xMax="611" xMin="39" yMax="726" yMin="-16"/>
+			<wx w="259" xMax="177" xMin="83" yMax="712" yMin="0"/>
+			<wx w="259" xMax="270" xMin="-9" yMax="874" yMin="0"/>
+			<wx w="519" xMax="443" xMin="25" yMax="712" yMin="-17"/>
+			<wx w="1000" xMax="962" xMin="0" yMax="712" yMin="-15"/>
+			<wx w="1000" xMax="962" xMin="79" yMax="714" yMin="0"/>
+			<wx w="746" xMax="702" xMin="1" yMax="712" yMin="0"/>
+			<wx w="667" xMax="669" xMin="79" yMax="893" yMin="0"/>
+			<wx w="611" xMax="615" xMin="-1" yMax="899" yMin="-17"/>
+			<wx w="722" xMax="643" xMin="79" yMax="712" yMin="-177"/>
+			<wx w="648" xMax="656" xMin="-8" yMax="712" yMin="0"/>
+			<wx w="685" xMax="630" xMin="79" yMax="712" yMin="0"/>
+			<wx w="685" xMax="642" xMin="79" yMax="712" yMin="0"/>
+			<wx w="547" xMax="547" xMin="79" yMax="712" yMin="0"/>
+			<wx w="722" xMax="706" xMin="9" yMax="712" yMin="-177"/>
+			<wx w="611" xMax="577" xMin="79" yMax="712" yMin="0"/>
+			<wx w="1000" xMax="1008" xMin="-8" yMax="712" yMin="0"/>
+			<wx w="648" xMax="609" xMin="37" yMax="729" yMin="-16"/>
+			<wx w="722" xMax="643" xMin="79" yMax="712" yMin="0"/>
+			<wx w="722" xMax="643" xMin="79" yMax="899" yMin="0"/>
+			<wx w="667" xMax="669" xMin="79" yMax="712" yMin="0"/>
+			<wx w="685" xMax="604" xMin="0" yMax="712" yMin="-15"/>
+			<wx w="871" xMax="791" xMin="80" yMax="712" yMin="0"/>
+			<wx w="722" xMax="643" xMin="79" yMax="712" yMin="0"/>
+			<wx w="760" xMax="721" xMin="39" yMax="729" yMin="-17"/>
+			<wx w="722" xMax="643" xMin="79" yMax="712" yMin="0"/>
+			<wx w="648" xMax="613" xMin="83" yMax="712" yMin="0"/>
+			<wx w="722" xMax="682" xMin="44" yMax="728" yMin="-17"/>
+			<wx w="574" xMax="573" xMin="1" yMax="712" yMin="0"/>
+			<wx w="611" xMax="615" xMin="-1" yMax="712" yMin="-17"/>
+			<wx w="778" xMax="746" xMin="30" yMax="712" yMin="0"/>
+			<wx w="611" xMax="608" xMin="-5" yMax="712" yMin="0"/>
+			<wx w="722" xMax="707" xMin="73" yMax="712" yMin="-177"/>
+			<wx w="667" xMax="589" xMin="47" yMax="712" yMin="0"/>
+			<wx w="1073" xMax="993" xMin="79" yMax="712" yMin="0"/>
+			<wx w="1083" xMax="1068" xMin="73" yMax="712" yMin="-177"/>
+			<wx w="803" xMax="765" xMin="2" yMax="712" yMin="0"/>
+			<wx w="871" xMax="793" xMin="79" yMax="712" yMin="0"/>
+			<wx w="648" xMax="610" xMin="79" yMax="712" yMin="0"/>
+			<wx w="722" xMax="678" xMin="42" yMax="728" yMin="-17"/>
+			<wx w="1000" xMax="961" xMin="79" yMax="729" yMin="-17"/>
+			<wx w="667" xMax="588" xMin="-4" yMax="712" yMin="0"/>
+			<wx w="537" xMax="521" xMin="36" yMax="530" yMin="-14"/>
+			<wx w="574" xMax="537" xMin="50" yMax="729" yMin="-17"/>
+			<wx w="537" xMax="500" xMin="62" yMax="516" yMin="0"/>
+			<wx w="420" xMax="420" xMin="66" yMax="516" yMin="0"/>
+			<wx w="574" xMax="564" xMin="8" yMax="516" yMin="-164"/>
+			<wx w="537" xMax="511" xMin="37" yMax="531" yMin="-17"/>
+			<wx w="778" xMax="777" xMin="0" yMax="516" yMin="0"/>
+			<wx w="500" xMax="464" xMin="26" yMax="531" yMin="-16"/>
+			<wx w="556" xMax="492" xMin="64" yMax="516" yMin="0"/>
+			<wx w="556" xMax="492" xMin="64" yMax="712" yMin="0"/>
+			<wx w="519" xMax="526" xMin="64" yMax="516" yMin="0"/>
+			<wx w="556" xMax="494" xMin="14" yMax="516" yMin="-11"/>
+			<wx w="685" xMax="623" xMin="63" yMax="516" yMin="0"/>
+			<wx w="556" xMax="492" xMin="64" yMax="516" yMin="0"/>
+			<wx w="574" xMax="537" xMin="37" yMax="531" yMin="-16"/>
+			<wx w="556" xMax="492" xMin="64" yMax="516" yMin="0"/>
+			<wx w="593" xMax="553" xMin="64" yMax="532" yMin="-199"/>
+			<wx w="537" xMax="508" xMin="38" yMax="531" yMin="-15"/>
+			<wx w="463" xMax="459" xMin="4" yMax="516" yMin="0"/>
+			<wx w="500" xMax="491" xMin="8" yMax="516" yMin="-208"/>
+			<wx w="800" xMax="760" xMin="40" yMax="712" yMin="-199"/>
+			<wx w="518" xMax="509" xMin="9" yMax="516" yMin="0"/>
+			<wx w="570" xMax="555" xMin="64" yMax="516" yMin="-164"/>
+			<wx w="527" xMax="463" xMin="50" yMax="516" yMin="0"/>
+			<wx w="809" xMax="745" xMin="64" yMax="516" yMin="0"/>
+			<wx w="824" xMax="812" xMin="64" yMax="516" yMin="-164"/>
+			<wx w="611" xMax="589" xMin="3" yMax="516" yMin="0"/>
+			<wx w="704" xMax="641" xMin="61" yMax="516" yMin="0"/>
+			<wx w="519" xMax="498" xMin="61" yMax="516" yMin="0"/>
+			<wx w="537" xMax="499" xMin="31" yMax="531" yMin="-15"/>
+			<wx w="766" xMax="729" xMin="64" yMax="531" yMin="-16"/>
+			<wx w="537" xMax="472" xMin="-2" yMax="516" yMin="0"/>
+			<wx w="537" xMax="511" xMin="37" yMax="711" yMin="-17"/>
+			<wx w="556" xMax="512" xMin="9" yMax="712" yMin="-198"/>
+			<wx w="420" xMax="420" xMin="66" yMax="732" yMin="0"/>
+			<wx w="537" xMax="508" xMin="40" yMax="531" yMin="-15"/>
+			<wx w="500" xMax="468" xMin="32" yMax="531" yMin="-16"/>
+			<wx w="222" xMax="154" xMin="68" yMax="712" yMin="0"/>
+			<wx w="222" xMax="250" xMin="-29" yMax="712" yMin="0"/>
+			<wx w="222" xMax="156" xMin="-15" yMax="712" yMin="-208"/>
+			<wx w="778" xMax="756" xMin="9" yMax="516" yMin="-11"/>
+			<wx w="778" xMax="756" xMin="64" yMax="516" yMin="0"/>
+			<wx w="556" xMax="512" xMin="9" yMax="712" yMin="0"/>
+			<wx w="519" xMax="526" xMin="64" yMax="732" yMin="0"/>
+			<wx w="500" xMax="491" xMin="8" yMax="712" yMin="-208"/>
+			<wx w="556" xMax="492" xMin="64" yMax="516" yMin="-164"/>
+			<wx w="547" xMax="547" xMin="79" yMax="873" yMin="0"/>
+			<wx w="420" xMax="414" xMin="64" yMax="672" yMin="0"/>
+			<wx w="500" xMax="500" xMin="0" yMax="319" yMin="237"/>
+			<wx w="1000" xMax="1000" xMin="0" yMax="319" yMin="237"/>
+			<wx w="278" xMax="191" xMin="78" yMax="728" yMin="473"/>
+			<wx w="278" xMax="199" xMin="86" yMax="712" yMin="457"/>
+			<wx w="278" xMax="191" xMin="83" yMax="103" yMin="-146"/>
+			<wx w="426" xMax="357" xMin="67" yMax="727" yMin="478"/>
+			<wx w="426" xMax="358" xMin="68" yMax="712" yMin="463"/>
+			<wx w="426" xMax="359" xMin="69" yMax="103" yMin="-146"/>
+			<wx w="556" xMax="514" xMin="42" yMax="712" yMin="-156"/>
+			<wx w="556" xMax="514" xMin="42" yMax="712" yMin="-155"/>
+			<wx w="500" xMax="428" xMin="72" yMax="534" yMin="178"/>
+			<wx w="1000" xMax="874" xMin="126" yMax="107" yMin="0"/>
+			<wx w="1148" xMax="1064" xMin="84" yMax="731" yMin="-35"/>
+			<wx w="259" xMax="194" xMin="42" yMax="426" yMin="100"/>
+			<wx w="259" xMax="217" xMin="65" yMax="427" yMin="102"/>
+			<wx w="1000" xMax="946" xMin="77" yMax="696" yMin="0"/>
+			<wx w="990" xMax="827" xMin="112" yMax="712" yMin="356"/>
+			<wx w="670" xMax="656" xMin="14" yMax="712" yMin="0"/>
+			<wx w="600" xMax="546" xMin="36" yMax="786" yMin="-214"/>
+			<wx w="741" xMax="700" xMin="41" yMax="396" yMin="101"/>
+			<wx w="600" xMax="562" xMin="38" yMax="412" yMin="98"/>
+			<wx w="600" xMax="551" xMin="49" yMax="531" yMin="-10"/>
+			<wx w="600" xMax="551" xMin="49" yMax="517" yMin="-27"/>
+			<wx w="600" xMax="551" xMin="49" yMax="517" yMin="-27"/>
+			<wx w="389" xMax="340" xMin="49" yMax="320" yMin="236"/>
+			<wx w="278" xMax="1" xMin="22" yMax="0" yMin="270"/>
+		</cid-widths>
+	</multibyte-extras>
+</font-metrics>

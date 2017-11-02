@@ -22,9 +22,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.organization.name>runawfe.org</project.organization.name>
 		<spring.version>3.1.2.RELEASE</spring.version>
-		<htmlcleaner.version>2.21</htmlcleaner.version>
-		<flying-saucer.version>9.1.7</flying-saucer.version>
-		<itext.version>2.1.7</itext.version>
 		<project.build.cactus>false</project.build.cactus>
 		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
 		<maven.profile.hibernate.datasource>java:jboss/datasources/ExampleDS</maven.profile.hibernate.datasource>
@@ -267,22 +264,7 @@
 				<type>jar</type>
 				<version>1.1</version>
 			</dependency>
-			<dependency>
-				<groupId>org.xhtmlrenderer</groupId>
-				<artifactId>flying-saucer-pdf</artifactId>
-				<version>${flying-saucer.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>net.sourceforge.htmlcleaner</groupId>
-				<artifactId>htmlcleaner</artifactId>
-				<version>${htmlcleaner.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.lowagie</groupId>
-				<artifactId>itext-rtf</artifactId>
-				<version>${itext.version}</version>
-			</dependency>
-						
+
 			<dependency>
 				<groupId>org.testng</groupId>
 				<artifactId>testng</artifactId>

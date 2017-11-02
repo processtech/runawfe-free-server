@@ -12,6 +12,12 @@
 	<artifactId>wfe-office</artifactId>
 	<packaging>jar</packaging>
 
+	<properties>
+		<htmlcleaner.version>2.21</htmlcleaner.version>
+		<fop.version>2.2</fop.version>
+		<batik.version>1.9</batik.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>ru.runa.wfe</groupId>
@@ -37,17 +43,25 @@
 			<artifactId>poi-ooxml</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.xhtmlrenderer</groupId>
-			<artifactId>flying-saucer-pdf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.htmlcleaner</groupId>
-			<artifactId>htmlcleaner</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.lowagie</groupId>
-			<artifactId>itext-rtf</artifactId>
-		</dependency>
+				<groupId>net.sourceforge.htmlcleaner</groupId>
+				<artifactId>htmlcleaner</artifactId>
+				<version>${htmlcleaner.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.xmlgraphics</groupId>
+				<artifactId>fop</artifactId>
+				<version>${fop.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.xmlgraphics</groupId>
+				<artifactId>batik-i18n</artifactId>
+				<version>${batik.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.xmlgraphics</groupId>
+				<artifactId>batik-constants</artifactId>
+				<version>${batik.version}</version>
+			</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>

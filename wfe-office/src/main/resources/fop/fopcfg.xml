@@ -1,0 +1,20 @@
+<fop version="1.0">
+	<renderers>
+		<renderer mime="application/pdf">
+			<fonts>
+				<font metrics-url="src/main/resources/fop/fonts/helvetica/helveticaBold.xml" kerning="yes" embed-url="src/main/resources/fop/fonts/helvetica/HelveticaBold.ttf">
+					<font-triplet name="HelveticaNeueCyr" style="normal" weight="bold"/>
+				</font>
+				<font metrics-url="src/main/resources/fop/fonts/helvetica/helveticaBoldItalic.xml" kerning="yes" embed-url="src/main/resources/fop/fonts/helvetica/HelveticaBoldItalic.ttf">
+					<font-triplet name="HelveticaNeueCyr" style="italic" weight="bold"/>
+				</font>
+				<font metrics-url="src/main/resources/fop/fonts/helvetica/helveticaItalic.xml" kerning="yes" embed-url="src/main/resources/fop/fonts/helvetica/HelveticaItalic.ttf">
+					<font-triplet name="HelveticaNeueCyr" style="italic" weight="normal"/>
+				</font>
+				<font metrics-url="src/main/resources/fop/fonts/helvetica/helveticaRegular.xml" kerning="yes" embed-url="src/main/resources/fop/fonts/helvetica/HelveticaRegular.ttf">
+					<font-triplet name="HelveticaNeueCyr" style="normal" weight="normal"/>
+				</font>
+			</fonts>
+		</renderer>
+	</renderers>
+</fop>
