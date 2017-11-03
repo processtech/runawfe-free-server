@@ -44,13 +44,14 @@ public class FormattedTextConvertor {
     
     /**
      * 
-     * @param html строка в формате HTML, не содержащая тэгов &lt;html&gt;, &lt;head&gt;, &lt;body&gt;
-     * @return byte[] поток байт, который можно преобразовать в файл формата PDF 
-     * @throws TransformerException при выполнении преобразования FO -> PDF, если FO некорректен,
-     * либо при выполнении преобразования HTML -> FO
-     * @throws ConfigurationException при чтении конфигурационного файла Apache FOP, если он некорректен
-     * @throws IOException при работе с потоками I/O
-     * @throws SAXException при чтении конфигурационного файла Apache FOP, если он некорректен или неправильном создании экземпляра класса Fop
+     * @param html HTML-string without tags &lt;html&gt;, &lt;head&gt;, &lt;body&gt;
+     * @return byte[] PDF byte stream 
+     * @throws TransformerException when converting FO -> PDF, if FO has incorrect format,
+     * or when converting HTML -> FO
+     * @throws ConfigurationException when reading Apache FOP config file, if it has incorrect format
+     * @throws IOException I/O streams throw
+     * @throws SAXException when reading Apache FOP config file, if it has incorrect format 
+     * or when you incorrect create an instance of the class Fop
      */
     public byte[] getPdfFromHtml(String html) throws TransformerException, ConfigurationException, IOException, SAXException {
         html = createPrettyHtml(html);
@@ -62,10 +63,10 @@ public class FormattedTextConvertor {
     }
     
     /**
-     * <p>формирование валидной строки в формате HTML</p>
-     * @param html строка в формате HTML, не содержащая тэгов &lt;html&gt;, &lt;head&gt;, &lt;body&gt;
-     * @return String строка в формате HTML
-     * @throws IOException при работе с потоками I/O
+     * <p>creating valid HTML-string</p>
+     * @param html HTML-string without tags  &lt;html&gt;, &lt;head&gt;, &lt;body&gt;
+     * @return String HTML-string
+     * @throws IOException I/O streams throw
      */
     private String createPrettyHtml(String html) throws IOException {
         HtmlCleaner cleaner = new HtmlCleaner();
@@ -80,27 +81,28 @@ public class FormattedTextConvertor {
     }
     
     /**
-     * <p>преобразование FO -> PDF</p>
-     * @param fo строка в формате FO
-     * @param fopConfigPath путь к конфигурационному файлу Apache FOP
-     * @return byte[] поток байт, который можно преобразовать в файл формата PDF 
-     * @throws TransformerException при выполнении преобразования FO -> PDF, если FO некорректен
-     * @throws IOException при работе с потоками I/O
-     * @throws ConfigurationException при чтении конфигурационного файла Apache FOP, если он некорректен
-     * @throws SAXException при чтении конфигурационного файла Apache FOP, если он некорректен или неправильном создании экземпляра класса Fop
+     * <p>FO -> PDF converting</p>
+     * @param fo FO-string
+     * @param fopConfigPath Apache FOP config files's path
+     * @return byte[] PDF byte stream 
+     * @throws TransformerException when converting FO -> PDF, if FO has incorrect format
+     * @throws IOException I/O streams throw
+     * @throws ConfigurationException when reading Apache FOP config file, if it has incorrect format
+     * @throws SAXException when reading Apache FOP config file, if it has incorrect format 
+     * or when you incorrect create an instance of the class Fop
      */
     private byte[] getPdfFromFo(String fo, String fopConfigPath) throws TransformerException, IOException, ConfigurationException, SAXException {
-        //подгрузка конфига для FopFactory
+        //reading FopFactory's config file
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(fopConfigPath).getFile());
-        //подготовка преобразования
+        //prepare converting
         DefaultConfigurationBuilder configurationBuilder = new DefaultConfigurationBuilder();
         Configuration configuration = configurationBuilder.buildFromFile(file);
         FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(new File(".").toURI()).setConfiguration(configuration);
         FopFactory fopFactory = fopFactoryBuilder.build();
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
         Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdfOutputStream);
-        //преобразование FO -> PDF
+        //FO -> PDF converting
         TransformerFactory factory = TransformerFactory.newInstance();
         Transformer transformer = factory.newTransformer();
         InputStream foStream = new ByteArrayInputStream(fo.getBytes(StandardCharsets.UTF_8.name()));
@@ -113,18 +115,18 @@ public class FormattedTextConvertor {
     }
     
     /**
-     * <p>преобразование HTML -> FO</p>
-     * @param html строка в формате HTML
-     * @param xsltPath относительный путь к XSL
-     * @return String строка в формате FO
-     * @throws TransformerException при выполнении преобразования HTML -> FO
-     * @throws UnsupportedEncodingException при преобразование строки в поток байт
+     * <p>HTML -> FO converting</p>
+     * @param html HTML-string
+     * @param xsltPath XSL files's path
+     * @return String FO-string
+     * @throws TransformerException when converting HTML -> FO
+     * @throws UnsupportedEncodingException when convertingString->byte[]
      */
     private String getFoFromHtml(String html, String xsltPath) throws TransformerException, UnsupportedEncodingException {
-        //подгрузка XSL
+        //reading XSL
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(xsltPath).getFile());
-        //преобразование HTML -> FO
+        //converting HTML -> FO
         TransformerFactory factory = TransformerFactory.newInstance();
         Source xslSource = new StreamSource(file);
         Transformer transformer = factory.newTransformer(xslSource);
