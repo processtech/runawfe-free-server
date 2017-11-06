@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.bot.invoker.BotInvoker;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
+import ru.runa.wfe.commons.SystemProperties;
 
 /**
  * Bot station configuration.
@@ -34,13 +35,14 @@ import ru.runa.wfe.commons.PropertyResources;
  */
 public class BotStationResources {
     private static final Log log = LogFactory.getLog(BotStationResources.class);
+    private static final String RESOURCES_FILE_NAME = "botstation.properties";
     private static PropertyResources RESOURCES;
 
     static {
-        if (ClassLoaderUtil.checkResource("botstation.properties")) {
-            RESOURCES = new PropertyResources("botstation.properties", true, false);
+        if (ClassLoaderUtil.getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + RESOURCES_FILE_NAME, BotStationResources.class) != null) {
+            RESOURCES = new PropertyResources(RESOURCES_FILE_NAME, true, false);
         } else {
-            RESOURCES = new PropertyResources("botstation.properties");
+            RESOURCES = new PropertyResources(RESOURCES_FILE_NAME);
         }
     }
 
