@@ -72,9 +72,17 @@
 	
 	function updateIndexes(container) {
 		var ids = [];
-		container.find("div[row]").filter(filterTemplatesElements).each(function() {
-			ids.push($(this).attr("row")); 
-		});
+		var divs = container;
+		while (divs && divs.length && ids.length <= 0) {
+			divs.each(function() {
+				$(this).children("div[row]").filter(filterTemplatesElements).each(function() {
+					ids.push($(this).attr("row"));
+				});
+			});
+			if (ids.length <= 0) {
+				divs = divs.children("div");
+			}
+		}
 		var indexesInput = container.find("input[name$='.indexes']").filter(filterTemplatesElements).first();
 		indexesInput.val(ids);
 	}
