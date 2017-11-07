@@ -129,15 +129,18 @@ public class UserTypeMap extends HashMap<String, Object> {
     public WfVariable getAttributeValue(String attributeName) {
         int dotIndex = attributeName.indexOf(UserType.DELIM);
         if (dotIndex != -1) {
+            VariableDefinition variableDefinition = userType.getAttributeExpanded(attributeName);
+            if (variableDefinition == null) {
+                throw new InternalApplicationException("No attribute '" + attributeName + "' found in " + userType);
+            }
+            Object value = null;
             String embeddedComplexVariable = attributeName.substring(0, dotIndex);
             String embeddedAttributeName = attributeName.substring(dotIndex + 1);
             UserTypeMap embeddedUserTypeMap = (UserTypeMap) super.get(embeddedComplexVariable);
             if (embeddedUserTypeMap != null) {
-                return embeddedUserTypeMap.getAttributeValue(embeddedAttributeName);
-            } else {
-                VariableDefinition variableDefinition = getUserType().getAttributeNotNull(attributeName);
-                return new WfVariable(variableDefinition, null);
+                value = embeddedUserTypeMap.getAttributeValue(embeddedAttributeName).getValue();
             }
+            return new WfVariable(variableDefinition, value);
         }
         String qualifier = null;
         Matcher dictMatcher = DICT_QUALIFIER.matcher(attributeName);
