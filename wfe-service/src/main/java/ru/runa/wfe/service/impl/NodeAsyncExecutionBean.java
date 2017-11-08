@@ -19,10 +19,6 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
-import ru.runa.wfe.commons.ITransactionListener;
-import ru.runa.wfe.commons.TransactionListeners;
-import ru.runa.wfe.commons.TransactionalExecutor;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
@@ -41,7 +37,7 @@ import com.google.common.base.Throwables;
  */
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/nodeAsyncExecution"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
-@TransactionManagement(TransactionManagementType.BEAN)
+@TransactionManagement(TransactionManagementType.CONTAINER)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
 public class NodeAsyncExecutionBean implements MessageListener {
     private static final Log log = LogFactory.getLog(NodeAsyncExecutionBean.class);
@@ -61,8 +57,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
             handleMessage(message);
         } catch (Exception e) {
             log.error(jmsMessage, e);
-            Throwables.propagateIfInstanceOf(e, MessagePostponedException.class);
-            throw new MessagePostponedException(e.getMessage());
+            context.setRollbackOnly();
         }
     }
 
@@ -76,44 +71,32 @@ public class NodeAsyncExecutionBean implements MessageListener {
             log.debug("rejected due to redelivering");
             return;
         }
-        try {
-            new TransactionalExecutor(context.getUserTransaction()) {
-
-                @Override
-                protected void doExecuteInTransaction() throws Exception {
-                    Token token = tokenDAO.getNotNull(tokenId);
-                    if (token.getProcess().hasEnded()) {
-                        log.debug("Ignored execution in ended " + token.getProcess());
-                        return;
-                    }
-                    if (!Objects.equal(nodeId, token.getNodeId())) {
-                        throw new InternalApplicationException(token + " expected to be in node " + nodeId);
-                    }
-                    ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
-                    Node node = processDefinition.getNodeNotNull(token.getNodeId());
-                    try {
-                        ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
-                        node.handle(executionContext);
-                    } catch (Throwable th) {
-                        log.error(processId + ":" + tokenId, th);
-                        Throwables.propagate(th);
-                    }
-                }
-            }.executeInTransaction(true);
-            for (ITransactionListener listener : TransactionListeners.get()) {
-                try {
-                    listener.onTransactionComplete(context.getUserTransaction());
-                } catch (Throwable th) {
-                    log.error(th);
-                }
-            }
-            TransactionListeners.reset();
-        } catch (final Throwable th) {
-            // TODO does not work in case of timeout in handling transaction
-            // ARJUNA016051: thread is already associated with a transaction!
-            Utils.failProcessExecution(context.getUserTransaction(), tokenId, th);
-            throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
+        Token token = tokenDAO.getNotNull(tokenId);
+        if (token.getProcess().hasEnded()) {
+            log.debug("Ignored execution in ended " + token.getProcess());
+            return;
         }
-    }
+        if (!Objects.equal(nodeId, token.getNodeId())) {
+            throw new InternalApplicationException(token + " expected to be in node " + nodeId);
+        }
+        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+        Node node = processDefinition.getNodeNotNull(token.getNodeId());
+        try {
+            ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+            node.handle(executionContext);
+        } catch (Throwable th) {
+            log.error(processId + ":" + tokenId, th);
+            Throwables.propagate(th);
+        }
+        // TODO tnms 3652
+        // for (ITransactionListener listener : TransactionListeners.get()) {
+        // try {
+        // listener.onTransactionComplete(context.getUserTransaction());
+        // } catch (Throwable th) {
+        // log.error(th);
+        // }
+        // }
+        // TransactionListeners.reset();
 
+    }
 }
