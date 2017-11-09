@@ -1,3 +1,7 @@
+<%@page import="org.springframework.mobile.device.LiteDeviceResolver"%>
+<%@page import="org.springframework.mobile.device.DeviceResolver"%>
+<%@page import="org.springframework.mobile.device.DeviceUtils"%>
+<%@page import="org.springframework.mobile.device.Device"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
@@ -7,7 +11,12 @@
 <%@ page import="ru.runa.common.WebResources" %>
 <%@ page import="ru.runa.common.Version" %>
 <!DOCTYPE HTML>
+<%!
+	private final static DeviceResolver DEVICE_RESOLVER = new LiteDeviceResolver();
+%>
 <% 
+	Device currentDevice = DEVICE_RESOLVER.resolveDevice(request);
+	boolean desktop = (currentDevice == null || !currentDevice.isMobile() && !currentDevice.isTablet());
 	String thinInterface = (String)request.getAttribute("runawfe.thin.interface");
 	String thinInterfacePage = (String)request.getAttribute("runawfe.thin.interface.page");
 	if (thinInterfacePage == null) {
@@ -63,12 +72,27 @@
 <% if (thinInterface == null || !thinInterface.equals("true")) { %>
 	<table class="box">
 		<tr>
-			<td width="15%">
+			<td width="35%">
 				<a href="http://runawfe.org" target="new">
 					<img hspace="10" border="0" src="<html:rewrite page="/images/big_logo.gif"/>" alt="Runa WFE">
 				</a>
+				<script type="text/javascript">
+					function refreshSystemMenu() {
+						var systemMenu = $("#systemMenu");
+						if (systemMenu.css("display") === "none") {
+							systemMenu.css("display", "block")
+							systemMenu.parent().css("width", "15%");
+							systemMenu.parent().siblings().css("width", "85%");
+						} else {
+							systemMenu.css("display", "none");
+							systemMenu.parent().css("width", "0%");
+							systemMenu.parent().siblings().css("width", "100%");
+						}
+					}
+				</script>
+				<img hspace="0" border="0" src="<html:rewrite page="/images/menu.png"/>" onclick="refreshSystemMenu();">
 			</td>
-			<td width="85%" >
+			<td width="65%" >
 				<table width="100%">	
 				<tr> 
 					<td align="left" >
@@ -81,8 +105,11 @@
 				</table>
 			</td>
 		</tr>
+	</table>
+	<table class="box">
 		<tr>
-			<td valign="top" height="100%" width="15%">
+			<td valign="top" height="100%" width='<%= desktop ? 15 : 0 %>%'>
+				<div id="systemMenu" style='display: <%= desktop ? "block" : "none" %>;'>
 				<hr>
 				<table class="box">	
 					<tr>
@@ -108,8 +135,9 @@
 				<div id="filtersHelpDialog" style="display: none;">
 					<bean:message key="content.filters.help"/>
 				</div>
+				</div>
 			</td>
-			<td valign="top"   height="100%" width="85%">
+			<td valign="top" height="100%" width="<%= desktop ? 85 : 100 %>%">
 				<hr>
 					<tiles:insert attribute="body"/>
 				<hr>
