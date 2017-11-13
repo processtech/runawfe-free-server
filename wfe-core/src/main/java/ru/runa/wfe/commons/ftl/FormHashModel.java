@@ -57,7 +57,7 @@ public class FormHashModel extends SimpleHash {
             return model;
         }
         try {
-            FormComponent component = FreemarkerConfiguration.getInstance().getComponent(key);
+            FormComponent component = FreemarkerConfiguration.getComponent(key);
             if (component != null) {
                 component.init(user, webHelper, variableProvider, key.startsWith(FormComponent.TARGET_PROCESS_PREFIX));
                 if (webHelper != null && webHelper.getRequest() != null && component instanceof AjaxFormComponent) {

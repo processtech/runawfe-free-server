@@ -17,6 +17,7 @@
  */
 package ru.runa.af.web.orgfunction;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,64 +26,69 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.extension.orgfunction.ParamRenderer;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.User;
+
+import com.google.common.base.Preconditions;
 
 @SuppressWarnings("unchecked")
 public class SubstitutionCriteriaDefinitions {
     private static final Log log = LogFactory.getLog(SubstitutionCriteriaDefinitions.class);
-
     private static final String CONFIG = "substitution.criterias.xml";
     private static List<FunctionDef> definitions = new ArrayList<FunctionDef>();
 
-    private static void registerDefinitions(User user, String resourceName, boolean required) {
+    static {
+        registerDefinitions(ClassLoaderUtil.getAsStream(CONFIG, SubstitutionDefinitions.class));
         try {
-            InputStream is;
-            if (required) {
-                is = ClassLoaderUtil.getAsStreamNotNull(resourceName, SubstitutionDefinitions.class);
-            } else {
-                is = ClassLoaderUtil.getAsStream(resourceName, SubstitutionDefinitions.class);
+            String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG;
+            Resource[] resources = ClassLoaderUtil.getResourcePatternResolver().getResources(pattern);
+            for (Resource resource : resources) {
+                registerDefinitions(resource.getInputStream());
             }
-            if (is != null) {
-                Document document = XmlUtils.parseWithoutValidation(is);
-                List<Element> oElements = document.getRootElement().elements("type");
-                for (Element oElement : oElements) {
-                    String className = oElement.attributeValue("class");
-                    String label = Delegates.getSystemService().getLocalized(user, className);
-                    FunctionDef fDef = new FunctionDef(className, label);
-                    List<Element> pElements = oElement.elements("param");
-                    for (Element pElement : pElements) {
-                        String rendererClassName = pElement.attributeValue("renderer");
-                        if (rendererClassName == null) {
-                            rendererClassName = StringRenderer.class.getName();
-                        }
-                        ParamRenderer renderer = ClassLoaderUtil.instantiate(rendererClassName);
-                        ParamDef pDef = new ParamDef(pElement.attributeValue("messageKey"), pElement.attributeValue("message"), renderer);
-                        fDef.addParam(pDef);
-                    }
-                    definitions.add(fDef);
-                }
-            }
-        } catch (Exception e) {
-            log.error("check " + resourceName, e);
+        } catch (IOException e) {
+            log.error("unable load wfe.custom substitution criteria definitions", e);
         }
     }
 
-    public static List<FunctionDef> getAll(User user) {
-        if (definitions.isEmpty()) {
-            registerDefinitions(user, CONFIG, true);
-            registerDefinitions(user, SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG, false);
+    private static void registerDefinitions(InputStream inputStream) {
+        try {
+            Preconditions.checkNotNull(inputStream);
+            Document document = XmlUtils.parseWithoutValidation(inputStream);
+            List<Element> oElements = document.getRootElement().elements("type");
+            for (Element oElement : oElements) {
+                String className = oElement.attributeValue("class");
+                String label = Delegates.getSystemService().getLocalized(className);
+                FunctionDef fDef = new FunctionDef(className, label);
+                List<Element> pElements = oElement.elements("param");
+                for (Element pElement : pElements) {
+                    String rendererClassName = pElement.attributeValue("renderer");
+                    if (rendererClassName == null) {
+                        rendererClassName = StringRenderer.class.getName();
+                    }
+                    ParamRenderer renderer = ClassLoaderUtil.instantiate(rendererClassName);
+                    ParamDef pDef = new ParamDef(pElement.attributeValue("messageKey"), pElement.attributeValue("message"), renderer);
+                    fDef.addParam(pDef);
+                }
+                definitions.add(fDef);
+            }
+            inputStream.close();
+        } catch (Exception e) {
+            log.error("unable load substitution criteria definitions", e);
         }
+    }
+
+    public static List<FunctionDef> getAll() {
         return definitions;
     }
 
-    public static FunctionDef getByClassName(User user, String className) {
-        for (FunctionDef definition : getAll(user)) {
+    public static FunctionDef getByClassName(String className) {
+        for (FunctionDef definition : getAll()) {
             if (definition.getClassName().equals(className)) {
                 return definition;
             }
