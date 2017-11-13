@@ -1,20 +1,17 @@
 package ru.runa.wfe.commons.ftl;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.xml.XmlUtils;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
 
 public class FreemarkerConfiguration {
     private static Log log = LogFactory.getLog(FreemarkerConfiguration.class);
