@@ -31,6 +31,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
+<<<<<<< HEAD
+=======
+
+>>>>>>> allow multiple extension wfe.custom.*.xml resources: code review
 import ru.runa.common.web.Commons;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -38,6 +42,12 @@ import ru.runa.wfe.commons.web.AjaxCommand;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.user.User;
 
+<<<<<<< HEAD
+=======
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+
+>>>>>>> allow multiple extension wfe.custom.*.xml resources: code review
 public class AjaxCommandServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(AjaxCommandServlet.class);
