@@ -26,62 +26,49 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.extension.orgfunction.ParamRenderer;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Function;
 
-@SuppressWarnings("unchecked")
 public class SubstitutionDefinitions {
     private static final Log log = LogFactory.getLog(SubstitutionDefinitions.class);
-    private static final String CONFIG = "substitutions.xml";
-    private static final List<FunctionDef> definitions = new ArrayList<FunctionDef>();
+    private static final List<FunctionDef> definitions = new ArrayList<>();
 
     static {
-        registerDefinitions(ClassLoaderUtil.getAsStream(CONFIG, SubstitutionDefinitions.class));
-        try {
-            String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG;
-            Resource[] resources = ClassLoaderUtil.getResourcePatternResolver().getResources(pattern);
-            for (Resource resource : resources) {
-                registerDefinitions(resource.getInputStream());
-            }
-        } catch (IOException e) {
-            log.error("unable load wfe.custom substitution definitions", e);
-        }
-    }
+        ClassLoaderUtil.withExtensionResources("substitutions.xml", new Function<InputStream, Object>() {
 
-    private static void registerDefinitions(InputStream inputStream) {
-        try {
-            Preconditions.checkNotNull(inputStream);
-            Document document = XmlUtils.parseWithoutValidation(inputStream);
-            List<Element> oElements = document.getRootElement().elements("function");
-            for (Element oElement : oElements) {
-                String className = oElement.attributeValue("class");
-                String label = Delegates.getSystemService().getLocalized(className);
-                FunctionDef fDef = new FunctionDef(className, label);
-                List<Element> pElements = oElement.elements("param");
-                for (Element pElement : pElements) {
-                    String rendererClassName = pElement.attributeValue("renderer");
-                    if (rendererClassName == null) {
-                        rendererClassName = StringRenderer.class.getName();
+            @Override
+            public Object apply(InputStream input) {
+                try (InputStream inputStream = input) {
+                    Document document = XmlUtils.parseWithoutValidation(inputStream);
+                    List<Element> oElements = document.getRootElement().elements("function");
+                    for (Element oElement : oElements) {
+                        String className = oElement.attributeValue("class");
+                        String label = Delegates.getSystemService().getLocalized(className);
+                        FunctionDef fDef = new FunctionDef(className, label);
+                        List<Element> pElements = oElement.elements("param");
+                        for (Element pElement : pElements) {
+                            String rendererClassName = pElement.attributeValue("renderer");
+                            if (rendererClassName == null) {
+                                rendererClassName = StringRenderer.class.getName();
+                            }
+                            ParamRenderer renderer = ClassLoaderUtil.instantiate(rendererClassName);
+                            ParamDef pDef = new ParamDef(pElement.attributeValue("messageKey"), pElement.attributeValue("message"), renderer);
+                            fDef.addParam(pDef);
+                        }
+                        definitions.add(fDef);
                     }
-                    ParamRenderer renderer = ClassLoaderUtil.instantiate(rendererClassName);
-                    ParamDef pDef = new ParamDef(pElement.attributeValue("messageKey"), pElement.attributeValue("message"), renderer);
-                    fDef.addParam(pDef);
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
                 }
-                definitions.add(fDef);
+                return null;
             }
-            inputStream.close();
-        } catch (Exception e) {
-            log.error("unable load substitution definitions", e);
-        }
+        });
     }
 
     public static List<FunctionDef> getAll() {
