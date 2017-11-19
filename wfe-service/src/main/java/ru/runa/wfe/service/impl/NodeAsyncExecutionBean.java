@@ -40,8 +40,7 @@ import com.google.common.base.Throwables;
  * @author Alex Chernyshev
  */
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/nodeAsyncExecution"),
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "useDLQ", propertyValue = "false") })
+        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
 public class NodeAsyncExecutionBean implements MessageListener {
