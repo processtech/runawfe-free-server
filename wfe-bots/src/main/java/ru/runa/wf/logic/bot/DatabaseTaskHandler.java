@@ -17,7 +17,11 @@
  */
 package ru.runa.wf.logic.bot;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,16 +53,19 @@ import ru.runa.wfe.commons.sqltask.SwimlaneParameter;
 import ru.runa.wfe.commons.sqltask.SwimlaneResult;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
+import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.file.IFileVariable;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.io.Closeables;
 
 /**
  * @created on 01.04.2005
@@ -200,9 +207,26 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
                 }
                 newValue = Long.toString(actor.getCode());
             } else if (result.isFieldSetup()) {
-                String fieldName = result.getFieldName();
-                PropertyUtils.setProperty(variableValue, fieldName, newValue);
+                // diff with SQLActionHandler
+                // if (variableValue == null) {
+                // if ("name".equals(result.getFieldName()) || "data".equals(result.getFieldName()) || "contentType".equals(result.getFieldName())) {
+                // variableValue = new FileVariable("file", "application/octet-stream");
+                // variableProvider.add(result.getVariableName(), variableValue);
+                // }
+                // }
+                PropertyUtils.setProperty(variableValue, result.getFieldName(), newValue);
                 newValue = variableValue;
+            }
+            if (newValue instanceof Blob) {
+                ObjectInputStream ois = new ObjectInputStream(((Blob) newValue).getBinaryStream());
+                newValue = ois.readObject();
+                Closeables.closeQuietly(ois);
+            }
+            if (newValue instanceof byte[]) {
+                ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) newValue);
+                ObjectInputStream ois = new ObjectInputStream(bais);
+                newValue = ois.readObject();
+                Closeables.closeQuietly(ois);
             }
             outputVariables.put(result.getVariableName(), newValue);
         }
@@ -232,7 +256,7 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
     }
 
     private Object getVariableValue(User user, IVariableProvider variableProvider, WfTask task, Parameter parameter, String variableName)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+            throws Exception {
         Object value = variableProvider.getValue(variableName);
         if (value == null) {
             if (DatabaseTask.INSTANCE_ID_VARIABLE_NAME.equals(variableName)) {
@@ -247,6 +271,29 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
             value = PropertyUtils.getProperty(actor, ((SwimlaneParameter) parameter).getFieldName());
         } else if (parameter.isFieldSetup()) {
             value = PropertyUtils.getProperty(value, parameter.getFieldName());
+        }
+        // diff with SQLActionHandler
+        // if (value instanceof Date) {
+        // value = convertDate((Date) value);
+        // }
+        if (value instanceof FileVariableProxy) {
+            value = Delegates.getExecutionService().getFileVariableValue(user, task.getProcessId(), variableName);
+        }
+        if (value instanceof IFileVariable) {
+            IFileVariable fileVariable = (IFileVariable) value;
+            if ("name".equals(parameter.getFieldName())) {
+                value = fileVariable.getName();
+            } else if ("data".equals(parameter.getFieldName())) {
+                value = fileVariable.getData();
+            } else if ("contentType".equals(parameter.getFieldName())) {
+                value = fileVariable.getContentType();
+            } else {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeObject(fileVariable);
+                oos.close();
+                value = baos.toByteArray();
+            }
         }
         return value;
     }
