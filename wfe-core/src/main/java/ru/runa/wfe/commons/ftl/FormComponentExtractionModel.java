@@ -32,7 +32,7 @@ public class FormComponentExtractionModel extends SimpleHash {
 
     @Override
     public TemplateModel get(String key) throws TemplateModelException {
-        final FormComponent component = FreemarkerConfiguration.getInstance().getComponent(key);
+        final FormComponent component = FreemarkerConfiguration.getComponent(key);
         if (component != null) {
             if (component instanceof FormComponentSubmissionHandler) {
                 return new TemplateMethodModelEx() {

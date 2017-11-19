@@ -45,18 +45,18 @@ public class SystemServiceDelegate extends EJB3Delegate implements SystemService
     }
 
     @Override
-    public List<Localization> getLocalizations(User user) {
+    public List<Localization> getLocalizations() {
         try {
-            return getSystemService().getLocalizations(user);
+            return getSystemService().getLocalizations();
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public String getLocalized(User user, String name) {
+    public String getLocalized(String name) {
         try {
-            return getSystemService().getLocalized(user, name);
+            return getSystemService().getLocalized(name);
         } catch (Exception e) {
             throw handleException(e);
         }
