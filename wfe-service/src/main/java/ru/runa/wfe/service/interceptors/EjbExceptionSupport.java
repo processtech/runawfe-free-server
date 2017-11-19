@@ -14,7 +14,6 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.AuthenticationExpiredException;
 import ru.runa.wfe.security.AuthorizationException;
-import ru.runa.wfe.service.impl.MessagePostponedException;
 import ru.runa.wfe.service.utils.ApiProperties;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
@@ -23,8 +22,7 @@ import ru.runa.wfe.validation.ValidationException;
 import com.google.common.base.Throwables;
 
 /**
- * Interceptor for logging and original exception extractor (from
- * {@link EJBException}).
+ * Interceptor for logging and original exception extractor (from {@link EJBException}).
  *
  * @author Dofs
  * @since RunaWFE 4.0
@@ -41,10 +39,6 @@ public class EjbExceptionSupport {
         try {
             return ic.proceed();
         } catch (Throwable th) {
-            if (th instanceof MessagePostponedException) {
-                log.debug(th);
-                throw (MessagePostponedException) th;
-            }
             if (warnExceptionClasses.contains(th.getClass())) {
                 log.warn("ejb call " + th);
             } else {
