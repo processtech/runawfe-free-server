@@ -107,6 +107,51 @@
 			<artifactId>jasperreports-html-component.runawfe</artifactId>
 			<version>6.0.3</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
+	    <dependency>
+    	    <groupId>org.apache.httpcomponents</groupId>
+    	    <artifactId>httpcore</artifactId>
+    	    <version>4.4.6</version>
+	    </dependency>
+    
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+	    <dependency>
+  		    <groupId>org.apache.httpcomponents</groupId>
+   		    <artifactId>httpclient</artifactId>
+    	    <version>4.5.3</version>
+	    </dependency>
+	
+	    <!-- https://mvnrepository.com/artifact/org.json/json -->
+	    <dependency>
+   		    <groupId>org.json</groupId>
+    	    <artifactId>json</artifactId>
+    	    <version>20090211</version>
+	    </dependency>
+
+    
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+	    <dependency>
+        	<groupId>org.slf4j</groupId>
+    	    <artifactId>slf4j-api</artifactId>
+    	    <version>1.7.25</version>
+	    </dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+	    <dependency>
+    	    <groupId>org.apache.commons</groupId>
+    	    <artifactId>commons-lang3</artifactId>
+    	    <version>3.6</version>
+	    </dependency>
+		
+		
+		<dependency>
+    	    <artifactId>com.taskadapter</artifactId>
+    	    <groupId>redmineapi</groupId>
+    	    <version>3.0.1</version>
+    	    <scope>system</scope>
+    	    <systemPath>${basedir}/lib/redmine-java-api-3.0.1.jar</systemPath>
+	    </dependency>
 	</dependencies>
 
 	<build>
