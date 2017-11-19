@@ -19,6 +19,7 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
@@ -42,10 +43,9 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ReceiveMessageLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.Errors;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
-import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
@@ -57,8 +57,8 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
+import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
-import ru.runa.wfe.var.dto.Variables;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
@@ -92,7 +92,21 @@ public class ReceiveMessageBean implements MessageListener {
             log.debug("Received " + messageString);
             errorEventData = ErrorEventData.match(message);
             transaction.begin();
-            List<Token> tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
+            List<Token> tokens;
+            if (SystemProperties.isProcessExecutionMessagePredefinedSelectorEnabled()) {
+                if (SystemProperties.isProcessExecutionMessagePredefinedSelectorOnlyStrictComplianceHandling()) {
+                    String messageSelector = Utils.getObjectMessageStrictSelector(message);
+                    tokens = tokenDAO.findByMessageSelectorAndExecutionStatusIsActive(messageSelector);
+                    log.debug("Checking " + tokens.size() + " tokens by messageSelector = " + messageSelector);
+                } else {
+                    Set<String> messageSelectors = Utils.getObjectMessageCombinationSelectors(message);
+                    tokens = tokenDAO.findByMessageSelectorInAndExecutionStatusIsActive(messageSelectors);
+                    log.debug("Checking " + tokens.size() + " tokens by messageSelectors = " + messageSelectors);
+                }
+            } else {
+                tokens = tokenDAO.findByNodeTypeAndExecutionStatusIsActive(NodeType.RECEIVE_MESSAGE);
+                log.debug("Checking " + tokens.size() + " tokens");
+            }
             for (Token token : tokens) {
                 try {
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
@@ -109,23 +123,11 @@ public class ReceiveMessageBean implements MessageListener {
                         }
                     } else {
                         boolean suitable = true;
+                        IVariableProvider variableProvider = executionContext.getVariableProvider();
                         for (VariableMapping mapping : receiveMessageNode.getVariableMappings()) {
                             if (mapping.isPropertySelector()) {
                                 String selectorValue = message.getStringProperty(mapping.getName());
-                                String testValue = mapping.getMappedName();
-                                String expectedValue;
-                                if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
-                                    expectedValue = String.valueOf(token.getProcess().getId());
-                                } else if (Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED.equals(testValue)) {
-                                    expectedValue = token.getProcess().getDeployment().getName();
-                                } else if (Variables.CURRENT_NODE_NAME_WRAPPED.equals(testValue)) {
-                                    expectedValue = receiveMessageNode.getName();
-                                } else if (Variables.CURRENT_NODE_ID_WRAPPED.equals(testValue)) {
-                                    expectedValue = receiveMessageNode.getNodeId();
-                                } else {
-                                    Object value = ExpressionEvaluator.evaluateVariable(executionContext.getVariableProvider(), testValue);
-                                    expectedValue = TypeConversionUtil.convertTo(String.class, value);
-                                }
+                                String expectedValue = Utils.getMessageSelectorValue(variableProvider, receiveMessageNode, mapping);
                                 if (!Objects.equal(expectedValue, selectorValue)) {
                                     log.debug(message + " rejected in " + token + " due to diff in " + mapping.getName() + " (" + expectedValue
                                             + "!=" + selectorValue + ")");
@@ -171,6 +173,9 @@ public class ReceiveMessageBean implements MessageListener {
                 protected void doExecuteInTransaction() throws Exception {
                     log.info("Handling " + message + " for " + data);
                     Token token = tokenDAO.getNotNull(data.tokenId);
+                    if (!Objects.equal(token.getNodeId(), data.node.getNodeId())) {
+                        throw new InternalApplicationException(token + " not in " + data.node.getNodeId());
+                    }
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess().getDeployment().getId());
                     ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
                     executionContext.activateTokenIfHasPreviousError();
@@ -215,17 +220,12 @@ public class ReceiveMessageBean implements MessageListener {
     private static class ErrorEventData {
         private Long processId;
         private String nodeId;
-        private Long tokenId;
-        private String message;
 
         public static ErrorEventData match(ObjectMessage message) throws JMSException {
             if (MessageEventType.error.name().equals(message.getStringProperty(BaseMessageNode.EVENT_TYPE))) {
                 ErrorEventData data = new ErrorEventData();
                 data.processId = Long.valueOf(message.getStringProperty(BaseMessageNode.ERROR_EVENT_PROCESS_ID));
                 data.nodeId = message.getStringProperty(BaseMessageNode.ERROR_EVENT_NODE_ID);
-                Map<String, Object> map = (Map<String, Object>) message.getObject();
-                data.tokenId = (Long) map.get(BaseMessageNode.ERROR_EVENT_TOKEN_ID);
-                data.message = (String) map.get(BaseMessageNode.ERROR_EVENT_MESSAGE);
                 return data;
             }
             return null;

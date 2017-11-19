@@ -19,7 +19,6 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
@@ -194,37 +193,10 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter, Set<String> variables) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(filter != null, "filter");
-        Preconditions.checkArgument(variables != null, "variables");
-        long processId = filter.getProcessId();
-        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, filter, variables);
-        for (WfVariable variable : result.getVariables()) {
-            FileVariablesUtil.proxyFileVariables(user, processId, variable);
-        }
-        return result;
-    }
-
-    @WebMethod(exclude = true)
-    @Override
     public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId);
-        for (WfVariable variable : result.getVariables()) {
-            FileVariablesUtil.proxyFileVariables(user, processId, variable);
-        }
-        return result;
-    }
-
-    @WebMethod(exclude = true)
-    @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId, Set<String> variables) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        Preconditions.checkArgument(variables != null, "variables");
-        WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId, variables);
         for (WfVariable variable : result.getVariables()) {
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
         }
@@ -238,10 +210,9 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return VariableConverter.marshal(variables);
     }
 
+    @WebMethod(exclude = true)
     @Override
-    @WebResult(name = "result")
-    public WfVariable getVariable(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "variableName") String variableName) {
+    public WfVariable getVariable(User user, Long processId, String variableName) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         Preconditions.checkArgument(variableName != null, "variableName");
@@ -261,10 +232,9 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return null;
     }
 
+    @WebMethod(exclude = true)
     @Override
-    @WebResult(name = "result")
-    public WfVariable getTaskVariable(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "taskId") Long taskId, @WebParam(name = "variableName") String variableName) {
+    public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         Preconditions.checkArgument(taskId != null, "taskId");
@@ -378,6 +348,16 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
+    public int upgradeProcessesToDefinitionVersion(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+            @WebParam(name = "version") Long newVersion) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        Preconditions.checkArgument(newVersion != null, "version");
+        return executionLogic.upgradeProcessesToDefinitionVersion(user, definitionId, newVersion);
+    }
+
+    @Override
+    @WebResult(name = "result")
     public void updateVariablesWS(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "variables") List<Variable> variables) {
         WfProcess process = executionLogic.getProcess(user, processId);
@@ -418,4 +398,5 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(processId != null, "processId");
         executionLogic.suspendProcess(user, processId);
     }
+
 }

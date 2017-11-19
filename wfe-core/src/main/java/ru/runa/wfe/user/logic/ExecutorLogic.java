@@ -48,7 +48,6 @@ import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.SystemExecutors;
-import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
 
@@ -129,6 +128,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void remove(Executor executor) {
+        log.info("Removing " + executor);
         if (permissionDAO.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }
@@ -148,12 +148,7 @@ public class ExecutorLogic extends CommonLogic {
 
     public <T extends Executor> T create(User user, T executor) {
         checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.CREATE_EXECUTOR);
-        Collection<Permission> selfPermissions;
-        if (executor instanceof Group) {
-            selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
-        } else {
-            selfPermissions = Lists.newArrayList(Permission.READ);
-        }
+        Collection<Permission> selfPermissions = SystemProperties.getDefaultPermissions(executor.getSecuredObjectType());
         executorDAO.create(executor);
         postCreateExecutor(user, executor, selfPermissions);
         return executor;
@@ -339,10 +334,6 @@ public class ExecutorLogic extends CommonLogic {
             addNewExecutorsToGroup(temporaryGroup, newGroupExecutors);
         }
         return temporaryGroup;
-    }
-
-    public List<TemporaryGroup> getTemporaryGroups() {
-        return executorDAO.getTemporaryGroups();
     }
 
     private void addNewExecutorsToGroup(Group temporaryGroup, Collection<? extends Executor> newGroupExecutors) {

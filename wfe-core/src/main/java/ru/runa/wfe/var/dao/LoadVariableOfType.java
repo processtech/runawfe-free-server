@@ -3,6 +3,7 @@ package ru.runa.wfe.var.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -19,6 +20,7 @@ import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -100,13 +102,15 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         List<Object> list = Lists.newArrayList();
         String sizeVariableName = context.variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
         VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
-        Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.сreateFor(sizeDefinition));
-        if (size == null && SystemProperties.isV4ListVariableCompatibilityMode()) {
-            Variable<?> variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
-            if (variable != null) {
-                return processComplexVariables(context.processDefinition, context.variableDefinition, null, variable.getValue());
+        Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
+        if (size == null) {
+            if (SystemProperties.isV4ListVariableCompatibilityMode()) {
+                Variable<?> variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
+                if (variable != null) {
+                    return processComplexVariables(context.processDefinition, context.variableDefinition, null, variable.getValue());
+                }
             }
-            return null;
+            return context.variableDefinition.getDefaultValue();
         }
         String[] formatComponentClassNames = context.variableDefinition.getFormatComponentClassNames();
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
@@ -116,7 +120,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             String componentName = context.variableDefinition.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
                     + VariableFormatContainer.COMPONENT_QUALIFIER_END;
             VariableDefinition componentDefinition = new VariableDefinition(componentName, null, componentFormat, componentUserType);
-            Object componentValue = componentDefinition.getFormatNotNull().processBy(this, context.сreateFor(componentDefinition));
+            Object componentValue = componentDefinition.getFormatNotNull().processBy(this, context.createFor(componentDefinition));
             list.add(componentValue);
         }
         return list;
@@ -124,14 +128,34 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     @Override
     public Object onMap(MapFormat mapFormat, LoadVariableOfTypeContext context) {
-        VariableDefinition variableDefinition = context.variableDefinition;
-        Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
-        if (variable == null) {
-            return variableDefinition.getDefaultValue();
+        Map<Object, Object> map = Maps.newHashMap();
+        String sizeVariableName = context.variableDefinition.getName() + VariableFormatContainer.SIZE_SUFFIX;
+        VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
+        Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
+        if (size == null && SystemProperties.isV4MapVariableCompatibilityMode()) {
+            VariableDefinition variableDefinition = context.variableDefinition;
+            Variable<?> variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            if (variable == null) {
+                return variableDefinition.getDefaultValue();
+            }
+            Object value = variable.getValue();
+            value = processComplexVariables(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
+            return value;
         }
-        Object value = variable.getValue();
-        value = processComplexVariables(context.processDefinition, variableDefinition, variableDefinition.getUserType(), value);
-        return value;
+        String[] componentFormats = context.variableDefinition.getFormatComponentClassNames();
+        UserType[] componentUserTypes = context.variableDefinition.getFormatComponentUserTypes();
+        String nameTemplate = context.variableDefinition.getName() +
+                VariableFormatContainer.COMPONENT_QUALIFIER_START + "%d%s" + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+        for (int i = 0; i < size.intValue(); i++) {
+            VariableDefinition componentKeyDefinition = new VariableDefinition(
+                    String.format(nameTemplate, i, VariableFormatContainer.MAP_KEY_SUFFIX), null, componentFormats[0], componentUserTypes[0]);
+            Object componentKey = componentKeyDefinition.getFormatNotNull().processBy(this, context.createFor(componentKeyDefinition));
+            VariableDefinition componentValueDefinition = new VariableDefinition(
+                    String.format(nameTemplate, i, VariableFormatContainer.MAP_VALUE_SUFFIX), null, componentFormats[1], componentUserTypes[1]);
+            Object componentValue = componentValueDefinition.getFormatNotNull().processBy(this, context.createFor(componentValueDefinition));
+            map.put(componentKey, componentValue);
+        }
+        return map;
     }
 
     @Override
@@ -150,13 +174,18 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
     }
 
     @Override
+    public Object onFormattedTextString(FormattedTextFormat textFormat, LoadVariableOfTypeContext context) {
+        return loadSimpleVariable(textFormat, context);
+    }
+
+    @Override
     public Object onUserType(UserTypeFormat userTypeFormat, LoadVariableOfTypeContext context) {
         VariableDefinition variableDefinition = context.variableDefinition;
         UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
         for (VariableDefinition attributeDefinition : variableDefinition.getUserType().getAttributes()) {
             String fullName = variableDefinition.getName() + UserType.DELIM + attributeDefinition.getName();
             VariableDefinition definition = new VariableDefinition(fullName, null, attributeDefinition);
-            Object value = definition.getFormatNotNull().processBy(this, context.сreateFor(definition));
+            Object value = definition.getFormatNotNull().processBy(this, context.createFor(definition));
             userTypeMap.put(attributeDefinition.getName(), value);
         }
         if (userTypeMap.isEmpty()) {
@@ -168,7 +197,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
                 }
                 if (!(variable.getValue() instanceof ComplexVariable)) {
                     log.error("User type variable " + variableDefinition.getName() + " has unexpected value of type "
-                            + variable.getValue().getClass() + ". Returning default.");
+                            + variable.getValue().getClass() + " in process " + context.process.getId());
                     return variableDefinition.getDefaultValue();
                 }
                 UserTypeMap map = new UserTypeMap(userTypeFormat.getUserType());
@@ -187,7 +216,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
 
     /**
      * Loading variable of simple type (one variable value -> one variable record).
-     *
+     * 
      * @param format
      *            Loaded variable format.
      * @param context

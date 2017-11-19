@@ -1,9 +1,12 @@
 package ru.runa.wfe.execution;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.google.common.collect.Lists;
 
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -18,6 +21,7 @@ import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
 import ru.runa.wfe.var.format.ExecutorFormat;
 import ru.runa.wfe.var.format.FileFormat;
+import ru.runa.wfe.var.format.FormattedTextFormat;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
@@ -30,8 +34,6 @@ import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
-
-import com.google.common.collect.Lists;
 
 /**
  * Operation for converting variable to simple variables, which may be stored to database without additional transformations.
@@ -102,8 +104,8 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String sizeVariableName = context.getVariableDefinition().getName() + VariableFormatContainer.SIZE_SUFFIX;
         WfVariable oldSizeVariable = context.loadCurrentVariableStat(sizeVariableName);
         int maxSize = newSize;
-        if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Integer) {
-            maxSize = Math.max((Integer) oldSizeVariable.getValue(), newSize);
+        if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Number) {
+            maxSize = Math.max(((Number) oldSizeVariable.getValue()).intValue(), newSize);
         }
         VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
         results.add(new ConvertToSimpleVariablesResult(sizeDefinition, context.getValue() != null ? newSize : null, false));
@@ -112,12 +114,11 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String componentFormat = formatComponentClassNames.length > 0 ? formatComponentClassNames[0] : null;
         UserType[] formatComponentUserTypes = context.getVariableDefinition().getFormatComponentUserTypes();
         UserType componentUserType = formatComponentUserTypes.length > 0 ? formatComponentUserTypes[0] : null;
-        List<?> list = (List<?>) context.getValue();
         for (int i = 0; i < maxSize; i++) {
             String name = context.getVariableDefinition().getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + i
                     + VariableFormatContainer.COMPONENT_QUALIFIER_END;
             VariableDefinition definition = new VariableDefinition(name, null, componentFormat, componentUserType);
-            Object object = list != null && list.size() > i ? list.get(i) : null;
+            Object object = i < newSize ? TypeConversionUtil.getListValue(context.getValue(), i) : null;
             results.addAll(definition.getFormatNotNull().processBy(this, context.createFor(definition, object)));
         }
         if (SystemProperties.isV4ListVariableCompatibilityMode()) {
@@ -129,7 +130,40 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onMap(MapFormat mapFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
+        List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
+        if (context.isVirtualVariablesRequired()) {
+            results.add(new ConvertToSimpleVariablesResult(context, true));
+        }
+        int newSize = TypeConversionUtil.getMapSize(context.getValue());
+        String sizeVariableName = context.getVariableDefinition().getName() + VariableFormatContainer.SIZE_SUFFIX;
+        WfVariable oldSizeVariable = context.loadCurrentVariableStat(sizeVariableName);
+        int maxSize = newSize;
+        if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Number) {
+            maxSize = Math.max(((Number) oldSizeVariable.getValue()).intValue(), newSize);
+        }
+        VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
+        results.add(new ConvertToSimpleVariablesResult(sizeDefinition, context.getValue() != null ? newSize : null, false));
+
+        String[] componentFormats = context.getVariableDefinition().getFormatComponentClassNames();
+        UserType[] componentUserTypes = context.getVariableDefinition().getFormatComponentUserTypes();
+        String nameTemplate = context.getVariableDefinition().getName() +
+                VariableFormatContainer.COMPONENT_QUALIFIER_START + "%d%s" + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+        Map.Entry<?, ?>[] entries = context.getValue() != null ? ((Map<?, ?>) context.getValue()).entrySet().toArray(new Map.Entry<?, ?>[0]) : null;
+        for (int i = 0; i < maxSize; i++) {
+            Object key = entries != null && entries.length > i ? entries[i].getKey() : null;
+            VariableDefinition definition = new VariableDefinition(
+                    String.format(nameTemplate, i, VariableFormatContainer.MAP_KEY_SUFFIX), null, componentFormats[0], componentUserTypes[0]);
+            results.addAll(definition.getFormatNotNull().processBy(this, context.createFor(definition, key)));
+            Object value = entries != null && entries.length > i ? entries[i].getValue() : null;
+            definition = new VariableDefinition(
+                    String.format(nameTemplate, i, VariableFormatContainer.MAP_VALUE_SUFFIX), null, componentFormats[1], componentUserTypes[1]);
+            results.addAll(definition.getFormatNotNull().processBy(this, context.createFor(definition, value)));
+        }
+        if (SystemProperties.isV4MapVariableCompatibilityMode()) {
+            // delete old map variables as blobs (pre 4.3.0)
+            context.remove(log);
+        }
+        return results;
     }
 
     @Override
@@ -148,9 +182,14 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
     }
 
     @Override
+    public List<ConvertToSimpleVariablesResult> onFormattedTextString(FormattedTextFormat textFormat, ConvertToSimpleVariablesContext context) {
+        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
+    }
+
+    @Override
     public List<ConvertToSimpleVariablesResult> onUserType(UserTypeFormat userTypeFormat, ConvertToSimpleVariablesContext context) {
-        UserTypeMap userTypeValue = (UserTypeMap) context.getValue();
-        UserType valueUserType = userTypeValue == null ? null : userTypeValue.getUserType();
+        UserTypeMap userTypeMap = (UserTypeMap) context.getValue();
+        UserType userType = userTypeMap == null ? null : userTypeMap.getUserType();
         List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
         if (context.isVirtualVariablesRequired()) {
             results.add(new ConvertToSimpleVariablesResult(context, true));
@@ -158,15 +197,15 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
         String namePrefix = context.getVariableDefinition().getName() + UserType.DELIM;
         String scriptingNamePrefix = context.getVariableDefinition().getScriptingName() + UserType.DELIM;
         for (VariableDefinition attribute : userTypeFormat.getUserType().getAttributes()) {
-            if (valueUserType != null && valueUserType.getAttribute(attribute.getName()) == null) {
+            if (userType != null && userType.getAttribute(attribute.getName()) == null) {
                 // If stored value has less attributes, then do not set null to attributes, which does't contained in stored value type.
                 continue;
             }
-            if (userTypeValue != null && !userTypeValue.containsKey(attribute.getName())) {
+            if (userTypeMap != null && !userTypeMap.containsKey(attribute.getName())) {
                 // Do not remove absent attributes. To reset attribute value set it to null, do not remove it.
                 continue;
             }
-            Object attributeValue = userTypeValue == null ? null : userTypeValue.get(attribute.getName());
+            Object attributeValue = userTypeMap == null ? null : userTypeMap.get(attribute.getName());
             String name = namePrefix + attribute.getName();
             String scriptingName = scriptingNamePrefix + attribute.getScriptingName();
             VariableDefinition attributeVariable = new VariableDefinition(name, scriptingName, attribute);

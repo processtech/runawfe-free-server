@@ -35,6 +35,7 @@ public class BatchPresentationFactory {
     public static final BatchPresentationFactory DEFINITIONS = new BatchPresentationFactory(ClassPresentationType.DEFINITION, 100);
     public static final BatchPresentationFactory DEFINITIONS_HISTORY = new BatchPresentationFactory(ClassPresentationType.DEFINITION_HISTORY);
     public static final BatchPresentationFactory TASKS = new BatchPresentationFactory(ClassPresentationType.TASK);
+    public static final BatchPresentationFactory OBSERVABLE_TASKS = new BatchPresentationFactory(ClassPresentationType.TASK_OBSERVABLE);
     public static final BatchPresentationFactory REPORTS = new BatchPresentationFactory(ClassPresentationType.REPORTS);
 
     private final ClassPresentationType type;

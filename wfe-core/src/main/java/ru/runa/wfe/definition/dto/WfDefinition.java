@@ -50,6 +50,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private Date subprocessBindingDate;
 
     public WfDefinition() {
     }
@@ -73,6 +74,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
         createActor = deployment.getCreateActor();
         updateDate = deployment.getUpdateDate();
         updateActor = deployment.getUpdateActor();
+        subprocessBindingDate = deployment.getSubprocessBindingDate();
     }
 
     @Override
@@ -144,6 +146,10 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
 
     public Actor getUpdateActor() {
         return updateActor;
+    }
+
+    public Date getSubprocessBindingDate() {
+        return subprocessBindingDate;
     }
 
     @Override

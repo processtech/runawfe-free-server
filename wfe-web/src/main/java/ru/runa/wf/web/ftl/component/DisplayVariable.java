@@ -11,13 +11,12 @@ public class DisplayVariable extends FormComponent {
         String variableName = getParameterAsString(0);
         boolean componentView = getParameterAs(boolean.class, 1);
         WfVariable variable = variableProvider.getVariableNotNull(variableName);
-        String html = "<div class=\"displayVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\">";
+        String componentHtml;
         if (componentView) {
-            html += ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), variable);
+            componentHtml = ViewUtil.getComponentOutput(user, webHelper, variableProvider.getProcessId(), variable);
         } else {
-            html += ViewUtil.getOutput(user, webHelper, variableProvider.getProcessId(), variable);
+            componentHtml = ViewUtil.getOutput(user, webHelper, variableProvider.getProcessId(), variable);
         }
-        html += "</div>";
-        return html;
+        return ViewUtil.wrapDisplayVariable(variable, componentHtml);
     }
 }

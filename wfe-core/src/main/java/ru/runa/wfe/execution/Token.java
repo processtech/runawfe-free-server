@@ -54,6 +54,7 @@ import org.hibernate.annotations.Index;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.Node;
@@ -91,6 +92,7 @@ public class Token implements Serializable {
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
     private Date errorDate;
     private String errorMessage;
+    private String messageSelector;
 
     public Token() {
     }
@@ -275,10 +277,25 @@ public class Token implements Serializable {
         this.errorMessage = errorMessage;
     }
 
-    public void fail(Throwable throwable) {
+    @Column(name = "MESSAGE_SELECTOR", length = 1024)
+    @Index(name = "IX_MESSAGE_SELECTOR")
+    public String getMessageSelector() {
+        return messageSelector;
+    }
+
+    public void setMessageSelector(String messageSelector) {
+        this.messageSelector = messageSelector;
+    }
+
+    public boolean fail(Throwable throwable) {
+        boolean stateChanged = getExecutionStatus() != ExecutionStatus.FAILED;
         setExecutionStatus(ExecutionStatus.FAILED);
         setErrorDate(new Date());
-        this.errorMessage = throwable.toString();
+        // safe for unicode
+        String errorMessage = Utils.getCuttedString(throwable.toString(), 1024 / 2);
+        stateChanged |= !Objects.equal(errorMessage, getErrorMessage());
+        setErrorMessage(errorMessage);
+        return stateChanged;
     }
 
     public Node getNodeNotNull(ProcessDefinition processDefinition) {
@@ -303,7 +320,7 @@ public class Token implements Serializable {
 
     /**
      * ends this token and all of its children (if recursive).
-     *
+     * 
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */

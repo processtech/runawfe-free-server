@@ -51,6 +51,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.html.HtmlEscapers;
 import com.google.common.io.Files;
 
 @SuppressWarnings("unchecked")
@@ -81,7 +82,11 @@ public class ErrorDetailsAction extends ActionBase {
                         String html = "<form id='supportForm'>";
                         html += "<input type='hidden' name='processId' value='" + form.getId() + "' />";
                         html += "</form>";
-                        html += processError.getStackTrace() != null ? processError.getStackTrace() : processError.getMessage();
+                        if (processError.getStackTrace() != null) {
+                            html += processError.getStackTrace();
+                        } else {
+                            html += HtmlEscapers.htmlEscaper().escape(processError.getMessage());
+                        }
                         rootObject.put(HTML, html);
                     }
                 }
@@ -127,10 +132,10 @@ public class ErrorDetailsAction extends ActionBase {
                         List<ProcessError> processErrors = Delegates.getSystemService().getProcessErrors(getLoggedUser(request), processId);
                         for (ProcessError processError : processErrors) {
                             exceptions.append("\r\n---------------------------------------------------------------");
-                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(processError.getOccurredDate()))
-                                    .append(" ").append(processError.getNodeId()).append("/")
-                                    .append(processError.getNodeName())
-                                    .append("\r\n").append(processError.getStackTrace());
+                            exceptions.append("\r\n").append(CalendarUtil.formatDateTime(processError.getOccurredDate())).append(" ");
+                            exceptions.append(processError.getNodeId()).append("/").append(processError.getNodeName()).append("\r\n");
+                            exceptions.append(HtmlEscapers.htmlEscaper().escape(processError.getMessage())).append("\r\n");
+                            exceptions.append(processError.getStackTrace());
                         }
                         processFiles.put("exceptions." + processId + ".txt", exceptions.toString().getBytes(Charsets.UTF_8));
                     }
@@ -312,7 +317,7 @@ public class ErrorDetailsAction extends ActionBase {
             for (int i = processIds.size(); i < maxLevel; i++) {
                 tr.addElement(new TD().addElement("").setClass(Resources.CLASS_EMPTY20_TABLE_TD));
             }
-            String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
+            String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
             if (!Objects.equal(mergedEventDateString, eventDateString)) {
                 if (mergedEventDateTD != null) {
                     mergedEventDateTD.setRowSpan(mergedRowsCount + 1);

@@ -1,34 +1,23 @@
 package ru.runa.wf.web.ftl.component;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
+import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.FormSubmissionUtils;
-import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.web.WebHelper;
-import ru.runa.wfe.commons.web.WebUtils;
-import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.util.OrderedJSONObject;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.UserType;
-import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.HiddenFormat;
 import ru.runa.wfe.var.format.MapFormat;
@@ -37,17 +26,17 @@ import ru.runa.wfe.var.format.VariableDisplaySupport;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+
 public class ViewUtil {
     private static final Log log = LogFactory.getLog(ViewUtil.class);
-
-    private static final Random random = new Random(System.currentTimeMillis());
 
     public static String createExecutorSelect(User user, WfVariable variable) {
         return GenerateHtmlForVariable.createExecutorSelect(user, variable);
     }
 
-    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort,
-            boolean enabled) {
+    public static String createExecutorSelect(String variableName, List<? extends Executor> executors, Object value, boolean javaSort, boolean enabled) {
         return GenerateHtmlForVariable.createExecutorSelect(variableName, executors, value, javaSort, enabled);
     }
 
@@ -115,6 +104,16 @@ public class ViewUtil {
         return createVariable(name, scriptingName, attributeDefinition.getFormatNotNull(), value);
     }
 
+    public static WfVariable createUserTypeListComponentVariable(WfVariable containerVariable, int index, WfVariable attributeVariable) {
+        String name = containerVariable.getDefinition().getName();
+        name += VariableFormatContainer.COMPONENT_QUALIFIER_START + index + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+        name += UserType.DELIM + attributeVariable.getDefinition().getName();
+        String scriptingName = containerVariable.getDefinition().getScriptingName();
+        scriptingName += VariableFormatContainer.COMPONENT_QUALIFIER_START + index + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+        scriptingName += UserType.DELIM + attributeVariable.getDefinition().getScriptingName();
+        return createVariable(name, scriptingName, attributeVariable.getDefinition().getFormatNotNull(), attributeVariable.getValue());
+    }
+
     public static String getHiddenInput(WfVariable variable) {
         String stringValue = variable.getStringValue();
         if (stringValue == null) {
@@ -149,76 +148,18 @@ public class ViewUtil {
         return html;
     }
 
-    @SuppressWarnings("unchecked")
-    public static final String getUserTypeListTable(User user, WebHelper webHelper, WfVariable variable, WfVariable dectSelectVariable,
-            Long processId, String sortFieldName, boolean isMultiDim) {
-        if (!(variable.getValue() instanceof List)) {
-            return "";
-        }
-        JSONArray objectsList = new JSONArray();
-        List<?> values = (List<?>) variable.getValue();
-        for (Object value : values) {
-            if (!(value instanceof UserTypeMap)) {
-                return "";
-            }
-            UserTypeMap userTypeMap = (UserTypeMap) value;
-            OrderedJSONObject cvarObj = new OrderedJSONObject();
-            for (VariableDefinition varDef : userTypeMap.getUserType().getAttributes()) {
-                if (userTypeMap.get(varDef.getName()) == null) {
-                    cvarObj.put(varDef.getName(), "");
-                    continue;
-                }
-                VariableFormat format = FormatCommons.create(varDef);
-                if (dectSelectVariable == null) {
-                    if (format instanceof FileFormat) {
-                        FileVariableProxy proxy = (FileVariableProxy) userTypeMap.get(varDef.getName());
-                        cvarObj.put(varDef.getName(), GenerateHtmlForVariable.getFileComponent(webHelper, proxy.getName(), proxy, false));
-                    } else {
-                        cvarObj.put(varDef.getName(), format.format(userTypeMap.get(varDef.getName())));
-                    }
-                } else {
-                    cvarObj.put(varDef.getName(), format.format(userTypeMap.get(varDef.getName())));
-                }
-            }
-            objectsList.add(cvarObj);
-        }
-        String uniquename = String.format("%s_%x", variable.getDefinition().getScriptingNameWithoutDots(), random.nextInt());
-        String result = "<script src=\"/wfe/js/tidy-table.js\"></script>\n";
-        InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull("scripts/ViewUtil.UserTypeListTable.js", ViewUtil.class);
-        Map<String, String> substitutions = new HashMap<String, String>();
-        substitutions.put("UNIQUENAME", uniquename);
-        substitutions.put("JSONDATATEMPLATE", objectsList.toJSONString());
-        substitutions.put("SORTFIELDNAMEVALUE", String.format("%s", sortFieldName));
-        substitutions.put("DIMENTIONALVALUE", String.format("%s", isMultiDim));
-        substitutions.put("SELECTABLEVALUE", String.format("%s", dectSelectVariable != null));
-        if (dectSelectVariable != null) {
-            substitutions.put("DECTSELECTNAME", dectSelectVariable.getDefinition().getName());
-        } else {
-            substitutions.put("DECTSELECTNAME", "");
-        }
-        result += WebUtils.getFormComponentScript(javascriptStream, substitutions);
-        result += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/wfe/css/tidy-table.css\">\n";
-        result += String.format("<div id=\"container%s\"></div>", uniquename);
-        return result;
-    }
-
     public static String getComponentInput(User user, WebHelper webHelper, WfVariable variable) {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
         GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, 0L, false);
         GenerateHtmlForVariableResult generatedResult = variableFormat.processBy(new GenerateHtmlForVariable(user, webHelper), context);
-        return generatedResult.htmlStructureContent + "\n" + generatedResult.scriptContent;
+        return generatedResult.content;
     }
 
     public static String getComponentOutput(User user, WebHelper webHelper, Long processId, WfVariable variable) {
         VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
         GenerateHtmlForVariableContext context = new GenerateHtmlForVariableContext(variable, processId, true);
         GenerateHtmlForVariableResult generatedResult = variableFormat.processBy(new GenerateHtmlForVariable(user, webHelper), context);
-        return generatedResult.htmlStructureContent + "\n" + generatedResult.scriptContent;
-    }
-
-    public static String getComponentJSFunction(WfVariable variable) {
-        VariableFormat variableFormat = variable.getDefinition().getFormatNotNull();
-        return variableFormat.processBy(new GenerateJSFunctionsForVariable(), variable);
+        return generatedResult.content;
     }
 
     public static String getOutput(User user, WebHelper webHelper, Long processId, WfVariable variable) {
@@ -273,6 +214,30 @@ public class ViewUtil {
         params.put(WebHelper.PARAM_ID, logId);
         String href = webHelper.getActionUrl(WebHelper.ACTION_DOWNLOAD_LOG_FILE, params);
         return "<a href=\"" + href + "\">" + fileName + "</>";
+    }
+
+    public static String wrapInputVariable(WfVariable variable, String componentHtml) {
+        String tagToUse = "span";
+        if (HTMLUtils.checkForBlockElements(componentHtml)) {
+            tagToUse = "div";
+        }
+        String html = "<" + tagToUse + " class=\"inputVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\"";
+        html += " variable='" + variable.getDefinition().getName() + "'>";
+        html += componentHtml;
+        html += "</" + tagToUse + ">";
+        return html;
+    }
+
+    public static String wrapDisplayVariable(WfVariable variable, String componentHtml) {
+        String tagToUse = "span";
+        if (HTMLUtils.checkForBlockElements(componentHtml)) {
+            tagToUse = "div";
+        }
+        String html = "<" + tagToUse + " class=\"displayVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\"";
+        html += " variable='" + variable.getDefinition().getName() + "'>";
+        html += componentHtml;
+        html += "</" + tagToUse + ">";
+        return html;
     }
 
 }

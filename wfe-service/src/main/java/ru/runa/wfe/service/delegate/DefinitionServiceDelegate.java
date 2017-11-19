@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.service.delegate;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -26,9 +25,9 @@ import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
-import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.dto.WfNode;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.user.User;
@@ -49,27 +48,36 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition deployProcessDefinition(User user, byte[] process, List<String> categories) {
+    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) {
         try {
-            return getDefinitionService().deployProcessDefinition(user, process, categories);
+            return getDefinitionService().deployProcessDefinition(user, archive, categories);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfDefinition redeployProcessDefinition(User user, Long processId, byte[] processArchive, List<String> categories) {
+    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchive, List<String> categories) {
         try {
-            return getDefinitionService().redeployProcessDefinition(user, processId, processArchive, categories);
+            return getDefinitionService().redeployProcessDefinition(user, definitionId, processArchive, categories);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfDefinition updateProcessDefinition(User user, Long processId, byte[] processArchive) {
+    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchive) {
         try {
-            return getDefinitionService().updateProcessDefinition(user, processId, processArchive);
+            return getDefinitionService().updateProcessDefinition(user, definitionId, processArchive);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) throws DefinitionDoesNotExistException {
+        try {
+            getDefinitionService().setProcessDefinitionSubprocessBindingDate(user, definitionId, date);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -139,7 +147,7 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public Node getNode(User user, Long definitionId, String nodeId) throws DefinitionDoesNotExistException {
+    public WfNode getNode(User user, Long definitionId, String nodeId) throws DefinitionDoesNotExistException {
         try {
             return getDefinitionService().getNode(user, definitionId, nodeId);
         } catch (Exception e) {
@@ -256,7 +264,7 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<ProcessDefinitionChange> getChanges(Long definitionId){
+    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
         try {
             return getDefinitionService().getChanges(definitionId);
         } catch (Exception e) {
@@ -265,18 +273,18 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
         try {
-            return getDefinitionService().findChanges(definitionName, version1, version2);
+            return getDefinitionService().getLastChanges(definitionId, n);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2){
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         try {
-            return getDefinitionService().findChangesWithin(date1, date2);
+            return getDefinitionService().findChanges(definitionName, version1, version2);
         } catch (Exception e) {
             throw handleException(e);
         }

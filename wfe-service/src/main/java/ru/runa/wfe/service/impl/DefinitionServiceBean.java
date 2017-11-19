@@ -33,6 +33,7 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
@@ -41,6 +42,7 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.dto.WfNode;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.DefinitionServiceLocal;
@@ -96,6 +98,14 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     }
 
     @Override
+    public void setProcessDefinitionSubprocessBindingDate(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+            @WebParam(name = "date") Date date) throws DefinitionDoesNotExistException {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        definitionLogic.setProcessDefinitionSubprocessBindingDate(user, definitionId, date);
+    }
+
+    @Override
     @WebResult(name = "result")
     public WfDefinition getLatestProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName) {
         Preconditions.checkArgument(user != null, "user");
@@ -131,13 +141,17 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public Node getNode(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+    public WfNode getNode(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
             @WebParam(name = "nodeId") String nodeId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(definitionId != null, "definitionId");
         Preconditions.checkArgument(nodeId != null, "nodeId");
         ProcessDefinition processDefinition = definitionLogic.getDefinition(definitionId);
-        return processDefinition.getNode(nodeId);
+        Node node = processDefinition.getNode(nodeId);
+        if (node != null) {
+            return new WfNode(node);
+        }
+        return null;
     }
 
     @Override
@@ -294,15 +308,19 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
         return definitionLogic.getProcessDefinitionHistory(user, name);
     }
 
-    public List<ProcessDefinitionChange> getChanges(Long definitionId){
+    @Override
+    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
         return definitionLogic.getChanges(definitionId);
     }
 
-    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2){
+    @Override
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
+        return definitionLogic.getLastChanges(definitionId, n);
+    }
+
+    @Override
+    public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
         return definitionLogic.findChanges(definitionName, version1, version2);
     }
 
-    public List<ProcessDefinitionChange> findChangesWithin(Date date1, Date date2){
-        return definitionLogic.findChanges(date1, date2);
-    }
 }

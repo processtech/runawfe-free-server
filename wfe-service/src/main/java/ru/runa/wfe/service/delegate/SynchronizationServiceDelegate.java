@@ -31,9 +31,9 @@ public class SynchronizationServiceDelegate extends EJB3Delegate implements Sync
     }
 
     @Override
-    public void synchronizeExecutorsWithLDAP(User user, boolean createExecutors, boolean updateExecutors, boolean deleteExecutors) {
+    public int synchronizeExecutorsWithLdap(User user) {
         try {
-            getSynchronizationService().synchronizeExecutorsWithLDAP(user, createExecutors, updateExecutors, deleteExecutors);
+            return getSynchronizationService().synchronizeExecutorsWithLdap(user);
         } catch (Exception e) {
             throw handleException(e);
         }

@@ -25,15 +25,16 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDeadlineUtils;
 import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Process task.
@@ -60,10 +61,12 @@ public class WfTask implements Serializable {
     private Date creationDate;
     private Date deadlineDate;
     private Date deadlineWarningDate;
+    private Date assignDate;
     private boolean escalated;
     private boolean firstOpen;
     private boolean acquiredBySubstitution;
     private Integer multitaskIndex;
+    private boolean readOnly;
 
     // map is not usable in web services
     private final List<WfVariable> variables = Lists.newArrayList();
@@ -86,6 +89,7 @@ public class WfTask implements Serializable {
         this.creationDate = task.getCreateDate();
         this.deadlineDate = task.getDeadlineDate();
         this.deadlineWarningDate = TaskDeadlineUtils.getDeadlineWarningDate(task);
+        this.assignDate = task.getAssignDate();
         this.targetActor = targetActor;
         this.escalated = escalated;
         this.acquiredBySubstitution = acquiredBySubstitution;
@@ -119,6 +123,10 @@ public class WfTask implements Serializable {
 
     public Executor getOwner() {
         return owner;
+    }
+
+    public void setOwner(Executor owner) {
+        this.owner = owner;
     }
 
     public Actor getTargetActor() {
@@ -157,8 +165,16 @@ public class WfTask implements Serializable {
         return deadlineWarningDate;
     }
 
+    public Date getAssignDate() {
+        return assignDate;
+    }
+
     public boolean isEscalated() {
         return escalated;
+    }
+
+    public boolean isDelegated() {
+        return owner instanceof DelegationGroup;
     }
 
     public boolean isGroupAssigned() {
@@ -171,6 +187,14 @@ public class WfTask implements Serializable {
 
     public Integer getMultitaskIndex() {
         return multitaskIndex;
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     public void addVariable(WfVariable variable) {

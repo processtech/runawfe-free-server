@@ -18,7 +18,8 @@ public interface SynchronizationService {
      * 
      * @param user
      *            authorized user
+     * @return changes count
      */
-    public void synchronizeExecutorsWithLDAP(User user, boolean createExecutors, boolean updateExecutors, boolean deleteExecutors);
+    public int synchronizeExecutorsWithLdap(User user);
 
 }

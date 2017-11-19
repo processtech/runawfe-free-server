@@ -21,15 +21,22 @@
  */
 package ru.runa.wfe.definition.dao;
 
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
+
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 
-import java.util.List;
-
 /**
  * DAO for {@link Deployment}.
- *
+ * 
  * @author dofs
  * @since 4.0
  */
@@ -58,8 +65,56 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
-     * queries the database for all versions of process definitions with the given name, ordered by version (descending).
+     * queries the database for all version ids of process definitions with the given name, ordered by version.
      */
+    public List<Number> findAllDeploymentVersionIds(String name, boolean ascending) {
+        String query = "select id from Deployment where name=? order by version " + (ascending ? "asc" : "desc");
+        return getHibernateTemplate().find(query, name);
+    }
+
+    public List<Number> findDeploymentVersionIds(String name, Long from, Long to) {
+        String query = "select id from Deployment where name=? and version<=? and version>=? order by version asc";
+        return getHibernateTemplate().find(query, name, from, to);
+    }
+
+    public Number findDeploymentIdLatestVersionLessThan(final String name, final Long version) {
+        List<Number> ids = getHibernateTemplate().executeFind(new HibernateCallback<List<Number>>() {
+
+            @Override
+            public List<Number> doInHibernate(Session session) throws HibernateException, SQLException {
+                Query query = session.createQuery("select id from Deployment where name=? and version<? order by version desc");
+                query.setMaxResults(1);
+                query.setParameter(0, name);
+                query.setParameter(1, version);
+                return query.list();
+            }
+
+        });
+        return getFirstOrNull(ids);
+    }
+
+    public Number findDeploymentIdLatestVersionBeforeDate(final String name, final Date date) {
+        List<Number> ids = getHibernateTemplate().executeFind(new HibernateCallback<List<Number>>() {
+
+            @Override
+            public List<Number> doInHibernate(Session session) throws HibernateException, SQLException {
+                Query query = session.createQuery("select id from Deployment where name=? and createDate<? order by version desc");
+                query.setMaxResults(1);
+                query.setParameter(0, name);
+                query.setParameter(1, date);
+                return query.list();
+            }
+
+        });
+        return getFirstOrNull(ids);
+    }
+
+    /**
+     * queries the database for all versions of process definitions with the given name, ordered by version (descending).
+     * 
+     * @deprecated use findAllDeploymentVersionIds
+     */
+    @Deprecated
     public List<Deployment> findAllDeploymentVersions(String name) {
         return getHibernateTemplate().find("from Deployment where name=? order by version desc", name);
     }

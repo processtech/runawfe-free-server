@@ -1,6 +1,5 @@
 $.processUpgradeDialog = undefined;
 function selectProcessUpgrageVersionDialog(link) {
-	var processId = $(link).attr("data-processId");
 	var definitionName = $(link).attr("data-definitionName");
 	var definitionVersion = parseInt($(link).attr("data-definitionVersion"));
 	if ($.processUpgradeDialog == undefined) {
@@ -29,51 +28,53 @@ function selectProcessUpgrageVersionDialog(link) {
 	var d = $.processUpgradeDialog;
 	var definitionsTable = d.find("table.definitions");
 
-    function request() {
-        $.ajax({
-            type: "POST",
-            url: "/wfe/ajaxcmd?command=ajaxDefinitionVersions&definitionName=" + definitionName,
-            dataType: "json",
-            contentType: "application/json; charset=UTF-8",
-            processData: false,
-            success: function(data) {
-            	processDefinitions(data);
-            }
-        });
-    }
+	function request() {
+		$.ajax({
+			type: "POST",
+			url: "/wfe/ajaxcmd?command=ajaxDefinitionVersions&definitionName=" + definitionName,
+			dataType: "json",
+			contentType: "application/json; charset=UTF-8",
+			processData: false,
+			success: function(data) {
+				processDefinitions(data);
+			}
+		});
+	}
 
-    function processDefinitions(data) {
-        definitionsTable.empty();
-        var headers = $("<tr class='list'>");
-        $("<th class='list'></td>").appendTo(headers);
-        $("<th class='list'>Версия</td>").appendTo(headers);
-        $("<th class='list'>Дата загрузки</td>").appendTo(headers);
-        $("<th class='list'>Автор загрузки</td>").appendTo(headers);
-        $("<th class='list'>Дата обновления</td>").appendTo(headers);
-        $("<th class='list'>Автор обновления</td>").appendTo(headers);
-        $("<th class='list'>Описание</td>").appendTo(headers);
-        headers.appendTo(definitionsTable);
-        $.each(data.data, function(k, v) {
-            var row = $("<tr class='list'>");
-            var radio = $("<input type='radio' name='version' value='" + v.version + "'></input>");
-            if (v.version == definitionVersion) {
-            	radio.attr("checked", "checked");
-            	row.attr("style", "background-color: #ccc;");
-            }
+	function processDefinitions(data) {
+		definitionsTable.empty();
+		var headers = $("<tr class='list'>");
+		$("<th class='list'></td>").appendTo(headers);
+		$("<th class='list'>" + $.processUpgradeDialogStatic.version + "</td>").appendTo(headers);
+		$("<th class='list'>" + $.processUpgradeDialogStatic.dateUpload + "</td>").appendTo(headers);
+		$("<th class='list'>" + $.processUpgradeDialogStatic.authorUpload + "</td>").appendTo(headers);
+		$("<th class='list'>" + $.processUpgradeDialogStatic.dateUpdate + "</td>").appendTo(headers);
+		$("<th class='list'>" + $.processUpgradeDialogStatic.authorUpdate + "</td>").appendTo(headers);
+		$("<th class='list'>" + $.processUpgradeDialogStatic.description + "</td>").appendTo(headers);
+		headers.appendTo(definitionsTable);
+		$.each(data.data, function(k, v) {
+			var row = $("<tr class='list'>");
+			var radio = $("<input type='radio' name='version' value='" + v.version + "'></input>");
+			if (v.version == definitionVersion) {
+				radio.attr("checked", "checked");
+				row.attr("style", "background-color: #ccc;");
+			}
 			$("<td class='list'></td>").appendTo(row).append(radio);
-            $("<td class='list'>" + v.version + "</td>").appendTo(row);
-            $("<td class='list'>" + v.createDate + "</td>").appendTo(row);
-            $("<td class='list'>" + v.createUserName + "</td>").appendTo(row);
-            $("<td class='list'>" + v.updateDate + "</td>").appendTo(row);
-            $("<td class='list'>" + v.updateUserName + "</td>").appendTo(row);
-            $("<td class='list'>" + v.description + "</td>").appendTo(row);
-            row.appendTo(definitionsTable);
-        });
-    }
+			$("<td class='list'>" + v.version + "</td>").appendTo(row);
+			$("<td class='list'>" + v.createDate + "</td>").appendTo(row);
+			$("<td class='list'>" + v.createUserName + "</td>").appendTo(row);
+			$("<td class='list'>" + v.updateDate + "</td>").appendTo(row);
+			$("<td class='list'>" + v.updateUserName + "</td>").appendTo(row);
+			$("<td class='list'>" + v.description + "</td>").appendTo(row);
+			row.appendTo(definitionsTable);
+		});
+	}
 
 	function submitProcessUpgrade() {
 		var version = $("input[type='radio'][name='version']:checked").val();
-		window.location = $(link).attr("href") + "&version=" + version;
+		if (version != definitionVersion) {
+			window.location = $(link).attr("href") + "&version=" + version;
+		}
 	}
 
 	request();

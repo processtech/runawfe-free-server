@@ -1,9 +1,16 @@
 package ru.runa.wfe.definition;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.*;
 
 /**
  *
@@ -37,6 +44,7 @@ public class Deployment extends DeploymentData {
         deployment.setId(deploymentData.id());
         deployment.setLanguage(deploymentData.getLanguage());
         deployment.setName(deploymentData.getName());
+        deployment.setSubprocessBindingDate(deploymentData.getSubprocessBindingDate());
         deployment.setVersion(deploymentData.getVersion());
         return deployment;
     }

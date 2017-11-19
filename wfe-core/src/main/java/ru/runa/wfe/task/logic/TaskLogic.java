@@ -40,6 +40,7 @@ import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskCompletionBy;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskDoesNotExistException;
+import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
@@ -74,6 +75,8 @@ public class TaskLogic extends WFCommonLogic {
     private WfTaskFactory taskObjectFactory;
     @Autowired
     private ITaskListBuilder taskListBuilder;
+    @Autowired
+    private IObservableTaskListBuilder observableTaskListBuilder;
     @Autowired
     private TaskAssigner taskAssigner;
     @Autowired
@@ -193,10 +196,9 @@ public class TaskLogic extends WFCommonLogic {
 
     public WfTask getTask(User user, Long taskId) {
         Task task = taskDAO.getNotNull(taskId);
-        if (!executorLogic.isAdministrator(user)) {
-            checkCanParticipate(user.getActor(), task);
-        }
-        return taskObjectFactory.create(task, user.getActor(), false, null);
+        WfTask wfTask = taskObjectFactory.create(task, user.getActor(), false, null);
+        wfTask.setReadOnly(getTaskParticipationRole(user.getActor(), task) == null);
+        return wfTask;
     }
 
     public Long getProcessId(User user, Long taskId) {
@@ -208,6 +210,9 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
+        if (batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation) {
+            return observableTaskListBuilder.getObservableTasks(user.getActor(), batchPresentation);
+        }
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");
         }
@@ -269,7 +274,7 @@ public class TaskLogic extends WFCommonLogic {
         if (keepCurrentOwners) {
             if (currentOwner instanceof TemporaryGroup) {
                 ((List<Executor>) executors).addAll(executorDAO.getGroupChildren((Group) currentOwner));
-            } else {
+            } else if (currentOwner != null) {
                 ((List<Executor>) executors).add(executorDAO.getExecutor(currentOwner.getId()));
             }
         }
@@ -322,4 +327,5 @@ public class TaskLogic extends WFCommonLogic {
         Task task = taskDAO.getNotNull(taskId);
         return taskAssigner.assignTask(task);
     }
+
 }

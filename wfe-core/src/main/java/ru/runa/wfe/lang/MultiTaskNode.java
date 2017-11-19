@@ -25,20 +25,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.utils.MultiNodeParameters;
+import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
@@ -116,10 +116,7 @@ public class MultiTaskNode extends BaseTaskNode {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        TaskDefinition taskDefinition = getFirstTaskNotNull();
-        MultiNodeParameters parameters = new MultiNodeParameters(executionContext, this);
-        List<?> data = (List<?>) parameters.getDiscriminatorValue();
-        boolean tasksCreated = createTasks(executionContext, taskDefinition, data);
+        boolean tasksCreated = createTasks(executionContext, getFirstTaskNotNull());
         if (!tasksCreated) {
             log.debug("no tasks were created in " + this);
         }
@@ -130,12 +127,18 @@ public class MultiTaskNode extends BaseTaskNode {
         }
     }
 
-    private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
-        if (creationMode == MultiTaskCreationMode.BY_EXECUTORS) {
-            return createTasksByExecutors(executionContext, taskDefinition, data);
+    private boolean createTasks(ExecutionContext executionContext, TaskDefinition taskDefinition) {
+        List<?> data = (List<?>) MultiinstanceUtils.parse(executionContext, this).getDiscriminatorValue();
+        VariableMapping discriminatorMapping = new VariableMapping(getDiscriminatorVariableName(), null, getDiscriminatorUsage());
+        boolean tasksCreated;
+        // #305#note-49
+        if (!discriminatorMapping.isMultiinstanceLinkByVariable() || getCreationMode() == MultiTaskCreationMode.BY_EXECUTORS) {
+            tasksCreated = createTasksByExecutors(executionContext, taskDefinition, data);
         } else {
-            return createTasksByDiscriminator(executionContext, taskDefinition, data);
+            tasksCreated = createTasksByDiscriminator(executionContext, taskDefinition, data);
         }
+        MultiinstanceUtils.autoExtendContainerVariables(executionContext, getVariableMappings(), data.size());
+        return tasksCreated;
     }
 
     private boolean createTasksByExecutors(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
@@ -153,7 +156,6 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     private boolean createTasksByDiscriminator(ExecutionContext executionContext, TaskDefinition taskDefinition, List<?> data) {
-        Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
         List<Integer> ignoredIndexes = Lists.newArrayList();
         if (!Utils.isNullOrEmpty(discriminatorCondition)) {
             GroovyScriptExecutor scriptExecutor = new GroovyScriptExecutor();
@@ -166,14 +168,16 @@ public class MultiTaskNode extends BaseTaskNode {
                     ignoredIndexes.add(index);
                 }
             }
-            log.info("Ignored indexes: " + ignoredIndexes);
+            log.debug("Ignored indexes: " + ignoredIndexes);
         }
         int tasksCounter = 0;
+        Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
+        Executor executor = swimlane.getExecutor();
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
-            taskFactory.create(executionContext, taskDefinition, swimlane, swimlane.getExecutor(), index);
+            taskFactory.create(executionContext, taskDefinition, swimlane, executor, index);
             tasksCounter++;
         }
         return tasksCounter > 0;

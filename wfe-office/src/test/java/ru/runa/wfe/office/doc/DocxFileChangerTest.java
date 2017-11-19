@@ -95,8 +95,8 @@ public class DocxFileChangerTest extends Assert {
                 createVariable(
                         "dateList",
                         ListFormat.class.getName() + "(" + DateFormat.class.getName() + ")",
-                        Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR),
-                                CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR))));
+                        Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT),
+                                CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT))));
         Map<String, Actor> actors = Maps.newHashMap();
         actors.put("1", new Actor("adamov_a", "", "Adamov A.A.", 444L));
         actors.put("2", new Actor("borisov", "", "Borisov B.B", 333L));
@@ -113,8 +113,8 @@ public class DocxFileChangerTest extends Assert {
         Map<String, Object> data = Maps.newHashMap();
         data.put(
                 "ArrayUser",
-                createVariable("ArrayUser", ListFormat.class.getName() + "(" + ActorFormat.class.getName() + ")",
-                        Lists.newArrayList(new Actor("Petrov", "", "", 1L, "test@email", null), new Actor("Ivanov", "Pervomayskaya str 30a"))));
+                createVariable("ArrayUser", ListFormat.class.getName() + "(" + ActorFormat.class.getName() + ")", Lists.newArrayList(new Actor(
+                        "Petrov", "", "", 1L, "test@email", null, null, null), new Actor("Ivanov", "Pervomayskaya str 30a"))));
         testDocx(true, "tables_format.docx", data);
     }
 
@@ -144,8 +144,8 @@ public class DocxFileChangerTest extends Assert {
                 createVariable(
                         "dateList",
                         ListFormat.class.getName() + "(" + DateFormat.class.getName() + ")",
-                        Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR),
-                                CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR))));
+                        Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT),
+                                CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT))));
         Map<String, Actor> actors = Maps.newHashMap();
         actors.put("1", new Actor("adamov_a", "", "Adamov A.A.", 444L));
         actors.put("2", new Actor("borisov", "", "Borisov B.B", 333L));
@@ -167,22 +167,22 @@ public class DocxFileChangerTest extends Assert {
         data.put("stringList", Lists.newArrayList("Ivanov", "Petrov", "Sidorov"));
         data.put(
                 "dateList",
-                Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR),
-                        CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR)));
+                Lists.newArrayList(new Date(), CalendarUtil.convertToDate("01.01.2013", CalendarUtil.DATE_WITHOUT_TIME_FORMAT),
+                        CalendarUtil.convertToDate("17.02.1982", CalendarUtil.DATE_WITHOUT_TIME_FORMAT)));
         data.put("currentDate", createVariable("currentDate", DateFormat.class.getName(), new Date()));
         data.put("currentDateTime", createVariable("currentDateTime", DateTimeFormat.class.getName(), new Date()));
         data.put("currentTime", createVariable("currentTime", TimeFormat.class.getName(), new Date()));
         // testDocx(true, "decisions.docx", data);
     }
 
-    private WfVariable createVariable(String name, String format, Object value) {
+    protected WfVariable createVariable(String name, String format, Object value) {
         VariableDefinition definition = new VariableDefinition(name, null);
         definition.setFormat(format);
         WfVariable variable = new WfVariable(definition, value);
         return variable;
     }
 
-    private void testDocx(boolean strictMode, String templateFileName, Map<String, Object> data) throws IOException {
+    protected void testDocx(boolean strictMode, String templateFileName, Map<String, Object> data) throws IOException {
         for (String appPrefix : prefixes) {
             String appTemplateFileName = appPrefix + templateFileName;
             InputStream templateInputStream = ClassLoaderUtil.getAsStream(appTemplateFileName, getClass());

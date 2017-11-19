@@ -54,6 +54,10 @@ import com.google.common.collect.Maps;
 public class FormulaActionHandlerOperations {
     private static final Log log = LogFactory.getLog(FormulaActionHandlerOperations.class);
     private static final Map<String, Function<? extends Object>> functions = Maps.newHashMap();
+    private static TreeMap<String, HashMap<Integer, String>> names = new TreeMap<String, HashMap<Integer, String>>();
+    private static TreeMap<String, HashMap<Integer, String>> families = new TreeMap<String, HashMap<Integer, String>>();
+    private static TreeMap<String, HashMap<Integer, String>> parents = new TreeMap<String, HashMap<Integer, String>>();
+    private static TreeMap<String, HashMap<String, String>> mappingConf = new TreeMap<String, HashMap<String, String>>();
     static {
         registerFunction(new ListToString());
         registerFunction(new GetListMatchedIndexes());
@@ -62,14 +66,82 @@ public class FormulaActionHandlerOperations {
         registerFunction(new DeleteListElementsByIndexes());
         registerFunction(new ToList());
         registerFunction(new GetSize());
-    }
-
-    private static void registerFunction(Function<? extends Object> function) {
-        functions.put(function.getName(), function);
+        //
+        readNameCaseConfig("nameCaseConf.xml");
+        readMappingConfig("mappingConf.xml");
     }
 
     public static Function<? extends Object> getFunction(String name) {
         return functions.get(name);
+    }
+
+    private static void readNameCaseConfig(String path) {
+        try {
+            InputStream is = ClassLoaderUtil.getAsStream(path, FormulaActionHandlerOperations.class);
+            if (is == null) {
+                log.warn("No " + path + " found");
+                return;
+            }
+            Document document = XmlUtils.parseWithoutValidation(is);
+            @SuppressWarnings("unchecked")
+            List<Element> childs = document.getRootElement().elements();
+            for (Element element : childs) {
+                if (element.getName().equals("name")) {
+                    names.put(element.attributeValue("value"), parseNameCaseRules(element));
+                }
+                if (element.getName().equals("family")) {
+                    families.put(element.attributeValue("value"), parseNameCaseRules(element));
+                }
+                if (element.getName().equals("parent")) {
+                    parents.put(element.attributeValue("value"), parseNameCaseRules(element));
+                }
+            }
+        } catch (Exception e) {
+            log.error("Can`t parse " + path, e);
+        }
+    }
+
+    private static HashMap<Integer, String> parseNameCaseRules(Element element) {
+        HashMap<Integer, String> result = new HashMap<Integer, String>();
+        @SuppressWarnings("unchecked")
+        List<Element> childs = element.elements();
+        for (Element child : childs) {
+            if (child.getName().equals("name")) {
+                break;
+            }
+            int c = Integer.parseInt(child.attributeValue("case"));
+            result.put(c, child.getText());
+        }
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void readMappingConfig(String path) {
+        try {
+            InputStream is = ClassLoaderUtil.getAsStream(path, FormulaActionHandlerOperations.class);
+            if (is == null) {
+                log.warn("No " + path + " found");
+                return;
+            }
+            Document document = XmlUtils.parseWithoutValidation(is);
+            List<Element> childs = document.getRootElement().elements();
+            for (Element rule : childs) {
+                String title = rule.attributeValue("title");
+                HashMap<String, String> rmap = new HashMap<String, String>();
+                for (Element item : (List<Element>) rule.elements()) {
+                    String input = item.attributeValue("input");
+                    String output = item.attributeValue("output");
+                    rmap.put(input, output);
+                }
+                mappingConf.put(title, rmap);
+            }
+        } catch (Exception e) {
+            log.error("Can`t parse " + path, e);
+        }
+    }
+
+    private static void registerFunction(Function<? extends Object> function) {
+        functions.put(function.getName(), function);
     }
 
     public Object sum(Object o1, Object o2) {
@@ -86,7 +158,7 @@ public class FormulaActionHandlerOperations {
             return new Double(((Number) o1).doubleValue() + ((Number) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Long.valueOf((long) (((Long) o1).doubleValue() + ((Long) o2).doubleValue()));
+            return new Long((long) (((Long) o1).doubleValue() + ((Long) o2).doubleValue()));
         }
         if (Date.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Date(((Date) o1).getTime() + (long) (((Number) o2).doubleValue() * 60 * 1000));
@@ -121,13 +193,13 @@ public class FormulaActionHandlerOperations {
             return new Double(((Number) o1).doubleValue() - ((Number) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Long.valueOf((long) (((Number) o1).doubleValue() - ((Number) o2).doubleValue()));
+            return new Long((long) (((Number) o1).doubleValue() - ((Number) o2).doubleValue()));
         }
         if (Date.class.isInstance(o1) && Number.class.isInstance(o2)) {
             return new Date(((Date) o1).getTime() - (long) (((Number) o2).doubleValue() * 60 * 1000));
         }
         if (Date.class.isInstance(o1) && Date.class.isInstance(o2)) {
-            return Long.valueOf((((Date) o1).getTime() - ((Date) o2).getTime()) / 60000);
+            return new Long((((Date) o1).getTime() - ((Date) o2).getTime()) / 60000);
         }
         log.error("Cannot make substraction for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -147,7 +219,7 @@ public class FormulaActionHandlerOperations {
             return new Double(((Number) o1).doubleValue() * ((Number) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Long.valueOf((long) (((Number) o1).doubleValue() * ((Number) o2).doubleValue()));
+            return new Long((long) (((Number) o1).doubleValue() * ((Number) o2).doubleValue()));
         }
         log.error("Cannot make multiplication for " + (o1 != null ? o1.getClass() : "null") + " with " + (o2 != null ? o2.getClass() : "null"));
         return null;
@@ -164,7 +236,7 @@ public class FormulaActionHandlerOperations {
             return new Double(((Double) o1).doubleValue() / ((Number) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Number.class.isInstance(o2)) {
-            return Long.valueOf((long) (((Long) o1).doubleValue() / ((Number) o2).doubleValue()));
+            return new Long((long) (((Long) o1).doubleValue() / ((Number) o2).doubleValue()));
         }
         log.error("Cannot make division for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -178,7 +250,7 @@ public class FormulaActionHandlerOperations {
             return new Double(-((Double) o).doubleValue());
         }
         if (Long.class.isInstance(o)) {
-            return Long.valueOf(-((Long) o).longValue());
+            return new Long(-((Long) o).longValue());
         }
         log.error("Cannot make changeSign for " + o.getClass());
         return null;
@@ -186,7 +258,7 @@ public class FormulaActionHandlerOperations {
 
     public Object not(Object o) {
         if (Boolean.class.isInstance(o)) {
-            return !(Boolean)o;
+            return new Boolean(!((Boolean) o).booleanValue());
         }
         log.error("Cannot make not for " + o.getClass());
         return null;
@@ -200,25 +272,22 @@ public class FormulaActionHandlerOperations {
             return asBigDecimal((Number) o1).compareTo((BigDecimal) o2) < 0;
         }
         if (Double.class.isInstance(o1) && Double.class.isInstance(o2)) {
-            return Boolean.valueOf(((Double) o1).doubleValue() < ((Double) o2).doubleValue());
+            return new Boolean(((Double) o1).doubleValue() < ((Double) o2).doubleValue());
         }
         if (Double.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Boolean.valueOf(((Double) o1).doubleValue() < ((Long) o2).doubleValue());
+            return new Boolean(((Double) o1).doubleValue() < ((Long) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Double.class.isInstance(o2)) {
-            return Boolean.valueOf(((Long) o1).doubleValue() < ((Double) o2).doubleValue());
+            return new Boolean(((Long) o1).doubleValue() < ((Double) o2).doubleValue());
         }
         if (Long.class.isInstance(o1) && Long.class.isInstance(o2)) {
-            return Boolean.valueOf(((Long) o1).longValue() < ((Long) o2).longValue());
+            return new Boolean(((Long) o1).longValue() < ((Long) o2).longValue());
         }
         if (String.class.isInstance(o1) && String.class.isInstance(o2)) {
-            return Boolean.valueOf(((String) o1).compareTo((String) o2) < 0);
+            return new Boolean(((String) o1).compareTo((String) o2) < 0);
         }
         if (Date.class.isInstance(o1) && Date.class.isInstance(o2)) {
-            return Boolean.valueOf(((Date) o1).compareTo((Date) o2) < 0);
-        }
-        if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
-        	return Boolean.valueOf(((BigDecimal)o1).compareTo((BigDecimal)o2) < 0);
+            return new Boolean(((Date) o1).compareTo((Date) o2) < 0);
         }
         log.error("Cannot make less for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -230,9 +299,9 @@ public class FormulaActionHandlerOperations {
 
     public Object equal(Object o1, Object o2) {
         if (BigDecimal.class.isInstance(o1) && BigDecimal.class.isInstance(o2)) {
-            return Boolean.valueOf(((BigDecimal) o1).compareTo((BigDecimal) o2) == 0);
+            return new Boolean(((BigDecimal) o1).compareTo((BigDecimal) o2) == 0);
         }
-        return Boolean.valueOf(o1.equals(o2));
+        return new Boolean(o1.equals(o2));
     }
 
     public Object lessOrEqual(Object o1, Object o2) {
@@ -249,7 +318,7 @@ public class FormulaActionHandlerOperations {
 
     public Object or(Object o1, Object o2) {
         if (Boolean.class.isInstance(o1) && Boolean.class.isInstance(o2)) {
-            return (Boolean) o1 || (Boolean) o2;
+            return new Boolean(((Boolean) o1).booleanValue() || ((Boolean) o2).booleanValue());
         }
         log.error("Cannot make or for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -257,7 +326,7 @@ public class FormulaActionHandlerOperations {
 
     public Object and(Object o1, Object o2) {
         if (Boolean.class.isInstance(o1) && Boolean.class.isInstance(o2)) {
-            return (Boolean) o1 && (Boolean) o2;
+            return new Boolean(((Boolean) o1).booleanValue() && ((Boolean) o2).booleanValue());
         }
         log.error("Cannot make and for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -265,7 +334,7 @@ public class FormulaActionHandlerOperations {
 
     public Object xor(Object o1, Object o2) {
         if (Boolean.class.isInstance(o1) && Boolean.class.isInstance(o2)) {
-            return (Boolean) o1 ^ (Boolean) o2;
+            return new Boolean(((Boolean) o1).booleanValue() ^ ((Boolean) o2).booleanValue());
         }
         log.error("Cannot make xor for " + o1.getClass() + " with " + o2.getClass());
         return null;
@@ -277,12 +346,12 @@ public class FormulaActionHandlerOperations {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(date);
             if (calendar.get(Calendar.YEAR) == 1970 && calendar.get(Calendar.MONTH) == Calendar.JANUARY && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-                return CalendarUtil.format(date, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+                return CalendarUtil.format(date, CalendarUtil.HOURS_MINUTES_FORMAT);
             }
             if (calendar.get(Calendar.HOUR) == 0 && calendar.get(Calendar.MINUTE) == 0 && calendar.get(Calendar.SECOND) == 0) {
-                return CalendarUtil.format(date, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+                return CalendarUtil.format(date, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
             }
-            return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+            return CalendarUtil.format(date, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         }
         if (Date.class.isAssignableFrom(c) && Date.class.isInstance(o)) {
             return o;
@@ -309,8 +378,8 @@ public class FormulaActionHandlerOperations {
         }
         Date d = (Date) p;
         try {
-            String s = CalendarUtil.format(d, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
-            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+            String s = CalendarUtil.format(d, CalendarUtil.HOURS_MINUTES_FORMAT);
+            return CalendarUtil.convertToDate(s, CalendarUtil.HOURS_MINUTES_FORMAT);
         } catch (Exception e) {
             log.warn("Unparseable time", e);
         }
@@ -327,7 +396,7 @@ public class FormulaActionHandlerOperations {
         if (hours * 60 < minutes) {
             hours++;
         }
-        return Long.valueOf(hours * 60);
+        return new Long(hours * 60);
     }
 
     public Long roundUpFunction(double d) {
@@ -364,6 +433,66 @@ public class FormulaActionHandlerOperations {
             st *= 10;
         }
         return (double) roundFunction(d * st) / st;
+    }
+
+    public String mapping(String input, String rule) {
+        try {
+            return mappingConf.get(rule).get(input);
+        } catch (Exception e) {
+            log.error("No mapping rule for " + input + " / " + rule, e);
+        }
+        return input;
+    }
+
+    public String nameCaseRussian(String fio, int caseNumber, String mode) {
+        boolean sex = false;
+        StringTokenizer st = new StringTokenizer(fio);
+        if (st.hasMoreElements()) {
+            st.nextToken();
+        }
+        if (st.hasMoreElements()) {
+            st.nextToken();
+        }
+        String parent = st.hasMoreElements() ? st.nextToken() : "   ";
+        if (parent.charAt(parent.length() - 1) == 'ч') {
+            sex = true;
+        }
+        return nameCaseRussian(fio, caseNumber, sex, mode);
+    }
+
+    public String nameCaseRussian(String fio, int caseNumber, boolean sex, String mode) {
+        StringTokenizer st = new StringTokenizer(fio);
+        String family = st.hasMoreElements() ? st.nextToken() : "";
+        String name = st.hasMoreElements() ? st.nextToken() : "";
+        String parent = st.hasMoreElements() ? st.nextToken() : "";
+
+        String answer = "";
+        for (char c : mode.toCharArray()) {
+            switch (c) {
+            case 'F':
+                answer += wordCaseRussian(family, caseNumber, sex, 1, false);
+                break;
+            case 'I':
+                answer += wordCaseRussian(name, caseNumber, sex, 2, false);
+                break;
+            case 'O':
+                answer += wordCaseRussian(parent, caseNumber, sex, 3, false);
+                break;
+            case 'f':
+                answer += wordCaseRussian(family, caseNumber, sex, 1, true);
+                break;
+            case 'i':
+                answer += wordCaseRussian(name, caseNumber, sex, 2, true);
+                break;
+            case 'o':
+                answer += wordCaseRussian(parent, caseNumber, sex, 3, true);
+                break;
+            default:
+                answer += c;
+            }
+        }
+
+        return answer;
     }
 
     private String wordCaseRussian(String word, int caseNumber, boolean sex, int wordType, boolean onlyOneChar) {
@@ -460,8 +589,12 @@ public class FormulaActionHandlerOperations {
                                     zd = 9;
                                 }
                             }
-                        } else if (zb > 10 && za > 16) {
-                            zd = 8;
+                        } else {
+                            boolean b3 = "ой ый".indexOf(suf2) >= 0 && wordType > 4 && !word.substring(len - 4, len).equals("опой") || zb > 10
+                                    && za > 16;
+                            if (b3) {
+                                zd = 8;
+                            }
                         }
                     }
                 }
@@ -503,132 +636,6 @@ public class FormulaActionHandlerOperations {
             ans = "" + Character.toUpperCase(ans.charAt(0)) + ans.substring(1);
         }
         return ans;
-    }
-
-    private static TreeMap<String, HashMap<Integer, String>> names = new TreeMap<String, HashMap<Integer, String>>();
-    private static TreeMap<String, HashMap<Integer, String>> families = new TreeMap<String, HashMap<Integer, String>>();
-    private static TreeMap<String, HashMap<Integer, String>> parents = new TreeMap<String, HashMap<Integer, String>>();
-    private static TreeMap<String, HashMap<String, String>> mappingConf = new TreeMap<String, HashMap<String, String>>();
-    static {
-        readNameCaseConfig("nameCaseConf.xml");
-        readMappingConfig("mappingConf.xml");
-    }
-
-    @SuppressWarnings("unchecked")
-    private static void readMappingConfig(String path) {
-        try {
-            InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
-            Document document = XmlUtils.parseWithoutValidation(is);
-            List<Element> childs = document.getRootElement().elements();
-            for (Element rule : childs) {
-                String title = rule.attributeValue("title");
-                HashMap<String, String> rmap = new HashMap<String, String>();
-                for (Element item : (List<Element>) rule.elements()) {
-                    String input = item.attributeValue("input");
-                    String output = item.attributeValue("output");
-                    rmap.put(input, output);
-                }
-                mappingConf.put(title, rmap);
-            }
-        } catch (Exception e) {
-            log.error("Can`t parse " + path, e);
-        }
-    }
-
-    public String mapping(String input, String rule) {
-        try {
-            return mappingConf.get(rule).get(input);
-        } catch (Exception e) {
-            log.error("No mapping rule for " + input + " / " + rule, e);
-        }
-        return input;
-    }
-
-    private static void readNameCaseConfig(String path) {
-        try {
-            InputStream is = ClassLoaderUtil.getAsStreamNotNull(path, FormulaActionHandlerOperations.class);
-            Document document = XmlUtils.parseWithoutValidation(is);
-            @SuppressWarnings("unchecked")
-            List<Element> childs = document.getRootElement().elements();
-            for (Element element : childs) {
-                if (element.getName().equals("name")) {
-                    names.put(element.attributeValue("value"), parseNameCaseRules(element));
-                }
-                if (element.getName().equals("family")) {
-                    families.put(element.attributeValue("value"), parseNameCaseRules(element));
-                }
-                if (element.getName().equals("parent")) {
-                    parents.put(element.attributeValue("value"), parseNameCaseRules(element));
-                }
-            }
-        } catch (Exception e) {
-            log.error("Can`t parse " + path, e);
-        }
-    }
-
-    private static HashMap<Integer, String> parseNameCaseRules(Element element) {
-        HashMap<Integer, String> result = new HashMap<Integer, String>();
-        @SuppressWarnings("unchecked")
-        List<Element> childs = element.elements();
-        for (Element child : childs) {
-            if (child.getName().equals("name")) {
-                break;
-            }
-            int c = Integer.parseInt(child.attributeValue("case"));
-            result.put(c, child.getText());
-        }
-        return result;
-    }
-
-    public String nameCaseRussian(String fio, int caseNumber, String mode) {
-        boolean sex = false;
-        StringTokenizer st = new StringTokenizer(fio);
-        if (st.hasMoreElements()) {
-            st.nextToken();
-        }
-        if (st.hasMoreElements()) {
-            st.nextToken();
-        }
-        String parent = st.hasMoreElements() ? st.nextToken() : "   ";
-        if (parent.charAt(parent.length() - 1) == 'ч') {
-            sex = true;
-        }
-        return nameCaseRussian(fio, caseNumber, sex, mode);
-    }
-
-    public String nameCaseRussian(String fio, int caseNumber, boolean sex, String mode) {
-        StringTokenizer st = new StringTokenizer(fio);
-        String family = st.hasMoreElements() ? st.nextToken() : "";
-        String name = st.hasMoreElements() ? st.nextToken() : "";
-        String parent = st.hasMoreElements() ? st.nextToken() : "";
-
-        StringBuilder answer = new StringBuilder();
-        for (char c : mode.toCharArray()) {
-            switch (c) {
-            case 'F':
-                answer.append(wordCaseRussian(family, caseNumber, sex, 1, false));
-                break;
-            case 'I':
-                answer.append(wordCaseRussian(name, caseNumber, sex, 2, false));
-                break;
-            case 'O':
-                answer.append(wordCaseRussian(parent, caseNumber, sex, 3, false));
-                break;
-            case 'f':
-                answer.append(wordCaseRussian(family, caseNumber, sex, 1, true));
-                break;
-            case 'i':
-                answer.append(wordCaseRussian(name, caseNumber, sex, 2, true));
-                break;
-            case 'o':
-                answer.append(wordCaseRussian(parent, caseNumber, sex, 3, true));
-                break;
-            default:
-                answer.append(c);
-            }
-        }
-
-        return answer.toString();
     }
 
     private BigDecimal asBigDecimal(Number n) {

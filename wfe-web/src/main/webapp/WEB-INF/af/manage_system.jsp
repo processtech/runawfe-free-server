@@ -1,3 +1,4 @@
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -60,9 +61,9 @@
 		});
 	});
 	</script>
-	<script type="text/javascript" src="<html:rewrite page="/js/xmleditor/codemirror.js" />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page="/js/scripteditor.js" />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page="/js/errorviewer.js" />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor/codemirror.js?"+Version.getHash() %>' />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/scripteditor.js?"+Version.getHash() %>' />">c=0;</script>
+	<script type="text/javascript" src="<html:rewrite page='<%="/js/errorviewer.js?"+Version.getHash() %>' />">c=0;</script>
 </tiles:put>
 
 <tiles:put name="body" type="string" >
@@ -164,6 +165,9 @@
 		<a id="processErrorsButton" href="javascript:void(0)" class="link">
 			<img id="processErrorsImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
 			&nbsp;<bean:message key="errors.processes" />
+		</a>
+		<a href="/wfe/activateFailedProcesses.do" style="float: right;">
+			<bean:message key="failed.processes.activate" />
 		</a>
 	</div>
 	<div id="processErrorsContentDiv">

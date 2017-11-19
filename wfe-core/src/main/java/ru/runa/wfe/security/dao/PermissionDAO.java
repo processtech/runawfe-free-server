@@ -63,20 +63,20 @@ public class PermissionDAO extends CommonDAO {
     private final Map<SecuredObjectType, Set<Executor>> privelegedExecutors = Maps.newHashMap();
     private final Set<Long> privelegedExecutorIds = Sets.newHashSet();
 
-    @Override
-    protected void initDao() throws Exception {
+    public PermissionDAO() {
         for (SecuredObjectType type : SecuredObjectType.values()) {
             privelegedExecutors.put(type, new HashSet<Executor>());
         }
-        try {
-            List<PrivelegedMapping> list = getHibernateTemplate().find("from PrivelegedMapping m");
-            for (PrivelegedMapping mapping : list) {
-                privelegedExecutors.get(mapping.getType()).add(mapping.getExecutor());
-                privelegedExecutorIds.add(mapping.getExecutor().getId());
-            }
-        } catch (Exception e) {
-            log.error("priveleged executors was not loaded (if this exception occurs in empty DB just ignore it)");
-            log.debug("", e);
+    }
+
+    /**
+     * Called once after patches are successfully applied
+     */
+    public void init() throws Exception {
+        List<PrivelegedMapping> list = getHibernateTemplate().find("from PrivelegedMapping m");
+        for (PrivelegedMapping mapping : list) {
+            privelegedExecutors.get(mapping.getType()).add(mapping.getExecutor());
+            privelegedExecutorIds.add(mapping.getExecutor().getId());
         }
     }
 
@@ -423,6 +423,18 @@ public class PermissionDAO extends CommonDAO {
         int count = new PresentationCompiler(batchPresentation).getCount(parameters);
         timeMeasurer.jobEnded("getCount: " + count);
         return count;
+    }
+
+    public boolean permissionExists(Permission permission, Identifiable resource) {
+        return getHibernateTemplate().find(
+                "select pm.identifiableId from PermissionMapping pm where pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
+                resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask()).size() > 0;
+    }
+
+    public boolean permissionExists(Executor executor, Permission permission, Identifiable resource) {
+        return getHibernateTemplate().find(
+                "select pm.identifiableId from PermissionMapping pm where pm.executor = ? and pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
+                executor, resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask()).size() > 0;
     }
 
 }

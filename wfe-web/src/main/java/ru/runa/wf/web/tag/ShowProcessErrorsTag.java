@@ -32,6 +32,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.html.HtmlEscapers;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "viewProcessErrors")
 public class ShowProcessErrorsTag extends VisibleTag {
@@ -57,11 +58,12 @@ public class ShowProcessErrorsTag extends VisibleTag {
             tr.addElement(new TD(processIdElement).setClass(Resources.CLASS_LIST_TABLE_TD));
             tr.addElement(new TD(CalendarUtil.formatDateTime(processError.getOccurredDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
             tr.addElement(new TD(processError.getNodeName()).setClass(Resources.CLASS_LIST_TABLE_TD));
+            String errorMessage = HtmlEscapers.htmlEscaper().escape(processError.getMessage());
             if (processError.getStackTrace() != null) {
                 String url = "javascript:showProcessError('" + processError.getType() + "', " + processId + ", '" + processError.getNodeId() + "')";
-                tr.addElement(new TD(new A(url, processError.getMessage())).setClass(Resources.CLASS_LIST_TABLE_TD));
+                tr.addElement(new TD(new A(url, errorMessage)).setClass(Resources.CLASS_LIST_TABLE_TD));
             } else {
-                tr.addElement(new TD(processError.getMessage()).setClass(Resources.CLASS_LIST_TABLE_TD));
+                tr.addElement(new TD(errorMessage).setClass(Resources.CLASS_LIST_TABLE_TD));
             }
             TD deleteTd;
             if (processError.getType() != ProcessErrorType.execution) {
@@ -84,10 +86,10 @@ public class ShowProcessErrorsTag extends VisibleTag {
         }
         filters.append("</div>");
         resultElement.addElement(filters.toString());
-        ErrorsHeaderBuilder tasksHistoryHeaderBuilder = new ErrorsHeaderBuilder();
+        ErrorsHeaderBuilder headerBuilder = new ErrorsHeaderBuilder();
         RowBuilder rowBuilder = new TRRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
-        Table table = tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder);
+        Table table = tableBuilder.build(headerBuilder, rowBuilder);
         resultElement.addElement(table);
         return resultElement;
     }

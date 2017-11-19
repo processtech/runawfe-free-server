@@ -44,7 +44,7 @@ import com.google.common.io.ByteStreams;
 
 /**
  * Created on 28.10.2008
- *
+ * 
  * @author A. Shautsou
  * @version 1.0 Initial version
  */
@@ -70,6 +70,9 @@ public class EmailTaskNotifierActionHandler extends ActionHandlerBase {
     public void execute(ExecutionContext executionContext) throws Exception {
         List<Actor> actors = executorDAO.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged());
         for (Actor actor : actors) {
+            if (!actor.isActive()) {
+                continue;
+            }
             String email = actor.getEmail();
             if (!Strings.isNullOrEmpty(email)) {
                 List<Task> taskList = taskDAO.findByExecutor(actor);

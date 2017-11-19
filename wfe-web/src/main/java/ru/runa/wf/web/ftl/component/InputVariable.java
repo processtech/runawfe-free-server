@@ -10,10 +10,8 @@ public class InputVariable extends FormComponent {
     protected Object renderRequest() {
         String variableName = getParameterAsString(0);
         WfVariable variable = variableProvider.getVariableNotNull(variableName);
-        String html = "<div class=\"inputVariable " + variable.getDefinition().getScriptingNameWithoutDots() + "\">";
-        html += ViewUtil.getComponentInput(user, webHelper, variable);
-        html += "</div>";
-        return html;
+        String componentHtml = ViewUtil.getComponentInput(user, webHelper, variable);
+        return ViewUtil.wrapInputVariable(variable, componentHtml);
     }
 
 }

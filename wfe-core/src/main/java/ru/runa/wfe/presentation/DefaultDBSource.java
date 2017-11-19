@@ -17,43 +17,47 @@
  */
 package ru.runa.wfe.presentation;
 
+
 /**
- * Default implementation of {@link DBSource} interface. 
- * Reference directly to field value.
- * E.q. id property will be referenced as 'alias.id'. 
- * This {@link DBSource} not contains join restrictions, so can be used only to access properties of root persistence object.
+ * Default implementation of {@link DBSource} interface. Reference directly to field value. E.q. id property will be referenced as 'alias.id'. This
+ * {@link DBSource} not contains join restrictions, so can be used only to access properties of root persistence object.
  */
 public class DefaultDBSource implements DBSource {
 
     /**
-     * Persistent object of field. Property will be accessed throw this object instance. 
+     * Persistent object of field. Property will be accessed throw this object instance.
      */
     protected final Class<?> sourceObject;
 
     /**
-     * HQL path to access property value.
-     * For example for id property this path is 'id'; for id property of field child is 'child.id'. 
+     * HQL path to access property value. For example for id property this path is 'id'; for id property of field child is 'child.id'.
      */
     protected final String valueDBPath;
 
     /**
      * Creates default implementation of {@link DBSource}. This implementation reference directly to field value.
-     * @param sourceObject Persistent object of field. Property will be accessed throw this object instance. 
-     * @param valueDBPath HQL path to access property value.
+     * 
+     * @param sourceObject
+     *            Persistent object of field. Property will be accessed throw this object instance.
+     * @param valueDBPath
+     *            HQL path to access property value.
      */
     public DefaultDBSource(Class<?> sourceObject, String valueDBPath) {
         this.valueDBPath = valueDBPath;
         this.sourceObject = sourceObject;
     }
 
+    @Override
     public Class<?> getSourceObject() {
         return sourceObject;
     }
 
-    public String getValueDBPath(String alias) {
+    @Override
+    public String getValueDBPath(AccessType accessType, String alias) {
         return alias == null ? valueDBPath : alias + "." + valueDBPath;
     }
 
+    @Override
     public String getJoinExpression(String alias) {
         return "";
     }

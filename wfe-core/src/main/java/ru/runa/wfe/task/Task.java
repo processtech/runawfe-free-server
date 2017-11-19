@@ -63,10 +63,10 @@ import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
+import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.TaskDefinition;
-import ru.runa.wfe.lang.jpdl.ActionEvent;
 import ru.runa.wfe.lang.jpdl.WaitNode;
 import ru.runa.wfe.task.logic.ITaskNotifier;
 import ru.runa.wfe.user.Executor;
@@ -93,6 +93,7 @@ public class Task implements Assignable {
     private Executor executor;
     private Date createDate;
     private Date deadlineDate;
+    private Date assignDate;
     private String deadlineDateExpression;
     private Token token;
     private Swimlane swimlane;
@@ -177,6 +178,15 @@ public class Task implements Assignable {
 
     public void setDeadlineDate(Date deadlineDate) {
         this.deadlineDate = deadlineDate;
+    }
+
+    @Column(name = "ASSIGN_DATE")
+    public Date getAssignDate() {
+        return assignDate;
+    }
+
+    public void setAssignDate(Date assignDate) {
+        this.assignDate = assignDate;
     }
 
     @Column(name = "DEADLINE_DATE_EXPRESSION")
@@ -272,6 +282,7 @@ public class Task implements Assignable {
             executionContext.addLog(new TaskAssignLog(this, executor));
             // do the actual assignment
             setExecutor(executor);
+            setAssignDate(new Date());
             InteractionNode node = (InteractionNode) executionContext.getProcessDefinition().getNodeNotNull(nodeId);
             ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
             node.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_ASSIGN);
@@ -318,9 +329,11 @@ public class Task implements Assignable {
             delete();
             return;
         }
-        InteractionNode interactionNode = (InteractionNode) node;
-        ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
-        interactionNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
+        if (completionInfo.getCompletionBy() != TaskCompletionBy.PROCESS_END) {
+            InteractionNode interactionNode = (InteractionNode) node;
+            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
+            interactionNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
+        }
         delete();
     }
 

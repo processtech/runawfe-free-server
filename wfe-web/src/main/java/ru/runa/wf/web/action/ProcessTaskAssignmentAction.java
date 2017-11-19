@@ -38,7 +38,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Created on 02.04.2008
- *
+ * 
  * @struts:action path="/processTaskAssignment" name="strIdsForm" validate="false"
  * @struts.action-forward name="tasksList" path="/manage_tasks.do" redirect = "true"
  * @struts.action-forward name="submitTask" path="/submit_task.do" redirect = "false"

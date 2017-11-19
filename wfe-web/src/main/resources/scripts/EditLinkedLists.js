@@ -5,30 +5,26 @@ var lastIndexUNIQUENAME = -1;
 
 $(document).ready(function() {
 	ellUNIQUENAMEUpdateIndexes(0);
-	lastIndexUNIQUENAME = parseInt(ellUNIQUENAMEGetSize()) - 1;
+	lastIndexUNIQUENAME = $("#ellUNIQUENAME tr[row]").length - 1;
 	$('#ellUNIQUENAMEButtonAdd').click(function() {
 		var rowIndex = parseInt(lastIndexUNIQUENAME) + 1;
-	lastIndexUNIQUENAME = rowIndex;
-		console.log("UNIQUENAME: Adding row " + rowIndex);
-		var e = "<tr row='" + rowIndex + "'>";
-		e += ellUNIQUENAMERowTemplate.replace(/\[\]/g, "[" + rowIndex + "]");
-		e += "<td><input type='button' value=' - ' onclick='ellUNIQUENAMERemoveRow(this);' /></td>";
-		e += "</tr>";
-		$('#ellUNIQUENAME').append(e);
+		lastIndexUNIQUENAME = rowIndex;
+		var rowElementHtml = "<tr row='" + rowIndex + "'>";
+		rowElementHtml += ellUNIQUENAMERowTemplate.replace(/\[\]/g, "[" + rowIndex + "]");
+		rowElementHtml += "<td><input type='button' value=' - ' onclick='ellUNIQUENAMERemoveRow(this);' /></td>";
+		rowElementHtml += "</tr>";
+		var rowElement = $(rowElementHtml);
+		$('#ellUNIQUENAME').append(rowElement);
 		ellUNIQUENAMEUpdateIndexes(1);
-		JS_HANDLERS
+		initComponents(rowElement);
 		$("#ellUNIQUENAME").trigger("onRowAdded", [rowIndex]);
 	});
 });
 
-function ellUNIQUENAMEGetSize() {
-	return parseInt($("#ellUNIQUENAME").attr("rowsCount"));
-}
-
 function ellUNIQUENAMERemoveRow(button) {
 	var tr = $(button).closest("tr");
 	var rowIndex = parseInt(tr.attr("row"));
-	console.log("UNIQUENAME: Removing row " + rowIndex);
+	$("#ellUNIQUENAME").trigger("onBeforeRowRemoved", [rowIndex]);
 	tr.find(".inputFileDelete").each(function() {
 		$(this).click();
 	});
@@ -38,14 +34,10 @@ function ellUNIQUENAMERemoveRow(button) {
 }
 
 function ellUNIQUENAMEUpdateIndexes(delta) {
-	var ids = "";
+	var ids = [];
 	$("#ellUNIQUENAME tr[row]").each(function() {
-		ids == "" ? ids = $(this).attr('row') : ids += "," + $(this).attr('row') ; 
+		ids.push($(this).attr("row")); 
 	});
-	for (i in ellUNIQUENAMEVariableNames) {
-		var indexesInput = $("input[name='" + ellUNIQUENAMEVariableNames[i] + ".indexes']");
-		indexesInput.val(ids);
-	}
-	$("#ellUNIQUENAME").attr("rowsCount", ellUNIQUENAMEGetSize() + delta);
-	console.log("UNIQUENAME: Lists size = " + ellUNIQUENAMEGetSize());
+	var idsString = ids.join(",");
+	$("input[name$='indexes']").val(idsString);
 }

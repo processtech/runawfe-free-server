@@ -1,11 +1,7 @@
 package ru.runa.wfe.definition;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
-import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.security.Identifiable;
-import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.user.Actor;
+import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -14,8 +10,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-import java.util.Date;
-import java.util.List;
+
+import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.user.Actor;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 
 /**
  * @author Egor Litvinenko
@@ -34,6 +36,7 @@ public abstract class DeploymentData extends Identifiable {
     private Actor createActor;
     private Date updateDate;
     private Actor updateActor;
+    private Date subprocessBindingDate;
 
     @Transient
     public Long id() {
@@ -128,6 +131,15 @@ public abstract class DeploymentData extends Identifiable {
 
     public void setUpdateActor(Actor updateActor) {
         this.updateActor = updateActor;
+    }
+
+    @Column(name = "SUBPROCESS_BINDING_DATE")
+    public Date getSubprocessBindingDate() {
+        return subprocessBindingDate;
+    }
+
+    public void setSubprocessBindingDate(Date subprocessBindingDate) {
+        this.subprocessBindingDate = subprocessBindingDate;
     }
 
     @Transient

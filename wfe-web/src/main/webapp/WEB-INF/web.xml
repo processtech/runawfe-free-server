@@ -6,12 +6,8 @@
 
 	<filter>
 		<filter-name>monitoring</filter-name>
-		<filter-class>net.bull.javamelody.MonitoringFilter</filter-class>
+		<filter-class>ru.runa.common.web.filter.JavamelodyMonitoringFilter</filter-class>
 	</filter>
-	<filter-mapping>
-		<filter-name>monitoring</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 	<listener>
 		<listener-class>net.bull.javamelody.SessionListener</listener-class>
 	</listener>
@@ -33,9 +29,6 @@
 		<filter-class>ru.runa.common.web.filter.XSSFilter</filter-class>
 	</filter>
 
-	<!-- To use non XDoclet filter-mappings, create a filter-mappings.xml file 
-		that contains the additional filter-mappings and place it in your project's 
-		merge dir. -->
 	<filter-mapping>
 		<filter-name>ntlmfilter</filter-name>
 		<url-pattern>/*</url-pattern>
@@ -43,6 +36,10 @@
 	<filter-mapping>
 		<filter-name>session</filter-name>
 		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>monitoring</filter-name>
+		<url-pattern>/monitoring</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>krbfilter</filter-name>
@@ -97,11 +94,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>upload1095</servlet-name>
-		<servlet-class>ru.runa.wf.web.servlet.Servlet1095</servlet-class>
-	</servlet>
-	
-	<servlet>
 		<servlet-name>bulkUpload</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.BulkUploadServlet</servlet-class>
 	</servlet>
@@ -110,28 +102,16 @@
 		<servlet-name>getComponentInput</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.GetComponentInputServlet</servlet-class>
 	</servlet>
-	
+
+	<servlet>
+		<servlet-name>processDefinitionChanges</servlet-name>
+		<servlet-class>ru.runa.wf.web.servlet.ProcessDefinitionChangesServlet</servlet-class>
+	</servlet>
+
 	<servlet>
 		<servlet-name>version</servlet-name>            
 		<servlet-class>ru.runa.wf.web.servlet.VersionServlet</servlet-class>
 	</servlet>
-    
-	${enable.resteasy.start}
-	<context-param>
-		<param-name>resteasy.jndi.resources</param-name>
-		<param-value>
-			java:app/wfe-service-4.0.5/BotServiceBean!ru.runa.wfe.service.decl.BotServiceLocal
-		</param-value>
-	</context-param>
-	<servlet>
-		<servlet-name>resteasy</servlet-name>
-		<servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>resteasy</servlet-name>
-		<url-pattern>/rest/*</url-pattern>
-	</servlet-mapping>
-	${enable.resteasy.end}
 
 	<servlet-mapping>
 		<servlet-name>action</servlet-name>
@@ -159,11 +139,6 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>upload1095</servlet-name>
-		<url-pattern>/upload1095</url-pattern>
-	</servlet-mapping>
-	
-	<servlet-mapping>
 		<servlet-name>bulkUpload</servlet-name>
 		<url-pattern>/bulkUpload</url-pattern>
 	</servlet-mapping>
@@ -171,6 +146,11 @@
 	<servlet-mapping>
 		<servlet-name>getComponentInput</servlet-name>
 		<url-pattern>/getComponentInput</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>processDefinitionChanges</servlet-name>
+		<url-pattern>/processDefinitionChanges</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

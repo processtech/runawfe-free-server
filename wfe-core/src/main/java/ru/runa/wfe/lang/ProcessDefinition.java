@@ -21,14 +21,20 @@
  */
 package ru.runa.wfe.lang;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.definition.*;
+import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
+import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentContent;
+import ru.runa.wfe.definition.DeploymentData;
+import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.ProcessDefinitionAccessType;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.lang.jpdl.Action;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
@@ -36,10 +42,10 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class ProcessDefinition extends GraphElement implements IFileDataProvider {
     private static final long serialVersionUID = 1L;
@@ -58,7 +64,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     protected Map<String, SubprocessDefinition> embeddedSubprocesses = Maps.newHashMap();
     private Boolean nodeAsyncExecution;
     private boolean graphActionsEnabled;
-    private final ArrayList<VersionInfo> versionInfoList = Lists.newArrayList();
+    private final List<ProcessDefinitionChange> changes = Lists.newArrayList();
 
     protected ProcessDefinition() {
     }
@@ -146,7 +152,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
             if (listVariableDefinition != null) {
                 return new VariableDefinition(name, null, LongFormat.class.getName(), null);
             }
-            log.debug("Unable to build list size variable by name '" + name + "'");
+            log.debug("Unable to build list (map) size variable by name '" + name + "'");
             return null;
         }
         return buildVariable(name);
@@ -509,20 +515,20 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         }
     }
 
+    public void setChanges(List<ProcessDefinitionChange> changes) {
+        this.changes.addAll(changes);
+    }
+
+    public List<ProcessDefinitionChange> getChanges() {
+        return changes;
+    }
+
     @Override
     public String toString() {
         if (deployment != null) {
             return deployment.toString();
         }
         return name;
-    }
-
-    public void addToVersionInfoList(VersionInfo versionInfo) {
-        this.versionInfoList.add(versionInfo);
-    }
-
-    public ArrayList<VersionInfo> getVersionInfoList() {
-        return versionInfoList;
     }
 
     public DeploymentContent clearDeploymentContent() {

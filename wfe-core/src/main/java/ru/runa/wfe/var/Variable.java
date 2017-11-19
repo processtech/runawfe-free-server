@@ -48,18 +48,19 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
-import com.google.common.base.Objects;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.VariableUpdateLog;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.format.VariableFormat;
+import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
+
+import com.google.common.base.Objects;
 
 /**
  * Base class for classes that store variable values in the database.
@@ -169,13 +170,13 @@ public abstract class Variable<T extends Object> {
      */
     protected abstract void setStorableValue(T object);
 
-    private VariableLog getLog(Object oldValue, Object newValue, VariableFormat format) {
+    private VariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition) {
         if (oldValue == null) {
-            return new VariableCreateLog(this, newValue, format);
+            return new VariableCreateLog(this, newValue, variableDefinition);
         } else if (newValue == null) {
             return new VariableDeleteLog(this);
         } else {
-            return new VariableUpdateLog(this, oldValue, newValue, format);
+            return new VariableUpdateLog(this, oldValue, newValue, variableDefinition);
         }
     }
 
@@ -186,7 +187,7 @@ public abstract class Variable<T extends Object> {
         return converter != null && converter.supports(value);
     }
 
-    public VariableLog setValue(ExecutionContext executionContext, Object newValue, VariableFormat format) {
+    public VariableLog setValue(ExecutionContext executionContext, Object newValue, VariableDefinition variableDefinition) {
         Object newStorableValue;
         if (supports(newValue)) {
             if (converter != null && converter.supports(newValue)) {
@@ -199,12 +200,16 @@ public abstract class Variable<T extends Object> {
             throw new InternalApplicationException(this + " does not support new value '" + newValue + "' of '" + newValue.getClass() + "'");
         }
         Object oldValue = getStorableValue();
-        setStringValue(newValue != null ? toString(newValue, format) : null);
+        if (newValue == null || converter instanceof SerializableToByteArrayConverter) {
+            setStringValue(null);
+        } else {
+            setStringValue(toString(newValue, variableDefinition));
+        }
         if (converter != null && oldValue != null) {
             oldValue = converter.revert(oldValue);
         }
         setStorableValue((T) newStorableValue);
-        return getLog(oldValue, newValue, format);
+        return getLog(oldValue, newValue, variableDefinition);
     }
 
     @Transient
@@ -216,7 +221,7 @@ public abstract class Variable<T extends Object> {
         return value;
     }
 
-    public String toString(Object value, VariableFormat format) {
+    public String toString(Object value, VariableDefinition variableDefinition) {
         String string;
         if (SystemProperties.isV3CompatibilityMode() && value != null && String[].class == value.getClass()) {
             string = Arrays.toString((String[]) value);
@@ -225,9 +230,7 @@ public abstract class Variable<T extends Object> {
         } else {
             string = String.valueOf(value);
         }
-        if (string.length() > getMaxStringSize()) {
-            string = string.substring(0, getMaxStringSize());
-        }
+        string = Utils.getCuttedString(string, getMaxStringSize());
         return string;
     }
 

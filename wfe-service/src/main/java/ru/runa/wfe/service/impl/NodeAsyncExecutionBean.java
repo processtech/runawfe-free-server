@@ -7,6 +7,7 @@ import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
@@ -24,7 +25,6 @@ import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.lang.Node;
@@ -59,30 +59,36 @@ public class NodeAsyncExecutionBean implements MessageListener {
     public void onMessage(Message jmsMessage) {
         try {
             ObjectMessage message = (ObjectMessage) jmsMessage;
-            Long processId = message.getLongProperty("processId");
-            Long tokenId = message.getLongProperty("tokenId");
-            String nodeId = message.getStringProperty("nodeId");
-            log.debug("handling node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
-            handleMessage(processId, tokenId, nodeId);
+            handleMessage(message);
         } catch (Exception e) {
             log.error(jmsMessage, e);
+            Throwables.propagateIfInstanceOf(e, MessagePostponedException.class);
             throw new MessagePostponedException(e.getMessage());
         }
     }
 
-    private void handleMessage(final Long processId, final Long tokenId, final String nodeId) {
+    private void handleMessage(final ObjectMessage message) throws JMSException {
+        final Long processId = message.getLongProperty("processId");
+        final Long tokenId = message.getLongProperty("tokenId");
+        final String nodeId = message.getStringProperty("nodeId");
+        log.debug("handling node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
+        final boolean retry = message.getBooleanProperty("retry");
+        if (message.getJMSRedelivered() && !retry) {
+            log.debug("rejected due to redelivering");
+            return;
+        }
         try {
             new TransactionalExecutor(context.getUserTransaction()) {
 
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
                     Token token = tokenDAO.getNotNull(tokenId);
+                    if (token.getProcess().hasEnded()) {
+                        log.debug("Ignored execution in ended " + token.getProcess());
+                        return;
+                    }
                     if (!Objects.equal(nodeId, token.getNodeId())) {
                         throw new InternalApplicationException(token + " expected to be in node " + nodeId);
-                    }
-                    if (token.getProcess().getExecutionStatus() == ExecutionStatus.ENDED) {
-                        log.debug("Ignored " + token.getProcess() + " execution");
-                        return;
                     }
                     ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
                     Node node = processDefinition.getNodeNotNull(token.getNodeId());
@@ -104,6 +110,8 @@ public class NodeAsyncExecutionBean implements MessageListener {
             }
             TransactionListeners.reset();
         } catch (final Throwable th) {
+            // TODO does not work in case of timeout in handling transaction
+            // ARJUNA016051: thread is already associated with a transaction!
             Utils.failProcessExecution(context.getUserTransaction(), tokenId, th);
             throw new MessagePostponedException("process id = " + processId + ", token id = " + tokenId);
         }

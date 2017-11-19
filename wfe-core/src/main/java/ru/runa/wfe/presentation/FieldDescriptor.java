@@ -24,11 +24,11 @@ import java.util.Calendar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Objects;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
+
+import com.google.common.base.Objects;
 
 /**
  * Description for field, available via {@link ClassPresentation}. Contains almost all aspects of field behavior.
@@ -98,12 +98,6 @@ public class FieldDescriptor {
     public final DBSource[] dbSources;
 
     /**
-     * If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping. TODO: It's
-     * seems, what all weak field is a field with persistent class, differs from root and vice verse.
-     */
-    public final boolean isWeakJoin;
-
-    /**
      * Ordinal field index in {@link BatchPresentation}. All fields in {@link ClassPresentation} has -1, but {@link BatchPresentation} creates fields
      * with indexes using createConcretteField.
      */
@@ -121,7 +115,7 @@ public class FieldDescriptor {
      *            Struts property, which will be used to get field display name.
      * @param fieldType
      *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
+     * @param dbSource
      *            Components, to access field values from HQL/SQL.
      * @param sortable
      *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
@@ -130,10 +124,10 @@ public class FieldDescriptor {
      * @param fieldState
      *            Field display and HQL/SQL affecting state.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource dbSources, boolean sortable, FieldFilterMode filterMode,
+    public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, FieldFilterMode filterMode,
             FieldState fieldState) {
-        this(displayName, fieldType, new DBSource[] { dbSources }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, null, null,
-                false, -1, fieldState);
+        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, null, null,
+                -1, fieldState);
     }
 
     /**
@@ -157,7 +151,7 @@ public class FieldDescriptor {
     public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
             Object[] tdBuilderParams) {
         this(displayName, fieldType, new DBSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder,
-                tdBuilderParams, false, -1, null);
+                tdBuilderParams, -1, null);
     }
 
     /**
@@ -184,34 +178,14 @@ public class FieldDescriptor {
      */
     public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, int defaultSortOrder, boolean defaultSortMode,
             FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams) {
-        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams,
-                false, -1, null);
+        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
+                tdBuilderParams, -1, null);
     }
 
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSource
-     *            Component, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     * @param isWeakJoin
-     *            If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping.
-     */
-    public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
-            Object[] tdBuilderParams, boolean isWeakJoin) {
-        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder,
-                tdBuilderParams, isWeakJoin, -1, null);
+    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
+            String tdBuilder, Object[] tdBuilderParams) {
+        this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams, -1,
+                null);
     }
 
     /**
@@ -231,66 +205,13 @@ public class FieldDescriptor {
      *            Preferred way to get value of this field and show this field in web interface. (Class name)
      * @param tdBuilderParams
      *            Parameters, passed to tdBuilder constructor.
-     */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
-            Object[] tdBuilderParams) {
-        this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
-                false, -1, null);
-    }
-
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
-     *            Components, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     * @param isWeakJoin
-     *            If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping.
-     */
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
-            Object[] tdBuilderParams, boolean isWeakJoin) {
-        this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams,
-                isWeakJoin, -1, null);
-    }
-
-    /**
-     * Creates field description.
-     *
-     * @param displayName
-     *            Struts property, which will be used to get field display name.
-     * @param fieldType
-     *            Field type as class name (i. e. String.class.getName()).
-     * @param dbSources
-     *            Components, to access field values from HQL/SQL.
-     * @param sortable
-     *            Flag, equals true, if this field can be grouped or sorted; false otherwise.
-     * @param filterMode
-     *            Field filter mode.
-     * @param tdBuilder
-     *            Preferred way to get value of this field and show this field in web interface. (Class name)
-     * @param tdBuilderParams
-     *            Parameters, passed to tdBuilder constructor.
-     * @param isWeakJoin
-     *            If this field is true, JoinExpression (field.getJoinExpression()) is applied only if this field is sorting/filtering/grouping.
      * @param fieldIdx
      *            Ordinal field index in {@link BatchPresentation}.
      * @param fieldState
      *            Field display and HQL/SQL affecting state.
      */
     private FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, int defaultSortOrder,
-            boolean defaultSortMode, FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams, boolean isWeakJoin, int fieldIdx,
-            FieldState fieldState) {
+            boolean defaultSortMode, FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams, int fieldIdx, FieldState fieldState) {
         this.displayName = displayName;
         this.fieldType = fieldType;
         this.sortable = sortable;
@@ -300,7 +221,6 @@ public class FieldDescriptor {
         this.tdBuilder = tdBuilder;
         this.tdBuilderParams = tdBuilderParams;
         this.dbSources = dbSources;
-        this.isWeakJoin = isWeakJoin;
         this.fieldIdx = fieldIdx;
         this.fieldState = fieldState == null ? loadFieldState(displayName) : fieldState;
         if (filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION && sortable) {
@@ -335,7 +255,7 @@ public class FieldDescriptor {
      */
     public FieldDescriptor createConcreteField(int fieldIdx) {
         return new FieldDescriptor(displayName, fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
-                tdBuilderParams, isWeakJoin, fieldIdx, fieldState).setVisible(visible).setShowable(showable);
+                tdBuilderParams, fieldIdx, fieldState).setVisible(visible).setShowable(showable);
     }
 
     /**
@@ -352,8 +272,7 @@ public class FieldDescriptor {
             throw new InternalApplicationException("Field '" + displayName + "' is not editable");
         }
         return new FieldDescriptor(displayName.replace(ClassPresentation.editable_prefix, ClassPresentation.removable_prefix) + ":" + value,
-                fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams, isWeakJoin, fieldIdx,
-                fieldState);
+                fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams, fieldIdx, fieldState);
     }
 
     private Object loadedTDBuilder;

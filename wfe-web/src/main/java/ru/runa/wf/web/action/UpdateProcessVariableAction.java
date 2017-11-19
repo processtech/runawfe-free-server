@@ -26,13 +26,10 @@ import com.google.common.collect.Sets;
 
 /**
  * Created on 24.06.2014
- *
- * @struts:action path="/updateProcessVariable" name="commonProcessForm"
- *                validate="false"
- * @struts.action-forward name="success" path="/manage_process.do" redirect =
- *                        "true"
- * @struts.action-forward name="failure" path="/update_process_variables.do"
- *                        redirect = "false"
+ * 
+ * @struts:action path="/updateProcessVariable" name="commonProcessForm" validate="false"
+ * @struts.action-forward name="success" path="/manage_process.do" redirect = "true"
+ * @struts.action-forward name="failure" path="/update_process_variables.do" redirect = "false"
  */
 public class UpdateProcessVariableAction extends ActionBase {
     public static final String ACTION_PATH = "/updateProcessVariable";
@@ -65,7 +62,7 @@ public class UpdateProcessVariableAction extends ActionBase {
             addError(request, e);
             return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), params);
         }
-        FormSubmissionUtils.getUploadedFilesMap(request).clear();
+        FormSubmissionUtils.clearUserInputFiles(request);
         return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), params);
     }
 
@@ -90,7 +87,7 @@ public class UpdateProcessVariableAction extends ActionBase {
         if (Boolean.FALSE.equals(value)) {
             return true;
         }
-        if (TypeConversionUtil.isList(value) && TypeConversionUtil.isEmptyList(value)) {
+        if (TypeConversionUtil.isList(value) && TypeConversionUtil.getListSize(value) == 0) {
             return true;
         }
         return false;

@@ -1,7 +1,9 @@
 package ru.runa.wfe.user.dao;
 
+import java.util.List;
 import java.util.Set;
 
+import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
@@ -53,4 +55,20 @@ public interface IExecutorDAO extends IExecutorLoader {
      */
     public Set<Actor> getGroupActors(Group group);
 
+    /**
+     * Returns group children (first level children, not recursively).</br> For example G1 contains G2, G2 contains A1 and A2. In this case:</br>
+     * <code> getGroupChildren(G2) == {A1, A2}</code><br/>
+     * <code> getGroupChildren(G1) == {G2} </code>
+     * 
+     * @param group
+     *            A group to load children's from.
+     * @param batchPresentation
+     *            As {@linkplain BatchPresentation} of array returned.
+     * @return Array of group children.
+     */
+    public Set<Executor> getGroupChildren(Group group);
+
+    public List<Executor> getExecutorsLikeName(String nameTemplate);
+
+    public boolean isAdministrator(Actor actor);
 }

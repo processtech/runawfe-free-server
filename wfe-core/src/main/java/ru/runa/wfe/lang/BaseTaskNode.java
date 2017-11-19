@@ -13,8 +13,9 @@ import ru.runa.wfe.task.TaskFactory;
 import ru.runa.wfe.task.dao.TaskDAO;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
-public abstract class BaseTaskNode extends InteractionNode implements Synchronizable {
+public abstract class BaseTaskNode extends InteractionNode implements BoundaryEventContainer, Synchronizable {
     private static final long serialVersionUID = 1L;
 
     @Autowired
@@ -26,6 +27,12 @@ public abstract class BaseTaskNode extends InteractionNode implements Synchroniz
 
     protected boolean async;
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
+    private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
+
+    @Override
+    public List<BoundaryEvent> getBoundaryEvents() {
+        return boundaryEvents;
+    }
 
     @Override
     public boolean isAsync() {
@@ -49,7 +56,7 @@ public abstract class BaseTaskNode extends InteractionNode implements Synchroniz
 
     public void endTokenTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo) {
         List<Task> tasks = taskDAO.findByToken(executionContext.getToken());
-        log.info("Ending " + executionContext.getToken() + " tasks " + tasks + " with " + taskCompletionInfo);
+        log.debug("Ending " + executionContext.getToken() + " tasks " + tasks + " with " + taskCompletionInfo);
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
                 if (Objects.equal(task.getNodeId(), getNodeId())) {

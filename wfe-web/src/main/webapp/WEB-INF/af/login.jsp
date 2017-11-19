@@ -1,3 +1,4 @@
+<%@page import="ru.runa.common.Version"%>
 <%@ page language="java" pageEncoding="UTF-8" session="false" %>
 <%@ page import="java.net.URLDecoder" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -6,12 +7,19 @@
 <% 
 	String userName = request.getParameter("login") == null ? "" : URLDecoder.decode(request.getParameter("login"), "utf-8");
 	String userPwd = request.getParameter("password") == null ? "" : URLDecoder.decode(request.getParameter("password"), "utf-8");
+	String forwardUrl = request.getAttribute("forwardUrl") == null ? "" : URLDecoder.decode(request.getAttribute("forwardUrl").toString(), "utf-8");
+	if (forwardUrl.contains("/wfe")){
+		forwardUrl = forwardUrl.substring("/wfe".length());
+	}
+	if (request.getQueryString() != null && request.getQueryString().isEmpty() != true){
+		forwardUrl += "?" + request.getQueryString();
+	}
 %>
 
 <html:html lang="true">
   <head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-	<link rel="stylesheet" type="text/css" href="<html:rewrite page="/css/main.css" />">
+	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/main.css?"+Version.getHash() %>' />">
   </head>
 	<body>
 	<center>
@@ -26,7 +34,7 @@
 							<tr>
 								<td  align="left" colspan="2" target="new">
 									<a href="http://runawfe.org">
-										<img  border="0" src="<html:rewrite page="/images/big_logo.png"/>" alt="Runa WFE">
+										<img  border="0" src="<html:rewrite page="/images/big_logo.gif"/>" alt="Runa WFE">
 									</a>
 								</td>
 							</tr>
@@ -40,6 +48,7 @@
 			  				</tr>
 							<tr>
 								<td>
+									<input type="hidden" name="forwardUrl" value="<%= forwardUrl %>">
 									<html:submit>
 										<bean:message key="login.page.login.button"/>
 									</html:submit>

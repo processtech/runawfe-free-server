@@ -45,6 +45,7 @@ public class QuickFormBuilder extends FtlFormBuilder {
                 int index = 0;
                 for (Element paramElement : paramElements) {
                     if (index == 0) {
+                        // TODO excessive variable value invocation
                         WfVariable variable = variableProvider.getVariableNotNull(paramElement.getText());
                         quickFormVariable.setName(variable.getDefinition().getName());
                         quickFormVariable.setScriptingName(variable.getDefinition().getScriptingName());

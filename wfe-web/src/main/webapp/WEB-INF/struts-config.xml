@@ -22,6 +22,7 @@
 		<form-bean name="idForm" type="ru.runa.common.web.form.IdForm" />
 		<form-bean name="idVersionForm" type="ru.runa.common.web.form.IdVersionForm" />
 		<form-bean name="idNameForm" type="ru.runa.common.web.form.IdNameForm" />
+		<form-bean name="startProcessForm" type="ru.runa.wf.web.form.StartProcessForm" />
 		<form-bean name="updatePasswordForm" type="ru.runa.af.web.form.UpdatePasswordForm" />
 		<form-bean name="setSortingForm" type="ru.runa.common.web.form.SetSortingForm" />
 		<form-bean name="botForm" type="ru.runa.af.web.form.BotForm" />
@@ -83,6 +84,7 @@
 		<forward name="manage_processes"
 			path="/manage_processes.do?tabForwardName=manage_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
+		<forward name="manage_observable_tasks" path="/manage_observable_tasks.do?tabForwardName=manage_observable_tasks" />
 		<forward name="configure_bot_station"
 			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
 		<forward name="bot_station_permission" path="/bot_station_permission.do" />
@@ -239,7 +241,7 @@
 			<forward name="failure" path="/manage_system.do" redirect="false" />
 		</action>
 		<action path="/startProcess" type="ru.runa.wf.web.action.StartProcessAction"
-			name="idForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
+			name="startProcessForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
 			unknown="false" validate="true">
 			<forward name="success" path="/manage_process_definitions.do"
 				redirect="true" />
@@ -280,6 +282,10 @@
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
+		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
+			<forward name="success" path="/manage_system.do" redirect="true" />
+			<forward name="failure" path="/manage_system.do" redirect="true" />
+		</action>
 		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
 			name="idForm" scope="request">
 			<forward name="success" path="/manage_process.do" redirect="true" />
@@ -296,6 +302,12 @@
 			unknown="false" validate="true">
 			<forward name="success" path="/manage_process.do" redirect="true" />
 			<forward name="failure" path="/manage_process.do" redirect="true" />
+		</action>
+		<action path="/upgradeProcessesToDefinitionVersion" type="ru.runa.wf.web.action.UpgradeProcessesToDefinitionVersionAction"
+				name="idVersionForm" scope="request" input="/WEB-INF/wf/manage_process.jsp"
+				unknown="false" validate="true">
+			<forward name="success" path="/manage_process_definition.do" redirect="true" />
+			<forward name="failure" path="/manage_process_definition.do" redirect="true" />
 		</action>
 		<action path="/processDefinitionArchive"
 			type="ru.runa.wf.web.action.LoadProcessDefinitionArchiveAction" name="idForm"
@@ -444,6 +456,12 @@
 				redirect="true" />
 			<forward name="failure" path="/manage_process_definition.do"
 				redirect="false" />
+		</action>
+		<action path="/setProcessDefinitionSubprocessBindingDate"
+			type="ru.runa.wf.web.action.SetProcessDefinitionSubprocessBindingDateAction" name="idForm"
+			scope="request" unknown="false" validate="false">
+			<forward name="success" path="/manage_process_definition.do"
+				redirect="true" />
 		</action>
 		<action path="/grantReadPermissionOnProcessDefinition"
 			type="ru.runa.wf.web.action.GrantPermissionsOnProcessDefinitionAction"
@@ -856,8 +874,11 @@
 		<action path="/submit_start_process" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_start_process.jsp" />
 
-		<action path="/manage_tasks" type="ru.runa.common.web.action.TabHeaderForwardAction"
+		<action path="/manage_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
 			parameter="/WEB-INF/wf/manage_tasks.jsp" />
+
+		<action path="/manage_observable_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
+			parameter="/WEB-INF/wf/manage_observable_tasks.jsp" />
 
 		<action path="/submit_task" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_task.jsp" />

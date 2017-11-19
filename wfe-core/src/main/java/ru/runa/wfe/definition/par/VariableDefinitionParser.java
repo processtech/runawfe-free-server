@@ -14,6 +14,7 @@ import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableStoreType;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -33,6 +34,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String SCRIPTING_NAME = "scriptingName";
     private static final String USER_TYPE = "usertype";
     private static final String DESCRIPTION = "description";
+    private static final String STORE_TYPE = "storeType";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -122,7 +124,10 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 LogFactory.getLog(getClass()).error("Unable to format default value '" + name + "' in " + processDefinition, e);
             }
         }
+        String storeTypeString = element.attributeValue(STORE_TYPE);
+        if (!Strings.isNullOrEmpty(storeTypeString)) {
+            variableDefinition.setStoreType(VariableStoreType.valueOf(storeTypeString.toUpperCase()));
+        }
         return variableDefinition;
     }
-
 }

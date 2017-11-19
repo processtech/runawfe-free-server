@@ -62,10 +62,10 @@ public class Interaction implements Serializable {
 
     public Interaction(Node node, String type, byte[] formData, byte[] validationData, boolean useJSValidation, byte[] processScriptData,
             byte[] formScriptData, byte[] cssData, byte[] templateData) {
-        this.nodeId = null == node.getNodeId() ? null : node.getNodeId().intern();
-        this.name = null == node.getName() ? null : node.getName().intern();
-        this.description = node.getDescription() != null ? node.getDescription().intern() : "";
-        this.type = null == type ? null : type.intern();
+        this.nodeId = node.getNodeId();
+        this.name = node.getName();
+        this.description = node.getDescription() != null ? node.getDescription() : "";
+        this.type = type;
         this.formData = formData;
         this.validationData = validationData;
         this.useJSValidation = useJSValidation;

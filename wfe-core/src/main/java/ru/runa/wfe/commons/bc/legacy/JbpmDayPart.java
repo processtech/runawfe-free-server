@@ -28,7 +28,7 @@ import ru.runa.wfe.commons.CalendarUtil;
 
 /**
  * is part of a day that can for example be used to represent business hours.
- * 
+ *
  * modified on 06.03.2009 by gavrusev_sergei
  */
 public class JbpmDayPart {
@@ -50,8 +50,8 @@ public class JbpmDayPart {
         String fromText = dayPartText.substring(0, separatorIndex).trim().toLowerCase();
         String toText = dayPartText.substring(separatorIndex + 1).trim().toLowerCase();
 
-        Date from = CalendarUtil.convertToDate(fromText, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
-        Date to = CalendarUtil.convertToDate(toText, CalendarUtil.HOURS_MINUTES_FORMAT_STR);
+        Date from = CalendarUtil.convertToDate(fromText, CalendarUtil.HOURS_MINUTES_FORMAT);
+        Date to = CalendarUtil.convertToDate(toText, CalendarUtil.HOURS_MINUTES_FORMAT);
 
         Calendar calendar = getCalendarWithDate(from);
         fromHour = calendar.get(Calendar.HOUR_OF_DAY);

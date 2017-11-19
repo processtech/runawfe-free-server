@@ -134,8 +134,10 @@ public class GroovyScriptExecutor implements IScriptExecutor {
                 if (Objects.equal(entry.getKey(), VARIABLE_PROVIDER_VARIABLE_NAME)) {
                     continue;
                 }
-                if (entry.getValue() instanceof ScriptingUserTypeMap && userTypeMaps.containsKey(entry.getKey())) {
-                    continue;
+                if (entry.getValue() instanceof ScriptingUserTypeMap) {
+                    if (Objects.equal(entry.getValue(), userTypeMaps.get(entry.getKey()))) {
+                        continue;
+                    }
                 }
                 Object oldValue = getVariableFromProcess(entry.getKey());
                 if (Objects.equal(oldValue, entry.getValue())) {

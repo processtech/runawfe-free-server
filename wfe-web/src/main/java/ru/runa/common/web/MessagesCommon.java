@@ -5,6 +5,8 @@ public final class MessagesCommon {
 
     // Forward menu (left main menu items) -> User tasks.
     public static final StrutsMessage MAIN_MENU_ITEM_TASKS = new StrutsMessage("manage_tasks");
+    // Forward menu (left main menu items) -> All tasks.
+    public static final StrutsMessage MAIN_MENU_ITEM_OBSERVABLE_TASKS = new StrutsMessage("manage_observable_tasks");
     // Forward menu (left main menu items) -> Process definitions.
     public static final StrutsMessage MAIN_MENU_ITEM_DEFINITIONS = new StrutsMessage("manage_definitions");
     // Forward menu (left main menu items) -> Started processes.
@@ -40,6 +42,7 @@ public final class MessagesCommon {
     public static final StrutsMessage BUTTON_SAVE_AS = new StrutsMessage("button.save_as");
     // Create
     public static final StrutsMessage BUTTON_CREATE = new StrutsMessage("button.create");
+    public static final StrutsMessage BUTTON_CHANGE = new StrutsMessage("button.change");
     // Update
     public static final StrutsMessage BUTTON_UPDATE = new StrutsMessage("button.update");
 

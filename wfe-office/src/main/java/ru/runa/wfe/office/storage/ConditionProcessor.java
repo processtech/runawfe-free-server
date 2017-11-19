@@ -127,7 +127,7 @@ public class ConditionProcessor {
                 }
             } else {
                 sb.append(SPACE);
-                if (previousAttributeValue != null && (previousAttributeValue instanceof Date) && operators.contains(previousOperator)) {
+                if (previousAttributeValue != null && previousAttributeValue instanceof Date && operators.contains(previousOperator)) {
                     // handle date string value. For example: [startDate] > '16.05.2015'
                     sb.append(getTime(token));
                 } else {
@@ -145,9 +145,9 @@ public class ConditionProcessor {
         source = source.replaceAll("'", "");
         Date date = null;
         try {
-            date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+            date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
         } catch (InternalApplicationException e) {
-            date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+            date = CalendarUtil.convertToDate(source, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
         } catch (Exception e) {
             log.error(String.format("error parse date [%s]", source));
             throw Throwables.propagate(e);

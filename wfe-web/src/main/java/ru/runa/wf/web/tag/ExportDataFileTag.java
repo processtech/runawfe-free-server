@@ -11,7 +11,6 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.VisibleTag;
@@ -66,7 +65,7 @@ public class ExportDataFileTag extends VisibleTag {
 
     @Override
     public boolean isVisible() {
-        return WebResources.getBooleanProperty("action.datafile.enabled", false);
+        return WebResources.isImportExportEnabled();
     }
 
     protected String getTitle() {

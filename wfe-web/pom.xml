@@ -297,10 +297,6 @@
 					<name>appserver</name>
 				</property>
 			</activation>
-			<properties>
-				<enable.resteasy.start></enable.resteasy.start>
-				<enable.resteasy.end></enable.resteasy.end>
-			</properties>
 		</profile>
 		<profile>
 			<id>simulation</id>
@@ -312,8 +308,8 @@
 							<execution>
 								<phase>prepare-package</phase>
 								<configuration>
-									<target>
-										<copy file="src/main/simulation/webapp/images/big_logo.png" tofile="${project.build.directory}/wfe-web-${project.version}/images/big_logo.png"
+									<tasks>
+										<copy file="src/main/webapp/images/big_logo.gif" tofile="${project.build.directory}/wfe-web-${project.version}/images/big_logo.gif"
 											overwrite="true" />
 										<copy file="src/main/webapp/WEB-INF/af/login.jsp" tofile="${project.build.directory}/wfe-web-${project.version}/WEB-INF/af/login.jsp"
 											overwrite="true" />
@@ -345,7 +341,7 @@ if ( pr == null || !pr.trim().toLowerCase().equals("true") ){
 <% } %>
 ]]></replacevalue>
 										</replace>
-									</target>
+									</tasks>
 								</configuration>
 								<goals>
 									<goal>run</goal>

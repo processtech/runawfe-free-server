@@ -4,8 +4,6 @@ import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.hibernate.Session;
-
 import ru.runa.wfe.audit.aggregated.AssignmentHistory;
 import ru.runa.wfe.audit.aggregated.ProcessInstanceAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
@@ -108,7 +106,4 @@ public class CreateAggregatedLogsTables extends DBPatch {
         return sql;
     }
 
-    @Override
-    protected void applyPatch(Session session) throws Exception {
-    }
 }

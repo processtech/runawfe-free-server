@@ -62,7 +62,7 @@ public class TaskCreateLog extends TaskLog {
         if (dateAsString == null) {
             return null;
         }
-        return CalendarUtil.convertToDate(dateAsString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT_STR);
+        return CalendarUtil.convertToDate(dateAsString, CalendarUtil.DATE_WITH_HOUR_MINUTES_FORMAT);
     }
 
     @Override

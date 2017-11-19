@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -34,16 +35,20 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.BaseMessageNode;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
@@ -54,6 +59,8 @@ public class Utils {
     private static Queue bpmMessageQueue;
     private static Queue emailQueue;
     private static Queue nodeAsyncExecutionQueue;
+    private static final String MESSAGE_SELECTOR_DELIMITER = ",";
+    private static final String MESSAGE_SELECTOR_VALUE_DELIMITER = "=";
 
     private static InitialContext getInitialContext() throws NamingException {
         if (initialContext == null) {
@@ -184,7 +191,71 @@ public class Utils {
         Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
     }
 
-    public static void sendNodeAsyncExecutionMessage(Long processId, Long tokenId, String nodeId) {
+    public static String getMessageSelectorValue(IVariableProvider variableProvider, BaseMessageNode messageNode, VariableMapping mapping) {
+        String testValue = mapping.getMappedName();
+        if (Variables.CURRENT_PROCESS_ID_WRAPPED.equals(testValue) || "${currentInstanceId}".equals(testValue)) {
+            return String.valueOf(variableProvider.getProcessId());
+        } else if (Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED.equals(testValue)) {
+            return variableProvider.getProcessDefinitionName();
+        } else if (Variables.CURRENT_NODE_NAME_WRAPPED.equals(testValue)) {
+            return messageNode.getName();
+        } else if (Variables.CURRENT_NODE_ID_WRAPPED.equals(testValue)) {
+            return messageNode.getNodeId();
+        } else {
+            Object value = ExpressionEvaluator.evaluateVariable(variableProvider, testValue);
+            return TypeConversionUtil.convertTo(String.class, value);
+        }
+    }
+
+    public static String getReceiveMessageNodeSelector(IVariableProvider variableProvider, BaseMessageNode messageNode) {
+        List<String> selectors = Lists.newArrayList();
+        if (messageNode.getEventType() == MessageEventType.error && messageNode.getParentElement() instanceof Node) {
+            selectors.add(BaseMessageNode.EVENT_TYPE + MESSAGE_SELECTOR_VALUE_DELIMITER + MessageEventType.error.name());
+            selectors
+                    .add(BaseMessageNode.ERROR_EVENT_PROCESS_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + String.valueOf(variableProvider.getProcessId()));
+            selectors.add(BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER
+                    + ((Node) messageNode.getParentElement()).getNodeId());
+        } else {
+            for (VariableMapping mapping : messageNode.getVariableMappings()) {
+                if (mapping.isPropertySelector()) {
+                    selectors.add(mapping.getName() + MESSAGE_SELECTOR_VALUE_DELIMITER
+                            + getMessageSelectorValue(variableProvider, messageNode, mapping));
+                }
+            }
+        }
+        Collections.sort(selectors);
+        return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(selectors);
+    }
+
+    public static String getObjectMessageStrictSelector(ObjectMessage message) throws JMSException {
+        return Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(getObjectMessageSelectorSelectors(message));
+    }
+
+    public static Set<String> getObjectMessageCombinationSelectors(ObjectMessage message) throws JMSException {
+        List<String> selectors = getObjectMessageSelectorSelectors(message);
+        Set<String> result = Sets.newHashSet();
+        for (Set<String> set : Sets.powerSet(Sets.newHashSet(selectors))) {
+            List<String> list = Lists.newArrayList(set);
+            Collections.sort(list);
+            result.add(Joiner.on(MESSAGE_SELECTOR_DELIMITER).join(list));
+        }
+        return result;
+    }
+
+    private static List<String> getObjectMessageSelectorSelectors(ObjectMessage message) throws JMSException {
+        List<String> selectors = Lists.newArrayList();
+        Enumeration<String> propertyNames = message.getPropertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String propertyName = propertyNames.nextElement();
+            if (!propertyName.startsWith("JMS")) {
+                selectors.add(propertyName + MESSAGE_SELECTOR_VALUE_DELIMITER + message.getStringProperty(propertyName));
+            }
+        }
+        Collections.sort(selectors);
+        return selectors;
+    }
+
+    public static void sendNodeAsyncExecutionMessage(Token token, boolean retry) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -194,10 +265,11 @@ public class Utils {
             session = connection.createSession(true, Session.SESSION_TRANSACTED);
             sender = session.createProducer(nodeAsyncExecutionQueue);
             ObjectMessage message = session.createObjectMessage();
-            message.setLongProperty("processId", processId);
-            message.setLongProperty("tokenId", tokenId);
-            message.setStringProperty("nodeId", nodeId);
-            log.debug("sending node async execution request: {processId=" + processId + ", tokenId=" + tokenId + ", nodeId=" + nodeId + "}");
+            message.setLongProperty("processId", token.getProcess().getId());
+            message.setLongProperty("tokenId", token.getId());
+            message.setStringProperty("nodeId", token.getNodeId());
+            message.setBooleanProperty("retry", retry);
+            log.debug("sending node async execution request for " + token + ", retry=" + retry + "}");
             sender.send(message);
         } catch (Exception e) {
             throw Throwables.propagate(e);
@@ -231,7 +303,7 @@ public class Utils {
     public static String toString(ObjectMessage message, boolean html) {
         try {
             StringBuffer buffer = new StringBuffer();
-            buffer.append(message.toString());
+            buffer.append(message.getJMSMessageID());
             buffer.append(html ? "<br>" : "\n");
             if (message.getJMSExpiration() != 0) {
                 buffer.append("{JMSExpiration=").append(CalendarUtil.formatDateTime(new Date(message.getJMSExpiration()))).append("}");
@@ -303,14 +375,27 @@ public class Utils {
         return false;
     }
 
+    /**
+     * Check strings equality with trimming (Oracle specifics: null == '' == ' ').
+     */
+    public static boolean stringsEqual(String string1, String string2) {
+        if (string1 == null) {
+            return string2 == null || string2.trim().length() == 0;
+        }
+        if (string2 == null) {
+            return string1.trim().length() == 0;
+        }
+        return string1.trim().equals(string2.trim());
+    }
+
     public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
         new TransactionalExecutor(transaction) {
 
             @Override
             protected void doExecuteInTransaction() throws Exception {
                 Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
-                if (token.getExecutionStatus() != ExecutionStatus.FAILED) {
-                    token.fail(throwable);
+                boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
+                if (stateChanged) {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
                     ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
                     processError.setThrowable(throwable);
@@ -318,6 +403,37 @@ public class Utils {
                 }
             }
         }.executeInTransaction(true);
+    }
+
+    public static String getCuttedString(String string, int limit) {
+        if (string != null && string.length() > limit) {
+            return string.substring(0, limit);
+        }
+        return string;
+    }
+
+    public static Object getContainerCopy(Object object) {
+        if (object instanceof List) {
+            List copy = Lists.newArrayList();
+            for (Object item : (List) object) {
+                copy.add(getContainerCopy(item));
+            }
+            return copy;
+        } else if (object instanceof UserTypeMap) {
+            UserTypeMap userTypeMap = (UserTypeMap) object;
+            UserTypeMap copy = new UserTypeMap(userTypeMap.getUserType());
+            for (Map.Entry<String, Object> entry : userTypeMap.entrySet()) {
+                copy.put(entry.getKey(), getContainerCopy(entry.getValue()));
+            }
+            return copy;
+        } else if (object instanceof Map) {
+            Map copy = Maps.newHashMap();
+            for (Map.Entry entry : ((Map<Object, Object>) object).entrySet()) {
+                copy.put(entry.getKey(), getContainerCopy(entry.getValue()));
+            }
+            return copy;
+        }
+        return object;
     }
 
 }

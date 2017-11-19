@@ -40,7 +40,7 @@ import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.extension.TaskHandler;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
-import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.dto.WfNode;
 import ru.runa.wfe.service.client.DelegateTaskVariableProvider;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDoesNotExistException;
@@ -221,7 +221,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             log.error("Error execution " + this, th);
             logBotError(task, th);
             executionStatus = WorkflowBotTaskExecutionStatus.FAILED;
-            Node node = Delegates.getDefinitionService().getNode(botExecutor.getUser(), task.getDefinitionId(), task.getNodeId());
+            WfNode node = Delegates.getDefinitionService().getNode(botExecutor.getUser(), task.getDefinitionId(), task.getNodeId());
             if (node != null && node.hasErrorEventHandler() && !(th instanceof ConfigurationException)) {
                 new TransactionalExecutor() {
 

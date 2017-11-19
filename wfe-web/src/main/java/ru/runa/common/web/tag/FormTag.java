@@ -152,9 +152,13 @@ abstract public class FormTag extends VisibleTag {
         formElementTD.setClass(Resources.CLASS_BOX_BODY);
         formElementTR.addElement(formElementTD);
         fillFormElement(formElementTD);
-        if (isFormButtonVisible()) {
+        if (getAction() != null) {
             form.setAction(Commons.getActionUrl(getAction(), getFormButtonParam(), pageContext, PortletUrlType.Action));
+        }
+        if (getMethod() != null) {
             form.setMethod(getMethod());
+        }
+        if (isFormButtonVisible()) {
             TR tr = new TR();
             table.addElement(tr);
             TD td = new TD();

@@ -1,5 +1,7 @@
 package ru.runa.wfe.report.impl;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.report.ParameterValidationResult;
 import ru.runa.wfe.report.ReportParameterType.ReportParameterTypeVisitor;
@@ -17,19 +19,19 @@ public class ReportParameterValidateOperation implements ReportParameterTypeVisi
             Long.parseLong(parameterModel.getValue());
             return ParameterValidationResult.correctValidationResult();
         } catch (Exception e) {
-            return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Value " + parameterModel.getValue()
-                    + " is not all digits");
+            return ParameterValidationResult.errorValidationResult(parameterModel.getName(),
+                    "Value " + parameterModel.getValue() + " is not all digits");
         }
     }
 
     @Override
     public ParameterValidationResult onDate(ReportParameterModel parameterModel) {
         try {
-            CalendarUtil.convertToDate(parameterModel.getValue(), CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+            CalendarUtil.convertToDate(parameterModel.getValue(), CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
             return ParameterValidationResult.correctValidationResult();
         } catch (Exception e) {
-            return ParameterValidationResult.errorValidationResult(parameterModel.getName(), "Value " + parameterModel.getValue()
-                    + " is not correct date");
+            return ParameterValidationResult.errorValidationResult(parameterModel.getName(),
+                    "Value " + parameterModel.getValue() + " is not correct date");
         }
     }
 
@@ -58,7 +60,45 @@ public class ReportParameterValidateOperation implements ReportParameterTypeVisi
     }
 
     @Override
-    public ParameterValidationResult onSwimlane(ReportParameterModel data) {
+    public ParameterValidationResult onSwimlane(ReportParameterModel parameterModel) {
+        return ParameterValidationResult.correctValidationResult();
+    }
+
+    @Override
+    public ParameterValidationResult onActorId(ReportParameterModel parameterModel) {
+        return onExecutorId(parameterModel);
+    }
+
+    @Override
+    public ParameterValidationResult onGroupId(ReportParameterModel parameterModel) {
+        return onExecutorId(parameterModel);
+    }
+
+    @Override
+    public ParameterValidationResult onExecutorId(ReportParameterModel parameterModel) {
+        try {
+            if (!Strings.isNullOrEmpty(parameterModel.getValue())) {
+                Long.parseLong(parameterModel.getValue());
+            }
+            return ParameterValidationResult.correctValidationResult();
+        } catch (Exception e) {
+            return ParameterValidationResult.errorValidationResult(parameterModel.getName(),
+                    "Value " + parameterModel.getValue() + " is not all digits");
+        }
+    }
+
+    @Override
+    public ParameterValidationResult onActorName(ReportParameterModel parameterModel) {
+        return ParameterValidationResult.correctValidationResult();
+    }
+
+    @Override
+    public ParameterValidationResult onGroupName(ReportParameterModel parameterModel) {
+        return ParameterValidationResult.correctValidationResult();
+    }
+
+    @Override
+    public ParameterValidationResult onExecutorName(ReportParameterModel parameterModel) {
         return ParameterValidationResult.correctValidationResult();
     }
 }

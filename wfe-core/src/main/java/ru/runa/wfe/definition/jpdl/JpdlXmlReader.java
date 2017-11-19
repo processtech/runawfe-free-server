@@ -21,6 +21,8 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.logic.SwimlaneUtils;
 import ru.runa.wfe.job.TimerJob;
+import ru.runa.wfe.lang.Action;
+import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
@@ -44,8 +46,6 @@ import ru.runa.wfe.lang.TaskDefinition;
 import ru.runa.wfe.lang.TaskNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.lang.VariableContainerNode;
-import ru.runa.wfe.lang.jpdl.Action;
-import ru.runa.wfe.lang.jpdl.ActionEvent;
 import ru.runa.wfe.lang.jpdl.CancelTimerAction;
 import ru.runa.wfe.lang.jpdl.Conjunction;
 import ru.runa.wfe.lang.jpdl.CreateTimerAction;
@@ -253,18 +253,6 @@ public class JpdlXmlReader {
             taskDefinition.setReassignSwimlane(Boolean.valueOf(element.attributeValue(REASSIGN, "false")));
             taskDefinition.setReassignSwimlaneToTaskPerformer(Boolean.valueOf(element.attributeValue(REASSIGN_SWIMLANE_TO_TASK_PERFORMER, "true")));
             taskDefinition.setIgnoreSubsitutionRules(Boolean.valueOf(element.attributeValue(IGNORE_SUBSTITUTION_RULES, "false")));
-        } else {
-            if (node instanceof MultiTaskNode && ((MultiTaskNode) node).getCreationMode() != MultiTaskCreationMode.BY_EXECUTORS) {
-            } else if (waitStateCompatibility) {
-                processDefinition.removeNode(node);
-                WaitNode waitNode = new WaitNode();
-                waitNode.setProcessDefinition(processDefinition);
-                readNode(processDefinition, element.getParent(), waitNode);
-                return;
-            } else {
-                throw new InvalidDefinitionException(processDefinition.getName(),
-                        "process xml information: no swimlane or assignment specified for task '" + taskDefinition + "'");
-            }
         }
     }
 
@@ -383,7 +371,8 @@ public class JpdlXmlReader {
             if (SystemProperties.isV3CompatibilityMode()) {
                 name = element.attributeValue(NAME_ATTR, node.getName());
             } else {
-                name = node.getNodeId() + "/timer-" + timerNumber++;
+                name = node.getNodeId() + (TimerJob.ESCALATION_NAME.equals(element.attributeValue(NAME_ATTR)) ? "/" + TimerJob.ESCALATION_NAME : "")
+                        + "/timer-" + timerNumber++;
             }
             CreateTimerAction createTimerAction = ApplicationContextFactory.createAutowiredBean(CreateTimerAction.class);
             createTimerAction.setNodeId(node.getNodeId());

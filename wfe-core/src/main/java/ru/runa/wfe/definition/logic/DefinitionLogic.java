@@ -17,12 +17,15 @@
  */
 package ru.runa.wfe.definition.logic;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.dom4j.Document;
-import org.dom4j.Element;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -31,11 +34,19 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CheckMassPermissionCallback;
 import ru.runa.wfe.commons.logic.IgnoreDeniedPermissionCallback;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
-import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.*;
+import ru.runa.wfe.definition.DefinitionAlreadyExistException;
+import ru.runa.wfe.definition.DefinitionArchiveFormatException;
+import ru.runa.wfe.definition.DefinitionDoesNotExistException;
+import ru.runa.wfe.definition.DefinitionNameMismatchException;
+import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentContent;
+import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.InvalidDefinitionException;
+import ru.runa.wfe.definition.ProcessDefinitionChange;
+import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dao.DeploymentContentDAO;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.definition.par.CommentsParser;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
@@ -56,7 +67,9 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
-import java.util.*;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Created on 15.03.2005
@@ -127,22 +140,26 @@ public class DefinitionLogic extends WFCommonLogic {
             throw new DefinitionNameMismatchException("Expected definition name " + oldDeployment.getName(), newDefinition.getName(),
                     oldDeployment.getName());
         }
-
-        ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment);
-        boolean containsAllPreviousComments = newDefinition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
-        if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
-            if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier "
-                        + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
+        try {
+            ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment);
+            boolean containsAllPreviousComments = newDefinition.getChanges().containsAll(oldDefinition.getChanges());
+            if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
+                if (containsAllPreviousComments != true) {
+                    throw new InternalApplicationException(
+                            "The new version of definition must contains all version comments which exists in earlier "
+                                    + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
+                }
             }
-        }
-        if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
-            if (containsAllPreviousComments && newDefinition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
-                throw new InternalApplicationException("The new version of definition must contains more than "
-                        + oldDefinition.getVersionInfoList().size() + " version comments. Uploaded definition contains "
-                        + newDefinition.getVersionInfoList().size()
-                        + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
+            if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
+                if (containsAllPreviousComments && newDefinition.getChanges().size() == oldDefinition.getChanges().size()) {
+                    throw new InternalApplicationException("The new version of definition must contains more than "
+                            + oldDefinition.getChanges().size() + " version comments. Uploaded definition contains "
+                            + newDefinition.getChanges().size()
+                            + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
+                }
             }
+        } catch (InvalidDefinitionException e) {
+            log.warn(oldDeployment + ": " + e);
         }
 
         deploymentContentDAO.deploy(redeployDeploymentContent, oldDeployment);
@@ -152,7 +169,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     /**
      * Updates process definition.
-     * 
+     *
      * @param user
      * @param definitionId
      * @param processArchiveBytes
@@ -178,20 +195,18 @@ public class DefinitionLogic extends WFCommonLogic {
             throw new DefinitionNameMismatchException("Expected definition name " + oldDeploymentContent.getName(), uploadedDefinition.getName(),
                     oldDeploymentContent.getName());
         }
-
         final ProcessDefinition oldDefinition = parseProcessDefinition(oldDeploymentContent);
-        boolean containsAllPreviousComments = uploadedDefinition.getVersionInfoList().containsAll(oldDefinition.getVersionInfoList());
+        boolean containsAllPreviousComments = uploadedDefinition.getChanges().containsAll(oldDefinition.getChanges());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
             if (containsAllPreviousComments != true) {
-                throw new InternalApplicationException("The new version of definition must contains all version comments which exists in earlier "
+                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                         + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
             }
         }
         if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
-            if (containsAllPreviousComments && uploadedDefinition.getVersionInfoList().size() == oldDefinition.getVersionInfoList().size()) {
-                throw new InternalApplicationException("The new version of definition must contains more than "
-                        + oldDefinition.getVersionInfoList().size() + " version comments. Uploaded definition contains "
-                        + uploadedDefinition.getVersionInfoList().size()
+            if (containsAllPreviousComments && uploadedDefinition.getChanges().size() == oldDefinition.getChanges().size()) {
+                throw new InternalApplicationException("The new version of definition must contain more than " + oldDefinition.getChanges().size()
+                        + " version comments. Uploaded definition contains " + uploadedDefinition.getChanges().size()
                         + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
             }
         }
@@ -200,6 +215,16 @@ public class DefinitionLogic extends WFCommonLogic {
         addUpdatedDefinitionInProcessLog(user, deploymentOnly);
         log.debug("Process definition " + oldDeploymentContent + " was successfully updated");
         return new WfDefinition(deploymentOnly);
+    }
+
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) {
+        Deployment deployment = deploymentDAO.getNotNull(definitionId);
+        checkPermissionAllowed(user, deployment, DefinitionPermission.REDEPLOY_DEFINITION);
+        Date oldDate = deployment.getSubprocessBindingDate();
+        deployment.setSubprocessBindingDate(date);
+        deploymentDAO.update(deployment);
+        log.info("ProcessDefinition subprocessBindingDate changed: " + CalendarUtil.formatDateTime(oldDate) + " -> "
+                + CalendarUtil.formatDateTime(date));
     }
 
     private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
@@ -303,106 +328,25 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public List<ProcessDefinitionChange> getChanges(Long definitionId) {
-        List<ProcessDefinitionChange> result = new ArrayList<>();
-        String definitionName = deploymentDAO.get(definitionId).getName();
-        List<DeploymentContent> listOfDeployments = deploymentContentDAO.findAllDeploymentVersions(definitionName);
-        int previousCount = 0;
-        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
-            DeploymentContent deployment = listOfDeployments.get(m);
-            int currentVersion = deployment.getVersion().intValue();
-            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
-                Document document = XmlUtils.parseWithoutValidation(definitionXml);
-                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
-                List<VersionInfo> versionInfos = Lists.newArrayList();
-                for (int j = previousCount; j < versionList.size(); j++) {
-                    Element versionInfoElement = versionList.get(j);
-                    VersionInfo versionInfo = new VersionInfo();
-                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
-                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
-                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
-                    versionInfos.add(versionInfo);
-                    previousCount++;
-                }
+        String definitionName = getDefinition(definitionId).getName();
+        List<Number> deploymentIds = deploymentDAO.findAllDeploymentVersionIds(definitionName, true);
+        return getChanges(deploymentIds);
+    }
 
-                for (VersionInfo versionInfo : versionInfos) {
-                    result.add(new ProcessDefinitionChange(currentVersion, versionInfo));
-                }
-            }
-
+    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
+        Preconditions.checkArgument(n > 0);
+        String definitionName = getDefinition(definitionId).getName();
+        List<Number> deploymentIds = deploymentDAO.findAllDeploymentVersionIds(definitionName, false);
+        if (n < deploymentIds.size()) {
+            deploymentIds = new ArrayList<>(deploymentIds.subList(0, n.intValue()));
         }
-        return result;
+        Collections.reverse(deploymentIds);
+        return getChanges(deploymentIds);
     }
 
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
-        List<ProcessDefinitionChange> result = new ArrayList<>();
-        List<DeploymentContent> listOfDeployments = deploymentContentDAO.findAllDeploymentVersions(definitionName);
-        int previousCount = 0;
-        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
-            DeploymentContent deployment = listOfDeployments.get(m);
-            int currentVersion = deployment.getVersion().intValue();
-            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
-                Document document = XmlUtils.parseWithoutValidation(definitionXml);
-                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
-                List<VersionInfo> versionInfos = Lists.newArrayList();
-                for (int j = previousCount; j < versionList.size(); j++) {
-                    Element versionInfoElement = versionList.get(j);
-                    VersionInfo versionInfo = new VersionInfo();
-                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
-                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
-                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
-                    versionInfos.add(versionInfo);
-                    previousCount++;
-                }
-
-                if (currentVersion >= version1 && currentVersion <= version2) {
-                    for (VersionInfo versionInfo : versionInfos) {
-                        result.add(new ProcessDefinitionChange(currentVersion, versionInfo));
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    public List<ProcessDefinitionChange> findChanges(Date date1, Date date2) {
-        List<ProcessDefinitionChange> result = new ArrayList<>();
-        List<DeploymentContent> listOfDeployments = deploymentContentDAO.getAll();
-        int previousCount = 0;
-        for (int m = listOfDeployments.size() - 1; m >= 0; m--) {
-            DeploymentContent deployment = listOfDeployments.get(m);
-            int currentVersion = deployment.getVersion().intValue();
-            String fileName = IFileDataProvider.COMMENTS_XML_FILE_NAME;
-            ProcessArchive archiveData = new ProcessArchive(deployment);
-            if (archiveData.getFileData().containsKey(fileName)) {
-                byte[] definitionXml = archiveData.getFileData().get(fileName);
-                Document document = XmlUtils.parseWithoutValidation(definitionXml);
-                List<Element> versionList = document.getRootElement().elements(CommentsParser.VERSION);
-                List<VersionInfo> versionInfos = Lists.newArrayList();
-                for (int j = previousCount; j < versionList.size(); j++) {
-                    Element versionInfoElement = versionList.get(j);
-                    VersionInfo versionInfo = new VersionInfo();
-                    versionInfo.setDateTime(versionInfoElement.elementText(CommentsParser.VERSION_DATE));
-                    versionInfo.setAuthor(versionInfoElement.elementText(CommentsParser.VERSION_AUTHOR));
-                    versionInfo.setComment(versionInfoElement.elementText(CommentsParser.VERSION_COMMENT));
-                    versionInfos.add(versionInfo);
-                    previousCount++;
-                }
-
-                for (VersionInfo versionInfo : versionInfos) {
-                    if (versionInfo.getDate().compareTo(CalendarUtil.dateToCalendar(date1)) >= 0
-                            && versionInfo.getDate().compareTo(CalendarUtil.dateToCalendar(date2)) <= 0) {
-                        result.add(new ProcessDefinitionChange(currentVersion, versionInfo));
-                    }
-                }
-            }
-        }
-        return result;
+        List<Number> deploymentIds = deploymentDAO.findDeploymentVersionIds(definitionName, version1, version2);
+        return getChanges(deploymentIds);
     }
 
     public byte[] getFile(User user, Long definitionId, String fileName) {
@@ -458,12 +402,6 @@ public class DefinitionLogic extends WFCommonLogic {
         return definition.getVariable(variableName, true);
     }
 
-    private ProcessDefinition parseProcessDefinition(DeploymentContent deploymentContent) {
-        DeploymentContent deployment = deploymentContent;
-        ProcessArchive archive = new ProcessArchive(deployment);
-        return archive.parseProcessDefinition();
-    }
-
     public List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         CompilerParameters parameters = CompilerParameters.create(enablePaging).loadOnlyIdentity();
         return getProcessDefinitions(user, batchPresentation, parameters);
@@ -488,6 +426,11 @@ public class DefinitionLogic extends WFCommonLogic {
         return definitions;
     }
 
+    private ProcessDefinition parseProcessDefinition(DeploymentContent deploymentContent) {
+        ProcessArchive archive = new ProcessArchive(deploymentContent);
+        return archive.parseProcessDefinition();
+    }
+
     private List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, CompilerParameters parameters) {
         List<String> processNameRestriction = getProcessNameRestriction(user);
         if (processNameRestriction.isEmpty()) {
@@ -500,9 +443,8 @@ public class DefinitionLogic extends WFCommonLogic {
         for (Number definitionId : deploymentIds) {
             try {
                 final ProcessDefinition definition = getDefinition(definitionId.longValue());
-                final Deployment deployment = definition.getDeployment() instanceof Deployment
-                        ? (Deployment) definition.getDeployment()
-                        : Deployment.from(definition.getDeployment());
+                final Deployment deployment = definition.getDeployment() instanceof Deployment ? (Deployment) definition.getDeployment() : Deployment
+                        .from(definition.getDeployment());
                 processDefinitions.put(deployment, definition);
                 deployments.add(deployment);
             } catch (Exception e) {
@@ -532,6 +474,29 @@ public class DefinitionLogic extends WFCommonLogic {
             }
         });
         return definitionsWithPermission;
+    }
+
+    private List<ProcessDefinitionChange> getChanges(List<Number> deploymentIds) {
+        List<ProcessDefinitionChange> ignoredChanges = null;
+        if (!deploymentIds.isEmpty()) {
+            ProcessDefinition firstDefinition = getDefinition(deploymentIds.get(0).longValue());
+            Long firstDeploymentVersion = firstDefinition.getDeployment().getVersion();
+            Number previousDefinitionId = deploymentDAO.findDeploymentIdLatestVersionLessThan(firstDefinition.getName(), firstDeploymentVersion);
+            if (previousDefinitionId != null) {
+                ignoredChanges = getDefinition(previousDefinitionId.longValue()).getChanges();
+            }
+        }
+        List<ProcessDefinitionChange> result = new ArrayList<>();
+        for (Number deploymentId : deploymentIds) {
+            ProcessDefinition processDefinition = getDefinition(deploymentId.longValue());
+            for (ProcessDefinitionChange change : processDefinition.getChanges()) {
+                if (ignoredChanges != null && ignoredChanges.contains(change) || result.contains(change)) {
+                    continue;
+                }
+                result.add(new ProcessDefinitionChange(processDefinition.getDeployment().getVersion(), change));
+            }
+        }
+        return result;
     }
 
     private static final class DefinitionIdentifiable extends Identifiable {

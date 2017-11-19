@@ -117,6 +117,9 @@ tr.deadlineExists td {
 tr.escalatedTask td {
 	background-color: #ef8ff8;
 }
+tr.delegatedTask td {
+	background-color: aquamarine;
+}
 tr.substitutionTask td {
 	background-color: #ffff9d;
 }
@@ -279,4 +282,10 @@ tr.suspended td, span.suspended {
 
 tr.executor_group {
 	font-weight: bold;
+}
+
+.CodeMirror-wrapping {
+	border: 1px solid lightgrey;
+	padding: 1px;
+	margin-top: 10px;
 }

@@ -26,10 +26,6 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.tldgen.annotations.BodyContent;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
@@ -55,6 +51,10 @@ import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showHistory")
 public class ShowHistoryTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = 1L;
@@ -73,9 +73,11 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         }
         // filter
         StringBuilder filterHtml = new StringBuilder("\n");
-        filterHtml.append("<form action=\"").append(Commons.getActionUrl("/show_history", pageContext, PortletUrlType.Action)).append("\" method=\"get\">\n");
+        filterHtml.append("<form action=\"").append(Commons.getActionUrl("/show_history", pageContext, PortletUrlType.Action))
+                .append("\" method=\"get\">\n");
         filterHtml.append("<input type=\"hidden\" name=\"id\" value=\"").append(filter.getProcessId()).append("\">\n");
-        filterHtml.append("<table class=\"box\"><tr><th class=\"box\">").append(MessagesBatch.FILTER_CRITERIA.message(pageContext)).append("</th></tr>\n");
+        filterHtml.append("<table class=\"box\"><tr><th class=\"box\">").append(MessagesBatch.FILTER_CRITERIA.message(pageContext))
+                .append("</th></tr>\n");
         filterHtml.append("<tr><td>\n");
         filterHtml.append("<input type=\"checkbox\" name=\"withSubprocesses\" value=\"true\"");
         if (filter.isIncludeSubprocessLogs()) {
@@ -120,7 +122,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
             for (int i = processIds.size(); i < maxLevel; i++) {
                 tr.addElement(new TD().addElement("").setClass(Resources.CLASS_EMPTY20_TABLE_TD));
             }
-            String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT_STR);
+            String eventDateString = CalendarUtil.format(log.getCreateDate(), CalendarUtil.DATE_WITH_HOUR_MINUTES_SECONDS_FORMAT);
             if (!Objects.equal(mergedEventDateString, eventDateString)) {
                 if (mergedEventDateTD != null) {
                     mergedEventDateTD.setRowSpan(mergedRowsCount + 1);

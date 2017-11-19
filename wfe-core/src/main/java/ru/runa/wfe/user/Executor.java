@@ -40,17 +40,17 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.PolymorphismType;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+
 import ru.runa.wfe.security.IdentifiableBase;
 import ru.runa.wfe.user.jaxb.ExecutorAdapter;
-
-import com.google.common.base.Objects;
 
 /*
  * Created on 01.07.2004
  */
 /**
- * Represents an Executor. Executor is an abstract object of system that could
- * perform different actions.
+ * Represents an Executor. Executor is an abstract object of system that could perform different actions.
  * 
  */
 @Entity
@@ -64,6 +64,8 @@ import com.google.common.base.Objects;
 public abstract class Executor extends IdentifiableBase implements Comparable<Executor> {
     private static final long serialVersionUID = 1L;
 
+    public static final String UNAUTHORIZED_EXECUTOR_NAME = "__unauthorized__";
+
     private Long id;
     private Long version;
     private String name;
@@ -75,6 +77,7 @@ public abstract class Executor extends IdentifiableBase implements Comparable<Ex
     }
 
     protected Executor(String name, String description) {
+        Preconditions.checkNotNull(name, "name");
         setName(name);
         setDescription(description);
         this.createDate = new Date();

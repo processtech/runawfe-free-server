@@ -288,14 +288,14 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         });
     }
 
-    public List<TemporaryGroup> getTemporaryGroups() {
-        return getHibernateTemplate().executeFind(new HibernateCallback<List<TemporaryGroup>>() {
-            @Override
-            public List<TemporaryGroup> doInHibernate(Session session) {
-                Query query = session.createQuery("from TemporaryGroup");
-                return query.list();
-            }
-        });
+    public List<TemporaryGroup> getUnusedTemporaryGroups() {
+        String query = "select tg from TemporaryGroup tg where tg.processId not in (select process.id from Swimlane where executor=tg) and tg.processId not in (select process.id from Task where executor=tg)";
+        return getHibernateTemplate().find(query);
+    }
+
+    public List<Group> getTemporaryGroupsByExecutor(Executor executor) {
+        String query = "select egm.group from ExecutorGroupMembership egm, TemporaryGroup tg where egm.executor=? and egm.group=tg";
+        return getHibernateTemplate().find(query, executor);
     }
 
     /**
@@ -476,10 +476,12 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Add {@linkplain Executor} to {@linkplain Group}
      */
-    public void addExecutorToGroup(Executor executor, Group group) {
+    public boolean addExecutorToGroup(Executor executor, Group group) {
         if (getMembership(group, executor) == null) {
             getHibernateTemplate().save(new ExecutorGroupMembership(group, executor));
+            return true;
         }
+        return false;
     }
 
     /**
@@ -513,11 +515,13 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     /**
      * Remove {@linkplain Executor} from {@linkplain Group}.
      */
-    public void removeExecutorFromGroup(Executor executor, Group group) {
+    public boolean removeExecutorFromGroup(Executor executor, Group group) {
         ExecutorGroupMembership membership = getMembership(group, executor);
         if (membership != null) {
             getHibernateTemplate().delete(membership);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -545,6 +549,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
      *            As {@linkplain BatchPresentation} of array returned.
      * @return Array of group children.
      */
+    @Override
     public Set<Executor> getGroupChildren(Group group) {
         Set<Executor> result = executorCacheCtrl.getGroupMembers(group);
         if (result != null) {
@@ -871,6 +876,12 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         return executor;
     }
 
+    @Override
+    public List<Executor> getExecutorsLikeName(String nameTemplate) {
+        return getHibernateTemplate().find("from Executor where name like ?", nameTemplate);
+    }
+
+    @Override
     public boolean isAdministrator(Actor actor) {
         try {
             Group administratorsGroup = (Group) getExecutor(SystemProperties.getAdministratorsGroupName());

@@ -53,13 +53,13 @@ public class JbpmHoliday implements Serializable {
     public JbpmHoliday(String holidayText) {
         int separatorIndex = holidayText.indexOf('-');
         if (separatorIndex == -1) {
-            fromDay = CalendarUtil.convertToDate(holidayText.trim(), CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+            fromDay = CalendarUtil.convertToDate(holidayText.trim(), CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
             toDay = fromDay;
         } else {
             String fromText = holidayText.substring(0, separatorIndex).trim();
             String toText = holidayText.substring(separatorIndex + 1).trim();
-            fromDay = CalendarUtil.convertToDate(fromText, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
-            toDay = CalendarUtil.convertToDate(toText, CalendarUtil.DATE_WITHOUT_TIME_FORMAT_STR);
+            fromDay = CalendarUtil.convertToDate(fromText, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
+            toDay = CalendarUtil.convertToDate(toText, CalendarUtil.DATE_WITHOUT_TIME_FORMAT);
         }
         // now we are going to set the toDay to the end of the day, rather
         // then the beginning.
