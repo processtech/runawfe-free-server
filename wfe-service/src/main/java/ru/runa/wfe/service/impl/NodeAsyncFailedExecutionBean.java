@@ -19,11 +19,12 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 
-@MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/nodeAsyncFailedExecution"),
+@MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = NodeAsyncFailedExecutionBean.QUEUE),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
 @TransactionManagement(TransactionManagementType.CONTAINER)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
 public class NodeAsyncFailedExecutionBean implements MessageListener {
+    public static final String QUEUE = "queue/nodeAsyncFailedExecution";
     private static final Log log = LogFactory.getLog(NodeAsyncFailedExecutionBean.class);
     @Resource
     private MessageDrivenContext context;
@@ -32,8 +33,12 @@ public class NodeAsyncFailedExecutionBean implements MessageListener {
     public void onMessage(Message jmsMessage) {
         try {
             ObjectMessage message = (ObjectMessage) jmsMessage;
-            final Long tokenId = message.getLongProperty("tokenId");
-            Utils.failProcessExecution(tokenId, new Exception("DLQ"));
+            Long tokenId = message.getLongProperty("tokenId");
+            String errorMessage = message.getStringProperty("errorMessage");
+            if (errorMessage == null) {
+                errorMessage = "DLQ";
+            }
+            Utils.failProcessExecution(tokenId, errorMessage);
         } catch (Exception e) {
             log.error(jmsMessage, e);
             context.setRollbackOnly();

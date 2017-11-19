@@ -61,7 +61,6 @@ import ru.runa.wfe.var.VariableMapping;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
-//@ActivationConfigProperty(propertyName = "maxSession", propertyValue = "2")
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/bpmMessages"),//
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
 @TransactionManagement(TransactionManagementType.CONTAINER)
@@ -146,11 +145,11 @@ public class ReceiveMessageBean implements MessageListener {
                     log.error(errorMessage);
                     Errors.addSystemError(new InternalApplicationException(errorMessage));
                 } else {
-                    log.info("Rejecting " + messageString);
+                    log.debug("Rejecting " + messageString);
                     context.setRollbackOnly();
                 }
             } else {
-                log.info("Handling " + messageString);
+                log.debug("Handling " + messageString);
                 for (ReceiveMessageData data : handlers) {
                     handleMessage(data, message);
                 }
