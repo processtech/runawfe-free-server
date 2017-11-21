@@ -1,6 +1,5 @@
 <%@page import="org.springframework.mobile.device.LiteDeviceResolver"%>
 <%@page import="org.springframework.mobile.device.DeviceResolver"%>
-<%@page import="org.springframework.mobile.device.DeviceUtils"%>
 <%@page import="org.springframework.mobile.device.Device"%>
 <%@ page language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -90,7 +89,9 @@
 						}
 					}
 				</script>
-				<img hspace="0" border="0" src="<html:rewrite page="/images/menu.png"/>" onclick="refreshSystemMenu();">
+				<a href="javascript:refreshSystemMenu();" title='<bean:message key="title.menu"/>'>
+					<img hspace="0" border="0" src="<html:rewrite page="/images/menu.png"/>">
+				</a>
 			</td>
 			<td width="65%" >
 				<table width="100%">	
