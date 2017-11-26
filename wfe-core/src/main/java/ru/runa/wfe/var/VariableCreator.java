@@ -14,6 +14,8 @@ import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 import ru.runa.wfe.var.impl.ByteArrayVariable;
 import ru.runa.wfe.var.impl.NullVariable;
 
+import com.google.common.base.Preconditions;
+
 public class VariableCreator {
     private static final Log log = LogFactory.getLog(VariableCreator.class);
 
@@ -62,8 +64,9 @@ public class VariableCreator {
         Variable<?> variable;
         if (value == null) {
             variable = new NullVariable();
-        } else if (variableDefinition.getStoreType() == VariableStoreType.BLOB && value instanceof Serializable) {
+        } else if (variableDefinition.getStoreType() == VariableStoreType.BLOB) {
             log.debug("Using blob storage");
+            Preconditions.checkArgument(value instanceof Serializable, "Do not use blob storage on non-serializable value");
             variable = new ByteArrayVariable();
             variable.setConverter(serializableToByteArrayConverter);
         } else {
