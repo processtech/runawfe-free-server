@@ -56,6 +56,11 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
+		<property title="variables.invalid.default.values.allowed">
+			<value>true</value>
+			<value>false</value>
+		</property>
+		<property title="variables.invalid.default.values.allowed.before" />
 	</properties_file>
 	
 	<properties_file title="class.presentation.properties">
@@ -87,10 +92,6 @@
 		</property>
 		<property title="ntlm.domain" />
 		<property title="process.variables.displayJavaType">
-			<value>true</value>
-			<value>false</value>
-		</property>
-		<property title="process.variables.display.defaultValueParsingError">
 			<value>true</value>
 			<value>false</value>
 		</property>

@@ -167,10 +167,6 @@ public class WebResources {
         return RESOURCES.getBooleanProperty("process.variables.displayJavaType", true);
     }
 
-    public static boolean isDisplayVariablesDefaultValueParsingError() {
-        return RESOURCES.getBooleanProperty("process.variables.display.defaultValueParsingError", false);
-    }
-
     public static boolean isBulkDeploymentElements() {
         return RESOURCES.getBooleanProperty("process.definition.ajax.bulk.deployment.enabled", true);
     }

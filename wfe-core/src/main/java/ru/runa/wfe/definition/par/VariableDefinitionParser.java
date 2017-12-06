@@ -1,5 +1,6 @@
 package ru.runa.wfe.definition.par;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.LogFactory;
@@ -12,7 +13,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
@@ -58,6 +61,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             UserType type = new UserType(typeElement.attributeValue(NAME));
             processDefinition.addUserType(type);
         }
+        sortByUsing(typeElements);
         for (Element typeElement : typeElements) {
             UserType type = processDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
@@ -78,6 +82,29 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 processDefinition.addVariable(variableDefinition);
             }
         }
+    }
+
+    private void sortByUsing(List<Element> elements) {
+        elements.sort(new Comparator<Element>() {
+            @Override
+            public int compare(Element e1, Element e2) {
+                String name2 = e2.attributeValue(NAME);
+                List<Element> attributes = e1.elements(VARIABLE);
+                for (Element e : attributes) {
+                    if (e.attributeValue(FORMAT).endsWith(name2 + VariableFormatContainer.COMPONENT_PARAMETERS_END)) {
+                        return 1;
+                    }
+                }
+                String name1 = e1.attributeValue(NAME);
+                attributes = e2.elements(VARIABLE);
+                for (Element e : attributes) {
+                    if (e.attributeValue(FORMAT).endsWith(name1 + VariableFormatContainer.COMPONENT_PARAMETERS_END)) {
+                        return -1;
+                    }
+                }
+                return 0;
+            }
+        });
     }
 
     private VariableDefinition parse(ProcessDefinition processDefinition, Element element) {
@@ -121,7 +148,12 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 Object value = variableFormat.parse(stringDefaultValue);
                 variableDefinition.setDefaultValue(value);
             } catch (Exception e) {
-                LogFactory.getLog(getClass()).error("Unable to format default value '" + name + "' in " + processDefinition, e);
+                if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed() || processDefinition.getDeployment().getCreateDate()
+                        .after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
+                    throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue, e);
+                } else {
+                    LogFactory.getLog(getClass()).error("Unable to format default value '" + name + "' in " + processDefinition, e);
+                }
             }
         }
         String storeTypeString = element.attributeValue(STORE_TYPE);
