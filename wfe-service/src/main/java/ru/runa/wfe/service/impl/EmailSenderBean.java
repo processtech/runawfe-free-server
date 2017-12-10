@@ -19,8 +19,10 @@ package ru.runa.wfe.service.impl;
 
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
+import javax.ejb.MessageDrivenContext;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
@@ -48,10 +50,12 @@ import com.google.common.base.Throwables;
  */
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/email"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue") })
-@TransactionManagement(TransactionManagementType.BEAN)
+@TransactionManagement(TransactionManagementType.CONTAINER)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class })
 public class EmailSenderBean implements MessageListener {
     private static Log log = LogFactory.getLog(EmailSenderBean.class);
+    @Resource
+    private MessageDrivenContext context;
 
     @Override
     public void onMessage(Message jmsMessage) {
@@ -79,7 +83,7 @@ public class EmailSenderBean implements MessageListener {
             }
         }
         if (SystemProperties.isEmailGuaranteedDeliveryEnabled()) {
-            throw new MessagePostponedException("email guaranteed delivery requested");
+            context.setRollbackOnly();
         }
     }
 

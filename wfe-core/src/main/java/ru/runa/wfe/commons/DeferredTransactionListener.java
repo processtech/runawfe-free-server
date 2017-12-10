@@ -14,7 +14,9 @@ import org.apache.commons.logging.LogFactory;
  *
  * @since 4.2.0
  * @author dofs
+ * @deprecated not-friendly for CMT-transactions
  */
+@Deprecated
 public abstract class DeferredTransactionListener implements ITransactionListener, Runnable {
     private static final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
     protected final Log log = LogFactory.getLog(getClass());
@@ -22,7 +24,7 @@ public abstract class DeferredTransactionListener implements ITransactionListene
     @Override
     public void onTransactionComplete(UserTransaction transaction) {
         log.debug("Scheduling invocation");
-        scheduledExecutorService.schedule(this, 10, TimeUnit.MILLISECONDS);
+        scheduledExecutorService.schedule(this, 1000, TimeUnit.MILLISECONDS);
     }
 
 }
