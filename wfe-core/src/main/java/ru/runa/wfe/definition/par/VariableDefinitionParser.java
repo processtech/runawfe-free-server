@@ -1,18 +1,15 @@
 package ru.runa.wfe.definition.par;
 
-import java.util.Comparator;
-import java.util.List;
-
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-
+import java.util.Comparator;
+import java.util.List;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.SystemProperties;
@@ -89,16 +86,18 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             @Override
             public int compare(Element e1, Element e2) {
                 String name2 = e2.attributeValue(NAME);
-                List<Element> attributes = e1.elements(VARIABLE);
-                for (Element e : attributes) {
-                    if (e.attributeValue(FORMAT).endsWith(name2 + VariableFormatContainer.COMPONENT_PARAMETERS_END)) {
+                List<Element> attributes1 = e1.elements(VARIABLE);
+                for (Element e : attributes1) {
+                    String format = Strings.nullToEmpty(e.attributeValue(FORMAT));
+                    if (format.endsWith(name2 + VariableFormatContainer.COMPONENT_PARAMETERS_END)) {
                         return 1;
                     }
                 }
                 String name1 = e1.attributeValue(NAME);
-                attributes = e2.elements(VARIABLE);
-                for (Element e : attributes) {
-                    if (e.attributeValue(FORMAT).endsWith(name1 + VariableFormatContainer.COMPONENT_PARAMETERS_END)) {
+                List<Element> attributes2 = e2.elements(VARIABLE);
+                for (Element e : attributes2) {
+                    String format = Strings.nullToEmpty(e.attributeValue(FORMAT));
+                    if (format.endsWith(name1 + VariableFormatContainer.COMPONENT_PARAMETERS_END)) {
                         return -1;
                     }
                 }
@@ -125,8 +124,8 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 formatLabel = localizationDAO.getLocalized(variableDefinition.getFormatClassName());
                 formatLabel += VariableFormatContainer.COMPONENT_PARAMETERS_START;
                 String[] componentClassNames = variableDefinition.getFormatComponentClassNames();
-                formatLabel += Joiner.on(VariableFormatContainer.COMPONENT_PARAMETERS_DELIM)
-                        .join(Lists.transform(Lists.newArrayList(componentClassNames), new Function<String, String>() {
+                formatLabel += Joiner.on(VariableFormatContainer.COMPONENT_PARAMETERS_DELIM).join(
+                        Lists.transform(Lists.newArrayList(componentClassNames), new Function<String, String>() {
 
                             @Override
                             public String apply(String input) {
@@ -148,8 +147,8 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 Object value = variableFormat.parse(stringDefaultValue);
                 variableDefinition.setDefaultValue(value);
             } catch (Exception e) {
-                if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed() || processDefinition.getDeployment().getCreateDate()
-                        .after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
+                if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
+                        || processDefinition.getDeployment().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
                     throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue, e);
                 } else {
                     LogFactory.getLog(getClass()).error("Unable to format default value '" + name + "' in " + processDefinition, e);
