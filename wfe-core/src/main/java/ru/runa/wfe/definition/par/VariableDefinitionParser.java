@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.logging.LogFactory;
@@ -82,7 +83,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     }
 
     private void sortByUsing(List<Element> elements) {
-        elements.sort(new Comparator<Element>() {
+        Collections.sort(elements, new Comparator<Element>() {
             @Override
             public int compare(Element e1, Element e2) {
                 String name2 = e2.attributeValue(NAME);
