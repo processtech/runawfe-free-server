@@ -80,8 +80,12 @@ public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
             executor = new ScheduledThreadPoolExecutor(poolSize, new BotNamedThreadFactory());
 
         } else {
+            if (executor.getCorePoolSize() != poolSize) {
+                log.debug(String.format("change core thread pool size from %d to %d", executor.getCorePoolSize(), poolSize));
+                executor.setCorePoolSize(poolSize);
+            }
             if (executor.getMaximumPoolSize() != poolSize) {
-                log.debug(String.format("change thread pool size from %d to %d", executor.getMaximumPoolSize(), poolSize));
+                log.debug(String.format("change maximum thread pool size from %d to %d", executor.getMaximumPoolSize(), poolSize));
                 executor.setMaximumPoolSize(poolSize);
             }
         }

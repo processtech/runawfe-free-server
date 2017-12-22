@@ -35,7 +35,6 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_ACTIVATE = new StrutsMessage("process.activate");
     public static final StrutsMessage PROCESS_ACTIVATE_FAILED_TOKENS = new StrutsMessage("process.activate.failed.tokens");
     public static final StrutsMessage PROCESS_ACTIVATED = new StrutsMessage("process.activated");
-    public static final StrutsMessage ACTIVATE_FAILED_PROCESSES = new StrutsMessage("failed.processes.activate");
     public static final StrutsMessage FAILED_PROCESSES_ACTIVATED = new StrutsMessage("failed.processes.activated");
     public static final StrutsMessage PROCESS_SUSPEND = new StrutsMessage("process.suspend");
     public static final StrutsMessage PROCESS_SUSPENDED = new StrutsMessage("process.suspended");
