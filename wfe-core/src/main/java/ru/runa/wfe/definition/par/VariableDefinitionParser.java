@@ -59,7 +59,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             UserType type = new UserType(typeElement.attributeValue(NAME));
             processDefinition.addUserType(type);
         }
-        sortByUsing(typeElements);
+        typeElements = sortByUsing(typeElements);
         for (Element typeElement : typeElements) {
             UserType type = processDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
@@ -82,8 +82,9 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         }
     }
 
-    private void sortByUsing(List<Element> elements) {
-        Collections.sort(elements, new Comparator<Element>() {
+    private List<Element> sortByUsing(List<Element> elements) {
+        List<Element> result = Lists.newArrayList(elements);
+        Collections.sort(result, new Comparator<Element>() {
             @Override
             public int compare(Element e1, Element e2) {
                 String name2 = e2.attributeValue(NAME);
@@ -105,6 +106,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 return 0;
             }
         });
+        return result;
     }
 
     private VariableDefinition parse(ProcessDefinition processDefinition, Element element) {
