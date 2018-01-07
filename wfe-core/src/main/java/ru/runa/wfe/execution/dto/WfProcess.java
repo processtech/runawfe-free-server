@@ -17,20 +17,17 @@
  */
 package ru.runa.wfe.execution.dto;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.security.IdentifiableBase;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Created on 02.11.2004
@@ -85,7 +82,7 @@ public class WfProcess extends IdentifiableBase {
      * @return true if process is ended.
      */
     public boolean isEnded() {
-        return endDate != null;
+        return executionStatus == ExecutionStatus.ENDED;
     }
 
     public Date getEndDate() {
