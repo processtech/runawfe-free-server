@@ -2,10 +2,9 @@ package ru.runa.wfe.commons.dbpatch.impl;
 
 import java.sql.Types;
 import java.util.List;
-
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
@@ -31,6 +30,7 @@ public class AddTokenMessageSelectorPatch extends DBPatch implements IDbPatchPos
     }
 
     @Override
+    @Transactional
     public void postExecute(Session session) throws Exception {
         List<Token> tokens = tokenDAO.findByMessageSelectorIsNullAndExecutionStatusIsActive();
         log.info("Updating " + tokens.size() + " tokens message selector");

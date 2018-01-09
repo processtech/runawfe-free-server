@@ -1,34 +1,27 @@
 package ru.runa.wfe.job.impl;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.dao.ProcessLogAwareDao;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
-import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.dao.Constant;
 import ru.runa.wfe.commons.dao.ConstantDAO;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
-/**
- * Loading process history one by one and aggregate it to aggregated logs.
- */
-public class AggregatedHistoryImporter extends TransactionalExecutor {
-
-    private static final Log log = LogFactory.getLog(AggregatedHistoryImporter.class);
+public class AggregatedHistoryImporter {
+    protected final Log log = LogFactory.getLog(getClass());
     /**
      * Constant name to store process id
      */
@@ -46,28 +39,27 @@ public class AggregatedHistoryImporter extends TransactionalExecutor {
     @Autowired
     private ProcessDAO processDao;
 
-    @Override
-    protected void doExecuteInTransaction() throws Exception {
+    @Transactional
+    public void execute() {
         long processId = getProcessIdToImport();
         if (processId <= 0) {
             return;
         }
-        log.info("Importing logs for process " + processId + " into aggregated logs.");
-        Process process = processDao.get(processId);
-        if (process != null) {
-            Map<Long, Token> tokens = createTokensMap(process);
-            List<ProcessLog> logs = processLogDao.getAll(processId);
-            for (ProcessLog log : logs) {
-                // try {
-                processLogAwareDao.addLog(log, process, tokens.get(log.getTokenId()));
-                // } catch (Exception e) {
-                // AggregatedHistoryImporter.log.warn("Ignoring error on log aggregation for log instance "
-                // + log.getId(), e);
-                // }
+        try {
+            log.info("Importing logs for process " + processId + " into aggregated logs.");
+            Process process = processDao.get(processId);
+            if (process != null) {
+                Map<Long, Token> tokens = createTokensMap(process);
+                List<ProcessLog> logs = processLogDao.getAll(processId);
+                for (ProcessLog log : logs) {
+                    processLogAwareDao.addLog(log, process, tokens.get(log.getTokenId()));
+                }
             }
+            saveProcessIdToImport(processId);
+            log.info("Importing logs for process " + processId + " into aggregated logs is done.");
+        } catch (Exception e) {
+            log.error("", e);
         }
-        saveProcessIdToImport(processId);
-        log.info("Importing logs for process " + processId + " into aggregated logs is done.");
     }
 
     /**
@@ -99,8 +91,7 @@ public class AggregatedHistoryImporter extends TransactionalExecutor {
     }
 
     /**
-     * Get process id for history aggregation. Returns 0, if aggregation is not
-     * required.
+     * Get process id for history aggregation. Returns 0, if aggregation is not required.
      *
      * @return Returns process id for history aggregate.
      */
@@ -142,4 +133,5 @@ public class AggregatedHistoryImporter extends TransactionalExecutor {
         }
         constantDao.update(importFromSettings);
     }
+
 }

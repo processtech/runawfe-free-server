@@ -6,7 +6,7 @@
 
 <tiles:put name="body" type="string" >
 	<p>Версия <b><%= ru.runa.common.Version.get() %></b></p>
-	<p>Запуск <b><%= ru.runa.wfe.commons.SystemProperties.getStartup() %></b></p>
+	<p>Запуск <b><%= ru.runa.common.Version.getStartupDateTimeString() %></b></p>
 </tiles:put>
 
 <tiles:put name="messages" value="../common/messages.jsp" />

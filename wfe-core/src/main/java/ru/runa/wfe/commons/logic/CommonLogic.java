@@ -17,19 +17,13 @@
  */
 package ru.runa.wfe.commons.logic;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.security.auth.Subject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.timer.ScheduledTimerTask;
-
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.PropertyResources;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dao.SettingDAO;
@@ -47,13 +41,11 @@ import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 14.03.2005
  */
 public class CommonLogic {
-    private static final Log log = LogFactory.getLog(CommonLogic.class);
+    protected final Log log = LogFactory.getLog(getClass());
     @Autowired
     protected PermissionDAO permissionDAO;
     @Autowired
@@ -178,24 +170,6 @@ public class CommonLogic {
     public void setSetting(String fileName, String name, String value) {
         settingDAO.setValue(fileName, name, value);
         PropertyResources.renewCachedProperty(fileName, name, value);
-        if (fileName.equals(SystemProperties.CONFIG_FILE_NAME)) {
-            String bean = null;
-            if (name.equals(SystemProperties.TIMERTASK_PERIOD_MILLIS_JOB_EXECUTION_NAME)) {
-                bean = "jobExecutorTask";
-            }
-            if (name.equals(SystemProperties.TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME)) {
-                bean = "tasksAssignTask";
-            }
-            if (bean != null) {
-                try {
-                    Long period = SystemProperties.getResources().getLongProperty(name, 60000);
-                    ScheduledTimerTask t = ApplicationContextFactory.getContext().getBean(bean, ScheduledTimerTask.class);
-                    t.setPeriod(period);
-                } catch (BeansException e) {
-                    log.error("Can't renew TIMERTASK settings", e);
-                }
-            }
-        }
     }
 
     public void clearSettings() {

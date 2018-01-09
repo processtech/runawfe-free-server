@@ -1,12 +1,12 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Throwables;
 import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.google.common.base.Throwables;
-
+// use @Transactional
+@Deprecated
 public abstract class TransactionalExecutor {
     protected final Log log = LogFactory.getLog(getClass());
     private final UserTransaction transaction;

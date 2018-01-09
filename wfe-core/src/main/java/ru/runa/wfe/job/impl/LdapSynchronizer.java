@@ -1,17 +1,15 @@
 package ru.runa.wfe.job.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.runa.wfe.commons.TransactionalExecutor;
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.security.logic.LdapLogic;
 
-public class LdapSynchronizerTaskExecutor extends TransactionalExecutor {
+public class LdapSynchronizer {
     @Autowired
     private LdapLogic ldapLogic;
 
-    @Override
-    protected void doExecuteInTransaction() throws Exception {
+    @Transactional
+    public void execute() {
         ldapLogic.synchronizeExecutors();
     }
-
 }

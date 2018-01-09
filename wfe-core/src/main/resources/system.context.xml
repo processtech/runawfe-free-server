@@ -355,70 +355,19 @@
 	<bean id="initializerLogic" class="ru.runa.wfe.commons.logic.InitializerLogic" />
 	<bean id="taskAssigner" class="ru.runa.wfe.task.logic.TaskAssigner" />
 
-	<bean id="jobExecutorTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-		<property name="delay" value="${timertask.start.millis.job.execution}" />
-		<property name="period" value="${timertask.period.millis.job.execution}" />
-		<property name="timerTask">
-			<bean class="ru.runa.wfe.job.impl.ExpiredJobCheckerTask">
-				<property name="transactionalExecutor">
-					<bean class="ru.runa.wfe.job.impl.JobTransactionalExecutor" />
-				</property>
-			</bean>
-		</property>
-	</bean>
-	<bean id="cacheUsageStatisticTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-		<property name="delay" value="60000" />
-		<property name="period" value="60000" />
-		<property name="timerTask">
-			<bean class="ru.runa.wfe.job.impl.CacheUsageStatisticLogger" />
-		</property>
-	</bean>
-	<bean id="tasksAssignTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-		<property name="delay" value="${timertask.start.millis.unassigned.tasks.execution}" />
-		<property name="period" value="${timertask.period.millis.unassigned.tasks.execution}" />
-		<property name="timerTask">
-			<bean class="ru.runa.wfe.job.impl.AssignStalledTasks">
-				<property name="transactionalExecutor">
-					<bean class="ru.runa.wfe.job.impl.AssignStalledTasksExecutor" />
-				</property>
-			</bean>
-		</property>
-	</bean>
-	
-	<bean id="removeUnusedTemporaryGroupsTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-		<property name="delay" value="${timertask.start.millis.remove.temp.groups}" />
-		<property name="period" value="${timertask.period.millis.remove.temp.groups}" />
-		<property name="timerTask">
-			<bean class="ru.runa.wfe.job.impl.RemoveUnusedTemporaryGroupsTask">
-				<property name="transactionalExecutor">
-					<bean class="ru.runa.wfe.job.impl.RemoveUnusedTemporaryGroupsExecutor" />
-				</property>
-			</bean>
-		</property>
-	</bean>
-	<bean id="aggregatedHistoryImportTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-		<property name="delay" value="20000" />
-		<property name="period" value="60000" />
-		<property name="timerTask">
-			<bean class="ru.runa.wfe.job.impl.ImportAggregatedHistoryTask">
-				<property name="transactionalExecutor">
-					<bean class="ru.runa.wfe.job.impl.AggregatedHistoryImporter"/>
-				</property>
-			</bean>
-		</property>
-	</bean>
-	
-	<bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
-		<property name="scheduledTimerTasks">
-			<list>
-				<ref bean="jobExecutorTask" />
-				<!-- ref bean="cacheUsageStatisticTask" / -->
-				<ref bean="tasksAssignTask" />
-				<ref bean="removeUnusedTemporaryGroupsTask" />
-				<ref bean="aggregatedHistoryImportTask" />
-			</list>
-		</property>
-	</bean>
+	<task:scheduler id="baseScheduler" />
+
+	<bean id="jobExecutor" class="ru.runa.wfe.job.impl.JobExecutor" />
+	<bean id="unassignedTaskAssigner" class="ru.runa.wfe.job.impl.UnassignedTaskAssigner" />
+	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
+	<bean id="aggregatedHistoryImporter" class="ru.runa.wfe.job.impl.AggregatedHistoryImporter" />
+
+	<task:scheduled-tasks scheduler="baseScheduler">
+		<task:scheduled ref="jobExecutor" method="execute" fixed-delay="${timertask.period.millis.job.execution}" />
+		<task:scheduled ref="unassignedTaskAssigner" method="execute" fixed-delay="${timertask.period.millis.unassigned.tasks.execution}" />
+		<task:scheduled ref="unusedTemporaryGroupsCleaner" method="execute" fixed-delay="${timertask.period.millis.remove.temp.groups}" />
+		<task:scheduled ref="aggregatedHistoryImporter" method="execute" fixed-delay="60000" />
+	</task:scheduled-tasks>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 	

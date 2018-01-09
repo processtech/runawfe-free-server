@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.job.impl;
 
-import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.cache.CacheStatistic;
 
 /**
@@ -25,10 +24,9 @@ import ru.runa.wfe.commons.cache.CacheStatistic;
  * 
  * @author Konstantinov Aleksey
  */
-public class CacheUsageStatisticLogger extends JobTask<TransactionalExecutor> {
+public class CacheUsageStatisticLogger {
 
-    @Override
-    protected void execute() throws Exception {
+    public void execute() {
         CacheStatistic.logCounters();
     }
 
