@@ -8,13 +8,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.dialect.Dialect;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DBType;
-import ru.runa.wfe.commons.dao.ConstantDAO;
 
 /**
  * Interface for database patch (Applied during version update).
@@ -26,17 +25,15 @@ public abstract class DBPatch {
     protected final Dialect dialect = ApplicationContextFactory.getDialect();
     protected final DBType dbType = ApplicationContextFactory.getDBType();
     @Autowired
-    private ConstantDAO constantDAO;
+    protected SessionFactory sessionFactory;
 
-    @Transactional
-    public void execute(int databaseVersion) throws Exception {
-        Session session = ApplicationContextFactory.getCurrentSession();
+    public void execute() throws Exception {
+        Session session = sessionFactory.getCurrentSession();
         executeDDL(session, "[DDLBefore]", getDDLQueriesBefore());
         session.setCacheMode(CacheMode.IGNORE);
         executeDML(session);
         session.flush();
         executeDDL(session, "[DDLAfter]", getDDLQueriesAfter());
-        constantDAO.setDatabaseVersion(databaseVersion);
     }
 
     protected List<String> getDDLQueriesBefore() {
@@ -292,6 +289,11 @@ public abstract class DBPatch {
 
     protected final String getDDLTruncateTableUsingDelete(String tableName) {
         return "DELETE FROM " + tableName;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
 
     public static class ColumnDef {

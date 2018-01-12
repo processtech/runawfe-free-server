@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -38,6 +37,7 @@ import ru.runa.wfe.commons.dao.ConstantDAO;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatchTransactionaExecutor;
 import ru.runa.wfe.commons.dbpatch.EmptyPatch;
 import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
 import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
@@ -96,6 +96,8 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
     protected static final Log log = LogFactory.getLog(InitializerLogic.class);
     private static final List<Class<? extends DBPatch>> dbPatches;
+    @Autowired
+    private DbPatchTransactionaExecutor dbPatchTransactionaExecutor;
 
     static {
         List<Class<? extends DBPatch>> patches = Lists.newArrayList();
@@ -189,6 +191,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
+            ApplicationContextFactory.setApplicationContext(event.getApplicationContext());
             log.info("initializing database");
             Integer databaseVersion = constantDAO.getDatabaseVersion();
             if (databaseVersion != null) {
@@ -276,14 +279,15 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     private void applyPatches(int databaseVersion) {
         log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
         while (databaseVersion < dbPatches.size()) {
-            DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
-            databaseVersion++;
+            DBPatch patch = null;
             try {
+                patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
+                databaseVersion++;
                 log.info("Applying patch " + patch + " (" + databaseVersion + ")");
-                patch.execute(databaseVersion);
-                log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is applied to database successfully.");
+                dbPatchTransactionaExecutor.execute(patch, databaseVersion);
+                log.info("Patch " + patch + "(" + databaseVersion + ") is applied to database successfully.");
             } catch (Throwable th) {
-                log.error("Can't apply patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);
+                log.error("Can't apply patch " + patch + "(" + databaseVersion + ").", th);
                 break;
             }
         }
@@ -296,8 +300,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             if (patch instanceof IDbPatchPostProcessor) {
                 log.info("Post-processing patch " + patch + " (" + databaseVersion + ")");
                 try {
-                    Session session = ApplicationContextFactory.getCurrentSession();
-                    ((IDbPatchPostProcessor) patch).postExecute(session);
+                    dbPatchTransactionaExecutor.postExecute((IDbPatchPostProcessor) patch);
                     log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is post-processed successfully.");
                 } catch (Throwable th) {
                     log.error("Can't post-process patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);

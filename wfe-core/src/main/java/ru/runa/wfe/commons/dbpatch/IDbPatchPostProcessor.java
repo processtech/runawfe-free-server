@@ -1,6 +1,5 @@
 package ru.runa.wfe.commons.dbpatch;
 
-import org.hibernate.Session;
 
 /**
  * Extension interface for {@link DBPatch}.
@@ -17,6 +16,6 @@ public interface IDbPatchPostProcessor {
      * 
      * Error in this method may leave database in inconsistent state, use with caution.
      */
-    void postExecute(Session session) throws Exception;
+    void postExecute() throws Exception;
 
 }

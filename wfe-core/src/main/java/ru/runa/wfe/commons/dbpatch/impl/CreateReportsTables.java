@@ -4,9 +4,7 @@ import com.google.common.collect.Lists;
 import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
@@ -81,8 +79,7 @@ public class CreateReportsTables extends DBPatch implements IDbPatchPostProcesso
     }
 
     @Override
-    @Transactional
-    public void postExecute(Session session) throws Exception {
+    public void postExecute() throws Exception {
         if (permissionDAO.getPrivilegedExecutors(SecuredObjectType.REPORT).isEmpty()) {
             log.info("Adding " + SecuredObjectType.REPORT + " tokens message hash");
             String administratorName = SystemProperties.getAdministratorName();

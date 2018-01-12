@@ -1,11 +1,11 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
-
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDAO;
@@ -38,15 +37,16 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.logic.VariableLogic;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 public class ApplicationContextFactory {
     private static ApplicationContext applicationContext = null;
     private static DBType dbType;
 
     public static boolean isContextInitialized() {
         return applicationContext != null;
+    }
+
+    public static void setApplicationContext(ApplicationContext applicationContext) {
+        ApplicationContextFactory.applicationContext = applicationContext;
     }
 
     public static ApplicationContext getContext() {
