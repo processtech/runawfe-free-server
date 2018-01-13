@@ -220,6 +220,7 @@ public class Deployment extends Identifiable {
         deployment.id = id;
         deployment.language = language;
         deployment.name = name;
+        deployment.subprocessBindingDate = subprocessBindingDate;
         deployment.version = version;
         return deployment;
     }

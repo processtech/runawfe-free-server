@@ -116,12 +116,13 @@ public class DatabaseTaskXmlParser {
 
     private static final Pattern pattern = Pattern.compile("\\$\\{(.*)\\}");
 
-    public static String parseSQLQueryElement(String sqlElement, IVariableProvider variableProvider) {
-        if (!sqlElement.startsWith("$")) {
-            return sqlElement;
+    public static String parseSQLQueryElement(String sqlText, IVariableProvider variableProvider) {
+        sqlText = sqlText.replaceAll("&#10;", "\n");
+        if (!sqlText.startsWith("$")) {
+            return sqlText;
         }
         String sql = "";
-        Matcher matcher = pattern.matcher(sqlElement);
+        Matcher matcher = pattern.matcher(sqlText);
         if (matcher.matches()) {
             String variableName = matcher.group(1);
             sql = variableProvider.getValueNotNull(String.class, variableName);
