@@ -59,6 +59,7 @@ public class Utils {
     private static Queue bpmMessageQueue;
     private static Queue emailQueue;
     private static Queue nodeAsyncExecutionQueue;
+    private static Queue nodeAsyncFailedExecutionQueue;
     private static final String MESSAGE_SELECTOR_DELIMITER = ",";
     private static final String MESSAGE_SELECTOR_VALUE_DELIMITER = "=";
 
@@ -110,6 +111,7 @@ public class Utils {
             bpmMessageQueue = (Queue) getInitialContext().lookup("queue/bpmMessages");
             emailQueue = (Queue) getInitialContext().lookup("queue/email");
             nodeAsyncExecutionQueue = (Queue) getInitialContext().lookup("queue/nodeAsyncExecution");
+            nodeAsyncFailedExecutionQueue = (Queue) getInitialContext().lookup("queue/nodeAsyncFailedExecution");
         }
     }
 
@@ -269,7 +271,28 @@ public class Utils {
             message.setLongProperty("tokenId", token.getId());
             message.setStringProperty("nodeId", token.getNodeId());
             message.setBooleanProperty("retry", retry);
-            log.debug("sending node async execution request for " + token + ", retry=" + retry + "}");
+            log.debug("sending node async execution request for " + token + ", retry=" + retry);
+            sender.send(message);
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        } finally {
+            releaseJmsSession(connection, session, sender);
+        }
+    }
+
+    public static void sendNodeAsyncFailedExecutionMessage(Long tokenId, Throwable throwable) {
+        Connection connection = null;
+        Session session = null;
+        MessageProducer sender = null;
+        try {
+            init();
+            connection = connectionFactory.createConnection();
+            session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            sender = session.createProducer(nodeAsyncFailedExecutionQueue);
+            ObjectMessage message = session.createObjectMessage();
+            message.setLongProperty("tokenId", tokenId);
+            message.setStringProperty("errorMessage", throwable.toString());
+            log.debug("sending node async failed execution request for " + tokenId);
             sender.send(message);
         } catch (Exception e) {
             throw Throwables.propagate(e);
@@ -388,21 +411,19 @@ public class Utils {
         return string1.trim().equals(string2.trim());
     }
 
-    public static void failProcessExecution(UserTransaction transaction, final Long tokenId, final Throwable throwable) {
-        new TransactionalExecutor(transaction) {
+    public static void failProcessExecution(Long tokenId, String errorMessage) {
+        Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
+        failProcessExecution(token, errorMessage);
+    }
 
-            @Override
-            protected void doExecuteInTransaction() throws Exception {
-                Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
-                boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
-                if (stateChanged) {
-                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
-                    ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
-                    processError.setThrowable(throwable);
-                    Errors.sendEmailNotification(processError);
-                }
-            }
-        }.executeInTransaction(true);
+    public static void failProcessExecution(Token token, String errorMessage) {
+        boolean stateChanged = token.fail(errorMessage);
+        if (stateChanged) {
+            token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+            ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
+            processError.setMessage(errorMessage);
+            Errors.sendEmailNotification(processError);
+        }
     }
 
     public static String getCuttedString(String string, int limit) {

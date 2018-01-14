@@ -21,9 +21,10 @@
  */
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,14 +39,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -68,9 +67,6 @@ import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
 
 /**
  * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
@@ -341,7 +337,7 @@ public class Process extends IdentifiableBase {
      * Tells if this process is still active or not.
      */
     public boolean hasEnded() {
-        return endDate != null;
+        return executionStatus == ExecutionStatus.ENDED;
     }
 
     @Override
