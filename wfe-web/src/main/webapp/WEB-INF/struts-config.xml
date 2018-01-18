@@ -875,16 +875,11 @@
 		<action path="/submit_start_process" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_start_process.jsp" />
 
-<<<<<<< HEAD
-		<action path="/manage_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
-			parameter="/WEB-INF/wf/manage_tasks.jsp" />
-=======
 		<action path="/manage_tasks" type="ru.runa.common.web.action.TabHeaderForwardAction"
 				parameter="/WEB-INF/wf/manage_tasks.jsp" />
 
 		<action path="/administer_tasks" type="ru.runa.common.web.action.TabHeaderForwardAction"
 				parameter="/WEB-INF/wf/administer_tasks.jsp" />
->>>>>>> refs/heads/pr19
 
 		<action path="/manage_observable_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
 			parameter="/WEB-INF/wf/manage_observable_tasks.jsp" />
