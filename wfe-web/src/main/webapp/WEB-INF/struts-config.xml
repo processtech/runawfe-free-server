@@ -85,6 +85,7 @@
 			path="/manage_processes.do?tabForwardName=manage_processes" />
 		<forward name="manage_tasks" path="/manage_tasks.do?tabForwardName=manage_tasks" />
 		<forward name="manage_observable_tasks" path="/manage_observable_tasks.do?tabForwardName=manage_observable_tasks" />
+		<forward name="administer_tasks" path="/administer_tasks.do?tabForwardName=administer_tasks" />
 		<forward name="configure_bot_station"
 			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
 		<forward name="bot_station_permission" path="/bot_station_permission.do" />
@@ -874,8 +875,16 @@
 		<action path="/submit_start_process" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_start_process.jsp" />
 
+<<<<<<< HEAD
 		<action path="/manage_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
 			parameter="/WEB-INF/wf/manage_tasks.jsp" />
+=======
+		<action path="/manage_tasks" type="ru.runa.common.web.action.TabHeaderForwardAction"
+				parameter="/WEB-INF/wf/manage_tasks.jsp" />
+
+		<action path="/administer_tasks" type="ru.runa.common.web.action.TabHeaderForwardAction"
+				parameter="/WEB-INF/wf/administer_tasks.jsp" />
+>>>>>>> refs/heads/pr19
 
 		<action path="/manage_observable_tasks" type="ru.runa.wf.web.action.ManageTasksAction"
 			parameter="/WEB-INF/wf/manage_observable_tasks.jsp" />

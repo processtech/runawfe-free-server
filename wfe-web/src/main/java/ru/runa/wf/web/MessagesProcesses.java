@@ -26,6 +26,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage TITLE_GROUP_TASKS = new StrutsMessage("title.group_tasks");
     public static final StrutsMessage TITLE_TASK_FORM = new StrutsMessage("title.task_form");
     public static final StrutsMessage TITLE_VIEW_ONLY = new StrutsMessage("title.task_view_only");
+    public static final StrutsMessage TITLE_ADMIN_TASKS = new StrutsMessage("title.admin_tasks");
     public static final StrutsMessage TITLE_PROCESS_GRAPH = new StrutsMessage("title.process_graph");
     public static final StrutsMessage TITLE_HISTORY = new StrutsMessage("title.history");
     public static final StrutsMessage LABEL_REDEPLOY_PROCESS_DEFINIION = new StrutsMessage("label.redeploy_process_definition");
@@ -72,6 +73,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
     public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
     public static final StrutsMessage BUTTON_DELEGATE_TASK = new StrutsMessage("button.delegate_task");
+    public static final StrutsMessage BUTTON_DELEGATE_TASKS = new StrutsMessage("button.delegate_tasks");
     public static final StrutsMessage BUTTON_EXPORT_EXCEL = new StrutsMessage("button.export_excel");
     public static final StrutsMessage TITLE_UPDATE_VARIABLE = new StrutsMessage("title.update_variable");
     public static final StrutsMessage LABEL_VARIABLE_NAME = new StrutsMessage("label.variable_name");

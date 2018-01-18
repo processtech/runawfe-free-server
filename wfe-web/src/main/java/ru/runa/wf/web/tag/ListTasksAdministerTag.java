@@ -17,6 +17,7 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,11 +25,11 @@ import javax.servlet.jsp.PageContext;
 
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
+import org.json.simple.JSONValue;
 import org.tldgen.annotations.BodyContent;
 
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
-import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.CssClassStrategy;
 import ru.runa.common.web.html.HeaderBuilder;
@@ -38,50 +39,55 @@ import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
-import ru.runa.wf.web.action.ProcessTaskAssignmentAction;
 import ru.runa.wf.web.html.AssignTaskCheckboxTDBuilder;
 import ru.runa.wf.web.html.TaskUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
 /**
- * Created on 15.10.2004
+ * Tasks list form tag for special administrative purposes
  * 
- * @author Vitaliy S aka Yilativs
- * @author Gordienko_m
+ * Created on 15.07.2016
+ * 
+ * @author Alexander Mamchur
  */
-@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listTasksForm")
-public class ListTasksFormTag extends BatchReturningTitledFormTag {
-    private static final long serialVersionUID = -6863052817853155919L;
-    private static boolean isButtonEnabled;
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listTasksAdministerForm")
+public class ListTasksAdministerTag extends BatchReturningTitledFormTag {
+    private static final long serialVersionUID = 1L;
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        pageContext.setAttribute("returnAction", "/wfe/manage_tasks.do", PageContext.SESSION_SCOPE);
+        pageContext.setAttribute("returnAction", "/wfe/administer_tasks.do", PageContext.SESSION_SCOPE);
         BatchPresentation batchPresentation = getBatchPresentation();
-        List<WfTask> tasks = getTasksList(batchPresentation);
+        List<WfTask> tasks = Delegates.getTaskService().getTasks(getUser(), batchPresentation);
         Table table = buildTasksTable(pageContext, batchPresentation, tasks, getReturnAction(), false);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, tasks.size());
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
+
+        // Build current filtered tasks ID-s string (in JSON format for common purposes)
+        String batchName = batchPresentation.getName();
+        if (!BatchPresentationConsts.DEFAULT_NAME.equals(batchName) && tasks.size() > 0) {
+            List<Long> ids = new ArrayList<Long>(tasks.size());
+            for (WfTask tsk : tasks) {
+                ids.add(tsk.getId());
+            }
+            String tasksIds = JSONValue.toJSONString(ids);
+            pageContext.setAttribute("tasksIds", tasksIds, PageContext.REQUEST_SCOPE);
+        }
+        // pageContext.setAttribute("returnAction", "/wfe/administer_tasks.do", PageContext.SESSION_SCOPE);
     }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
             boolean disableCheckbox) {
-        isButtonEnabled = false;
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).isGroupAssigned()) {
-                if (!disableCheckbox) {
-                    isButtonEnabled = true;
-                    break;
-                }
-            }
-        }
+
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new AssignTaskCheckboxTDBuilder(!disableCheckbox) },
-                batchPresentation, null);
+                batchPresentation, new TDBuilder[] {});
+
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, returnAction, pageContext);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(tasks, batchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_SUBMIT_TASK_DISPATCHER, returnAction, new TaskUrlStrategy(pageContext), builders);
@@ -90,23 +96,13 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        return isButtonEnabled;
+    protected boolean isFormButtonVisible() {
+        return false;
     }
 
     @Override
     protected String getTitle() {
-        return MessagesProcesses.TITLE_TASKS.message(pageContext);
-    }
-
-    @Override
-    protected String getFormButtonName() {
-        return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
-    }
-
-    @Override
-    public String getAction() {
-        return ProcessTaskAssignmentAction.ACTION_PATH;
+        return MessagesProcesses.TITLE_ADMIN_TASKS.message(pageContext);
     }
 
     public static class TasksCssClassStrategy implements CssClassStrategy {
@@ -121,9 +117,6 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
             }
             if (task.isEscalated()) {
                 return "escalatedTask";
-            }
-            if (task.isDelegated()) {
-                return "delegatedTask";
             }
             if (task.isAcquiredBySubstitution()) {
                 return "substitutionTask";
@@ -144,15 +137,6 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
             }
             return null;
         }
-    }
-
-    @Override
-    public String getConfirmationPopupParameter() {
-        return ConfirmationPopupHelper.ACCEPT_TASK_PARAMETER;
-    }
-
-    protected List<WfTask> getTasksList(BatchPresentation batchPresentation) {
-        return Delegates.getTaskService().getMyTasks(getUser(), batchPresentation);
     }
 
 }
