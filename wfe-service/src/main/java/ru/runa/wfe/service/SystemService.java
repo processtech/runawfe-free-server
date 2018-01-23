@@ -44,19 +44,17 @@ public interface SystemService {
     /**
      * Get currently registered localizations from database.
      * 
-     * @param user
      * @return
      */
-    public List<Localization> getLocalizations(User user);
+    public List<Localization> getLocalizations();
 
     /**
      * Get localization of string from database.
-     * 
-     * @param user
      * @param name
+     * 
      * @return localized string
      */
-    public String getLocalized(User user, String name);
+    public String getLocalized(String name);
 
     /**
      * Update localizations in database.

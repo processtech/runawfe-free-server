@@ -31,6 +31,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import ru.runa.common.web.Commons;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -40,6 +42,7 @@ import ru.runa.wfe.commons.web.AjaxCommand;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.user.User;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 public class AjaxCommandServlet extends HttpServlet {
@@ -49,23 +52,25 @@ public class AjaxCommandServlet extends HttpServlet {
     private static final String COMMAND_ELEMENT = "command";
     private static final String NAME_ATTR = "name";
     private static final String CLASS_ATTR = "class";
-    private static final Map<String, Class<? extends AjaxCommand>> commands = Maps.newHashMap();
+    private static final Map<String, Class<? extends AjaxCommand>> definitions = Maps.newHashMap();
 
     static {
-        parseCommands(CONFIG, true);
-        parseCommands(SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG, false);
+        registerDefinitions(ClassLoaderUtil.getAsStream(CONFIG, AjaxCommandServlet.class));
+        try {
+            String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG;
+            Resource[] resources = ClassLoaderUtil.getResourcePatternResolver().getResources(pattern);
+            for (Resource resource : resources) {
+                registerDefinitions(resource.getInputStream());
+            }
+        } catch (IOException e) {
+            log.error("unable load wfe.custom ajax command definitions", e);
+        }
     }
 
-    private static void parseCommands(String fileName, boolean required) {
-        InputStream is;
-        if (required) {
-            is = ClassLoaderUtil.getAsStreamNotNull(fileName, AjaxCommandServlet.class);
-        } else {
-            is = ClassLoaderUtil.getAsStream(fileName, AjaxCommandServlet.class);
-        }
-        if (is != null) {
-            log.info("Using " + is);
-            Document document = XmlUtils.parseWithoutValidation(is);
+    private static void registerDefinitions(InputStream inputStream) {
+        try {
+            Preconditions.checkNotNull(inputStream);
+            Document document = XmlUtils.parseWithoutValidation(inputStream);
             Element root = document.getRootElement();
             List<Element> elements = root.elements(COMMAND_ELEMENT);
             for (Element element : elements) {
@@ -75,12 +80,15 @@ public class AjaxCommandServlet extends HttpServlet {
                     Class<? extends AjaxCommand> commandClass = (Class<? extends AjaxCommand>) ClassLoaderUtil.loadClass(className);
                     // test creation
                     ApplicationContextFactory.createAutowiredBean(commandClass);
-                    commands.put(name, commandClass);
+                    definitions.put(name, commandClass);
                     log.debug("Registered command '" + name + "' as " + commandClass);
                 } catch (Throwable e) {
                     log.warn("Unable to create command " + name, e);
                 }
             }
+            inputStream.close();
+        } catch (Exception e) {
+            log.error("unable load ajax command definitions", e);
         }
     }
 
@@ -89,7 +97,7 @@ public class AjaxCommandServlet extends HttpServlet {
         try {
             String command = request.getParameter("command");
             User user = Commons.getUser(request.getSession());
-            Class<? extends AjaxCommand> ajaxCommandClass = commands.get(command);
+            Class<? extends AjaxCommand> ajaxCommandClass = definitions.get(command);
             AjaxCommand ajaxCommand;
             if (ajaxCommandClass == null) {
                 if (ApplicationContextFactory.getContext().containsBean(command)) {

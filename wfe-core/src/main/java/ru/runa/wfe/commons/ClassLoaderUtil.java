@@ -36,6 +36,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import ru.runa.wfe.InternalApplicationException;
 
@@ -51,6 +52,7 @@ import com.google.common.io.ByteStreams;
 public class ClassLoaderUtil {
     private static final Log log = LogFactory.getLog(ClassLoaderUtil.class);
     private static final ClassLoader extensionClassLoader;
+    private static final PathMatchingResourcePatternResolver resourcePatternResolver;
     static {
         File extensionDirectory = new File(IOCommons.getExtensionDirPath());
         if (extensionDirectory.exists() && extensionDirectory.isDirectory()) {
@@ -69,10 +71,15 @@ public class ClassLoaderUtil {
             log.info("No extension directory found: " + extensionDirectory + ", using default class loader");
             extensionClassLoader = ClassLoaderUtil.class.getClassLoader();
         }
+        resourcePatternResolver = new PathMatchingResourcePatternResolver(extensionClassLoader);
     }
 
     public static ClassLoader getExtensionClassLoader() {
         return extensionClassLoader;
+    }
+
+    public static PathMatchingResourcePatternResolver getResourcePatternResolver() {
+        return resourcePatternResolver;
     }
 
     public static Class<?> loadClass(String className, Class<?> callingClass) throws ClassNotFoundException {

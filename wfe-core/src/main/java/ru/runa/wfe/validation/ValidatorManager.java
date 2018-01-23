@@ -1,5 +1,6 @@
 package ru.runa.wfe.validation;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,9 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -26,52 +26,47 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
 public class ValidatorManager {
     private static final Log log = LogFactory.getLog(ValidatorManager.class);
-    private static Map<String, String> validatorRegistrations = new HashMap<String, String>();
+    private static final Map<String, String> validatorRegistrations = new HashMap<String, String>();
     private static final String CONFIG = "validators.xml";
-    private static Properties validatorProperties = ClassLoaderUtil.getLocalizedProperties("validators", ValidatorManager.class, null);
+    private static final Properties validatorProperties = ClassLoaderUtil.getLocalizedProperties("validators", ValidatorManager.class, null);
+    private static final ValidatorManager instance = new ValidatorManager();
 
-    private static ValidatorManager instance;
-
-    public static synchronized ValidatorManager getInstance() {
-        if (instance == null) {
-            instance = new ValidatorManager();
-        }
+    public static ValidatorManager getInstance() {
         return instance;
     }
 
     static {
-        registerDefinitions(CONFIG, true);
-        registerDefinitions(SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG, false);
-    }
-
-    private static void registerDefinitions(String resourceName, boolean required) {
+        registerDefinitions(ClassLoaderUtil.getAsStream(CONFIG, ValidatorManager.class));
         try {
-            InputStream is;
-            if (required) {
-                is = ClassLoaderUtil.getAsStreamNotNull(resourceName, ValidatorManager.class);
-            } else {
-                is = ClassLoaderUtil.getAsStream(resourceName, ValidatorManager.class);
+            String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG;
+            Resource[] resources = ClassLoaderUtil.getResourcePatternResolver().getResources(pattern);
+            for (Resource resource : resources) {
+                registerDefinitions(resource.getInputStream());
             }
-            if (is != null) {
-                validatorRegistrations.putAll(parseValidatorDefinitions(is));
-            }
-        } catch (Exception e) {
-            log.error("check validator definition " + resourceName, e);
+        } catch (IOException e) {
+            log.error("unable load wfe.custom validator definitions", e);
         }
     }
 
-    private static Map<String, String> parseValidatorDefinitions(InputStream is) {
-        Map<String, String> result = Maps.newHashMap();
-        Document document = XmlUtils.parseWithoutValidation(is);
-        List<Element> nodes = document.getRootElement().elements("validator");
-        for (Element validatorElement : nodes) {
-            String name = validatorElement.attributeValue("name");
-            String className = validatorElement.attributeValue("class");
-            result.put(name, className);
+    private static void registerDefinitions(InputStream inputStream) {
+        try {
+            Preconditions.checkNotNull(inputStream);
+            Document document = XmlUtils.parseWithoutValidation(inputStream);
+            List<Element> nodes = document.getRootElement().elements("validator");
+            for (Element validatorElement : nodes) {
+                String name = validatorElement.attributeValue("name");
+                String className = validatorElement.attributeValue("class");
+                validatorRegistrations.put(name, className);
+            }
+            inputStream.close();
+        } catch (Exception e) {
+            log.error("unable load validator definitions", e);
         }
-        return result;
     }
 
     private static String getInternalErrorMessage() {
