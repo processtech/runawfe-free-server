@@ -289,6 +289,10 @@ public class ExecutionContext {
             setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value);
             break;
         }
+        case TRANSIENT: {
+            setTransientVariable(variableDefinition.getName(), value);
+            break;
+        }
         case DEFAULT: {
             ConvertToSimpleVariablesContext context;
             context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(), baseProcessVariableLoader, variableDAO);
@@ -367,7 +371,7 @@ public class ExecutionContext {
                     resultingVariableLog = markingVariableLog;
                 }
             }
-            if (value != null && null != token && null != token.getProcess()) {
+            if (value != null) {
                 if (syncVariableDefinition == null || !subprocessSyncCache.isInBaseProcessIdMode(token.getProcess())) {
                     variable = variableCreator.create(token.getProcess(), variableDefinition, value);
                     resultingVariableLog = variable.setValue(this, value, variableDefinition);
