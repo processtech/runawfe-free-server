@@ -24,13 +24,12 @@ import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 
+import com.google.common.base.Strings;
+
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wfe.execution.dto.WfSwimlane;
-
-import com.google.common.base.Strings;
 
 public class ProcessSwimlaneRowBuilder implements RowBuilder {
     private final PageContext pageContext;
@@ -55,6 +54,10 @@ public class ProcessSwimlaneRowBuilder implements RowBuilder {
         TD nameTD = new TD(swimlane.getDefinition().getName());
         tr.addElement(nameTD);
         nameTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
+
+        TD globalTD = new TD(swimlane.getDefinition().isGlobal() ? /*√*/"&#x221A;" : "");
+        tr.addElement(globalTD);
+        globalTD.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
 
         TD assignedToActorTD = new TD();
         tr.addElement(assignedToActorTD);

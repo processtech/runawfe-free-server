@@ -123,6 +123,7 @@ public class BpmnXmlReader {
     private static final String TYPE = "type";
     private static final String ACTION_HANDLER = "actionHandler";
     private static final String EVENT_TYPE = "eventType";
+    private static final String GLOBAL = "global";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -210,6 +211,7 @@ public class BpmnXmlReader {
                     flowNodeIds.add(flowNodeRefElement.getTextTrim());
                 }
                 swimlaneDefinition.setFlowNodeIds(flowNodeIds);
+                swimlaneDefinition.setGlobal("true".equals(parseExtensionProperties(swimlaneElement).get(GLOBAL)));
                 processDefinition.addSwimlane(swimlaneDefinition);
             }
         }
