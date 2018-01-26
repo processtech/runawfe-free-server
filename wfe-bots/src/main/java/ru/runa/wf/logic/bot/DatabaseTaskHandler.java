@@ -17,6 +17,10 @@
  */
 package ru.runa.wf.logic.bot;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.io.Closeables;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -32,13 +36,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-
 import org.apache.commons.beanutils.PropertyUtils;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -60,12 +61,9 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.IFileVariable;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.Closeables;
+import ru.runa.wfe.var.format.ListFormat;
 
 /**
  * @created on 01.04.2005
@@ -139,20 +137,28 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
                                             }
                                         }, query);
                                 if (first) {
-                                    outputVariables.putAll(result);
+                                    for (Map.Entry<String, Object> entry : result.entrySet()) {
+                                        WfVariable variable = variableProvider.getVariableNotNull(entry.getKey());
+                                        Object variableValue;
+                                        if (variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
+                                            ArrayList<Object> list = new ArrayList<Object>();
+                                            list.add(entry.getValue());
+                                            variableValue = list;
+                                        } else {
+                                            variableValue = entry.getValue();
+                                        }
+                                        outputVariables.put(entry.getKey(), variableValue);
+                                    }
+                                    first = false;
                                 } else {
                                     for (Map.Entry<String, Object> entry : result.entrySet()) {
                                         Object object = outputVariables.get(entry.getKey());
                                         if (!(object instanceof List)) {
-                                            ArrayList<Object> list = new ArrayList<Object>();
-                                            list.add(object);
-                                            outputVariables.put(entry.getKey(), list);
-                                            object = list;
+                                            throw new Exception("Variable " + entry.getKey() + " expected to have List<X> format");
                                         }
                                         ((List<Object>) object).add(entry.getValue());
                                     }
                                 }
-                                first = false;
                             }
                         }
                     } finally {
