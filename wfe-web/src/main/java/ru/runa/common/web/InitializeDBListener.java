@@ -20,9 +20,8 @@ public class InitializeDBListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
         log.info("initializing database");
         Delegates.getInitializerService().onSystemStartup();
-        // this is used not only for debug purpose but for initialization
-        // FreemarkerConfiguration singleton instance in current class loader
-        log.debug(FreemarkerConfiguration.getInstance().getRegistrationInfo());
+        // initialization in current class loader
+        FreemarkerConfiguration.forceLoad();
         log.info("initialization done in class loader " + Thread.currentThread().getContextClassLoader());
         try {
             if (BotStationResources.isAutoStartBotStations()) {

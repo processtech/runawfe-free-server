@@ -27,7 +27,7 @@ public class SubstitutionHelper {
     public static String getUserFriendlyOrgFunction(User user, String swimlaneConfiguration) {
         StringBuffer result = new StringBuffer();
         OrgFunctionSwimlaneInitializer swimlaneInitializer = (OrgFunctionSwimlaneInitializer) SwimlaneInitializerHelper.parse(swimlaneConfiguration);
-        FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(user, swimlaneInitializer.getOrgFunctionClassName());
+        FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(swimlaneInitializer.getOrgFunctionClassName());
         result.append(functionDef.getLabel());
         result.append("(");
         for (int i = 0; i < functionDef.getParams().size(); i++) {

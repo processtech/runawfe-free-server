@@ -17,6 +17,7 @@
  */
 package ru.runa.af.web.orgfunction;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,62 +29,54 @@ import org.dom4j.Element;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.extension.orgfunction.ParamRenderer;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.User;
 
-@SuppressWarnings("unchecked")
+import com.google.common.base.Function;
+
 public class SubstitutionDefinitions {
     private static final Log log = LogFactory.getLog(SubstitutionDefinitions.class);
+    private static final List<FunctionDef> definitions = new ArrayList<>();
 
-    private static final String CONFIG = "substitutions.xml";
-    private static List<FunctionDef> definitions = new ArrayList<FunctionDef>();
+    static {
+        ClassLoaderUtil.withExtensionResources("substitutions.xml", new Function<InputStream, Object>() {
 
-    private static void registerDefinitions(User user, String resourceName, boolean required) {
-        try {
-            InputStream is;
-            if (required) {
-                is = ClassLoaderUtil.getAsStreamNotNull(resourceName, SubstitutionDefinitions.class);
-            } else {
-                is = ClassLoaderUtil.getAsStream(resourceName, SubstitutionDefinitions.class);
-            }
-            if (is != null) {
-                Document document = XmlUtils.parseWithoutValidation(is);
-                List<Element> oElements = document.getRootElement().elements("function");
-                for (Element oElement : oElements) {
-                    String className = oElement.attributeValue("class");
-                    String label = Delegates.getSystemService().getLocalized(user, className);
-                    FunctionDef fDef = new FunctionDef(className, label);
-                    List<Element> pElements = oElement.elements("param");
-                    for (Element pElement : pElements) {
-                        String rendererClassName = pElement.attributeValue("renderer");
-                        if (rendererClassName == null) {
-                            rendererClassName = StringRenderer.class.getName();
+            @Override
+            public Object apply(InputStream input) {
+                try (InputStream inputStream = input) {
+                    Document document = XmlUtils.parseWithoutValidation(inputStream);
+                    List<Element> oElements = document.getRootElement().elements("function");
+                    for (Element oElement : oElements) {
+                        String className = oElement.attributeValue("class");
+                        String label = Delegates.getSystemService().getLocalized(className);
+                        FunctionDef fDef = new FunctionDef(className, label);
+                        List<Element> pElements = oElement.elements("param");
+                        for (Element pElement : pElements) {
+                            String rendererClassName = pElement.attributeValue("renderer");
+                            if (rendererClassName == null) {
+                                rendererClassName = StringRenderer.class.getName();
+                            }
+                            ParamRenderer renderer = ClassLoaderUtil.instantiate(rendererClassName);
+                            ParamDef pDef = new ParamDef(pElement.attributeValue("messageKey"), pElement.attributeValue("message"), renderer);
+                            fDef.addParam(pDef);
                         }
-                        ParamRenderer renderer = ClassLoaderUtil.instantiate(rendererClassName);
-                        ParamDef pDef = new ParamDef(pElement.attributeValue("messageKey"), pElement.attributeValue("message"), renderer);
-                        fDef.addParam(pDef);
+                        definitions.add(fDef);
                     }
-                    definitions.add(fDef);
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
                 }
+                return null;
             }
-        } catch (Exception e) {
-            log.error("check " + resourceName, e);
-        }
+        });
     }
 
-    public static List<FunctionDef> getAll(User user) {
-        if (definitions.isEmpty()) {
-            registerDefinitions(user, CONFIG, true);
-            registerDefinitions(user, SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG, false);
-        }
+    public static List<FunctionDef> getAll() {
         return definitions;
     }
 
-    public static FunctionDef getByClassNameNotNull(User user, String className) {
-        for (FunctionDef definition : getAll(user)) {
+    public static FunctionDef getByClassNameNotNull(String className) {
+        for (FunctionDef definition : getAll()) {
             if (definition.getClassName().equals(className)) {
                 return definition;
             }
