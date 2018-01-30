@@ -1,12 +1,8 @@
 package ru.runa.wfe.var.format;
 
-import java.util.List;
-
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
-
 import com.google.common.collect.Lists;
-
+import java.util.List;
+import org.json.simple.JSONArray;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
@@ -76,12 +72,7 @@ public class ListFormat extends VariableFormat implements VariableFormatContaine
         List<Object> result = Lists.newArrayListWithExpectedSize(array.size());
         VariableFormat componentFormat = FormatCommons.createComponent(this, 0);
         for (Object object : array) {
-            try {
-                result.add(componentFormat.convertFromJSONValue(object));
-            } catch (Exception e) {
-                LogFactory.getLog(ListFormat.class).warn("Value = " + object, e);
-                result.add(null);
-            }
+            result.add(componentFormat.convertFromJSONValue(object));
         }
         return result;
     }
