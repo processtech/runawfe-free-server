@@ -71,7 +71,6 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS, ASystem.INSTANCE));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS, ASystem.INSTANCE));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ADMINISTER_TASKS));
     }
 
     @Attribute(required = false, rtexprvalue = true)
@@ -139,8 +138,7 @@ public class TabHeaderTag extends TagSupport {
 
     private boolean isMenuForwardVisible(MenuForward menuForward) {
         try {
-            if (menuForward.getMenuMessage().getKey().equals("manage_settings")
-                    || menuForward.getMenuMessage().getKey().equals(MessagesCommon.MAIN_MENU_ADMINISTER_TASKS.getKey())) {
+            if (menuForward.getMenuMessage().getKey().equals("manage_settings")) {
                 return Delegates.getExecutorService().isAdministrator(getUser());
             }
             if (menuForward.menuSecuredObject != null) {
