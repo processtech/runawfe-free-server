@@ -26,6 +26,10 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -42,6 +46,7 @@ import ru.runa.wf.web.action.ProcessTaskAssignmentAction;
 import ru.runa.wf.web.html.AssignTaskCheckboxTDBuilder;
 import ru.runa.wf.web.html.TaskUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
@@ -67,6 +72,17 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
+        
+        if (!BatchPresentationConsts.DEFAULT_NAME.equals(batchPresentation.getName()) && tasks.size() > 0) {
+            String tasksIds = Joiner.on(",").join(Lists.transform(tasks, new Function<WfTask, Long>() {
+
+                @Override
+                public Long apply(WfTask input) {
+                    return input.getId();
+                }
+            }));
+            pageContext.setAttribute("tasksIds", tasksIds, PageContext.REQUEST_SCOPE);
+        }
     }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,
