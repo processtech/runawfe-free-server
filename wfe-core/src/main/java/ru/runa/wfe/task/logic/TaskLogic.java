@@ -268,7 +268,7 @@ public class TaskLogic extends WFCommonLogic {
         if (!Objects.equal(currentOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
         }
-        if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
+        if (!executorLogic.isAdministrator(user) && SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
             checkCanParticipate(user.getActor(), task);
         }
         if (keepCurrentOwners) {
