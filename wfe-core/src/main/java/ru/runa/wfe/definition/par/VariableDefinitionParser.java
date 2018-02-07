@@ -4,8 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -59,13 +57,17 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             UserType type = new UserType(typeElement.attributeValue(NAME));
             processDefinition.addUserType(type);
         }
-        typeElements = sortByUsing(typeElements);
         for (Element typeElement : typeElements) {
             UserType type = processDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
             for (Element element : attributeElements) {
                 VariableDefinition variableDefinition = parse(processDefinition, element);
                 type.addAttribute(variableDefinition);
+            }
+        }
+        for (UserType userType : processDefinition.getUserTypes()) {
+            for (VariableDefinition variableDefinition : userType.getAttributes()) {
+                parseDefaultValue(processDefinition, variableDefinition);
             }
         }
         List<Element> variableElements = root.elements(VARIABLE);
@@ -77,36 +79,10 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 processDefinition.setSwimlaneScriptingName(name, scriptingName);
             } else {
                 VariableDefinition variableDefinition = parse(processDefinition, element);
+                parseDefaultValue(processDefinition, variableDefinition);
                 processDefinition.addVariable(variableDefinition);
             }
         }
-    }
-
-    private List<Element> sortByUsing(List<Element> elements) {
-        List<Element> result = Lists.newArrayList(elements);
-        Collections.sort(result, new Comparator<Element>() {
-            @Override
-            public int compare(Element e1, Element e2) {
-                String name2 = e2.attributeValue(NAME);
-                List<Element> attributes1 = e1.elements(VARIABLE);
-                for (Element e : attributes1) {
-                    String format = Strings.nullToEmpty(e.attributeValue(FORMAT));
-                    if (format.endsWith(name2 + VariableFormatContainer.COMPONENT_PARAMETERS_END)) {
-                        return 1;
-                    }
-                }
-                String name1 = e1.attributeValue(NAME);
-                List<Element> attributes2 = e2.elements(VARIABLE);
-                for (Element e : attributes2) {
-                    String format = Strings.nullToEmpty(e.attributeValue(FORMAT));
-                    if (format.endsWith(name1 + VariableFormatContainer.COMPONENT_PARAMETERS_END)) {
-                        return -1;
-                    }
-                }
-                return 0;
-            }
-        });
-        return result;
     }
 
     private VariableDefinition parse(ProcessDefinition processDefinition, Element element) {
@@ -143,25 +119,31 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         }
         variableDefinition.initComponentUserTypes(processDefinition);
         variableDefinition.setPublicAccess(Boolean.parseBoolean(element.attributeValue(PUBLIC, "false")));
-        String stringDefaultValue = element.attributeValue(DEFAULT_VALUE);
+        variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
+        String storeTypeString = element.attributeValue(STORE_TYPE);
+        if (!Strings.isNullOrEmpty(storeTypeString)) {
+            variableDefinition.setStoreType(VariableStoreType.valueOf(storeTypeString.toUpperCase()));
+        }
+        return variableDefinition;
+    }
+
+    private void parseDefaultValue(ProcessDefinition processDefinition, VariableDefinition variableDefinition) {
+        String stringDefaultValue = (String) variableDefinition.getDefaultValue();
         if (!Strings.isNullOrEmpty(stringDefaultValue)) {
             try {
+                variableDefinition.setDefaultValue(null);
                 VariableFormat variableFormat = FormatCommons.create(variableDefinition);
                 Object value = variableFormat.parse(stringDefaultValue);
                 variableDefinition.setDefaultValue(value);
             } catch (Exception e) {
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
                         || processDefinition.getDeployment().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
-                    throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue, e);
+                    throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue + "'", e);
                 } else {
-                    LogFactory.getLog(getClass()).error("Unable to format default value '" + name + "' in " + processDefinition, e);
+                    LogFactory.getLog(getClass()).error(
+                            "Unable to format default value '" + stringDefaultValue + "' in " + processDefinition + ":" + variableDefinition, e);
                 }
             }
         }
-        String storeTypeString = element.attributeValue(STORE_TYPE);
-        if (!Strings.isNullOrEmpty(storeTypeString)) {
-            variableDefinition.setStoreType(VariableStoreType.valueOf(storeTypeString.toUpperCase()));
-        }
-        return variableDefinition;
     }
 }
