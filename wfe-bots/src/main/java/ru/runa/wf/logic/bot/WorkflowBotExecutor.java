@@ -17,15 +17,27 @@
  */
 package ru.runa.wf.logic.bot;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import javax.resource.spi.work.ExecutionContext;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
+import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.TransactionalExecutor;
+import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.NodeProcess;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.dao.NodeProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -34,9 +46,14 @@ import ru.runa.wfe.user.User;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
+import net.sf.ehcache.util.TimeUtil;
+
 /**
  * Execute task handlers for particular bot.
  *
+ * Configures and executes task handler in same method.
+ *
+ * This class is not thread safe.
  * Configures and executes task handler in same method.
  *
  * This class is not thread safe.
@@ -114,21 +131,66 @@ public class WorkflowBotExecutor {
             }
         }
         List<WfTask> currentTasks = Delegates.getTaskService().getMyTasks(user, BatchPresentationFactory.TASKS.createNonPaged());
-        for (WfTask task : currentTasks) {
-            BotExecutionStatus testingExecutor = new WorkflowBotTaskExecutor(this, task);
-            if (!botTaskExecutors.contains(testingExecutor)) {
-                result.add(task);
-                continue;
-            }
-            for (WorkflowBotTaskExecutor taskExecutor : botTaskExecutors) {
-                if (Objects.equal(task, taskExecutor.getTask())) {
-                    if (taskExecutor.isReadyToAttemptExecuteFailedTask()) {
-                        result.add(task);
-                    }
-                    break;
-                }
-            }
-        }
+        NodeProcessDAO nodeProcessDAO = ApplicationContextFactory.getNodeProcessDAO();
+        Long transactionProcessId = currentTasks.size()!=0 ? currentTasks.get(0).getProcessId() : 0L;
+    	NodeProcess nodeProcess = null;
+		for (WfTask task : currentTasks) {
+
+			if (bot.getBotTimeout() != null && bot.getBotTimeout().after(new Date())) {
+				if (bot.getProcessId() != null && !bot.getProcessId().equals(task.getProcessId())) {
+					continue;
+				}
+			} else {
+				nodeProcess = nodeProcessDAO.findBySubProcessId(task.getProcessId());
+
+				if (nodeProcess.isTransaction() && bot.isTransactional()) {
+					if (bot.getProcessId() != null && bot.getProcessId().equals(task.getProcessId())) {
+						final WfTask taskFinal = task;
+						final NodeProcess nodeProcessFinal = nodeProcess;
+						new TransactionalExecutor() {
+
+							@Override
+							protected void doExecuteInTransaction() throws Exception {
+								Utils.sendBpmnErrorMessage(nodeProcessFinal.getProcess().getId(),
+										taskFinal.getTokenId(), nodeProcessFinal.getNodeId(), new Exception());
+							}
+						}.executeInTransaction(false);
+					}
+					transactionProcessId = task.getProcessId();
+					bot.setBotTimeout(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(bot.getTimeout())));
+					bot.setProcessId(transactionProcessId);
+				}
+			}
+
+			BotExecutionStatus testingExecutor = new WorkflowBotTaskExecutor(this, task);
+			if (!botTaskExecutors.contains(testingExecutor)) {
+				if (nodeProcess.isTransaction() && bot.isTransactional()) {
+					if (task.getProcessId().equals(transactionProcessId)) {
+						result.add(task);
+						continue;
+					}
+				} else {
+					result.add(task);
+					continue;
+				}
+			}
+
+			for (WorkflowBotTaskExecutor taskExecutor : botTaskExecutors) {
+				if (Objects.equal(task, taskExecutor.getTask())) {
+					if (taskExecutor.isReadyToAttemptExecuteFailedTask()) {
+						if (nodeProcess.isTransaction() && bot.isTransactional()) {
+							if (task.getProcessId() == transactionProcessId) {
+								result.add(task);
+							}
+						} else {
+							result.add(task);
+						}
+					}
+					break;
+				}
+			}
+		}
+        
         return result;
     }
 

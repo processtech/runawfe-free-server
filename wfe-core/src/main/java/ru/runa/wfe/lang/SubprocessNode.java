@@ -32,6 +32,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
     private String subProcessName;
     private boolean embedded;
+    private boolean transaction;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
     private transient IProcessDefinitionLoader processDefinitionLoader;
@@ -74,6 +75,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     public void setEmbedded(boolean embedded) {
         this.embedded = embedded;
     }
+    
+    public boolean isTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(boolean transaction) {
+		this.transaction = transaction;
+	}
 
     @Override
     public boolean isAsync() {
@@ -150,7 +159,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                 }
             }
         }
-        Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0);
+        Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0, isTransaction());
         processFactory.startSubprocess(executionContext, new ExecutionContext(subProcessDefinition, subProcess));
         if (async) {
             log.debug("continue execution in async " + this);

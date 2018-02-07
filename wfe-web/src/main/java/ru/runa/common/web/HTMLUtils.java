@@ -145,6 +145,16 @@ public class HTMLUtils {
         tr.addElement(new TD(input).setClass(Resources.CLASS_LIST_TABLE_TD));
         return tr;
     }
+    
+    public static Input createCheckboxInput(String name, boolean checked, boolean enabled, boolean required) {
+        Input input = new Input(Input.CHECKBOX, name);
+        input.setChecked(checked);
+        input.setDisabled(!enabled);
+        if (required) {
+            input.setClass(Resources.CLASS_REQUIRED);
+        }
+        return input;
+    }
 
     public static TR createSelectRow(String label, String name, Option[] options, boolean enabled, boolean required) {
         Select select = new Select(name, options);

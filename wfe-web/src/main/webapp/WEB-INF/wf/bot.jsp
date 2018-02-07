@@ -10,6 +10,22 @@
 <tiles:put name="head" type="string">
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor/codemirror.js?"+Version.getHash() %>' />">c=0;</script> 
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor.js?"+Version.getHash() %>' />">c=0;</script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var sequential = $("input[name='sequential']");
+			var botTimeout = $("input[name='botTimeout']");
+			var checked = sequential.prop('checked');
+	    	$("input[name='transactional']").change(function() {
+		        if(this.checked) {
+		        	sequential.prop('checked', true).prop('disabled', true); 
+		        	botTimeout.prop('disabled', false);
+		        } else {
+		        	sequential.prop('checked', checked).prop('disabled', false);
+		        	botTimeout.prop('disabled', true);
+		        }     
+	    	});
+		});
+	</script>
 </tiles:put>
 
 	<tiles:put name="body" type="string">

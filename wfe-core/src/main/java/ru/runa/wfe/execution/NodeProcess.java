@@ -34,17 +34,19 @@ public class NodeProcess {
     // TODO why = 0 for subprocess?
     private Integer index;
     private Date createDate;
+    private boolean transaction;
 
     protected NodeProcess() {
     }
 
-    public NodeProcess(Node processStateNode, Token parentToken, Process subProcess, Integer index) {
+    public NodeProcess(Node processStateNode, Token parentToken, Process subProcess, Integer index, boolean transacion) {
         this.process = parentToken.getProcess();
         this.parentToken = parentToken;
         this.nodeId = processStateNode.getNodeId();
         this.subProcess = subProcess;
         this.index = index;
         this.createDate = new Date();
+        this.transaction = transacion;
     }
 
     @Id
@@ -119,6 +121,15 @@ public class NodeProcess {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+    
+    @Column(name = "TRANSACTION", nullable = false)
+    public boolean isTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(boolean transaction) {
+        this.transaction = transaction;
     }
 
     @Override

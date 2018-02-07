@@ -96,13 +96,18 @@ public class ProcessFactory {
             permissionDAO.setPermissions(actor, processStarterPermissions, process);
         }
     }
-
+    
     public Process createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object> variables,
             int index) {
+    	return createSubprocess(parentExecutionContext, processDefinition, variables, index, false);
+    }
+
+    public Process createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object> variables,
+            int index, boolean transaction) {
         Process parentProcess = parentExecutionContext.getProcess();
         Node subProcessNode = parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null);
-        nodeProcessDAO.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
+        nodeProcessDAO.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index, transaction));
         return subExecutionContext.getProcess();
     }
 
