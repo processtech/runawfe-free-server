@@ -25,6 +25,7 @@ import ru.runa.wfe.execution.ProcessSuspendedException;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
+import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -95,11 +96,11 @@ public class TaskLogic extends WFCommonLogic {
             ProcessDefinition processDefinition = getDefinition(task);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
             TaskCompletionBy completionBy = checkCanParticipate(user.getActor(), task);
-            InteractionNode node = (InteractionNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
             if (swimlaneActorId != null) {
                 Actor swimlaneActor = executorDAO.getActor(swimlaneActorId);
                 checkCanParticipate(swimlaneActor, task);
-                boolean reassignSwimlane = node.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer();
+                boolean reassignSwimlane = taskNode.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer();
                 AssignmentHelper.reassignTask(executionContext, task, swimlaneActor, reassignSwimlane);
             }
             // don't persist selected transition name
@@ -116,8 +117,8 @@ public class TaskLogic extends WFCommonLogic {
                     executionContext.setTransientVariable(entry.getKey(), entry.getValue());
                 }
             }
-            if (node instanceof MultiTaskNode) {
-                for (VariableMapping mapping : ((MultiTaskNode) node).getVariableMappings()) {
+            if (taskNode instanceof MultiTaskNode) {
+                for (VariableMapping mapping : ((MultiTaskNode) taskNode).getVariableMappings()) {
                     String variableName = mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
                             + VariableFormatContainer.COMPONENT_QUALIFIER_END;
                     Object value = executionContext.getVariableProvider().getValue(variableName);
@@ -130,14 +131,16 @@ public class TaskLogic extends WFCommonLogic {
             executionContext.setVariableValues(variables);
             Transition transition;
             if (transitionName != null) {
-                transition = node.getLeavingTransitionNotNull(transitionName);
+                transition = taskNode.getLeavingTransitionNotNull(transitionName);
             } else {
-                transition = node.getDefaultLeavingTransitionNotNull();
+                transition = taskNode.getDefaultLeavingTransitionNotNull();
             }
             executionContext.setTransientVariable(WfProcess.SELECTED_TRANSITION_KEY, transition.getName());
-            task.end(executionContext, TaskCompletionInfo.createForUser(completionBy, user.getActor()));
-            if (!(node instanceof Synchronizable) || !((Synchronizable) node).isAsync()) {
-                signalToken(executionContext, task, transition);
+            task.end(executionContext, taskNode, TaskCompletionInfo.createForUser(completionBy, user.getActor()));
+            if (taskNode instanceof Synchronizable && ((Synchronizable) taskNode).isAsync()) {
+                taskNode.endBoundaryEventTokens(executionContext);
+            } else {
+                pushToken(executionContext, task, transition);
             }
             log.info("Task '" + task.getName() + "' was done by " + user + " in process " + task.getProcess());
             Errors.removeProcessError(processError);
@@ -170,7 +173,7 @@ public class TaskLogic extends WFCommonLogic {
         }
     }
 
-    private void signalToken(ExecutionContext executionContext, Task task, Transition transition) {
+    private void pushToken(ExecutionContext executionContext, Task task, Transition transition) {
         Token token = executionContext.getToken();
         if (!Objects.equal(task.getNodeId(), token.getNodeId())) {
             throw new InternalApplicationException("completion of " + task + " failed. Different node id in task and token: " + token.getNodeId());
