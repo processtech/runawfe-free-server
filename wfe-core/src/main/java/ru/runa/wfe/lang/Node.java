@@ -309,10 +309,6 @@ public abstract class Node extends GraphElement {
     }
 
     protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
-        if (token.getNodeId().equals(getNodeId())) {
-            token.end(processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
-        } else {
-            log.debug("Parent token node " + token.getNodeId() + " differs from " + getNodeId() + ", not ending by signal");
-        }
+        token.end(processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
     }
 }
