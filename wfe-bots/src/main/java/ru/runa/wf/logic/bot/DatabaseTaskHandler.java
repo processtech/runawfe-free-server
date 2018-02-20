@@ -60,7 +60,6 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.format.ListFormat;
@@ -81,7 +80,7 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
             outputVariables.put(DatabaseTask.CURRENT_DATE_VARIABLE_NAME, new Date());
         }
         DatabaseTask[] databaseTasks = DatabaseTaskXmlParser.parse(configuration, variableProvider);
-        executeDatabaseTasks(user, loadVariables(databaseTasks, variableProvider), task, outputVariables, databaseTasks);
+        executeDatabaseTasks(user, variableProvider, task, outputVariables, databaseTasks);
         return outputVariables;
     }
 
@@ -169,28 +168,6 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
                 SQLCommons.releaseResources(conn);
             }
         }
-    }
-
-    private MapVariableProvider loadVariables(DatabaseTask[] databaseTasks, IVariableProvider variableProvider) {
-        Set<String> variableNames = Sets.newHashSet();
-        for (DatabaseTask databaseTask : databaseTasks) {
-            for (int queryIdx = 0; queryIdx < databaseTask.getQueriesCount(); queryIdx++) {
-                AbstractQuery query = databaseTask.getQuery(queryIdx);
-                for (int paramIdx = 0; paramIdx < query.getParameterCount(); paramIdx++) {
-                    Parameter param = query.getParameter(paramIdx);
-                    variableNames.add(param.getVariableName());
-                }
-                for (int resultIdx = 0; resultIdx < query.getResultVariableCount(); resultIdx++) {
-                    Result result = query.getResultVariable(resultIdx);
-                    variableNames.add(result.getVariableName());
-                }
-            }
-        }
-        MapVariableProvider provider = new MapVariableProvider(Maps.<String, Object> newHashMap());
-        for (String variableName : variableNames) {
-            provider.add(variableName, variableProvider.getValue(variableName));
-        }
-        return provider;
     }
 
     private Map<String, Object> extractResultsToProcessVariables(User user, IVariableProvider variableProvider,
