@@ -6,8 +6,11 @@ import java.util.zip.ZipOutputStream;
 
 import org.dom4j.Document;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wf.web.datafile.builder.BotDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.DataFileBuilder;
+import ru.runa.wf.web.datafile.builder.DataSourceDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.DefinitionDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.ExecutorDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.PermissionsDataFileBuilder;
@@ -16,8 +19,6 @@ import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 /**
  * Populate zip archive.
@@ -41,6 +42,7 @@ public class DataFileCreator {
         builders.add(new PermissionsDataFileBuilder(user, Lists.newArrayList(ASystem.INSTANCE), "addPermissionsOnSystem", false));
         builders.add(new PermissionsDataFileBuilder(user, Lists.newArrayList(RelationsGroupSecure.INSTANCE), "addPermissionsOnRelationGroup", false));
         builders.add(new PermissionsDataFileBuilder(user, Lists.newArrayList(BotStation.INSTANCE), "addPermissionsOnBotStations", false));
+        builders.add(new DataSourceDataFileBuilder(user));
     }
 
     public void process() throws Exception {

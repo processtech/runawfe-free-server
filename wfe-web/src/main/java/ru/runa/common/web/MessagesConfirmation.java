@@ -18,6 +18,9 @@ public final class MessagesConfirmation {
     public static final StrutsMessage CONF_POPUP_REMOVE_BOT_STATION = new StrutsMessage("confirmpopup.remove.botstation");
     public static final StrutsMessage COOKIE_REMOVE_BOT_STATION = new StrutsMessage("remove.botstation.cookie");
 
+    public static final StrutsMessage CONF_POPUP_REMOVE_DATA_SOURCE = new StrutsMessage("confirmpopup.remove.datasource");
+    public static final StrutsMessage COOKIE_REMOVE_DATA_SOURCE = new StrutsMessage("remove.botstation.cookie");
+
     public static final StrutsMessage CONF_POPUP_DEPLOY_PROCESSDEFINIION = new StrutsMessage("confirmpopup.deploy.processdefinition");
     public static final StrutsMessage COOKIE_DEPLOY_PROCESSDEFINIION = new StrutsMessage("deploy.processdefinition.cookie");
 

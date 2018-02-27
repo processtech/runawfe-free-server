@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.google.common.collect.Lists;
+
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.batch.ReplicateBatchPresentationOperation;
 import ru.runa.wfe.script.botstation.AddConfigurationsToBotOperation;
@@ -18,6 +20,7 @@ import ru.runa.wfe.script.botstation.RemoveAllConfigurationsFromBotOperation;
 import ru.runa.wfe.script.botstation.RemoveConfigurationsFromBotOperation;
 import ru.runa.wfe.script.botstation.UpdateBotOperation;
 import ru.runa.wfe.script.botstation.UpdateBotStationOperation;
+import ru.runa.wfe.script.datasource.DeployDataSourceOperation;
 import ru.runa.wfe.script.executor.AddExecutorsToGroupOperation;
 import ru.runa.wfe.script.executor.CreateActorOperation;
 import ru.runa.wfe.script.executor.CreateGroupOperation;
@@ -66,8 +69,6 @@ import ru.runa.wfe.script.processes.RemoveProcessesOperation;
 import ru.runa.wfe.script.relation.CreateRelationOperation;
 import ru.runa.wfe.script.report.DeployReportOperation;
 import ru.runa.wfe.script.substitution.ChangeSubstitutionOperation;
-
-import com.google.common.collect.Lists;
 
 @XmlTransient
 public abstract class OperationsListContainer {
@@ -141,7 +142,9 @@ public abstract class OperationsListContainer {
             @XmlElement(name = SetPermissionsOnReportsOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOnReportsOperation.class),
 
             @XmlElement(name = ReplicateBatchPresentationOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = ReplicateBatchPresentationOperation.class),
-            @XmlElement(name = CustomOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = CustomOperation.class)
+            @XmlElement(name = CustomOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = CustomOperation.class),
+
+            @XmlElement(name = DeployDataSourceOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = DeployDataSourceOperation.class)
 
     })
     public List<ScriptOperation> operations = Lists.newArrayList();

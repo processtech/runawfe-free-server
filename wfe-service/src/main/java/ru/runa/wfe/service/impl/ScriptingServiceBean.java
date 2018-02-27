@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.service.impl;
 
-import groovy.lang.GroovyShell;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +35,11 @@ import javax.jws.soap.SOAPBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
+
+import groovy.lang.GroovyShell;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.script.AdminScript;
@@ -53,14 +56,10 @@ import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Sets;
-
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, CacheReloader.class, PerformanceObserver.class, EjbTransactionSupport.class,
-    SpringBeanAutowiringInterceptor.class })
+        SpringBeanAutowiringInterceptor.class })
 @WebService(name = "ScriptingAPI", serviceName = "ScriptingWebService")
 @SOAPBinding
 public class ScriptingServiceBean implements ScriptingService {
@@ -98,12 +97,20 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebMethod(exclude = true)
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue) {
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources,
+            String defaultPasswordValue) {
+        return executeAdminScriptSkipError(user, configData, externalResources, defaultPasswordValue, null);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue,
+            String dataSourceDefaultPasswordValue) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(configData != null, "configData");
         Preconditions.checkArgument(externalResources != null, "externalResources");
         Preconditions.checkArgument(defaultPasswordValue != null, "defaultPasswordValue");
-        ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue);
+        ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue, dataSourceDefaultPasswordValue);
         final List<String> errors = new ArrayList<String>();
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
             @Override

@@ -67,4 +67,11 @@ public class Resources {
     public static final String CLASS_EXECUTOR_GROUP = "executor_group";
     public static final String EXCEL_ICON = "/images/excel-icon.png";
 
+    /* Data source specifics */
+    public static final String ICON_DATA_SOURCE_EXCEL = "/images/MS-Excel-2013-icon.png";
+    public static final String ICON_DATA_SOURCE_JDBC = "/images/jdbc_16.gif";
+    public static final String ICON_DATA_SOURCE_JBOSS = "/images/jboss.gif";
+    public static final String ICON_DATA_SOURCE_WILDFLY = "/images/wildfly_icon_16.png";
+    public static final String ICON_DATA_SOURCE_PASSWORD = "/images/lock-icon.png";
+
 }
