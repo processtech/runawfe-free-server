@@ -31,7 +31,23 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandlerBase;
+import ru.runa.wfe.extension.function.CurrentDate;
+import ru.runa.wfe.extension.function.CurrentTime;
+import ru.runa.wfe.extension.function.FormattedDate;
+import ru.runa.wfe.extension.function.FormattedTime;
 import ru.runa.wfe.extension.function.Function;
+import ru.runa.wfe.extension.function.Functions;
+import ru.runa.wfe.extension.function.HoursRoundUp;
+import ru.runa.wfe.extension.function.Mapping;
+import ru.runa.wfe.extension.function.NameCaseRussian;
+import ru.runa.wfe.extension.function.NumberToShortStringRu;
+import ru.runa.wfe.extension.function.NumberToStringRu;
+import ru.runa.wfe.extension.function.RoundDouble;
+import ru.runa.wfe.extension.function.RoundDownDouble;
+import ru.runa.wfe.extension.function.RoundDownLong;
+import ru.runa.wfe.extension.function.RoundLong;
+import ru.runa.wfe.extension.function.RoundUpDouble;
+import ru.runa.wfe.extension.function.RoundUpLong;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -440,14 +456,14 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 incorrectParameters(s);
                 return null;
             }
-            return actions.dateFunction(new Date());
+            return Functions.executeFunction(CurrentDate.class.getSimpleName());
         }
         if (s.equals("current_time")) {
             if (!nextToken().equals(")")) {
                 incorrectParameters(s);
                 return null;
             }
-            return actions.timeFunction(new Date());
+            return Functions.executeFunction(CurrentTime.class.getSimpleName());
         }
         if (s.equals("random")) {
             if (!nextToken().equals(")")) {
@@ -462,7 +478,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 incorrectParameters(s);
                 return null;
             }
-            return actions.dateFunction(param1);
+            return Functions.executeFunction(FormattedDate.class.getSimpleName(), param1);
         }
         if (s.equals("time")) {
             Object param1 = parsePriority0();
@@ -470,7 +486,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 incorrectParameters(s);
                 return null;
             }
-            return actions.timeFunction(param1);
+            return Functions.executeFunction(FormattedTime.class.getSimpleName(), param1);
         }
         if (s.equals("hours_round_up")) {
             Object param1 = parsePriority0();
@@ -478,7 +494,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 incorrectParameters(s);
                 return null;
             }
-            return actions.hoursRoundUpFunction(param1);
+            return Functions.executeFunction(HoursRoundUp.class.getSimpleName(), param1);
         }
         if (s.equals("round_up")) {
             Object param1 = parsePriority0();
@@ -509,9 +525,9 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return ((BigDecimal) param1).setScale(num, RoundingMode.UP);
             } else {
                 if (num <= 0) {
-                    return actions.roundUpFunction(d);
+                    return Functions.executeFunction(RoundUpLong.class.getSimpleName(), d);
                 }
-                return actions.roundUpFunction(d, num);
+                return Functions.executeFunction(RoundUpDouble.class.getSimpleName(), d, num);
             }
         }
         if (s.equals("round_down")) {
@@ -543,9 +559,9 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return ((BigDecimal) param1).setScale(num, RoundingMode.DOWN);
             } else {
                 if (num <= 0) {
-                    return actions.roundDownFunction(d);
+                    return Functions.executeFunction(RoundDownLong.class.getSimpleName(), d);
                 }
-                return actions.roundDownFunction(d, num);
+                return Functions.executeFunction(RoundDownDouble.class.getSimpleName(), d, num);
             }
         }
         if (s.equals("round")) {
@@ -577,9 +593,9 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return ((BigDecimal) param1).setScale(num, RoundingMode.HALF_UP);
             } else {
                 if (num <= 0) {
-                    return actions.roundFunction(d);
+                    return Functions.executeFunction(RoundLong.class.getSimpleName(), d);
                 }
-                return actions.roundFunction(d, num);
+                return Functions.executeFunction(RoundDouble.class.getSimpleName(), d, num);
             }
         }
         if (s.equals("number_to_string_ru")) {
@@ -595,7 +611,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                     incorrectParameters(s);
                     return null;
                 }
-                return NumberToStringRu.numberToString(number);
+                return Functions.executeFunction(NumberToStringRu.class.getSimpleName(), number);
             }
             if (!tok.equals(",")) {
                 incorrectParameters(s);
@@ -636,7 +652,8 @@ public class FormulaActionHandler extends ActionHandlerBase {
             String s1 = param3.toString();
             String s2 = param4.toString();
             String s3 = param5.toString();
-            return NumberToStringRu.numberToString(number, new NumberToStringRu.Word(p, new String[] { s1, s2, s3 }));
+            
+            return Functions.executeFunction(NumberToStringRu.class.getSimpleName(), number, p, s1, s2, s3);
         }
         if (s.equals("FIO_case_ru")) {
             Object param1 = parsePriority0();
@@ -661,7 +678,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return null;
             }
             String mode = param3.toString();
-            return actions.nameCaseRussian(fio, caseNumber, mode);
+            return Functions.executeFunction(NameCaseRussian.class.getSimpleName(), fio, caseNumber, mode);
         }
         if (s.equalsIgnoreCase("BigDecimal")) {
             Object param = parsePriority0();
@@ -692,7 +709,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
             }
             String input = param1.toString();
             String rule = param2.toString();
-            return actions.mapping(input, rule);
+            return Functions.executeFunction(Mapping.class.getSimpleName(), input, rule);
         }
         if (s.equals("number_to_short_string_ru")) {
             Object param1 = parsePriority0();
@@ -721,21 +738,16 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 return null;
             }
             Long number = (Long) actions.translate(param1, Long.class);
-            int p = -1;
-            if (param2.toString().equals("M")) {
-                p = 0;
-            }
-            if (param2.toString().equals("F")) {
-                p = 1;
-            }
-            if (p == -1 || number == null) {
+            if ((!param2.toString().equals("M") && !param2.toString().equals("F")) 
+                    || number == null) {
                 incorrectParameters(s);
                 return null;
             }
             String s1 = param3.toString();
             String s2 = param4.toString();
             String s3 = param5.toString();
-            return NumberToStringRu.numberToShortString(number, new NumberToStringRu.Word(p, new String[] { s1, s2, s3 }));
+
+            return Functions.executeFunction(NumberToShortStringRu.class.getSimpleName(), number, s1, s2, s3);
         }
         if (s.equals("isExecutorInGroup")) {
             Object param1 = parsePriority0();
@@ -764,7 +776,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
             }
             return ApplicationContextFactory.getExecutorDAO().isExecutorInGroup(executor, group);
         }
-        Function<? extends Object> function = FormulaActionHandlerOperations.getFunction(s);
+        Function<? extends Object> function = Functions.getFunction(s);
         if (function != null) {
             List<Object> parameters = Lists.newArrayList();
             String token;

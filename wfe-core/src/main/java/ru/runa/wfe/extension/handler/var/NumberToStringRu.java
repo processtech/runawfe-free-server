@@ -1,5 +1,7 @@
 package ru.runa.wfe.extension.handler.var;
 
+//TODO: delete if not used anywhere
+@Deprecated
 public class NumberToStringRu {
     public static final int MALE = 0;
     public static final int FEMALE = 1;
