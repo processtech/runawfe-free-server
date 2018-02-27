@@ -32,8 +32,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
-import com.google.common.base.Strings;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateSubstitutionCriteriaAction;
 import ru.runa.af.web.form.SubstitutionCriteriaForm;
@@ -50,6 +48,8 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 
+import com.google.common.base.Strings;
+
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateSubstitutionCriteriaForm")
 public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
     private static final long serialVersionUID = 1L;
@@ -62,7 +62,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
     @Override
     public void fillFormData(TD tdFormElement) {
         StringBuffer paramsDiv = new StringBuffer("<div id='rh' style='display: none;'>");
-        List<FunctionDef> functions = SubstitutionCriteriaDefinitions.getAll(getUser());
+        List<FunctionDef> functions = SubstitutionCriteriaDefinitions.getAll();
         int i = 0;
         for (FunctionDef functionDef : functions) {
             paramsDiv.append("<div id='").append(functionDef.getClassName()).append("'>");
@@ -111,8 +111,8 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
         }
 
         public Table buildTable() {
-            SubstitutionCriteria substitutionCriteria = getIdentifiableId() != null
-                    ? Delegates.getSubstitutionService().getCriteria(getUser(), getIdentifiableId()) : null;
+            SubstitutionCriteria substitutionCriteria = getIdentifiableId() != null ? Delegates.getSubstitutionService().getCriteria(getUser(),
+                    getIdentifiableId()) : null;
             Table table = new Table();
             table.setID("paramsTable");
             table.setClass(Resources.CLASS_LIST_TABLE);
@@ -130,7 +130,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
             }
             table.addElement(HTMLUtils.createSelectRow(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_TYPE.message(pageContext),
                     SubstitutionCriteriaForm.TYPE_INPUT_NAME, typeOptions, enabled, false));
-            FunctionDef functionDef = SubstitutionCriteriaDefinitions.getByClassName(getUser(), criteriaType);
+            FunctionDef functionDef = SubstitutionCriteriaDefinitions.getByClassName(criteriaType);
             if (functionDef != null) {
                 for (int i = 0; i < functionDef.getParams().size(); i++) {
                     ParamDef paramDef = functionDef.getParams().get(i);
@@ -146,7 +146,7 @@ public class UpdateSubstitutionCriteriaFormTag extends IdentifiableFormTag {
         }
 
         private Option[] getTypeOptions(String selectedValue) {
-            List<FunctionDef> definitions = SubstitutionCriteriaDefinitions.getAll(getUser());
+            List<FunctionDef> definitions = SubstitutionCriteriaDefinitions.getAll();
             Option[] options = new Option[definitions.size()];
             for (int i = 0; i < options.length; i++) {
                 String value = definitions.get(i).getClassName();

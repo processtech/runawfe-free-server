@@ -5,7 +5,7 @@ package ru.runa.wfe.var;
  * @since Jun 22, 2017
  */
 public enum VariableStoreType {
-
     DEFAULT,
-    BLOB;
+    BLOB,
+    TRANSIENT;
 }

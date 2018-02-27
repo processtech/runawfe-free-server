@@ -156,15 +156,18 @@ public class CommonLogic {
         return permissionDAO.getPersistentObjectCount(user, batchPresentation, permission, securedObjectTypes);
     }
 
-    public List<Localization> getLocalizations(User user) {
+    public List<Localization> getLocalizations() {
         return localizationDAO.getAll();
     }
 
-    public String getLocalized(User user, String name) {
+    public String getLocalized(String name) {
         return localizationDAO.getLocalized(name);
     }
 
     public void saveLocalizations(User user, List<Localization> localizations) {
+        if (!executorDAO.isAdministrator(user.getActor())) {
+            throw new AuthorizationException("Not admin");
+        }
         localizationDAO.saveLocalizations(localizations, true);
     }
 
