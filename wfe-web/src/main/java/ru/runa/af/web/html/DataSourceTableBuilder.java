@@ -38,9 +38,8 @@ import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceType;
 import ru.runa.wfe.datasource.ExcelDataSource;
-import ru.runa.wfe.datasource.JbossDataSource;
 import ru.runa.wfe.datasource.JdbcDataSource;
-import ru.runa.wfe.datasource.WildFlyDataSource;
+import ru.runa.wfe.datasource.JndiDataSource;
 
 public class DataSourceTableBuilder {
 
@@ -89,11 +88,8 @@ public class DataSourceTableBuilder {
         case Excel:
             icon = Resources.ICON_DATA_SOURCE_EXCEL;
             break;
-        case JBoss:
-            icon = Resources.ICON_DATA_SOURCE_JBOSS;
-            break;
-        case WildFly:
-            icon = Resources.ICON_DATA_SOURCE_WILDFLY;
+        case JNDI:
+            icon = Resources.ICON_DATA_SOURCE_JNDI;
             break;
         default:
             icon = Resources.ICON_DATA_SOURCE_JDBC;
@@ -103,11 +99,6 @@ public class DataSourceTableBuilder {
 
     private String password(DataSource ds) {
         if (ds.getType().equals(DataSourceType.JDBC)) {
-            /*
-            return new A(Commons.getActionUrl("data_source_password.do", "dataSourceId", ds.getName(), pageContext, PortletUrlType.Render))
-                    .addElement(new IMG(Commons.getUrl(Resources.ICON_DATA_SOURCE_PASSWORD, pageContext, PortletUrlType.Action)))
-                    .setTitle(MessagesDataSource.LABEL_DATA_SOURCE_CHANGE_PASSWORD.message(pageContext)).toString();
-                    */
             A a = new A();
             a.addElement(new IMG(Commons.getUrl(Resources.ICON_DATA_SOURCE_PASSWORD, pageContext, PortletUrlType.Action)).toString());
             a.setTitle(MessagesDataSource.LABEL_DATA_SOURCE_CHANGE_PASSWORD.message(pageContext));
@@ -128,11 +119,8 @@ public class DataSourceTableBuilder {
             ExcelDataSource eds = (ExcelDataSource) ds;
             attributes += "filePath: " + eds.getFilePath() + ", fileName: " + eds.getFileName();
             break;
-        case JBoss:
-            attributes += "jndiName: " + ((JbossDataSource) ds).getJndiName();
-            break;
-        case WildFly:
-            attributes += "jndiName: " + ((WildFlyDataSource) ds).getJndiName();
+        case JNDI:
+            attributes += "jndiName: " + ((JndiDataSource) ds).getJndiName();
             break;
         default:
             JdbcDataSource jds = (JdbcDataSource) ds;

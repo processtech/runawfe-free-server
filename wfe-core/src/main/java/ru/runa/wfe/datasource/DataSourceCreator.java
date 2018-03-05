@@ -11,8 +11,7 @@ class DataSourceCreator {
     static {
         DATA_SOURCE_TYPES.put(DataSourceType.Excel, ExcelDataSource.class);
         DATA_SOURCE_TYPES.put(DataSourceType.JDBC, JdbcDataSource.class);
-        DATA_SOURCE_TYPES.put(DataSourceType.WildFly, WildFlyDataSource.class);
-        DATA_SOURCE_TYPES.put(DataSourceType.JBoss, JbossDataSource.class);
+        DATA_SOURCE_TYPES.put(DataSourceType.JNDI, JndiDataSource.class);
     }
 
     static DataSource create(DataSourceType type) {

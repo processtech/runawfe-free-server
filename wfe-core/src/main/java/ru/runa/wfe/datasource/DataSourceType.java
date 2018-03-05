@@ -4,7 +4,6 @@ public enum DataSourceType {
 
     Excel,
     JDBC,
-    WildFly,
-    JBoss
+    JNDI
 
 }

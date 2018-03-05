@@ -70,8 +70,7 @@ public class Resources {
     /* Data source specifics */
     public static final String ICON_DATA_SOURCE_EXCEL = "/images/MS-Excel-2013-icon.png";
     public static final String ICON_DATA_SOURCE_JDBC = "/images/jdbc_16.gif";
-    public static final String ICON_DATA_SOURCE_JBOSS = "/images/jboss.gif";
-    public static final String ICON_DATA_SOURCE_WILDFLY = "/images/wildfly_icon_16.png";
+    public static final String ICON_DATA_SOURCE_JNDI = "/images/wildfly_icon_16.png";
     public static final String ICON_DATA_SOURCE_PASSWORD = "/images/lock-icon.png";
 
 }

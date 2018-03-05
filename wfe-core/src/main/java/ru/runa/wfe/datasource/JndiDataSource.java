@@ -2,7 +2,7 @@ package ru.runa.wfe.datasource;
 
 import org.dom4j.Document;
 
-public abstract class JndiDataSource extends DataSource {
+public class JndiDataSource extends DataSource {
 
     private String jndiName;
 
