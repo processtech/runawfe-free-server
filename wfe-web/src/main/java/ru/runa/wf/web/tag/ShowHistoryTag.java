@@ -17,15 +17,16 @@
  */
 package ru.runa.wf.web.tag;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
@@ -51,10 +52,6 @@ import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showHistory")
 public class ShowHistoryTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = 1L;
@@ -73,8 +70,6 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         }
         // filter
         StringBuilder filterHtml = new StringBuilder("\n");
-        filterHtml.append("<form action=\"").append(Commons.getActionUrl("/show_history", pageContext, PortletUrlType.Action))
-                .append("\" method=\"get\">\n");
         filterHtml.append("<input type=\"hidden\" name=\"id\" value=\"").append(filter.getProcessId()).append("\">\n");
         filterHtml.append("<table class=\"box\"><tr><th class=\"box\">").append(MessagesBatch.FILTER_CRITERIA.message(pageContext))
                 .append("</th></tr>\n");
@@ -163,7 +158,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
 
     @Override
     public String getAction() {
-        return WebResources.ACTION_MAPPING_MANAGE_PROCESS;
+        return WebResources.ACTION_SHOW_PROCESS_HISTORY;
     }
 
     @Override
