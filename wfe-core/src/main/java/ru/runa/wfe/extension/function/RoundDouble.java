@@ -23,9 +23,4 @@ public class RoundDouble extends Function<Double> {
         return (double) Math.round(d * st) / st;
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
-
 }

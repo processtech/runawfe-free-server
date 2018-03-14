@@ -24,9 +24,4 @@ public class DeleteListElementsByIndexes extends Function<List<Object>> {
         return list;
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
-
 }

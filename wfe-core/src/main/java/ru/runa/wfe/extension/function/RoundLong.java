@@ -17,9 +17,4 @@ public class RoundLong extends Function<Long> {
         return Math.round((double) parameters[0]);
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
-
 }

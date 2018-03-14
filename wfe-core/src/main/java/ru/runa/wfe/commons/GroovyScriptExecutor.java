@@ -8,11 +8,12 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.GroovyExceptionInterface;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.extension.function.Function;
-import ru.runa.wfe.extension.handler.var.FormulaActionHandlerOperations;
+import ru.runa.wfe.extension.function.Functions;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.validation.ValidatorException;
 import ru.runa.wfe.var.IVariableProvider;
@@ -30,7 +31,11 @@ public class GroovyScriptExecutor implements IScriptExecutor {
         try {
             GroovyScriptBinding binding = createBinding(variableProvider);
             binding.setVariable(GroovyScriptBinding.VARIABLE_PROVIDER_VARIABLE_NAME, variableProvider);
-            GroovyShell shell = new GroovyShell(ClassLoaderUtil.getExtensionClassLoader(), binding);
+            ImportCustomizer customizer = new ImportCustomizer();
+            customizer.addImport(Functions.class.getSimpleName(), Functions.class.getName());
+            CompilerConfiguration configuration = new CompilerConfiguration();
+            configuration.addCompilationCustomizers(customizer);
+            GroovyShell shell = new GroovyShell(ClassLoaderUtil.getExtensionClassLoader(), binding, configuration);
             shell.evaluate(script);
             return binding.getAdjustedVariables();
         } catch (Exception e) {

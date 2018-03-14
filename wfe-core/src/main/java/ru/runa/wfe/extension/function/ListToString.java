@@ -22,9 +22,4 @@ public class ListToString extends Function<String> {
         return buffer.toString();
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
-
 }

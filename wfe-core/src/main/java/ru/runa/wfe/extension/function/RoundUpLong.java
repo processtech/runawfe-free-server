@@ -18,9 +18,4 @@ public class RoundUpLong extends Function<Long> {
         return (long) doubleValue + (doubleValue == (long) doubleValue ? 0 : 1);
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
-
 }

@@ -24,9 +24,4 @@ public class CreateSubListByIndexes extends Function<List<Object>> {
         return result;
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
-
 }

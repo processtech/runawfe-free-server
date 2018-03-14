@@ -17,9 +17,4 @@ public class RoundDownLong extends Function<Long> {
         return (long) parameters[0];
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
-
 }

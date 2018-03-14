@@ -24,9 +24,4 @@ public class RoundUpDouble extends Function<Double> {
         return (double) (roundArg + (roundArg == (long) roundArg ? 0 : 1)) / st;
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
-
 }
