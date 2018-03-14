@@ -90,7 +90,6 @@ public class Process extends IdentifiableBase {
     private Token rootToken;
     private String hierarchyIds;
     private Deployment deployment;
-    private Date botTimeout;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Process() {
@@ -166,14 +165,6 @@ public class Process extends IdentifiableBase {
         this.endDate = endDate;
     }
     
-    @Column(name = "BOT_TIMEOUT")
-    public Date getBotTimeout() {
-        return botTimeout;
-    }
-
-    public void setBotTimeout(Date botTimeout) {
-        this.botTimeout = botTimeout;
-    }
 
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)

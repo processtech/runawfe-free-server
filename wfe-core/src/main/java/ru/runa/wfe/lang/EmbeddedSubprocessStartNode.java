@@ -20,6 +20,10 @@ public class EmbeddedSubprocessStartNode extends StartNode implements BoundaryEv
     public void setSubprocessNode(SubprocessNode subprocessNode) {
         this.subprocessNode = subprocessNode;
     }
+    
+    public boolean isTransactionSubpocess() {
+    	return subprocessNode.isTransaction();
+    }
 
     @Override
     public List<BoundaryEvent> getBoundaryEvents() {

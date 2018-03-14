@@ -17,6 +17,7 @@
  */
 package ru.runa.wf.logic.bot;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,17 +28,35 @@ import java.util.concurrent.TimeUnit;
 
 import javax.resource.spi.work.ExecutionContext;
 
+import org.apache.commons.lang.StringUtils;
+
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dto.WfProcess;
+import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
+import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
+import ru.runa.wfe.lang.TaskNode;
+import ru.runa.wfe.lang.dto.WfNode;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -130,66 +149,45 @@ public class WorkflowBotExecutor {
                 botIterator.remove();
             }
         }
+        
         List<WfTask> currentTasks = Delegates.getTaskService().getMyTasks(user, BatchPresentationFactory.TASKS.createNonPaged());
-        NodeProcessDAO nodeProcessDAO = ApplicationContextFactory.getNodeProcessDAO();
-        Long transactionProcessId = currentTasks.size()!=0 ? currentTasks.get(0).getProcessId() : 0L;
-    	NodeProcess nodeProcess = null;
-		for (WfTask task : currentTasks) {
+        if (bot.isTransactional()) {
+        	
+        	if (isBotBindedEmbeddedSubprocessEnded()) {
+        		unbindBotFromEmbeddedSubprocess();
+        	} else if (isBotTimeoutExpired()) {
+        		sendErrorMsgToBotEmbeddedSubprocessNode();
+                unbindBotFromEmbeddedSubprocess();
+        	}
+        	
+    		for (WfTask task : currentTasks) {
 
-			if (bot.getBotTimeout() != null && bot.getBotTimeout().after(new Date())) {
-				if (bot.getProcessId() != null && !bot.getProcessId().equals(task.getProcessId())) {
+				if (!isBotBindedToEmbeddedSubprocess()) {
+					
+					if (StringUtils.startsWith(task.getNodeId(), IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
+						ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, task.getDefinitionId());
+				    	Node taskNode = processDefinition.getNode(task.getNodeId());
+				    	
+				    	SubprocessDefinition subprocessDefinition = (SubprocessDefinition) taskNode.getProcessDefinition();
+				    	String embeddedSubprocessNodeId = processDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
+						SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNode(embeddedSubprocessNodeId);
+						
+	    				if (subprocessNode.isTransaction()) {
+	    					bindBotToEmbeddedSubprocess(task.getProcessId(), embeddedSubprocessNodeId, subprocessDefinition.getNodeId());
+	    				}
+					}
+					
+				} else if (!isBotBindedToProcessWithId(task.getProcessId())) {
 					continue;
 				}
-			} else {
-				nodeProcess = nodeProcessDAO.findBySubProcessId(task.getProcessId());
-
-				if (nodeProcess.isTransaction() && bot.isTransactional()) {
-					if (bot.getProcessId() != null && bot.getProcessId().equals(task.getProcessId())) {
-						final WfTask taskFinal = task;
-						final NodeProcess nodeProcessFinal = nodeProcess;
-						new TransactionalExecutor() {
-
-							@Override
-							protected void doExecuteInTransaction() throws Exception {
-								Utils.sendBpmnErrorMessage(nodeProcessFinal.getProcess().getId(),
-										taskFinal.getTokenId(), nodeProcessFinal.getNodeId(), new Exception());
-							}
-						}.executeInTransaction(false);
-					}
-					transactionProcessId = task.getProcessId();
-					bot.setBotTimeout(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(bot.getTimeout())));
-					bot.setProcessId(transactionProcessId);
-				}
-			}
-
-			BotExecutionStatus testingExecutor = new WorkflowBotTaskExecutor(this, task);
-			if (!botTaskExecutors.contains(testingExecutor)) {
-				if (nodeProcess.isTransaction() && bot.isTransactional()) {
-					if (task.getProcessId().equals(transactionProcessId)) {
-						result.add(task);
-						continue;
-					}
-				} else {
-					result.add(task);
-					continue;
-				}
-			}
-
-			for (WorkflowBotTaskExecutor taskExecutor : botTaskExecutors) {
-				if (Objects.equal(task, taskExecutor.getTask())) {
-					if (taskExecutor.isReadyToAttemptExecuteFailedTask()) {
-						if (nodeProcess.isTransaction() && bot.isTransactional()) {
-							if (task.getProcessId() == transactionProcessId) {
-								result.add(task);
-							}
-						} else {
-							result.add(task);
-						}
-					}
-					break;
-				}
-			}
-		}
+    			
+				addTaskToExecutionSet(result, task);
+    		}
+        } else {
+	        for (WfTask task : currentTasks) {
+	        	addTaskToExecutionSet(result, task);
+	        }
+        }
         
         return result;
     }
@@ -199,4 +197,89 @@ public class WorkflowBotExecutor {
         return "Template " + bot;
     }
 
+    private void addTaskToExecutionSet(Set<WfTask> result, WfTask task) {
+	    BotExecutionStatus testingExecutor = new WorkflowBotTaskExecutor(this, task);
+	    if (!botTaskExecutors.contains(testingExecutor)) {
+	    	result.add(task);
+	        return;
+	    }
+	    
+	    for (WorkflowBotTaskExecutor taskExecutor : botTaskExecutors) {
+	        if (Objects.equal(task, taskExecutor.getTask())) {
+	            if (taskExecutor.isReadyToAttemptExecuteFailedTask()) {
+	                result.add(task);
+	            }
+	            break;
+	        }
+	    }
+    }
+    
+    private boolean isBotBindedToEmbeddedSubprocess() {
+    	return bot.getBotTimeout() != null;
+    }
+    
+    private boolean isBotTimeoutExpired() {
+    	return isBotBindedToEmbeddedSubprocess() ? bot.getBotTimeout().before(new Date()) : false;
+    }
+    
+    private boolean isBotBindedToProcessWithId(Long processId) {
+    	return isBotBindedToEmbeddedSubprocess() ? processId.equals(bot.getProcessId()) : false;
+    }
+    
+    private void bindBotToEmbeddedSubprocess(Long processId, String subprocessNodeId, String subprocessDefinitionNodeId) {
+    	bot.setBotTimeout(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(bot.getTimeout())));
+		bot.setProcessId(processId);
+		bot.setSubprocessNodeId(subprocessNodeId);
+		bot.setSubprocessDefinitionNodeId(subprocessDefinitionNodeId);
+    }
+    
+    private void unbindBotFromEmbeddedSubprocess() {
+    	bot.setBotTimeout(null);
+    	bot.setProcessId(null);
+		bot.setSubprocessNodeId(null);
+		bot.setSubprocessDefinitionNodeId(null);
+    }
+    
+    private boolean isBotBindedEmbeddedSubprocessEnded() {
+    	if (!isBotBindedToEmbeddedSubprocess()) {
+    		return false;
+    	}
+    	
+    	boolean isEnded = false;
+    	
+    	ProcessLogFilter filter = new ProcessLogFilter();
+    	filter.setRootClassName(NodeLeaveLog.class.getName());
+    	filter.setProcessId(bot.getProcessId());
+    	
+    	WfProcess process = Delegates.getExecutionService().getProcess(user, bot.getProcessId());
+    	ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
+    	SubprocessDefinition subprocessDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(bot.getSubprocessDefinitionNodeId());
+    	List<EmbeddedSubprocessEndNode> endNodes = subprocessDefinition.getEndNodes();
+    	
+    	for (EmbeddedSubprocessEndNode endNode : endNodes) {
+    		filter.setNodeId(endNode.getNodeId());
+    		
+    		ProcessLogs processLogs = Delegates.getAuditService().getProcessLogs(user, filter);
+    		if (processLogs.getLogs().size() > 0) {
+    			isEnded = true;
+    			break;
+    		}
+    	}
+    	
+    	return isEnded;
+    }
+    
+    private void sendErrorMsgToBotEmbeddedSubprocessNode() {
+    	if (!isBotBindedToEmbeddedSubprocess()) {
+    		return;
+    	}
+    	
+    	new TransactionalExecutor() {
+
+            @Override
+            protected void doExecuteInTransaction() throws Exception {
+                Utils.sendBpmnErrorMessage(bot.getProcessId(), bot.getSubprocessNodeId(), new Throwable("Transactional bot " + bot.getUsername() + " timeout expired"));
+            }
+        }.executeInTransaction(false);
+    }
 }

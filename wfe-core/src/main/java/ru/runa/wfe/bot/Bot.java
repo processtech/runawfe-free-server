@@ -54,6 +54,10 @@ public class Bot implements Serializable {
     private Long timeout;
     private Date botTimeout;
     private Long processId;
+    private String subprocessNodeId;
+    private String subprocessDefinitionNodeId;
+    
+    
     /**
      * Flag, equals true, if all bot tasks must be executed sequential; false if parallel execution is allowed.
      */
@@ -161,6 +165,7 @@ public class Bot implements Serializable {
         this.transactional = transactional == null ? Boolean.FALSE : transactional;
     }
     
+    @Column(name = "BOT_TIMEOUT")
     public Date getBotTimeout() {
 		return botTimeout;
 	}
@@ -169,6 +174,7 @@ public class Bot implements Serializable {
 		this.botTimeout = botTimeout;
 	}
 	
+	@Column(name = "PROCESS_ID")
 	public Long getProcessId() {
 		return processId;
 	}
@@ -176,8 +182,26 @@ public class Bot implements Serializable {
 	public void setProcessId(Long processId) {
 		this.processId = processId;
 	}
+	
+	@Column(name = "SUBPROCESS_NODE_ID")
+	public String getSubprocessNodeId() {
+		return subprocessNodeId;
+	}
 
-    @Override
+	public void setSubprocessNodeId(String subprocessNodeId) {
+		this.subprocessNodeId = subprocessNodeId;
+	}
+
+	@Column(name = "SUBPROCESS_DEFINITION_NODE_ID")
+    public String getSubprocessDefinitionNodeId() {
+		return subprocessDefinitionNodeId;
+	}
+
+	public void setSubprocessDefinitionNodeId(String subprocessDefinitionNodeId) {
+		this.subprocessDefinitionNodeId = subprocessDefinitionNodeId;
+	}
+
+	@Override
     public int hashCode() {
         return Objects.hashCode(username);
     }

@@ -169,12 +169,11 @@ public class Utils {
         }
     }
 
-    public static void sendBpmnErrorMessage(Long processId, Long tokenId, String nodeId, Throwable throwable) {
+    public static void sendBpmnErrorMessage(Long processId, String nodeId, Throwable throwable) {
         Map<String, Object> variables = Maps.newHashMap();
         variables.put(BaseMessageNode.EVENT_TYPE, MessageEventType.error.name());
         variables.put(BaseMessageNode.ERROR_EVENT_MESSAGE, throwable.getMessage());
         variables.put(BaseMessageNode.ERROR_EVENT_PROCESS_ID, processId);
-        variables.put(BaseMessageNode.ERROR_EVENT_TOKEN_ID, tokenId);
         variables.put(BaseMessageNode.ERROR_EVENT_NODE_ID, nodeId);
         MapVariableProvider variableProvider = new MapVariableProvider(variables);
         List<VariableMapping> variableMappings = Lists.newArrayList();
@@ -184,8 +183,6 @@ public class Utils {
                 VariableMapping.USAGE_SELECTOR));
         variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_NODE_ID, Variables.wrap(BaseMessageNode.ERROR_EVENT_NODE_ID),
                 VariableMapping.USAGE_SELECTOR));
-        variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_TOKEN_ID, BaseMessageNode.ERROR_EVENT_TOKEN_ID,
-                VariableMapping.USAGE_READ));
         variableMappings
                 .add(new VariableMapping(BaseMessageNode.ERROR_EVENT_MESSAGE, BaseMessageNode.ERROR_EVENT_MESSAGE, VariableMapping.USAGE_READ));
         Utils.sendBpmnMessage(variableMappings, variableProvider, 60000);
