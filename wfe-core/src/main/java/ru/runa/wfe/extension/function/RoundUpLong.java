@@ -8,10 +8,19 @@ package ru.runa.wfe.extension.function;
  */
 public class RoundUpLong extends Function<Long> {
 
+    public RoundUpLong() {
+        super(Param.required(Long.class));
+    }
+
     @Override
     protected Long doExecute(Object... parameters) {
         double doubleValue = (Double) parameters[0];
         return (long) doubleValue + (doubleValue == (long) doubleValue ? 0 : 1);
+    }
+
+    @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
     }
 
 }

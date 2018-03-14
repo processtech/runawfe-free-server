@@ -8,9 +8,18 @@ package ru.runa.wfe.extension.function;
  */
 public class RoundLong extends Function<Long> {
 
+    public RoundLong() {
+        super(Param.required(Long.class));
+    }
+
     @Override
     protected Long doExecute(Object... parameters) {
         return Math.round((double) parameters[0]);
+    }
+
+    @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
     }
 
 }

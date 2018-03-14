@@ -21,6 +21,10 @@ import ru.runa.wfe.commons.xml.XmlUtils;
  */
 public class Mapping extends Function<String> {
 
+    public Mapping() {
+        super(Param.required(String.class), Param.required(String.class));
+    }
+
     private static final Log log = LogFactory.getLog(Mapping.class);
 
     private static TreeMap<String, HashMap<String, String>> mappingConf = new TreeMap<String, HashMap<String, String>>();
@@ -64,6 +68,11 @@ public class Mapping extends Function<String> {
         } catch (Exception e) {
             log.error("Can`t parse " + path, e);
         }
+    }
+
+    @Override
+    public String getName() {
+        return "mapping";
     }
 
 }

@@ -11,6 +11,10 @@ import java.util.List;
  */
 public class NumberToStringRu extends Function<String> {
 
+    public NumberToStringRu() {
+        super(Param.required(Long.class), Param.optional(Integer.class, -1), Param.multiple(String.class));
+    }
+
     private static Word[] words = { new Word(1, new String[] { "тысяча", "тысячи", "тысяч" }),
             new Word(0, new String[] { "миллион", "миллиона", "миллионов" }), new Word(0, new String[] { "миллиард", "миллиарда", "миллиардов" }),
             new Word(0, new String[] { "триллион", "триллиона", "триллионов" }) };
@@ -26,11 +30,11 @@ public class NumberToStringRu extends Function<String> {
 
     @Override
     protected String doExecute(Object... parameters) {
-        if (parameters.length == 1) {
+        int param = (int)parameters[1];
+        if (param == -1) {
             return numberToString((long) parameters[0]);
         } else if (parameters.length > 2) {
             long number = (long) parameters[0];
-            int param = (int) parameters[1];
             List<String> symbols = new ArrayList<>(0);
             for (int i = 2; i < parameters.length; i++) {
                 symbols.add((String) parameters[i]);
@@ -132,6 +136,11 @@ public class NumberToStringRu extends Function<String> {
             answer += " " + ws;
         }
         return answer;
+    }
+
+    @Override
+    public String getName() {
+        return "number_to_string_ru";
     }
 
 }

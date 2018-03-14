@@ -31,21 +31,6 @@ public class GroovyScriptExecutor implements IScriptExecutor {
             GroovyScriptBinding binding = createBinding(variableProvider);
             binding.setVariable(GroovyScriptBinding.VARIABLE_PROVIDER_VARIABLE_NAME, variableProvider);
             GroovyShell shell = new GroovyShell(ClassLoaderUtil.getExtensionClassLoader(), binding);
-            
-            String scriptInLine = script.replaceAll("\r\n", " ").replaceAll("\n", " ");
-            String[] words = scriptInLine.split(" ");
-            for (String word : words) {
-            	word = word.trim();
-            	if (word.contains("(")) {
-            		String functionName = word.substring(0, word.indexOf("("));
-            		Function<? extends Object> function = FormulaActionHandlerOperations.getFunction(functionName);
-            		if (function != null) {
-            			String actionName = "new " + function.getClass().getName() + "().doExecute";
-            			script = script.replace(functionName, actionName);
-            		}
-            	}
-            }
-            
             shell.evaluate(script);
             return binding.getAdjustedVariables();
         } catch (Exception e) {

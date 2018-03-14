@@ -26,4 +26,9 @@ public class GetListMatchedIndexes extends Function<List<Long>> {
         return result;
     }
 
+    @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
+    }
+
 }

@@ -12,6 +12,10 @@ import ru.runa.wfe.commons.CalendarUtil;
  */
 public class FormattedTime extends Function<Object> {
 
+    public FormattedTime() {
+        super(Param.optional(Date.class, new Date()));
+    }
+
     @Override
     protected Object doExecute(Object... parameters) {
         Date time;
@@ -30,6 +34,11 @@ public class FormattedTime extends Function<Object> {
             log.warn("Unparseable time", e);
         }
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return "time";
     }
 
 }

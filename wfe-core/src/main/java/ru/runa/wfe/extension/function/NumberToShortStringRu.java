@@ -3,6 +3,7 @@ package ru.runa.wfe.extension.function;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * 
  * @author Dmitry Kononov
@@ -10,6 +11,10 @@ import java.util.List;
  *
  */
 public class NumberToShortStringRu extends Function<String> {
+
+    public NumberToShortStringRu() {
+        super(Param.required(Integer.class), Param.multiple(String.class));
+    }
 
     private static Integer[] digits = { 2, 0, 1, 1, 1, 2, 2, 2, 2, 0 };
 
@@ -57,6 +62,11 @@ public class NumberToShortStringRu extends Function<String> {
         number %= 10;
         answer += word.s[digits[(int) number]];
         return answer;
+    }
+
+    @Override
+    public String getName() {
+        return "number_to_short_string_ru";
     }
 
 }

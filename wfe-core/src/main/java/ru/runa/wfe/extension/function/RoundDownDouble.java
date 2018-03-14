@@ -8,6 +8,10 @@ package ru.runa.wfe.extension.function;
  */
 public class RoundDownDouble extends Function<Double> {
 
+    public RoundDownDouble() {
+        super(Param.required(Double.class), Param.required(Integer.class));
+    }
+
     @Override
     protected Double doExecute(Object... parameters) {
         double d = (double) parameters[0];
@@ -17,6 +21,11 @@ public class RoundDownDouble extends Function<Double> {
             st *= 10;
         }
         return (double) (d * st) / st;
+    }
+
+    @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
     }
 
 }

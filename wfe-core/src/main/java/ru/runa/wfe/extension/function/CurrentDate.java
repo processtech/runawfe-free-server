@@ -13,4 +13,9 @@ public class CurrentDate extends FormattedDate {
         return super.doExecute();
     }
 
+    @Override
+    public String getName() {
+        return "current_date";
+    }
+
 }

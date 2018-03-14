@@ -12,6 +12,10 @@ import java.util.Date;
  */
 public class FormattedDate extends Function<Object> {
 
+    public FormattedDate() {
+        super(Param.optional(Date.class, new Date()));
+    }
+
     @Override
     protected Object doExecute(Object... parameters) {
         Date date;
@@ -29,6 +33,11 @@ public class FormattedDate extends Function<Object> {
             log.warn("Unparseable date", e);
         }
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return "date";
     }
 
 }

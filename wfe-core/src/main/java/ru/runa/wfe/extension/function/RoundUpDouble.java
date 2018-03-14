@@ -8,6 +8,10 @@ package ru.runa.wfe.extension.function;
  */
 public class RoundUpDouble extends Function<Double> {
 
+    public RoundUpDouble() {
+        super(Param.required(Double.class), Param.required(Integer.class));
+    }
+
     @Override
     protected Double doExecute(Object... parameters) {
         double d = (double) parameters[0];
@@ -18,6 +22,11 @@ public class RoundUpDouble extends Function<Double> {
         }
         double roundArg = d * st;
         return (double) (roundArg + (roundArg == (long) roundArg ? 0 : 1)) / st;
+    }
+
+    @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
     }
 
 }

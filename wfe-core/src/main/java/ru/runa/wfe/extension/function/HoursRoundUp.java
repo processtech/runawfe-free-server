@@ -15,6 +15,10 @@ import ru.runa.wfe.commons.TypeConversionUtil;
  */
 public class HoursRoundUp extends Function<Object> {
 
+    public HoursRoundUp() {
+        super(Param.required(Object.class));
+    }
+
     @Override
     protected Object doExecute(Object... parameters) {
         Double doubleValue = (Double) translate(parameters[0], Double.class);
@@ -46,6 +50,11 @@ public class HoursRoundUp extends Function<Object> {
             return o;
         }
         return TypeConversionUtil.convertTo(c, o);
+    }
+
+    @Override
+    public String getName() {
+        return "hours_round_up";
     }
 
 }

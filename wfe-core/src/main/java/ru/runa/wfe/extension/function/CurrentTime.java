@@ -13,4 +13,9 @@ public class CurrentTime extends FormattedTime {
         return super.doExecute();
     }
 
+    @Override
+    public String getName() {
+        return "current_time";
+    }
+
 }

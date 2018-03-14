@@ -23,4 +23,9 @@ public class GetSize extends Function<Long> {
         }
     }
 
+    @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
+    }
+
 }

@@ -10,7 +10,7 @@ import com.google.common.collect.Maps;
  * @since 28.02.2018
  *
  */
-public class Functions {
+public abstract class Functions {
 
     private static final Map<String, Function<? extends Object>> functions = Maps.newHashMap();
 
@@ -29,6 +29,7 @@ public class Functions {
         registerFunction(new HoursRoundUp());
         registerFunction(new Mapping());
         registerFunction(new NameCaseRussian());
+        registerFunction(new NameCaseRussianWithFixedSex());
         registerFunction(new NumberToShortStringRu());
         registerFunction(new NumberToStringRu());
         registerFunction(new RoundDouble());

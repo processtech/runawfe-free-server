@@ -18,9 +18,7 @@ public abstract class Function<T extends Object> {
         this.parameterDefinitions = parameterDefinitions;
     }
 
-    public String getName() {
-        return getClass().getSimpleName();
-    }
+    public abstract String getName();
 
     public Param[] getParameterDefinitions() {
         return parameterDefinitions;
