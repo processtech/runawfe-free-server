@@ -32,12 +32,9 @@ public abstract class Functions {
         registerFunction(new NameCaseRussianWithFixedSex());
         registerFunction(new NumberToShortStringRu());
         registerFunction(new NumberToStringRu());
-        registerFunction(new RoundDouble());
-        registerFunction(new RoundDownDouble());
-        registerFunction(new RoundDownLong());
-        registerFunction(new RoundLong());
-        registerFunction(new RoundUpDouble());
-        registerFunction(new RoundUpLong());
+        registerFunction(new Round());
+        registerFunction(new RoundDown());
+        registerFunction(new RoundUp());
     }
 
     public static Object executeFunction(String name, Object... parameters) {

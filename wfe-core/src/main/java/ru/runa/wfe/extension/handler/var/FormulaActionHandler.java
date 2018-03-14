@@ -18,38 +18,19 @@
 package ru.runa.wfe.extension.handler.var;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandlerBase;
-import ru.runa.wfe.extension.function.CurrentDate;
-import ru.runa.wfe.extension.function.CurrentTime;
-import ru.runa.wfe.extension.function.FormattedDate;
-import ru.runa.wfe.extension.function.FormattedTime;
 import ru.runa.wfe.extension.function.Function;
 import ru.runa.wfe.extension.function.Functions;
-import ru.runa.wfe.extension.function.HoursRoundUp;
-import ru.runa.wfe.extension.function.Mapping;
-import ru.runa.wfe.extension.function.NameCaseRussian;
-import ru.runa.wfe.extension.function.NumberToShortStringRu;
-import ru.runa.wfe.extension.function.NumberToStringRu;
-import ru.runa.wfe.extension.function.RoundDouble;
-import ru.runa.wfe.extension.function.RoundDownDouble;
-import ru.runa.wfe.extension.function.RoundDownLong;
-import ru.runa.wfe.extension.function.RoundLong;
-import ru.runa.wfe.extension.function.RoundUpDouble;
-import ru.runa.wfe.extension.function.RoundUpLong;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
@@ -446,9 +427,6 @@ public class FormulaActionHandler extends ActionHandlerBase {
         if (s.equals("random")) {
             return simpleValue(s, Math.random());
         }
-        if (s.equals("round") || s.equals("round_up") || s.equals("round_down")) {
-            return round(s);
-        }
         if (s.equalsIgnoreCase("BigDecimal")) {
             return bigDecimalValue(s);
         }
@@ -472,54 +450,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
         }
         return null;
     }
-   
-    private Object round(String s) {
-        Object param1 = parsePriority0();
-        Double d = (Double) actions.translate(param1, Double.class);
-        if (d == null) {
-            incorrectParameters(s);
-            return null;
-        }
-        Integer num = 0;
-        String tok = nextToken();
-        if (!tok.equals(")")) {
-            if (!tok.equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            num = (Integer) actions.translate(parsePriority0(), Integer.class);
-            if (num == null) {
-                incorrectParameters(s);
-                return null;
-            }
-            tok = nextToken();
-        }
-        if (!tok.equals(")")) {
-            incorrectParameters(s);
-            return null;
-        }
-        if (s.equals("round")) {
-            return round(RoundLong.class.getSimpleName(), RoundDouble.class.getSimpleName(), RoundingMode.HALF_UP, param1, d, num);
-        } else if (s.equals("round_down")) {
-            return round(RoundDownLong.class.getSimpleName(), RoundDownDouble.class.getSimpleName(), RoundingMode.DOWN, param1, d, num);
-        } else if (s.equals("round_up")) {
-            return round(RoundUpLong.class.getSimpleName(), RoundUpDouble.class.getSimpleName(), RoundingMode.UP, param1, d, num);
-        } else {
-            return null;
-        }
-    }
-    
-    private Object round(String roundLongClassName, String roundDoubleClassName, RoundingMode mode, Object param1, double d, int num) {
-        if (BigDecimal.class.isInstance(param1)) {
-            return ((BigDecimal) param1).setScale(num, mode);
-        } else {
-            if (num <= 0) {
-                return Functions.executeFunction(roundLongClassName, d);
-            }
-            return Functions.executeFunction(roundDoubleClassName, d, num);
-        }
-    }
-    
+
     private Object bigDecimalValue(String s) {
         Object param = parsePriority0();
         if (param == null || !nextToken().equals(")")) {
@@ -528,7 +459,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
         }
         return new BigDecimal(param.toString());
     }
-    
+
     private Object floatValue(String s) {
         Object param = parsePriority0();
         if (param == null || !nextToken().equals(")")) {
@@ -537,7 +468,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
         }
         return new Float(param.toString());
     }
-    
+
     private Object simpleValue(String s, Object value) {
         if (!nextToken().equals(")")) {
             incorrectParameters(s);
