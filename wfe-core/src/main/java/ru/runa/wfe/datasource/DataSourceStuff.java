@@ -5,6 +5,8 @@ public interface DataSourceStuff {
     public final static String DATA_SOURCE_FILE_SUFFIX = ".xml";
     public final static String DATA_SOURCE_ARCHIVE_SUFFIX = ".ds";
 
+    public final static String DATABASE_NAME_MARKER = "DBNAME";
+
     public final static String ELEMENT_DATA_SOURCE = "dataSource";
     public final static String ELEMENT_FILE_PATH = "filePath";
     public final static String ELEMENT_FILE_NAME = "fileName";

@@ -3,6 +3,11 @@ package ru.runa.wfe.office.storage.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.datasource.DataSource;
+import ru.runa.wfe.datasource.DataSourceStorage;
+import ru.runa.wfe.datasource.DataSourceStuff;
+import ru.runa.wfe.datasource.JdbcDataSource;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
 import ru.runa.wfe.office.shared.OfficeFilesSupplierHandler;
@@ -10,6 +15,7 @@ import ru.runa.wfe.office.storage.StoreHelper;
 import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
+import ru.runa.wfe.office.storage.services.SqlServerStoreHelper;
 import ru.runa.wfe.office.storage.services.StoreHelperImpl;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -24,7 +30,35 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
     @Override
     protected Map<String, Object> executeAction(IVariableProvider variableProvider, IFileDataProvider fileDataProvider) throws Exception {
         Map<String, Object> result = new HashMap<String, Object>();
-        StoreHelper storeHelper = new StoreHelperImpl(config, variableProvider);
+        StoreHelper storeHelper = null;
+        String dsName = config.getInputFilePath();
+        if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
+            if (dsName.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE)) {
+                dsName = dsName.substring(dsName.indexOf(':') + 1);
+            } else {
+                dsName = (String) variableProvider.getValue(dsName.substring(dsName.indexOf(':') + 1));
+            }
+            DataSource ds = DataSourceStorage.getDataSource(dsName);
+            if (ds instanceof JdbcDataSource) {
+                switch (((JdbcDataSource) ds).getDbType()) {
+                case SqlServer:
+                    storeHelper = new SqlServerStoreHelper(config, variableProvider);
+                    break;
+                // TODO
+                case Oracle:
+                case PostgreSql:
+                case MySql:
+                case Db2:
+                case Other:
+                default:
+                    throw new InternalApplicationException("Database type " + ((JdbcDataSource) ds).getDbType().name() + " not supported.");
+                }
+            } else {
+                throw new InternalApplicationException("Data source type " + ds.getClass().getSimpleName() + " not supported.");
+            }
+        } else {
+            storeHelper = new StoreHelperImpl(config, variableProvider);
+        }
         for (DataBinding binding : config.getBindings()) {
             WfVariable variable = variableProvider.getVariableNotNull(binding.getVariableName());
             binding.getConstraints().applyPlaceholders(variableProvider);

@@ -2,12 +2,12 @@ package ru.runa.wfe.datasource;
 
 public enum JdbcDataSourceType {
 
-    MySql("jdbc:mysql://<HOST>:<PORT=3306>"),
-    PostgreSql("jdbc:postgresql://<HOST>:<PORT=5432>"),
-    Oracle("jdbc:oracle:thin:@<HOST>:<PORT=1521>"),
-    MsSqlServer("jdbc:jtds:sqlserver://<HOST>:<PORT=1433>"),
-    IbmDb2("jdbc:db2://<HOST>:<PORT=50000>"),
-    Other("jdbc:other://<HOST>:<PORT>");
+    SqlServer("jdbc:sqlserver://<HOST>:<PORT=1433>;databaseName=<DBNAME>;"),
+    Oracle("jdbc:oracle:thin:@<HOST>:<PORT=1521>:<DBNAME>"),
+    PostgreSql("jdbc:postgresql://<HOST>:<PORT=5432>/<DBNAME>"),
+    MySql("jdbc:mysql://<HOST>:<PORT=3306>/<DBNAME>"),
+    Db2("jdbc:db2://<HOST>:<PORT=50000>/<DBNAME>"),
+    Other("jdbc:other://<HOST>:<PORT>/<DBNAME>");
 
     private String urlSample;
 

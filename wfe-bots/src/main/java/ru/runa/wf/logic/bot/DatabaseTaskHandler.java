@@ -108,7 +108,12 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
                         dsName = (String) variableProvider.getValue(dsName.substring(colonIndex + 1));
                     }
                     JdbcDataSource jds = (JdbcDataSource) DataSourceStorage.getDataSource(dsName);
-                    String url = jds.getUrl() + (jds.getDbType() == JdbcDataSourceType.Oracle ? ':' : '/') + jds.getDbName();
+                    String url = jds.getUrl();
+                    if (jds.getUrl().contains(DataSourceStuff.DATABASE_NAME_MARKER)) {
+                        url = url.replace(DataSourceStuff.DATABASE_NAME_MARKER, jds.getDbName());
+                    } else {
+                        url = url + (jds.getDbType() == JdbcDataSourceType.Oracle ? ':' : '/') + jds.getDbName();
+                    }
                     conn = DriverManager.getConnection(url, jds.getUserName(), jds.getPassword());
                 } else { // jndi
                     if (colonIndex > 0) {
