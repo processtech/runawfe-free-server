@@ -63,15 +63,18 @@
 <% if (thinInterface == null || !thinInterface.equals("true")) { %>
 	<table class="box">
 		<tr>
-			<td width="15%">
+			<td width="15%" class="systemMenu">
 				<a href="http://runawfe.org" target="new">
 					<img hspace="10" border="0" src="<html:rewrite page="/images/big_logo.gif"/>" alt="Runa WFE">
 				</a>
 			</td>
-			<td width="85%" >
+			<td width="85%">
 				<table width="100%">	
 				<tr> 
-					<td align="left" >
+					<td align="left">
+						<a id="showSystemMenu" href="javascript:void(0);" title='<bean:message key="title.menu"/>'>
+							<img hspace="0" border="0" src="<html:rewrite page="/images/menu.png"/>">
+						</a>
 						<tiles:insert attribute="messages"/>
 					</td>
 					<td align="right">
@@ -82,11 +85,14 @@
 			</td>
 		</tr>
 		<tr>
-			<td valign="top" height="100%" width="15%">
+			<td valign="top" height="100%" width="15%" class="systemMenu">
 				<hr>
-				<table class="box">	
+				<table class="box">
 					<tr>
-						<th class='box'><bean:message key="title.menu"/></th>
+						<th class="box" style="padding-right: 0px;">
+							<bean:message key="title.menu"/>
+							<span id="hideSystemMenu" class="ui-icon ui-icon-closethick ui-state-highlight" style="cursor: pointer; float: right; margin: 1px;"></span>
+						</th>
 					</tr>
 				</table>
 				<af:tabHeader />
@@ -109,7 +115,7 @@
 					<bean:message key="content.filters.help"/>
 				</div>
 			</td>
-			<td valign="top"   height="100%" width="85%">
+			<td valign="top" height="100%" width="85%">
 				<hr>
 					<tiles:insert attribute="body"/>
 				<hr>
