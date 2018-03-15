@@ -35,53 +35,50 @@ import org.dom4j.Element;
 import ru.runa.common.web.Commons;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.AjaxCommand;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.user.User;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
 public class AjaxCommandServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(AjaxCommandServlet.class);
-    private static final String CONFIG = "ajax.commands.xml";
     private static final String COMMAND_ELEMENT = "command";
     private static final String NAME_ATTR = "name";
     private static final String CLASS_ATTR = "class";
-    private static final Map<String, Class<? extends AjaxCommand>> commands = Maps.newHashMap();
+    private static final Map<String, Class<? extends AjaxCommand>> definitions = Maps.newHashMap();
 
     static {
-        parseCommands(CONFIG, true);
-        parseCommands(SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG, false);
-    }
+        ClassLoaderUtil.withExtensionResources("ajax.commands.xml", new Function<InputStream, Object>() {
 
-    private static void parseCommands(String fileName, boolean required) {
-        InputStream is;
-        if (required) {
-            is = ClassLoaderUtil.getAsStreamNotNull(fileName, AjaxCommandServlet.class);
-        } else {
-            is = ClassLoaderUtil.getAsStream(fileName, AjaxCommandServlet.class);
-        }
-        if (is != null) {
-            log.info("Using " + is);
-            Document document = XmlUtils.parseWithoutValidation(is);
-            Element root = document.getRootElement();
-            List<Element> elements = root.elements(COMMAND_ELEMENT);
-            for (Element element : elements) {
-                String name = element.attributeValue(NAME_ATTR);
-                try {
-                    String className = element.attributeValue(CLASS_ATTR);
-                    Class<? extends AjaxCommand> commandClass = (Class<? extends AjaxCommand>) ClassLoaderUtil.loadClass(className);
-                    // test creation
-                    ApplicationContextFactory.createAutowiredBean(commandClass);
-                    commands.put(name, commandClass);
-                    log.debug("Registered command '" + name + "' as " + commandClass);
-                } catch (Throwable e) {
-                    log.warn("Unable to create command " + name, e);
+            @Override
+            public Object apply(InputStream input) {
+                try (InputStream inputStream = input) {
+                    Document document = XmlUtils.parseWithoutValidation(inputStream);
+                    Element root = document.getRootElement();
+                    List<Element> elements = root.elements(COMMAND_ELEMENT);
+                    for (Element element : elements) {
+                        String name = element.attributeValue(NAME_ATTR);
+                        try {
+                            String className = element.attributeValue(CLASS_ATTR);
+                            @SuppressWarnings("unchecked")
+                            Class<? extends AjaxCommand> commandClass = (Class<? extends AjaxCommand>) ClassLoaderUtil.loadClass(className);
+                            // test creation
+                            ApplicationContextFactory.createAutowiredBean(commandClass);
+                            definitions.put(name, commandClass);
+                            log.debug("Registered command '" + name + "' as " + commandClass);
+                        } catch (Throwable e) {
+                            log.warn("Unable to create command " + name, e);
+                        }
+                    }
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
                 }
+                return null;
             }
-        }
+        });
     }
 
     protected void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -89,7 +86,7 @@ public class AjaxCommandServlet extends HttpServlet {
         try {
             String command = request.getParameter("command");
             User user = Commons.getUser(request.getSession());
-            Class<? extends AjaxCommand> ajaxCommandClass = commands.get(command);
+            Class<? extends AjaxCommand> ajaxCommandClass = definitions.get(command);
             AjaxCommand ajaxCommand;
             if (ajaxCommandClass == null) {
                 if (ApplicationContextFactory.getContext().containsBean(command)) {

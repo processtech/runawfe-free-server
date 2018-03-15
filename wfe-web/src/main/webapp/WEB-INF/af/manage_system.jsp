@@ -166,6 +166,9 @@
 			<img id="processErrorsImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
 			&nbsp;<bean:message key="errors.processes" />
 		</a>
+		<a href="/wfe/activateFailedProcesses.do" style="float: right;">
+			<bean:message key="failed.processes.activate" />
+		</a>
 	</div>
 	<div id="processErrorsContentDiv">
 		<wf:viewProcessErrors />

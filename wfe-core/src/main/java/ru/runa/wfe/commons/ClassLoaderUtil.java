@@ -36,21 +36,23 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+
+import ru.runa.wfe.InternalApplicationException;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
-import ru.runa.wfe.InternalApplicationException;
-
-/**
- * Utils.
- */
 public class ClassLoaderUtil {
     private static final Log log = LogFactory.getLog(ClassLoaderUtil.class);
     private static final ClassLoader extensionClassLoader;
+    private static final PathMatchingResourcePatternResolver resourcePatternResolver;
     static {
         File extensionDirectory = new File(IOCommons.getExtensionDirPath());
         if (extensionDirectory.exists() && extensionDirectory.isDirectory()) {
@@ -69,10 +71,15 @@ public class ClassLoaderUtil {
             log.info("No extension directory found: " + extensionDirectory + ", using default class loader");
             extensionClassLoader = ClassLoaderUtil.class.getClassLoader();
         }
+        resourcePatternResolver = new PathMatchingResourcePatternResolver(extensionClassLoader);
     }
 
     public static ClassLoader getExtensionClassLoader() {
         return extensionClassLoader;
+    }
+
+    public static PathMatchingResourcePatternResolver getResourcePatternResolver() {
+        return resourcePatternResolver;
     }
 
     public static Class<?> loadClass(String className, Class<?> callingClass) throws ClassNotFoundException {
@@ -149,6 +156,22 @@ public class ClassLoaderUtil {
             }
         }
         return properties;
+    }
+
+    public static void withExtensionResources(String fileName, Function<InputStream, Object> function) {
+        try {
+            if ("true".equals(System.getProperty("deprecated." + fileName + ".enabled"))) {
+                function.apply(ClassLoaderUtil.getAsStreamNotNull(SystemProperties.DEPRECATED_PREFIX + fileName, ClassLoaderUtil.class));
+            }
+            function.apply(ClassLoaderUtil.getAsStreamNotNull(fileName, ClassLoaderUtil.class));
+            String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + SystemProperties.RESOURCE_EXTENSION_PREFIX + fileName;
+            Resource[] resources = getResourcePatternResolver().getResources(pattern);
+            for (Resource resource : resources) {
+                function.apply(resource.getInputStream());
+            }
+        } catch (Throwable th) {
+            log.error("unable load " + fileName + " resources", th);
+        }
     }
 
     public static URL getAsURL(String resourceName, Class<?> callingClass) {

@@ -328,4 +328,12 @@ public class TaskLogic extends WFCommonLogic {
         return taskAssigner.assignTask(task);
     }
 
+    public List<WfTask> getUnassignedTasks(User user) {
+        List<WfTask> result = Lists.newArrayList();
+        for (Task task : taskDAO.findUnassignedTasks()) {
+            result.add(taskObjectFactory.create(task, user.getActor(), false, null));
+        }
+        return result;
+    }
+
 }

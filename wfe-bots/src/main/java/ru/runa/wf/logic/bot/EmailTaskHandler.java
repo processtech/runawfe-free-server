@@ -30,7 +30,6 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
-import ru.runa.wfe.var.ScriptingVariableProvider;
 
 import com.google.common.collect.Maps;
 
@@ -56,8 +55,7 @@ public class EmailTaskHandler extends TaskHandlerBase {
             Map<String, Object> map = Maps.newHashMap();
             map.put("interaction", interaction);
             map.put("task", task);
-            ScriptingVariableProvider scriptingVariableProvider = new ScriptingVariableProvider(variableProvider);
-            IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, scriptingVariableProvider);
+            IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, variableProvider);
             EmailUtils.prepareMessage(user, config, interaction, emailVariableProvider);
             EmailUtils.sendMessage(config);
         } catch (Exception e) {
