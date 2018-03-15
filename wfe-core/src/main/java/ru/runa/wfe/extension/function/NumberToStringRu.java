@@ -1,12 +1,51 @@
-package ru.runa.wfe.extension.handler.var;
+package ru.runa.wfe.extension.function;
 
-//TODO: delete if not used anywhere
-@Deprecated
-public class NumberToStringRu {
-    public static final int MALE = 0;
-    public static final int FEMALE = 1;
+import java.util.ArrayList;
+import java.util.List;
 
-    public static class Word {
+/**
+ * 
+ * @author Dmitry Kononov
+ * @since 28.02.2018
+ *
+ */
+public class NumberToStringRu extends Function<String> {
+
+    public NumberToStringRu() {
+        super(Param.required(Long.class), Param.optional(Integer.class, -1), Param.multiple(String.class));
+    }
+
+    private static Word[] words = { new Word(1, new String[] { "тысяча", "тысячи", "тысяч" }),
+            new Word(0, new String[] { "миллион", "миллиона", "миллионов" }), new Word(0, new String[] { "миллиард", "миллиарда", "миллиардов" }),
+            new Word(0, new String[] { "триллион", "триллиона", "триллионов" }) };
+    private static String[] hundreds = { "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот" };
+    private static String[] decades = { "десять", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят",
+            "девяносто" };
+    private static String[] teens = { "десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать",
+            "восемнадцать", "девятнадцать" };
+    private static Num[] digits = { new Num(new String[] { "ноль", "ноль" }, 2), new Num(new String[] { "один", "одна" }, 0),
+            new Num(new String[] { "два", "две" }, 1), new Num(new String[] { "три", "три" }, 1), new Num(new String[] { "четыре", "четыре" }, 1),
+            new Num(new String[] { "пять", "пять" }, 2), new Num(new String[] { "шесть", "шесть" }, 2), new Num(new String[] { "семь", "семь" }, 2),
+            new Num(new String[] { "восемь", "восемь" }, 2), new Num(new String[] { "девять", "девять" }, 0) };
+
+    @Override
+    protected String doExecute(Object... parameters) {
+        int param = (int)parameters[1];
+        if (param == -1) {
+            return numberToString((long) parameters[0]);
+        } else if (parameters.length > 2) {
+            long number = (long) parameters[0];
+            List<String> symbols = new ArrayList<>(0);
+            for (int i = 2; i < parameters.length; i++) {
+                symbols.add((String) parameters[i]);
+            }
+            String[] wordSymbols = symbols.toArray(new String[symbols.size()]);
+            return numberToString(number, new Word(param, wordSymbols));
+        }
+        return null;
+    }
+
+    private static class Word {
         public int p;
         public String[] s;
 
@@ -26,39 +65,11 @@ public class NumberToStringRu {
         }
     }
 
-    private static Word[] words = { new Word(1, new String[] { "тысяча", "тысячи", "тысяч" }),
-            new Word(0, new String[] { "миллион", "миллиона", "миллионов" }), new Word(0, new String[] { "миллиард", "миллиарда", "миллиардов" }),
-            new Word(0, new String[] { "триллион", "триллиона", "триллионов" }) };
-    private static String[] hundreds = { "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот" };
-    private static String[] decades = { "десять", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто" };
-    private static String[] teens = { "десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать",
-            "восемнадцать", "девятнадцать" };
-    private static Num[] digits = { new Num(new String[] { "ноль", "ноль" }, 2), new Num(new String[] { "один", "одна" }, 0),
-            new Num(new String[] { "два", "две" }, 1), new Num(new String[] { "три", "три" }, 1), new Num(new String[] { "четыре", "четыре" }, 1),
-            new Num(new String[] { "пять", "пять" }, 2), new Num(new String[] { "шесть", "шесть" }, 2), new Num(new String[] { "семь", "семь" }, 2),
-            new Num(new String[] { "восемь", "восемь" }, 2), new Num(new String[] { "девять", "девять" }, 0) };
-
-    public static String numberToShortString(long number, Word word) {
-        String answer = "";
-        number %= 100;
-        if (number / 10 == 1) {
-            if (answer.length() > 0) {
-                answer += " ";
-            }
-            answer += word.s[2];
-            return answer;
-        }
-        number %= 10;
-        answer += word.s[digits[(int) number].p];
-        return answer;
-
-    }
-
-    public static String numberToString(long number) {
+    private static String numberToString(long number) {
         return numberToString(number, new Word(0, new String[] { "", "", "" }));
     }
 
-    public static String numberToString(long number, Word word) {
+    private static String numberToString(long number, Word word) {
         StringBuilder answer = new StringBuilder();
         if (number < 0) {
             answer.append("минус");
@@ -126,4 +137,10 @@ public class NumberToStringRu {
         }
         return answer;
     }
+
+    @Override
+    public String getName() {
+        return "number_to_string_ru";
+    }
+
 }

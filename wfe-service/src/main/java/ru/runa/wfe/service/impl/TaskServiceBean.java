@@ -149,4 +149,9 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
         taskLogic.delegateTask(user, taskId, currentOwner, keepCurrentOwners, newOwners);
     }
 
+    @Override
+    public List<WfTask> getUnassignedTasks(User user) {
+        Preconditions.checkArgument(user != null, "user");
+        return taskLogic.getUnassignedTasks(user);
+    }
 }

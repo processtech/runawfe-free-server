@@ -33,16 +33,16 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.runa.wfe.execution.ExecutionContext;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import ru.runa.wfe.execution.ExecutionContext;
-
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class GraphElement implements Serializable, Cloneable {
     private static final long serialVersionUID = 1L;
-    protected static final Log log = LogFactory.getLog("wfelang");
+    protected static final Log log = LogFactory.getLog(GraphElement.class);
 
     private String nodeId;
     protected String name;

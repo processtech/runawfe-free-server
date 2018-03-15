@@ -109,4 +109,13 @@ public class TaskServiceDelegate extends EJB3Delegate implements TaskService {
         }
     }
 
+    @Override
+    public List<WfTask> getUnassignedTasks(User user) {
+        try {
+            return getTaskService().getUnassignedTasks(user);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
 }
