@@ -1,13 +1,16 @@
 package ru.runa.wfe.task.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
 import ru.runa.wfe.commons.Errors;
@@ -57,12 +60,6 @@ import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Task logic.
@@ -267,9 +264,6 @@ public class TaskLogic extends WFCommonLogic {
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
-        }
-        if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
-            checkCanParticipate(user.getActor(), task);
         }
         if (keepCurrentOwners) {
             if (currentOwner instanceof TemporaryGroup) {
