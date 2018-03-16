@@ -16,8 +16,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 /**
  * User: petrmikheev
  * 
- * @struts:action path="/update_bot" name="botForm" validate="false" input =
- *                "/WEB-INF/wf/bot.jsp"
+ * @struts:action path="/update_bot" name="botForm" validate="false" input = "/WEB-INF/wf/bot.jsp"
  */
 public class UpdateBotAction extends ActionBase {
     public static final String UPDATE_BOT_ACTION_PATH = "/update_bot";
@@ -30,8 +29,9 @@ public class UpdateBotAction extends ActionBase {
             Bot bot = botService.getBot(getLoggedUser(request), botForm.getBotId());
             bot.setUsername(botForm.getWfeUser());
             bot.setPassword(botForm.getWfePassword());
-            bot.setSequentialExecution(botForm.isSequential());
-            // bot.setStartTimeout(botForm.getBotTimeout());
+            bot.setSequentialExecution(botForm.isTransactional() ? true : botForm.isSequential());
+            bot.setTransactional(botForm.isTransactional());
+            bot.setTimeout(botForm.isTransactional() ? botForm.getBotTimeout() : 0);
             bot.setBotStation(botService.getBotStation(botForm.getBotStationId()));
             botService.updateBot(getLoggedUser(request), bot);
         } catch (Exception e) {

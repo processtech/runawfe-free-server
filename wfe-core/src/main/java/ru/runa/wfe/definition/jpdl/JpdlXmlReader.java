@@ -101,6 +101,7 @@ public class JpdlXmlReader {
     private static final String ACTION_NODE = "action";
     private static final String ACCESS_TYPE = "accessType";
     private static final String EMBEDDED = "embedded";
+    private static final String TRANSACTION = "transaction";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String MULTI_TASK_CREATION_MODE = "multiTaskCreationMode";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
@@ -336,6 +337,7 @@ public class JpdlXmlReader {
             if (subProcessElement != null) {
                 subprocessNode.setSubProcessName(subProcessElement.attributeValue(NAME_ATTR));
                 subprocessNode.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
+                subprocessNode.setTransaction(Boolean.parseBoolean(subProcessElement.attributeValue(TRANSACTION, "false")));
             }
             if (node instanceof MultiSubprocessNode) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));

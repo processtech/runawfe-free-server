@@ -110,6 +110,7 @@ public class BpmnXmlReader {
     private static final String ASYNC_COMPLETION_MODE = "asyncCompletionMode";
     private static final String ACCESS_TYPE = "accessType";
     private static final String EMBEDDED = "embedded";
+    private static final String TRANSACTION = "transaction";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String TEXT_ANNOTATION = "textAnnotation";
     private static final String TEXT = "text";
@@ -303,6 +304,9 @@ public class BpmnXmlReader {
         if (node instanceof SubprocessNode) {
             SubprocessNode subprocessNode = (SubprocessNode) node;
             subprocessNode.setSubProcessName(element.attributeValue(QName.get(PROCESS, RUNA_NAMESPACE)));
+            if (properties.containsKey(TRANSACTION)) {
+                subprocessNode.setTransaction((Boolean.parseBoolean(properties.get(TRANSACTION))));
+            }
             if (properties.containsKey(EMBEDDED)) {
                 subprocessNode.setEmbedded(Boolean.parseBoolean(properties.get(EMBEDDED)));
             }

@@ -32,6 +32,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
     private String subProcessName;
     private boolean embedded;
+    private boolean transaction;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
     private transient IProcessDefinitionLoader processDefinitionLoader;
@@ -75,6 +76,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         this.embedded = embedded;
     }
 
+    public boolean isTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(boolean transaction) {
+        this.transaction = transaction;
+    }
+
     @Override
     public boolean isAsync() {
         return async;
@@ -105,7 +114,8 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             Date beforeDate = getProcessDefinition().getDeployment().getSubprocessBindingDate();
             Number deploymentId = ApplicationContextFactory.getDeploymentDAO().findDeploymentIdLatestVersionBeforeDate(subProcessName, beforeDate);
             if (deploymentId == null) {
-                throw new InternalApplicationException("No definition " + subProcessName + " found before " + CalendarUtil.formatDateTime(beforeDate));
+                throw new InternalApplicationException(
+                        "No definition " + subProcessName + " found before " + CalendarUtil.formatDateTime(beforeDate));
             }
             return processDefinitionLoader.getDefinition(deploymentId.longValue());
         }
@@ -142,8 +152,8 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             if (copyValue) {
                 Object value = variableProvider.getValue(variableName);
                 if (value != null) {
-                    log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value
-                            + " of " + value.getClass());
+                    log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value + " of "
+                            + value.getClass());
                     variables.put(mappedName, value);
                 } else {
                     log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");

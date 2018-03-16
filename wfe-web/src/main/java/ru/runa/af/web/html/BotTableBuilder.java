@@ -87,8 +87,38 @@ public class BotTableBuilder {
         table.addElement(HTMLUtils.createSelectRow(MessagesBot.LABEL_BOT_NAME.message(pageContext), actorSelect, true));
         Input passwordInput = HTMLUtils.createInput(Input.PASSWORD, BotForm.PASSWORD, bot != null ? bot.getPassword() : "");
         table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_PASSWORD.message(pageContext), passwordInput));
-        table.addElement(HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL,
-                bot != null ? bot.isSequentialExecution() : false, true, false));
+        if (bot.isTransactional()) {
+            table.addElement(
+                    HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL, true, false, false));
+        } else {
+            table.addElement(HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL,
+                    bot != null ? bot.isSequentialExecution() : false, true, false));
+        }
+
+        TR transactionalCheckRow = createTransactionalCheckRow(pageContext, bot);
+
+        table.addElement(transactionalCheckRow);
+
         return table;
+    }
+
+    private static TR createTransactionalCheckRow(PageContext pageContext, Bot bot) {
+        Input timeoutInput = null;
+        if (bot.isTransactional()) {
+            timeoutInput = HTMLUtils.createInput(Input.TEXT, BotForm.BOT_TIMEOUT, bot != null ? String.valueOf(bot.getTimeout()) : "");
+        } else {
+            timeoutInput = HTMLUtils.createInput(Input.TEXT, BotForm.BOT_TIMEOUT, "");
+        }
+
+        TR tr = new TR();
+        tr.addElement(new TD(MessagesBot.LABEL_BOT_TRANSACTIONAL.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        TD td = new TD(HTMLUtils.createCheckboxInput(BotForm.IS_TRANSACTIONAL, bot != null ? bot.isTransactional() : false, true, false));
+        timeoutInput.addAttribute("style", "width: 5%");
+        timeoutInput.setDisabled(!bot.isTransactional());
+        td.addElement(MessagesBot.LABEL_BOT_TRANSACTIONAL_TIMEOUT.message(pageContext));
+        td.addElement(timeoutInput);
+        td.setClass(Resources.CLASS_LIST_TABLE_TD);
+        tr.addElement(td);
+        return tr;
     }
 }
