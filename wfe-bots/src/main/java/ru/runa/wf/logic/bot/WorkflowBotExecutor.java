@@ -156,7 +156,7 @@ public class WorkflowBotExecutor {
                         SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNode(embeddedSubprocessNodeId);
 
                         if (subprocessNode.isTransaction()) {
-                            bindBotToEmbeddedSubprocess(task.getProcessId(), embeddedSubprocessNodeId, subprocessDefinition.getNodeId());
+                            bindBotToEmbeddedSubprocess(task.getProcessId(), subprocessDefinition.getNodeId());
                         }
                     }
 
@@ -209,18 +209,16 @@ public class WorkflowBotExecutor {
         return isBotBindedToEmbeddedSubprocess() ? processId.equals(bot.getProcessId()) : false;
     }
 
-    private void bindBotToEmbeddedSubprocess(Long processId, String subprocessNodeId, String subprocessDefinitionNodeId) {
+    private void bindBotToEmbeddedSubprocess(Long processId, String subprocessId) {
         bot.setBotTimeout(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(bot.getTimeout())));
         bot.setProcessId(processId);
-        bot.setSubprocessNodeId(subprocessNodeId);
-        bot.setSubprocessDefinitionNodeId(subprocessDefinitionNodeId);
+        bot.setSubprocessId(subprocessId);
     }
 
     private void unbindBotFromEmbeddedSubprocess() {
         bot.setBotTimeout(null);
         bot.setProcessId(null);
-        bot.setSubprocessNodeId(null);
-        bot.setSubprocessDefinitionNodeId(null);
+        bot.setSubprocessId(null);
     }
 
     private boolean isBotBindedEmbeddedSubprocessEnded() {
@@ -236,7 +234,7 @@ public class WorkflowBotExecutor {
 
         WfProcess process = Delegates.getExecutionService().getProcess(user, bot.getProcessId());
         ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
-        SubprocessDefinition subprocessDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(bot.getSubprocessDefinitionNodeId());
+        SubprocessDefinition subprocessDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(bot.getSubprocessId());
         List<EmbeddedSubprocessEndNode> endNodes = subprocessDefinition.getEndNodes();
 
         for (EmbeddedSubprocessEndNode endNode : endNodes) {
@@ -257,13 +255,19 @@ public class WorkflowBotExecutor {
             return;
         }
 
+        WfProcess process = Delegates.getExecutionService().getProcess(user, bot.getProcessId());
+        ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
+        SubprocessDefinition subprocessDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(bot.getSubprocessId());
+        final String embeddedSubprocessNodeId = processDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
+
         new TransactionalExecutor() {
 
             @Override
             protected void doExecuteInTransaction() throws Exception {
-                Utils.sendBpmnErrorMessage(bot.getProcessId(), bot.getSubprocessNodeId(),
+                Utils.sendBpmnErrorMessage(bot.getProcessId(), embeddedSubprocessNodeId,
                         new Throwable("Transactional bot " + bot.getUsername() + " timeout expired"));
             }
         }.executeInTransaction(false);
     }
+
 }

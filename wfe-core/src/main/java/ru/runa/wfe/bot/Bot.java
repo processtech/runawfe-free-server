@@ -54,8 +54,7 @@ public class Bot implements Serializable {
     private Long timeout;
     private Date botTimeout;
     private Long processId;
-    private String subprocessNodeId;
-    private String subprocessDefinitionNodeId;
+    private String subprocessId;
 
     /**
      * Flag, equals true, if all bot tasks must be executed sequential; false if parallel execution is allowed.
@@ -182,22 +181,13 @@ public class Bot implements Serializable {
         this.processId = processId;
     }
 
-    @Column(name = "SUBPROCESS_NODE_ID")
-    public String getSubprocessNodeId() {
-        return subprocessNodeId;
+    @Column(name = "SUBPROCESS_ID")
+    public String getSubprocessId() {
+        return subprocessId;
     }
 
-    public void setSubprocessNodeId(String subprocessNodeId) {
-        this.subprocessNodeId = subprocessNodeId;
-    }
-
-    @Column(name = "SUBPROCESS_DEFINITION_NODE_ID")
-    public String getSubprocessDefinitionNodeId() {
-        return subprocessDefinitionNodeId;
-    }
-
-    public void setSubprocessDefinitionNodeId(String subprocessDefinitionNodeId) {
-        this.subprocessDefinitionNodeId = subprocessDefinitionNodeId;
+    public void setSubprocessId(String subprocessId) {
+        this.subprocessId = subprocessId;
     }
 
     @Override
