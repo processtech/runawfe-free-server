@@ -17,9 +17,10 @@
  */
 package ru.runa.wfe.bot;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
-
+import java.util.concurrent.TimeUnit;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,13 +32,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
-import com.google.common.base.Objects;
 
 @Entity
 @Table(name = "BOT")
@@ -51,16 +49,32 @@ public class Bot implements Serializable {
     private String username;
     private String password;
     private Date createDate;
-    private Long timeout;
-    private Date botTimeout;
-    private Long processId;
-    private String subprocessId;
-
     /**
-     * Flag, equals true, if all bot tasks must be executed sequential; false if parallel execution is allowed.
+     * Whether should all bot tasks be executed sequentially. False for parallel execution.
      */
     private Boolean sequentialExecution = Boolean.FALSE;
+    /**
+     * In case of true all bot tasks from transactional embedded subprocess will be bound to this bot.
+     * 
+     * Bot will not handle any other tasks till embedded subprocesses finishes or transactionalTimeout expired.
+     */
     private Boolean transactional = Boolean.FALSE;
+    /**
+     * Configures binding to transactional embedded subprocess timeout in minutes
+     */
+    private Long transactionalTimeout;
+    /**
+     * Calculated binding expiration date to transactional embedded subprocess
+     */
+    private Date boundDueDate;
+    /**
+     * Process id to which transactional bot is bound
+     */
+    private Long boundProcessId;
+    /**
+     * Embedded subprocess id to which transactional bot is bound
+     */
+    private String boundSubprocessId;
 
     public Bot() {
     }
@@ -136,15 +150,6 @@ public class Bot implements Serializable {
         this.createDate = createDate;
     }
 
-    @Column(name = "TIMEOUT", nullable = false)
-    public Long getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(Long timeout) {
-        this.timeout = timeout;
-    }
-
     @Column(name = "IS_SEQUENTIAL")
     public Boolean isSequentialExecution() {
         return sequentialExecution;
@@ -163,31 +168,40 @@ public class Bot implements Serializable {
         this.transactional = transactional == null ? Boolean.FALSE : transactional;
     }
 
-    @Column(name = "BOT_TIMEOUT")
-    public Date getBotTimeout() {
-        return botTimeout;
+    @Column(name = "TRANSACTIONAL_TIMEOUT")
+    public Long getTransactionalTimeout() {
+        return transactionalTimeout;
     }
 
-    public void setBotTimeout(Date botTimeout) {
-        this.botTimeout = botTimeout;
+    public void setTransactionalTimeout(Long transactionalTimeout) {
+        this.transactionalTimeout = transactionalTimeout;
     }
 
-    @Column(name = "PROCESS_ID")
-    public Long getProcessId() {
-        return processId;
+    @Column(name = "BOUND_DUE_DATE")
+    public Date getBoundDueDate() {
+        return boundDueDate;
     }
 
-    public void setProcessId(Long processId) {
-        this.processId = processId;
+    public void setBoundDueDate(Date boundDueDate) {
+        this.boundDueDate = boundDueDate;
     }
 
-    @Column(name = "SUBPROCESS_ID")
-    public String getSubprocessId() {
-        return subprocessId;
+    @Column(name = "BOUND_PROCESS_ID")
+    public Long getBoundProcessId() {
+        return boundProcessId;
     }
 
-    public void setSubprocessId(String subprocessId) {
-        this.subprocessId = subprocessId;
+    public void setBoundProcessId(Long boundProcessId) {
+        this.boundProcessId = boundProcessId;
+    }
+
+    @Column(name = "BOUND_SUBPROCESS_ID")
+    public String getBoundSubprocessId() {
+        return boundSubprocessId;
+    }
+
+    public void setBoundSubprocessId(String boundSubprocessId) {
+        this.boundSubprocessId = boundSubprocessId;
     }
 
     @Override
@@ -207,6 +221,18 @@ public class Bot implements Serializable {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("name", username).toString();
+    }
+
+    public void bindToEmbeddedSubprocess(Long processId, String subprocessId) {
+        setBoundDueDate(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(getTransactionalTimeout())));
+        setBoundProcessId(processId);
+        setBoundSubprocessId(subprocessId);
+    }
+
+    public void unbindFromEmbeddedSubprocess() {
+        setBoundDueDate(null);
+        setBoundProcessId(null);
+        setBoundSubprocessId(null);
     }
 
 }

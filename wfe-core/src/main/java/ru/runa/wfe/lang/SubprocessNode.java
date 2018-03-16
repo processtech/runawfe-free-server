@@ -1,11 +1,12 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -22,17 +23,13 @@ import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 public class SubprocessNode extends VariableContainerNode implements Synchronizable, BoundaryEventContainer {
     private static final long serialVersionUID = 1L;
     protected boolean async;
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
     private String subProcessName;
     private boolean embedded;
-    private boolean transaction;
+    private boolean transactional;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
     private transient IProcessDefinitionLoader processDefinitionLoader;
@@ -76,12 +73,12 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         this.embedded = embedded;
     }
 
-    public boolean isTransaction() {
-        return transaction;
+    public boolean isTransactional() {
+        return transactional;
     }
 
-    public void setTransaction(boolean transaction) {
-        this.transaction = transaction;
+    public void setTransactional(boolean transactional) {
+        this.transactional = transactional;
     }
 
     @Override
@@ -114,8 +111,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             Date beforeDate = getProcessDefinition().getDeployment().getSubprocessBindingDate();
             Number deploymentId = ApplicationContextFactory.getDeploymentDAO().findDeploymentIdLatestVersionBeforeDate(subProcessName, beforeDate);
             if (deploymentId == null) {
-                throw new InternalApplicationException(
-                        "No definition " + subProcessName + " found before " + CalendarUtil.formatDateTime(beforeDate));
+                throw new InternalApplicationException("No definition " + subProcessName + " found before " + CalendarUtil.formatDateTime(beforeDate));
             }
             return processDefinitionLoader.getDefinition(deploymentId.longValue());
         }

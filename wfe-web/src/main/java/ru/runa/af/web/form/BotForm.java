@@ -31,7 +31,7 @@ public class BotForm extends ActionForm {
     public static final String PASSWORD = "wfePassword";
     public static final String BOT_STATION_ID = "botStationId";
     public static final String BOT_ID = "botId";
-    public static final String BOT_TIMEOUT = "botTimeout";
+    public static final String TRANSACTIONAL_TIMEOUT = "transactionalTimeout";
     public static final String IS_SEQUENTIAL = "sequential";
     public static final String IS_TRANSACTIONAL = "transactional";
 
@@ -39,7 +39,7 @@ public class BotForm extends ActionForm {
     private String wfePassword;
     private Long botId;
     private Long botStationId;
-    private Long botTimeout;
+    private Long transactionalTimeout;
     private boolean sequential;
     private boolean transactional;
 
@@ -91,12 +91,12 @@ public class BotForm extends ActionForm {
         this.transactional = transactional;
     }
 
-    public Long getBotTimeout() {
-        return botTimeout;
+    public Long getTransactionalTimeout() {
+        return transactionalTimeout;
     }
 
-    public void setBotTimeout(Long botTimeout) {
-        this.botTimeout = botTimeout;
+    public void setTransactionalTimeout(Long transactionalTimeout) {
+        this.transactionalTimeout = transactionalTimeout;
     }
 
 }

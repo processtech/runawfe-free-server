@@ -2,11 +2,9 @@ package ru.runa.af.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.af.web.form.BotForm;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wfe.bot.Bot;
@@ -31,7 +29,7 @@ public class UpdateBotAction extends ActionBase {
             bot.setPassword(botForm.getWfePassword());
             bot.setSequentialExecution(botForm.isTransactional() ? true : botForm.isSequential());
             bot.setTransactional(botForm.isTransactional());
-            bot.setTimeout(botForm.isTransactional() ? botForm.getBotTimeout() : 0);
+            bot.setTransactionalTimeout(botForm.isTransactional() ? botForm.getTransactionalTimeout() : null);
             bot.setBotStation(botService.getBotStation(botForm.getBotStationId()));
             botService.updateBot(getLoggedUser(request), bot);
         } catch (Exception e) {

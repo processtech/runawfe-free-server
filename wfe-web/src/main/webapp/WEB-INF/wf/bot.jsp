@@ -13,16 +13,16 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			var sequential = $("input[name='sequential']");
-			var botTimeout = $("input[name='botTimeout']");
+			var transactionalTimeout = $("input[name='transactionalTimeout']");
 			var checked = sequential.prop('checked');
-		 	$("input[name='transactional']").change(function() {
-				  if(this.checked) {
-				  	sequential.prop('checked', true).prop('disabled', true); 
-				  	botTimeout.prop('disabled', false);
-				  } else {
-				  	sequential.prop('checked', checked).prop('disabled', false);
-				  	botTimeout.prop('disabled', true);
-				  }	  
+			$("input[name='transactional']").change(function() {
+				if(this.checked) {
+					sequential.prop('checked', true).prop('disabled', true); 
+					transactionalTimeout.prop('disabled', false);
+				} else {
+					sequential.prop('checked', checked).prop('disabled', false);
+					transactionalTimeout.prop('disabled', true);
+				}
 		 	});
 		});
 	</script>
@@ -36,19 +36,19 @@
 	String saveActionUrl = "save_bot.do?id=" + id;
 	String createActionUrl = "create_bot_task.do?id=" + id;
 %>
-		  <wf:botTag botId="<%= id %>"/>
-		  	<table width="100%">
-					 <tr>
-						  <td align="left"><wf:saveBotLink href="<%= saveActionUrl %>"/></td>
-					 </tr>
-				</table>
-		  <wf:botTaskListTag botId="<%= id %>">
+		<wf:botTag botId="<%= id %>"/>
+		<table width="100%">
+			<tr>
+				<td align="left"><wf:saveBotLink href="<%= saveActionUrl %>"/></td>
+			</tr>
+		</table>
+		<wf:botTaskListTag botId="<%= id %>">
 			<table width="100%">
-					 <tr>
-						  <td align="left"><wf:addBotTaskLink href="<%= createActionUrl %>"/></td>
-					 </tr>
-				</table>
-		  </wf:botTaskListTag>
-	 </tiles:put>
-	 <tiles:put name="messages" value="../common/messages.jsp"/>
+				<tr>
+					<td align="left"><wf:addBotTaskLink href="<%= createActionUrl %>"/></td>
+				</tr>
+			</table>
+		</wf:botTaskListTag>
+	</tiles:put>
+	<tiles:put name="messages" value="../common/messages.jsp"/>
 </tiles:insert>
