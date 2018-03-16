@@ -18,13 +18,10 @@
 package ru.runa.af.web.html;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.jsp.PageContext;
 
-import org.apache.ecs.Element;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
@@ -91,38 +88,37 @@ public class BotTableBuilder {
         Input passwordInput = HTMLUtils.createInput(Input.PASSWORD, BotForm.PASSWORD, bot != null ? bot.getPassword() : "");
         table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_PASSWORD.message(pageContext), passwordInput));
         if (bot.isTransactional()) {
-        	table.addElement(HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL,
-                    true, false, false));
+            table.addElement(
+                    HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL, true, false, false));
         } else {
-			table.addElement(HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext),
-					BotForm.IS_SEQUENTIAL, bot != null ? bot.isSequentialExecution() : false, true, false));
+            table.addElement(HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL,
+                    bot != null ? bot.isSequentialExecution() : false, true, false));
         }
 
         TR transactionalCheckRow = createTransactionalCheckRow(pageContext, bot);
-        
+
         table.addElement(transactionalCheckRow);
-        
+
         return table;
     }
 
-	private static TR createTransactionalCheckRow(PageContext pageContext, Bot bot) {
-		Input timeoutInput = null;
+    private static TR createTransactionalCheckRow(PageContext pageContext, Bot bot) {
+        Input timeoutInput = null;
         if (bot.isTransactional()) {
-        	 timeoutInput = HTMLUtils.createInput(Input.TEXT, BotForm.BOT_TIMEOUT, bot != null ? String.valueOf(bot.getTimeout()) : "");
+            timeoutInput = HTMLUtils.createInput(Input.TEXT, BotForm.BOT_TIMEOUT, bot != null ? String.valueOf(bot.getTimeout()) : "");
         } else {
-        	 timeoutInput = HTMLUtils.createInput(Input.TEXT, BotForm.BOT_TIMEOUT, "");
+            timeoutInput = HTMLUtils.createInput(Input.TEXT, BotForm.BOT_TIMEOUT, "");
         }
-		
-		TR tr = new TR();
-        tr.addElement(new TD(MessagesBot.LABEL_BOT_TRANSACTIONAL.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD)); 
-        TD td = new TD(HTMLUtils.createCheckboxInput(BotForm.IS_TRANSACTIONAL,
-        		bot !=null ? bot.isTransactional() : false, true, false));
+
+        TR tr = new TR();
+        tr.addElement(new TD(MessagesBot.LABEL_BOT_TRANSACTIONAL.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        TD td = new TD(HTMLUtils.createCheckboxInput(BotForm.IS_TRANSACTIONAL, bot != null ? bot.isTransactional() : false, true, false));
         timeoutInput.addAttribute("style", "width: 5%");
         timeoutInput.setDisabled(!bot.isTransactional());
         td.addElement(MessagesBot.LABEL_BOT_TRANSACTIONAL_TIMEOUT.message(pageContext));
         td.addElement(timeoutInput);
         td.setClass(Resources.CLASS_LIST_TABLE_TD);
         tr.addElement(td);
-		return tr;
-	}
+        return tr;
+    }
 }

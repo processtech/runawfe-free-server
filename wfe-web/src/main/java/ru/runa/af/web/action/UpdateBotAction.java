@@ -16,8 +16,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 /**
  * User: petrmikheev
  * 
- * @struts:action path="/update_bot" name="botForm" validate="false" input =
- *                "/WEB-INF/wf/bot.jsp"
+ * @struts:action path="/update_bot" name="botForm" validate="false" input = "/WEB-INF/wf/bot.jsp"
  */
 public class UpdateBotAction extends ActionBase {
     public static final String UPDATE_BOT_ACTION_PATH = "/update_bot";

@@ -177,8 +177,8 @@ public class Utils {
         variables.put(BaseMessageNode.ERROR_EVENT_NODE_ID, nodeId);
         MapVariableProvider variableProvider = new MapVariableProvider(variables);
         List<VariableMapping> variableMappings = Lists.newArrayList();
-        variableMappings.add(new VariableMapping(BaseMessageNode.EVENT_TYPE, Variables.wrap(BaseMessageNode.EVENT_TYPE),
-                VariableMapping.USAGE_SELECTOR));
+        variableMappings
+                .add(new VariableMapping(BaseMessageNode.EVENT_TYPE, Variables.wrap(BaseMessageNode.EVENT_TYPE), VariableMapping.USAGE_SELECTOR));
         variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_PROCESS_ID, Variables.wrap(BaseMessageNode.ERROR_EVENT_PROCESS_ID),
                 VariableMapping.USAGE_SELECTOR));
         variableMappings.add(new VariableMapping(BaseMessageNode.ERROR_EVENT_NODE_ID, Variables.wrap(BaseMessageNode.ERROR_EVENT_NODE_ID),
@@ -210,13 +210,13 @@ public class Utils {
             selectors.add(BaseMessageNode.EVENT_TYPE + MESSAGE_SELECTOR_VALUE_DELIMITER + MessageEventType.error.name());
             selectors
                     .add(BaseMessageNode.ERROR_EVENT_PROCESS_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + String.valueOf(variableProvider.getProcessId()));
-            selectors.add(BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER
-                    + ((Node) messageNode.getParentElement()).getNodeId());
+            selectors.add(
+                    BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + ((Node) messageNode.getParentElement()).getNodeId());
         } else {
             for (VariableMapping mapping : messageNode.getVariableMappings()) {
                 if (mapping.isPropertySelector()) {
-                    selectors.add(mapping.getName() + MESSAGE_SELECTOR_VALUE_DELIMITER
-                            + getMessageSelectorValue(variableProvider, messageNode, mapping));
+                    selectors.add(
+                            mapping.getName() + MESSAGE_SELECTOR_VALUE_DELIMITER + getMessageSelectorValue(variableProvider, messageNode, mapping));
                 }
             }
         }

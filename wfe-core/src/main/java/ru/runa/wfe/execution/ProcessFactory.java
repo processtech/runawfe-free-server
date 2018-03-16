@@ -96,24 +96,19 @@ public class ProcessFactory {
             permissionDAO.setPermissions(actor, processStarterPermissions, process);
         }
     }
-    
-    public Process createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object> variables,
-            int index) {
-    	return createSubprocess(parentExecutionContext, processDefinition, variables, index, false);
-    }
 
     public Process createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object> variables,
-            int index, boolean transaction) {
+            int index) {
         Process parentProcess = parentExecutionContext.getProcess();
         Node subProcessNode = parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null);
-        nodeProcessDAO.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index, transaction));
+        nodeProcessDAO.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
         return subExecutionContext.getProcess();
     }
 
     public void startSubprocess(ExecutionContext parentExecutionContext, ExecutionContext executionContext) {
-        parentExecutionContext.addLog(new SubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getToken(), executionContext
-                .getProcess()));
+        parentExecutionContext
+                .addLog(new SubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getToken(), executionContext.getProcess()));
         grantSubprocessPermissions(executionContext.getProcessDefinition(), executionContext.getProcess(), parentExecutionContext.getProcess());
         startProcessInternal(executionContext, null);
     }
@@ -142,7 +137,8 @@ public class ProcessFactory {
         if (parentProcess != null) {
             process.setParentId(parentProcess.getId());
         }
-        process.setHierarchyIds(ProcessHierarchyUtils.createHierarchy(parentProcess != null ? parentProcess.getHierarchyIds() : null, process.getId()));
+        process.setHierarchyIds(
+                ProcessHierarchyUtils.createHierarchy(parentProcess != null ? parentProcess.getHierarchyIds() : null, process.getId()));
         ExecutionContext executionContext = new ExecutionContext(processDefinition, rootToken);
         if (actor != null) {
             executionContext.addLog(new ProcessStartLog(actor));

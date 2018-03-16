@@ -56,8 +56,7 @@ public class Bot implements Serializable {
     private Long processId;
     private String subprocessNodeId;
     private String subprocessDefinitionNodeId;
-    
-    
+
     /**
      * Flag, equals true, if all bot tasks must be executed sequential; false if parallel execution is allowed.
      */
@@ -137,7 +136,7 @@ public class Bot implements Serializable {
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
-    
+
     @Column(name = "TIMEOUT", nullable = false)
     public Long getTimeout() {
         return timeout;
@@ -151,57 +150,57 @@ public class Bot implements Serializable {
     public Boolean isSequentialExecution() {
         return sequentialExecution;
     }
-    
+
     public void setSequentialExecution(Boolean sequentialExecution) {
         this.sequentialExecution = sequentialExecution == null ? Boolean.FALSE : sequentialExecution;
     }
-    
+
     @Column(name = "IS_TRANSACTIONAL")
     public Boolean isTransactional() {
         return transactional;
     }
-    
+
     public void setTransactional(Boolean transactional) {
         this.transactional = transactional == null ? Boolean.FALSE : transactional;
     }
-    
+
     @Column(name = "BOT_TIMEOUT")
     public Date getBotTimeout() {
-		return botTimeout;
-	}
+        return botTimeout;
+    }
 
-	public void setBotTimeout(Date botTimeout) {
-		this.botTimeout = botTimeout;
-	}
-	
-	@Column(name = "PROCESS_ID")
-	public Long getProcessId() {
-		return processId;
-	}
+    public void setBotTimeout(Date botTimeout) {
+        this.botTimeout = botTimeout;
+    }
 
-	public void setProcessId(Long processId) {
-		this.processId = processId;
-	}
-	
-	@Column(name = "SUBPROCESS_NODE_ID")
-	public String getSubprocessNodeId() {
-		return subprocessNodeId;
-	}
+    @Column(name = "PROCESS_ID")
+    public Long getProcessId() {
+        return processId;
+    }
 
-	public void setSubprocessNodeId(String subprocessNodeId) {
-		this.subprocessNodeId = subprocessNodeId;
-	}
+    public void setProcessId(Long processId) {
+        this.processId = processId;
+    }
 
-	@Column(name = "SUBPROCESS_DEFINITION_NODE_ID")
+    @Column(name = "SUBPROCESS_NODE_ID")
+    public String getSubprocessNodeId() {
+        return subprocessNodeId;
+    }
+
+    public void setSubprocessNodeId(String subprocessNodeId) {
+        this.subprocessNodeId = subprocessNodeId;
+    }
+
+    @Column(name = "SUBPROCESS_DEFINITION_NODE_ID")
     public String getSubprocessDefinitionNodeId() {
-		return subprocessDefinitionNodeId;
-	}
+        return subprocessDefinitionNodeId;
+    }
 
-	public void setSubprocessDefinitionNodeId(String subprocessDefinitionNodeId) {
-		this.subprocessDefinitionNodeId = subprocessDefinitionNodeId;
-	}
+    public void setSubprocessDefinitionNodeId(String subprocessDefinitionNodeId) {
+        this.subprocessDefinitionNodeId = subprocessDefinitionNodeId;
+    }
 
-	@Override
+    @Override
     public int hashCode() {
         return Objects.hashCode(username);
     }
@@ -219,5 +218,5 @@ public class Bot implements Serializable {
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("name", username).toString();
     }
-    
+
 }

@@ -164,7 +164,6 @@ public class Process extends IdentifiableBase {
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
-    
 
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
