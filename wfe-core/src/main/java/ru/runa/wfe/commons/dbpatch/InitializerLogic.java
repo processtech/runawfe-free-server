@@ -15,7 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.wfe.commons.logic;
+package ru.runa.wfe.commons.dbpatch;
+
+import ru.runa.wfe.commons.logic.LocalizationParser;
 
 import com.google.common.collect.Lists;
 import java.io.InputStream;
@@ -36,11 +38,6 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.ConstantDAO;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
-import ru.runa.wfe.commons.dbpatch.DbPatchTransactionaExecutor;
-import ru.runa.wfe.commons.dbpatch.EmptyPatch;
-import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
-import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAssignDateColumnPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddBatchPresentationIsSharedPatch;
@@ -80,12 +77,7 @@ import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
 /**
@@ -97,7 +89,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     protected static final Log log = LogFactory.getLog(InitializerLogic.class);
     private static final List<Class<? extends DBPatch>> dbPatches;
     @Autowired
-    private DbPatchTransactionaExecutor dbPatchTransactionaExecutor;
+    private DbTransactionalInitializer dbTransactionalInitializer;
 
     static {
         List<Class<? extends DBPatch>> patches = Lists.newArrayList();
@@ -197,7 +189,10 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             if (databaseVersion != null) {
                 applyPatches(databaseVersion);
             } else {
-                initializeDatabase();
+                log.info("database is empty, initializing...");
+                SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
+                schemaExport.execute(true, true, false, true);
+                dbTransactionalInitializer.initialize(dbPatches.size());
             }
             permissionDAO.init();
             if (databaseVersion != null) {
@@ -227,53 +222,6 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     }
 
     /**
-     * Initialize database.
-     * 
-     * @param daoHolder
-     *            Helper object for getting DAO's.
-     */
-    private void initializeDatabase() {
-        log.info("database is not initialized. initializing...");
-        SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
-        schemaExport.execute(true, true, false, true);
-        try {
-            insertInitialData();
-            constantDAO.setDatabaseVersion(dbPatches.size());
-        } catch (Throwable th) {
-            log.info("unable to insert initial data", th);
-        }
-    }
-
-    /**
-     * Inserts initial data on database creation stage
-     */
-    private void insertInitialData() {
-        // create privileged Executors
-        String administratorName = SystemProperties.getAdministratorName();
-        Actor admin = new Actor(administratorName, administratorName, administratorName);
-        admin = executorDAO.create(admin);
-        executorDAO.setPassword(admin, SystemProperties.getAdministratorDefaultPassword());
-        String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-        Group adminGroup = executorDAO.create(new Group(administratorsGroupName, administratorsGroupName));
-        executorDAO.create(new Group(SystemProperties.getBotsGroupName(), SystemProperties.getBotsGroupName()));
-        List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-        executorDAO.addExecutorToGroup(admin, adminGroup);
-        executorDAO.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
-        // define executor permissions
-        permissionDAO.addType(SecuredObjectType.ACTOR, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.GROUP, adminWithGroupExecutors);
-        // define system permissions
-        permissionDAO.addType(SecuredObjectType.SYSTEM, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATIONGROUP, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATIONPAIR, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.BOTSTATION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.DEFINITION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.PROCESS, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
-    }
-
-    /**
      * Apply patches to initialized database.
      */
     private void applyPatches(int databaseVersion) {
@@ -284,7 +232,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
                 patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
                 databaseVersion++;
                 log.info("Applying patch " + patch + " (" + databaseVersion + ")");
-                dbPatchTransactionaExecutor.execute(patch, databaseVersion);
+                dbTransactionalInitializer.execute(patch, databaseVersion);
                 log.info("Patch " + patch + "(" + databaseVersion + ") is applied to database successfully.");
             } catch (Throwable th) {
                 log.error("Can't apply patch " + patch + "(" + databaseVersion + ").", th);
@@ -300,7 +248,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
             if (patch instanceof IDbPatchPostProcessor) {
                 log.info("Post-processing patch " + patch + " (" + databaseVersion + ")");
                 try {
-                    dbPatchTransactionaExecutor.postExecute((IDbPatchPostProcessor) patch);
+                    dbTransactionalInitializer.postExecute((IDbPatchPostProcessor) patch);
                     log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is post-processed successfully.");
                 } catch (Throwable th) {
                     log.error("Can't post-process patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);

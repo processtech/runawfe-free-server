@@ -18,6 +18,7 @@ public class InitializeListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent event) {
         Version.init();
+        Delegates.getSystemService().initialize();
         FreemarkerConfiguration.forceLoadInThisClassLoader();
         log.info("initialization done in " + Thread.currentThread().getContextClassLoader());
         try {

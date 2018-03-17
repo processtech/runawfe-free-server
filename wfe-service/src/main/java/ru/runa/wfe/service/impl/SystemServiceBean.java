@@ -17,10 +17,11 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -30,12 +31,10 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.dao.Localization;
@@ -54,9 +53,6 @@ import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 /**
  * Represent system ru.runa.commons.test operations login/logout. Created on 16.08.2004
  */
@@ -71,6 +67,11 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     private AuditLogic auditLogic;
     @Autowired
     private ExecutionLogic executionLogic;
+
+    @Override
+    public void initialize() {
+        // interceptors are invoked
+    }
 
     @Override
     @WebResult(name = "result")
