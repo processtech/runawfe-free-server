@@ -2,12 +2,12 @@ package ru.runa.wfe.task.cache;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.commons.cache.states.DefaultStateContext;
+import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
@@ -52,6 +52,7 @@ class TaskCacheStateCtrl extends BaseCacheCtrl<ManageableTaskCache, DefaultState
         result.add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
         result.add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
         result.add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(Deployment.class, ListenObjectLogType.BECOME_DIRTY));
         // Must be invalidated in case of non runtime substitution cache update.
         result.add(new ListenObjectDefinition(SubstitutionCacheStateImpl.class, ListenObjectLogType.BECOME_DIRTY));
         return result;
