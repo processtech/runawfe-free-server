@@ -249,7 +249,7 @@ public abstract class Node extends GraphElement {
                 if (Objects.equal(token, executionContext.getToken())) {
                     continue;
                 }
-                token.end(executionContext.getProcessDefinition(), null, null, true);
+                token.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true);
             }
         }
         Token token = executionContext.getToken();
