@@ -19,6 +19,7 @@
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -88,7 +89,11 @@ public class SqlAjaxCommand extends JsonAjaxCommand {
             while (resultSet.next()) {
                 JSONObject object = new JSONObject();
                 for (Result result : results) {
-                    object.put(result.propertyName, resultSet.getObject(result.columnName));
+                    Object fieldData = resultSet.getObject(result.columnName);
+                    if (fieldData instanceof Date) {
+                        fieldData = ((Date) fieldData).getTime();
+                    }
+                    object.put(result.propertyName, fieldData);
                 }
                 array.add(object);
             }

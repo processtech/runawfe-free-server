@@ -104,7 +104,8 @@ public class ExtraGraphics {
         /** Angle S E T */
         double angle = GraphicsMath.getVectorSignedAngle(GraphicsMath.getVector(e, s), GraphicsMath.getVector(e, t));
 
-        if (Math.abs(Math.toDegrees(angle)) > 178) {
+        double absOfAngleInDegrees = Math.abs(Math.toDegrees(angle));
+        if ( absOfAngleInDegrees > 178 || absOfAngleInDegrees < 2) {
             // It's almost a straight line...
             return arcEntries;
         }

@@ -56,7 +56,7 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
 
     public void endTokenTasks(ExecutionContext executionContext, TaskCompletionInfo taskCompletionInfo) {
         List<Task> tasks = taskDAO.findByToken(executionContext.getToken());
-        log.info("Ending " + executionContext.getToken() + " tasks " + tasks + " with " + taskCompletionInfo);
+        log.debug("Ending " + executionContext.getToken() + " tasks " + tasks + " with " + taskCompletionInfo);
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
                 if (Objects.equal(task.getNodeId(), getNodeId())) {

@@ -3,6 +3,8 @@ if (!window.console) {
 	console = {log: function() {}};
 };
 
+const SYSTEM_MENU_VISIBLE = "system_menu_visible";
+
 $(document).ready(function() {
 	// http://jqueryui.com/tooltip/	
 	$(document).tooltip({ 
@@ -22,6 +24,13 @@ $(document).ready(function() {
 		}
 	});
 	$(".selectionStatusPropagator").change(propagateSelectionStatus);
+	setSystemMenuVisible(getLocalStorageValue(SYSTEM_MENU_VISIBLE, $(window).width() > 1000), false);
+	$("#showSystemMenu").click(function() {
+		setSystemMenuVisible(true, true);
+	});
+	$("#hideSystemMenu").click(function() {
+		setSystemMenuVisible(false, true);
+	});
 });
 
 function initComponents(container) {
@@ -65,7 +74,8 @@ function openConfirmPopup(element, cookieName, message, confirmMessage, cancelBu
 			window.location = element.href; 
 		}
 	} else {
-		$.confirmDialog.html("<p>" + message + "</p><p><input id=\"cookieCh\" type=\"checkbox\" value=\"\"> " + confirmMessage + "</p>"); 
+		$.confirmDialog.html("<p style=\"font-size: 8pt; font-style: italic;\"><input id=\"cookieCh\" type=\"checkbox\" value=\"\"> " + confirmMessage + "</p><p>" + message + "</p>"); 
+		
 		var buttons = {};
 		buttons[okButton] = function() {
 			if($("#cookieCh").is(":checked")) { 
@@ -139,4 +149,37 @@ function propagateSelectionStatus() {
 	table.find("tr td:first-child").find("input[type='checkbox']:enabled").each(function() {
 		$(this).prop("checked", checked);
 	});
+}
+
+function getLocalStorageValue(key, defaultValue) {
+	try {
+		var value = localStorage.getItem(key);
+		if (value != null) {
+			return JSON.parse(value);
+		}
+		return defaultValue;
+	} catch(e) {
+		console.log("Unable to get value from localStorage by key " + key + ": " + e);
+	}
+}
+
+function setLocalStorageValue(key, value) {
+	try {
+		localStorage.setItem(key, JSON.stringify(value));
+	} catch(e) {
+		console.log("Unable to set [" + key + ", " + value + "] to localStorage: " + e);
+	}
+}
+
+function setSystemMenuVisible(visible, update) {
+	if (visible) {
+		$(".systemMenu").show();
+		$("#showSystemMenu").hide();
+	} else {
+		$(".systemMenu").hide();
+		$("#showSystemMenu").show();
+	}
+	if (update) {
+		setLocalStorageValue(SYSTEM_MENU_VISIBLE, visible);
+	}
 }

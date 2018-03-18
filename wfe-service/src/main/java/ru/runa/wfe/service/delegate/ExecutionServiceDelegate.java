@@ -239,6 +239,15 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
+    public int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion) {
+        try {
+            return getExecutionService().upgradeProcessesToDefinitionVersion(user, definitionId, newVersion);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         try {
             return getExecutionService().getSwimlanes(user, processId);

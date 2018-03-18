@@ -36,7 +36,6 @@ import com.google.common.collect.Lists;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Permission implements Serializable {
     private static final long serialVersionUID = -3672653529467591904L;
-
     /**
      * Read permission. Read permission usually allows read/get object.
      */

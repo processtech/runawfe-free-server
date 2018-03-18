@@ -7,6 +7,7 @@
 
 <af:globalExceptions />
 
+<div style="float: right;">
 <center>
 
 <%--Used for process errors displaying --%>
@@ -36,3 +37,4 @@
 	</html:messages>
 </span>
 </center>
+</div>

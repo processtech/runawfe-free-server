@@ -1,6 +1,8 @@
 package ru.runa.wfe.script.botstation;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -68,7 +70,8 @@ public class BotConfiguration {
         // Add BotTask embedded file if exists
         if (!Strings.isNullOrEmpty(embeddedFile)) {
             task.setEmbeddedFile(context.getExternalResource(embeddedFile));
-            task.setEmbeddedFileName(embeddedFile);
+            Path path = FileSystems.getDefault().getPath(embeddedFile);
+            task.setEmbeddedFileName(path.getFileName().toString());
         }
         task.setSequentialExecution(sequentialExecution);
         byte[] conf = getConfiguration(context);

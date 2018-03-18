@@ -35,7 +35,6 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_ACTIVATE = new StrutsMessage("process.activate");
     public static final StrutsMessage PROCESS_ACTIVATE_FAILED_TOKENS = new StrutsMessage("process.activate.failed.tokens");
     public static final StrutsMessage PROCESS_ACTIVATED = new StrutsMessage("process.activated");
-    public static final StrutsMessage ACTIVATE_FAILED_PROCESSES = new StrutsMessage("failed.processes.activate");
     public static final StrutsMessage FAILED_PROCESSES_ACTIVATED = new StrutsMessage("failed.processes.activated");
     public static final StrutsMessage PROCESS_SUSPEND = new StrutsMessage("process.suspend");
     public static final StrutsMessage PROCESS_SUSPENDED = new StrutsMessage("process.suspended");
@@ -43,6 +42,8 @@ public final class MessagesProcesses {
     public static final StrutsMessage PROCESS_REMOVED = new StrutsMessage("process.removed");
     public static final StrutsMessage PROCESS_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("process.upgraded.to.definition.version");
     public static final StrutsMessage PROCESS_UPGRADE_TO_DEFINITION_VERSION = new StrutsMessage("process.upgrade.to.definition.version");
+    public static final StrutsMessage PROCESSES_UPGRADE_TO_DEFINITION_VERSION = new StrutsMessage("processes.upgrade.to.definition.version");
+    public static final StrutsMessage PROCESSES_UPGRADED_TO_DEFINITION_VERSION = new StrutsMessage("processes.upgraded.to.definition.version");
     public static final StrutsMessage LABEL_SHOW_GRAPH_HISTORY = new StrutsMessage("label.manage_graph_history");
     public static final StrutsMessage LABEL_SHOW_GANTT_DIAGRAM = new StrutsMessage("label.show_gantt_diagram");
     public static final StrutsMessage LABEL_DEFINITIONS_ARCHIVE = new StrutsMessage("process_definition.archive");
@@ -71,6 +72,7 @@ public final class MessagesProcesses {
     public static final StrutsMessage BUTTON_COMPLETE = new StrutsMessage("button.complete");
     public static final StrutsMessage BUTTON_ACCEPT_TASK = new StrutsMessage("button.accept_task");
     public static final StrutsMessage BUTTON_DELEGATE_TASK = new StrutsMessage("button.delegate_task");
+    public static final StrutsMessage BUTTON_DELEGATE_TASKS = new StrutsMessage("button.delegate_tasks");
     public static final StrutsMessage BUTTON_EXPORT_EXCEL = new StrutsMessage("button.export_excel");
     public static final StrutsMessage TITLE_UPDATE_VARIABLE = new StrutsMessage("title.update_variable");
     public static final StrutsMessage LABEL_VARIABLE_NAME = new StrutsMessage("label.variable_name");

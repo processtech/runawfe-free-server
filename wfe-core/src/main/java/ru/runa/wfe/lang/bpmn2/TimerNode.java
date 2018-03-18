@@ -1,5 +1,7 @@
 package ru.runa.wfe.lang.bpmn2;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.audit.ActionLog;
@@ -19,22 +21,30 @@ import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.job.TimerJob;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
-public class TimerNode extends Node implements BoundaryEvent {
+public class TimerNode extends Node implements BoundaryEventContainer, BoundaryEvent {
     private static final long serialVersionUID = 1L;
     private Boolean boundaryEventInterrupting;
     private String dueDateExpression;
     private String repeatDurationString;
     private Delegation actionDelegation;
+    private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
     private transient JobDAO jobDAO;
 
+    @Override
+    public List<BoundaryEvent> getBoundaryEvents() {
+        return boundaryEvents;
+    }
+    
     @Override
     public Boolean getBoundaryEventInterrupting() {
         return boundaryEventInterrupting;
@@ -74,7 +84,7 @@ public class TimerNode extends Node implements BoundaryEvent {
         timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDateExpression));
         timerJob.setRepeatDurationString(repeatDurationString);
         jobDAO.create(timerJob);
-        log.info("Created " + timerJob);
+        log.debug("Created " + timerJob);
         executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
     }
 
@@ -97,7 +107,7 @@ public class TimerNode extends Node implements BoundaryEvent {
             if (actionDelegation != null) {
                 try {
                     ActionHandler actionHandler = actionDelegation.getInstance();
-                    log.info("Executing delegation in " + this);
+                    log.debug("Executing delegation in " + this);
                     actionHandler.execute(executionContext);
                     executionContext.addLog(new ActionLog(this));
                 } catch (Exception e) {
@@ -109,7 +119,7 @@ public class TimerNode extends Node implements BoundaryEvent {
                 cancelBoundaryEvent(executionContext.getToken());
                 leave(executionContext);
             } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
-                log.info("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
+                log.debug("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
                 cancelBoundaryEvent(executionContext.getToken());
             } else if (repeatDurationString != null) {
                 // restart timer
@@ -120,10 +130,10 @@ public class TimerNode extends Node implements BoundaryEvent {
                     // ExecutionContext.updateRelatedObjectsDueToDateVariableChange
                     timerJob.setDueDateExpression(null);
                     timerJob.setDueDate(businessCalendar.apply(timerJob.getDueDate(), repeatDurationString));
-                    log.info("Restarting " + timerJob + " for repeat execution at " + CalendarUtil.formatDateTime(timerJob.getDueDate()));
+                    log.debug("Restarting " + timerJob + " for repeat execution at " + CalendarUtil.formatDateTime(timerJob.getDueDate()));
                 }
             } else {
-                log.info("Deleting " + timerJob + " after execution");
+                log.debug("Deleting " + timerJob + " after execution");
                 cancelBoundaryEvent(executionContext.getToken());
             }
             Errors.removeProcessError(processError);

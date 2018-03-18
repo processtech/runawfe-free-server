@@ -61,7 +61,7 @@ public class SubstitutionForm extends IdForm {
                     params = new String[0];
                 }
                 User user = Commons.getUser(request.getSession());
-                FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(user, function);
+                FunctionDef functionDef = SubstitutionDefinitions.getByClassNameNotNull(function);
                 if (functionDef.getParams().size() != params.length) {
                     errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(ERROR_KEY));
                 } else {

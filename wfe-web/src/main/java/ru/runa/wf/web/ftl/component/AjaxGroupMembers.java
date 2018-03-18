@@ -17,15 +17,14 @@
  */
 package ru.runa.wf.web.ftl.component;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.AjaxJsonFormComponent;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -33,9 +32,6 @@ import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Group;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
 
 @SuppressWarnings("unchecked")
 public class AjaxGroupMembers extends AjaxJsonFormComponent {
@@ -58,12 +54,7 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
         html.append("\" style=\"width: auto;\">");
         List<Group> groups = (List<Group>) Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.GROUPS.createNonPaged());
         Group defaultGroup = variableProvider.getValue(Group.class, groupVariableName);
-        if (defaultGroup == null && groups.size() > 0) {
-            defaultGroup = groups.get(0);
-        }
-        if (groups.size() == 0) {
-            html.append("<option value=\"\">No groups</option>");
-        }
+        html.append("<option value=\"\"> ------------------------- </option>");
         for (Group group : groups) {
             html.append("<option value=\"ID").append(group.getId()).append("\"");
             if (Objects.equal(defaultGroup, group)) {
@@ -73,19 +64,11 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
         }
         html.append("</select></div>");
         html.append("<div id=\"ajaxGroupMembers_").append(userScriptingVariableName).append("\">");
-        html.append("<select id=\"").append(userScriptingVariableName).append("\" name=\"").append(userVariableName)
-        .append("\" style=\"width: auto;\">");
+        html.append("<select id=\"").append(userScriptingVariableName).append("\" name=\"").append(userVariableName).append("\">");
+        html.append("<option value=\"\"> ------------------------- </option>");
         if (defaultGroup != null) {
             List<Actor> actors = Delegates.getExecutorService().getGroupActors(user, defaultGroup);
             Actor defaultActor = variableProvider.getValue(Actor.class, userVariableName);
-            if (defaultActor == null && actors.size() > 0) {
-                defaultActor = actors.get(0);
-            }
-            if (actors.size() == 0) {
-                html.append("<option value=\"\">No users in this group</option>");
-            } else {
-                html.append("<option value=\"\">None</option>");
-            }
             for (Actor actor : actors) {
                 html.append("<option value=\"ID").append(actor.getId()).append("\"");
                 if (Objects.equal(defaultActor, actor)) {
@@ -93,8 +76,6 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
                 }
                 html.append(">").append(actor.getFullName()).append("</option>");
             }
-        } else {
-            html.append("<option value=\"\"></option>");
         }
         html.append("</select></div>");
         html.append("</div>");
@@ -106,11 +87,7 @@ public class AjaxGroupMembers extends AjaxJsonFormComponent {
         JSONArray json = new JSONArray();
         Group group = (Group) TypeConversionUtil.convertToExecutor(request.getParameter("groupId"), new DelegateExecutorLoader(user));
         List<Actor> actors = Delegates.getExecutorService().getGroupActors(user, group);
-        if (actors.size() == 0) {
-            json.add(createJsonObject(null, "No users in this group"));
-        } else {
-            json.add(createJsonObject(null, "None"));
-        }
+        json.add(createJsonObject(null, " ------------------------- "));
         for (Actor actor : actors) {
             json.add(createJsonObject(actor.getId(), actor.getFullName()));
         }

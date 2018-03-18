@@ -87,6 +87,10 @@ public class FormSubmissionUtils {
         return (Map<String, Object>) request.getAttribute(USER_DEFINED_VARIABLES);
     }
 
+    public static void removePreviousUserInputVariables(HttpServletRequest request) {
+        request.removeAttribute(USER_DEFINED_VARIABLES);
+    }
+
     public static Map<String, Object> extractVariables(HttpServletRequest request, ActionForm actionForm, Interaction interaction,
             IVariableProvider variableProvider) {
         Map<String, String> errors = Maps.newHashMap();

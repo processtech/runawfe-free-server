@@ -39,5 +39,5 @@ function ellUNIQUENAMEUpdateIndexes(delta) {
 		ids.push($(this).attr("row")); 
 	});
 	var idsString = ids.join(",");
-	$("input[name$='indexes']").val(idsString);
+	$("#ellUNIQUENAME input[name$='indexes']").val(idsString);
 }

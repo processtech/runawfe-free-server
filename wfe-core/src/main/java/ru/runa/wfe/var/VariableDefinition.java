@@ -49,6 +49,7 @@ public class VariableDefinition implements Serializable {
     private UserType[] formatComponentUserTypes;
     private boolean publicAccess;
     private Object defaultValue;
+    private VariableStoreType storeType = VariableStoreType.DEFAULT;
     private transient VariableFormat variableFormat;
 
     public VariableDefinition() {
@@ -276,6 +277,14 @@ public class VariableDefinition implements Serializable {
         }
         String scriptingName = String.valueOf(chars).intern();
         return scriptingName;
+    }
+
+    public VariableStoreType getStoreType() {
+        return storeType;
+    }
+
+    public void setStoreType(VariableStoreType storeType) {
+        this.storeType = storeType;
     }
 
 }

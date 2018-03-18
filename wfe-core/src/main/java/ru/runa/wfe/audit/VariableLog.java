@@ -28,15 +28,15 @@ import javax.persistence.Transient;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.converter.FileVariableToByteArrayConverter;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 import ru.runa.wfe.var.converter.StringToByteArrayConverter;
 import ru.runa.wfe.var.file.IFileVariable;
-import ru.runa.wfe.var.format.VariableFormat;
 
 /**
  * Variables base logging class.
- *
+ * 
  * @author Dofs
  */
 @Entity
@@ -65,8 +65,8 @@ public abstract class VariableLog extends ProcessLog {
         return getAttribute(ATTR_NEW_VALUE);
     }
 
-    protected void setVariableNewValue(Variable<?> variable, Object newValue, VariableFormat format) {
-        addAttributeWithTruncation(ATTR_NEW_VALUE, variable.toString(newValue, format));
+    protected void setVariableNewValue(Variable<?> variable, Object newValue, VariableDefinition variableDefinition) {
+        addAttributeWithTruncation(ATTR_NEW_VALUE, variable.toString(newValue, variableDefinition));
         boolean file = newValue instanceof IFileVariable;
         // TODO FileVariableMatcher
         addAttribute(ATTR_IS_FILE_VALUE, String.valueOf(file));

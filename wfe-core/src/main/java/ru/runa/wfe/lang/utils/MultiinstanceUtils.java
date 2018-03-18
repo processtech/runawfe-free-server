@@ -21,19 +21,17 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.format.VariableFormatContainer;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-public class MultiNodeParameters {
-    private static final Log log = LogFactory.getLog(MultiNodeParameters.class);
+public class MultiinstanceUtils {
+    private static final Log log = LogFactory.getLog(MultiinstanceUtils.class);
     // back compatibility with processes before version 4.1.1
     private static final String USAGE_MULTIINSTANCE_VARS = "multiinstance-vars";
-    private String discriminatorVariableName;
-    private String iteratorVariableName;
-    private Object discriminatorValue;
 
-    public MultiNodeParameters(ExecutionContext executionContext, VariableContainerNode node) {
+    public static Parameters parse(ExecutionContext executionContext, VariableContainerNode node) {
         boolean fallbackToV410CompatibleMode = false;
         boolean canBeParsedInV3CompatibleMode = false;
         boolean modernMode = false;
@@ -49,73 +47,93 @@ public class MultiNodeParameters {
                 canBeParsedInV3CompatibleMode = true;
             }
         }
+        Parameters parameters;
         if (fallbackToV410CompatibleMode) {
-            parseBackCompatibleWithV410(executionContext, node);
+            parameters = parseBackCompatibleWithV410(executionContext, node);
         } else if (modernMode) {
-            parseInModernMode(executionContext, node);
+            parameters = parseInModernMode(executionContext, node);
         } else if (canBeParsedInV3CompatibleMode) {
-            parseBackCompatibleWithV3(executionContext, node);
+            parameters = parseBackCompatibleWithV3(executionContext, node);
         } else {
             throw new InternalApplicationException("No valid parameters found for multiinstances in " + node);
         }
-        check(node);
+        parameters.check(node);
+        return parameters;
     }
 
-    public MultiNodeParameters(ExecutionContext executionContext, MultiTaskNode node) {
-        discriminatorVariableName = node.getDiscriminatorVariableName();
-        VariableMapping mapping = new VariableMapping(discriminatorVariableName, null, node.getDiscriminatorUsage());
+    public static Parameters parse(ExecutionContext executionContext, MultiTaskNode node) {
+        Parameters parameters = new Parameters();
+        parameters.discriminatorVariableName = node.getDiscriminatorVariableName();
+        VariableMapping mapping = new VariableMapping(parameters.discriminatorVariableName, null, node.getDiscriminatorUsage());
         if (Strings.isNullOrEmpty(mapping.getUsage()) || mapping.isMultiinstanceLinkByVariable()) {
-            discriminatorValue = executionContext.getVariableProvider().getValueNotNull(List.class, discriminatorVariableName);
+            parameters.discriminatorValue = executionContext.getVariableProvider().getValueNotNull(List.class, parameters.discriminatorVariableName);
         } else if (mapping.isMultiinstanceLinkByGroup()) {
-            setDiscriminatorValueByGroup(executionContext, mapping);
+            setDiscriminatorValueByGroup(parameters, executionContext, mapping);
         } else if (mapping.isMultiinstanceLinkByRelation()) {
-            setDiscriminatorValueByRelation(executionContext, mapping);
+            setDiscriminatorValueByRelation(parameters, executionContext, mapping);
         } else {
             throw new InternalApplicationException("invalid discriminator mode: '" + mapping.getUsage() + "'");
         }
+        return parameters;
     }
 
-    private void setDiscriminatorValueByGroup(ExecutionContext executionContext, VariableMapping mapping) {
+    public static void autoExtendContainerVariables(ExecutionContext executionContext, List<VariableMapping> variableMappings, int newSize) {
+        for (VariableMapping variableMapping : variableMappings) {
+            if (variableMapping.isMultiinstanceLink() && (variableMapping.isWritable() || variableMapping.isSyncable())) {
+                String sizeVariableName = variableMapping.getName() + VariableFormatContainer.SIZE_SUFFIX;
+                Number oldSize = (Number) executionContext.getVariableValue(sizeVariableName);
+                if (oldSize == null || oldSize.intValue() < newSize) {
+                    log.debug("Auto-extending " + sizeVariableName + ": " + oldSize + " -> " + newSize);
+                    executionContext.setVariableValue(sizeVariableName, newSize);
+                }
+            }
+        }
+    }
+
+    private static void setDiscriminatorValueByGroup(Parameters parameters, ExecutionContext executionContext, VariableMapping mapping) {
         Group group;
         if (mapping.isText()) {
-            group = ApplicationContextFactory.getExecutorDAO().getGroup(discriminatorVariableName);
+            group = ApplicationContextFactory.getExecutorDAO().getGroup(parameters.discriminatorVariableName);
         } else {
-            group = executionContext.getVariableProvider().getValueNotNull(Group.class, discriminatorVariableName);
+            group = executionContext.getVariableProvider().getValueNotNull(Group.class, parameters.discriminatorVariableName);
         }
-        discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
+        parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
     }
 
-    private void setDiscriminatorValueByRelation(ExecutionContext executionContext, VariableMapping mapping) {
+    private static void setDiscriminatorValueByRelation(Parameters parameters, ExecutionContext executionContext, VariableMapping mapping) {
         RelationSwimlaneInitializer initializer = ApplicationContextFactory.autowireBean(new RelationSwimlaneInitializer());
-        initializer.parse(discriminatorVariableName);
+        initializer.parse(parameters.discriminatorVariableName);
         if (!mapping.isText()) {
             String relationName = initializer.getRelationName();
             relationName = executionContext.getVariableProvider().getValueNotNull(String.class, relationName);
             initializer.setRelationName(relationName);
         }
-        discriminatorValue = initializer.evaluate(executionContext.getVariableProvider());
+        parameters.discriminatorValue = initializer.evaluate(executionContext.getVariableProvider());
     }
 
-    private void parseInModernMode(ExecutionContext executionContext, VariableContainerNode node) {
+    private static Parameters parseInModernMode(ExecutionContext executionContext, VariableContainerNode node) {
+        Parameters parameters = new Parameters();
         for (VariableMapping mapping : node.getVariableMappings()) {
             if (mapping.isMultiinstanceLinkByVariable() || mapping.isMultiinstanceLinkByGroup() || mapping.isMultiinstanceLinkByRelation()) {
-                discriminatorVariableName = mapping.getName();
-                iteratorVariableName = mapping.getMappedName();
+                parameters.discriminatorVariableName = mapping.getName();
+                parameters.iteratorVariableName = mapping.getMappedName();
                 if (mapping.isMultiinstanceLinkByVariable()) {
-                    discriminatorValue = executionContext.getVariableValue(discriminatorVariableName);
+                    parameters.discriminatorValue = executionContext.getVariableValue(parameters.discriminatorVariableName);
                 }
                 if (mapping.isMultiinstanceLinkByGroup()) {
-                    setDiscriminatorValueByGroup(executionContext, mapping);
+                    setDiscriminatorValueByGroup(parameters, executionContext, mapping);
                 }
                 if (mapping.isMultiinstanceLinkByRelation()) {
-                    setDiscriminatorValueByRelation(executionContext, mapping);
+                    setDiscriminatorValueByRelation(parameters, executionContext, mapping);
                 }
                 break;
             }
         }
+        return parameters;
     }
 
-    private void parseBackCompatibleWithV410(ExecutionContext executionContext, VariableContainerNode node) {
+    private static Parameters parseBackCompatibleWithV410(ExecutionContext executionContext, VariableContainerNode node) {
+        Parameters parameters = new Parameters();
         log.debug("in BackCompatibleWithV410 mode");
         String miRelationDiscriminatorTypeParam = null;
         String miDiscriminatorType = null;
@@ -144,47 +162,50 @@ public class MultiNodeParameters {
                 }
             }
             if ("variable".equals(miDiscriminatorType)) {
-                discriminatorVariableName = varName;
-                iteratorVariableName = varSubName;
+                parameters.discriminatorVariableName = varName;
+                parameters.iteratorVariableName = varSubName;
             } else if ("group".equals(miDiscriminatorType)) {
-                discriminatorVariableName = groupName;
-                iteratorVariableName = groupSubName;
+                parameters.discriminatorVariableName = groupName;
+                parameters.iteratorVariableName = groupSubName;
             } else if ("relation".equals(miDiscriminatorType)) {
-                discriminatorVariableName = relationName;
-                iteratorVariableName = relationSubName;
+                parameters.discriminatorVariableName = relationName;
+                parameters.iteratorVariableName = relationSubName;
             }
         }
-        if ("variable".equals(miDiscriminatorType) && discriminatorVariableName != null) {
-            discriminatorValue = executionContext.getVariableValue(discriminatorVariableName);
-        } else if ("group".equals(miDiscriminatorType) && discriminatorVariableName != null) {
-            Object miVar = ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(), discriminatorVariableName);
+        if ("variable".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null) {
+            parameters.discriminatorValue = executionContext.getVariableValue(parameters.discriminatorVariableName);
+        } else if ("group".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null) {
+            Object miVar = ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(), parameters.discriminatorVariableName);
             Group group = TypeConversionUtil.convertTo(Group.class, miVar);
-            discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
-        } else if ("relation".equals(miDiscriminatorType) && discriminatorVariableName != null && miRelationDiscriminatorTypeParam != null) {
+            parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
+        } else if ("relation".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null && miRelationDiscriminatorTypeParam != null) {
             String relationName = (String) ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(),
-                    discriminatorVariableName);
+                    parameters.discriminatorVariableName);
             Object relationParam = ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(),
                     miRelationDiscriminatorTypeParam);
             Executor rightExecutor = TypeConversionUtil.convertTo(Executor.class, relationParam);
-            discriminatorValue = getActorsByRelation(relationName, rightExecutor, true);
+            parameters.discriminatorValue = getActorsByRelation(relationName, rightExecutor, true);
         }
+        return parameters;
     }
 
-    private void parseBackCompatibleWithV3(ExecutionContext executionContext, VariableContainerNode node) {
+    private static Parameters parseBackCompatibleWithV3(ExecutionContext executionContext, VariableContainerNode node) {
+        Parameters parameters = new Parameters();
         log.debug("in BackCompatibleWithV3 mode");
         for (VariableMapping mapping : node.getVariableMappings()) {
             if (mapping.isMultiinstanceLink() && mapping.isReadable() && !mapping.isWritable()) {
-                discriminatorVariableName = mapping.getName();
-                discriminatorValue = executionContext.getVariableValue(discriminatorVariableName);
-                if (discriminatorValue != null) {
-                    iteratorVariableName = mapping.getMappedName();
+                parameters.discriminatorVariableName = mapping.getName();
+                parameters.discriminatorValue = executionContext.getVariableValue(parameters.discriminatorVariableName);
+                if (parameters.discriminatorValue != null) {
+                    parameters.iteratorVariableName = mapping.getMappedName();
                     break;
                 }
             }
         }
+        return parameters;
     }
 
-    private List<Actor> getActorsByRelation(String relationName, Executor paramExecutor, boolean inversed) {
+    private static List<Actor> getActorsByRelation(String relationName, Executor paramExecutor, boolean inversed) {
         List<Executor> executors = Lists.newArrayList(paramExecutor);
         Relation relation = ApplicationContextFactory.getRelationDAO().getNotNull(relationName);
         List<RelationPair> relationPairs;
@@ -205,27 +226,34 @@ public class MultiNodeParameters {
         return Lists.newArrayList(actors);
     }
 
-    private void check(VariableContainerNode node) {
-        if (discriminatorVariableName == null) {
-            throw new RuntimeException("processVariableName == null in " + node);
-        }
-        if (iteratorVariableName == null) {
-            throw new RuntimeException("subprocessVariableName == null in " + node);
-        }
-        if (discriminatorValue == null) {
-            throw new RuntimeException("discriminatorValue == null in " + node);
-        }
-    }
+    public static class Parameters {
+        private String discriminatorVariableName;
+        private String iteratorVariableName;
+        private Object discriminatorValue;
 
-    public String getDiscriminatorVariableName() {
-        return discriminatorVariableName;
-    }
+        public String getDiscriminatorVariableName() {
+            return discriminatorVariableName;
+        }
 
-    public Object getDiscriminatorValue() {
-        return discriminatorValue;
-    }
+        public Object getDiscriminatorValue() {
+            return discriminatorValue;
+        }
 
-    public String getIteratorVariableName() {
-        return iteratorVariableName;
+        public String getIteratorVariableName() {
+            return iteratorVariableName;
+        }
+
+        protected void check(VariableContainerNode node) {
+            if (discriminatorVariableName == null) {
+                throw new RuntimeException("processVariableName == null in " + node);
+            }
+            if (iteratorVariableName == null) {
+                throw new RuntimeException("subprocessVariableName == null in " + node);
+            }
+            if (discriminatorValue == null) {
+                throw new RuntimeException("discriminatorValue == null in " + node);
+            }
+        }
+
     }
 }
