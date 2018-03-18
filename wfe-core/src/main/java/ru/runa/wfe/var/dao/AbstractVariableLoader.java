@@ -56,6 +56,11 @@ public abstract class AbstractVariableLoader implements VariableLoader {
     @Override
     public Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
         LoadVariableOfTypeContext context = new LoadVariableOfTypeContext(processDefinition, process, this, variableDefinition);
-        return variableDefinition.getFormatNotNull().processBy(new LoadVariableOfType(), context);
+        switch (variableDefinition.getStoreType()) {
+        case BLOB:
+            return new LoadVariableOfType().onOther(variableDefinition.getFormatNotNull(), context);
+        default:
+            return variableDefinition.getFormatNotNull().processBy(new LoadVariableOfType(), context);
+        }
     }
 }

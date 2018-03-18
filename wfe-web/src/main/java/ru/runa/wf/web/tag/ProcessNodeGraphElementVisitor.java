@@ -104,7 +104,7 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
                         Matcher matcher = ACTION_LOG_PATTERN.matcher((String) arguments[0]);
                         if (matcher.find()) {
                             String className = matcher.group(1);
-                            arguments[0] = Delegates.getSystemService().getLocalized(user, className);
+                            arguments[0] = Delegates.getSystemService().getLocalized(className);
                         }
                     }
                     Object[] substitutedArguments = HTMLUtils.substituteArguments(user, pageContext, arguments);

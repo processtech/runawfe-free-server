@@ -22,6 +22,7 @@
 package ru.runa.wfe.definition.dao;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.HibernateException;
@@ -117,6 +118,22 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
                 query.setMaxResults(1);
                 query.setParameter(0, name);
                 query.setParameter(1, version);
+                return query.list();
+            }
+
+        });
+        return getFirstOrNull(ids);
+    }
+
+    public Number findDeploymentIdLatestVersionBeforeDate(final String name, final Date date) {
+        List<Number> ids = getHibernateTemplate().executeFind(new HibernateCallback<List<Number>>() {
+
+            @Override
+            public List<Number> doInHibernate(Session session) throws HibernateException, SQLException {
+                Query query = session.createQuery("select id from Deployment where name=? and createDate<? order by version desc");
+                query.setMaxResults(1);
+                query.setParameter(0, name);
+                query.setParameter(1, date);
                 return query.list();
             }
 

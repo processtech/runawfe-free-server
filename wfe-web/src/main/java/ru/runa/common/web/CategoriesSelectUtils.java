@@ -14,11 +14,11 @@ import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Select;
 import org.apache.ecs.html.TD;
 
+import ru.runa.wfe.commons.Utils;
+
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-
-import ru.runa.wfe.commons.Utils;
 
 public class CategoriesSelectUtils {
     private static final String TYPE_TYPE = "type";
@@ -40,8 +40,6 @@ public class CategoriesSelectUtils {
         typeInput.setStyle("width: 300px;");
         if (!TYPE_DEFAULT.equals(selectedValue)) {
             typeInput.setDisabled(true);
-        } else {
-            typeInput.setClass(Resources.CLASS_REQUIRED);
         }
         td.addElement(typeInput);
         return td;
@@ -85,8 +83,8 @@ public class CategoriesSelectUtils {
     static Select getSelectElement(Iterator<String[]> typesIterator, String selectedValue, String[] entityType, PageContext pageContext) {
         Select select = new Select(TYPE_SEL);
         select.setID("hierarchyTypeSelect");
-        select.addElement(
-                HTMLUtils.createOption(TYPE_DEFAULT, MessagesCommon.NO_TYPE_SELECTED.message(pageContext), TYPE_DEFAULT.equals(selectedValue)));
+        select.addElement(HTMLUtils.createOption(TYPE_DEFAULT, MessagesCommon.NO_TYPE_SELECTED.message(pageContext),
+                TYPE_DEFAULT.equals(selectedValue)));
         while (typesIterator.hasNext()) {
             String[] type = typesIterator.next();
 

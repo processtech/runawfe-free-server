@@ -1,13 +1,16 @@
 package ru.runa.wfe.task.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.TaskDelegationLog;
 import ru.runa.wfe.commons.Errors;
@@ -58,15 +61,9 @@ import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 /**
  * Task logic.
- *
+ * 
  * @author Dofs
  * @since 4.0
  */
@@ -74,7 +71,9 @@ public class TaskLogic extends WFCommonLogic {
     @Autowired
     private WfTaskFactory taskObjectFactory;
     @Autowired
-    private TaskListBuilder taskListBuilder;
+    private ITaskListBuilder taskListBuilder;
+    @Autowired
+    private IObservableTaskListBuilder observableTaskListBuilder;
     @Autowired
     private TaskAssigner taskAssigner;
     @Autowired
@@ -160,7 +159,7 @@ public class TaskLogic extends WFCommonLogic {
                     String mappedVariableName = entry.getKey().replaceFirst(
                             mapping.getMappedName(),
                             mapping.getName() + VariableFormatContainer.COMPONENT_QUALIFIER_START + task.getIndex()
-                            + VariableFormatContainer.COMPONENT_QUALIFIER_END);
+                                    + VariableFormatContainer.COMPONENT_QUALIFIER_END);
                     variables.put(mappedVariableName, entry.getValue());
                     variables.remove(entry.getKey());
                 }
@@ -209,7 +208,7 @@ public class TaskLogic extends WFCommonLogic {
 
     public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
         if (batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation) {
-            return taskListBuilder.getObservableTasks(user.getActor(), batchPresentation);
+            return observableTaskListBuilder.getObservableTasks(user.getActor(), batchPresentation);
         }
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");
@@ -265,9 +264,6 @@ public class TaskLogic extends WFCommonLogic {
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
-        }
-        if (SystemProperties.isTaskAssignmentStrictRulesEnabled()) {
-            checkCanParticipate(user.getActor(), task);
         }
         if (keepCurrentOwners) {
             if (currentOwner instanceof TemporaryGroup) {

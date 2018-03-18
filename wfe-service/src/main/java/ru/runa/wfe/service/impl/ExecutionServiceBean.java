@@ -210,10 +210,9 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return VariableConverter.marshal(variables);
     }
 
+    @WebMethod(exclude = true)
     @Override
-    @WebResult(name = "result")
-    public WfVariable getVariable(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "variableName") String variableName) {
+    public WfVariable getVariable(User user, Long processId, String variableName) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         Preconditions.checkArgument(variableName != null, "variableName");
@@ -233,10 +232,9 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         return null;
     }
 
+    @WebMethod(exclude = true)
     @Override
-    @WebResult(name = "result")
-    public WfVariable getTaskVariable(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "taskId") Long taskId, @WebParam(name = "variableName") String variableName) {
+    public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         Preconditions.checkArgument(taskId != null, "taskId");
@@ -346,6 +344,16 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.upgradeProcessToDefinitionVersion(user, processId, version);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public int upgradeProcessesToDefinitionVersion(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+            @WebParam(name = "version") Long newVersion) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(definitionId != null, "definitionId");
+        Preconditions.checkArgument(newVersion != null, "version");
+        return executionLogic.upgradeProcessesToDefinitionVersion(user, definitionId, newVersion);
     }
 
     @Override

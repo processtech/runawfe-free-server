@@ -1,6 +1,7 @@
 package ru.runa.wfe.execution;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -129,7 +130,40 @@ public class ConvertToSimpleVariables implements VariableFormatVisitor<List<Conv
 
     @Override
     public List<ConvertToSimpleVariablesResult> onMap(MapFormat mapFormat, ConvertToSimpleVariablesContext context) {
-        return Lists.newArrayList(new ConvertToSimpleVariablesResult(context, false));
+        List<ConvertToSimpleVariablesResult> results = Lists.newLinkedList();
+        if (context.isVirtualVariablesRequired()) {
+            results.add(new ConvertToSimpleVariablesResult(context, true));
+        }
+        int newSize = TypeConversionUtil.getMapSize(context.getValue());
+        String sizeVariableName = context.getVariableDefinition().getName() + VariableFormatContainer.SIZE_SUFFIX;
+        WfVariable oldSizeVariable = context.loadCurrentVariableStat(sizeVariableName);
+        int maxSize = newSize;
+        if (oldSizeVariable != null && oldSizeVariable.getValue() instanceof Number) {
+            maxSize = Math.max(((Number) oldSizeVariable.getValue()).intValue(), newSize);
+        }
+        VariableDefinition sizeDefinition = new VariableDefinition(sizeVariableName, null, LongFormat.class.getName(), null);
+        results.add(new ConvertToSimpleVariablesResult(sizeDefinition, context.getValue() != null ? newSize : null, false));
+
+        String[] componentFormats = context.getVariableDefinition().getFormatComponentClassNames();
+        UserType[] componentUserTypes = context.getVariableDefinition().getFormatComponentUserTypes();
+        String nameTemplate = context.getVariableDefinition().getName() +
+                VariableFormatContainer.COMPONENT_QUALIFIER_START + "%d%s" + VariableFormatContainer.COMPONENT_QUALIFIER_END;
+        Map.Entry<?, ?>[] entries = context.getValue() != null ? ((Map<?, ?>) context.getValue()).entrySet().toArray(new Map.Entry<?, ?>[0]) : null;
+        for (int i = 0; i < maxSize; i++) {
+            Object key = entries != null && entries.length > i ? entries[i].getKey() : null;
+            VariableDefinition definition = new VariableDefinition(
+                    String.format(nameTemplate, i, VariableFormatContainer.MAP_KEY_SUFFIX), null, componentFormats[0], componentUserTypes[0]);
+            results.addAll(definition.getFormatNotNull().processBy(this, context.createFor(definition, key)));
+            Object value = entries != null && entries.length > i ? entries[i].getValue() : null;
+            definition = new VariableDefinition(
+                    String.format(nameTemplate, i, VariableFormatContainer.MAP_VALUE_SUFFIX), null, componentFormats[1], componentUserTypes[1]);
+            results.addAll(definition.getFormatNotNull().processBy(this, context.createFor(definition, value)));
+        }
+        if (SystemProperties.isV4MapVariableCompatibilityMode()) {
+            // delete old map variables as blobs (pre 4.3.0)
+            context.remove(log);
+        }
+        return results;
     }
 
     @Override

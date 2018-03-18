@@ -17,6 +17,8 @@ import ru.runa.wfe.extension.function.Functions;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.validation.ValidatorException;
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.ScriptingUserTypeMap;
+import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 
 import com.google.common.base.Objects;
@@ -74,6 +76,8 @@ public class GroovyScriptExecutor implements IScriptExecutor {
         private final static String VARIABLE_PROVIDER_VARIABLE_NAME = "variableProvider";
         private final IVariableProvider variableProvider;
         private final Map<String, String> variableScriptingNameToNameMap = Maps.newHashMap();
+        // complex variables does not returned from binding...
+        private final Map<String, ScriptingUserTypeMap> userTypeMaps = Maps.newHashMap();
 
         public GroovyScriptBinding(IVariableProvider variableProvider) {
             this.variableProvider = variableProvider;
@@ -106,6 +110,9 @@ public class GroovyScriptExecutor implements IScriptExecutor {
             if (EXECUTION_CONTEXT_VARIABLE_NAME.equals(scriptingName)) {
                 throw new InternalApplicationException(EXECUTION_CONTEXT_VARIABLE_NAME + " has been removed since 4.3.x");
             }
+            if (userTypeMaps.containsKey(scriptingName)) {
+                return userTypeMaps.get(scriptingName);
+            }
             Object value = getVariableFromProcess(scriptingName);
             log.debug("Passing to script '" + scriptingName + "' as '" + value + "'" + (value != null ? " of " + value.getClass() : ""));
             setVariable(scriptingName, value);
@@ -115,6 +122,10 @@ public class GroovyScriptExecutor implements IScriptExecutor {
         protected Object getVariableFromProcess(String scriptingName) {
             String name = getVariableNameByScriptingName(scriptingName);
             Object value = variableProvider.getValue(name);
+            if (value instanceof UserTypeMap) {
+                value = new ScriptingUserTypeMap((UserTypeMap) value);
+                userTypeMaps.put(scriptingName, (ScriptingUserTypeMap) value);
+            }
             return value;
         }
 
@@ -130,12 +141,21 @@ public class GroovyScriptExecutor implements IScriptExecutor {
                 if (Objects.equal(entry.getKey(), VARIABLE_PROVIDER_VARIABLE_NAME)) {
                     continue;
                 }
+                if (entry.getValue() instanceof ScriptingUserTypeMap) {
+                    if (Objects.equal(entry.getValue(), userTypeMaps.get(entry.getKey()))) {
+                        continue;
+                    }
+                }
                 Object oldValue = getVariableFromProcess(entry.getKey());
                 if (Objects.equal(oldValue, entry.getValue())) {
                     continue;
                 }
                 String variableName = getVariableNameByScriptingName(entry.getKey());
                 result.put(variableName, entry.getValue());
+            }
+            for (Map.Entry<String, ScriptingUserTypeMap> entry : userTypeMaps.entrySet()) {
+                Map<String, Object> changedVariables = entry.getValue().getChangedVariables(entry.getKey());
+                result.putAll(changedVariables);
             }
             return result;
         }
