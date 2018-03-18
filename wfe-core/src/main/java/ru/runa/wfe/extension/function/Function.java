@@ -13,7 +13,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 public abstract class Function<T extends Object> {
     protected final Log log = LogFactory.getLog(getClass());
     private final Param[] parameterDefinitions;
-    
+
     protected Function(Param... parameterDefinitions) {
         this.parameterDefinitions = parameterDefinitions;
     }
@@ -21,11 +21,11 @@ public abstract class Function<T extends Object> {
     public String getName() {
         return getClass().getSimpleName();
     }
-    
+
     public Param[] getParameterDefinitions() {
         return parameterDefinitions;
     }
-    
+
     public final T execute(Object... parameters) {
         log.debug("Executing function with " + Arrays.toString(parameters));
         if (parameters.length < parameterDefinitions.length) {
@@ -39,7 +39,7 @@ public abstract class Function<T extends Object> {
             parameters = tmp;
         }
         Param lastParam = parameterDefinitions.length > 0 ? parameterDefinitions[parameterDefinitions.length - 1] : null;
-        for (int i=0; i<parameters.length; i++) {
+        for (int i = 0; i < parameters.length; i++) {
             Param paramDefinition;
             if (i >= parameterDefinitions.length) {
                 if (lastParam != null && lastParam.multiple) {
@@ -62,20 +62,20 @@ public abstract class Function<T extends Object> {
         log.debug("Result = " + result);
         return result;
     }
-    
+
     protected abstract T doExecute(Object... parameters);
-    
+
     @Override
     public String toString() {
         return Objects.toStringHelper(getClass()).add("parameters count", parameterDefinitions.length).toString();
     }
-    
+
     public static class Param {
         public final Class<?> definedClass;
         public final boolean optional;
         public final Object optionalValue;
         public final boolean multiple;
-                
+
         private Param(Class<?> definedClass, boolean optional, Object optionalValue, boolean multiple) {
             this.definedClass = definedClass;
             this.optional = optional;

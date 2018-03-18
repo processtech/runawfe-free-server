@@ -18,22 +18,19 @@
 package ru.runa.wfe.extension.handler.var;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandlerBase;
 import ru.runa.wfe.extension.function.Function;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
+import ru.runa.wfe.extension.function.Functions;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
@@ -422,349 +419,21 @@ public class FormulaActionHandler extends ActionHandlerBase {
     private Object tryParseFunction(String s) {
         nextToken();
         if (s.equals("get_instance_id") || s.equals("get_process_id")) {
-            if (!nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return context.getProcess().getId();
+            return simpleValue(s, context.getProcess().getId());
         }
         if (s.equals("current_date_time")) {
-            if (!nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return new Date();
-        }
-        if (s.equals("current_date")) {
-            if (!nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return actions.dateFunction(new Date());
-        }
-        if (s.equals("current_time")) {
-            if (!nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return actions.timeFunction(new Date());
+            return simpleValue(s, new Date());
         }
         if (s.equals("random")) {
-            if (!nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return Math.random();
-        }
-        if (s.equals("date")) {
-            Object param1 = parsePriority0();
-            if (param1 == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return actions.dateFunction(param1);
-        }
-        if (s.equals("time")) {
-            Object param1 = parsePriority0();
-            if (param1 == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return actions.timeFunction(param1);
-        }
-        if (s.equals("hours_round_up")) {
-            Object param1 = parsePriority0();
-            if (param1 == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return actions.hoursRoundUpFunction(param1);
-        }
-        if (s.equals("round_up")) {
-            Object param1 = parsePriority0();
-            Double d = (Double) actions.translate(param1, Double.class);
-            if (d == null) {
-                incorrectParameters(s);
-                return null;
-            }
-            Integer num = 0;
-            String tok = nextToken();
-            if (!tok.equals(")")) {
-                if (!tok.equals(",")) {
-                    incorrectParameters(s);
-                    return null;
-                }
-                num = (Integer) actions.translate(parsePriority0(), Integer.class);
-                if (num == null) {
-                    incorrectParameters(s);
-                    return null;
-                }
-                tok = nextToken();
-            }
-            if (!tok.equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            if (BigDecimal.class.isInstance(param1)) {
-                return ((BigDecimal) param1).setScale(num, RoundingMode.UP);
-            } else {
-                if (num <= 0) {
-                    return actions.roundUpFunction(d);
-                }
-                return actions.roundUpFunction(d, num);
-            }
-        }
-        if (s.equals("round_down")) {
-            Object param1 = parsePriority0();
-            Double d = (Double) actions.translate(param1, Double.class);
-            if (d == null) {
-                incorrectParameters(s);
-                return null;
-            }
-            Integer num = 0;
-            String tok = nextToken();
-            if (!tok.equals(")")) {
-                if (!tok.equals(",")) {
-                    incorrectParameters(s);
-                    return null;
-                }
-                num = (Integer) actions.translate(parsePriority0(), Integer.class);
-                if (num == null) {
-                    incorrectParameters(s);
-                    return null;
-                }
-                tok = nextToken();
-            }
-            if (!tok.equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            if (BigDecimal.class.isInstance(param1)) {
-                return ((BigDecimal) param1).setScale(num, RoundingMode.DOWN);
-            } else {
-                if (num <= 0) {
-                    return actions.roundDownFunction(d);
-                }
-                return actions.roundDownFunction(d, num);
-            }
-        }
-        if (s.equals("round")) {
-            Object param1 = parsePriority0();
-            Double d = (Double) actions.translate(param1, Double.class);
-            if (d == null) {
-                incorrectParameters(s);
-                return null;
-            }
-            Integer num = 0;
-            String tok = nextToken();
-            if (!tok.equals(")")) {
-                if (!tok.equals(",")) {
-                    incorrectParameters(s);
-                    return null;
-                }
-                num = (Integer) actions.translate(parsePriority0(), Integer.class);
-                if (num == null) {
-                    incorrectParameters(s);
-                    return null;
-                }
-                tok = nextToken();
-            }
-            if (!tok.equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            if (BigDecimal.class.isInstance(param1)) {
-                return ((BigDecimal) param1).setScale(num, RoundingMode.HALF_UP);
-            } else {
-                if (num <= 0) {
-                    return actions.roundFunction(d);
-                }
-                return actions.roundFunction(d, num);
-            }
-        }
-        if (s.equals("number_to_string_ru")) {
-            Object param1 = parsePriority0();
-            String tok = nextToken();
-            if (param1 == null) {
-                incorrectParameters(s);
-                return null;
-            }
-            if (tok.equals(")")) {
-                Long number = (Long) actions.translate(param1, Long.class);
-                if (number == null) {
-                    incorrectParameters(s);
-                    return null;
-                }
-                return NumberToStringRu.numberToString(number);
-            }
-            if (!tok.equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param2 = parsePriority0();
-            if (param2 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param3 = parsePriority0();
-            if (param3 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param4 = parsePriority0();
-            if (param4 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param5 = parsePriority0();
-            if (param5 == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Long number = (Long) actions.translate(param1, Long.class);
-            int p = -1;
-            if (param2.toString().equals("M")) {
-                p = 0;
-            }
-            if (param2.toString().equals("F")) {
-                p = 1;
-            }
-            if (p == -1 || number == null) {
-                incorrectParameters(s);
-                return null;
-            }
-            String s1 = param3.toString();
-            String s2 = param4.toString();
-            String s3 = param5.toString();
-            return NumberToStringRu.numberToString(number, new NumberToStringRu.Word(p, new String[] { s1, s2, s3 }));
-        }
-        if (s.equals("FIO_case_ru")) {
-            Object param1 = parsePriority0();
-            if (param1 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param2 = parsePriority0();
-            if (param2 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param3 = parsePriority0();
-            if (param3 == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            String fio = param1.toString();
-            Integer caseNumber = (Integer) actions.translate(param2, Integer.class);
-            if (caseNumber == null || caseNumber < 1 || caseNumber > 6) {
-                incorrectParameters(s);
-                return null;
-            }
-            String mode = param3.toString();
-            return actions.nameCaseRussian(fio, caseNumber, mode);
+            return simpleValue(s, Math.random());
         }
         if (s.equalsIgnoreCase("BigDecimal")) {
-            Object param = parsePriority0();
-            if (param == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return new BigDecimal(param.toString());
+            return bigDecimalValue(s);
         }
         if (s.equalsIgnoreCase("float")) {
-            Object param = parsePriority0();
-            if (param == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            return new Double(param.toString());
+            return floatValue(s);
         }
-        if (s.equals("mapping")) {
-            Object param1 = parsePriority0();
-            if (param1 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param2 = parsePriority0();
-            if (param2 == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            String input = param1.toString();
-            String rule = param2.toString();
-            return actions.mapping(input, rule);
-        }
-        if (s.equals("number_to_short_string_ru")) {
-            Object param1 = parsePriority0();
-            if (param1 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param2 = parsePriority0();
-            if (param2 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param3 = parsePriority0();
-            if (param3 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param4 = parsePriority0();
-            if (param4 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Object param5 = parsePriority0();
-            if (param5 == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Long number = (Long) actions.translate(param1, Long.class);
-            int p = -1;
-            if (param2.toString().equals("M")) {
-                p = 0;
-            }
-            if (param2.toString().equals("F")) {
-                p = 1;
-            }
-            if (p == -1 || number == null) {
-                incorrectParameters(s);
-                return null;
-            }
-            String s1 = param3.toString();
-            String s2 = param4.toString();
-            String s3 = param5.toString();
-            return NumberToStringRu.numberToShortString(number, new NumberToStringRu.Word(p, new String[] { s1, s2, s3 }));
-        }
-        if (s.equals("isExecutorInGroup")) {
-            Object param1 = parsePriority0();
-            if (param1 == null || !nextToken().equals(",")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Group group;
-            try {
-                group = TypeConversionUtil.convertTo(Group.class, param1);
-            } catch (Exception e) {
-                error("param1 cannot is not group: " + e);
-                return null;
-            }
-            Object param2 = parsePriority0();
-            if (param2 == null || !nextToken().equals(")")) {
-                incorrectParameters(s);
-                return null;
-            }
-            Executor executor;
-            try {
-                executor = TypeConversionUtil.convertTo(Executor.class, param2);
-            } catch (Exception e) {
-                error("param2 cannot is not executor: " + e);
-                return null;
-            }
-            return ApplicationContextFactory.getExecutorDAO().isExecutorInGroup(executor, group);
-        }
-        Function<? extends Object> function = FormulaActionHandlerOperations.getFunction(s);
+        Function<? extends Object> function = Functions.get(s);
         if (function != null) {
             List<Object> parameters = Lists.newArrayList();
             String token;
@@ -780,6 +449,32 @@ public class FormulaActionHandler extends ActionHandlerBase {
             return function.execute(parameters.toArray(new Object[parameters.size()]));
         }
         return null;
+    }
+
+    private Object bigDecimalValue(String s) {
+        Object param = parsePriority0();
+        if (param == null || !nextToken().equals(")")) {
+            incorrectParameters(s);
+            return null;
+        }
+        return new BigDecimal(param.toString());
+    }
+
+    private Object floatValue(String s) {
+        Object param = parsePriority0();
+        if (param == null || !nextToken().equals(")")) {
+            incorrectParameters(s);
+            return null;
+        }
+        return new Float(param.toString());
+    }
+
+    private Object simpleValue(String s, Object value) {
+        if (!nextToken().equals(")")) {
+            incorrectParameters(s);
+            return null;
+        }
+        return value;
     }
 
     private void incorrectParameters(String function) {
