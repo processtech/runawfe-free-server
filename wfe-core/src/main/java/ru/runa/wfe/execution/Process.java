@@ -57,6 +57,7 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.AsyncCompletionMode;
+import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
@@ -245,22 +246,19 @@ public class Process extends IdentifiableBase {
         ApplicationContextFactory.getTaskDAO().flushPendingChanges();
         boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
         for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(this)) {
-            Node node = executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
-            if (node instanceof Synchronizable) {
-                Synchronizable synchronizable = (Synchronizable) node;
-                if (synchronizable.isAsync()) {
-                    switch (synchronizable.getCompletionMode()) {
-                    case NEVER:
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
+            if (taskNode.isAsync()) {
+                switch (taskNode.getCompletionMode()) {
+                case NEVER:
+                    continue;
+                case ON_MAIN_PROCESS_END:
+                    if (activeSuperProcessExists) {
                         continue;
-                    case ON_MAIN_PROCESS_END:
-                        if (activeSuperProcessExists) {
-                            continue;
-                        }
-                    case ON_PROCESS_END:
                     }
+                case ON_PROCESS_END:
                 }
             }
-            task.end(executionContext, taskCompletionInfo);
+            task.end(executionContext, taskNode, taskCompletionInfo);
         }
         if (parentNodeProcess == null) {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
@@ -311,17 +309,14 @@ public class Process extends IdentifiableBase {
                 endSubprocessAndTasksOnMainProcessEndRecursively(subExecutionContext, canceller);
 
                 for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(subProcess)) {
-                    Node node = subProcessDefinition.getNodeNotNull(task.getNodeId());
-                    if (node instanceof Synchronizable) {
-                        Synchronizable synchronizable = (Synchronizable) node;
-                        if (synchronizable.isAsync()) {
-                            switch (synchronizable.getCompletionMode()) {
-                            case NEVER:
-                            case ON_PROCESS_END:
-                                continue;
-                            case ON_MAIN_PROCESS_END:
-                                task.end(subExecutionContext, TaskCompletionInfo.createForProcessEnd(id));
-                            }
+                    BaseTaskNode taskNode = (BaseTaskNode) subProcessDefinition.getNodeNotNull(task.getNodeId());
+                    if (taskNode.isAsync()) {
+                        switch (taskNode.getCompletionMode()) {
+                        case NEVER:
+                        case ON_PROCESS_END:
+                            continue;
+                        case ON_MAIN_PROCESS_END:
+                            task.end(subExecutionContext, taskNode, TaskCompletionInfo.createForProcessEnd(id));
                         }
                     }
                 }

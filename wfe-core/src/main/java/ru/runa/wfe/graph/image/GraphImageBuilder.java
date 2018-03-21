@@ -17,10 +17,12 @@
  */
 package ru.runa.wfe.graph.image;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import java.awt.Color;
 import java.util.Date;
 import java.util.Map;
-
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
@@ -44,10 +46,6 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskDeadlineUtils;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 /**
  * Modified on 26.02.2009 by gavrusev_sergei
@@ -117,6 +115,10 @@ public class GraphImageBuilder {
                 if (nodeModelTo.getNode() instanceof BoundaryEventContainer) {
                     for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) nodeModelTo.getNode()).getBoundaryEvents()) {
                         AbstractFigure boundaryEventFigure = allNodeFigures.get(((GraphElement) boundaryEvent).getNodeId());
+                        if (boundaryEventFigure == null) {
+                            // case for EmbeddedSubprocessEndNode
+                            continue;
+                        }
                         nodeFigures.put(boundaryEventFigure, new RenderHits(DrawProperties.getHighlightColor(), false));
                     }
                 }

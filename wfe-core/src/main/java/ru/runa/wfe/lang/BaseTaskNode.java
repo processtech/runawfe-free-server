@@ -1,19 +1,17 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskFactory;
 import ru.runa.wfe.task.dao.TaskDAO;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 public abstract class BaseTaskNode extends InteractionNode implements BoundaryEventContainer, Synchronizable {
     private static final long serialVersionUID = 1L;
@@ -60,7 +58,7 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
                 if (Objects.equal(task.getNodeId(), getNodeId())) {
-                    task.end(executionContext, taskCompletionInfo);
+                    task.end(executionContext, this, taskCompletionInfo);
                 }
             }
         }
@@ -70,4 +68,17 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
         return swimlaneDAO.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlane());
     }
 
+    @Override
+    protected boolean endBoundaryEventTokensOnNodeLeave() {
+        return !async;
+    }
+
+    @Override
+    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
+        if (async) {
+            endTokenTasks(new ExecutionContext(processDefinition, token), boundaryEvent.getTaskCompletionInfoIfInterrupting());
+        } else {
+            super.onBoundaryEvent(processDefinition, token, boundaryEvent);
+        }
+    }
 }

@@ -1,15 +1,13 @@
 package ru.runa.wfe.extension.handler.task;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.handler.ParamBasedHandlerActionHandler;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
-
-import com.google.common.collect.Lists;
 
 public class EndAsyncTasksHandler extends ParamBasedHandlerActionHandler {
 
@@ -26,7 +24,7 @@ public class EndAsyncTasksHandler extends ParamBasedHandlerActionHandler {
         }
         log.info("Cancelling tasks by '" + nodeId + "': " + tasks);
         for (Task task : tasks) {
-            task.end(context, TaskCompletionInfo.createForHandler(nodeId));
+            task.end(context, taskNode, TaskCompletionInfo.createForHandler(nodeId));
         }
     }
 
