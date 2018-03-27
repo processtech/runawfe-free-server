@@ -154,6 +154,25 @@ public class PermissionDAO extends CommonDAO {
         }).isEmpty();
     }
 
+    public boolean isAllowedForAny(final User user, final Permission permission, final SecuredObjectType securedObjectType) {
+        final Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(user.getActor());
+        if (isPrivilegedExecutor(securedObjectType, executorWithGroups)) {
+            return true;
+        }
+        return getHibernateTemplate().execute(new HibernateCallback<Object>() {
+
+            @Override
+            public Object doInHibernate(Session session) {
+                return session.createQuery("select 0 from PermissionMapping where type=:type and mask=:mask and executor in (:executors)")
+                        .setParameter("type", securedObjectType)
+                        .setParameter("mask", permission.getMask())
+                        .setParameterList("executors", executorWithGroups)
+                        .setMaxResults(1)
+                        .uniqueResult();
+            }
+        }) != null;
+    }
+
     /**
      * Checks whether executor has permission on identifiable's. Create result array in same order, as identifiable's.
      * 
