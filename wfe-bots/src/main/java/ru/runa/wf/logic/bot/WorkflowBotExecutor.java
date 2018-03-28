@@ -137,12 +137,12 @@ public class WorkflowBotExecutor {
             if (isEmbeddedSubprocessEndedToWhichBotIsBound()) {
                 log.debug("Unbinding bot from " + bot.getBoundProcessId() + ":" + bot.getBoundSubprocessId());
                 bot.unbindFromEmbeddedSubprocess();
-                Delegates.getBotService().updateBot(user, bot);
+                Delegates.getBotService().updateBot(user, bot, false);
             } else if (isBotTransactionalBindingExpired()) {
                 log.debug("Sending timeout error from " + bot.getBoundProcessId() + ":" + bot.getBoundSubprocessId());
                 sendErrorToTransactionalEmbeddedSubprocessNode();
                 bot.unbindFromEmbeddedSubprocess();
-                Delegates.getBotService().updateBot(user, bot);
+                Delegates.getBotService().updateBot(user, bot, false);
             }
 
             for (WfTask task : currentTasks) {
@@ -169,7 +169,7 @@ public class WorkflowBotExecutor {
                         if (subprocessNode.isTransactional()) {
                             bot.bindToEmbeddedSubprocess(task.getProcessId(), subprocessDefinition.getNodeId());
                             log.debug("Binding bot to " + bot.getBoundProcessId() + ":" + bot.getBoundSubprocessId());
-                            Delegates.getBotService().updateBot(user, bot);
+                            Delegates.getBotService().updateBot(user, bot, false);
                         }
                     }
                 }

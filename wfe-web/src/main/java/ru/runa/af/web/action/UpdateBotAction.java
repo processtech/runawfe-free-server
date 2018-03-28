@@ -31,7 +31,7 @@ public class UpdateBotAction extends ActionBase {
             bot.setTransactional(botForm.isTransactional());
             bot.setTransactionalTimeout(botForm.isTransactional() ? botForm.getTransactionalTimeout() : null);
             bot.setBotStation(botService.getBotStation(botForm.getBotStationId()));
-            botService.updateBot(getLoggedUser(request), bot);
+            botService.updateBot(getLoggedUser(request), bot, true);
         } catch (Exception e) {
             addError(request, e);
         }
