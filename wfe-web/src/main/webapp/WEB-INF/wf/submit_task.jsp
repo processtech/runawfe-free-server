@@ -16,6 +16,9 @@
 <% if (WebResources.isAjaxFileInputEnabled()) { %>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.iframe-transport.js" />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page="/js/jquery.fileupload.js" />">c=0;</script>
+<% 
+	}
+%>
 	<script type="text/javascript" src="<html:rewrite page="/js/trumbowyg.js" />" charset="utf-8">c=0;</script>
 <% if (!"en".equals(Commons.getLocale(pageContext).getLanguage())) { %>
 	<script type="text/javascript" src="/wfe/js/trumbowyg-langs/<%= Commons.getLocale(pageContext).getLanguage() %>.min.js"></script>
@@ -28,12 +31,11 @@
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/fileupload.css?"+Version.getHash() %>' />">
 	<link rel="stylesheet" type="text/css" href="<html:rewrite page='<%="/css/delegate.dialog.css?"+Version.getHash() %>' />">
 <% 
-   }
-   for (String url : WebResources.getTaskFormExternalJsLibs()) {
+	for (String url : WebResources.getTaskFormExternalJsLibs()) {
 %>
 	<script type="text/javascript" src="<%= url %>"></script>
 <% 
-   }
+	}
 %>
 </tiles:put>
 

@@ -1,5 +1,11 @@
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +17,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -20,10 +25,8 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
@@ -38,13 +41,6 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
 
 /**
  * Implements BotsService as bean.
@@ -136,10 +132,11 @@ public class BotServiceBean implements BotServiceLocal, BotServiceRemote {
 
     @Override
     @WebResult(name = "result")
-    public void updateBot(@WebParam(name = "user") User user, @WebParam(name = "bot") Bot bot) {
+    public void updateBot(@WebParam(name = "user") User user, @WebParam(name = "bot") Bot bot,
+            @WebParam(name = "incrementBotStationVersion") boolean incrementBotStationVersion) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(bot != null, "bot");
-        botLogic.updateBot(user, bot);
+        botLogic.updateBot(user, bot, incrementBotStationVersion);
     }
 
     @Override

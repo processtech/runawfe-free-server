@@ -21,9 +21,10 @@
  */
 package ru.runa.wfe.task;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,7 +38,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -47,7 +47,6 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CollectionOfElements;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.TaskCancelledLog;
 import ru.runa.wfe.audit.TaskEndByAdminLog;
@@ -56,7 +55,6 @@ import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.TaskExpiredLog;
 import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
@@ -64,15 +62,11 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.ActionEvent;
+import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.InteractionNode;
-import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.TaskDefinition;
-import ru.runa.wfe.lang.jpdl.WaitNode;
 import ru.runa.wfe.task.logic.ITaskNotifier;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Sets;
 
 /**
  * is one task that can be assigned to an actor (read: put in someone's task list) and that can trigger the continuation of execution of the token
@@ -300,7 +294,7 @@ public class Task implements Assignable {
      * the token. If this task leads to a signal on the token, the given transition name will be used in the signal. If this task completion does not
      * trigger execution to move on, the transition is ignored.
      */
-    public void end(ExecutionContext executionContext, TaskCompletionInfo completionInfo) {
+    public void end(ExecutionContext executionContext, BaseTaskNode taskNode, TaskCompletionInfo completionInfo) {
         log.debug("Ending " + this + " with " + completionInfo);
         switch (completionInfo.getCompletionBy()) {
         case TIMER:
@@ -324,15 +318,9 @@ public class Task implements Assignable {
         default:
             throw new IllegalArgumentException("Unimplemented for " + completionInfo.getCompletionBy());
         }
-        Node node = executionContext.getProcessDefinition().getNodeNotNull(nodeId);
-        if (SystemProperties.isV3CompatibilityMode() && node instanceof WaitNode) {
-            delete();
-            return;
-        }
         if (completionInfo.getCompletionBy() != TaskCompletionBy.PROCESS_END) {
-            InteractionNode interactionNode = (InteractionNode) node;
             ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
-            interactionNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
+            taskNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
         }
         delete();
     }
