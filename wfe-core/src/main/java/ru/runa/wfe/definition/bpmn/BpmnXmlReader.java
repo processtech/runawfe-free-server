@@ -1,18 +1,15 @@
 package ru.runa.wfe.definition.bpmn;
 
-import java.util.List;
-import java.util.Map;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.QName;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.util.List;
+import java.util.Map;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.QName;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -110,6 +107,7 @@ public class BpmnXmlReader {
     private static final String ASYNC_COMPLETION_MODE = "asyncCompletionMode";
     private static final String ACCESS_TYPE = "accessType";
     private static final String EMBEDDED = "embedded";
+    private static final String TRANSACTIONAL = "transactional";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String TEXT_ANNOTATION = "textAnnotation";
     private static final String TEXT = "text";
@@ -303,6 +301,9 @@ public class BpmnXmlReader {
         if (node instanceof SubprocessNode) {
             SubprocessNode subprocessNode = (SubprocessNode) node;
             subprocessNode.setSubProcessName(element.attributeValue(QName.get(PROCESS, RUNA_NAMESPACE)));
+            if (properties.containsKey(TRANSACTIONAL)) {
+                subprocessNode.setTransactional((Boolean.parseBoolean(properties.get(TRANSACTIONAL))));
+            }
             if (properties.containsKey(EMBEDDED)) {
                 subprocessNode.setEmbedded(Boolean.parseBoolean(properties.get(EMBEDDED)));
             }
@@ -330,8 +331,8 @@ public class BpmnXmlReader {
         }
         if (node instanceof BaseMessageNode) {
             BaseMessageNode baseMessageNode = (BaseMessageNode) node;
-            baseMessageNode
-                    .setEventType(MessageEventType.valueOf(element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE), MessageEventType.message.name())));
+            baseMessageNode.setEventType(MessageEventType.valueOf(element.attributeValue(QName.get(TYPE, RUNA_NAMESPACE),
+                    MessageEventType.message.name())));
         }
         if (node instanceof SendMessageNode) {
             SendMessageNode sendMessageNode = (SendMessageNode) node;

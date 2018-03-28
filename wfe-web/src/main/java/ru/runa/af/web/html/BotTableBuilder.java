@@ -19,16 +19,13 @@ package ru.runa.af.web.html;
 
 import java.util.Iterator;
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-
 import ru.runa.af.web.form.BotForm;
 import ru.runa.af.web.tag.ActorSelect;
 import ru.runa.common.web.Commons;
@@ -87,8 +84,32 @@ public class BotTableBuilder {
         table.addElement(HTMLUtils.createSelectRow(MessagesBot.LABEL_BOT_NAME.message(pageContext), actorSelect, true));
         Input passwordInput = HTMLUtils.createInput(Input.PASSWORD, BotForm.PASSWORD, bot != null ? bot.getPassword() : "");
         table.addElement(HTMLUtils.createRow(MessagesBot.LABEL_BOT_PASSWORD.message(pageContext), passwordInput));
-        table.addElement(HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL,
-                bot != null ? bot.isSequentialExecution() : false, true, false));
+        table.addElement(createSequenticalRow(pageContext, bot));
+        table.addElement(createTransactionalRow(pageContext, bot));
         return table;
+    }
+
+    private static TR createSequenticalRow(PageContext pageContext, Bot bot) {
+        boolean checked = bot != null && (bot.isTransactional() || bot.isSequentialExecution());
+        boolean enabled = !(bot != null && bot.isTransactional());
+        return HTMLUtils.createCheckboxRow(MessagesBot.LABEL_BOT_SEQUENTIAL.message(pageContext), BotForm.IS_SEQUENTIAL, checked, enabled, false);
+    }
+
+    private static TR createTransactionalRow(PageContext pageContext, Bot bot) {
+        String transactionalTimeoutString = "";
+        if (bot != null && bot.isTransactional() && bot.getTransactionalTimeout() != null) {
+            transactionalTimeoutString = String.valueOf(bot.getTransactionalTimeout());
+        }
+        Input transactionalTimeoutInput = HTMLUtils.createInput(Input.TEXT, BotForm.TRANSACTIONAL_TIMEOUT, transactionalTimeoutString);
+        TR tr = new TR();
+        tr.addElement(new TD(MessagesBot.LABEL_BOT_TRANSACTIONAL.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
+        TD td = new TD(HTMLUtils.createCheckboxInput(BotForm.IS_TRANSACTIONAL, bot != null ? bot.isTransactional() : false, true, false));
+        transactionalTimeoutInput.addAttribute("style", "width: 5%");
+        transactionalTimeoutInput.setDisabled(!bot.isTransactional());
+        td.addElement(MessagesBot.LABEL_BOT_TRANSACTIONAL_TIMEOUT.message(pageContext));
+        td.addElement(transactionalTimeoutInput);
+        td.setClass(Resources.CLASS_LIST_TABLE_TD);
+        tr.addElement(td);
+        return tr;
     }
 }
