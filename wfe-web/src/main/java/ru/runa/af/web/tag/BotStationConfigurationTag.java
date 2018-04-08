@@ -25,7 +25,6 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 
@@ -44,7 +43,7 @@ public class BotStationConfigurationTag extends IdentifiableFormTag {
 
     @Override
     protected Permission getPermission() {
-        return BotStationPermission.READ;
+        return Permission.READ;
     }
 
     @Override

@@ -43,7 +43,6 @@ import ru.runa.report.web.action.UndeployReportAction;
 import ru.runa.report.web.html.ReportPropertiesTDBuilder;
 import ru.runa.wf.web.html.IdentifiableUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.report.ReportPermission;
 import ru.runa.wfe.report.ReportsSecure;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.security.Permission;
@@ -66,7 +65,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(reports);
         TDBuilder[] builders =
-                BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", ReportPermission.DEPLOY) }, batchPresentation,
+                BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", Permission.DEPLOY_REPORT) }, batchPresentation,
                     new TDBuilder[] { new ReportPropertiesTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, reports);
         SortingHeaderBuilder headerBuilder =
@@ -88,8 +87,8 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
     }
 
     private boolean isUndeployAllowed(List<WfReport> reports) {
-        boolean hasGlobalDeployPermission = Delegates.getAuthorizationService().isAllowed(getUser(), ReportPermission.DEPLOY, ReportsSecure.INSTANCE);
-        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), ReportPermission.DEPLOY, reports)) {
+        boolean hasGlobalDeployPermission = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_REPORT, ReportsSecure.INSTANCE);
+        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_REPORT, reports)) {
             if (undeploy || hasGlobalDeployPermission) {
                 return true;
             }

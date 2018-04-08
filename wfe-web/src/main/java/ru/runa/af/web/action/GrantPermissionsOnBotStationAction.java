@@ -25,12 +25,9 @@ import org.apache.struts.action.ActionMapping;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.GrantPermisionsOnIdentifiableAction;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 23.08.2004
@@ -46,11 +43,9 @@ public class GrantPermissionsOnBotStationAction extends GrantPermisionsOnIdentif
 
     public static final String ACTION_PATH = "/grantBotStationPermission";
 
-    private static final List<Permission> BOT_STATION_READ_PERMISSION = Lists.newArrayList(BotStationPermission.READ);
-
     @Override
     protected List<Permission> getIdentifiablePermissions() {
-        return BOT_STATION_READ_PERMISSION;
+        return Permission.readPermissions;
     }
 
     @Override

@@ -52,14 +52,14 @@ public class GrantPermissionsOnRelationAction extends GrantPermisionsOnIdentifia
 
     @Override
     public ActionForward getErrorForward(ActionMapping mapping, Long identifiableId) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put(IdForm.ID_INPUT_NAME, identifiableId);
         return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), params);
     }
 
     @Override
     public ActionForward getSuccessForward(ActionMapping mapping, Long identifiableId) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put(IdForm.ID_INPUT_NAME, identifiableId);
         return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), params);
     }

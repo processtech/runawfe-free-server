@@ -28,7 +28,6 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionMapping;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
@@ -48,28 +47,28 @@ public final class PresentationCompilerHelper {
      * Create {@linkplain PresentationConfiguredCompiler} for loading all executors. <b>Paging is enabled on executors loading.</b>
      * 
      * @param user
-     *            Current actor {@linkplain user}.
+     *            Current actor.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading all executors.
      * @return {@linkplain PresentationConfiguredCompiler} for loading all executors.
      */
     public static PresentationConfiguredCompiler<Executor> createAllExecutorsCompiler(User user, BatchPresentation batchPresentation) {
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, ExecutorPermission.READ, ALL_EXECUTORS_CLASSES);
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions);
-        return new PresentationConfiguredCompiler<Executor>(batchPresentation, parameters);
+        return new PresentationConfiguredCompiler<>(batchPresentation, parameters);
     }
 
     /**
      * Create {@linkplain PresentationConfiguredCompiler} for loading all system logs. <b>Paging is enabled on logs loading.</b>
      * 
      * @param user
-     *            Current actor {@linkplain user}.
+     *            Current actor.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading system logs.
      * @return {@linkplain PresentationConfiguredCompiler} for loading system logs.
      */
     public static PresentationConfiguredCompiler<SystemLog> createAllSystemLogsCompiler(User user, BatchPresentation batchPresentation) {
-        return new PresentationConfiguredCompiler<SystemLog>(batchPresentation, CompilerParameters.createPaged());
+        return new PresentationConfiguredCompiler<>(batchPresentation, CompilerParameters.createPaged());
     }
 
     /**
@@ -77,13 +76,11 @@ public final class PresentationCompilerHelper {
      * children are loading, not recursive. <b>Paging is enabled on executors loading.</b>
      * 
      * @param user
-     *            Current actor {@linkplain user}.
+     *            Current actor.
      * @param group
      *            {@linkplain Group}, which children's must be loaded.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading group children's.
-     * @param daoHolder
-     *            Helper object for DAO level access.
      * @param hasExecutor
      *            Flag, equals true, if loading executors already in group; false to load executors not in group.
      * @return {@linkplain PresentationConfiguredCompiler} for loading group children's.
@@ -94,9 +91,9 @@ public final class PresentationCompilerHelper {
         String notInRestriction = inClause + " (SELECT relation.executor.id FROM " + ExecutorGroupMembership.class.getName()
                 + " as relation WHERE relation.group.id=" + group.getId() + ")";
         String[] idRestrictions = { notInRestriction, "<> " + group.getId() };
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, ExecutorPermission.READ, ALL_EXECUTORS_CLASSES);
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addIdRestrictions(idRestrictions);
-        return new PresentationConfiguredCompiler<Executor>(batchPresentation, parameters);
+        return new PresentationConfiguredCompiler<>(batchPresentation, parameters);
     }
 
     /**
@@ -104,13 +101,9 @@ public final class PresentationCompilerHelper {
      * on executors loading.</b>
      * 
      * @param user
-     *            Current actor {@linkplain user}.
-     * @param group
-     *            {@linkplain Group} for loading executor groups.
+     *            Current actor.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading executor groups.
-     * @param daoHolder
-     *            Helper object for DAO level access.
      * @param hasGroup
      *            Flag equals true, if loading groups, which already contains executor; false to load groups, which doesn't contains executor.
      * @return {@linkplain PresentationConfiguredCompiler} for loading executor groups.
@@ -121,11 +114,11 @@ public final class PresentationCompilerHelper {
         String inRestriction = inClause + " (SELECT relation.group.id FROM " + ExecutorGroupMembership.class.getName()
                 + " as relation WHERE relation.executor.id=" + executor.getId() + ")";
         String[] idRestrictions = { inRestriction, "<> " + executor.getId() };
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, ExecutorPermission.READ,
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ,
                 new SecuredObjectType[] { SecuredObjectType.GROUP });
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addRequestedClass(Group.class)
                 .addIdRestrictions(idRestrictions);
-        return new PresentationConfiguredCompiler<Group>(batchPresentation, parameters);
+        return new PresentationConfiguredCompiler<>(batchPresentation, parameters);
     }
 
     /**
@@ -133,13 +126,11 @@ public final class PresentationCompilerHelper {
      * identifiable.
      * 
      * @param user
-     *            Current actor {@linkplain user}.
+     *            Current actor.
      * @param identifiable
      *            {@linkplain Identifiable} to load executors, which has (or not) permission on this identifiable.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading executors.
-     * @param daoHolder
-     *            Helper object for DAO level access.
      * @param hasPermission
      *            Flag equals true to load executors with permissions on {@linkplain Identifiable}; false to load executors without permissions.
      * @return {@linkplain PresentationConfiguredCompiler} for loading executors.
@@ -147,10 +138,10 @@ public final class PresentationCompilerHelper {
     public static PresentationConfiguredCompiler<Executor> createExecutorWithPermissionCompiler(User user, Identifiable identifiable,
             BatchPresentation batchPresentation, boolean hasPermission) {
         String inClause = hasPermission ? "IN" : "NOT IN";
-        String idRestriction = inClause + " (SELECT pm.executor.id from " + PermissionMapping.class.getName() + " as pm where pm.identifiableId="
-                + identifiable.getIdentifiableId() + " and pm.type=" + identifiable.getSecuredObjectType().ordinal() + ")";
+        String idRestriction = inClause + " (SELECT pm.executor.id from " + PermissionMapping.class.getName() + " as pm where pm.objectId="
+                + identifiable.getIdentifiableId() + " and pm.objectType='" + identifiable.getSecuredObjectType() + "')";
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addIdRestrictions(idRestriction);
-        return new PresentationConfiguredCompiler<Executor>(batchPresentation, parameters);
+        return new PresentationConfiguredCompiler<>(batchPresentation, parameters);
     }
 }

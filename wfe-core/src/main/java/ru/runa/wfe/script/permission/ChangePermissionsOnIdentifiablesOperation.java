@@ -13,6 +13,7 @@ import ru.runa.wfe.script.common.NamedIdentitySet.NamedIdentityType;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptValidationException;
 import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 
@@ -40,7 +41,7 @@ public abstract class ChangePermissionsOnIdentifiablesOperation extends Identiti
     public String executor;
 
     @XmlElement(name = AdminScriptConstants.PERMISSION_ELEMENT_NAME, required = true, namespace = AdminScriptConstants.NAMESPACE)
-    public List<Permission> permissions = Lists.newArrayList();
+    public List<ru.runa.wfe.script.permission.Permission> permissions = Lists.newArrayList();
 
     ChangePermissionsOnIdentifiablesOperation() {
         super();
@@ -62,8 +63,8 @@ public abstract class ChangePermissionsOnIdentifiablesOperation extends Identiti
             throw new ScriptValidationException(this, "Required " + AdminScriptConstants.NAME_ATTRIBUTE_NAME + " or "
                     + AdminScriptConstants.NAMED_IDENTITY_ELEMENT_NAME + " elements.");
         }
-        for (Permission permission : permissions) {
-            securedObjectType.getNoPermission().getPermission(permission.name);
+        for (ru.runa.wfe.script.permission.Permission p : permissions) {
+            Permission.valueOf(p.name).checkApplicable(securedObjectType);
         }
     }
 
@@ -76,12 +77,13 @@ public abstract class ChangePermissionsOnIdentifiablesOperation extends Identiti
         Executor grantedExecutor = context.getExecutorLogic().getExecutor(context.getUser(), executor);
         Set<Identifiable> identifiables = getIdentifiables(context, identityNames);
         Set<ru.runa.wfe.security.Permission> changePermissions = Sets.newHashSet();
-        for (Permission permissionElement : permissions) {
-            ru.runa.wfe.security.Permission permission = securedObjectType.getNoPermission().getPermission(permissionElement.name);
-            changePermissions.add(permission);
+        for (ru.runa.wfe.script.permission.Permission permissionElement : permissions) {
+            ru.runa.wfe.security.Permission p = Permission.valueOf(permissionElement.name);
+            p.checkApplicable(securedObjectType);
+            changePermissions.add(p);
         }
         for (Identifiable identifiable : identifiables) {
-            Set<ru.runa.wfe.security.Permission> newPermissions = changeType.updatePermission(context, grantedExecutor, identifiable,
+            Set<Permission> newPermissions = changeType.updatePermission(context, grantedExecutor, identifiable,
                 changePermissions);
             context.getAuthorizationLogic().setPermissions(context.getUser(), grantedExecutor, newPermissions, identifiable);
         }

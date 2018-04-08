@@ -3,8 +3,10 @@ package ru.runa.wfe.script.permission;
 import java.util.List;
 import java.util.Set;
 
+import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -14,32 +16,32 @@ public enum ChangePermissionType {
     ADD {
 
         @Override
-        public Set<ru.runa.wfe.security.Permission> updatePermission(ScriptExecutionContext context, Executor executor, Identifiable identifiable,
-                Set<ru.runa.wfe.security.Permission> changedPermission) {
-            List<ru.runa.wfe.security.Permission> ownPermissions = context.getAuthorizationLogic().getIssuedPermissions(context.getUser(), executor,
+        public Set<Permission> updatePermission(ScriptExecutionContext context, Executor executor, Identifiable identifiable,
+                                                Set<Permission> changedPermission) {
+            List<Permission> ownPermissions = context.getAuthorizationLogic().getIssuedPermissions(context.getUser(), executor,
                 identifiable);
-            return ru.runa.wfe.security.Permission.mergePermissions(changedPermission, ownPermissions);
+            return CollectionUtil.unionSet(changedPermission, ownPermissions);
         }
     },
     REMOVE {
 
         @Override
-        public Set<ru.runa.wfe.security.Permission> updatePermission(ScriptExecutionContext context, Executor executor, Identifiable identifiable,
-                Set<ru.runa.wfe.security.Permission> changedPermission) {
-            List<ru.runa.wfe.security.Permission> ownPermissions = context.getAuthorizationLogic().getIssuedPermissions(context.getUser(), executor,
+        public Set<Permission> updatePermission(ScriptExecutionContext context, Executor executor, Identifiable identifiable,
+                                                Set<Permission> changedPermission) {
+            List<Permission> ownPermissions = context.getAuthorizationLogic().getIssuedPermissions(context.getUser(), executor,
                 identifiable);
-            return ru.runa.wfe.security.Permission.subtractPermissions(ownPermissions, changedPermission);
+            return CollectionUtil.diffSet(ownPermissions, changedPermission);
         }
     },
     SET {
 
         @Override
-        public Set<ru.runa.wfe.security.Permission> updatePermission(ScriptExecutionContext context, Executor executor, Identifiable identifiable,
-                Set<ru.runa.wfe.security.Permission> changedPermission) {
+        public Set<Permission> updatePermission(ScriptExecutionContext context, Executor executor, Identifiable identifiable,
+                                                Set<Permission> changedPermission) {
             return changedPermission;
         }
     };
 
-    public abstract Set<ru.runa.wfe.security.Permission> updatePermission(ScriptExecutionContext context, Executor executor,
-            Identifiable identifiable, Set<ru.runa.wfe.security.Permission> changedPermission);
+    public abstract Set<Permission> updatePermission(ScriptExecutionContext context, Executor executor,
+                                                     Identifiable identifiable, Set<Permission> changedPermission);
 }

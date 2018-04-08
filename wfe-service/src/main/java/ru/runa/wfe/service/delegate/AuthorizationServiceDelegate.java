@@ -134,7 +134,7 @@ public class AuthorizationServiceDelegate extends EJB3Delegate implements Author
 
     @Override
     public <T extends Object> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Class<T> persistentClass,
-            Permission permission, SecuredObjectType[] securedObjectClasses, boolean enablePaging) {
+                                                           Permission permission, SecuredObjectType[] securedObjectClasses, boolean enablePaging) {
         try {
             return getAuthorizationService().getPersistentObjects(user, batchPresentation, persistentClass, permission, securedObjectClasses,
                     enablePaging);

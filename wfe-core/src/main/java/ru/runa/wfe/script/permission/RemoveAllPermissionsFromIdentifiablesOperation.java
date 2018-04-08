@@ -1,5 +1,6 @@
 package ru.runa.wfe.script.permission;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -57,7 +58,7 @@ public abstract class RemoveAllPermissionsFromIdentifiablesOperation extends Ide
             List<? extends Executor> executors = context.getAuthorizationLogic().getExecutorsWithPermission(context.getUser(), identifiable,
                 batchPresentation, true);
             for (Executor executor : executors) {
-                context.getAuthorizationLogic().setPermissions(context.getUser(), executor, Permission.getNoPermissions(), identifiable);
+                context.getAuthorizationLogic().setPermissions(context.getUser(), executor, new ArrayList<Permission>(), identifiable);
             }
         }
     }

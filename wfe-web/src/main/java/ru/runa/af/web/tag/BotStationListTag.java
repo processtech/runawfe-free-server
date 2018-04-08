@@ -33,21 +33,20 @@ import ru.runa.common.web.form.IdsForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.service.delegate.Delegates;
 
 /**
- * @author: stan79 Date: 25.05.2008 Time: 20:04:19
+ * @author stan79 Date: 25.05.2008 Time: 20:04:19
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botStationList")
 public class BotStationListTag extends TitledFormTag {
     private static final long serialVersionUID = -4263750161023575386L;
 
     protected Permission getPermission() {
-        return BotStationPermission.BOT_STATION_CONFIGURE;
+        return Permission.BOT_STATION_CONFIGURE;
     }
 
     protected Identifiable getIdentifiable() {
@@ -84,7 +83,7 @@ public class BotStationListTag extends TitledFormTag {
 
     @Override
     public boolean isFormButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), BotStationPermission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
     }
 
     @Override

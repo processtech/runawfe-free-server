@@ -31,8 +31,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 23.08.2004
  * 
@@ -49,8 +47,6 @@ public class GrantPermissionsOnExecutorAction extends GrantPermisionsOnIdentifia
 
     public static final String ACTION_PATH = "/grantReadPermissionOnExecutor";
 
-    private static final List<Permission> READ_PERMISSONS = Lists.newArrayList(Permission.READ);
-
     @Override
     protected Identifiable getIdentifiable(User user, Long identifiableId) {
         return Delegates.getExecutorService().getExecutor(user, identifiableId);
@@ -58,7 +54,7 @@ public class GrantPermissionsOnExecutorAction extends GrantPermisionsOnIdentifia
 
     @Override
     protected List<Permission> getIdentifiablePermissions() {
-        return READ_PERMISSONS;
+        return Permission.readPermissions;
     }
 
     @Override

@@ -22,9 +22,9 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.IdLinkBaseTag;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.ActorPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "addSubstitutionLink")
 public class AddSubstitutionLinkTag extends IdLinkBaseTag {
@@ -42,7 +42,7 @@ public class AddSubstitutionLinkTag extends IdLinkBaseTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), ActorPermission.UPDATE, SecuredObjectType.ACTOR, getIdentifiableId());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_EXECUTOR, SecuredObjectType.ACTOR, getIdentifiableId());
     }
 
     @Override

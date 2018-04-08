@@ -24,8 +24,8 @@ import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TDBuilder.Env.IdentifiableExtractor;
 import ru.runa.wfe.relation.RelationPair;
 import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 
 public abstract class RelationExecutorBaseTDBuilder implements TDBuilder {
     final IdentifiableExtractor extractor = new IdentifiableExtractor() {
@@ -36,7 +36,7 @@ public abstract class RelationExecutorBaseTDBuilder implements TDBuilder {
             return getExecutor((RelationPair) o);
         }
     };
-    final PropertyTDBuilder builder = new PropertyTDBuilder(ExecutorPermission.READ, "name", extractor);
+    final PropertyTDBuilder builder = new PropertyTDBuilder(Permission.READ, "name", extractor);
 
     protected abstract Executor getExecutor(RelationPair relation);
 

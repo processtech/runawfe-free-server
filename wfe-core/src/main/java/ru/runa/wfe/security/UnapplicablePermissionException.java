@@ -24,8 +24,7 @@ import ru.runa.wfe.InternalApplicationException;
 import com.google.common.collect.Lists;
 
 /**
- * Signals that {@link java.security.Permission}s are not applicable on selected
- * type of {@link SecuredObject}. Created on 10.08.2004
+ * Signals that {@link java.security.Permission}s are not applicable on selected SecuredObjectType.
  * 
  */
 public class UnapplicablePermissionException extends InternalApplicationException {

@@ -43,7 +43,7 @@ public abstract class IdentifiableFormTag extends TitledFormTag {
     protected abstract void fillFormData(final TD tdFormElement);
 
     /**
-     * @return {@link Permission}that executor must have to update. @
+     * @return {@link Permission} that executor must have to update. @
      */
     protected abstract Permission getPermission();
 

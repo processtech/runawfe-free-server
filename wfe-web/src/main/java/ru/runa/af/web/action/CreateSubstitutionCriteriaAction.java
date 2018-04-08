@@ -34,8 +34,6 @@ public class CreateSubstitutionCriteriaAction extends BaseAction {
             throw new AuthorizationException(user + " does not have " + permission + " to " + identifiable);
         }
 
-        ActionForward retVal = new ActionForward(path);
-
-        return retVal;
+        return new ActionForward(path);
     }
 }

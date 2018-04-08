@@ -23,7 +23,6 @@ import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -123,7 +122,7 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ProcessPermission.READ;
+        return Permission.READ;
     }
 
     @Override

@@ -31,7 +31,6 @@ import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -84,7 +83,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
             for (int i = changes.size() - 1; i >= 0; i--) {
                 ProcessDefinitionChange change = changes.get(i);
                 if (change.getVersion() <= Delegates.getDefinitionService().getProcessDefinition(getUser(), getProcessDefinitionId()).getVersion()
-                        && change.getComment().isEmpty() != true) {
+                        && !change.getComment().isEmpty()) {
                     TR row = new TR();
                     table.addElement(row);
                     TD versionTD = new TD();
@@ -122,7 +121,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
 
     @Override
     protected Permission getPermission() {
-        return DefinitionPermission.READ;
+        return Permission.READ;
     }
 
     @Override

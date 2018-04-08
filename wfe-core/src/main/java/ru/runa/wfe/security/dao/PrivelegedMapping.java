@@ -19,8 +19,6 @@ package ru.runa.wfe.security.dao;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -34,7 +32,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
+import org.hibernate.annotations.Type;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 
@@ -82,7 +80,7 @@ public class PrivelegedMapping {
 
     @Column(name = "TYPE", nullable = false, length = 1024)
     @Index(name = "IX_PRIVELEGE_TYPE")
-    @Enumerated(value = EnumType.STRING)
+    @Type(type = "ru.runa.wfe.commons.hibernate.SecuredObjectTypeType")
     public SecuredObjectType getType() {
         return type;
     }

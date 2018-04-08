@@ -38,7 +38,7 @@ public class StrutsWebHelper implements WebHelper {
     }
 
     @Override
-    public String getActionUrl(String relativeUrl, Map<String, ? extends Object> params) {
+    public String getActionUrl(String relativeUrl, Map<String, ?> params) {
         if (ACTION_DOWNLOAD_PROCESS_FILE.equals(relativeUrl)) {
             return Commons.getActionUrl("/variableDownloader", params, pageContext, PortletUrlType.Render);
         }

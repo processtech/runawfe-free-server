@@ -52,10 +52,10 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -75,7 +75,7 @@ public class BotTaskListTag extends TitledFormTag {
 
     @Override
     public boolean isFormButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), BotStationPermission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class BotTaskListTag extends TitledFormTag {
         tdFormElement.addElement(new Input(Input.hidden, IdsForm.ID_INPUT_NAME, Long.toString(botId)));
         BotService botService = Delegates.getBotService();
         getForm().setEncType(Form.ENC_UPLOAD);
-        boolean disabled = !Delegates.getAuthorizationService().isAllowed(getUser(), BotStationPermission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+        boolean disabled = !Delegates.getAuthorizationService().isAllowed(getUser(), Permission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
         List<BotTask> tasks = botService.getBotTasks(getUser(), botId);
         int nameSize = 1;
         for (BotTask botTask : tasks) {
@@ -258,7 +258,7 @@ public class BotTaskListTag extends TitledFormTag {
             link.setClass(Resources.CLASS_LINK);
             fileUploadTD.addElement(link);
 
-            StringBuffer str = new StringBuffer();
+            StringBuilder str = new StringBuilder();
             str.append("&nbsp;");
             str.append(MessagesBot.LABEL_BOT_TASK_CONFIG_EDIT.message(pageContext));
             boolean configurationIsXml = true;
@@ -270,8 +270,8 @@ public class BotTaskListTag extends TitledFormTag {
             if (!configurationIsXml && !Native2AsciiHelper.isNeedConvert(new String(task.getConfiguration()))) {
                 str.append("*");
             }
-            StringBuffer jsLink = new StringBuffer("javascript:");
-            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            StringBuilder jsLink = new StringBuilder("javascript:");
+            Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("id", task.getId());
             parameterMap.put("edit", "true");
             jsLink.append("openDocumentEditor('");

@@ -27,7 +27,6 @@ import ru.runa.common.web.action.GrantPermisionsOnIdentifiableAction;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.user.User;
 
 import com.google.common.collect.Lists;
@@ -45,12 +44,11 @@ import com.google.common.collect.Lists;
 public class GrantPermissionsOnSystemAction extends GrantPermisionsOnIdentifiableAction {
 
     public static final String ACTION_PATH = "/grantLoginPermissionOnSystem";
-
-    private static final List<Permission> LOGIN_PERMISSONS = Lists.newArrayList(SystemPermission.LOGIN_TO_SYSTEM);
+    private static final List<Permission> PERMISSONS = Lists.newArrayList(Permission.LOGIN_TO_SYSTEM);
 
     @Override
     protected List<Permission> getIdentifiablePermissions() {
-        return LOGIN_PERMISSONS;
+        return PERMISSONS;
     }
 
     @Override

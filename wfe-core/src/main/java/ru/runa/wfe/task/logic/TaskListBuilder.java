@@ -34,6 +34,7 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.IBatchPresentationCompilerFactory;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
@@ -46,12 +47,10 @@ import ru.runa.wfe.task.dao.TaskDAO;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.user.logic.ExecutorLogic;
@@ -170,11 +169,11 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
             if (!administrator) {
                 Executor executor = state.getTask().getExecutor();
                 if (executor instanceof Actor) {
-                    if (!permissionDAO.permissionExists(actor, ActorPermission.READ, executor)) {
+                    if (!permissionDAO.permissionExists(actor, Permission.READ, executor)) {
                         wfTask.setOwner(Actor.UNAUTHORIZED_ACTOR);
                     }
                 } else {
-                    if (!(executor instanceof TemporaryGroup) && !permissionDAO.permissionExists(actor, GroupPermission.READ, executor)) {
+                    if (!(executor instanceof TemporaryGroup) && !permissionDAO.permissionExists(actor, Permission.READ, executor)) {
                         wfTask.setOwner(Group.UNAUTHORIZED_GROUP);
                     }
                 }
@@ -204,13 +203,13 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
             for (Executor executor : getExecutorsToGetTasks(actor, false)) {
                 for (Executor taskOwner : observableExecutors) {
                     boolean taskOwnerIsActor = taskOwner instanceof Actor;
-                    if (permissionDAO.permissionExists(executor, taskOwnerIsActor ? ActorPermission.VIEW_TASKS : GroupPermission.VIEW_TASKS,
+                    if (permissionDAO.permissionExists(executor, taskOwnerIsActor ? Permission.VIEW_ACTOR_TASKS : Permission.VIEW_GROUP_TASKS,
                             taskOwner)) {
                         executorsToGetTasks.add(taskOwner);
-                    } else if (!taskOwnerIsActor && permissionDAO.permissionExists(executor, GroupPermission.LIST_GROUP, taskOwner)) {
+                    } else if (!taskOwnerIsActor && permissionDAO.permissionExists(executor, Permission.LIST_GROUP, taskOwner)) {
                         Set<Actor> children = executorDAO.getGroupActors((Group) taskOwner);
                         for (Actor child : children) {
-                            if (permissionDAO.permissionExists(executor, ActorPermission.VIEW_TASKS, child)) {
+                            if (permissionDAO.permissionExists(executor, Permission.VIEW_ACTOR_TASKS, child)) {
                                 executorsToGetTasks.add(taskOwner);
                                 break;
                             }

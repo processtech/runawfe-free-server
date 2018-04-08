@@ -106,7 +106,7 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @Override
     @WebResult(name = "result")
     public List<Permission> getIssuedPermissions(@WebParam(name = "user") User user, @WebParam(name = "performer") Executor performer,
-            @WebParam(name = "identifiable") Identifiable identifiable) {
+                                                 @WebParam(name = "identifiable") Identifiable identifiable) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(performer != null, "performer");
         Preconditions.checkArgument(identifiable != null, "identifiable");
@@ -126,7 +126,7 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @Override
     @WebResult(name = "result")
     public void setPermissions(@WebParam(name = "user") User user, @WebParam(name = "executorId") Long executorId,
-            @WebParam(name = "permissions") Collection<Permission> permissions, @WebParam(name = "identifiable") Identifiable identifiable) {
+                               @WebParam(name = "permissions") Collection<Permission> permissions, @WebParam(name = "identifiable") Identifiable identifiable) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorId != null, "executorId");
         Preconditions.checkArgument(permissions != null, "permissions");
@@ -172,9 +172,9 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @SuppressWarnings("unchecked")
     @WebResult(name = "result")
     public <T extends Object> List<T> getPersistentObjects(@WebParam(name = "user") User user,
-            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "persistentClass") Class<T> persistentClass,
-            @WebParam(name = "permission") Permission permission, @WebParam(name = "securedObjectTypes") SecuredObjectType[] securedObjectTypes,
-            @WebParam(name = "enablePaging") boolean enablePaging) {
+                                                           @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "persistentClass") Class<T> persistentClass,
+                                                           @WebParam(name = "permission") Permission permission, @WebParam(name = "securedObjectTypes") SecuredObjectType[] securedObjectTypes,
+                                                           @WebParam(name = "enablePaging") boolean enablePaging) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(batchPresentation != null, "batchPresentation");
         Preconditions.checkArgument(persistentClass != null, "persistenceClass");

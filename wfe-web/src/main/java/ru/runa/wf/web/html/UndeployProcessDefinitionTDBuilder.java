@@ -33,13 +33,13 @@ import ru.runa.common.web.html.BaseTDBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.LongFilterCriteria;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
 /**
@@ -48,7 +48,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 public class UndeployProcessDefinitionTDBuilder extends BaseTDBuilder {
 
     public UndeployProcessDefinitionTDBuilder() {
-        super(DefinitionPermission.UNDEPLOY_DEFINITION);
+        super(Permission.UNDEPLOY_DEFINITION);
     }
 
     @Override
@@ -77,7 +77,6 @@ public class UndeployProcessDefinitionTDBuilder extends BaseTDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        String result = MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(env.getPageContext());
-        return result;
+        return MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(env.getPageContext());
     }
 }

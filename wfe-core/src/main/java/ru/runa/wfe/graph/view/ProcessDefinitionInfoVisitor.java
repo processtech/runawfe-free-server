@@ -5,10 +5,10 @@ import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.User;
 
@@ -85,6 +85,6 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
      */
     private boolean hasReadPermission(ProcessDefinition processDefinition) {
         PermissionDAO permissionDAO = ApplicationContextFactory.getPermissionDAO();
-        return permissionDAO.isAllowed(user, DefinitionPermission.READ, processDefinition.getDeployment());
+        return permissionDAO.isAllowed(user, Permission.READ, processDefinition.getDeployment());
     }
 }

@@ -263,10 +263,7 @@ public class HTMLUtils {
     /**
      * Substitutes arguments for process history logs
      * 
-     * @param user
-     * @param pageContext
-     *            can be <code>null</code>
-     * @param arguments
+     * @param pageContext Can be <code>null</code>.
      * @return representable values
      */
     public static Object[] substituteArguments(User user, PageContext pageContext, Object[] arguments) {

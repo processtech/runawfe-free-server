@@ -48,7 +48,7 @@ public class AdminkitScriptsAction extends ActionBase {
                 }
             } else if ("execute".equals(action)) {
                 log.info("Executing script");
-                final List<String> scriptErrors = new ArrayList<String>();
+                final List<String> scriptErrors = new ArrayList<>();
                 AdminScriptClient.run(getLoggedUser(request), getScript(form), new Handler() {
 
                     @Override
@@ -67,7 +67,7 @@ public class AdminkitScriptsAction extends ActionBase {
                 }
             } else if ("executeUploadedScript".equals(action)) {
                 log.info("Executing script");
-                final List<String> scriptErrors = new ArrayList<String>();
+                final List<String> scriptErrors = new ArrayList<>();
                 File file = new File(IOCommons.getAdminkitScriptsDirPath() + fileName);
                 byte[] script = FileUtils.readFileToByteArray(file);
                 AdminScriptClient.run(getLoggedUser(request), script, new Handler() {

@@ -25,7 +25,6 @@ import ru.runa.af.web.action.UpdateExecutorDetailsAction;
 import ru.runa.af.web.html.ExecutorTableBuilder;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.SystemExecutors;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateExecutorDetailsForm")
@@ -49,7 +48,7 @@ public class UpdateExecutorDetailsFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ExecutorPermission.UPDATE;
+        return Permission.UPDATE_EXECUTOR;
     }
 
     @Override

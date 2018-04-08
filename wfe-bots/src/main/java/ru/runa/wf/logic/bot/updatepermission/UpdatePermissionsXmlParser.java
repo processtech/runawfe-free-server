@@ -23,7 +23,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.execution.ProcessPermission;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 
 public class UpdatePermissionsXmlParser {
     private static final String CONDITION_ELEMENT_NAME = "condition";
@@ -46,7 +47,9 @@ public class UpdatePermissionsXmlParser {
         settings.setMethod(Method.valueOf(root.elementTextTrim(METHOD_ELEMENT_NAME)));
         List<Element> permissionElements = root.element(PERMISSIONS_ELEMENT_NAME).elements(PERMISSION_ELEMENT_NAME);
         for (Element element : permissionElements) {
-            settings.getPermissions().add(ProcessPermission.CANCEL_PROCESS.getPermission(element.getTextTrim()));
+            Permission p = Permission.valueOf(element.getTextTrim());
+            p.checkApplicable(SecuredObjectType.PROCESS);  // TODO Is this correct? Old code queried ProcessPermission.CANCEL_PROCESS.getPermission().
+            settings.getPermissions().add(p);
         }
         Element conditionElement = root.element(CONDITION_ELEMENT_NAME);
         if (conditionElement != null) {

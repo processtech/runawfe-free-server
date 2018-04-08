@@ -31,17 +31,13 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-
 public class GrantPermissionsOnReportAction extends GrantPermisionsOnIdentifiableAction {
 
     public static final String ACTION_PATH = "/grantPermissionsOnReport";
 
-    private static final List<Permission> PERMISSIONS = Lists.newArrayList(Permission.READ);
-
     @Override
     protected List<Permission> getIdentifiablePermissions() {
-        return PERMISSIONS;
+        return Permission.readPermissions;
     }
 
     @Override

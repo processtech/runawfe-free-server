@@ -74,8 +74,7 @@ public interface AuthorizationService {
      * Returns permissions that executor himself has on identifiable.
      * Permissions by privilege will not return.
      * 
-     * @return Map of {Permission, Is permission can be modifiable}, not
-     *         <code>null</code>
+     * @return Map of {Permission, Is permission can be modifiable}, not <code>null</code>
      */
     public List<Permission> getIssuedPermissions(User user, Executor performer, Identifiable identifiable);
 
@@ -120,16 +119,8 @@ public interface AuthorizationService {
 
     /**
      * Loads identifiables with permission filtering.
-     * 
-     * @param user
-     * @param batchPresentation
-     * @param persistentClass
-     * @param permission
-     * @param securedObjectTypes
-     * @param enablePaging
-     * @return
      */
     public <T extends Object> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Class<T> persistentClass,
-            Permission permission, SecuredObjectType[] securedObjectTypes, boolean enablePaging);
+                                                           Permission permission, SecuredObjectType[] securedObjectTypes, boolean enablePaging);
 
 }

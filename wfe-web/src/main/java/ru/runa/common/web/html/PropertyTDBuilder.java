@@ -34,7 +34,7 @@ public class PropertyTDBuilder extends BaseTDBuilder {
     public PropertyTDBuilder(Permission permission, String propertyName) {
         super(permission);
         this.propertyName = propertyName;
-        authState = permission.getName() == null ? AuthState.ALWAYS_ENABLE : AuthState.ASK_WFE;
+        authState = permission == Permission.NO_PERMISSION ? AuthState.ALWAYS_ENABLE : AuthState.ASK_WFE;
     }
 
     public PropertyTDBuilder(Permission permission, String propertyName, Boolean isAlwaysDisabled) {
@@ -46,7 +46,7 @@ public class PropertyTDBuilder extends BaseTDBuilder {
     public PropertyTDBuilder(Permission permission, String propertyName, IdentifiableExtractor identifiableExtractor) {
         super(permission, identifiableExtractor);
         this.propertyName = propertyName;
-        authState = permission.getName() == null ? AuthState.ALWAYS_ENABLE : AuthState.ASK_WFE;
+        authState = permission == Permission.NO_PERMISSION ? AuthState.ALWAYS_ENABLE : AuthState.ASK_WFE;
     }
 
     @Override
@@ -86,10 +86,9 @@ public class PropertyTDBuilder extends BaseTDBuilder {
         return 1;
     }
 
-    static enum AuthState {
+    enum AuthState {
         ALWAYS_ENABLE,
         ALWAYS_DISABLE,
         ASK_WFE
     }
-
 }

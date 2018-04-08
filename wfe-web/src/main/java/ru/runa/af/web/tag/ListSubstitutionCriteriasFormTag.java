@@ -69,13 +69,13 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
     }
 
     private static ArrayList<Long> arrayFromString(String string) {
-        ArrayList<Long> result = new ArrayList<Long>();
+        ArrayList<Long> result = new ArrayList<>();
         if (string == null || string.isEmpty()) {
             return result;
         }
         String[] strings = string.replace("[", "").replace("]", "").split(",");
-        for (int i = 0; i < strings.length; i++) {
-            result.add(Long.valueOf(strings[i].trim()));
+        for (String s : strings) {
+            result.add(Long.valueOf(s.trim()));
         }
         return result;
     }
@@ -138,11 +138,11 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
     private class SubstitutionCriteriaTableBuilder {
         private final PageContext pageContext;
 
-        public SubstitutionCriteriaTableBuilder(PageContext pageContext) {
+        SubstitutionCriteriaTableBuilder(PageContext pageContext) {
             this.pageContext = pageContext;
         }
 
-        public Table buildTable() {
+        Table buildTable() {
             Table table = new Table();
             table.setClass(Resources.CLASS_PERMISSION_TABLE);
             table.addElement(createTableHeaderTR());
@@ -170,7 +170,7 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
             input.setChecked(enabled);
             tr.addElement(new TD(input).setClass(Resources.CLASS_LIST_TABLE_TD));
             {
-                Map<String, Object> params = new HashMap<String, Object>();
+                Map<String, Object> params = new HashMap<>();
                 params.put(IdForm.ID_INPUT_NAME, substitutionCriteria.getId());
                 A editHref = new A(Commons.getActionUrl(UpdateSubstitutionCriteriaAction.EDIT_ACTION, params, pageContext, PortletUrlType.Action));
                 editHref.addElement(substitutionCriteria.getName());

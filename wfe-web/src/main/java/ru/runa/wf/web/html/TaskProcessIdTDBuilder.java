@@ -70,6 +70,7 @@ public class TaskProcessIdTDBuilder implements TDBuilder, Serializable {
 
             });
         } catch (Exception e) {
+            // Do nothing.
         }
         if (isAllowed) {
             Map<String, Object> params = Maps.newHashMap();

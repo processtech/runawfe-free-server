@@ -19,8 +19,6 @@ package ru.runa.wfe.security.dao;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,42 +29,40 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
+import org.hibernate.annotations.*;
 
 import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 
 import com.google.common.base.Objects;
 
 @Entity
-@Table(name = "PERMISSION_MAPPING", uniqueConstraints = @UniqueConstraint(name = "UQ_MAPPINGS", columnNames = { "IDENTIFIABLE_ID", "TYPE_ID", "MASK",
-        "EXECUTOR_ID" }))
+@Table(
+        name = "PERMISSION_MAPPING",
+        uniqueConstraints = @UniqueConstraint(name = "UQ_MAPPINGS", columnNames = { "OBJECT_ID", "OBJECT_TYPE", "PERMISSION", "EXECUTOR_ID" })
+)
 @org.hibernate.annotations.Table(appliesTo = "PERMISSION_MAPPING", indexes = {
-/*
- * @Index(name = "IX_PERMISSION_BY_IDENTIFIABLE", columnNames = {
- * "IDENTIFIABLE_ID", "TYPE_ID", "MASK", "EXECUTOR_ID" }),
- */
-@Index(name = "IX_PERMISSION_BY_EXECUTOR", columnNames = { "EXECUTOR_ID", "TYPE_ID", "MASK", "IDENTIFIABLE_ID" }) })
+        //@Index(name = "IX_PERMISSION_BY_OBJECT_ID", columnNames = { "OBJECT_ID", "OBJECT_TYPE", "PERMISSION", "EXECUTOR_ID" })
+        @Index(name = "IX_PERMISSION_BY_EXECUTOR", columnNames = { "EXECUTOR_ID", "OBJECT_TYPE", "PERMISSION", "OBJECT_ID" })
+})
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PermissionMapping {
     private Long id;
     private Executor executor;
-    private Long mask;
-    private Long identifiableId;
-    private SecuredObjectType type;
+    private SecuredObjectType objectType;
+    private Long objectId;
+    private Permission permission;
 
     protected PermissionMapping() {
     }
 
-    public PermissionMapping(Executor executor, Identifiable identifiable, Long mask) {
+    public PermissionMapping(Executor executor, Identifiable identifiable, Permission permission) {
         setExecutor(executor);
-        setIdentifiableId(identifiable.getIdentifiableId());
-        setType(identifiable.getSecuredObjectType());
-        setMask(mask);
+        setObjectType(identifiable.getSecuredObjectType());
+        setObjectId(identifiable.getIdentifiableId());
+        setPermission(permission);
     }
 
     @Id
@@ -81,25 +77,6 @@ public class PermissionMapping {
         this.id = id;
     }
 
-    @Column(name = "IDENTIFIABLE_ID", nullable = false)
-    public Long getIdentifiableId() {
-        return identifiableId;
-    }
-
-    public void setIdentifiableId(Long identifiableId) {
-        this.identifiableId = identifiableId;
-    }
-
-    @Column(name = "TYPE_ID", nullable = false)
-    @Enumerated(value = EnumType.ORDINAL)
-    public SecuredObjectType getType() {
-        return type;
-    }
-
-    public void setType(SecuredObjectType type) {
-        this.type = type;
-    }
-
     @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "EXECUTOR_ID", nullable = false)
     @ForeignKey(name = "FK_PERMISSION_EXECUTOR")
@@ -111,13 +88,33 @@ public class PermissionMapping {
         this.executor = executor;
     }
 
-    @Column(name = "MASK", nullable = false)
-    public Long getMask() {
-        return mask;
+    @Column(name = "OBJECT_TYPE", nullable = false)
+    @Type(type = "ru.runa.wfe.commons.hibernate.SecuredObjectTypeType")
+    public SecuredObjectType getObjectType() {
+        return objectType;
     }
 
-    public void setMask(Long mask) {
-        this.mask = mask;
+    public void setObjectType(SecuredObjectType objectType) {
+        this.objectType = objectType;
+    }
+
+    @Column(name = "OBJECT_ID", nullable = false)
+    public Long getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(Long objectId) {
+        this.objectId = objectId;
+    }
+
+    @Column(name = "PERMISSION", nullable = false)
+    @Type(type = "ru.runa.wfe.commons.hibernate.PermissionType")
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Permission permission) {
+        this.permission = permission;
     }
 
     @Override
@@ -132,13 +129,14 @@ public class PermissionMapping {
             return false;
         }
         PermissionMapping pm = (PermissionMapping) obj;
-        return Objects.equal(mask, pm.mask) && Objects.equal(getExecutor(), pm.getExecutor()) && Objects.equal(identifiableId, pm.identifiableId)
-                && Objects.equal(type, pm.type);
+        return Objects.equal(getExecutor(), pm.getExecutor()) &&
+                Objects.equal(objectType, pm.objectType) &&
+                Objects.equal(objectId, pm.objectId) &&
+                Objects.equal(permission, pm.permission);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(mask, getExecutor(), identifiableId, type);
+        return Objects.hashCode(getExecutor(), objectType, objectId, permission);
     }
-
 }

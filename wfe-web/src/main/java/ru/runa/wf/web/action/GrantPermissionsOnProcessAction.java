@@ -31,8 +31,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-
 /**
  * Created on 23.08.2004
  * 
@@ -48,11 +46,9 @@ import com.google.common.collect.Lists;
 public class GrantPermissionsOnProcessAction extends GrantPermisionsOnIdentifiableAction {
     public static final String ACTION_PATH = "/grantReadPermissionOnProcess";
 
-    private static final List<Permission> READ_PERMISSONS = Lists.newArrayList(Permission.READ);
-
     @Override
     protected List<Permission> getIdentifiablePermissions() {
-        return READ_PERMISSONS;
+        return Permission.readPermissions;
     }
 
     @Override

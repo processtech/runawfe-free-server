@@ -16,7 +16,6 @@ import ru.runa.wfe.report.ReportFileMissingException;
 import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.report.ReportParameterMissingException;
 import ru.runa.wfe.report.ReportParameterUnknownException;
-import ru.runa.wfe.report.ReportPermission;
 import ru.runa.wfe.report.ReportWithNameExistsException;
 import ru.runa.wfe.report.ReportsSecure;
 import ru.runa.wfe.report.dao.ReportDAO;
@@ -62,7 +61,7 @@ public class ReportLogic extends WFCommonLogic {
     }
 
     public void deployReport(User user, WfReport report, byte[] file) {
-        checkPermissionAllowed(user, ReportsSecure.INSTANCE, ReportPermission.DEPLOY);
+        checkPermissionAllowed(user, ReportsSecure.INSTANCE, Permission.DEPLOY_REPORT);
         ReportDefinition existingByName = reportDAO.getReportDefinition(report.getName());
         if (existingByName != null) {
             throw new ReportWithNameExistsException(report.getName());
@@ -84,9 +83,9 @@ public class ReportLogic extends WFCommonLogic {
             file = replacedReport.getCompiledReport();
         }
         ReportDefinition reportDefinition = createReportDefinition(report, file);
-        if (!isPermissionAllowed(user, ReportsSecure.INSTANCE, ReportPermission.DEPLOY)
-                && !isPermissionAllowed(user, report, ReportPermission.DEPLOY)) {
-            throw new AuthorizationException(user + " does not have " + ReportPermission.DEPLOY + " to " + report);
+        if (!isPermissionAllowed(user, ReportsSecure.INSTANCE, Permission.DEPLOY_REPORT)
+                && !isPermissionAllowed(user, report, Permission.DEPLOY_REPORT)) {
+            throw new AuthorizationException(user + " does not have " + Permission.DEPLOY_REPORT + " to " + report);
         }
 
         reportDAO.redeployReport(reportDefinition);
@@ -94,7 +93,7 @@ public class ReportLogic extends WFCommonLogic {
 
     public void undeployReport(User user, Long reportId) {
         WfReport report = reportDAO.getReportDefinition(reportId);
-        checkPermissionAllowed(user, report, ReportPermission.DEPLOY);
+        checkPermissionAllowed(user, report, Permission.DEPLOY_REPORT);
         reportDAO.undeploy(reportId);
     }
 

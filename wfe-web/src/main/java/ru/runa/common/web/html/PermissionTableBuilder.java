@@ -60,7 +60,7 @@ public class PermissionTableBuilder {
         this.identifiable = identifiable;
         this.user = user;
         this.pageContext = pageContext;
-        permissions = identifiable.getSecuredObjectType().getAllPermissions();
+        permissions = Permission.getApplicableList(identifiable.getSecuredObjectType());
         allowedUpdatePermissions = Delegates.getAuthorizationService().isAllowed(user, Permission.UPDATE_PERMISSIONS, identifiable);
     }
 
@@ -90,7 +90,7 @@ public class PermissionTableBuilder {
         tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
         tr.addElement(new TH(MessagesExecutor.EXECUTOR_NAME.message(pageContext)).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
         for (Permission permission : permissions) {
-            String permissioni18nName = Messages.getMessage(permission.getName(), pageContext);
+            String permissioni18nName = Messages.getMessage("permission." + permission.getName().toLowerCase(), pageContext);
             tr.addElement(new TH(permissioni18nName).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
         }
         return tr;
@@ -106,7 +106,7 @@ public class PermissionTableBuilder {
         boolean executorIsPrivileged = ownPermissions.isEmpty() && !additionalExecutor;
         for (Permission permission : permissions) {
             String name = UpdatePermissionsOnIdentifiableForm.EXECUTOR_INPUT_NAME_PREFIX + "(" + executor.getId() + ")."
-                    + UpdatePermissionsOnIdentifiableForm.PERMISSION_INPUT_NAME_PREFIX + "(" + permission.getMask() + ")";
+                    + UpdatePermissionsOnIdentifiableForm.PERMISSION_INPUT_NAME_PREFIX + "(" + permission.getName() + ")";
             boolean checked = (!additionalExecutor && ownPermissions.isEmpty()) || ownPermissions.contains(permission);
             Input checkbox = new Input(Input.CHECKBOX, name);
             checkbox.setChecked(checked);

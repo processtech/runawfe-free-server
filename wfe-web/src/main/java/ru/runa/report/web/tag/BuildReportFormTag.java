@@ -43,7 +43,6 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.tag.IdentifiableFormTag;
 import ru.runa.report.web.MessagesReport;
 import ru.runa.report.web.action.BuildReportAction;
-import ru.runa.wfe.report.ReportPermission;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.report.impl.ReportGenerationType;
@@ -131,7 +130,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ReportPermission.READ;
+        return Permission.READ;
     }
 
     @Override

@@ -56,7 +56,6 @@ import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.ProcessClassPresentation;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
@@ -103,7 +102,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         if (ended) {
             return WebResources.isProcessRemovalEnabled() && Delegates.getExecutorService().isAdministrator(getUser());
         } else {
-            return super.isFormButtonEnabled(identifiable, ProcessPermission.CANCEL_PROCESS);
+            return super.isFormButtonEnabled(identifiable, Permission.CANCEL_PROCESS);
         }
     }
 
@@ -257,7 +256,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     private boolean checkReadable(WfProcess parentProcess) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), ProcessPermission.READ, parentProcess);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, parentProcess);
     }
 
     @Override

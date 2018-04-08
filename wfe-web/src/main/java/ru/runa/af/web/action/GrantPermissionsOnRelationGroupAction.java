@@ -29,17 +29,13 @@ import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-
 public class GrantPermissionsOnRelationGroupAction extends GrantPermisionsOnIdentifiableAction {
 
     public static final String ACTION_PATH = "/grantPermissionsOnRelationGroup";
 
-    private static final List<Permission> PERMISSIONS = Lists.newArrayList(Permission.READ);
-
     @Override
     protected List<Permission> getIdentifiablePermissions() {
-        return PERMISSIONS;
+        return Permission.readPermissions;
     }
 
     @Override

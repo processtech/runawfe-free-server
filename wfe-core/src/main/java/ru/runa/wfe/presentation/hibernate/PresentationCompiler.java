@@ -17,22 +17,19 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
-import ru.runa.wfe.security.SecuredObjectType;
-
-import com.google.common.collect.Lists;
 
 /**
  * Creates {@link Query} to load data according to {@link BatchPresentation}.
  */
-public class PresentationCompiler<T extends Object> implements IBatchPresentationCompiler<T> {
+public class PresentationCompiler<T> implements IBatchPresentationCompiler<T> {
 
     /**
      * {@link BatchPresentation}, used to load data.
@@ -73,12 +70,8 @@ public class PresentationCompiler<T extends Object> implements IBatchPresentatio
         Map<String, QueryParameter> placeholders = builder.getPlaceholders();
         if (compilerParams.getExecutorIdsToCheckPermission() != null) {
             query.setParameterList("securedOwnersIds", compilerParams.getExecutorIdsToCheckPermission());
-            query.setParameter("securedPermission", compilerParams.getPermission().getMask());
-            List<Integer> typeOrdinals = Lists.newArrayList();
-            for (SecuredObjectType type : compilerParams.getSecuredObjectTypes()) {
-                typeOrdinals.add(type.ordinal());
-            }
-            query.setParameterList("securedTypes", typeOrdinals);
+            query.setString("securedPermission", compilerParams.getPermissionName());
+            query.setParameterList("securedTypes", compilerParams.getSecuredObjectTypeNames(), Hibernate.STRING);
             placeholders.remove("securedOwnersIds");
             placeholders.remove("securedPermission");
             placeholders.remove("securedTypes");
@@ -91,8 +84,8 @@ public class PresentationCompiler<T extends Object> implements IBatchPresentatio
             query.setFirstResult((batchPresentation.getPageNumber() - 1) * batchPresentation.getRangeSize());
             query.setMaxResults(batchPresentation.getRangeSize());
         }
-        for (Iterator<Map.Entry<String, QueryParameter>> iter = placeholders.entrySet().iterator(); iter.hasNext();) {
-            QueryParameter queryParameter = iter.next().getValue();
+        for (Map.Entry<String, QueryParameter> e : placeholders.entrySet()) {
+            QueryParameter queryParameter = e.getValue();
             query.setParameter(queryParameter.getName(), queryParameter.getValue());
         }
         return query;

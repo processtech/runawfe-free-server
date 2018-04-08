@@ -29,7 +29,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.GroupPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorGroupsForm")
 public class ListExecutorGroupsFormTag extends ListExecutorsBaseFormTag {
@@ -70,7 +69,7 @@ public class ListExecutorGroupsFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return GroupPermission.REMOVE_FROM_GROUP;
+        return Permission.REMOVE_FROM_GROUP;
     }
 
     @Override

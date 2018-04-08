@@ -30,9 +30,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listGroupMembersForm")
 public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
@@ -41,7 +39,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return GroupPermission.REMOVE_FROM_GROUP;
+        return Permission.REMOVE_FROM_GROUP;
     }
 
     @Override
@@ -52,7 +50,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
     @Override
     protected boolean isVisible() {
         return getExecutor() instanceof Group
-                && Delegates.getAuthorizationService().isAllowed(getUser(), GroupPermission.LIST_GROUP, SecuredObjectType.GROUP, getIdentifiableId());
+                && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.LIST_GROUP, SecuredObjectType.GROUP, getIdentifiableId());
     }
 
     @Override
@@ -85,7 +83,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return ExecutorPermission.READ;
+        return Permission.READ;
     }
 
     @Override

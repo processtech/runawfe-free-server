@@ -28,12 +28,11 @@ import ru.runa.af.web.action.CreateRelationAction;
 import ru.runa.af.web.action.UpdateRelationAction;
 import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wfe.relation.Relation;
-import ru.runa.wfe.relation.RelationPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -70,7 +69,7 @@ public class RelationFormTag extends TitledFormTag {
     @Override
     protected boolean isFormButtonEnabled() {
         if (relationId != null) {
-            enabled = Delegates.getAuthorizationService().isAllowed(getUser(), RelationPermission.UPDATE, SecuredObjectType.RELATION, relationId);
+            enabled = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_RELATION, SecuredObjectType.RELATION, relationId);
         }
         return enabled;
     }

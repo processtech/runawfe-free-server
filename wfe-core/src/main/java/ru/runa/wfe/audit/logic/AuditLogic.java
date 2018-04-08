@@ -34,7 +34,6 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.user.User;
 
 import com.google.common.base.Preconditions;
@@ -58,7 +57,7 @@ public class AuditLogic extends CommonLogic {
     }
 
     protected void checkLoginAllowed(User user, ASystem system) {
-        checkPermissionAllowed(user, system, SystemPermission.LOGIN_TO_SYSTEM);
+        checkPermissionAllowed(user, system, Permission.LOGIN_TO_SYSTEM);
     }
 
     public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter) {
@@ -96,7 +95,7 @@ public class AuditLogic extends CommonLogic {
      * @return Loaded system logs.
      */
     public List<SystemLog> getSystemLogs(User user, BatchPresentation batchPresentation) {
-        checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.READ);
+        checkPermissionAllowed(user, ASystem.INSTANCE, Permission.READ);
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getBatch();
     }
@@ -111,7 +110,7 @@ public class AuditLogic extends CommonLogic {
      * @return System logs count.
      */
     public int getSystemLogsCount(User user, BatchPresentation batchPresentation) {
-        checkPermissionAllowed(user, ASystem.INSTANCE, SystemPermission.READ);
+        checkPermissionAllowed(user, ASystem.INSTANCE, Permission.READ);
         PresentationConfiguredCompiler<SystemLog> compiler = PresentationCompilerHelper.createAllSystemLogsCompiler(user, batchPresentation);
         return compiler.getCount();
     }

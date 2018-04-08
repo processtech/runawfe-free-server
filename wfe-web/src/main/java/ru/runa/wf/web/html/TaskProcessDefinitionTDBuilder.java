@@ -27,7 +27,7 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
@@ -46,7 +46,7 @@ public class TaskProcessDefinitionTDBuilder implements TDBuilder {
         TD td = new TD();
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         String definitionName = getValue(object, env);
-        if (env.hasProcessDefinitionPermission(DefinitionPermission.READ, task.getDefinitionId())) {
+        if (env.hasProcessDefinitionPermission(Permission.READ, task.getDefinitionId())) {
             String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, task.getDefinitionId(),
                     env.getPageContext(), PortletUrlType.Render);
             A definitionNameLink = new A(url, definitionName);

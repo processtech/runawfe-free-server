@@ -62,11 +62,11 @@ public class ListExecutorRightRelationsFormTag extends IdentifiableFormTag {
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        List<Executor> executors = new ArrayList<Executor>();
+        List<Executor> executors = new ArrayList<>();
         executors.add(getIdentifiable());
         BatchPresentation executorBatchPresentation = BatchPresentationFactory.GROUPS.createNonPaged();
         executors.addAll(Delegates.getExecutorService().getExecutorGroups(getUser(), getIdentifiable(), executorBatchPresentation, false));
-        Set<Relation> relations = new HashSet<Relation>();
+        Set<Relation> relations = new HashSet<>();
         for (RelationPair pair : Delegates.getRelationService().getExecutorsRelationPairsRight(getUser(), null, executors)) {
             relations.add(pair.getRelation());
         }
@@ -112,7 +112,7 @@ public class ListExecutorRightRelationsFormTag extends IdentifiableFormTag {
 
         @Override
         public String getUrl(String baseUrl, Object item) {
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = new HashMap<>();
             params.put(RelationPairForm.RELATION_ID, ((Relation) item).getId());
             params.put(RelationPairForm.EXECUTOR_TO, getIdentifiableId());
             return Commons.getActionUrl(baseUrl, params, pageContext, PortletUrlType.Action);

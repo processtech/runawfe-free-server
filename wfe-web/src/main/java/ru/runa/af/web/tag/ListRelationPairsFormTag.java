@@ -41,7 +41,7 @@ import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.relation.RelationPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listRelationPairsForm")
@@ -62,11 +62,11 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         Relation relation = Delegates.getRelationService().getRelation(getUser(), relationId);
-        isFormButtonVisible = Delegates.getAuthorizationService().isAllowed(getUser(), RelationPermission.UPDATE, relation);
+        isFormButtonVisible = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_RELATION, relation);
         BatchPresentation batchPresentation = getBatchPresentation();
         List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(getUser(), relation.getName(), batchPresentation);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder checkboxBuilder = new IdentifiableCheckboxTDBuilder(RelationPermission.UPDATE) {
+        TDBuilder checkboxBuilder = new IdentifiableCheckboxTDBuilder(Permission.UPDATE_RELATION) {
 
             @Override
             protected boolean isEnabled(Object object, Env env) {

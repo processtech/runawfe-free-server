@@ -45,7 +45,6 @@ import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.User;
 
 /**
@@ -60,7 +59,7 @@ public class TabHeaderTag extends TagSupport {
 
     private boolean isVertical = true;
 
-    private static final List<MenuForward> FORWARDS = new ArrayList<MenuForward>();
+    private static final List<MenuForward> FORWARDS = new ArrayList<>();
     static {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_TASKS));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DEFINITIONS));
@@ -90,15 +89,15 @@ public class TabHeaderTag extends TagSupport {
         Table headerTable = new Table();
         headerTable.setClass(Resources.CLASS_TAB_TABLE);
         if (isVertical()) {
-            for (int i = 0; i < FORWARDS.size(); i++) {
-                if (!isMenuForwardVisible(FORWARDS.get(i))) {
+            for (MenuForward fw : FORWARDS) {
+                if (!isMenuForwardVisible(fw)) {
                     continue;
                 }
-                A a = getHref(FORWARDS.get(i).getMenuMessage().message(pageContext), FORWARDS.get(i).getMenuMessage().getKey());
+                A a = getHref(fw.getMenuMessage().message(pageContext), fw.getMenuMessage().getKey());
                 TR tr = new TR();
                 headerTable.addElement(tr);
                 TD td = new TD();
-                if (FORWARDS.get(i).getMenuMessage().getKey().equals(tabForwardName)) {
+                if (fw.getMenuMessage().getKey().equals(tabForwardName)) {
                     td.setClass(Resources.CLASS_TAB_CELL_SELECTED);
                 } else {
                     td.setClass(Resources.CLASS_TAB_CELL);
@@ -110,13 +109,13 @@ public class TabHeaderTag extends TagSupport {
             TR tr = new TR();
             headerTable.addElement(tr);
             headerTable.setWidth("100%");
-            for (int i = 0; i < FORWARDS.size(); i++) {
-                if (!isMenuForwardVisible(FORWARDS.get(i))) {
+            for (MenuForward fw : FORWARDS) {
+                if (!isMenuForwardVisible(fw)) {
                     continue;
                 }
-                A a = getHref(FORWARDS.get(i).getMenuMessage().message(pageContext), FORWARDS.get(i).getMenuMessage().getKey());
+                A a = getHref(fw.getMenuMessage().message(pageContext), fw.getMenuMessage().getKey());
                 TD td = new TD();
-                if (FORWARDS.get(i).getMenuMessage().getKey().equals(tabForwardName)) {
+                if (fw.getMenuMessage().getKey().equals(tabForwardName)) {
                     td.setClass(Resources.CLASS_TAB_CELL_SELECTED);
                 }
                 tr.addElement(td);
@@ -130,8 +129,7 @@ public class TabHeaderTag extends TagSupport {
 
     private A getHref(String title, String forward) {
         String url = Commons.getForwardUrl(forward, pageContext, PortletUrlType.Render);
-        A link = new A(url, title);
-        return link;
+        return new A(url, title);
     }
 
     private User getUser() {
@@ -145,7 +143,7 @@ public class TabHeaderTag extends TagSupport {
             }
             if (
                     menuForward.getMenuMessage().getKey().equals("manage_observable_tasks") &&
-                    Delegates.getAuthorizationService().isAllowedForAny(getUser(), ActorPermission.VIEW_TASKS, SecuredObjectType.ACTOR)
+                    Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.VIEW_ACTOR_TASKS, SecuredObjectType.ACTOR)
             ) {
                 return true;
             }

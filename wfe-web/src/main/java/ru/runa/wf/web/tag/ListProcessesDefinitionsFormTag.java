@@ -42,7 +42,6 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionsAction;
 import ru.runa.wf.web.html.PropertiesProcessTDBuilder;
 import ru.runa.wf.web.html.StartProcessTDBuilder;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
@@ -71,7 +70,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION), new StartProcessTDBuilder() },
+                new TDBuilder[] { new CheckboxTDBuilder("id", Permission.UNDEPLOY_DEFINITION), new StartProcessTDBuilder() },
                 batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
@@ -93,7 +92,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private boolean isUndeployAllowed(List<WfDefinition> definitions) {
-        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.UNDEPLOY_DEFINITION, definitions)) {
+        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UNDEPLOY_DEFINITION, definitions)) {
             if (undeploy) {
                 return true;
             }

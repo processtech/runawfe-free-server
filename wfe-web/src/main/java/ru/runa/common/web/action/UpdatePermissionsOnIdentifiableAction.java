@@ -17,6 +17,7 @@
  */
 package ru.runa.common.web.action;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -47,12 +49,14 @@ abstract public class UpdatePermissionsOnIdentifiableAction extends Identifiable
             Identifiable identifiable = getIdentifiable(getLoggedUser(request), form.getId());
             List<Long> executorIds = Lists.newArrayList();
             List<Collection<Permission>> executorPermissions = Lists.newArrayList();
-            Permission noPermission = identifiable.getSecuredObjectType().getNoPermission();
+            SecuredObjectType type = identifiable.getSecuredObjectType();
             for (Long executorId : form.getIds()) {
                 executorIds.add(executorId);
                 List<Permission> permissions = Lists.newArrayList();
-                for (Long mask : form.getPermissions(executorId).getPermissionMasks()) {
-                    permissions.add(noPermission.getPermission(mask));
+                for (String name : form.getPermissions(executorId).getPermissionNames()) {
+                    Permission p = Permission.valueOf(name);
+                    p.checkApplicable(type);
+                    permissions.add(p);
                 }
                 executorPermissions.add(permissions);
             }
@@ -63,7 +67,7 @@ abstract public class UpdatePermissionsOnIdentifiableAction extends Identifiable
             for (Executor executor : executors) {
                 if (!executorIds.contains(executor.getId())) {
                     executorIds.add(executor.getId());
-                    executorPermissions.add(Permission.getNoPermissions());
+                    executorPermissions.add(new ArrayList<Permission>());
                 }
             }
             Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), executorIds, executorPermissions, identifiable);
@@ -76,7 +80,7 @@ abstract public class UpdatePermissionsOnIdentifiableAction extends Identifiable
 
     @Override
     protected List<Permission> getIdentifiablePermissions() {
-        return Permission.getNoPermissions();
+        return new ArrayList<>();
     }
 
     public abstract ActionForward getErrorForward(ActionMapping mapping, Long identifiableId);

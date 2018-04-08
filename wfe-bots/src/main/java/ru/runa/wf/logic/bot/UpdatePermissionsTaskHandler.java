@@ -26,6 +26,7 @@ import ru.runa.wf.logic.bot.updatepermission.Method;
 import ru.runa.wf.logic.bot.updatepermission.UpdatePermissionsSettings;
 import ru.runa.wf.logic.bot.updatepermission.UpdatePermissionsXmlParser;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.security.Identifiable;
@@ -82,11 +83,11 @@ public class UpdatePermissionsTaskHandler extends TaskHandlerBase {
 
     private Collection<Permission> getNewPermissions(Collection<Permission> oldPermissions, Collection<Permission> permissions, Method method) {
         if (Method.add == method) {
-            return Permission.mergePermissions(oldPermissions, permissions);
+            return CollectionUtil.unionSet(oldPermissions, permissions);
         } else if (Method.set == method) {
             return permissions;
         } else if (Method.delete == method) {
-            return Permission.subtractPermissions(oldPermissions, permissions);
+            return CollectionUtil.diffSet(oldPermissions, permissions);
         } else {
             // should never happened
             throw new InternalApplicationException("Unknown method provided: " + method);
