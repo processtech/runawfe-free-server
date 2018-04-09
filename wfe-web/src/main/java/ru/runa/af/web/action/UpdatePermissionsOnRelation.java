@@ -19,23 +19,21 @@ package ru.runa.af.web.action;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.UpdatePermissionsOnIdentifiableAction;
+import ru.runa.common.web.action.UpdatePermissionsOnSecuredObjectAction;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
-public class UpdatePermissionsOnRelation extends UpdatePermissionsOnIdentifiableAction {
+public class UpdatePermissionsOnRelation extends UpdatePermissionsOnSecuredObjectAction {
     public static final String ACTION_PATH = "/updatePermissionsOnRelation";
 
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return Delegates.getRelationService().getRelation(user, identifiableId);
     }
 
@@ -51,14 +49,14 @@ public class UpdatePermissionsOnRelation extends UpdatePermissionsOnIdentifiable
 
     @Override
     protected ActionForward getErrorForward(User user, ActionMapping mapping, Long identifiableId) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put(IdForm.ID_INPUT_NAME, identifiableId);
         return Commons.forward(mapping.findForward(Resources.FORWARD_FAILURE), params);
     }
 
     @Override
     protected ActionForward getSuccessForward(User user, ActionMapping mapping, Long identifiableId) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put(IdForm.ID_INPUT_NAME, identifiableId);
         return Commons.forward(mapping.findForward(Resources.FORWARD_SUCCESS), params);
     }

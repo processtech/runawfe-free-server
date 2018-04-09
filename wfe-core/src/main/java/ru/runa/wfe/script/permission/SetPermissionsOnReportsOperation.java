@@ -6,7 +6,7 @@ import ru.runa.wfe.report.ReportsSecure;
 import ru.runa.wfe.script.AdminScriptConstants;
 
 @XmlType(name = SetPermissionsOnReportsOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
-public class SetPermissionsOnReportsOperation extends ChangePermissionsOnIdentifiableOperation {
+public class SetPermissionsOnReportsOperation extends ChangePermissionsOnSecuredObjectOperation {
 
     public static final String SCRIPT_NAME = "setPermissionsOnReports";
 

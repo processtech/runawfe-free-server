@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.security.dao;
 
+import com.google.common.base.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,18 +29,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Objects;
 
 @Entity
 @Table(
@@ -61,10 +59,10 @@ public class PermissionMapping {
     protected PermissionMapping() {
     }
 
-    public PermissionMapping(Executor executor, Identifiable identifiable, Permission permission) {
+    public PermissionMapping(Executor executor, SecuredObject securedObject, Permission permission) {
         setExecutor(executor);
-        setObjectType(identifiable.getSecuredObjectType());
-        setObjectId(identifiable.getIdentifiableId());
+        setObjectType(securedObject.getSecuredObjectType());
+        setObjectId(securedObject.getIdentifiableId());
         setPermission(permission);
     }
 

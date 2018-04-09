@@ -42,7 +42,7 @@
 <table width="100%">
 	<tr>
 		<td align="right">
-			<wf:updatePermissionsOnIdentifiableLink identifiableId='<%=id %>' href='<%= "/manage_process_definition_permissions.do?" + parameterName+ "=" + id %>'  />
+			<wf:updatePermissionsOnSecuredObjectLink identifiableId='<%=id %>' href='<%= "/manage_process_definition_permissions.do?" + parameterName+ "=" + id %>'  />
 		</td>
 	<tr>
 </table>

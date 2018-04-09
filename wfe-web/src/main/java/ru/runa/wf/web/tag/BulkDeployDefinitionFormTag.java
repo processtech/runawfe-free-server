@@ -108,7 +108,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected boolean isVisible() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.REDEPLOY_DEFINITION, getIdentifiable());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.REDEPLOY_DEFINITION, getSecuredObject());
     }
 
     private static TR createFileInputRow(String label, String name, String value, boolean enabled, boolean required, String type,

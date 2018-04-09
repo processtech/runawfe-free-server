@@ -17,19 +17,16 @@
  */
 package ru.runa.af.web.action;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.GrantPermisionsOnIdentifiableAction;
+import ru.runa.common.web.action.GrantPermisionsOnSecuredObjectAction;
 import ru.runa.wfe.security.ASystem;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 23.08.2004
@@ -41,18 +38,18 @@ import com.google.common.collect.Lists;
  * @struts.action-forward name="failure" path="/manage_system.do" redirect =
  *                        "true"
  */
-public class GrantPermissionsOnSystemAction extends GrantPermisionsOnIdentifiableAction {
+public class GrantPermissionsOnSystemAction extends GrantPermisionsOnSecuredObjectAction {
 
     public static final String ACTION_PATH = "/grantLoginPermissionOnSystem";
     private static final List<Permission> PERMISSONS = Lists.newArrayList(Permission.LOGIN_TO_SYSTEM);
 
     @Override
-    protected List<Permission> getIdentifiablePermissions() {
+    protected List<Permission> getSecuredObjectPermissions() {
         return PERMISSONS;
     }
 
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return ASystem.INSTANCE;
     }
 

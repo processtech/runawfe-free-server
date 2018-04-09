@@ -17,24 +17,20 @@
  */
 package ru.runa.af.web.form;
 
+import com.google.common.collect.Maps;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.form.IdsForm;
-
-import com.google.common.collect.Maps;
 
 /**
  * Created on 25.08.2004
  * 
- * @struts:form name = "updatePermissionsOnIdentifiableForm"
+ * @struts:form name = "updatePermissionsOnSecuredObjectForm"
  */
-public class UpdatePermissionsOnIdentifiableForm extends IdsForm {
+public class UpdatePermissionsOnSecuredObjectForm extends IdsForm {
     private static final long serialVersionUID = -8537078929694016589L;
     private static final String ON_VALUE = "on";
     public static final String EXECUTOR_INPUT_NAME_PREFIX = "executor";

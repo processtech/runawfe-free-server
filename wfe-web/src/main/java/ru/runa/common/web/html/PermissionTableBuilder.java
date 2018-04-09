@@ -17,51 +17,47 @@
  */
 package ru.runa.common.web.html;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.runa.af.web.MessagesExecutor;
-import ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm;
+import ru.runa.af.web.form.UpdatePermissionsOnSecuredObjectForm;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdsForm;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
 /**
- * Builds HTML Table of executors with their own permissions on given identifiable.
+ * Builds HTML Table of executors with their own permissions on given securedObject.
  */
 public class PermissionTableBuilder {
-    private final Identifiable identifiable;
+    private final SecuredObject securedObject;
     private final User user;
     private final PageContext pageContext;
     private final List<Permission> permissions;
     private final boolean allowedUpdatePermissions;
     private final Map<Executor, List<Permission>> additionalExecutors = Maps.newHashMap();
 
-    public PermissionTableBuilder(Identifiable identifiable, User user, PageContext pageContext) {
-        this.identifiable = identifiable;
+    public PermissionTableBuilder(SecuredObject securedObject, User user, PageContext pageContext) {
+        this.securedObject = securedObject;
         this.user = user;
         this.pageContext = pageContext;
-        permissions = Permission.getApplicableList(identifiable.getSecuredObjectType());
-        allowedUpdatePermissions = Delegates.getAuthorizationService().isAllowed(user, Permission.UPDATE_PERMISSIONS, identifiable);
+        permissions = Permission.getApplicableList(securedObject.getSecuredObjectType());
+        allowedUpdatePermissions = Delegates.getAuthorizationService().isAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
     }
 
     public void addAdditionalExecutor(Executor executor, List<Permission> unmodifiablePermissions) {
@@ -70,7 +66,7 @@ public class PermissionTableBuilder {
 
     public Table buildTable() {
         BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
-        List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(user, identifiable, batchPresentation, true);
+        List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(user, securedObject, batchPresentation, true);
         executors.removeAll(additionalExecutors.keySet());
         Table table = new Table();
         table.setClass(Resources.CLASS_PERMISSION_TABLE);
@@ -102,11 +98,11 @@ public class PermissionTableBuilder {
         input.setChecked(true);
         tr.addElement(new TD(input).setClass(Resources.CLASS_PERMISSION_TABLE_TD));
         tr.addElement(new TD(HTMLUtils.createExecutorElement(pageContext, executor)).setClass(Resources.CLASS_PERMISSION_TABLE_TD));
-        List<Permission> ownPermissions = Delegates.getAuthorizationService().getIssuedPermissions(user, executor, identifiable);
+        List<Permission> ownPermissions = Delegates.getAuthorizationService().getIssuedPermissions(user, executor, securedObject);
         boolean executorIsPrivileged = ownPermissions.isEmpty() && !additionalExecutor;
         for (Permission permission : permissions) {
-            String name = UpdatePermissionsOnIdentifiableForm.EXECUTOR_INPUT_NAME_PREFIX + "(" + executor.getId() + ")."
-                    + UpdatePermissionsOnIdentifiableForm.PERMISSION_INPUT_NAME_PREFIX + "(" + permission.getName() + ")";
+            String name = UpdatePermissionsOnSecuredObjectForm.EXECUTOR_INPUT_NAME_PREFIX + "(" + executor.getId() + ")."
+                    + UpdatePermissionsOnSecuredObjectForm.PERMISSION_INPUT_NAME_PREFIX + "(" + permission.getName() + ")";
             boolean checked = (!additionalExecutor && ownPermissions.isEmpty()) || ownPermissions.contains(permission);
             Input checkbox = new Input(Input.CHECKBOX, name);
             checkbox.setChecked(checked);

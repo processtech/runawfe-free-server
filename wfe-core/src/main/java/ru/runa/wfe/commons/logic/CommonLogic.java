@@ -17,16 +17,14 @@
  */
 package ru.runa.wfe.commons.logic;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.security.auth.Subject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.timer.ScheduledTimerTask;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
@@ -36,8 +34,8 @@ import ru.runa.wfe.commons.dao.SettingDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
@@ -46,8 +44,6 @@ import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 14.03.2005
@@ -83,37 +79,37 @@ public class CommonLogic {
         return executors;
     }
 
-    protected void checkPermissionAllowed(User user, Identifiable identifiable, Permission permission) throws AuthorizationException {
-        if (!isPermissionAllowed(user, identifiable, permission)) {
-            throw new AuthorizationException(user + " does not have " + permission + " to " + identifiable);
+    protected void checkPermissionAllowed(User user, SecuredObject securedObject, Permission permission) throws AuthorizationException {
+        if (!isPermissionAllowed(user, securedObject, permission)) {
+            throw new AuthorizationException(user + " does not have " + permission + " to " + securedObject);
         }
     }
 
-    public boolean isPermissionAllowed(User user, Identifiable identifiable, Permission permission) {
-        return permissionDAO.isAllowed(user, permission, identifiable);
+    public boolean isPermissionAllowed(User user, SecuredObject securedObject, Permission permission) {
+        return permissionDAO.isAllowed(user, permission, securedObject);
     }
 
-    public <T extends Identifiable> void isPermissionAllowed(User user, List<T> identifiables, Permission permission,
+    public <T extends SecuredObject> void isPermissionAllowed(User user, List<T> securedObjects, Permission permission,
             CheckMassPermissionCallback callback) {
-        boolean[] allowedArray = permissionDAO.isAllowed(user, permission, identifiables);
+        boolean[] allowedArray = permissionDAO.isAllowed(user, permission, securedObjects);
         for (int i = 0; i < allowedArray.length; i++) {
             if (allowedArray[i]) {
-                callback.OnPermissionGranted(identifiables.get(i));
+                callback.OnPermissionGranted(securedObjects.get(i));
             } else {
-                callback.OnPermissionDenied(identifiables.get(i));
+                callback.OnPermissionDenied(securedObjects.get(i));
             }
         }
     }
 
-    protected <T extends Identifiable> List<T> filterIdentifiable(User user, List<T> identifiables, Permission permission) {
-        boolean[] allowedArray = permissionDAO.isAllowed(user, permission, identifiables);
-        List<T> identifiableList = Lists.newArrayListWithExpectedSize(identifiables.size());
+    protected <T extends SecuredObject> List<T> filterSecuredObject(User user, List<T> securedObjects, Permission permission) {
+        boolean[] allowedArray = permissionDAO.isAllowed(user, permission, securedObjects);
+        List<T> securedObjectList = Lists.newArrayListWithExpectedSize(securedObjects.size());
         for (int i = 0; i < allowedArray.length; i++) {
             if (allowedArray[i]) {
-                identifiableList.add(identifiables.get(i));
+                securedObjectList.add(securedObjects.get(i));
             }
         }
-        return identifiableList;
+        return securedObjectList;
     }
 
     /**

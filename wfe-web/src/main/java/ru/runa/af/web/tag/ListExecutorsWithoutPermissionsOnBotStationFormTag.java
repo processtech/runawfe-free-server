@@ -18,10 +18,9 @@
 package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.GrantPermissionsOnBotStationAction;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 
 /**
  * Created on 31.08.2004
@@ -39,7 +38,7 @@ public class ListExecutorsWithoutPermissionsOnBotStationFormTag extends ListExec
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return BotStation.INSTANCE;
     }
 }

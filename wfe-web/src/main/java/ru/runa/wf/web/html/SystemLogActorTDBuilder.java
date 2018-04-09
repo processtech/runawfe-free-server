@@ -30,7 +30,7 @@ public class SystemLogActorTDBuilder extends BaseExecutorTDBuilder<SystemLog> {
      * action.
      */
     public SystemLogActorTDBuilder() {
-        setIdentifiableExtractor(new ExecutorExtractor());
+        setSecuredObjectExtractor(new ExecutorExtractor());
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SystemLogActorTDBuilder extends BaseExecutorTDBuilder<SystemLog> {
 
     @Override
     protected Executor getExecutor(SystemLog object, Env env) {
-        return (Executor) getExtractor().getIdentifiable(object.getActorId(), env);
+        return (Executor) getExtractor().getSecuredObject(object.getActorId(), env);
     }
 
 }

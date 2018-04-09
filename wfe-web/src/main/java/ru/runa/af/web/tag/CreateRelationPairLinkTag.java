@@ -19,7 +19,6 @@ package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.CreateRelationPairAction;
 import ru.runa.af.web.form.RelationPairForm;

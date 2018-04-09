@@ -22,8 +22,8 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToPermissions;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionMapping;
 import ru.runa.wfe.user.Executor;
@@ -123,23 +123,23 @@ public final class PresentationCompilerHelper {
 
     /**
      * Create {@linkplain PresentationConfiguredCompiler} for loading executor's which already has (or not has) some permission on specified
-     * identifiable.
+     * securedObject.
      * 
      * @param user
      *            Current actor.
-     * @param identifiable
-     *            {@linkplain Identifiable} to load executors, which has (or not) permission on this identifiable.
+     * @param securedObject
+     *            {@linkplain SecuredObject} to load executors, which has (or not) permission on this securedObject.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading executors.
      * @param hasPermission
-     *            Flag equals true to load executors with permissions on {@linkplain Identifiable}; false to load executors without permissions.
+     *            Flag equals true to load executors with permissions on {@linkplain SecuredObject}; false to load executors without permissions.
      * @return {@linkplain PresentationConfiguredCompiler} for loading executors.
      */
-    public static PresentationConfiguredCompiler<Executor> createExecutorWithPermissionCompiler(User user, Identifiable identifiable,
+    public static PresentationConfiguredCompiler<Executor> createExecutorWithPermissionCompiler(User user, SecuredObject securedObject,
             BatchPresentation batchPresentation, boolean hasPermission) {
         String inClause = hasPermission ? "IN" : "NOT IN";
         String idRestriction = inClause + " (SELECT pm.executor.id from " + PermissionMapping.class.getName() + " as pm where pm.objectId="
-                + identifiable.getIdentifiableId() + " and pm.objectType='" + identifiable.getSecuredObjectType() + "')";
+                + securedObject.getIdentifiableId() + " and pm.objectType='" + securedObject.getSecuredObjectType() + "')";
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, ALL_EXECUTORS_CLASSES);
         CompilerParameters parameters = CompilerParameters.createPaged().addPermissions(permissions).addIdRestrictions(idRestriction);
         return new PresentationConfiguredCompiler<>(batchPresentation, parameters);

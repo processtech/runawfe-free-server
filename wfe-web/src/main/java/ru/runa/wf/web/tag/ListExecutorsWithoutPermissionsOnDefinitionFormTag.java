@@ -18,10 +18,9 @@
 package ru.runa.wf.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.tag.ListExecutorsWithoutPermissionsBase;
 import ru.runa.wf.web.action.GrantPermissionsOnProcessDefinitionAction;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 
 /**
@@ -41,7 +40,7 @@ public class ListExecutorsWithoutPermissionsOnDefinitionFormTag extends ListExec
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return Delegates.getDefinitionService().getProcessDefinition(getUser(), getIdentifiableId());
     }
 }

@@ -17,11 +17,14 @@
  */
 package ru.runa.wfe.execution.logic;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -78,12 +81,6 @@ import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * Process execution logic.
  *
@@ -118,7 +115,7 @@ public class ExecutionLogic extends WFCommonLogic {
     public void deleteProcesses(User user, final ProcessFilter filter) {
         List<Process> processes = getProcessesInternal(user, filter);
         // TODO add ProcessPermission.DELETE_PROCESS
-        processes = filterIdentifiable(user, processes, Permission.CANCEL_PROCESS);
+        processes = filterSecuredObject(user, processes, Permission.CANCEL_PROCESS);
         for (Process process : processes) {
             deleteProcess(user, process);
         }
@@ -126,7 +123,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public void cancelProcesses(User user, final ProcessFilter filter) {
         List<Process> processes = getProcessesInternal(user, filter);
-        processes = filterIdentifiable(user, processes, Permission.CANCEL_PROCESS);
+        processes = filterSecuredObject(user, processes, Permission.CANCEL_PROCESS);
         for (Process process : processes) {
             ProcessDefinition processDefinition = getDefinition(process);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
@@ -157,7 +154,7 @@ public class ExecutionLogic extends WFCommonLogic {
         } else {
             subprocesses = nodeProcessDAO.getSubprocesses(process);
         }
-        subprocesses = filterIdentifiable(user, subprocesses, Permission.READ);
+        subprocesses = filterSecuredObject(user, subprocesses, Permission.READ);
         return toWfProcesses(subprocesses, null);
     }
 
@@ -437,7 +434,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     private List<Process> getProcessesInternal(User user, ProcessFilter filter) {
         List<Process> processes = processDAO.getProcesses(filter);
-        processes = filterIdentifiable(user, processes, Permission.READ);
+        processes = filterSecuredObject(user, processes, Permission.READ);
         return processes;
     }
 

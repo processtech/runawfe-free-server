@@ -19,10 +19,8 @@ package ru.runa.af.web.tag;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;

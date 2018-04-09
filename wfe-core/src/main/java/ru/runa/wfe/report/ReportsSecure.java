@@ -1,9 +1,9 @@
 package ru.runa.wfe.report;
 
-import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 
-public class ReportsSecure extends IdentifiableBase {
+public class ReportsSecure extends SecuredObjectBase {
 
     private static final long serialVersionUID = 1L;
 

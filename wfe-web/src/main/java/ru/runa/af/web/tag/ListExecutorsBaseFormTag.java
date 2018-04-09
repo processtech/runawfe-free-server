@@ -18,18 +18,16 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
-import ru.runa.common.web.html.IdentifiableCheckboxTDBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
+import ru.runa.common.web.html.SecuredObjectCheckboxTDBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
@@ -84,7 +82,7 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new IdentifiableCheckboxTDBuilder(getExecutorsPermission()) },
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new SecuredObjectCheckboxTDBuilder(getExecutorsPermission()) },
                 batchPresentation, null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);

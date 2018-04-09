@@ -17,27 +17,24 @@
  */
 package ru.runa.wfe.execution.dto;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
-import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.security.IdentifiableBase;
-import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.var.dto.WfVariable;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import java.util.Date;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.security.SecuredObjectBase;
+import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.var.dto.WfVariable;
 
 /**
  * Created on 02.11.2004
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfProcess extends IdentifiableBase {
+public class WfProcess extends SecuredObjectBase {
     private static final long serialVersionUID = 4862220986262286596L;
     public static final String SELECTED_TRANSITION_KEY = "RUNAWFE_SELECTED_TRANSITION";
     public static final String TRANSIENT_VARIABLES = "RUNAWFE_TRANSIENT_VARIABLES";

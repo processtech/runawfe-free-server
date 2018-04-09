@@ -6,7 +6,7 @@ import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.security.ASystem;
 
 @XmlType(name = SetPermissionsOnSystemOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
-public class SetPermissionsOnSystemOperation extends ChangePermissionsOnIdentifiableOperation {
+public class SetPermissionsOnSystemOperation extends ChangePermissionsOnSecuredObjectOperation {
 
     public static final String SCRIPT_NAME = "setPermissionsOnSystem";
 

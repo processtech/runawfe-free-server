@@ -17,9 +17,9 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -29,16 +29,12 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
-import com.google.common.base.Preconditions;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.logic.AuthorizationLogic;
 import ru.runa.wfe.service.decl.AuthorizationServiceLocal;
@@ -65,11 +61,11 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @Override
     @WebResult(name = "result")
     public boolean isAllowed(@WebParam(name = "user") User user, @WebParam(name = "permission") Permission permission,
-            @WebParam(name = "identifiable") Identifiable identifiable) {
+            @WebParam(name = "identifiable") SecuredObject securedObject) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(permission != null, "permission");
-        Preconditions.checkArgument(identifiable != null, "identifiable");
-        return authorizationLogic.isPermissionAllowed(user, identifiable, permission);
+        Preconditions.checkArgument(securedObject != null, "identifiable");
+        return authorizationLogic.isPermissionAllowed(user, securedObject, permission);
     }
 
     @WebMethod(exclude = true)
@@ -85,12 +81,12 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
 
     @WebMethod(exclude = true)
     @Override
-    public <T extends Identifiable> boolean[] isAllowed(User user, Permission permission, List<T> identifiables) {
+    public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(permission != null, "permission");
-        Preconditions.checkArgument(identifiables != null, "identifiables");
-        Preconditions.checkArgument(!identifiables.contains(null), "identifiables element");
-        return authorizationLogic.isAllowed(user, permission, identifiables);
+        Preconditions.checkArgument(securedObjects != null, "identifiables");
+        Preconditions.checkArgument(!securedObjects.contains(null), "identifiables element");
+        return authorizationLogic.isAllowed(user, permission, securedObjects);
     }
 
     @WebMethod(exclude = true)
@@ -106,66 +102,66 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @Override
     @WebResult(name = "result")
     public List<Permission> getIssuedPermissions(@WebParam(name = "user") User user, @WebParam(name = "performer") Executor performer,
-                                                 @WebParam(name = "identifiable") Identifiable identifiable) {
+                                                 @WebParam(name = "identifiable") SecuredObject securedObject) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(performer != null, "performer");
-        Preconditions.checkArgument(identifiable != null, "identifiable");
-        return authorizationLogic.getIssuedPermissions(user, performer, identifiable);
+        Preconditions.checkArgument(securedObject != null, "identifiable");
+        return authorizationLogic.getIssuedPermissions(user, performer, securedObject);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void setPermissions(User user, List<Long> executorIds, List<Collection<Permission>> permissions, Identifiable identifiable) {
+    public void setPermissions(User user, List<Long> executorIds, List<Collection<Permission>> permissions, SecuredObject securedObject) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorIds != null, "executorIds");
         Preconditions.checkArgument(permissions != null, "permissions");
-        Preconditions.checkArgument(identifiable != null, "identifiable");
-        authorizationLogic.setPermissions(user, executorIds, permissions, identifiable);
+        Preconditions.checkArgument(securedObject != null, "identifiable");
+        authorizationLogic.setPermissions(user, executorIds, permissions, securedObject);
     }
 
     @Override
     @WebResult(name = "result")
     public void setPermissions(@WebParam(name = "user") User user, @WebParam(name = "executorId") Long executorId,
-                               @WebParam(name = "permissions") Collection<Permission> permissions, @WebParam(name = "identifiable") Identifiable identifiable) {
+                               @WebParam(name = "permissions") Collection<Permission> permissions, @WebParam(name = "identifiable") SecuredObject securedObject) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorId != null, "executorId");
         Preconditions.checkArgument(permissions != null, "permissions");
-        Preconditions.checkArgument(identifiable != null, "identifiable");
-        authorizationLogic.setPermissions(user, executorId, permissions, identifiable);
+        Preconditions.checkArgument(securedObject != null, "identifiable");
+        authorizationLogic.setPermissions(user, executorId, permissions, securedObject);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void setPermissions(User user, List<Long> executorsId, Collection<Permission> permissions, Identifiable identifiable) {
+    public void setPermissions(User user, List<Long> executorsId, Collection<Permission> permissions, SecuredObject securedObject) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorsId != null, "executorsId");
         Preconditions.checkArgument(permissions != null, "permissions");
-        Preconditions.checkArgument(identifiable != null, "identifiable");
-        authorizationLogic.setPermissions(user, executorsId, permissions, identifiable);
+        Preconditions.checkArgument(securedObject != null, "identifiable");
+        authorizationLogic.setPermissions(user, executorsId, permissions, securedObject);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<Executor> getExecutorsWithPermission(@WebParam(name = "user") User user, @WebParam(name = "identifiable") Identifiable identifiable,
+    public List<Executor> getExecutorsWithPermission(@WebParam(name = "user") User user, @WebParam(name = "identifiable") SecuredObject securedObject,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "withPermission") boolean withPermission) {
         Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(identifiable != null, "identifiable");
+        Preconditions.checkArgument(securedObject != null, "identifiable");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         }
-        return (List<Executor>) authorizationLogic.getExecutorsWithPermission(user, identifiable, batchPresentation, withPermission);
+        return (List<Executor>) authorizationLogic.getExecutorsWithPermission(user, securedObject, batchPresentation, withPermission);
     }
 
     @Override
     @WebResult(name = "result")
-    public int getExecutorsWithPermissionCount(@WebParam(name = "user") User user, @WebParam(name = "identifiable") Identifiable identifiable,
+    public int getExecutorsWithPermissionCount(@WebParam(name = "user") User user, @WebParam(name = "identifiable") SecuredObject securedObject,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "withPermission") boolean withPermission) {
         Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(identifiable != null, "identifiable");
+        Preconditions.checkArgument(securedObject != null, "identifiable");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
         }
-        return authorizationLogic.getExecutorsWithPermissionCount(user, identifiable, batchPresentation, withPermission);
+        return authorizationLogic.getExecutorsWithPermissionCount(user, securedObject, batchPresentation, withPermission);
     }
 
     @Override

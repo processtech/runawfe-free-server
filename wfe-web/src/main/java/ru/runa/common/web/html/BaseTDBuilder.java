@@ -17,13 +17,11 @@
  */
 package ru.runa.common.web.html;
 
+import com.google.common.base.Throwables;
 import org.apache.commons.beanutils.BeanUtils;
-
-import ru.runa.common.web.html.TDBuilder.Env.IdentifiableExtractor;
+import ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
-
-import com.google.common.base.Throwables;
 
 /**
  * Created 07.07.2005
@@ -33,19 +31,19 @@ import com.google.common.base.Throwables;
  */
 public abstract class BaseTDBuilder implements TDBuilder {
     private final Permission permission;
-    private IdentifiableExtractor identifiableExtractor;
+    private SecuredObjectExtractor securedObjectExtractor;
 
     public BaseTDBuilder(Permission permission) {
         this.permission = permission;
     }
 
-    public BaseTDBuilder(Permission permission, IdentifiableExtractor identifiableExtractor) {
+    public BaseTDBuilder(Permission permission, SecuredObjectExtractor securedObjectExtractor) {
         this(permission);
-        this.identifiableExtractor = identifiableExtractor;
+        this.securedObjectExtractor = securedObjectExtractor;
     }
 
-    public void setIdentifiableExtractor(IdentifiableExtractor identifiableExtractor) {
-        this.identifiableExtractor = identifiableExtractor;
+    public void setSecuredObjectExtractor(SecuredObjectExtractor securedObjectExtractor) {
+        this.securedObjectExtractor = securedObjectExtractor;
     }
 
     protected boolean isEnabled(Object object, Env env) {
@@ -55,7 +53,7 @@ public abstract class BaseTDBuilder implements TDBuilder {
         if (permission == Permission.START_PROCESS) {
             return ((WfDefinition) object).isCanBeStarted();
         }
-        return env.isAllowed(permission, identifiableExtractor);
+        return env.isAllowed(permission, securedObjectExtractor);
     }
 
     protected String readProperty(Object object, String propertyName, boolean isExceptionOnAbsent) {
@@ -71,8 +69,8 @@ public abstract class BaseTDBuilder implements TDBuilder {
         return "";
     }
 
-    protected IdentifiableExtractor getExtractor() {
-        return identifiableExtractor;
+    protected SecuredObjectExtractor getExtractor() {
+        return securedObjectExtractor;
     }
 
     @Override

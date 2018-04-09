@@ -206,12 +206,12 @@ public class ExecutorLogic extends CommonLogic {
     public List<Actor> getGroupActors(User user, Group group) {
         checkPermissionsOnExecutor(user, group, Permission.LIST_GROUP);
         Set<Actor> groupActors = executorDAO.getGroupActors(group);
-        return filterIdentifiable(user, Lists.newArrayList(groupActors), Permission.READ);
+        return filterSecuredObject(user, Lists.newArrayList(groupActors), Permission.READ);
     }
 
     public List<Executor> getAllExecutorsFromGroup(User user, Group group) {
         checkPermissionsOnExecutor(user, group, Permission.LIST_GROUP);
-        return filterIdentifiable(user, executorDAO.getAllNonGroupExecutorsFromGroup(group), Permission.READ);
+        return filterSecuredObject(user, executorDAO.getAllNonGroupExecutorsFromGroup(group), Permission.READ);
     }
 
     public void removeExecutorsFromGroup(User user, List<? extends Executor> executors, Group group) {

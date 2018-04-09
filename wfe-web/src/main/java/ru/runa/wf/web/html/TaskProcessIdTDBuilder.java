@@ -17,27 +17,24 @@
  */
 package ru.runa.wf.web.html;
 
+import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.Map;
-
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.TDBuilder;
-import ru.runa.common.web.html.TDBuilder.Env.IdentifiableExtractor;
+import ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.task.dto.WfTask;
-
-import com.google.common.collect.Maps;
 
 /**
  * Created on 14.11.2005
@@ -58,14 +55,14 @@ public class TaskProcessIdTDBuilder implements TDBuilder, Serializable {
         ConcreteElement link = new StringElement(processId.toString());
         boolean isAllowed = false;
         try {
-            isAllowed = env.isAllowed(Permission.READ, new IdentifiableExtractor() {
+            isAllowed = env.isAllowed(Permission.READ, new SecuredObjectExtractor() {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                public Identifiable getIdentifiable(final Object o, final Env env) {
-                    Process identifiable = new Process();
-                    identifiable.setId(((WfTask) o).getProcessId());
-                    return identifiable;
+                public SecuredObject getSecuredObject(final Object o, final Env env) {
+                    Process securedObject = new Process();
+                    securedObject.setId(((WfTask) o).getProcessId());
+                    return securedObject;
                 }
 
             });

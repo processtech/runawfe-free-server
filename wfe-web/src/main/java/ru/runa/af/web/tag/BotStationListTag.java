@@ -18,13 +18,10 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.DeleteBotStationAction;
 import ru.runa.af.web.html.BotStationTableBuilder;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -33,8 +30,8 @@ import ru.runa.common.web.form.IdsForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -49,7 +46,7 @@ public class BotStationListTag extends TitledFormTag {
         return Permission.BOT_STATION_CONFIGURE;
     }
 
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return BotStation.INSTANCE;
     }
 

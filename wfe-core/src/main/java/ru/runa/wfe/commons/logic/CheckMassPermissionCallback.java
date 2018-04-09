@@ -1,24 +1,24 @@
 package ru.runa.wfe.commons.logic;
 
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 
 /**
  * Interface to process mass permission check results.
  */
 public interface CheckMassPermissionCallback {
     /**
-     * Called when identifiable has requested permission.
+     * Called when securedObject has requested permission.
      * 
-     * @param identifiable
-     *            Identifiable, which has requested permission.
+     * @param securedObject
+     *            SecuredObject, which has requested permission.
      */
-    public void OnPermissionGranted(Identifiable identifiable);
+    public void OnPermissionGranted(SecuredObject securedObject);
 
     /**
-     * Called when identifiable denied to requested permission.
+     * Called when securedObject denied to requested permission.
      * 
-     * @param identifiable
-     *            Identifiable, which denied to requested permission.
+     * @param securedObject
+     *            SecuredObject, which denied to requested permission.
      */
-    public void OnPermissionDenied(Identifiable identifiable);
+    public void OnPermissionDenied(SecuredObject securedObject);
 }

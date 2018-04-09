@@ -20,13 +20,12 @@ package ru.runa.common.web.tag;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
-
 import ru.runa.common.web.form.IdForm;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 
-public abstract class IdentifiableFormTag extends TitledFormTag {
+public abstract class SecuredObjectFormTag extends TitledFormTag {
 
     private static final long serialVersionUID = 1L;
     private Long identifiableId;
@@ -47,7 +46,7 @@ public abstract class IdentifiableFormTag extends TitledFormTag {
      */
     protected abstract Permission getPermission();
 
-    protected abstract Identifiable getIdentifiable();
+    protected abstract SecuredObject getSecuredObject();
 
     @Override
     protected boolean isFormButtonEnabled() {
@@ -55,11 +54,11 @@ public abstract class IdentifiableFormTag extends TitledFormTag {
         if (permission == null) {
             return true;
         }
-        return isFormButtonEnabled(getIdentifiable(), permission);
+        return isFormButtonEnabled(getSecuredObject(), permission);
     }
 
-    protected boolean isFormButtonEnabled(Identifiable identifiable, Permission permission) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), permission, identifiable);
+    protected boolean isFormButtonEnabled(SecuredObject securedObject, Permission permission) {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), permission, securedObject);
     }
 
     @Override

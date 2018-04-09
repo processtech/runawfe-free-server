@@ -15,19 +15,23 @@
  * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.common.web.action;
+package ru.runa.common.web.html;
 
-import java.util.List;
-
-
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.user.User;
+import ru.runa.wfe.security.SecuredObject;
 
-public abstract class IdentifiableAction extends ActionBase {
+/**
+ * @author Gordienko_m
+ * @author Vitaliy S aka Yilativs
+ */
+public class SecuredObjectCheckboxTDBuilder extends CheckboxTDBuilder {
+    public SecuredObjectCheckboxTDBuilder(Permission permission) {
+        super(null, permission);
+    }
 
-    protected abstract List<Permission> getIdentifiablePermissions();
-
-    protected abstract Identifiable getIdentifiable(User user, Long identifiableId);
-
+    @Override
+    protected String getIdValue(Object object) {
+        SecuredObject securedObject = (SecuredObject) object;
+        return String.valueOf(securedObject.getIdentifiableId());
+    }
 }

@@ -18,9 +18,7 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.Element;
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
@@ -32,7 +30,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateSubstitutionAction;
 import ru.runa.af.web.form.SubstitutionForm;
@@ -42,12 +39,12 @@ import ru.runa.af.web.orgfunction.SubstitutionDefinitions;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.tag.IdentifiableFormTag;
+import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.execution.logic.OrgFunctionSwimlaneInitializer;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.orgfunction.ParamRenderer;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.SubstitutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.ss.Substitution;
@@ -55,7 +52,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updateSubstitutionForm")
-public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
+public class UpdateSubstitutionFormTag extends SecuredObjectFormTag {
     private static final long serialVersionUID = 9096797376521541558L;
     private Substitution substitution;
     private boolean terminator;
@@ -80,7 +77,7 @@ public class UpdateSubstitutionFormTag extends IdentifiableFormTag {
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         throw new UnsupportedOperationException();
     }
 

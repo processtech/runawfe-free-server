@@ -21,9 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.IgnoreGrantedPermissionCallback;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -34,8 +32,8 @@ import ru.runa.wfe.relation.RelationPair;
 import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.relation.dao.RelationDAO;
 import ru.runa.wfe.relation.dao.RelationPairDAO;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -258,8 +256,8 @@ public class RelationLogic extends CommonLogic {
         }
         isPermissionAllowed(user, new ArrayList<>(result), Permission.READ, new IgnoreGrantedPermissionCallback() {
             @Override
-            public void OnPermissionDenied(Identifiable identifiable) {
-                result.remove(identifiable);
+            public void OnPermissionDenied(SecuredObject securedObject) {
+                result.remove(securedObject);
             }
         });
         return result;

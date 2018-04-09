@@ -18,14 +18,11 @@
 package ru.runa.common.web.html;
 
 import java.io.Serializable;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
-
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.User;
 
 /**
@@ -35,8 +32,8 @@ import ru.runa.wfe.user.User;
 public interface TDBuilder {
 
     interface Env {
-        interface IdentifiableExtractor extends Serializable {
-            Identifiable getIdentifiable(Object o, Env env);
+        interface SecuredObjectExtractor extends Serializable {
+            SecuredObject getSecuredObject(Object o, Env env);
         }
 
         User getUser();
@@ -49,7 +46,7 @@ public interface TDBuilder {
 
         String getConfirmationMessage(Long pid);
 
-        boolean isAllowed(Permission permission, IdentifiableExtractor extractor);
+        boolean isAllowed(Permission permission, ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor extractor);
 
         boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionId);
 

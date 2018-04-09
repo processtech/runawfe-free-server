@@ -17,8 +17,8 @@
  */
 package ru.runa.wf.web.tag;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Element;
 import org.apache.ecs.Entities;
@@ -31,7 +31,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -57,11 +56,9 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processInfoForm")
 public class ProcessInfoFormTag extends ProcessBaseFormTag {
@@ -93,16 +90,16 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
     @Override
     protected boolean isFormButtonEnabled() {
-        return isFormButtonEnabled(getIdentifiable(), null);
+        return isFormButtonEnabled(getSecuredObject(), null);
     }
 
     @Override
-    protected boolean isFormButtonEnabled(Identifiable identifiable, Permission permission) {
+    protected boolean isFormButtonEnabled(SecuredObject securedObject, Permission permission) {
         boolean ended = getProcess().isEnded();
         if (ended) {
             return WebResources.isProcessRemovalEnabled() && Delegates.getExecutorService().isAdministrator(getUser());
         } else {
-            return super.isFormButtonEnabled(identifiable, Permission.CANCEL_PROCESS);
+            return super.isFormButtonEnabled(securedObject, Permission.CANCEL_PROCESS);
         }
     }
 

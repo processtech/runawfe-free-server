@@ -18,7 +18,7 @@
 package ru.runa.wfe.security;
 
 
-public class ASystem extends IdentifiableBase {
+public class ASystem extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
 
     public static final ASystem INSTANCE = new ASystem();

@@ -17,8 +17,8 @@
  */
 package ru.runa.wfe.relation;
 
+import com.google.common.base.Objects;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,14 +27,10 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
-
-import com.google.common.base.Objects;
 
 /**
  * Relation between executors. Each relation contains some RelationPair, which
@@ -43,7 +39,7 @@ import com.google.common.base.Objects;
 @Entity
 @Table(name = "EXECUTOR_RELATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Relation extends IdentifiableBase {
+public class Relation extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
 
     private Long id;

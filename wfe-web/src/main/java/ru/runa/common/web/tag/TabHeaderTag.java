@@ -19,18 +19,15 @@ package ru.runa.common.web.tag;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
-
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
@@ -41,8 +38,8 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.report.ReportsSecure;
 import ru.runa.wfe.security.ASystem;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -158,9 +155,9 @@ public class TabHeaderTag extends TagSupport {
 
     static class MenuForward {
         private final StrutsMessage menuMessage;
-        private final Identifiable menuSecuredObject;
+        private final SecuredObject menuSecuredObject;
 
-        public MenuForward(StrutsMessage menuMessage, Identifiable menuSecuredObject) {
+        public MenuForward(StrutsMessage menuMessage, SecuredObject menuSecuredObject) {
             this.menuMessage = menuMessage;
             this.menuSecuredObject = menuSecuredObject;
         }
@@ -173,7 +170,7 @@ public class TabHeaderTag extends TagSupport {
             return menuMessage;
         }
 
-        public Identifiable getMenuSecuredObject() {
+        public SecuredObject getMenuSecuredObject() {
             return menuSecuredObject;
         }
     }

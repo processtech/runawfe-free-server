@@ -18,9 +18,12 @@
  */
 package ru.runa.report.web.tag;
 
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
@@ -29,18 +32,12 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.StrutsMessage;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.common.web.tag.IdentifiableFormTag;
+import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.report.web.MessagesReport;
 import ru.runa.report.web.action.BuildReportAction;
 import ru.runa.wfe.report.dto.WfReport;
@@ -53,7 +50,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "buildReportForm")
-public class BuildReportFormTag extends IdentifiableFormTag {
+public class BuildReportFormTag extends SecuredObjectFormTag {
     private static final long serialVersionUID = -3361459425268889410L;
 
     public static final String BUILD_TYPE = "reportBuildType";
@@ -61,7 +58,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
     @Override
     protected void fillFormData(TD tdFormElement) {
         tdFormElement.addElement(HTMLUtils.createInput("HIDDEN", IdForm.ID_INPUT_NAME, Long.toString(getIdentifiableId())));
-        WfReport report = getIdentifiable();
+        WfReport report = getSecuredObject();
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
         tdFormElement.addElement(table);
@@ -134,7 +131,7 @@ public class BuildReportFormTag extends IdentifiableFormTag {
     }
 
     @Override
-    protected WfReport getIdentifiable() {
+    protected WfReport getSecuredObject() {
         return Delegates.getReportService().getReportDefinition(getUser(), getIdentifiableId());
     }
 

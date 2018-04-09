@@ -18,15 +18,13 @@
 package ru.runa.af.web.action;
 
 import java.util.List;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.GrantPermisionsOnIdentifiableAction;
+import ru.runa.common.web.action.GrantPermisionsOnSecuredObjectAction;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.User;
 
 /**
@@ -39,17 +37,17 @@ import ru.runa.wfe.user.User;
  * @struts.action-forward name="failure" path="/bot_station_permission.do"
  *                        redirect = "true"
  */
-public class GrantPermissionsOnBotStationAction extends GrantPermisionsOnIdentifiableAction {
+public class GrantPermissionsOnBotStationAction extends GrantPermisionsOnSecuredObjectAction {
 
     public static final String ACTION_PATH = "/grantBotStationPermission";
 
     @Override
-    protected List<Permission> getIdentifiablePermissions() {
+    protected List<Permission> getSecuredObjectPermissions() {
         return Permission.readPermissions;
     }
 
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return BotStation.INSTANCE;
     }
 

@@ -17,13 +17,15 @@
  */
 package ru.runa.wfe.definition.logic;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -55,15 +57,11 @@ import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
 import ru.runa.wfe.security.ASystem;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Created on 15.03.2005
@@ -74,7 +72,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
         checkPermissionAllowed(user, ASystem.INSTANCE, Permission.DEPLOY_DEFINITION);
-        ProcessDefinition definition = null;
+        ProcessDefinition definition;
         try {
             definition = parseProcessDefinition(processArchiveBytes);
         } catch (Exception e) {
@@ -123,7 +121,7 @@ public class DefinitionLogic extends WFCommonLogic {
             ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment.getContent());
             boolean containsAllPreviousComments = definition.getChanges().containsAll(oldDefinition.getChanges());
             if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
-                if (containsAllPreviousComments != true) {
+                if (!containsAllPreviousComments) {
                     throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                             + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
                 }
@@ -147,11 +145,6 @@ public class DefinitionLogic extends WFCommonLogic {
 
     /**
      * Updates process definition.
-     *
-     * @param user
-     * @param definitionId
-     * @param processArchiveBytes
-     * @return
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes) {
         Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
@@ -170,7 +163,7 @@ public class DefinitionLogic extends WFCommonLogic {
         ProcessDefinition oldDefinition = parseProcessDefinition(deployment.getContent());
         boolean containsAllPreviousComments = uploadedDefinition.getChanges().containsAll(oldDefinition.getChanges());
         if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
-            if (containsAllPreviousComments != true) {
+            if (!containsAllPreviousComments) {
                 throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
                         + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
             }
@@ -257,8 +250,8 @@ public class DefinitionLogic extends WFCommonLogic {
         final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(deploymentVersions.size());
         isPermissionAllowed(user, deploymentVersions, Permission.READ, new IgnoreDeniedPermissionCallback() {
             @Override
-            public void OnPermissionGranted(Identifiable identifiable) {
-                result.add(new WfDefinition((Deployment) identifiable));
+            public void OnPermissionGranted(SecuredObject securedObject) {
+                result.add(new WfDefinition((Deployment) securedObject));
             }
         });
         return result;
@@ -436,15 +429,15 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     private List<String> getProcessNameRestriction(User user) {
-        List<DefinitionIdentifiable> definitionIdentifiables = new ArrayList<DefinitionLogic.DefinitionIdentifiable>();
+        List<ru.runa.wfe.definition.logic.DefinitionLogic.DefinitionSecuredObject> definitionSecuredObjects = new ArrayList<>();
         for (String deploymentName : deploymentDAO.findDeploymentNames()) {
-            definitionIdentifiables.add(new DefinitionIdentifiable(deploymentName));
+            definitionSecuredObjects.add(new ru.runa.wfe.definition.logic.DefinitionLogic.DefinitionSecuredObject(deploymentName));
         }
-        final List<String> definitionsWithPermission = new ArrayList<String>();
-        isPermissionAllowed(user, definitionIdentifiables, Permission.READ, new IgnoreDeniedPermissionCallback() {
+        final List<String> definitionsWithPermission = new ArrayList<>();
+        isPermissionAllowed(user, definitionSecuredObjects, Permission.READ, new IgnoreDeniedPermissionCallback() {
             @Override
-            public void OnPermissionGranted(Identifiable identifiable) {
-                definitionsWithPermission.add(((DefinitionIdentifiable) identifiable).getDeploymentName());
+            public void OnPermissionGranted(SecuredObject securedObject) {
+                definitionsWithPermission.add(((ru.runa.wfe.definition.logic.DefinitionLogic.DefinitionSecuredObject) securedObject).getDeploymentName());
             }
         });
         return definitionsWithPermission;
@@ -473,19 +466,19 @@ public class DefinitionLogic extends WFCommonLogic {
         return result;
     }
 
-    private static final class DefinitionIdentifiable extends Identifiable {
+    private static final class DefinitionSecuredObject extends SecuredObject {
 
         private static final long serialVersionUID = 1L;
         private final String deploymentName;
 
-        public DefinitionIdentifiable(String deploymentName) {
+        public DefinitionSecuredObject(String deploymentName) {
             super();
             this.deploymentName = deploymentName;
         }
 
         @Override
         public Long getIdentifiableId() {
-            return Long.valueOf(deploymentName.hashCode());
+            return (long) deploymentName.hashCode();
         }
 
         @Override
@@ -508,21 +501,21 @@ public class DefinitionLogic extends WFCommonLogic {
         }
 
         @Override
-        public void OnPermissionGranted(Identifiable identifiable) {
-            addDefinitionToResult(identifiable, true);
+        public void OnPermissionGranted(SecuredObject securedObject) {
+            addDefinitionToResult(securedObject, true);
         }
 
         @Override
-        public void OnPermissionDenied(Identifiable identifiable) {
-            addDefinitionToResult(identifiable, false);
+        public void OnPermissionDenied(SecuredObject securedObject) {
+            addDefinitionToResult(securedObject, false);
         }
 
-        private void addDefinitionToResult(Identifiable identifiable, boolean canBeStarted) {
-            ProcessDefinition definition = processDefinitions.get(identifiable);
+        private void addDefinitionToResult(SecuredObject securedObject, boolean canBeStarted) {
+            ProcessDefinition definition = processDefinitions.get(securedObject);
             if (definition != null) {
                 result.add(new WfDefinition(definition, canBeStarted));
             } else {
-                result.add(new WfDefinition((Deployment) identifiable));
+                result.add(new WfDefinition((Deployment) securedObject));
             }
         }
     }

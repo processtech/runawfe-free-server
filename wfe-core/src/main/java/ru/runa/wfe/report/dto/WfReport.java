@@ -1,19 +1,17 @@
 package ru.runa.wfe.report.dto;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.runa.wfe.commons.EntityWithType;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
-public class WfReport extends Identifiable implements Comparable<WfReport>, EntityWithType {
+public class WfReport extends SecuredObject implements Comparable<WfReport>, EntityWithType {
 
     private static final long serialVersionUID = 1L;
 
@@ -44,7 +42,7 @@ public class WfReport extends Identifiable implements Comparable<WfReport>, Enti
         description = definition.getDescription();
         category = definition.getCategory();
         compiledReport = definition.getCompiledReport();
-        parameters = new ArrayList<WfReportParameter>(Lists.transform(definition.getParameters(),
+        parameters = new ArrayList<>(Lists.transform(definition.getParameters(),
                 new Function<ReportParameter, WfReportParameter>() {
                     int position = 0;
 

@@ -112,7 +112,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected boolean isVisible() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.REDEPLOY_DEFINITION, getIdentifiable());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.REDEPLOY_DEFINITION, getSecuredObject());
     }
 
     private Element addUpgradeProcessesLink(WfDefinition definition) {

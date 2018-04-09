@@ -33,8 +33,8 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.CssClassStrategy;
 import ru.runa.common.web.html.HeaderBuilder;
-import ru.runa.common.web.html.IdentifiableCheckboxTDBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
+import ru.runa.common.web.html.SecuredObjectCheckboxTDBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
@@ -69,7 +69,7 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder[] prefixBuilders = new TDBuilder[] { new IdentifiableCheckboxTDBuilder(Permission.UPDATE_EXECUTOR) };
+        TDBuilder[] prefixBuilders = new TDBuilder[] { new SecuredObjectCheckboxTDBuilder(Permission.UPDATE_EXECUTOR) };
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, getReturnAction(), IdForm.ID_INPUT_NAME, builders);

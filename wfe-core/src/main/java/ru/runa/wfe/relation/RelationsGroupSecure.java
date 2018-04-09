@@ -17,10 +17,10 @@
  */
 package ru.runa.wfe.relation;
 
-import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 
-public class RelationsGroupSecure extends IdentifiableBase {
+public class RelationsGroupSecure extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
     public static final RelationsGroupSecure INSTANCE = new RelationsGroupSecure();
 

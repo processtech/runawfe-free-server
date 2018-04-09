@@ -17,8 +17,8 @@
  */
 package ru.runa.wfe.bot;
 
+import com.google.common.base.Objects;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,20 +29,16 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
-
-import com.google.common.base.Objects;
 
 @Entity
 @Table(name = "BOT_STATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BotStation extends IdentifiableBase {
+public class BotStation extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
     public static final BotStation INSTANCE = new BotStation(0L);
 

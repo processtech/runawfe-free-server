@@ -21,9 +21,10 @@
  */
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,14 +39,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -62,7 +61,7 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Synchronizable;
-import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
@@ -70,16 +69,13 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-
 /**
  * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
  */
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Process extends IdentifiableBase {
+public class Process extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Process.class);
 

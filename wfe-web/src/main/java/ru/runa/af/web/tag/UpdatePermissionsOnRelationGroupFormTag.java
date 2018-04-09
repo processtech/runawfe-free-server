@@ -19,27 +19,26 @@ package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.UpdatePermissionsOnRelationGroup;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
-import ru.runa.common.web.tag.IdentifiableFormTag;
+import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.relation.RelationsGroupSecure;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "updatePermissionsOnRelationGroupForm")
-public class UpdatePermissionsOnRelationGroupFormTag extends IdentifiableFormTag {
+public class UpdatePermissionsOnRelationGroupFormTag extends SecuredObjectFormTag {
     private static final long serialVersionUID = 1L;
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        PermissionTableBuilder tableBuilder = new PermissionTableBuilder(getIdentifiable(), getUser(), pageContext);
+        PermissionTableBuilder tableBuilder = new PermissionTableBuilder(getSecuredObject(), getUser(), pageContext);
         tdFormElement.addElement(tableBuilder.buildTable());
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return RelationsGroupSecure.INSTANCE;
     }
 

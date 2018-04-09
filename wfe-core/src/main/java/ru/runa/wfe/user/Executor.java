@@ -17,8 +17,9 @@
  */
 package ru.runa.wfe.user;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -35,15 +36,10 @@ import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.PolymorphismType;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-
-import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.user.jaxb.ExecutorAdapter;
 
 /*
@@ -61,7 +57,7 @@ import ru.runa.wfe.user.jaxb.ExecutorAdapter;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlJavaTypeAdapter(ExecutorAdapter.class)
-public abstract class Executor extends IdentifiableBase implements Comparable<Executor> {
+public abstract class Executor extends SecuredObjectBase implements Comparable<Executor> {
     private static final long serialVersionUID = 1L;
 
     public static final String UNAUTHORIZED_EXECUTOR_NAME = "__unauthorized__";

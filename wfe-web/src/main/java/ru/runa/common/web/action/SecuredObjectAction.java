@@ -15,19 +15,17 @@
  * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.af.web.tag;
+package ru.runa.common.web.action;
 
-import org.tldgen.annotations.BodyContent;
+import java.util.List;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.user.User;
 
-import ru.runa.common.web.MessagesCommon;
-import ru.runa.common.web.tag.IdLinkBaseTag;
+public abstract class SecuredObjectAction extends ActionBase {
 
-@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updatePermissionsOnIdentifiableLink")
-public class UpdatePermissionsOnIdentifiableLinkTag extends IdLinkBaseTag {
-    private static final long serialVersionUID = 9211226789239135433L;
+    protected abstract List<Permission> getSecuredObjectPermissions();
 
-    @Override
-    protected String getLinkText() {
-        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
-    }
+    protected abstract SecuredObject getSecuredObject(User user, Long identifiableId);
+
 }

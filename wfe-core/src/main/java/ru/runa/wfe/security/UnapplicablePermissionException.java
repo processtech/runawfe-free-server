@@ -31,8 +31,8 @@ public class UnapplicablePermissionException extends InternalApplicationExceptio
     private static final long serialVersionUID = 8758756795316935351L;
     private final Collection<Permission> permissions;
 
-    public UnapplicablePermissionException(Identifiable identifiable, Collection<Permission> permissions) {
-        super(permissions + " are not applicable for " + identifiable);
+    public UnapplicablePermissionException(SecuredObject securedObject, Collection<Permission> permissions) {
+        super(permissions + " are not applicable for " + securedObject);
         this.permissions = Lists.newArrayList(permissions);
     }
 

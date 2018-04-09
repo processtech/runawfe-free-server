@@ -61,7 +61,7 @@ public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
     @Override
     protected boolean isFormButtonEnabled() {
         return super.isFormButtonEnabled()
-                || (getUser().getActor().equals(getIdentifiable()) && super.isFormButtonEnabled(ASystem.INSTANCE,
+                || (getUser().getActor().equals(getSecuredObject()) && super.isFormButtonEnabled(ASystem.INSTANCE,
                         Permission.CHANGE_SELF_PASSWORD));
     }
 

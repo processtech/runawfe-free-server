@@ -106,7 +106,7 @@ public class VariableLogic extends WFCommonLogic {
     public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) throws ProcessDoesNotExistException {
         Map<Long, List<WfVariable>> result = Maps.newHashMap();
         List<Process> processes = processDAO.find(processIds);
-        processes = filterIdentifiable(user, processes, Permission.READ);
+        processes = filterSecuredObject(user, processes, Permission.READ);
         Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(processes);
         for (Process process : processes) {
             List<WfVariable> list = Lists.newArrayList();
