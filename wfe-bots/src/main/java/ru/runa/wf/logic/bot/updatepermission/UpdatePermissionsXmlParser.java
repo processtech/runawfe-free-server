@@ -48,7 +48,7 @@ public class UpdatePermissionsXmlParser {
         List<Element> permissionElements = root.element(PERMISSIONS_ELEMENT_NAME).elements(PERMISSION_ELEMENT_NAME);
         for (Element element : permissionElements) {
             Permission p = Permission.valueOf(element.getTextTrim());
-            p.checkApplicable(SecuredObjectType.PROCESS);  // TODO Is this correct? Old code queried ProcessPermission.CANCEL_PROCESS.getPermission().
+            p.checkApplicable(SecuredObjectType.PROCESS);
             settings.getPermissions().add(p);
         }
         Element conditionElement = root.element(CONDITION_ELEMENT_NAME);

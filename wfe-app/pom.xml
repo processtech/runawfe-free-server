@@ -45,14 +45,6 @@
 				<module>../wfe-cactus-it</module>
 			</modules>
 		</profile>
-		<profile>
-			<!-- This is to avoid editing versioned file database.properties. -->
-			<id>PostgreDS</id>
-			<properties>
-				<maven.profile.hibernate.datasource>java:jboss/datasources/PostgreDS</maven.profile.hibernate.datasource>
-				<maven.profile.hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</maven.profile.hibernate.dialect>
-			</properties>
-		</profile>
 	</profiles>
 
 	<dependencyManagement>

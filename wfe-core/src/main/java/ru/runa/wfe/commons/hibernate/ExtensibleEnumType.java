@@ -55,6 +55,7 @@ public abstract class ExtensibleEnumType implements EnhancedUserType {
     @Override
     public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
         String s = rs.getString(names[0]);
+        // I use fromXMLString() here because it does what I need, to avoid introducing another correctly named abstract method.
         return s == null ? null : fromXMLString(s);
     }
 
@@ -63,6 +64,7 @@ public abstract class ExtensibleEnumType implements EnhancedUserType {
         if (value == null) {
             st.setNull(index, Types.VARCHAR);
         } else {
+            // I use toXMLString() here because it does what I need, to avoid introducing another correctly named abstract method.
             st.setObject(index, toXMLString(value), Types.VARCHAR);
         }
     }

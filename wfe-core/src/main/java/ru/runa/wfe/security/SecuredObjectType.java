@@ -1,7 +1,10 @@
 package ru.runa.wfe.security;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import ru.runa.wfe.commons.xml.SecuredObejctTypeXmlAdapter;
 
