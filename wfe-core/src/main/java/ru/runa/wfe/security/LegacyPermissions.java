@@ -10,8 +10,8 @@ import java.util.Objects;
  * Translates old (legacy) secured object type names + permission names to new ones.
  * Translation MUST BE NARROWING, so either same or less permissions are given (none if there's no match at all), but not more.
  *
- * Should be called BEFORE validating against ApplicablePermissions, because secured object types are also changed
- * incompatibly: e.g. former ("REPORT", "permission.read") soon shall mean ("REPORTS", "READ") but "REPORT" shall mean
+ * Should be called BEFORE validating against ApplicablePermissions, because secured object types can also change
+ * incompatibly: e.g. former ("REPORT", "permission.read") soon shall mean ("REPORTS", "READ"), and "REPORT" shall mean
  * single report, not all reports.
  *
  * TODO Incomplete, unused. Script processing infrastructure requires deep refactoring before this class can be used by it.

@@ -52,7 +52,6 @@ import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
  * @see ApplicablePermissions
  * @see LegacyPermissions
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
 @XmlJavaTypeAdapter(Permission2XmlAdapter.class)
 public final class Permission implements Serializable {
 
