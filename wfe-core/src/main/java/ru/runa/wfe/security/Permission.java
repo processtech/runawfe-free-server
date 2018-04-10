@@ -18,12 +18,9 @@
 package ru.runa.wfe.security;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.google.common.base.Objects;
 import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
@@ -39,8 +36,8 @@ import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
  *     public static final Permission EXTRA_EXECUTOR_PERM = new Permission("EXTRA_EXECUTOR_PERM");
  *     public static final Permission EXTRA_ACTOR_PERM = new Permission("EXTRA_ACTOR_PERM");
  *     static {
- *         Permission.add(SecuredObjectType.ACTOR, EXTRA_EXECUTOR_PERM, EXTRA_ACTOR_PERM);
- *         Permission.add(SecuredObjectType.GROUP, EXTRA_EXECUTOR_PERM);
+ *         ApplicablePermissions.add(SecuredObjectType.ACTOR, EXTRA_EXECUTOR_PERM, EXTRA_ACTOR_PERM);
+ *         ApplicablePermissions.add(SecuredObjectType.GROUP, EXTRA_EXECUTOR_PERM);
  *     }
  * }
  * </pre>
@@ -50,6 +47,9 @@ import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
  * So you MUST initialize permissions in single thread. Make sure that all classes that perform
  * this initialization (Permission itself and, considering example above, ExtraPermission)
  * are touched by class-loader in main thread during application startup.
+ *
+ * @see SecuredObjectType
+ * @see ApplicablePermissions
  */
 //@XmlAccessorType(XmlAccessType.FIELD)
 @XmlJavaTypeAdapter(Permission2XmlAdapter.class)
@@ -165,92 +165,7 @@ public final class Permission implements Serializable {
 
 
     /**
-     * Frequently used shortcut. Unmodifiable.
+     * Frequently used shortcut: unmodifiable list containing single READ element.
      */
-    public static final List<Permission> readPermissions = Collections.unmodifiableList(new ArrayList<Permission>() {{
-        add(READ);
-    }});
-
-
-    // Both list and set are unmodifiable.
-    private static class ListAndSet {
-        final List<Permission> list;
-        final Set<Permission> set;
-
-        ListAndSet(ArrayList<Permission> list, HashSet<Permission> set) {
-            this.list = Collections.unmodifiableList(list);
-            this.set = Collections.unmodifiableSet(set);
-        }
-    }
-
-    // Mutable, but private. See accessors below.
-    private static final HashMap<SecuredObjectType, ListAndSet> permissionsBySecuredObjectType = new HashMap<>();
-    private static final List<Permission> emptyList = Collections.unmodifiableList(new ArrayList<Permission>());
-
-    /**
-     * Register permissions applicable to given SecuredObjectType. May be called multiple times for the same type;
-     * each next call appends permissions to the list, excluding already listed permissions.
-     */
-    public static void addApplicable(SecuredObjectType type, Permission... permissions) {
-        // Since ListAndSet is immutable, we fill temporary mutable collections and replace immutable instance.
-        ArrayList<Permission> list = new ArrayList<>();
-        HashSet<Permission> set = new HashSet<>();
-
-        ListAndSet old = permissionsBySecuredObjectType.get(type);
-        if (old != null) {
-            list.addAll(old.list);
-            set.addAll(old.set);
-        }
-        for (Permission p : permissions) {
-            // This also excludes duplications in `permissions` argument itself, even if we created empty list just above.
-            if (!set.contains(p)) {
-                list.add(p);
-                set.add(p);
-            }
-        }
-
-        permissionsBySecuredObjectType.put(type, new ListAndSet(list, set));
-    }
-
-    /**
-     * Returns permissions applicable to given SecuredObjectType. Returns unmodifiable list.
-     * If no permissions were assigned to given SecuredObjectType, returns empty list.
-     *
-     * List with deterministic permission order is necessary for permission editor forms.
-     */
-    public static List<Permission> getApplicableList(SecuredObjectType type) {
-        // TODO After migrating to java 1.8, use getOrDefault().
-//        return permissionsBySecuredObjectType.getOrDefault(type, emptyListAndSet).list;
-        ListAndSet ls = permissionsBySecuredObjectType.get(type);
-        return (ls != null) ? ls.list : emptyList;
-    }
-
-    /**
-     * Checks that Permission is applicable to SecuredObjectType.
-     */
-    public boolean isApplicable(SecuredObjectType type) {
-        ListAndSet ls = permissionsBySecuredObjectType.get(type);
-        return ls != null && ls.set.contains(this);
-    }
-
-    public void checkApplicable(SecuredObjectType type) {
-        if (!isApplicable(type)) {
-            // TODO There is also UnapplicablePermissionException.
-            throw new PermissionNotApplicableException(this, type);
-        }
-    }
-
-
-    static {
-        addApplicable(SecuredObjectType.ACTOR, READ, UPDATE_PERMISSIONS, UPDATE_EXECUTOR, UPDATE_ACTOR_STATUS, VIEW_ACTOR_TASKS);
-        addApplicable(SecuredObjectType.GROUP, READ, UPDATE_PERMISSIONS, UPDATE_EXECUTOR, LIST_GROUP, ADD_TO_GROUP, REMOVE_FROM_GROUP, VIEW_GROUP_TASKS);
-        addApplicable(SecuredObjectType.BOTSTATION, READ, UPDATE_PERMISSIONS, BOT_STATION_CONFIGURE);
-        addApplicable(SecuredObjectType.DEFINITION, READ, UPDATE_PERMISSIONS, REDEPLOY_DEFINITION, UNDEPLOY_DEFINITION, START_PROCESS, READ_PROCESS, CANCEL_PROCESS);
-        addApplicable(SecuredObjectType.PROCESS, READ, UPDATE_PERMISSIONS, CANCEL_PROCESS);
-        addApplicable(SecuredObjectType.RELATION, READ, UPDATE_PERMISSIONS, UPDATE_RELATION);
-        addApplicable(SecuredObjectType.RELATIONGROUP, READ, UPDATE_PERMISSIONS, UPDATE_RELATION);
-        addApplicable(SecuredObjectType.RELATIONPAIR, READ, UPDATE_PERMISSIONS, UPDATE_RELATION);
-        addApplicable(SecuredObjectType.REPORT, READ, UPDATE_PERMISSIONS, DEPLOY_REPORT);
-        addApplicable(SecuredObjectType.SYSTEM, READ, UPDATE_PERMISSIONS, LOGIN_TO_SYSTEM, CREATE_EXECUTOR, CHANGE_SELF_PASSWORD, VIEW_LOGS, DEPLOY_DEFINITION);
-    }
+    public static final List<Permission> readPermissions = Collections.unmodifiableList(Collections.singletonList(READ));
 }

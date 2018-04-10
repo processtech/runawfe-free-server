@@ -36,6 +36,7 @@ import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
@@ -283,8 +284,7 @@ public class TaskLogic extends WFCommonLogic {
             executorDAO.create(delegationGroup);
         }
         if (SystemProperties.setPermissionsToTemporaryGroups()) {
-            Collection<Permission> p = Permission.getApplicableList(delegationGroup.getSecuredObjectType());
-            permissionDAO.setPermissions(user.getActor(), p, delegationGroup);
+            permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.list(delegationGroup), delegationGroup);
             permissionDAO.setPermissions(delegationGroup, selfPermissions, delegationGroup);
         }
         executorDAO.addExecutorsToGroup(executors, delegationGroup);

@@ -35,6 +35,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdsForm;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -56,7 +57,7 @@ public class PermissionTableBuilder {
         this.securedObject = securedObject;
         this.user = user;
         this.pageContext = pageContext;
-        permissions = Permission.getApplicableList(securedObject.getSecuredObjectType());
+        permissions = ApplicablePermissions.list(securedObject);
         allowedUpdatePermissions = Delegates.getAuthorizationService().isAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
     }
 

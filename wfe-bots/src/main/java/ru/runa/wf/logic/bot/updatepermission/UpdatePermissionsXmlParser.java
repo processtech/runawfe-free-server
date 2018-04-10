@@ -23,6 +23,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 
@@ -48,7 +49,7 @@ public class UpdatePermissionsXmlParser {
         List<Element> permissionElements = root.element(PERMISSIONS_ELEMENT_NAME).elements(PERMISSION_ELEMENT_NAME);
         for (Element element : permissionElements) {
             Permission p = Permission.valueOf(element.getTextTrim());
-            p.checkApplicable(SecuredObjectType.PROCESS);
+            ApplicablePermissions.check(SecuredObjectType.PROCESS, p);
             settings.getPermissions().add(p);
         }
         Element conditionElement = root.element(CONDITION_ELEMENT_NAME);

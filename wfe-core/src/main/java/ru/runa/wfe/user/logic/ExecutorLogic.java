@@ -17,17 +17,18 @@
  */
 package ru.runa.wfe.user.logic;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
@@ -35,6 +36,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.relation.dao.RelationPairDAO;
 import ru.runa.wfe.security.ASystem;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.WeakPasswordException;
@@ -46,10 +48,6 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Created on 14.03.2005
@@ -151,8 +149,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     private void postCreateExecutor(User user, Executor executor, Collection<Permission> selfPermissions) {
-        Collection<Permission> p = Permission.getApplicableList(executor.getSecuredObjectType());
-        permissionDAO.setPermissions(user.getActor(), p, executor);
+        permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.list(executor), executor);
         permissionDAO.setPermissions(executor, selfPermissions, executor);
     }
 

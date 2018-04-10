@@ -13,6 +13,7 @@ import ru.runa.wfe.script.common.IdentitiesSetContainerOperation;
 import ru.runa.wfe.script.common.NamedIdentitySet.NamedIdentityType;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptValidationException;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -61,7 +62,7 @@ public abstract class ChangePermissionsOnSecuredObjectsOperation extends Identit
                     + AdminScriptConstants.NAMED_IDENTITY_ELEMENT_NAME + " elements.");
         }
         for (ru.runa.wfe.script.permission.Permission p : permissions) {
-            Permission.valueOf(p.name).checkApplicable(securedObjectType);
+            ApplicablePermissions.check(securedObjectType, Permission.valueOf(p.name));
         }
     }
 
@@ -76,7 +77,7 @@ public abstract class ChangePermissionsOnSecuredObjectsOperation extends Identit
         Set<ru.runa.wfe.security.Permission> changePermissions = Sets.newHashSet();
         for (ru.runa.wfe.script.permission.Permission permissionElement : permissions) {
             ru.runa.wfe.security.Permission p = Permission.valueOf(permissionElement.name);
-            p.checkApplicable(securedObjectType);
+            ApplicablePermissions.check(securedObjectType, p);
             changePermissions.add(p);
         }
         for (SecuredObject securedObject : securedObjects) {

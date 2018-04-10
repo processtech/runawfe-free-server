@@ -29,6 +29,7 @@ import org.apache.struts.action.ActionMapping;
 import ru.runa.af.web.form.UpdatePermissionsOnSecuredObjectForm;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -51,7 +52,7 @@ abstract public class UpdatePermissionsOnSecuredObjectAction extends SecuredObje
                 List<Permission> permissions = Lists.newArrayList();
                 for (String name : form.getPermissions(executorId).getPermissionNames()) {
                     Permission p = Permission.valueOf(name);
-                    p.checkApplicable(type);
+                    ApplicablePermissions.check(type, p);
                     permissions.add(p);
                 }
                 executorPermissions.add(permissions);

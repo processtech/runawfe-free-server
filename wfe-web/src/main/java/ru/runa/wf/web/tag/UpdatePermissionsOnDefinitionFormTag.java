@@ -28,6 +28,7 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.wf.web.action.UpdatePermissionsOnProcessDefinitionAction;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -50,7 +51,7 @@ public class UpdatePermissionsOnDefinitionFormTag extends ProcessDefinitionBaseF
     }
 
     private List<Permission> getUnmodifiablePermissions() {
-        List<Permission> result = new ArrayList<>(Permission.getApplicableList(SecuredObjectType.DEFINITION));
+        List<Permission> result = new ArrayList<>(ApplicablePermissions.list(SecuredObjectType.DEFINITION));
         result.remove(Permission.CANCEL_PROCESS);
         result.remove(Permission.READ_PROCESS);
         return result;

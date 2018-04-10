@@ -1,7 +1,9 @@
 package ru.runa.wfe.commons;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class CollectionUtil {
@@ -23,5 +25,19 @@ public class CollectionUtil {
         Set<T> set = new HashSet<>(a);
         set.removeAll(b);
         return set;
+    }
+
+    /**
+     * Returns difference of two collections as list.
+     * Use if you want to get elements in the same order as in first collection, or just in any deterministic order.
+     */
+    public static <T> ArrayList<T> diffList(Collection<T> a, Set<T> b) {
+        ArrayList<T> list = new ArrayList<>(a.size());
+        for (T x : a) {
+            if (!b.contains(x)) {
+                list.add(x);
+            }
+        }
+        return list;
     }
 }

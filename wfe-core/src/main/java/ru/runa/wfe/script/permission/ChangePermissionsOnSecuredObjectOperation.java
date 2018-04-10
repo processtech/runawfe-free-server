@@ -11,6 +11,7 @@ import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.ScriptValidation;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.Executor;
@@ -45,7 +46,7 @@ public abstract class ChangePermissionsOnSecuredObjectOperation extends ScriptOp
     public final void validate(ScriptExecutionContext context) {
         ScriptValidation.requiredAttribute(this, AdminScriptConstants.EXECUTOR_ATTRIBUTE_NAME, executor);
         for (ru.runa.wfe.script.permission.Permission p : permissions) {
-            ru.runa.wfe.security.Permission.valueOf(p.name).checkApplicable(securedObject.getSecuredObjectType());
+            ApplicablePermissions.check(securedObject, Permission.valueOf(p.name));
         }
     }
 
@@ -55,7 +56,7 @@ public abstract class ChangePermissionsOnSecuredObjectOperation extends ScriptOp
         Set<Permission> changePermissions = Sets.newHashSet();
         for (ru.runa.wfe.script.permission.Permission permissionElement : permissions) {
             ru.runa.wfe.security.Permission p = Permission.valueOf(permissionElement.name);
-            p.checkApplicable(securedObject.getSecuredObjectType());
+            ApplicablePermissions.check(securedObject, p);
             changePermissions.add(p);
         }
         Set<ru.runa.wfe.security.Permission> newPermissions = changeType.updatePermission(context, grantedExecutor, securedObject, changePermissions);

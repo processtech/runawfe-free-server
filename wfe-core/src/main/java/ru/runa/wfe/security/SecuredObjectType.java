@@ -8,6 +8,10 @@ import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import ru.runa.wfe.commons.xml.SecuredObejctTypeXmlAdapter;
 
+/**
+ * @see Permission
+ * @see ApplicablePermissions
+ */
 @XmlJavaTypeAdapter(SecuredObejctTypeXmlAdapter.class)
 public final class SecuredObjectType implements Serializable {
 

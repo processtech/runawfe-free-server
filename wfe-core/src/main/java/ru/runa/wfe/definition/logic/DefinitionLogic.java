@@ -57,6 +57,7 @@ import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
 import ru.runa.wfe.security.ASystem;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -88,8 +89,7 @@ public class DefinitionLogic extends WFCommonLogic {
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
         deploymentDAO.deploy(definition.getDeployment(), null);
-        Collection<Permission> allPermissions = Permission.getApplicableList(SecuredObjectType.DEFINITION);
-        permissionDAO.setPermissions(user.getActor(), allPermissions, definition.getDeployment());
+        permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.list(SecuredObjectType.DEFINITION), definition.getDeployment());
         log.debug("Deployed process definition " + definition);
         return new WfDefinition(definition, isPermissionAllowed(user, definition.getDeployment(), Permission.START_PROCESS));
     }

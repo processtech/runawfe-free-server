@@ -31,7 +31,6 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.commons.dao.CommonDAO;
@@ -39,10 +38,10 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToPermissions;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.UnapplicablePermissionException;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
@@ -102,7 +101,7 @@ public class PermissionDAO extends CommonDAO {
             log.debug(permissions + " not granted for privileged " + executor);
             return;
         }
-        checkPermissionsApplicable(securedObject, permissions);
+        ApplicablePermissions.check(securedObject, permissions);
         List<PermissionMapping> permissionMappingToRemove = getOwnPermissionMappings(executor, securedObject);
         for (Permission permission : permissions) {
             PermissionMapping pm = new PermissionMapping(executor, securedObject, permission);
@@ -246,22 +245,6 @@ public class PermissionDAO extends CommonDAO {
             result[i] = allowedIdentifiableIdsSet.contains(securedObjects.get(i).getIdentifiableId());
         }
         return result;
-    }
-
-    /**
-     * Check if {@linkplain Permission} is correct e. q. it's allowed for secured object.
-     * 
-     * @param securedObject
-     *            Secured object (permissions must be for this secured object).
-     * @param permissions
-     *            Permissions to check.
-     */
-    private void checkPermissionsApplicable(SecuredObject securedObject, Collection<Permission> permissions) throws UnapplicablePermissionException {
-        List<Permission> applicablePermission = Permission.getApplicableList(securedObject.getSecuredObjectType());
-        Set<Permission> unapplicablePermission = CollectionUtil.diffSet(permissions, applicablePermission);
-        if (unapplicablePermission.size() > 0) {
-            throw new UnapplicablePermissionException(securedObject, permissions);
-        }
     }
 
     /**
