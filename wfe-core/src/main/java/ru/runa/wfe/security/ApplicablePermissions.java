@@ -17,8 +17,13 @@
  */
 package ru.runa.wfe.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static ru.runa.wfe.security.Permission.ADD_TO_GROUP;
 import static ru.runa.wfe.security.Permission.BOT_STATION_CONFIGURE;
@@ -49,23 +54,24 @@ import static ru.runa.wfe.security.Permission.VIEW_LOGS;
  *
  * @see SecuredObjectType
  * @see Permission
+ * @see LegacyPermissions
  */
-public class ApplicablePermissions {
+public final class ApplicablePermissions {
 
     // Both list and set are unmodifiable.
-    private static class ListAndSet {
-        final java.util.List<Permission> list;
-        final java.util.Set<Permission> set;
+    private static final class ListAndSet {
+        final List<Permission> list;
+        final Set<Permission> set;
 
-        ListAndSet(java.util.ArrayList<Permission> list, java.util.HashSet<Permission> set) {
+        ListAndSet(ArrayList<Permission> list, HashSet<Permission> set) {
             this.list = Collections.unmodifiableList(list);
             this.set = Collections.unmodifiableSet(set);
         }
     }
 
     // Mutable, but private. See accessors below.
-    private static final java.util.HashMap<SecuredObjectType, ListAndSet> permissionsBySecuredObjectType = new java.util.HashMap<>();
-    private static final java.util.List<Permission> emptyList = Collections.unmodifiableList(new java.util.ArrayList<Permission>());
+    private static final HashMap<SecuredObjectType, ListAndSet> permissionsBySecuredObjectType = new HashMap<>();
+    private static final List<Permission> emptyList = Collections.emptyList();
 
     /**
      * Register permissions applicable to given SecuredObjectType. May be called multiple times for the same type;
@@ -73,8 +79,8 @@ public class ApplicablePermissions {
      */
     public static void add(SecuredObjectType type, Permission... permissions) {
         // Since ListAndSet is immutable, we fill temporary mutable collections and replace immutable instance.
-        java.util.ArrayList<Permission> list = new java.util.ArrayList<>();
-        java.util.HashSet<Permission> set = new java.util.HashSet<>();
+        ArrayList<Permission> list = new ArrayList<>();
+        HashSet<Permission> set = new HashSet<>();
 
         ListAndSet old = permissionsBySecuredObjectType.get(type);
         if (old != null) {
@@ -98,7 +104,7 @@ public class ApplicablePermissions {
      *
      * List with deterministic permission order is necessary for permission editor forms.
      */
-    public static java.util.List<Permission> list(SecuredObjectType type) {
+    public static List<Permission> list(SecuredObjectType type) {
         // TODO After migrating to java 1.8, use getOrDefault().
 //        return permissionsBySecuredObjectType.getOrDefault(type, emptyListAndSet).list;
         ListAndSet ls = permissionsBySecuredObjectType.get(type);
@@ -108,7 +114,7 @@ public class ApplicablePermissions {
     /**
      * Shortcut for <code>list(obj.getSecuredObjectType())</code>, see {@link #list(SecuredObjectType)}.
      */
-    public static java.util.List<Permission> list(SecuredObject obj) {
+    public static List<Permission> list(SecuredObject obj) {
         return list(obj.getSecuredObjectType());
     }
 
@@ -141,7 +147,7 @@ public class ApplicablePermissions {
             throw new UnapplicablePermissionException(type, permissions);
         }
         // Used List instead of Set here, to have deterministic error message.
-        java.util.List<Permission> unapplicable = ru.runa.wfe.commons.CollectionUtil.diffList(permissions, ls.set);
+        List<Permission> unapplicable = ru.runa.wfe.commons.CollectionUtil.diffList(permissions, ls.set);
         if (unapplicable.size() > 0) {
             throw new UnapplicablePermissionException(type, unapplicable);
         }

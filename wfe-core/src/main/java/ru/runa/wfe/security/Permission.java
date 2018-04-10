@@ -50,6 +50,7 @@ import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
  *
  * @see SecuredObjectType
  * @see ApplicablePermissions
+ * @see LegacyPermissions
  */
 //@XmlAccessorType(XmlAccessType.FIELD)
 @XmlJavaTypeAdapter(Permission2XmlAdapter.class)
