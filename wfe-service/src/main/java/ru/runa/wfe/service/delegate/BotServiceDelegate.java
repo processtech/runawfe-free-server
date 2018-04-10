@@ -1,7 +1,6 @@
 package ru.runa.wfe.service.delegate;
 
 import java.util.List;
-
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotTask;
@@ -109,9 +108,9 @@ public class BotServiceDelegate extends EJB3Delegate implements BotService {
     }
 
     @Override
-    public void updateBot(User user, Bot bot) {
+    public void updateBot(User user, Bot bot, boolean incrementBotStationVersion) {
         try {
-            getBotService().updateBot(user, bot);
+            getBotService().updateBot(user, bot, incrementBotStationVersion);
         } catch (Exception e) {
             throw handleException(e);
         }

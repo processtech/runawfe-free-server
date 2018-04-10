@@ -107,8 +107,8 @@ public class ProcessFactory {
     }
 
     public void startSubprocess(ExecutionContext parentExecutionContext, ExecutionContext executionContext) {
-        parentExecutionContext.addLog(new SubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getToken(), executionContext
-                .getProcess()));
+        parentExecutionContext
+                .addLog(new SubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getToken(), executionContext.getProcess()));
         grantSubprocessPermissions(executionContext.getProcessDefinition(), executionContext.getProcess(), parentExecutionContext.getProcess());
         startProcessInternal(executionContext, null);
     }
@@ -137,7 +137,8 @@ public class ProcessFactory {
         if (parentProcess != null) {
             process.setParentId(parentProcess.getId());
         }
-        process.setHierarchyIds(ProcessHierarchyUtils.createHierarchy(parentProcess != null ? parentProcess.getHierarchyIds() : null, process.getId()));
+        process.setHierarchyIds(
+                ProcessHierarchyUtils.createHierarchy(parentProcess != null ? parentProcess.getHierarchyIds() : null, process.getId()));
         ExecutionContext executionContext = new ExecutionContext(processDefinition, rootToken);
         if (actor != null) {
             executionContext.addLog(new ProcessStartLog(actor));
