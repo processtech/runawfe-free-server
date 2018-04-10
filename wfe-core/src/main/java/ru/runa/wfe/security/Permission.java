@@ -73,7 +73,16 @@ public final class Permission implements Serializable {
             throw new IllegalArgumentException("Illegal Permission name");
         }
         if (result == null) {
-            throw new IllegalArgumentException("Unknown Permission name \"" + name + "\"");
+            // Accept "permission.xxx" in addition to "XXX".
+            // TODO This is temporary hack, will do until we start renaiming secured object types and permissions. May stay for a while,
+            //      because script execuion infrastructure requires deep refactoring before LegacyPermissions can be used by it.
+            if (name != null && name.startsWith("permission.")) {
+                result = instancesByName.get(name.substring(11).toUpperCase());
+            }
+
+            if (result == null) {
+                throw new IllegalArgumentException("Unknown Permission name \"" + name + "\"");
+            }
         }
         return result;
     }

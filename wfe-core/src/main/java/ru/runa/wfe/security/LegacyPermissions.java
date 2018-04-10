@@ -7,6 +7,15 @@ import java.util.Objects;
 /**
  * Compatibility layer to support old scripts and web-service requests.
  *
+ * Translates old (legacy) secured object type names + permission names to new ones.
+ * Translation MUST BE NARROWING, so either same or less permissions are given (none if there's no match at all), but not more.
+ *
+ * Should be called BEFORE validating against ApplicablePermissions, because secured object types are also changed
+ * incompatibly: e.g. former ("REPORT", "permission.read") soon shall mean ("REPORTS", "READ") but "REPORT" shall mean
+ * single report, not all reports.
+ *
+ * TODO Incomplete, unused. Script processing infrastructure requires deep refactoring before this class can be used by it.
+ *
  * @see SecuredObjectType
  * @see Permission
  * @see ApplicablePermissions
@@ -40,6 +49,7 @@ public final class LegacyPermissions {
     public static final class Replacement {
         /** Not null. */
         public final SecuredObjectType securedObjectType;
+
         /** Not null. */
         public final Permission permission;
 
