@@ -17,10 +17,10 @@
  */
 package ru.runa.wfe.bot.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotAlreadyExistsException;
@@ -41,9 +41,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
 public class BotLogic extends CommonLogic {
     @Autowired
@@ -135,7 +132,7 @@ public class BotLogic extends CommonLogic {
         return botDAO.getNotNull(botStation, name);
     }
 
-    public void updateBot(User user, Bot bot) throws BotAlreadyExistsException {
+    public void updateBot(User user, Bot bot, boolean incrementBotStationVersion) throws BotAlreadyExistsException {
         checkPermissionOnBotStation(user, BotStationPermission.BOT_STATION_CONFIGURE);
         Preconditions.checkNotNull(bot.getBotStation());
         Bot botToCheck = getBot(user, bot.getBotStation().getId(), bot.getUsername());
@@ -143,7 +140,9 @@ public class BotLogic extends CommonLogic {
             throw new BotAlreadyExistsException(bot.getUsername());
         }
         bot = botDAO.update(bot);
-        incrementBotStationVersion(bot);
+        if (incrementBotStationVersion) {
+            incrementBotStationVersion(bot);
+        }
     }
 
     public void removeBot(User user, Long id) throws BotDoesNotExistException {

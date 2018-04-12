@@ -10,6 +10,22 @@
 <tiles:put name="head" type="string">
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor/codemirror.js?"+Version.getHash() %>' />">c=0;</script> 
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor.js?"+Version.getHash() %>' />">c=0;</script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var sequential = $("input[name='sequential']");
+			var transactionalTimeout = $("input[name='transactionalTimeout']");
+			var checked = sequential.prop('checked');
+			$("input[name='transactional']").change(function() {
+				if(this.checked) {
+					sequential.prop('checked', true).prop('disabled', true); 
+					transactionalTimeout.prop('disabled', false);
+				} else {
+					sequential.prop('checked', checked).prop('disabled', false);
+					transactionalTimeout.prop('disabled', true);
+				}
+		 	});
+		});
+	</script>
 </tiles:put>
 
 	<tiles:put name="body" type="string">
@@ -20,19 +36,19 @@
 	String saveActionUrl = "save_bot.do?id=" + id;
 	String createActionUrl = "create_bot_task.do?id=" + id;
 %>
-        <wf:botTag botId="<%= id %>"/>
-        	<table width="100%">
-                <tr>
-                    <td align="left"><wf:saveBotLink href="<%= saveActionUrl %>"/></td>
-                </tr>
-            </table>
-        <wf:botTaskListTag botId="<%= id %>">
+		<wf:botTag botId="<%= id %>"/>
+		<table width="100%">
+			<tr>
+				<td align="left"><wf:saveBotLink href="<%= saveActionUrl %>"/></td>
+			</tr>
+		</table>
+		<wf:botTaskListTag botId="<%= id %>">
 			<table width="100%">
-                <tr>
-                    <td align="left"><wf:addBotTaskLink href="<%= createActionUrl %>"/></td>
-                </tr>
-            </table>
-        </wf:botTaskListTag>
-    </tiles:put>
-    <tiles:put name="messages" value="../common/messages.jsp"/>
+				<tr>
+					<td align="left"><wf:addBotTaskLink href="<%= createActionUrl %>"/></td>
+				</tr>
+			</table>
+		</wf:botTaskListTag>
+	</tiles:put>
+	<tiles:put name="messages" value="../common/messages.jsp"/>
 </tiles:insert>
