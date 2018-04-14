@@ -17,7 +17,6 @@
  */
 package ru.runa.af.web.html;
 
-import java.util.Iterator;
 import java.util.List;
 import javax.servlet.jsp.PageContext;
 import org.apache.ecs.html.A;
@@ -53,8 +52,8 @@ public class BotTableBuilder {
         table.setClass(Resources.CLASS_LIST_TABLE);
         table.setWidth("100%");
         table.addElement(createTableHeaderTR());
-        for (Iterator<Bot> iterator = bots.iterator(); iterator.hasNext();) {
-            table.addElement(createTR(iterator.next()));
+        for (Bot bot : bots) {
+            table.addElement(createTR(bot));
         }
         return table;
     }
@@ -96,16 +95,17 @@ public class BotTableBuilder {
     }
 
     private static TR createTransactionalRow(PageContext pageContext, Bot bot) {
+        boolean isTransactional = bot != null ? bot.isTransactional() : false;
         String transactionalTimeoutString = "";
-        if (bot != null && bot.isTransactional() && bot.getTransactionalTimeout() != null) {
+        if (isTransactional && bot.getTransactionalTimeout() != null) {
             transactionalTimeoutString = String.valueOf(bot.getTransactionalTimeout());
         }
         Input transactionalTimeoutInput = HTMLUtils.createInput(Input.TEXT, BotForm.TRANSACTIONAL_TIMEOUT, transactionalTimeoutString);
         TR tr = new TR();
         tr.addElement(new TD(MessagesBot.LABEL_BOT_TRANSACTIONAL.message(pageContext)).setClass(Resources.CLASS_LIST_TABLE_TD));
-        TD td = new TD(HTMLUtils.createCheckboxInput(BotForm.IS_TRANSACTIONAL, bot != null ? bot.isTransactional() : false, true, false));
+        TD td = new TD(HTMLUtils.createCheckboxInput(BotForm.IS_TRANSACTIONAL, isTransactional, true, false));
         transactionalTimeoutInput.addAttribute("style", "width: 5%");
-        transactionalTimeoutInput.setDisabled(!bot.isTransactional());
+        transactionalTimeoutInput.setDisabled(!isTransactional);
         td.addElement(MessagesBot.LABEL_BOT_TRANSACTIONAL_TIMEOUT.message(pageContext));
         td.addElement(transactionalTimeoutInput);
         td.setClass(Resources.CLASS_LIST_TABLE_TD);

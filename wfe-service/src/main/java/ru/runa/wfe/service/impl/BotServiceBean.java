@@ -222,7 +222,7 @@ public class BotServiceBean implements BotServiceLocal, BotServiceRemote {
             Preconditions.checkArgument(botStation != null, "botStation");
             Preconditions.checkArgument(archive != null, "archive");
             ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(archive));
-            Map<String, byte[]> files = new HashMap<String, byte[]>();
+            Map<String, byte[]> files = new HashMap<>();
             ZipEntry entry;
             while ((entry = zin.getNextEntry()) != null) {
                 byte[] bytes = ByteStreams.toByteArray(zin);

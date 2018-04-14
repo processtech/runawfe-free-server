@@ -48,13 +48,13 @@ public class ActorSelect extends Select {
         }
         batchPresentation.setFieldsToSort(new int[] { 0 }, new boolean[] { true });
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(user, batchPresentation);
-        ArrayList<Option> options = new ArrayList<Option>();
+        ArrayList<Option> options = new ArrayList<>();
         for (Executor executor : executors) {
             if (executor instanceof TemporaryGroup) {
                 continue;
             }
             String label = executor.getName();
-            if (executor instanceof Actor && !Strings.isNullOrEmpty(((Actor) executor).getLabel())) {
+            if (executor instanceof Actor && !Strings.isNullOrEmpty(executor.getLabel())) {
                 label += " (" + executor.getLabel() + ")";
             }
             boolean isCurrent = executor.getName().equals(current);
