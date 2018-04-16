@@ -17,18 +17,22 @@
  */
 package ru.runa.wfe.security.dao;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
-
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
@@ -45,11 +49,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * Permission DAO level implementation via Hibernate.
  * 
@@ -59,6 +58,8 @@ import com.google.common.collect.Sets;
 public class PermissionDAO extends CommonDAO {
     @Autowired
     private ExecutorDAO executorDAO;
+    @Autowired
+    private SessionFactory sessionFactory;
 
     private final Map<SecuredObjectType, Set<Executor>> privelegedExecutors = Maps.newHashMap();
     private final Set<Long> privelegedExecutorIds = Sets.newHashSet();
@@ -102,22 +103,26 @@ public class PermissionDAO extends CommonDAO {
      * @param identifiable
      *            Secured object to set permission on.
      */
+    @Transactional
     public void setPermissions(Executor executor, Collection<Permission> permissions, Identifiable identifiable) {
         if (isPrivilegedExecutor(identifiable, executor)) {
             log.debug(permissions + " not granted for privileged " + executor);
             return;
         }
+        Session session = sessionFactory.getCurrentSession();
         checkArePermissionAllowed(identifiable, permissions);
-        List<PermissionMapping> permissionMappingToRemove = getOwnPermissionMappings(executor, identifiable);
+        List<PermissionMapping> toDelete = getOwnPermissionMappings(executor, identifiable);
         for (Permission permission : permissions) {
             PermissionMapping pm = new PermissionMapping(executor, identifiable, permission.getMask());
-            if (permissionMappingToRemove.contains(pm)) {
-                permissionMappingToRemove.remove(pm);
+            if (toDelete.contains(pm)) {
+                toDelete.remove(pm);
             } else {
-                getHibernateTemplate().save(pm);
+                session.save(pm);
             }
         }
-        getHibernateTemplate().deleteAll(permissionMappingToRemove);
+        if (!toDelete.isEmpty()) {
+            session.createQuery("delete from PermissionMapping pm where pm in (:pms)").setParameterList("pms", toDelete).executeUpdate();
+        }
     }
 
     /**
