@@ -32,7 +32,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
@@ -103,7 +102,6 @@ public class PermissionDAO extends CommonDAO {
      * @param identifiable
      *            Secured object to set permission on.
      */
-    @Transactional
     public void setPermissions(Executor executor, Collection<Permission> permissions, Identifiable identifiable) {
         if (isPrivilegedExecutor(identifiable, executor)) {
             log.debug(permissions + " not granted for privileged " + executor);
