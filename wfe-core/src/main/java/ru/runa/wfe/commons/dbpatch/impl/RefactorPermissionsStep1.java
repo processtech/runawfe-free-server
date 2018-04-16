@@ -190,11 +190,24 @@ public class RefactorPermissionsStep1 extends DBPatch {
         }
 
         // Copy data to new table.
-        session.createSQLQuery(
-                "insert into permission_mapping (executor_id, object_type, object_id, permission) " +
-                "select executor_id, object_type, identifiable_id, permission " +
-                "from permission_mapping__old"
-        ).executeUpdate();
+        {
+            String idName, idValue;
+            switch (dbType) {
+                case ORACLE:
+                    // Bugfix: https://rm.processtech.ru/issues/637#note-15
+                    idName = "id, ";
+                    idValue = "seq_permission_mapping.nextval, ";
+                    break;
+                default:
+                    idName = "";
+                    idValue = "";
+            }
+            session.createSQLQuery(
+                    "insert into permission_mapping (" + idName + "executor_id, object_type, object_id, permission) " +
+                    "select " + idValue + "executor_id, object_type, identifiable_id, permission " +
+                    "from permission_mapping__old"
+            ).executeUpdate();
+        }
     }
 
     @Override
