@@ -120,14 +120,9 @@ public class RefactorPermissionsStep1 extends DBPatch {
     @Override
     protected List<String> getDDLQueriesBefore() {
         return new ArrayList<String>() {{
-            // Index is used by FK, have to drop FK first.
-            add(getDDLRemoveForeignKey("permission_mapping", "fk_permission_executor"));
-            // Index names are global, have to drop old one before creating new one in getDDLQueriesAfter().
-            add(getDDLRemoveIndex("permission_mapping", "ix_permission_by_executor"));
-
             add(getDDLRenameTable("permission_mapping", "permission_mapping__old"));
-            add(getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("object_type", 32,true)));
-            add(getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("permission", 32,true)));
+            add(getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("object_type", 32, true)));
+            add(getDDLCreateColumn("permission_mapping__old", new VarcharColumnDef("permission", 32, true)));
 
             add(getDDLCreateTable(
                     "permission_mapping",
@@ -214,7 +209,7 @@ public class RefactorPermissionsStep1 extends DBPatch {
     protected List<String> getDDLQueriesAfter() {
         return new ArrayList<String>() {{
             add(getDDLRemoveTable("permission_mapping__old"));
-            add(getDDLCreateIndex("permission_mapping", "ix_permission_by_executor", "executor_id", "object_type", "permission", "object_id"));
+            add(getDDLCreateIndex("permission_mapping", "ix_permission_mapping_data", "executor_id", "object_type", "permission", "object_id"));
             add(getDDLCreateForeignKey("permission_mapping", "fk_permission_executor", "executor_id", "executor", "id"));
         }};
     }

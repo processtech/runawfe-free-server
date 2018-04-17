@@ -46,7 +46,7 @@ import ru.runa.wfe.user.Executor;
 )
 @org.hibernate.annotations.Table(appliesTo = "PERMISSION_MAPPING", indexes = {
         //@Index(name = "IX_PERMISSION_BY_OBJECT_ID", columnNames = { "OBJECT_ID", "OBJECT_TYPE", "PERMISSION", "EXECUTOR_ID" })
-        @Index(name = "IX_PERMISSION_BY_EXECUTOR", columnNames = { "EXECUTOR_ID", "OBJECT_TYPE", "PERMISSION", "OBJECT_ID" })
+        @Index(name = "IX_PERMISSION_MAPPING_DATA", columnNames = { "EXECUTOR_ID", "OBJECT_TYPE", "PERMISSION", "OBJECT_ID" })
 })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PermissionMapping {
