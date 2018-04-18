@@ -1,19 +1,16 @@
 package ru.runa.wfe.definition.jpdl;
 
-import java.util.List;
-import java.util.Map;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.util.List;
+import java.util.Map;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
@@ -101,6 +98,7 @@ public class JpdlXmlReader {
     private static final String ACTION_NODE = "action";
     private static final String ACCESS_TYPE = "accessType";
     private static final String EMBEDDED = "embedded";
+    private static final String TRANSACTIONAL = "transactional";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String MULTI_TASK_CREATION_MODE = "multiTaskCreationMode";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
@@ -262,13 +260,13 @@ public class JpdlXmlReader {
         for (Element element : elements) {
             String variableName = element.attributeValue(NAME_ATTR);
             if (variableName == null) {
-                throw new InvalidDefinitionException(processDefinition.getName(),
-                        "the name attribute of a variable element is required: " + element.asXML());
+                throw new InvalidDefinitionException(processDefinition.getName(), "the name attribute of a variable element is required: "
+                        + element.asXML());
             }
             String mappedName = element.attributeValue(MAPPED_NAME_ATTR);
             if (mappedName == null) {
-                throw new InvalidDefinitionException(processDefinition.getName(),
-                        "the mapped-name attribute of a variable element is required: " + element.asXML());
+                throw new InvalidDefinitionException(processDefinition.getName(), "the mapped-name attribute of a variable element is required: "
+                        + element.asXML());
             }
             String access = element.attributeValue(ACCESS_ATTR, "read,write");
             variableAccesses.add(new VariableMapping(variableName, mappedName, access));
@@ -311,21 +309,21 @@ public class JpdlXmlReader {
         if (node instanceof TaskNode) {
             TaskNode taskNode = (TaskNode) node;
             taskNode.setAsync(Boolean.valueOf(element.attributeValue(ASYNC_ATTR, "false")));
-            taskNode.setCompletionMode(
-                    AsyncCompletionMode.valueOf(element.attributeValue(ASYNC_COMPLETION_MODE_ATTR, AsyncCompletionMode.NEVER.name())));
+            taskNode.setCompletionMode(AsyncCompletionMode.valueOf(element.attributeValue(ASYNC_COMPLETION_MODE_ATTR,
+                    AsyncCompletionMode.NEVER.name())));
             readTasks(processDefinition, element, taskNode);
         }
         if (node instanceof MultiTaskNode) {
             MultiTaskNode multiTaskNode = (MultiTaskNode) node;
             multiTaskNode.setAsync(Boolean.valueOf(element.attributeValue(ASYNC_ATTR, "false")));
-            multiTaskNode.setCompletionMode(
-                    AsyncCompletionMode.valueOf(element.attributeValue(ASYNC_COMPLETION_MODE_ATTR, AsyncCompletionMode.NEVER.name())));
-            multiTaskNode.setSynchronizationMode(
-                    MultiTaskSynchronizationMode.valueOf(element.attributeValue(TASK_EXECUTION_MODE_ATTR, MultiTaskSynchronizationMode.LAST.name())));
+            multiTaskNode.setCompletionMode(AsyncCompletionMode.valueOf(element.attributeValue(ASYNC_COMPLETION_MODE_ATTR,
+                    AsyncCompletionMode.NEVER.name())));
+            multiTaskNode.setSynchronizationMode(MultiTaskSynchronizationMode.valueOf(element.attributeValue(TASK_EXECUTION_MODE_ATTR,
+                    MultiTaskSynchronizationMode.LAST.name())));
             multiTaskNode.setDiscriminatorVariableName(element.attributeValue(TASK_EXECUTORS_ATTR));
             multiTaskNode.setDiscriminatorUsage(element.attributeValue(TASK_EXECUTORS_USAGE));
-            multiTaskNode.setCreationMode(
-                    MultiTaskCreationMode.valueOf(element.attributeValue(MULTI_TASK_CREATION_MODE, MultiTaskCreationMode.BY_EXECUTORS.name())));
+            multiTaskNode.setCreationMode(MultiTaskCreationMode.valueOf(element.attributeValue(MULTI_TASK_CREATION_MODE,
+                    MultiTaskCreationMode.BY_EXECUTORS.name())));
             multiTaskNode.setVariableMappings(readVariableMappings(processDefinition, element));
             multiTaskNode.setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));
             readTasks(processDefinition, element, multiTaskNode);
@@ -336,6 +334,7 @@ public class JpdlXmlReader {
             if (subProcessElement != null) {
                 subprocessNode.setSubProcessName(subProcessElement.attributeValue(NAME_ATTR));
                 subprocessNode.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
+                subprocessNode.setTransactional(Boolean.parseBoolean(subProcessElement.attributeValue(TRANSACTIONAL, "false")));
             }
             if (node instanceof MultiSubprocessNode) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));

@@ -1,16 +1,14 @@
 package ru.runa.wfe.script.botstation;
 
+import com.google.common.base.Strings;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.ScriptValidation;
-
-import com.google.common.base.Strings;
 
 @XmlType(name = UpdateBotOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
 public class UpdateBotOperation extends ScriptOperation implements BotSystemScriptOperation {
@@ -57,7 +55,7 @@ public class UpdateBotOperation extends ScriptOperation implements BotSystemScri
         if (sequentialExecution != null) {
             bot.setSequentialExecution(sequentialExecution);
         }
-        context.getBotLogic().updateBot(context.getUser(), bot);
+        context.getBotLogic().updateBot(context.getUser(), bot, true);
     }
 
     @Override

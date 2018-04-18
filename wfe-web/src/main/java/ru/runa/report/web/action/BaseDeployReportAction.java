@@ -17,25 +17,19 @@
  */
 package ru.runa.report.web.action;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
 import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.report.web.form.DeployReportForm;
@@ -98,24 +92,25 @@ public abstract class BaseDeployReportAction extends ActionBase {
             required.add(Integer.parseInt(reqIdx));
         }
         int idx = 0;
-        for (String positionString : deployForm.getVarPosition()) {
-            int position = Integer.parseInt(positionString);
-            if (!positionToParameter.containsKey(position)) {
-                positionToParameter.put(position, Lists.<WfReportParameter> newArrayList());
+        if (deployForm.getVarPosition() != null) {
+            for (String positionString : deployForm.getVarPosition()) {
+                int position = Integer.parseInt(positionString);
+                if (!positionToParameter.containsKey(position)) {
+                    positionToParameter.put(position, Lists.<WfReportParameter> newArrayList());
+                }
+                WfReportParameter parameter = new WfReportParameter(deployForm.getVarUserName()[idx], deployForm.getVarDescription()[idx],
+                        deployForm.getVarInternalName()[idx], position, ReportParameterType.valueOf(deployForm.getVarType()[idx]),
+                        required.contains(idx));
+                positionToParameter.get(position).add(parameter);
+                ++idx;
             }
-            WfReportParameter parameterDto = new WfReportParameter(deployForm.getVarUserName()[idx], deployForm.getVarDescription()[idx],
-                    deployForm.getVarInternalName()[idx], position, ReportParameterType.valueOf(deployForm.getVarType()[idx]),
-                    required.contains(idx));
-            positionToParameter.get(position).add(parameterDto);
-            ++idx;
         }
         List<WfReportParameter> result = Lists.newArrayList();
         idx = 0;
-        for (Iterator<Entry<Integer, List<WfReportParameter>>> iterator = positionToParameter.entrySet().iterator(); iterator.hasNext();) {
-            Entry<Integer, List<WfReportParameter>> entry = iterator.next();
-            for (WfReportParameter dto : entry.getValue()) {
-                dto.setPosition(idx);
-                result.add(dto);
+        for (Map.Entry<Integer, List<WfReportParameter>> entry : positionToParameter.entrySet()) {
+            for (WfReportParameter parameter : entry.getValue()) {
+                parameter.setPosition(idx);
+                result.add(parameter);
                 ++idx;
             }
         }

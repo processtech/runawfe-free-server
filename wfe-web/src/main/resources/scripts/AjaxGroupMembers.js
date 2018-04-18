@@ -7,7 +7,7 @@ $(document).ready(function(){
 		}
 		$("#userSelectorId option").remove();
 		$("#userSelectorId").attr("disabled", "disabled");
-		$("#userSelectorId").append('<option> Loading ... </option>');
+		$("#userSelectorId").append('<option> ... </option>');
 		$.getJSON(
 			"JSON_URL", 
 			{ groupId: s },

@@ -148,6 +148,22 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- vikol-begin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ear-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Dependencies>com.oracle</Dependencies>
+						</manifestEntries>
+						<manifestEntries>
+							<Dependencies>com.microsoft.sqlserver.jdbc</Dependencies>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<!-- vikol-end -->
 		</plugins>
 	</build>
 

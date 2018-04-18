@@ -45,6 +45,10 @@ public class AuthorizationLogic extends CommonLogic {
         return permissionDAO.isAllowed(user, permission, identifiables);
     }
 
+    public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType) {
+        return permissionDAO.isAllowedForAny(user, permission, securedObjectType);
+    }
+
     public List<Permission> getIssuedPermissions(User user, Executor performer, Identifiable identifiable) {
         checkPermissionsOnExecutor(user, performer, Permission.READ);
         checkPermissionAllowed(user, identifiable, Permission.READ);

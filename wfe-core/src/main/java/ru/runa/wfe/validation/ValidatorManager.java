@@ -1,5 +1,6 @@
 package ru.runa.wfe.validation;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,13 +13,9 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.par.ValidationXmlParser;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -26,52 +23,38 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+
 public class ValidatorManager {
     private static final Log log = LogFactory.getLog(ValidatorManager.class);
-    private static Map<String, String> validatorRegistrations = new HashMap<String, String>();
-    private static final String CONFIG = "validators.xml";
-    private static Properties validatorProperties = ClassLoaderUtil.getLocalizedProperties("validators", ValidatorManager.class, null);
-
-    private static ValidatorManager instance;
-
-    public static synchronized ValidatorManager getInstance() {
-        if (instance == null) {
-            instance = new ValidatorManager();
-        }
-        return instance;
-    }
+    private static final Map<String, String> validatorRegistrations = new HashMap<>();
+    private static final Properties validatorProperties = ClassLoaderUtil.getLocalizedProperties("validators", ValidatorManager.class, null);
+    private static final ValidatorManager instance = new ValidatorManager();
 
     static {
-        registerDefinitions(CONFIG, true);
-        registerDefinitions(SystemProperties.RESOURCE_EXTENSION_PREFIX + CONFIG, false);
+        ClassLoaderUtil.withExtensionResources("validators.xml", new Function<InputStream, Object>() {
+
+            @Override
+            public Object apply(InputStream input) {
+                try (InputStream inputStream = input) {
+                    Document document = XmlUtils.parseWithoutValidation(inputStream);
+                    List<Element> nodes = document.getRootElement().elements("validator");
+                    for (Element validatorElement : nodes) {
+                        String name = validatorElement.attributeValue("name");
+                        String className = validatorElement.attributeValue("class");
+                        validatorRegistrations.put(name, className);
+                    }
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+                return null;
+            }
+        });
     }
 
-    private static void registerDefinitions(String resourceName, boolean required) {
-        try {
-            InputStream is;
-            if (required) {
-                is = ClassLoaderUtil.getAsStreamNotNull(resourceName, ValidatorManager.class);
-            } else {
-                is = ClassLoaderUtil.getAsStream(resourceName, ValidatorManager.class);
-            }
-            if (is != null) {
-                validatorRegistrations.putAll(parseValidatorDefinitions(is));
-            }
-        } catch (Exception e) {
-            log.error("check validator definition " + resourceName, e);
-        }
-    }
-
-    private static Map<String, String> parseValidatorDefinitions(InputStream is) {
-        Map<String, String> result = Maps.newHashMap();
-        Document document = XmlUtils.parseWithoutValidation(is);
-        List<Element> nodes = document.getRootElement().elements("validator");
-        for (Element validatorElement : nodes) {
-            String name = validatorElement.attributeValue("name");
-            String className = validatorElement.attributeValue("class");
-            result.put(name, className);
-        }
-        return result;
+    public static ValidatorManager getInstance() {
+        return instance;
     }
 
     private static String getInternalErrorMessage() {
@@ -89,7 +72,7 @@ public class ValidatorManager {
     public List<Validator> createValidators(User user, ExecutionContext executionContext, IVariableProvider variableProvider, byte[] validationXml,
             ValidatorContext validatorContext, Map<String, Object> variables) {
         List<ValidatorConfig> configs = ValidationXmlParser.parseValidatorConfigs(validationXml);
-        ArrayList<Validator> validators = new ArrayList<Validator>(configs.size());
+        ArrayList<Validator> validators = new ArrayList<>(configs.size());
         for (ValidatorConfig config : configs) {
             if (Strings.isNullOrEmpty(config.getMessage())) {
                 config.setMessage(getDefaultValidationMessage(config.getType()));

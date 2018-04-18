@@ -45,6 +45,7 @@ public class WebResources {
 
     public static final String ACTION_MAPPING_MANAGE_DEFINITION = "/manage_process_definition";
     public static final String ACTION_MAPPING_MANAGE_PROCESS = "/manage_process";
+    public static final String ACTION_SHOW_PROCESS_HISTORY = "/show_history";
     public static final String ACTION_SHOW_PROCESS_GRAPH = "/show_process_graph";
     public static final String ACTION_SHOW_GRAPH_HISTORY = "/show_graph_history";
     public static final String ACTION_MAPPING_START_PROCESS = "/startProcess";
