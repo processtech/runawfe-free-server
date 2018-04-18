@@ -300,11 +300,6 @@
 		</profile>
 		<profile>
 			<id>simulation</id>
-			<!-- vikol -->
-			<properties>
-				<enable.resteasy.start></enable.resteasy.start>
-				<enable.resteasy.end></enable.resteasy.end>
-			</properties>
 			<build>
 				<plugins>
 					<plugin>
