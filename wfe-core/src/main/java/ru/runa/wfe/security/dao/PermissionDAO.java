@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import ru.runa.wfe.InternalApplicationException;
@@ -55,6 +56,8 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 public class PermissionDAO extends CommonDAO {
     @Autowired
     private ExecutorDAO executorDAO;
+    @Autowired
+    private SessionFactory sessionFactory;
 
     private final Map<SecuredObjectType, Set<Executor>> privelegedExecutors = Maps.newHashMap();
     private final Set<Long> privelegedExecutorIds = Sets.newHashSet();
@@ -102,16 +105,19 @@ public class PermissionDAO extends CommonDAO {
             return;
         }
         ApplicablePermissions.check(securedObject, permissions);
-        List<PermissionMapping> permissionMappingToRemove = getOwnPermissionMappings(executor, securedObject);
+        Session session = sessionFactory.getCurrentSession();
+        List<PermissionMapping> toDelete = getOwnPermissionMappings(executor, securedObject);
         for (Permission permission : permissions) {
             PermissionMapping pm = new PermissionMapping(executor, securedObject, permission);
-            if (permissionMappingToRemove.contains(pm)) {
-                permissionMappingToRemove.remove(pm);
+            if (toDelete.contains(pm)) {
+                toDelete.remove(pm);
             } else {
-                getHibernateTemplate().save(pm);
+                session.save(pm);
             }
         }
-        getHibernateTemplate().deleteAll(permissionMappingToRemove);
+        if (!toDelete.isEmpty()) {
+            session.createQuery("delete from PermissionMapping pm where pm in (:pms)").setParameterList("pms", toDelete).executeUpdate();
+        }
     }
 
     /**

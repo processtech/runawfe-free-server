@@ -232,7 +232,7 @@ public class Process extends SecuredObjectBase {
         // make sure all the timers for this process are canceled
         // after the process end updates are posted to the database
         JobDAO jobDAO = ApplicationContextFactory.getJobDAO();
-        jobDAO.deleteAll(this);
+        jobDAO.deleteByProcess(this);
         if (canceller != null) {
             executionContext.addLog(new ProcessCancelLog(canceller));
         } else {
@@ -332,7 +332,7 @@ public class Process extends SecuredObjectBase {
      * Tells if this process is still active or not.
      */
     public boolean hasEnded() {
-        return endDate != null;
+        return executionStatus == ExecutionStatus.ENDED;
     }
 
     @Override

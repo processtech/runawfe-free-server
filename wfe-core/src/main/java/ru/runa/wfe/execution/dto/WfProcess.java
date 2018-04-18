@@ -82,7 +82,7 @@ public class WfProcess extends SecuredObjectBase {
      * @return true if process is ended.
      */
     public boolean isEnded() {
-        return endDate != null;
+        return executionStatus == ExecutionStatus.ENDED;
     }
 
     public Date getEndDate() {

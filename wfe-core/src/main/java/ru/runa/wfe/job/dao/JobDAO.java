@@ -2,7 +2,6 @@ package ru.runa.wfe.job.dao;
 
 import java.util.Date;
 import java.util.List;
-
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
@@ -31,14 +30,13 @@ public class JobDAO extends GenericDAO<Job> {
         return getHibernateTemplate().find("from Job where process=? and dueDateExpression like ?", process, "%" + expression + "%");
     }
 
-    public void deleteTimersByName(Token token, String name) {
-        log.debug("deleting timers by name '" + name + "' for " + token);
-        List<TimerJob> timerJobs = getHibernateTemplate().find("from TimerJob where token=? and name=?", token, name);
+    public void deleteByToken(Token token) {
+        List<TimerJob> timerJobs = getHibernateTemplate().find("from TimerJob where token=?", token);
+        log.debug("deleting " + timerJobs.size() + " timers for " + token);
         getHibernateTemplate().deleteAll(timerJobs);
-        log.debug(timerJobs.size() + " timers by name '" + name + "' for " + token + " were deleted");
     }
 
-    public void deleteAll(Process process) {
+    public void deleteByProcess(Process process) {
         log.debug("deleting jobs for process " + process.getId());
         getHibernateTemplate().bulkUpdate("delete from Job where process=?", process);
     }
