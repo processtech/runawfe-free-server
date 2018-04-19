@@ -90,8 +90,7 @@ public class ExecutorLogic extends CommonLogic {
 
     public List<? extends Executor> getExecutors(User user, BatchPresentation batchPresentation) {
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createAllExecutorsCompiler(user, batchPresentation);
-        List<Executor> executorList = compiler.getBatch();
-        return executorList;
+        return compiler.getBatch();
     }
 
     public int getExecutorsCount(User user, BatchPresentation batchPresentation) {

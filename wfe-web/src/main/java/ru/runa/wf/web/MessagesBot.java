@@ -24,6 +24,8 @@ public final class MessagesBot {
     public static final StrutsMessage LABEL_BOT_PASSWORD = new StrutsMessage("label.bot_password");
     public static final StrutsMessage LABEL_BOT_NAME = new StrutsMessage("label.bot_name");
     public static final StrutsMessage LABEL_BOT_SEQUENTIAL = new StrutsMessage("label.bot_sequential");
+    public static final StrutsMessage LABEL_BOT_TRANSACTIONAL = new StrutsMessage("label.bot_transactional");
+    public static final StrutsMessage LABEL_BOT_TRANSACTIONAL_TIMEOUT = new StrutsMessage("label.bot_transactional_timeout");
     public static final StrutsMessage LABEL_BOT_TASK_DETAILS = new StrutsMessage("label.bot_task_details");
     public static final StrutsMessage LABEL_BOT_TASK_NAME = new StrutsMessage("label.bot_task_name");
     public static final StrutsMessage LABEL_BOT_TASK_HANDLER = new StrutsMessage("label.bot_task_handler");

@@ -21,9 +21,10 @@
  */
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,14 +39,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.audit.ProcessCancelLog;
 import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -57,6 +56,7 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.AsyncCompletionMode;
+import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
@@ -68,9 +68,6 @@ import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
 
 /**
  * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
@@ -235,7 +232,7 @@ public class Process extends IdentifiableBase {
         // make sure all the timers for this process are canceled
         // after the process end updates are posted to the database
         JobDAO jobDAO = ApplicationContextFactory.getJobDAO();
-        jobDAO.deleteAll(this);
+        jobDAO.deleteByProcess(this);
         if (canceller != null) {
             executionContext.addLog(new ProcessCancelLog(canceller));
         } else {
@@ -245,22 +242,19 @@ public class Process extends IdentifiableBase {
         ApplicationContextFactory.getTaskDAO().flushPendingChanges();
         boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
         for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(this)) {
-            Node node = executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
-            if (node instanceof Synchronizable) {
-                Synchronizable synchronizable = (Synchronizable) node;
-                if (synchronizable.isAsync()) {
-                    switch (synchronizable.getCompletionMode()) {
-                    case NEVER:
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
+            if (taskNode.isAsync()) {
+                switch (taskNode.getCompletionMode()) {
+                case NEVER:
+                    continue;
+                case ON_MAIN_PROCESS_END:
+                    if (activeSuperProcessExists) {
                         continue;
-                    case ON_MAIN_PROCESS_END:
-                        if (activeSuperProcessExists) {
-                            continue;
-                        }
-                    case ON_PROCESS_END:
                     }
+                case ON_PROCESS_END:
                 }
             }
-            task.end(executionContext, taskCompletionInfo);
+            task.end(executionContext, taskNode, taskCompletionInfo);
         }
         if (parentNodeProcess == null) {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
@@ -311,17 +305,14 @@ public class Process extends IdentifiableBase {
                 endSubprocessAndTasksOnMainProcessEndRecursively(subExecutionContext, canceller);
 
                 for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(subProcess)) {
-                    Node node = subProcessDefinition.getNodeNotNull(task.getNodeId());
-                    if (node instanceof Synchronizable) {
-                        Synchronizable synchronizable = (Synchronizable) node;
-                        if (synchronizable.isAsync()) {
-                            switch (synchronizable.getCompletionMode()) {
-                            case NEVER:
-                            case ON_PROCESS_END:
-                                continue;
-                            case ON_MAIN_PROCESS_END:
-                                task.end(subExecutionContext, TaskCompletionInfo.createForProcessEnd(id));
-                            }
+                    BaseTaskNode taskNode = (BaseTaskNode) subProcessDefinition.getNodeNotNull(task.getNodeId());
+                    if (taskNode.isAsync()) {
+                        switch (taskNode.getCompletionMode()) {
+                        case NEVER:
+                        case ON_PROCESS_END:
+                            continue;
+                        case ON_MAIN_PROCESS_END:
+                            task.end(subExecutionContext, taskNode, TaskCompletionInfo.createForProcessEnd(id));
                         }
                     }
                 }
@@ -341,7 +332,7 @@ public class Process extends IdentifiableBase {
      * Tells if this process is still active or not.
      */
     public boolean hasEnded() {
-        return endDate != null;
+        return executionStatus == ExecutionStatus.ENDED;
     }
 
     @Override

@@ -92,16 +92,13 @@ public abstract class Validator {
         if (stringValue == null) {
             return null;
         }
-        Object value = ExpressionEvaluator.evaluateVariableNotNull(variableProvider, stringValue);
+        Object value = ExpressionEvaluator.evaluateVariable(variableProvider, stringValue);
         return TypeConversionUtil.convertTo(clazz, value);
     }
 
     protected <T extends Object> T getParameter(Class<T> clazz, String name, T defaultValue) {
         T value = getParameter(clazz, name);
-        if (value == null) {
-            return defaultValue;
-        }
-        return TypeConversionUtil.convertTo(clazz, value);
+        return value == null ? defaultValue : value;
     }
 
     protected <T extends Object> T getParameterNotNull(Class<T> clazz, String name) {
@@ -109,7 +106,7 @@ public abstract class Validator {
         if (value == null) {
             throw new InternalApplicationException("parameter '" + name + "' is null");
         }
-        return TypeConversionUtil.convertTo(clazz, value);
+        return value;
     }
 
     public String getMessage() {
