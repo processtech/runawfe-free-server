@@ -29,7 +29,9 @@ import org.apache.commons.lang.SerializationUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 
+import org.hibernate.criterion.Projections;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -312,9 +314,20 @@ class ExecutorCacheImpl extends BaseCacheImpl implements ManageableExecutorCache
 
     private <T> List<T> getAll(Class<?> clazz) {
         Session session = ApplicationContextFactory.getCurrentSession();
-        Criteria criteria = session.createCriteria(clazz);
-        return criteria.list();
+        Criteria countCriteria = session.createCriteria(clazz);
+        countCriteria.setProjection(Projections.rowCount());
+        int count = ((Number) countCriteria.uniqueResult()).intValue();
+        int pageSize = SystemProperties.getDatabasePageSize();
+        List<T> out = new ArrayList<>();
+        for (int i = 0; i < count; i += pageSize) {
+            Criteria criteria = session.createCriteria(clazz);
+            criteria.setFirstResult(i);
+            criteria.setMaxResults(pageSize);
+            out.addAll(criteria.list());
+        }
+        return out;
     }
+
 
     private List<ExecutorGroupMembership> getAllMemberships() {
         return getAll(ExecutorGroupMembership.class);

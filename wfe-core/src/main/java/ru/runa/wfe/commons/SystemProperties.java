@@ -277,6 +277,10 @@ public class SystemProperties {
         return RESOURCES.getIntegerProperty("database.parameters.count", 900);
     }
 
+    public static int getDatabasePageSize() {
+        return RESOURCES.getIntegerProperty("database.page.size", 5000);
+    }
+
     public static List<String> getFreemarkerStaticClassNames() {
         return RESOURCES.getMultipleStringProperty("freemarker.static.class.names");
     }
