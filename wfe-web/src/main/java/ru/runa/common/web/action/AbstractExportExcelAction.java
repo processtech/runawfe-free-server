@@ -17,14 +17,14 @@
  */
 package ru.runa.common.web.action;
 
+import com.google.common.net.MediaType;
 import java.util.Calendar;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
-
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
@@ -33,7 +33,6 @@ import org.apache.poi.ss.util.CellUtil;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.ProfileHttpSessionHelper;
@@ -48,8 +47,6 @@ import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
-
-import com.google.common.net.MediaType;
 
 /**
  * @since 4.3.0
@@ -88,10 +85,9 @@ public abstract class AbstractExportExcelAction<T extends Object> extends Action
     private void buildHeader(HttpServletRequest request, HSSFWorkbook workbook, BatchPresentation batchPresentation) {
         CellStyle boldCellStyle = workbook.createCellStyle();
         Font boldFont = workbook.createFont();
-        boldFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        boldFont.setBold(true);
         boldCellStyle.setFont(boldFont);
         Row header = workbook.getSheetAt(0).createRow(0);
-        header.setRowStyle(boldCellStyle);
         int i = 0;
         for (FieldDescriptor fieldDescriptor : batchPresentation.getDisplayFields()) {
             if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
@@ -99,7 +95,9 @@ public abstract class AbstractExportExcelAction<T extends Object> extends Action
                     || fieldDescriptor.fieldState != FieldState.ENABLED) {
                 continue;
             }
-            header.createCell(i++).setCellValue(getDisplayString(request, fieldDescriptor));
+            Cell cell = header.createCell(i++);
+            cell.setCellStyle(boldCellStyle);
+            cell.setCellValue(getDisplayString(request, fieldDescriptor));
         }
     }
 

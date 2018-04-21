@@ -1,5 +1,8 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.Iterator;
@@ -9,13 +12,15 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.imageio.ImageIO;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.usermodel.Borders;
+import org.apache.poi.xwpf.usermodel.LineSpacingRule;
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+import org.apache.poi.xwpf.usermodel.TextAlignment;
 import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
 import org.apache.poi.xwpf.usermodel.VerticalAlign;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -23,8 +28,11 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.xmlbeans.XmlCursor;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHighlight;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
-
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STHighlightColor;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
@@ -37,10 +45,6 @@ import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 public class DocxUtils {
     private static final Log log = LogFactory.getLog(DocxUtils.class);
@@ -130,37 +134,15 @@ public class DocxUtils {
             } else {
                 paragraph0 = cell.addParagraph();
             }
-            try {
-                XWPFParagraph templateParagraph = cellTemplate.getParagraphs().get(0);
-                paragraph0.setAlignment(templateParagraph.getAlignment());
-                paragraph0.setBorderBetween(templateParagraph.getBorderBetween());
-                paragraph0.setBorderBottom(templateParagraph.getBorderBottom());
-                paragraph0.setBorderLeft(templateParagraph.getBorderLeft());
-                paragraph0.setBorderRight(templateParagraph.getBorderRight());
-                paragraph0.setBorderTop(templateParagraph.getBorderTop());
-                paragraph0.setIndentationFirstLine(templateParagraph.getIndentationFirstLine());
-                paragraph0.setIndentationHanging(templateParagraph.getIndentationHanging());
-                paragraph0.setIndentationLeft(templateParagraph.getIndentationLeft());
-                paragraph0.setIndentationRight(templateParagraph.getIndentationRight());
-                paragraph0.setPageBreak(templateParagraph.isPageBreak());
-                // paragraph0.setSpacingAfter(templateParagraph.getSpacingAfter());
-                // paragraph0.setSpacingAfterLines(templateParagraph.getSpacingAfterLines());
-                // paragraph0.setSpacingBefore(templateParagraph.getSpacingBefore());
-                // paragraph0.setSpacingLineRule(templateParagraph.getSpacingLineRule());
-                // paragraph0.setStyle(templateParagraph.getStyle());
-                paragraph0.setVerticalAlignment(templateParagraph.getVerticalAlignment());
-                // paragraph0.setWordWrap(templateParagraph.isWordWrap());
-            } catch (Exception e) {
-                log.warn("Unable to copy paragraph styles", e);
-            }
+            XWPFParagraph templateParagraph = cellTemplate.getParagraphs().get(0);
+            copyStyles(paragraph0, templateParagraph);
             XWPFRun run0;
             if (paragraph0.getRuns().size() > 0) {
                 run0 = paragraph0.getRuns().get(0);
             } else {
                 run0 = paragraph0.createRun();
             }
-            StylesHolder stylesHolder = new StylesHolder(cellTemplate.getParagraphs().get(0).getRuns().get(0));
-            stylesHolder.applyStyles(run0);
+            copyStyles(run0, cellTemplate.getParagraphs().get(0).getRuns().get(0));
             run0.setText(text != null ? text : "", 0);
         } else {
             cell.setText(text != null ? text : "");
@@ -338,13 +320,11 @@ public class DocxUtils {
                             for (XWPFParagraph templateParagraph : loopOperation.getBodyParagraphs()) {
                                 XmlCursor cursor = document.getDocument().getBody().getPArray(insertPosition).newCursor();
                                 XWPFParagraph newParagraph = document.insertNewParagraph(cursor);
+                                copyStyles(newParagraph, templateParagraph);
                                 insertPosition++;
                                 for (XWPFRun templateRun : templateParagraph.getRuns()) {
                                     XWPFRun newRun = newParagraph.createRun();
-                                    StylesHolder stylesHolder = new StylesHolder(templateRun);
-                                    // https://sourceforge.net/p/runawfe/bugs/474/
-                                    // templateRun.getCTR().getRPr().getShd().getFill()
-                                    stylesHolder.applyStyles(newRun);
+                                    copyStyles(newRun, templateRun);
                                     String text = templateRun.getText(0);
                                     if (text != null) {
                                         newRun.setText(text);
@@ -466,6 +446,151 @@ public class DocxUtils {
                     }
                     operations.remove(replaceOperation);
                 }
+            }
+        }
+    }
+
+    public static void copyStyles(XWPFParagraph paragraph, XWPFParagraph templateParagraph) {
+        if (templateParagraph.getAlignment() != ParagraphAlignment.LEFT) {
+            paragraph.setAlignment(templateParagraph.getAlignment());
+        }
+        if (templateParagraph.getBorderBetween() != Borders.NONE) {
+            paragraph.setBorderBetween(templateParagraph.getBorderBetween());
+        }
+        if (templateParagraph.getBorderBottom() != Borders.NONE) {
+            paragraph.setBorderBottom(templateParagraph.getBorderBottom());
+        }
+        if (templateParagraph.getBorderLeft() != Borders.NONE) {
+            paragraph.setBorderLeft(templateParagraph.getBorderLeft());
+        }
+        if (templateParagraph.getBorderRight() != Borders.NONE) {
+            paragraph.setBorderRight(templateParagraph.getBorderRight());
+        }
+        if (templateParagraph.getBorderTop() != Borders.NONE) {
+            paragraph.setBorderTop(templateParagraph.getBorderTop());
+        }
+        if (templateParagraph.getIndentationFirstLine() != -1) {
+            paragraph.setIndentationFirstLine(templateParagraph.getIndentationFirstLine());
+        }
+        if (templateParagraph.getIndentationHanging() != -1) {
+            paragraph.setIndentationHanging(templateParagraph.getIndentationHanging());
+        }
+        if (templateParagraph.getIndentationLeft() != -1) {
+            paragraph.setIndentationLeft(templateParagraph.getIndentationLeft());
+        }
+        if (templateParagraph.getIndentationRight() != -1) {
+            paragraph.setIndentationRight(templateParagraph.getIndentationRight());
+        }
+        if (templateParagraph.getNumID() != null) {
+            paragraph.setNumID(templateParagraph.getNumID());
+        }
+        if (templateParagraph.isPageBreak()) {
+            paragraph.setPageBreak(templateParagraph.isPageBreak());
+        }
+        if (templateParagraph.getSpacingAfter() != -1) {
+            paragraph.setSpacingAfter(templateParagraph.getSpacingAfter());
+        }
+        if (templateParagraph.getSpacingAfterLines() != -1) {
+            paragraph.setSpacingAfterLines(templateParagraph.getSpacingAfterLines());
+        }
+        if (templateParagraph.getSpacingBefore() != -1) {
+            paragraph.setSpacingBefore(templateParagraph.getSpacingBefore());
+        }
+        if (templateParagraph.getSpacingBeforeLines() != -1) {
+            paragraph.setSpacingBeforeLines(templateParagraph.getSpacingBeforeLines());
+        }
+        if (templateParagraph.getSpacingBetween() != -1) {
+            paragraph.setSpacingBetween(templateParagraph.getSpacingBetween(), templateParagraph.getSpacingLineRule());
+        }
+        if (templateParagraph.getSpacingLineRule() != LineSpacingRule.AUTO) {
+            paragraph.setSpacingLineRule(templateParagraph.getSpacingLineRule());
+        }
+        if (templateParagraph.getStyle() != null) {
+            paragraph.setStyle(templateParagraph.getStyle());
+        }
+        if (templateParagraph.getVerticalAlignment() != TextAlignment.AUTO) {
+            paragraph.setVerticalAlignment(templateParagraph.getVerticalAlignment());
+        }
+        if (templateParagraph.isWordWrapped()) {
+            paragraph.setWordWrapped(templateParagraph.isWordWrapped());
+        }
+    }
+
+    public static void copyStyles(XWPFRun run, XWPFRun templateRun) {
+        if (templateRun.isBold()) {
+            run.setBold(templateRun.isBold());
+        }
+        if (templateRun.isCapitalized()) {
+            run.setCapitalized(templateRun.isCapitalized());
+        }
+        if (templateRun.getCharacterSpacing() != 0) {
+            run.setCharacterSpacing(templateRun.getCharacterSpacing());
+        }
+        if (templateRun.getColor() != null) {
+            run.setColor(templateRun.getColor());
+        }
+        if (templateRun.isDoubleStrikeThrough()) {
+            run.setDoubleStrikethrough(templateRun.isDoubleStrikeThrough());
+        }
+        if (templateRun.isEmbossed()) {
+            run.setEmbossed(templateRun.isEmbossed());
+        }
+        if (templateRun.getFontFamily() != null) {
+            run.setFontFamily(templateRun.getFontFamily());
+        }
+        if (templateRun.getFontSize() != -1) {
+            run.setFontSize(templateRun.getFontSize());
+        }
+        if (templateRun.isImprinted()) {
+            run.setImprinted(templateRun.isImprinted());
+        }
+        if (templateRun.isItalic()) {
+            run.setItalic(templateRun.isItalic());
+        }
+        if (templateRun.getKerning() != 0) {
+            run.setKerning(templateRun.getKerning());
+        }
+        if (templateRun.isShadowed()) {
+            run.setShadow(templateRun.isShadowed());
+        }
+        if (templateRun.isSmallCaps()) {
+            run.setSmallCaps(templateRun.isSmallCaps());
+        }
+        if (templateRun.isStrikeThrough()) {
+            run.setStrikeThrough(templateRun.isStrikeThrough());
+        }
+        if (templateRun.getSubscript() != VerticalAlign.BASELINE) {
+            run.setSubscript(templateRun.getSubscript());
+        }
+        if (templateRun.getUnderline() != UnderlinePatterns.NONE) {
+            run.setUnderline(templateRun.getUnderline());
+        }
+        if (templateRun.getCTR().getRPr() != null && templateRun.getCTR().getRPr().getShd() != null) {
+            Object fill = templateRun.getCTR().getRPr().getShd().getFill();
+            if (fill != null) {
+                CTRPr ctrPr = run.getCTR().getRPr();
+                if (ctrPr == null) {
+                    ctrPr = run.getCTR().addNewRPr();
+                }
+                CTShd ctShd = ctrPr.getShd();
+                if (ctShd == null) {
+                    ctShd = ctrPr.addNewShd();
+                }
+                ctShd.setFill(fill);
+            }
+        }
+        if (templateRun.getCTR().getRPr() != null && templateRun.getCTR().getRPr().getHighlight() != null) {
+            STHighlightColor.Enum highlight = templateRun.getCTR().getRPr().getHighlight().getVal();
+            if (highlight != null) {
+                CTRPr ctrPr = run.getCTR().getRPr();
+                if (ctrPr == null) {
+                    ctrPr = run.getCTR().addNewRPr();
+                }
+                CTHighlight ctHighlight = ctrPr.getHighlight();
+                if (ctHighlight == null) {
+                    ctHighlight = ctrPr.addNewHighlight();
+                }
+                ctHighlight.setVal(highlight);
             }
         }
     }
@@ -593,7 +718,7 @@ public class DocxUtils {
                         int imageType = getPictureType(config, fileVariable.getName().toLowerCase());
                         if (imageType > 0) {
                             BufferedImage image = ImageIO.read(new ByteArrayInputStream(fileVariable.getData()));
-                            // TODO does not work without ooxml
+                            // does not work without ooxml
                             imageOperation.setImageType(imageType);
                             imageOperation.setWidth(Units.toEMU(image.getWidth()));
                             imageOperation.setHeight(Units.toEMU(image.getHeight()));
@@ -644,60 +769,6 @@ public class DocxUtils {
                 operation.appendPlaceholder(text);
                 return "";
             }
-        }
-    }
-
-    public static class StylesHolder {
-        private final boolean bold;
-        private final String color;
-        private final String fontFamily;
-        private final int fontSize;
-        private final boolean italic;
-        private final boolean strike;
-        private final VerticalAlign subscript;
-        private final UnderlinePatterns underlinePatterns;
-
-        public StylesHolder(XWPFRun run) {
-            bold = run.isBold();
-            color = run.getColor();
-            fontFamily = run.getFontFamily();
-            fontSize = run.getFontSize();
-            italic = run.isItalic();
-            strike = run.isStrike();
-            subscript = run.getSubscript();
-            underlinePatterns = run.getUnderline();
-        }
-
-        public void applyStyles(XWPFRun run) {
-            // absence of checks caused logical errors in result document
-            run.setBold(bold);
-            if (color != null) {
-                run.setColor(color);
-            }
-            if (fontFamily != null) {
-                run.setFontFamily(fontFamily);
-            }
-            if (fontSize > 0) {
-                run.setFontSize(fontSize);
-            }
-            run.setItalic(italic);
-            run.setStrike(strike);
-            if (subscript != null) {
-                run.setSubscript(subscript);
-            }
-            if (underlinePatterns != null) {
-                run.setUnderline(underlinePatterns);
-            }
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof StylesHolder)) {
-                return false;
-            }
-            StylesHolder h = (StylesHolder) obj;
-            return bold == h.bold && Objects.equal(color, h.color) && Objects.equal(fontFamily, h.fontFamily) && italic == h.italic
-                    && strike == h.strike && Objects.equal(subscript, h.subscript) && Objects.equal(underlinePatterns, h.underlinePatterns);
         }
     }
 
