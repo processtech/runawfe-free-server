@@ -7,6 +7,11 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
@@ -15,11 +20,6 @@ import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.MapFormat;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 public class UserTypeMap extends HashMap<String, Object> {
     private static final long serialVersionUID = 1L;
@@ -112,6 +112,7 @@ public class UserTypeMap extends HashMap<String, Object> {
 
     private UserTypeMap buildUserTypeVariable(String prefix, VariableDefinition variableDefinition) {
         UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
+        UserTypeMap defaultValue = (UserTypeMap) variableDefinition.getDefaultValue();
         for (VariableDefinition attributeDefinition : variableDefinition.getUserType().getAttributes()) {
             String attributeName = prefix + UserType.DELIM + attributeDefinition.getName();
             Object value = super.get(attributeName);
@@ -119,7 +120,12 @@ public class UserTypeMap extends HashMap<String, Object> {
                 value = buildUserTypeVariable(attributeName, attributeDefinition);
             }
             if (value == null) {
-                value = attributeDefinition.getDefaultValue();
+                if (defaultValue != null) {
+                    value = defaultValue.get(attributeDefinition.getName());
+                }
+                if (value == null) {
+                    value = attributeDefinition.getDefaultValue();
+                }
             }
             userTypeMap.put(attributeDefinition.getName(), value);
         }
@@ -178,8 +184,8 @@ public class UserTypeMap extends HashMap<String, Object> {
                 }
                 throw new IllegalArgumentException("Invalid key = '" + qualifier + "'; all values: " + map);
             }
-            throw new IllegalArgumentException("Key '" + qualifier + "' was provided but variable format is "
-                    + variableDefinition.getFormatClassName());
+            throw new IllegalArgumentException(
+                    "Key '" + qualifier + "' was provided but variable format is " + variableDefinition.getFormatClassName());
         }
         return new WfVariable(variableDefinition, variableValue);
     }

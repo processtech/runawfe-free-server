@@ -7,7 +7,14 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
@@ -18,11 +25,6 @@ import ru.runa.wfe.var.VariableStoreType;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String FORMAT = "format";
@@ -66,6 +68,11 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 type.addAttribute(variableDefinition);
             }
         }
+        for (UserType userType : processDefinition.getUserTypes()) {
+            for (VariableDefinition variableDefinition : userType.getAttributes()) {
+                parseDefaultValue(processDefinition, variableDefinition);
+            }
+        }
         List<Element> variableElements = root.elements(VARIABLE);
         for (Element element : variableElements) {
             boolean swimlane = Boolean.parseBoolean(element.attributeValue(SWIMLANE, "false"));
@@ -75,6 +82,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 processDefinition.setSwimlaneScriptingName(name, scriptingName);
             } else {
                 VariableDefinition variableDefinition = parse(processDefinition, element);
+                parseDefaultValue(processDefinition, variableDefinition);
                 processDefinition.addVariable(variableDefinition);
             }
         }
@@ -98,8 +106,8 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 formatLabel = localizationDAO.getLocalized(variableDefinition.getFormatClassName());
                 formatLabel += VariableFormatContainer.COMPONENT_PARAMETERS_START;
                 String[] componentClassNames = variableDefinition.getFormatComponentClassNames();
-                formatLabel += Joiner.on(VariableFormatContainer.COMPONENT_PARAMETERS_DELIM).join(
-                        Lists.transform(Lists.newArrayList(componentClassNames), new Function<String, String>() {
+                formatLabel += Joiner.on(VariableFormatContainer.COMPONENT_PARAMETERS_DELIM)
+                        .join(Lists.transform(Lists.newArrayList(componentClassNames), new Function<String, String>() {
 
                             @Override
                             public String apply(String input) {
@@ -114,20 +122,31 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         }
         variableDefinition.initComponentUserTypes(processDefinition);
         variableDefinition.setPublicAccess(Boolean.parseBoolean(element.attributeValue(PUBLIC, "false")));
-        String stringDefaultValue = element.attributeValue(DEFAULT_VALUE);
-        if (!Strings.isNullOrEmpty(stringDefaultValue)) {
-            try {
-                VariableFormat variableFormat = FormatCommons.create(variableDefinition);
-                Object value = variableFormat.parse(stringDefaultValue);
-                variableDefinition.setDefaultValue(value);
-            } catch (Exception e) {
-                LogFactory.getLog(getClass()).error("Unable to format default value '" + name + "' in " + processDefinition, e);
-            }
-        }
+        variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
         String storeTypeString = element.attributeValue(STORE_TYPE);
         if (!Strings.isNullOrEmpty(storeTypeString)) {
             variableDefinition.setStoreType(VariableStoreType.valueOf(storeTypeString.toUpperCase()));
         }
         return variableDefinition;
+    }
+
+    private void parseDefaultValue(ProcessDefinition processDefinition, VariableDefinition variableDefinition) {
+        String stringDefaultValue = (String) variableDefinition.getDefaultValue();
+        if (!Strings.isNullOrEmpty(stringDefaultValue)) {
+            try {
+                variableDefinition.setDefaultValue(null);
+                VariableFormat variableFormat = FormatCommons.create(variableDefinition);
+                Object value = variableFormat.parse(stringDefaultValue);
+                variableDefinition.setDefaultValue(value);
+            } catch (Exception e) {
+                if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
+                        || processDefinition.getDeployment().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
+                    throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue + "'", e);
+                } else {
+                    LogFactory.getLog(getClass()).error(
+                            "Unable to format default value '" + stringDefaultValue + "' in " + processDefinition + ":" + variableDefinition, e);
+                }
+            }
+        }
     }
 }

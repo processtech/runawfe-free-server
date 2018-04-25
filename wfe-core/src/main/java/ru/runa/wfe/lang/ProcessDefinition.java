@@ -25,6 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
@@ -39,11 +44,6 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class ProcessDefinition extends GraphElement implements IFileDataProvider {
     private static final long serialVersionUID = 1L;
@@ -476,8 +476,8 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     public SubprocessDefinition getEmbeddedSubprocessByIdNotNull(String id) {
         SubprocessDefinition subprocessDefinition = getEmbeddedSubprocesses().get(id);
         if (subprocessDefinition == null) {
-            throw new InternalApplicationException("Embedded subprocess definition not found by id '" + id + "' in " + this + ", all = "
-                    + getEmbeddedSubprocesses().keySet());
+            throw new InternalApplicationException(
+                    "Embedded subprocess definition not found by id '" + id + "' in " + this + ", all = " + getEmbeddedSubprocesses().keySet());
         }
         return subprocessDefinition;
     }
@@ -488,8 +488,8 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
                 return subprocessDefinition;
             }
         }
-        throw new InternalApplicationException("Embedded subprocess definition not found by name '" + name + "' in " + this + ", all = "
-                + getEmbeddedSubprocesses().values());
+        throw new InternalApplicationException(
+                "Embedded subprocess definition not found by name '" + name + "' in " + this + ", all = " + getEmbeddedSubprocesses().values());
     }
 
     public void mergeWithEmbeddedSubprocesses() {
