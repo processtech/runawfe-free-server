@@ -18,7 +18,6 @@
 package ru.runa.wfe.audit;
 
 import java.util.Date;
-
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
@@ -96,7 +95,7 @@ public class SystemLogClassPresentation extends ClassPresentation {
      *
      * @return Instance of {@link SystemLogClassPresentation}.
      */
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

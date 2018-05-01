@@ -17,11 +17,14 @@
  */
 package ru.runa.wfe.execution.logic;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -80,12 +83,6 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Process execution logic.
@@ -422,7 +419,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public List<WfProcess> getFailedProcesses(User user) {
         BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
-        int index = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
+        int index = batchPresentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_EXECUTION_STATUS);
         batchPresentation.getFilteredFields().put(index, new StringFilterCriteria(ExecutionStatus.FAILED.name()));
         List<Process> processes = getPersistentObjects(user, batchPresentation, ProcessPermission.READ, PROCESS_EXECUTION_CLASSES, false);
         return toWfProcesses(processes, null);

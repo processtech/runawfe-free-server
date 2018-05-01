@@ -17,11 +17,11 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
+import com.google.common.base.Strings;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DBSource.AccessType;
@@ -29,8 +29,6 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-
-import com.google.common.base.Strings;
 
 /**
  * Builds HQL query for {@link BatchPresentation}.
@@ -71,7 +69,7 @@ public class HibernateCompilerHQLBuider {
      * Map from HQL positional parameter name to parameter value. All place holders must be put into this map (maybe with null values). It will be
      * used later to replace positional parameters in SQL query.
      */
-    private final Map<String, QueryParameter> placeholders = new HashMap<String, QueryParameter>();
+    private final Map<String, QueryParameter> placeholders = new HashMap<>();
 
     /**
      * Creates component to build HQL query for {@link BatchPresentation}.
@@ -158,7 +156,7 @@ public class HibernateCompilerHQLBuider {
         if (parameters.getQueriedClass() != null) {
             query.append(parameters.getQueriedClass().getName());
         } else {
-            query.append(batchPresentation.getClassPresentation().getPresentationClass().getName());
+            query.append(batchPresentation.getType().getPresentationClass().getName());
         }
         query.append(" as ").append(ClassPresentation.classNameSQL);
     }
@@ -186,7 +184,7 @@ public class HibernateCompilerHQLBuider {
      * Builds where clause.
      */
     private void buildWhereClause() {
-        List<String> conditions = new LinkedList<String>();
+        List<String> conditions = new LinkedList<>();
         conditions.addAll(addClassPresentationRestriction());
         conditions.addAll(addJoinFieldRestrictions());
         conditions.addAll(addOwners());
@@ -205,8 +203,8 @@ public class HibernateCompilerHQLBuider {
      * @return List of string, represents expressions.
      */
     private List<String> addClassPresentationRestriction() {
-        List<String> result = new LinkedList<String>();
-        String restrictions = batchPresentation.getClassPresentation().getRestrictions();
+        List<String> result = new LinkedList<>();
+        String restrictions = batchPresentation.getType().getRestrictions();
         if (!Strings.isNullOrEmpty(restrictions)) {
             result.add(restrictions);
         }
@@ -219,7 +217,7 @@ public class HibernateCompilerHQLBuider {
      * @return List of string, represents expressions.
      */
     private List<String> addJoinFieldRestrictions() {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         for (String alias : aliasMapping.getAliases()) {
             if (alias.equals(ClassPresentation.classNameSQL)) {
                 continue;
@@ -237,8 +235,8 @@ public class HibernateCompilerHQLBuider {
                 if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
                     String propertyDBPath = field.displayName.substring(ClassPresentation.removable_prefix.length(),
                             field.displayName.indexOf(':', ClassPresentation.removable_prefix.length()));
-                    joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:")
-                            .append("removableUserValue" + field.fieldIdx).append(")");
+                    joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:").append("removableUserValue")
+                            .append(field.fieldIdx).append(")");
                     placeholders.put("removableUserValue" + field.fieldIdx, new QueryParameter("removableUserValue" + field.fieldIdx,
                             field.displayName.substring(field.displayName.lastIndexOf(':') + 1)));
                 }
@@ -256,7 +254,7 @@ public class HibernateCompilerHQLBuider {
      * @return List of string, represents expressions.
      */
     private List<String> addOwners() {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         if (!parameters.hasOwners()) {
             return result;
         }
@@ -273,7 +271,7 @@ public class HibernateCompilerHQLBuider {
      * @return List of string, represents expressions.
      */
     private List<String> addFilters() {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         Map<Integer, FilterCriteria> fieldsToFilter = batchPresentation.getFilteredFields();
         for (Map.Entry<Integer, FilterCriteria> entry : fieldsToFilter.entrySet()) {
             FieldDescriptor field = batchPresentation.getAllFields()[entry.getKey()];
@@ -311,7 +309,7 @@ public class HibernateCompilerHQLBuider {
      * @return List of string, represents expressions.
      */
     private List<String> addSecureCheck() {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         if (parameters.getExecutorIdsToCheckPermission() != null) {
             result.add("(instance.id in (select pm.identifiableId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.type in (:securedTypes) and pm.mask=:securedPermission))");
             placeholders.put("securedOwnersIds", null);
@@ -327,7 +325,7 @@ public class HibernateCompilerHQLBuider {
      * @return List of string, represents expressions.
      */
     private List<String> addIdRestrictions() {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         if (parameters.getIdRestriction() == null) {
             return result;
         }

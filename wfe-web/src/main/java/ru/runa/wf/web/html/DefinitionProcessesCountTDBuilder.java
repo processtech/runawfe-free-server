@@ -29,9 +29,9 @@ public class DefinitionProcessesCountTDBuilder extends BaseTDBuilder {
     public String getValue(Object object, Env env) {
         WfDefinition definition = (WfDefinition) object;
         BatchPresentation presentation = BatchPresentationFactory.PROCESSES.createDefault();
-        int definitionNameFieldIndex = presentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
-        int definitionVersionFieldIndex = presentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.DEFINITION_VERSION);
-        int processEndDateFieldIndex = presentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
+        int definitionNameFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
+        int definitionVersionFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_VERSION);
+        int processEndDateFieldIndex = presentation.getType().getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
         presentation.getFilteredFields().put(definitionNameFieldIndex, new StringFilterCriteria(definition.getName()));
         presentation.getFilteredFields().put(definitionVersionFieldIndex, new LongFilterCriteria(definition.getVersion()));
         int allCount = Delegates.getExecutionService().getProcessesCount(env.getUser(), presentation);

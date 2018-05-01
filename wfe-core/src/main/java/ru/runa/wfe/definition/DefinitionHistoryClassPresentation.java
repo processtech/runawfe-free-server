@@ -18,7 +18,6 @@
 package ru.runa.wfe.definition;
 
 import java.util.Date;
-
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -69,7 +68,7 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                                 FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTDBuilder", new Object[] {}) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

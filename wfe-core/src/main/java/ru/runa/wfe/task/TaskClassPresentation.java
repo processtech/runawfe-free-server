@@ -21,7 +21,6 @@
 package ru.runa.wfe.task;
 
 import java.util.Date;
-
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
@@ -78,7 +77,7 @@ public class TaskClassPresentation extends ClassPresentation {
 
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

@@ -44,7 +44,7 @@ public class GroupClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "description" }) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

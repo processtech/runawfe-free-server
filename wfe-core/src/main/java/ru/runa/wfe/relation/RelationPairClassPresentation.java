@@ -41,7 +41,7 @@ public class RelationPairClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.af.web.html.RelationToTDBuilder", null) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

@@ -18,7 +18,6 @@
 package ru.runa.wfe.definition;
 
 import java.util.Date;
-
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
@@ -71,7 +70,7 @@ public class DefinitionClassPresentation extends ClassPresentation {
                         .setVisible(false) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

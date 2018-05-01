@@ -21,7 +21,6 @@
 package ru.runa.wfe.task;
 
 import java.util.Date;
-
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
@@ -79,7 +78,7 @@ public class TaskObservableClassPresentation extends ClassPresentation {
                         FieldFilterMode.APPLICATION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 

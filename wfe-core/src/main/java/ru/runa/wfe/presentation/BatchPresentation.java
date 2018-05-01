@@ -410,14 +410,6 @@ public class BatchPresentation implements Cloneable, Serializable {
         storage = null;
     }
 
-    /**
-     * {@link ClassPresentation}, refers by this {@link BatchPresentation}.
-     */
-    @Transient
-    public ClassPresentation getClassPresentation() {
-        return ClassPresentations.getClassPresentation(type);
-    }
-
     @Override
     public int hashCode() {
         return Objects.hashCode(type, getName(), getCategory());

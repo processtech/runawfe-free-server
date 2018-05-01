@@ -19,12 +19,10 @@ package ru.runa.wfe.presentation.hibernate;
 
 import java.util.List;
 import java.util.Map;
-
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 
@@ -79,7 +77,7 @@ public class HibernateCompilerQueryBuilder {
             return session.createSQLQuery(sqlRequest).setResultTransformer(CountIdResultTransformer.INSTANCE);
         } else {
             SQLQuery query = session.createSQLQuery(sqlRequest);
-            query.addEntity(batchPresentation.getClassPresentation().getPresentationClass());
+            query.addEntity(batchPresentation.getType().getPresentationClass());
             return query;
         }
     }

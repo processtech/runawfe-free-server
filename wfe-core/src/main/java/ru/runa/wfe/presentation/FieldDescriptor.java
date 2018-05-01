@@ -17,18 +17,15 @@
  */
 package ru.runa.wfe.presentation;
 
+import com.google.common.base.Objects;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-
-import com.google.common.base.Objects;
 
 /**
  * Description for field, available via {@link ClassPresentation}. Contains almost all aspects of field behavior.

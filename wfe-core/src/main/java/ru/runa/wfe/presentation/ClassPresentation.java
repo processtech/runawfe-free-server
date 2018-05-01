@@ -17,10 +17,6 @@
  */
 package ru.runa.wfe.presentation;
 
-import com.google.common.base.Objects;
-
-import ru.runa.wfe.InternalApplicationException;
-
 /**
  * Presentation class, contains information about persistent class and object properties, what can be used in batch presentation.
  */
@@ -109,15 +105,6 @@ public class ClassPresentation {
         return fields;
     }
 
-    public int getFieldIndex(String name) {
-        for (int i = 0; i < fields.length; i++) {
-            if (Objects.equal(name, fields[i].displayName)) {
-                return i;
-            }
-        }
-        throw new InternalApplicationException("Field '" + name + "' is not found in " + this);
-    }
-
     /**
      * @return Flag, equals true, if paging is enabled for persistent class loading; false otherwise.
      */
@@ -127,13 +114,7 @@ public class ClassPresentation {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        return getClass() == obj.getClass();
+        return this == obj || obj != null && getClass() == obj.getClass();
     }
 
     @Override

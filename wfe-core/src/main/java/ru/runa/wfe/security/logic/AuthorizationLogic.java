@@ -17,9 +17,9 @@
  */
 package ru.runa.wfe.security.logic;
 
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
-
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -29,8 +29,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Created on 14.03.2005
@@ -104,7 +102,7 @@ public class AuthorizationLogic extends CommonLogic {
         if (hasPermission) {
             List<Executor> executors = compiler.getBatch();
             for (Executor privelegedExecutor : permissionDAO.getPrivilegedExecutors(identifiable.getSecuredObjectType())) {
-                if (batchPresentation.getClassPresentation().getPresentationClass().isInstance(privelegedExecutor)
+                if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
                         && isPermissionAllowed(user, privelegedExecutor, Permission.READ)) {
                     executors.add(0, privelegedExecutor);
                 }

@@ -49,7 +49,7 @@ public class ExecutorClassPresentation extends ClassPresentation {
                         "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "class" }).setShowable(false) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

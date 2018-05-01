@@ -37,8 +37,8 @@ public class BatchPresentationUtils {
             Permission permission) {
         List<Executor> executorsWithPermission = Delegates.getAuthorizationService().getPersistentObjects(user, batchPresentation, Executor.class,
                 permission, ACTOR_GROUP_CLASSESS, false);
-        for (int i = 0; i < executors.size(); i++) {
-            if (executorsWithPermission.contains(executors.get(i))) {
+        for (Executor e : executors) {
+            if (executorsWithPermission.contains(e)) {
                 return true;
             }
         }

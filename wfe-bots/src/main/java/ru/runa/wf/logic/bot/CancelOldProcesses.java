@@ -26,6 +26,7 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.filter.DateFilterCriteria;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -50,7 +51,7 @@ public class CancelOldProcesses extends TaskHandlerBase {
         long timeout = variableProvider.getValueNotNull(long.class, "timeout");
         lastDate.setTime(System.currentTimeMillis() - timeout * 3600 * 1000);
         BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
-        int endDateFieldIndex = ProcessClassPresentation.getInstance().getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
+        int endDateFieldIndex = ClassPresentationType.PROCESS.getFieldIndex(ProcessClassPresentation.PROCESS_END_DATE);
         batchPresentation.getFilteredFields().put(endDateFieldIndex, new DateFilterCriteria());
         List<WfProcess> processes = executionService.getProcesses(user, batchPresentation);
         for (WfProcess process : processes) {
