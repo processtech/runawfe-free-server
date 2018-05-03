@@ -48,7 +48,10 @@ public class PermissionsDataFileBuilder implements DataFileBuilder {
                 element.addAttribute("executor", executor.getName());
                 for (Permission permission : permissions) {
                     Element permissionElement = element.addElement("permission", XmlUtils.RUNA_NAMESPACE);
-                    permissionElement.addAttribute("name", permission.getName());
+                    // TODO This is temporary hack, until rm659 & rm660 are done; then replace this line with commented out next one.
+                    //      See also related TO_DO in Permission.valueOf().
+                    permissionElement.addAttribute("name", "permission." + permission.getName().toLowerCase());
+                    //permissionElement.addAttribute("name", permission.getName());
                 }
             }
         }

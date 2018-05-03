@@ -73,8 +73,8 @@ public final class Permission implements Serializable {
         }
         if (result == null) {
             // Accept "permission.xxx" in addition to "XXX".
-            // TODO This is temporary hack, will do until we start renaiming secured object types and permissions. May stay for a while,
-            //      because script execuion infrastructure requires deep refactoring before LegacyPermissions can be used by it.
+            // TODO This is temporary hack, until rm659 & rm660 are done.
+            //      See also related TO_DO in PermissionsDataFileBuilder.build().
             if (name != null && name.startsWith("permission.")) {
                 result = instancesByName.get(name.substring(11).toUpperCase());
             }
