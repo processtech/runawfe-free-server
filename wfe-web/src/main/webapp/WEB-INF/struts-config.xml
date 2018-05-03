@@ -241,8 +241,8 @@
 		<action path="/deleteSubstitutionCriterias"
 			type="ru.runa.af.web.action.DeleteSubstitutionCriteriasAction" name="substitutionCriteriasForm"
 			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_system.do" redirect="false" />
-			<forward name="failure" path="/manage_system.do" redirect="false" />
+			<forward name="success" path="/manage_substitution_criteria.do" redirect="true" />
+			<forward name="failure" path="/manage_substitution_criteria.do" redirect="true" />
 		</action>
 		<action path="/startProcess" type="ru.runa.wf.web.action.StartProcessAction"
 			name="startProcessForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
@@ -287,8 +287,8 @@
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
 		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
-			<forward name="success" path="/manage_system.do" redirect="true" />
-			<forward name="failure" path="/manage_system.do" redirect="true" />
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
 		</action>
 		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
 			name="idForm" scope="request">
@@ -758,7 +758,7 @@
 		</action>
 		<action path="/admin_scripts" type="ru.runa.common.web.action.AdminkitScriptsAction"
 			name="adminScriptForm" scope="request" validate="false">
-			<forward name="success" path="/manage_system.do" redirect="false" />
+			<forward name="success" path="/manage_scripts.do" redirect="false" />
 		</action>
 		<action path="/getSessionFile"
 			type="ru.runa.common.web.action.GetSessionFileAction"
@@ -973,8 +973,8 @@
 		</action>
 		<action path="/importDataFileAction" type="ru.runa.wf.web.action.ImportDataFileAction"
 			name="fileForm" scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_system.do" redirect="true" />
-			<forward name="failure" path="/manage_system.do" redirect="true" />
+			<forward name="success" path="/manage_datafile.do" redirect="true" />
+			<forward name="failure" path="/manage_datafile.do" redirect="true" />
 		</action>
 		
 		<action path="/update_process_variables" type="org.apache.struts.actions.ForwardAction"

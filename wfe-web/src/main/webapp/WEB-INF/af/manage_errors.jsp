@@ -8,21 +8,9 @@
 
 <tiles:put name="head" type="string">
 	<script>
-	var storageVisible = true;
 	var systemErrorsVisible = true;
 	var processErrorsVisible = true;
 	$(document).ready(function() {
-		$("#storageButton").click(function() {
-			if (storageVisible) {
-				$("#storageContentDiv").hide();
-				$("#storageImg").attr("src", "/wfe/images/view_setup_hidden.gif");
-				storageVisible = false;
-			} else {
-				$("#storageContentDiv").show();
-				$("#storageImg").attr("src", "/wfe/images/view_setup_visible.gif");
-				storageVisible = true;
-			}
-		});
 		$("#systemErrorsButton").click(function() {
 			if (systemErrorsVisible) {
 				$("#systemErrorsContentDiv").hide();
@@ -45,11 +33,6 @@
 				processErrorsVisible = true;
 			}
 		});
-		$("a[fileName]").each(function() {
-			$(this).click(function() {
-				editScript($(this).attr("fileName"), "<bean:message key="button.save" />", "<bean:message key="button.execute" />", "<bean:message key="button.cancel" />");
-			});
-		});
 		$("div.processErrorsFilter input").change(function() {
 			var typeLabel = $(this).closest("label").text();
 			var tds = $("#processErrorsContentDiv table tr").find("td:eq(0)").filter(":contains(" + typeLabel + ")");
@@ -61,8 +44,6 @@
 		});
 	});
 	</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/xmleditor/codemirror.js?"+Version.getHash() %>' />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/scripteditor.js?"+Version.getHash() %>' />">c=0;</script>
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/errorviewer.js?"+Version.getHash() %>' />">c=0;</script>
 </tiles:put>
 
