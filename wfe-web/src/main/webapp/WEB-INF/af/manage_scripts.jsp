@@ -67,33 +67,41 @@
 </tiles:put>
 
 <tiles:put name="body" type="string" >
-<wf:updatePermissionsOnSystemForm>
-	<table width="100%">
-	<tr>
-		<td align="left">
-			<wf:grantLoginPermissionOnSystemLink  />
-		</td>
-		<td align="right">
-			<wf:showSystemLogLink href='<%= "/show_system_logs.do" %>'/>
-		</td>
-	</tr>
-	</table>
-</wf:updatePermissionsOnSystemForm>
-
-<table class='box'><tr><th class='box'><bean:message key="title.monitoring" /></th></tr>
-	<tr>
-		<td class='box'>
+<table class='box'><tr><th class='box'><bean:message key="adminkit.scripts" /></th></tr>
+<tr><td class='box'>
+	<div style="position: relative;">
+		<div style="position: absolute; right: 5px; top: 5px;">
+			<table><tbody><tr>
+				<td class="hideableblock">
+					<a id="storageButton" href="javascript:void(0)" class="link">
+						<img id="storageImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
+						&nbsp;<bean:message key="adminkit.savedscripts" />
+					</a>
+				</td>
+			</tr></tbody></table>
+		</div>
+		<div>
 			<table>
 				<tr>
+					<td class='hideableblock'>
+						<a href="javascript:void(0)" class='link' onclick='javascript:uploadScript("<bean:message key="button.save" />", "<bean:message key="button.execute" />", "<bean:message key="button.cancel" />");'><bean:message key="button.upload" /></a>
+						&nbsp;&nbsp;&nbsp;
+						<a href="javascript:void(0)" class='link' onclick='javascript:editScript("", "<bean:message key="button.save" />", "<bean:message key="button.execute" />", "<bean:message key="button.cancel" />");'><bean:message key="button.create" /></a>
+					</td>
+				</tr>
+				<tr>
 					<td>
-						<a href="/wfe/monitoring" class="link" target="javamelody">JavaMelody</a>
 					</td>
 				</tr>
 			</table>
-		</td>
-	</tr>
-</table>
+		</div>
+		<div id="storageContentDiv">
+			<wf:viewAdminkitScripts />
+		</div>
+	</div>
+</td></tr></table>
 </tiles:put>
 
 <tiles:put name="messages" value="../common/messages.jsp" />
+
 </tiles:insert>

@@ -67,32 +67,22 @@
 </tiles:put>
 
 <tiles:put name="body" type="string" >
-<wf:updatePermissionsOnSystemForm>
+<%
+	String substitutionCriteriaIds = "";
+	if (request.getParameter("substitutionCriteriaIds") != null) {
+	    substitutionCriteriaIds = request.getParameter("substitutionCriteriaIds");
+	}
+%>
+
+<wf:listSubstitutionCriteriasForm buttonAlignment="right" substitutionCriteriaIds="<%= substitutionCriteriaIds %>">
 	<table width="100%">
 	<tr>
 		<td align="left">
-			<wf:grantLoginPermissionOnSystemLink  />
-		</td>
-		<td align="right">
-			<wf:showSystemLogLink href='<%= "/show_system_logs.do" %>'/>
+			<wf:addSubstitutionCriteriaLink  />
 		</td>
 	</tr>
 	</table>
-</wf:updatePermissionsOnSystemForm>
-
-<table class='box'><tr><th class='box'><bean:message key="title.monitoring" /></th></tr>
-	<tr>
-		<td class='box'>
-			<table>
-				<tr>
-					<td>
-						<a href="/wfe/monitoring" class="link" target="javamelody">JavaMelody</a>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>
+</wf:listSubstitutionCriteriasForm>
 </tiles:put>
 
 <tiles:put name="messages" value="../common/messages.jsp" />

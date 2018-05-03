@@ -71,6 +71,10 @@
 		<forward name="manage_relations"
 			path="/manage_relations.do?tabForwardName=manage_relations" />
 		<forward name="manage_system" path="/manage_system.do?tabForwardName=manage_system" />
+		<forward name="manage_scripts" path="/manage_scripts.do?tabForwardName=manage_scripts" />
+		<forward name="manage_errors" path="/manage_errors.do?tabForwardName=manage_errors" />
+		<forward name="manage_substitution_criteria" path="/manage_substitution_criteria.do?tabForwardName=manage_substitution_criteria" />
+		<forward name="manage_datafile" path="/manage_datafile.do?tabForwardName=manage_datafile" />
 		<forward name="manage_settings"
 			path="/manage_settings.do?tabForwardName=manage_settings" />
 		<forward name="version" path="/version.do" />
@@ -826,6 +830,18 @@
 
 		<action path="/manage_system" type="ru.runa.af.web.action.ManageSystemAction"
 			parameter="/WEB-INF/af/manage_system.jsp" />
+
+		<action path="/manage_scripts" type="ru.runa.af.web.action.ManageSystemAction"
+				parameter="/WEB-INF/af/manage_scripts.jsp" />
+
+		<action path="/manage_errors" type="ru.runa.af.web.action.ManageSystemAction"
+				parameter="/WEB-INF/af/manage_errors.jsp" />
+
+		<action path="/manage_substitution_criteria" type="ru.runa.af.web.action.ManageSystemAction"
+				parameter="/WEB-INF/af/manage_substitution_criteria.jsp" />
+
+		<action path="/manage_datafile" type="ru.runa.af.web.action.ManageSystemAction"
+				parameter="/WEB-INF/af/manage_datafile.jsp" />
 
 		<action path="/grant_login_permission_on_system" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/grant_login_permission_on_system.jsp" />

@@ -67,31 +67,34 @@
 </tiles:put>
 
 <tiles:put name="body" type="string" >
-<wf:updatePermissionsOnSystemForm>
-	<table width="100%">
-	<tr>
-		<td align="left">
-			<wf:grantLoginPermissionOnSystemLink  />
-		</td>
-		<td align="right">
-			<wf:showSystemLogLink href='<%= "/show_system_logs.do" %>'/>
-		</td>
-	</tr>
-	</table>
-</wf:updatePermissionsOnSystemForm>
-
-<table class='box'><tr><th class='box'><bean:message key="title.monitoring" /></th></tr>
-	<tr>
-		<td class='box'>
-			<table>
-				<tr>
-					<td>
-						<a href="/wfe/monitoring" class="link" target="javamelody">JavaMelody</a>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
+<table class='box'><tr><th class='box'><bean:message key="title.errors" /></th></tr>
+<tr><td class='box'>
+	<div>
+		<a id="systemErrorsButton" href="javascript:void(0)" class="link">
+			<img id="systemErrorsImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
+			&nbsp;<bean:message key="errors.system" />
+		</a>
+	</div>
+	<div id="systemErrorsContentDiv"> 
+		<wf:viewSystemErrors />
+	</div>
+	<br />
+	<div>
+		<a id="processErrorsButton" href="javascript:void(0)" class="link">
+			<img id="processErrorsImg" class="hideableblock" src="/wfe/images/view_setup_visible.gif">
+			&nbsp;<bean:message key="errors.processes" />
+		</a>
+		<a href="/wfe/activateFailedProcesses.do" style="float: right;">
+			<bean:message key="failed.processes.activate" />
+		</a>
+	</div>
+	<div id="processErrorsContentDiv">
+		<wf:viewProcessErrors />
+	</div>
+</td></tr>
+<tr><td align='right' class='box'>
+	<input value='<bean:message key="button.support" />' class='button' onclick="showSupportFiles();" type='button'>
+</td></tr>
 </table>
 </tiles:put>
 
