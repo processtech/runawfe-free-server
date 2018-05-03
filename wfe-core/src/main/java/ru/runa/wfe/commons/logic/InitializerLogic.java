@@ -173,8 +173,8 @@ public class InitializerLogic {
         patches.add(EmptyPatch.class);
         patches.add(AddTokenMessageSelectorPatch.class);
         patches.add(AddSubprocessBindingDatePatch.class);
-        patches.add(RefactorPermissionsStep1.class);
         patches.add(AddTransactionalBotSupport.class);
+        patches.add(RefactorPermissionsStep1.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 

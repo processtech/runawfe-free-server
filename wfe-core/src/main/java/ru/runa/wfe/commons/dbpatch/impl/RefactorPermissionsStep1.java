@@ -104,6 +104,14 @@ public class RefactorPermissionsStep1 extends DBPatch {
             new PMatch("RELATION", 1 /*Permission.UPDATE_PERMISSIONS*/, "UPDATE_PERMISSIONS"),
             new PMatch("RELATION", 2 /*RelationPermission.UPDATE*/, "UPDATE_RELATION"),
 
+            new PMatch("RELATIONGROUP", 0 /*Permission.READ*/, "READ"),
+            new PMatch("RELATIONGROUP", 1 /*Permission.UPDATE_PERMISSIONS*/, "UPDATE_PERMISSIONS"),
+            new PMatch("RELATIONGROUP", 2 /*RelationPermission.UPDATE*/, "UPDATE_RELATION"),
+
+            new PMatch("RELATIONPAIR", 0 /*Permission.READ*/, "READ"),
+            new PMatch("RELATIONPAIR", 1 /*Permission.UPDATE_PERMISSIONS*/, "UPDATE_PERMISSIONS"),
+            new PMatch("RELATIONPAIR", 2 /*RelationPermission.UPDATE*/, "UPDATE_RELATION"),
+
             new PMatch("REPORT", 0 /*Permission.READ*/, "READ"),
             new PMatch("REPORT", 1 /*Permission.UPDATE_PERMISSIONS*/, "UPDATE_PERMISSIONS"),
             new PMatch("REPORT", 2 /*ReportPermission.DEPLOY*/, "DEPLOY_REPORT"),
@@ -150,15 +158,23 @@ public class RefactorPermissionsStep1 extends DBPatch {
                 q.executeUpdate();
             }
 
-            Object i = session
-                    .createSQLQuery(dialect.getLimitString(
-                            "select distinct type_id from permission_mapping__old where object_type is null order by type_id",
-                            0, 1
-                    ))
-                    .setInteger(0, 1)  // limit
-                    .uniqueResult();
-            if (i != null) {
-                throw new Exception("Failed to convert type_id = " + i);
+            @SuppressWarnings("unchecked")
+            List<Object> rows = session
+                    .createSQLQuery("select distinct type_id from permission_mapping__old where object_type is null order by type_id")
+                    .list();
+            if (!rows.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Failed to convert type_id: ");
+                boolean first = true;
+                for (Object typeId : rows) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        sb.append(", ");
+                    }
+                    sb.append(typeId);
+                }
+                throw new Exception(sb.toString());
             }
         }
 
@@ -172,15 +188,23 @@ public class RefactorPermissionsStep1 extends DBPatch {
                 q.executeUpdate();
             }
 
-            Object i = session
-                    .createSQLQuery(dialect.getLimitString(
-                            "select distinct mask from permission_mapping__old where permission is null order by mask",
-                            0, 1
-                    ))
-                    .setInteger(0, 1)  // limit
-                    .uniqueResult();
-            if (i != null) {
-                throw new Exception("Failed to convert mask = " + i);
+            @SuppressWarnings("unchecked")
+            List<Object[]> rows = session
+                    .createSQLQuery("select distinct object_type, mask from permission_mapping__old where permission is null order by object_type, mask")
+                    .list();
+            if (!rows.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Failed to convert (object_type,mask): ");
+                boolean first = true;
+                for (Object[] row : rows) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        sb.append(", ");
+                    }
+                    sb.append("(").append(row[0]).append(",").append(row[1]).append(")");
+                }
+                throw new Exception(sb.toString());
             }
         }
 
@@ -192,6 +216,12 @@ public class RefactorPermissionsStep1 extends DBPatch {
                     // Bugfix: https://rm.processtech.ru/issues/637#note-15
                     idName = "id, ";
                     idValue = "seq_permission_mapping.nextval, ";
+                    break;
+                case POSTGRESQL:
+                    // TODO Should we generate PK field with "default nextval('sequence_name')" instead?
+                    //      Or even use BIGSERIAL instead of manual sequence creation?
+                    idName = "id, ";
+                    idValue = "nextval('seq_permission_mapping'), ";
                     break;
                 default:
                     idName = "";
