@@ -22,6 +22,7 @@ import java.util.List;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotDoesNotExistException;
 import ru.runa.wfe.bot.BotStation;
+import ru.runa.wfe.bot.QBot;
 import ru.runa.wfe.commons.dao.GenericDAO;
 
 /**
@@ -72,13 +73,9 @@ public class BotDAO extends GenericDAO<Bot> {
 
     /**
      * Load all {@linkplain Bot}'s defined for {@linkplain BotStation}.
-     * 
-     * @param botStation
-     *            {@linkplain BotStation} to load {@linkplain Bot}'s.
-     * @return {@linkplain Bot}'s, defined for {@linkplain BotStation}.
      */
-    public List<Bot> getAll(final BotStation botStation) {
-        return (List<Bot>) getHibernateTemplate().find("from Bot where botStation=?", botStation);
+    public List<Bot> getAll(Long botStationId) {
+        QBot b = QBot.bot;
+        return queryFactory.selectFrom(b).where(b.botStation.id.eq(botStationId)).fetch();
     }
-
 }

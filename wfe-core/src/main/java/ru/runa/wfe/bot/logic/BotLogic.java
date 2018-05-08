@@ -111,8 +111,7 @@ public class BotLogic extends CommonLogic {
 
     public List<Bot> getBots(User user, Long botStationId) {
         checkReadPermissionOnBotStations(user);
-        BotStation botStation = getBotStationNotNull(botStationId);
-        return botDAO.getAll(botStation);
+        return botDAO.getAll(botStationId);
     }
 
     public Bot getBotNotNull(User user, Long id) {
