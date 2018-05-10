@@ -164,7 +164,7 @@ public class TabHeaderTag extends TagSupport {
         MenuForward(StrutsMessage menuMessage, SecuredObject menuSecuredObject, boolean forAdminsOnly) {
             this.menuMessage = menuMessage;
             this.menuSecuredObject = menuSecuredObject;
-            this.forAdminsOnly = true;
+            this.forAdminsOnly = forAdminsOnly;
         }
 
         MenuForward(StrutsMessage menuMessage, SecuredObject menuSecuredObject) {
