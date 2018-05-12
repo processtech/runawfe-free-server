@@ -610,7 +610,6 @@ public class DocxUtils {
                 ctTcPr.setShd(templateCell.getCTTc().getTcPr().getShd());
             }
         }
-        System.out.println("test");
     }
 
     private static void copyBorderStyles(CTBorder border, CTBorder templateBorder) {
