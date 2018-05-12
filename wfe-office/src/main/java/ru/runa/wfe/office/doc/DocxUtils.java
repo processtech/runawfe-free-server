@@ -28,10 +28,12 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.xmlbeans.XmlCursor;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBorder;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHighlight;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STHighlightColor;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
@@ -119,22 +121,18 @@ public class DocxUtils {
         }
     }
 
-    public static void setCellText(XWPFTableCell cell, String text, XWPFTableCell cellTemplate) {
-        if (cellTemplate != null) {
-            if (cell.getCTTc().getTcPr() != null && cellTemplate.getCTTc().getTcPr() != null) {
-                cell.getCTTc().getTcPr().setTcBorders(cellTemplate.getCTTc().getTcPr().getTcBorders());
-            } else if (cellTemplate.getCTTc().getTcPr() != null) {
-                cell.getCTTc().addNewTcPr().setTcBorders(cellTemplate.getCTTc().getTcPr().getTcBorders());
-            }
+    public static void setCellText(XWPFTableCell cell, String text, XWPFTableCell templateCell) {
+        if (templateCell != null) {
+            copyCellStyles(cell, templateCell);
         }
-        if (cellTemplate != null && cellTemplate.getParagraphs().size() > 0 && cellTemplate.getParagraphs().get(0).getRuns().size() > 0) {
+        if (templateCell != null && templateCell.getParagraphs().size() > 0 && templateCell.getParagraphs().get(0).getRuns().size() > 0) {
             XWPFParagraph paragraph0;
             if (cell.getParagraphs().size() > 0) {
                 paragraph0 = cell.getParagraphs().get(0);
             } else {
                 paragraph0 = cell.addParagraph();
             }
-            XWPFParagraph templateParagraph = cellTemplate.getParagraphs().get(0);
+            XWPFParagraph templateParagraph = templateCell.getParagraphs().get(0);
             copyStyles(paragraph0, templateParagraph);
             XWPFRun run0;
             if (paragraph0.getRuns().size() > 0) {
@@ -142,7 +140,7 @@ public class DocxUtils {
             } else {
                 run0 = paragraph0.createRun();
             }
-            copyStyles(run0, cellTemplate.getParagraphs().get(0).getRuns().get(0));
+            copyStyles(run0, templateCell.getParagraphs().get(0).getRuns().get(0));
             run0.setText(text != null ? text : "", 0);
         } else {
             cell.setText(text != null ? text : "");
@@ -456,15 +454,19 @@ public class DocxUtils {
         }
         if (templateParagraph.getBorderBetween() != Borders.NONE) {
             paragraph.setBorderBetween(templateParagraph.getBorderBetween());
+            copyBorderStyles(paragraph.getCTP().getPPr().getPBdr().getBetween(), templateParagraph.getCTP().getPPr().getPBdr().getBetween());
         }
         if (templateParagraph.getBorderBottom() != Borders.NONE) {
             paragraph.setBorderBottom(templateParagraph.getBorderBottom());
+            copyBorderStyles(paragraph.getCTP().getPPr().getPBdr().getBottom(), templateParagraph.getCTP().getPPr().getPBdr().getBottom());
         }
         if (templateParagraph.getBorderLeft() != Borders.NONE) {
             paragraph.setBorderLeft(templateParagraph.getBorderLeft());
+            copyBorderStyles(paragraph.getCTP().getPPr().getPBdr().getLeft(), templateParagraph.getCTP().getPPr().getPBdr().getLeft());
         }
         if (templateParagraph.getBorderRight() != Borders.NONE) {
             paragraph.setBorderRight(templateParagraph.getBorderRight());
+            copyBorderStyles(paragraph.getCTP().getPPr().getPBdr().getRight(), templateParagraph.getCTP().getPPr().getPBdr().getRight());
         }
         if (templateParagraph.getBorderTop() != Borders.NONE) {
             paragraph.setBorderTop(templateParagraph.getBorderTop());
@@ -592,6 +594,49 @@ public class DocxUtils {
                 }
                 ctHighlight.setVal(highlight);
             }
+        }
+    }
+
+    private static void copyCellStyles(XWPFTableCell cell, XWPFTableCell templateCell) {
+        if (templateCell.getCTTc().getTcPr() != null) {
+            CTTcPr ctTcPr = cell.getCTTc().getTcPr();
+            if (ctTcPr == null) {
+                ctTcPr = cell.getCTTc().addNewTcPr();
+            }
+            if (templateCell.getCTTc().getTcPr().isSetTcBorders()) {
+                ctTcPr.setTcBorders(templateCell.getCTTc().getTcPr().getTcBorders());
+            }
+            if (templateCell.getCTTc().getTcPr().isSetShd()) {
+                ctTcPr.setShd(templateCell.getCTTc().getTcPr().getShd());
+            }
+        }
+        System.out.println("test");
+    }
+
+    private static void copyBorderStyles(CTBorder border, CTBorder templateBorder) {
+        if (templateBorder.isSetColor()) {
+            border.setColor(templateBorder.getColor());
+        }
+        if (templateBorder.isSetFrame()) {
+            border.setFrame(templateBorder.getFrame());
+        }
+        if (templateBorder.isSetShadow()) {
+            border.setShadow(templateBorder.getShadow());
+        }
+        if (templateBorder.isSetSpace()) {
+            border.setSpace(templateBorder.getSpace());
+        }
+        if (templateBorder.isSetSz()) {
+            border.setSz(templateBorder.getSz());
+        }
+        if (templateBorder.isSetThemeColor()) {
+            border.setThemeColor(templateBorder.getThemeColor());
+        }
+        if (templateBorder.isSetThemeShade()) {
+            border.setThemeShade(templateBorder.getThemeShade());
+        }
+        if (templateBorder.isSetThemeTint()) {
+            border.setThemeTint(templateBorder.getThemeTint());
         }
     }
 
