@@ -98,7 +98,7 @@ public abstract class WFFormTag extends TitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return formButtonVisible;
     }
 
@@ -112,12 +112,12 @@ public abstract class WFFormTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
     }
 
     @Override
-    protected List<String> getFormButtonNames() {
+    protected List<String> getSubmitButtonNames() {
         return getTransitionNames();
     }
 

@@ -121,13 +121,13 @@ public class BuildReportFormTag extends SecuredObjectFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesReport.BUTTON_BUILD_REPORT.message(pageContext);
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override

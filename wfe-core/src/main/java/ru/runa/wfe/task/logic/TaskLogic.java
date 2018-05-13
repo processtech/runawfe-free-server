@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -232,14 +231,14 @@ public class TaskLogic extends WFCommonLogic {
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
         Process process = processDAO.getNotNull(processId);
-        checkPermissionAllowed(user, process, Permission.READ);
+        permissionDAO.checkAllowed(user, Permission.LIST, process);
         for (Task task : taskDAO.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
             List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
             for (Process subprocess : subprocesses) {
-                checkPermissionAllowed(user, subprocess, Permission.READ);
+                permissionDAO.checkAllowed(user, Permission.LIST, subprocess);
                 for (Task task : taskDAO.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }
@@ -275,7 +274,7 @@ public class TaskLogic extends WFCommonLogic {
             }
         }
         DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), taskId);
-        List<Permission> selfPermissions = Lists.newArrayList(Permission.READ, Permission.LIST_GROUP);
+        List<Permission> selfPermissions = Lists.newArrayList(Permission.LIST);
         if (executorDAO.isExecutorExist(delegationGroup.getName())) {
             delegationGroup = (DelegationGroup) executorDAO.getExecutor(delegationGroup.getName());
             Set<Executor> oldExecutors = executorDAO.getGroupChildren(delegationGroup);
@@ -284,7 +283,7 @@ public class TaskLogic extends WFCommonLogic {
             executorDAO.create(delegationGroup);
         }
         if (SystemProperties.setPermissionsToTemporaryGroups()) {
-            permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.list(delegationGroup), delegationGroup);
+            permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.listVisible(delegationGroup), delegationGroup);
             permissionDAO.setPermissions(delegationGroup, selfPermissions, delegationGroup);
         }
         executorDAO.addExecutorsToGroup(executors, delegationGroup);

@@ -50,7 +50,7 @@ public class AddBotStationTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesBot.BUTTON_ADD_BOT_STATION.message(pageContext);
     }
 

@@ -49,7 +49,7 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = -5024428545159087986L;
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 
@@ -80,8 +80,8 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override

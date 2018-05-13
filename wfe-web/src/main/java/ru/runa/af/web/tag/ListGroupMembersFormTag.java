@@ -18,9 +18,7 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveExecutorsFromGroupAction;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -38,19 +36,19 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
     private static final long serialVersionUID = -2400457393576894819L;
 
     @Override
-    protected Permission getPermission() {
-        return Permission.REMOVE_FROM_GROUP;
+    protected Permission getSubmitPermission() {
+        return Permission.UPDATE;  // TODO Was REMOVE_FROM_GROUP. What this permission is for in *List*GroupMembersFormTag?
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
     protected boolean isVisible() {
         return getExecutor() instanceof Group
-                && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.LIST_GROUP, SecuredObjectType.GROUP, getIdentifiableId());
+                && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, SecuredObjectType.GROUP, getIdentifiableId());
     }
 
     @Override
@@ -83,7 +81,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return Permission.READ;
+        return Permission.LIST;
     }
 
     @Override

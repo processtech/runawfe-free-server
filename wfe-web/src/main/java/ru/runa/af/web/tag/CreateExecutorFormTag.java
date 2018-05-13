@@ -65,7 +65,7 @@ public class CreateExecutorFormTag extends TitledFormTag {
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 

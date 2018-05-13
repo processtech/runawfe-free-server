@@ -79,12 +79,12 @@ public class UpdateSubstitutionCriteriaFormTag extends SecuredObjectFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
+    protected Permission getSubmitPermission() {
         return null;
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_SAVE.message(pageContext);
     }
 

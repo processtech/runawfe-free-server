@@ -40,9 +40,9 @@ public class ReportClassPresentation extends ClassPresentation {
     private ReportClassPresentation() {
         super(ReportDefinition.class, null, false, new FieldDescriptor[] {
                 new FieldDescriptor(NAME, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ReportDefinition.class, "name"), true, 1,
-                        BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, PropertyTdBuilder, new Object[] { Permission.READ, "name" }),
+                        BatchPresentationConsts.ASC, FieldFilterMode.DATABASE, PropertyTdBuilder, new Object[] { Permission.LIST, "name" }),
                 new FieldDescriptor(DESCRIPTION, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ReportDefinition.class,
-                        "description"), true, FieldFilterMode.DATABASE, PropertyTdBuilder, new Object[] { Permission.READ, "description" }),
+                        "description"), true, FieldFilterMode.DATABASE, PropertyTdBuilder, new Object[] { Permission.LIST, "description" }),
                 new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(ReportDefinition.class, "category"),
                         true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}) });
     }

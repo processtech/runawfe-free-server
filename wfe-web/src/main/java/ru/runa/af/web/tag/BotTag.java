@@ -1,11 +1,11 @@
 package ru.runa.af.web.tag;
 
+import com.google.common.base.Preconditions;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.UpdateBotAction;
 import ru.runa.af.web.form.BotForm;
 import ru.runa.af.web.html.BotTableBuilder;
@@ -13,11 +13,9 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.Bot;
-import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.base.Preconditions;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botTag")
 public class BotTag extends TitledFormTag {
@@ -56,7 +54,7 @@ public class BotTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
@@ -71,7 +69,7 @@ public class BotTag extends TitledFormTag {
     }
 
     @Override
-    public boolean isFormButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+    public boolean isSubmitButtonEnabled() {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
     }
 }

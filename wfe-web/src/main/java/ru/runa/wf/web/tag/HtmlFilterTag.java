@@ -46,7 +46,7 @@ public class HtmlFilterTag extends TitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 

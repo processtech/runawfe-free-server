@@ -1,18 +1,12 @@
 package ru.runa.wfe.commons.dao;
 
+import com.google.common.base.Preconditions;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.sql.SQLException;
 import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
-
-import com.google.common.base.Preconditions;
 
 /**
  * General DAO implementation (type-safe generic DAO pattern).
@@ -24,7 +18,7 @@ import com.google.common.base.Preconditions;
  *            entity class
  */
 @SuppressWarnings("unchecked")
-public abstract class GenericDAO<T extends Object> extends CommonDAO implements IGenericDAO<T> {
+public abstract class GenericDAO<T> extends CommonDAO implements IGenericDAO<T> {
     protected static final Log log = LogFactory.getLog(GenericDAO.class);
     private final Class<T> entityClass;
 
@@ -32,7 +26,13 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      * Constructor
      */
     public GenericDAO() {
-        Type t = getClass().getGenericSuperclass();
+        // Spring can create proxy between GenericDAO and its subclass; so search deeper for GenericDAO superclass.
+        Class c = getClass();
+        while (c.getSuperclass() != GenericDAO.class) {
+            c = c.getSuperclass();
+        }
+
+        Type t = c.getGenericSuperclass();
         ParameterizedType pt = (ParameterizedType) t;
         entityClass = (Class<T>) pt.getActualTypeArguments()[0];
     }
@@ -89,22 +89,16 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      * @return first entity from list or <code>null</code>
      */
     @Override
-    protected T findFirstOrNull(final String hql, final Object... parameters) {
-        List<T> list = getHibernateTemplate().executeFind(new HibernateCallback<List<T>>() {
+    protected T findFirstOrNull(String hql, Object... parameters) {
+        // TODO Duplicates superclass's implementation; the only difference is that T is method template parameter there.
+        //      Maybe this commented line will just work? Or Java will treat Object[] as Object (single arg)?
+//        return super.findFirstOrNull(hql, parameters);
 
-            @Override
-            public List<T> doInHibernate(Session session) throws HibernateException, SQLException {
-                Query query = session.createQuery(hql);
-                query.setMaxResults(1);
-                if (parameters != null) {
-                    for (int i = 0; i < parameters.length; i++) {
-                        query.setParameter(i, parameters[i]);
-                    }
-                }
-                return query.list();
-            }
-        });
-        return getFirstOrNull(list);
+        Query q = sessionFactory.getCurrentSession().createQuery(hql);
+        for (int i = 0; i < parameters.length; i++) {
+            q.setParameter(i, parameters[i]);
+        }
+        return (T)q.setMaxResults(1).uniqueResult();
     }
 
     /**
@@ -113,7 +107,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      * @return saved entity.
      */
     public T create(T entity) {
-        getHibernateTemplate().save(entity);
+        sessionFactory.getCurrentSession().save(entity);
         return entity;
     }
 
@@ -124,7 +118,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      *            detached entity
      */
     public T update(T entity) {
-        return getHibernateTemplate().merge(entity);
+        return (T)sessionFactory.getCurrentSession().merge(entity);
     }
 
     /**
@@ -132,7 +126,7 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      */
     public void flushPendingChanges() {
         // TODO flush?
-        getHibernateTemplate().flush();
+        sessionFactory.getCurrentSession().flush();
     }
 
     /**
@@ -158,7 +152,6 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      */
     public void delete(T entity) {
         Preconditions.checkNotNull(entity);
-        getHibernateTemplate().delete(entity);
+        sessionFactory.getCurrentSession().delete(entity);
     }
-
 }

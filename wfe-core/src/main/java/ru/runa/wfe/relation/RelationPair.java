@@ -29,13 +29,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.security.SecuredObjectBase;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -45,7 +42,7 @@ import ru.runa.wfe.user.Executor;
 @Entity
 @Table(name = "EXECUTOR_RELATION_PAIR")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class RelationPair extends SecuredObjectBase {
+public class RelationPair {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -93,13 +90,6 @@ public class RelationPair extends SecuredObjectBase {
         this.createDate = new Date();
     }
 
-    @Transient
-    @Override
-    public SecuredObjectType getSecuredObjectType() {
-        return SecuredObjectType.RELATIONPAIR;
-    }
-
-    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_EXECUTOR_RELATION", allocationSize = 1)

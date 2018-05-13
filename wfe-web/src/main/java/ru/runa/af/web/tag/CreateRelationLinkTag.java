@@ -23,8 +23,8 @@ import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "createRelationLink")
@@ -44,6 +44,6 @@ public class CreateRelationLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_RELATION, RelationsGroupSecure.INSTANCE);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
     }
 }

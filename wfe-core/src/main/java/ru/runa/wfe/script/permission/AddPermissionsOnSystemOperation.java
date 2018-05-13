@@ -1,9 +1,8 @@
 package ru.runa.wfe.script.permission;
 
 import javax.xml.bind.annotation.XmlType;
-
 import ru.runa.wfe.script.AdminScriptConstants;
-import ru.runa.wfe.security.ASystem;
+import ru.runa.wfe.security.SecuredSingleton;
 
 @XmlType(name = AddPermissionsOnSystemOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
 public class AddPermissionsOnSystemOperation extends ChangePermissionsOnSecuredObjectOperation {
@@ -11,6 +10,6 @@ public class AddPermissionsOnSystemOperation extends ChangePermissionsOnSecuredO
     public static final String SCRIPT_NAME = "addPermissionsOnSystem";
 
     public AddPermissionsOnSystemOperation() {
-        super(ASystem.INSTANCE, ChangePermissionType.ADD);
+        super(SecuredSingleton.SYSTEM, ChangePermissionType.ADD);
     }
 }

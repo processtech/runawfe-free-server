@@ -6,7 +6,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.StartPeriodicBotsInvocationAction;
 import ru.runa.af.web.action.StopPeriodicBotsInvocationAction;
 import ru.runa.af.web.form.BotStationForm;
@@ -14,6 +13,7 @@ import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.BotInvokerServiceDelegate;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -71,7 +71,7 @@ public class BotStationStatusTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         if (periodicInvocationOn) {
             return MessagesBot.BUTTON_STOP_PERIODIC_BOTS_INVOCATION.message(pageContext);
         } else {
@@ -94,8 +94,8 @@ public class BotStationStatusTag extends TitledFormTag {
     }
 
     @Override
-    public boolean isFormButtonEnabled() {
-        boolean result = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+    public boolean isSubmitButtonEnabled() {
+        boolean result = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
         if (!result) {
             return false;
         }

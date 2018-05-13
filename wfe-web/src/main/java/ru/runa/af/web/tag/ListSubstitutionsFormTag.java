@@ -20,7 +20,6 @@ package ru.runa.af.web.tag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
@@ -29,7 +28,6 @@ import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.DeleteSubstitutionsAction;
 import ru.runa.af.web.action.SwitchSubstitutionsPositionsAction;
@@ -64,7 +62,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
@@ -80,7 +78,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
             Actor actor = (Actor) getExecutor();
             List<Substitution> substitutions = substitutionService.getSubstitutions(getUser(), actor.getId());
             AuthorizationService authorizationService = ru.runa.wfe.service.delegate.Delegates.getAuthorizationService();
-            boolean disabled = !authorizationService.isAllowed(getUser(), Permission.UPDATE_EXECUTOR, actor);
+            boolean disabled = !authorizationService.isAllowed(getUser(), Permission.UPDATE, actor);
             RowBuilder substitutionRowBuilder = new SubstitutionRowBuilder(substitutions, disabled);
             HeaderBuilder substitutionHeaderBuilder = new SubstitutionHeaderBuilder();
             TableBuilder tableBuilder = new TableBuilder();
@@ -97,8 +95,8 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.UPDATE_EXECUTOR;
+    protected Permission getSubmitPermission() {
+        return Permission.UPDATE;
     }
 
     class SubstitutionHeaderBuilder implements HeaderBuilder {

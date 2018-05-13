@@ -22,7 +22,6 @@ import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -45,7 +44,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 public class StartProcessTDBuilder extends BaseTDBuilder {
 
     public StartProcessTDBuilder() {
-        super(Permission.START_PROCESS);
+        super(Permission.START);
     }
 
     @Override

@@ -28,7 +28,6 @@ import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import ru.runa.af.web.MessagesExecutor;
-import ru.runa.af.web.form.UpdatePermissionsOnSecuredObjectForm;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
@@ -49,16 +48,16 @@ public class PermissionTableBuilder {
     private final SecuredObject securedObject;
     private final User user;
     private final PageContext pageContext;
-    private final List<Permission> permissions;
-    private final boolean allowedUpdatePermissions;
+    private final List<Permission> applicablePermissions;
+    private final boolean updateAllowed;
     private final Map<Executor, List<Permission>> additionalExecutors = Maps.newHashMap();
 
     public PermissionTableBuilder(SecuredObject securedObject, User user, PageContext pageContext) {
         this.securedObject = securedObject;
         this.user = user;
         this.pageContext = pageContext;
-        permissions = ApplicablePermissions.list(securedObject);
-        allowedUpdatePermissions = Delegates.getAuthorizationService().isAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
+        applicablePermissions = ApplicablePermissions.listVisible(securedObject);
+        updateAllowed = Delegates.getAuthorizationService().isAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
     }
 
     public void addAdditionalExecutor(Executor executor, List<Permission> unmodifiablePermissions) {
@@ -86,34 +85,42 @@ public class PermissionTableBuilder {
         TR tr = new TR();
         tr.addElement(new TH(HTMLUtils.createSelectionStatusPropagator()).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
         tr.addElement(new TH(MessagesExecutor.EXECUTOR_NAME.message(pageContext)).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
-        for (Permission permission : permissions) {
-            String permissioni18nName = Messages.getMessage("permission." + permission.getName().toLowerCase(), pageContext);
+        for (Permission permission : applicablePermissions) {
+            String permissioni18nName = Messages.getMessage("permission." + permission.getName(), pageContext);
             tr.addElement(new TH(permissioni18nName).setClass(Resources.CLASS_PERMISSION_TABLE_TH));
         }
         return tr;
     }
 
     private TR createTR(Executor executor, List<Permission> unmodifiablePermissions, boolean additionalExecutor) {
-        TR tr = new TR();
-        Input input = new Input(Input.CHECKBOX, IdsForm.IDS_INPUT_NAME, String.valueOf(executor.getId()));
-        input.setChecked(true);
-        tr.addElement(new TD(input).setClass(Resources.CLASS_PERMISSION_TABLE_TD));
-        tr.addElement(new TD(HTMLUtils.createExecutorElement(pageContext, executor)).setClass(Resources.CLASS_PERMISSION_TABLE_TD));
         List<Permission> ownPermissions = Delegates.getAuthorizationService().getIssuedPermissions(user, executor, securedObject);
         boolean executorIsPrivileged = ownPermissions.isEmpty() && !additionalExecutor;
-        for (Permission permission : permissions) {
-            String name = UpdatePermissionsOnSecuredObjectForm.EXECUTOR_INPUT_NAME_PREFIX + "(" + executor.getId() + ")."
-                    + UpdatePermissionsOnSecuredObjectForm.PERMISSION_INPUT_NAME_PREFIX + "(" + permission.getName() + ")";
+
+        TR tr = new TR();
+
+        // Column of "don't remove executor" checkboxes.
+        Input input = new Input(Input.CHECKBOX, IdsForm.IDS_INPUT_NAME, String.valueOf(executor.getId()));
+        input.setChecked(true);
+        input.setDisabled(executorIsPrivileged || additionalExecutor);
+        tr.addElement(new TD(input).setClass(Resources.CLASS_PERMISSION_TABLE_TD));
+
+        // Column of executor names.
+        tr.addElement(new TD(HTMLUtils.createExecutorElement(pageContext, executor)).setClass(Resources.CLASS_PERMISSION_TABLE_TD));
+
+        // Columns of permissions.
+        for (Permission permission : applicablePermissions) {
+            String name = "executor(" + executor.getId() + ").permission(" + permission.getName() + ")";
             boolean checked = (!additionalExecutor && ownPermissions.isEmpty()) || ownPermissions.contains(permission);
             Input checkbox = new Input(Input.CHECKBOX, name);
             checkbox.setChecked(checked);
-            checkbox.setDisabled(executorIsPrivileged || !allowedUpdatePermissions || unmodifiablePermissions.contains(permission));
+            checkbox.setDisabled(executorIsPrivileged || !updateAllowed || unmodifiablePermissions.contains(permission));
             tr.addElement(new TD(checkbox).setClass(Resources.CLASS_PERMISSION_TABLE_TD));
         }
-        input.setDisabled(executorIsPrivileged || additionalExecutor);
+
         if (additionalExecutor) {
             tr.addElement(new Input(Input.HIDDEN, IdsForm.IDS_INPUT_NAME, String.valueOf(executor.getId())));
         }
+
         return tr;
     }
 }

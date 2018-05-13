@@ -152,7 +152,7 @@ public class UpdateProcessVariablesFormTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_UPDATE_VARIABLE.message(pageContext);
     }
 

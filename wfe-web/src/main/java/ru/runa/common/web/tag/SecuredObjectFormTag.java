@@ -25,6 +25,11 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 
+/**
+ * Has "identifiableId" attribute; SecuredObjectType is obtained via abstract method.
+ *
+ * @see SecuredObjectFormTag2
+ */
 public abstract class SecuredObjectFormTag extends TitledFormTag {
 
     private static final long serialVersionUID = 1L;
@@ -42,22 +47,22 @@ public abstract class SecuredObjectFormTag extends TitledFormTag {
     protected abstract void fillFormData(final TD tdFormElement);
 
     /**
-     * @return {@link Permission} that executor must have to update. @
+     * @return {@link Permission} that executor must have to update.
      */
-    protected abstract Permission getPermission();
+    protected abstract Permission getSubmitPermission();
 
     protected abstract SecuredObject getSecuredObject();
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        Permission permission = getPermission();
+    protected boolean isSubmitButtonEnabled() {
+        Permission permission = getSubmitPermission();
         if (permission == null) {
             return true;
         }
-        return isFormButtonEnabled(getSecuredObject(), permission);
+        return isSubmitButtonEnabled(getSecuredObject(), permission);
     }
 
-    protected boolean isFormButtonEnabled(SecuredObject securedObject, Permission permission) {
+    protected boolean isSubmitButtonEnabled(SecuredObject securedObject, Permission permission) {
         return Delegates.getAuthorizationService().isAllowed(getUser(), permission, securedObject);
     }
 

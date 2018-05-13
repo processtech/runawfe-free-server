@@ -17,13 +17,12 @@
  */
 package ru.runa.wfe.relation.dao;
 
-import java.util.List;
-
 import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.relation.QRelation;
+import ru.runa.wfe.relation.QRelationPair;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationAlreadyExistException;
 import ru.runa.wfe.relation.RelationDoesNotExistException;
-import ru.runa.wfe.relation.RelationPair;
 
 /**
  * Relation dao implementation via Hibernate.
@@ -65,17 +64,14 @@ public class RelationDAO extends GenericDAO<Relation> {
     }
 
     public Relation get(String name) {
-        return (Relation) getFirstOrNull(getHibernateTemplate().find("from Relation where name=?", name));
+        QRelation r = QRelation.relation;
+        return queryFactory.selectFrom(r).where(r.name.eq(name)).fetchFirst();
     }
 
     @Override
     public void delete(Long id) {
-        Relation relation = getNotNull(id);
-        List<RelationPair> relationPairs = (List<RelationPair>) getHibernateTemplate().find("from RelationPair where relation=?", relation);
-        for (RelationPair relationPair : relationPairs) {
-            getHibernateTemplate().delete(relationPair);
-        }
+        QRelationPair rp = QRelationPair.relationPair;
+        queryFactory.delete(rp).where(rp.relation.id.eq(id)).execute();
         super.delete(id);
     }
-
 }

@@ -4,7 +4,6 @@ import ru.runa.common.web.StrutsMessage;
 
 public final class MessagesBot {
 
-    public static final StrutsMessage BUTTON_BOT_STATION_CONFIGURE_PERMISSION = new StrutsMessage("button.bot_station_configure");
     public static final StrutsMessage BUTTON_DELETE_BOT_STATION = new StrutsMessage("button.delete_bot_station");
     public static final StrutsMessage BUTTON_ADD_BOT_STATION = new StrutsMessage("button.add_bot_station");
     public static final StrutsMessage BUTTON_ADD_BOT = new StrutsMessage("button.add_bot");

@@ -19,7 +19,6 @@ package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateExecutorDetailsAction;
 import ru.runa.af.web.html.ExecutorTableBuilder;
@@ -33,26 +32,26 @@ public class UpdateExecutorDetailsFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     public void fillFormData(TD tdFormElement) {
-        boolean isCheckboxInputDisaabled = !isFormButtonEnabled();
+        boolean isCheckboxInputDisaabled = !isSubmitButtonEnabled();
         ExecutorTableBuilder builder = new ExecutorTableBuilder(getExecutor(), isCheckboxInputDisaabled, pageContext);
         tdFormElement.addElement(builder.buildTable());
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         if (SystemExecutors.PROCESS_STARTER_NAME.equals(getExecutor().getName())) {
             return false;
         }
-        return super.isFormButtonEnabled();
+        return super.isSubmitButtonEnabled();
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.UPDATE_EXECUTOR;
+    protected Permission getSubmitPermission() {
+        return Permission.UPDATE;
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 

@@ -62,12 +62,12 @@ public class ListDefinitionsHistoryFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return false;
     }
 

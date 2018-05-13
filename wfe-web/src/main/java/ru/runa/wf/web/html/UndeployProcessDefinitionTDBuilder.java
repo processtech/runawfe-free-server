@@ -48,7 +48,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 public class UndeployProcessDefinitionTDBuilder extends BaseTDBuilder {
 
     public UndeployProcessDefinitionTDBuilder() {
-        super(Permission.UNDEPLOY_DEFINITION);
+        super(Permission.ALL);
     }
 
     @Override

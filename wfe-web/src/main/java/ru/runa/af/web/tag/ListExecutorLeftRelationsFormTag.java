@@ -85,7 +85,7 @@ public class ListExecutorLeftRelationsFormTag extends SecuredObjectFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 
@@ -96,8 +96,8 @@ public class ListExecutorLeftRelationsFormTag extends SecuredObjectFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     protected String[] getNames() {

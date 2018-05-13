@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * DAO for managing {@link Localization}.
@@ -11,6 +12,7 @@ import com.google.common.collect.Maps;
  * @author dofs
  * @since 4.0
  */
+@Transactional
 public class LocalizationDAO extends GenericDAO<Localization> {
 
     private Map<String, String> localizations = Maps.newHashMap();

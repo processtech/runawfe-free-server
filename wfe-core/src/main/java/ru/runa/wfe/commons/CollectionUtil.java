@@ -3,7 +3,7 @@ package ru.runa.wfe.commons;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class CollectionUtil {
@@ -39,5 +39,17 @@ public class CollectionUtil {
             }
         }
         return list;
+    }
+
+    /**
+     * Map.putIfAbsent() returns null if key previously didn't exist. I want it to return default value.
+     */
+    public static <K,V> V mapGetOrPutDefault(Map<K, V> map, K key, V value) {
+        if (map.containsKey(key)) {
+            return map.get(key);
+        } else {
+            map.put(key, value);
+            return value;
+        }
     }
 }

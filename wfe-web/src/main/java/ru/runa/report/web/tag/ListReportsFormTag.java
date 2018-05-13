@@ -40,9 +40,9 @@ import ru.runa.report.web.action.UndeployReportAction;
 import ru.runa.report.web.html.ReportPropertiesTDBuilder;
 import ru.runa.wf.web.html.SecuredObjectUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.report.ReportsSecure;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.ReportService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -62,7 +62,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(reports);
         TDBuilder[] builders =
-                BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", Permission.DEPLOY_REPORT) }, batchPresentation,
+                BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", Permission.ALL) }, batchPresentation,
                     new TDBuilder[] { new ReportPropertiesTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, reports);
         SortingHeaderBuilder headerBuilder =
@@ -84,12 +84,13 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
     }
 
     private boolean isUndeployAllowed(List<WfReport> reports) {
-        boolean hasGlobalDeployPermission = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_REPORT, ReportsSecure.INSTANCE);
-        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_REPORT, reports)) {
-            if (undeploy || hasGlobalDeployPermission) {
-                return true;
-            }
-        }
+        boolean hasGlobalDeployPermission = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.REPORTS);
+        // TODO If (when) hidden types & permissions are implemented, uncomment and review/edit this.
+//        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_REPORT, reports)) {
+//            if (undeploy || hasGlobalDeployPermission) {
+//                return true;
+//            }
+//        }
         return false;
     }
 
@@ -128,12 +129,12 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return isButtonEnabled;
     }
 

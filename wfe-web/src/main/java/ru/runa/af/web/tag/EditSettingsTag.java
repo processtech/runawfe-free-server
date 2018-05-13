@@ -131,7 +131,7 @@ public class EditSettingsTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesCommon.BUTTON_SAVE.message(pageContext);
     }
 

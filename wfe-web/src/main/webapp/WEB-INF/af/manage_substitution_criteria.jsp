@@ -1,4 +1,4 @@
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -8,6 +8,17 @@
 <tiles:put name="head" type="string" />
 
 <tiles:put name="body" type="string" >
+<wf:managePermissionsForm securedObjectType="SUBSTITUTION_CRITERIAS">
+	<table width="100%">
+		<tr>
+			<td align="left">
+				<wf:grantPermissionsLink securedObjectType="SUBSTITUTION_CRITERIAS"/>
+			</td>
+		</tr>
+	</table>
+</wf:managePermissionsForm>
+
+
 <%
 	String substitutionCriteriaIds = "";
 	if (request.getParameter("substitutionCriteriaIds") != null) {

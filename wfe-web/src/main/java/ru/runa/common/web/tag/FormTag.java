@@ -39,7 +39,6 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 
 /**
  * Provides attibutes action and method for sub classes. Created on 19.08.2004
- * 
  */
 abstract public class FormTag extends VisibleTag {
 
@@ -57,7 +56,7 @@ abstract public class FormTag extends VisibleTag {
         return action;
     }
 
-    @Attribute(required = false, rtexprvalue = false)
+    @Attribute
     public void setAction(String action) {
         this.action = action;
     }
@@ -91,31 +90,31 @@ abstract public class FormTag extends VisibleTag {
     /**
      * @return returns true if form button must be displayed
      */
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return true;
     }
 
     /**
      * @return returns true if form button must be displayed
      */
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return true;
     }
 
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_FORM.message(pageContext);
     }
 
-    protected Map<String, Object> getFormButtonParam() {
+    protected Map<String, Object> getSubmitButtonParam() {
+        return null;
+    }
+
+    protected List<String> getSubmitButtonNames() {
         return null;
     }
 
     protected boolean isMultipleSubmit() {
         return false;
-    }
-
-    protected List<String> getFormButtonNames() {
-        return null;
     }
 
     private Form form;
@@ -153,12 +152,12 @@ abstract public class FormTag extends VisibleTag {
         formElementTR.addElement(formElementTD);
         fillFormElement(formElementTD);
         if (getAction() != null) {
-            form.setAction(Commons.getActionUrl(getAction(), getFormButtonParam(), pageContext, PortletUrlType.Action));
+            form.setAction(Commons.getActionUrl(getAction(), getSubmitButtonParam(), pageContext, PortletUrlType.Action));
         }
         if (getMethod() != null) {
             form.setMethod(getMethod());
         }
-        if (isFormButtonVisible()) {
+        if (isSubmitButtonVisible()) {
             TR tr = new TR();
             table.addElement(tr);
             TD td = new TD();
@@ -169,28 +168,28 @@ abstract public class FormTag extends VisibleTag {
             }
             if (isMultipleSubmit()) {
                 td.addElement(new Input(Input.HIDDEN, MULTIPLE_SUBMIT_BUTTONS, "true"));
-                for (String buttonName : getFormButtonNames()) {
+                for (String buttonName : getSubmitButtonNames()) {
                     Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, buttonName);
                     submitButton.setClass(Resources.CLASS_BUTTON);
                     try {
-                        if (!isFormButtonEnabled()) {
+                        if (!isSubmitButtonEnabled()) {
                             submitButton.setDisabled(true);
                         }
                     } catch (Exception e) {
-                        log.debug("isFormButtonEnabled", e);
+                        log.debug("isSubmitButtonEnabled", e);
                         submitButton.setDisabled(true);
                     }
                     td.addElement(submitButton);
                     td.addElement(Entities.NBSP);
                 }
             } else {
-                Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, getFormButtonName());
+                Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, getSubmitButtonName());
                 submitButton.setClass(Resources.CLASS_BUTTON);
                 if (isConfirmationPopupEnabled()) {
                     submitButton.addAttribute("onclick",
                             ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(getConfirmationPopupParameter(), pageContext));
                 }
-                if (!isFormButtonEnabled()) {
+                if (!isSubmitButtonEnabled()) {
                     submitButton.setDisabled(true);
                 }
                 td.addElement(submitButton);

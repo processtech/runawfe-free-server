@@ -23,6 +23,7 @@ import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotDoesNotExistException;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.user.User;
 
 /**
  * DAO level interface for managing bots.
@@ -59,6 +60,13 @@ public class BotDAO extends GenericDAO<Bot> {
         return findFirstOrNull("from Bot where username=?", username);
     }
 
+    public boolean isBot(User u) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("select 0 from Bot where username=?")
+                .setParameter(0, u.getName())
+                .setMaxResults(1).uniqueResult() != null;
+    }
+
     /**
      * Load {@linkplain Bot} from database by bot station and userName.
      * 
@@ -71,14 +79,9 @@ public class BotDAO extends GenericDAO<Bot> {
     }
 
     /**
-     * Load all {@linkplain Bot}'s defined for {@linkplain BotStation}.
-     * 
-     * @param botStation
-     *            {@linkplain BotStation} to load {@linkplain Bot}'s.
-     * @return {@linkplain Bot}'s, defined for {@linkplain BotStation}.
+     * Load all {@linkplain Bot}s defined for {@linkplain BotStation}.
      */
     public List<Bot> getAll(final BotStation botStation) {
         return (List<Bot>) getHibernateTemplate().find("from Bot where botStation=?", botStation);
     }
-
 }

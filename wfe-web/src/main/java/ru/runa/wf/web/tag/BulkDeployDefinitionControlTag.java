@@ -37,7 +37,7 @@ public class BulkDeployDefinitionControlTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_DEPLOY_DEFINITION.message(pageContext);
     }
 }

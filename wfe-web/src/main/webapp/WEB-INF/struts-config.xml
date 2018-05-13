@@ -11,7 +11,8 @@
 	<form-beans>
 
 		<form-bean name="createExecutorForm" type="ru.runa.af.web.form.CreateExecutorForm" />
-		<form-bean name="updatePermissionsOnSecuredObjectForm" type="ru.runa.af.web.form.UpdatePermissionsOnSecuredObjectForm" />
+		<form-bean name="grantPermissionsForm" type="ru.runa.af.web.form.GrantPermissionsForm" />
+		<form-bean name="updatePermissionsForm" type="ru.runa.af.web.form.UpdatePermissionsForm" />
 		<form-bean name="groupForm" type="ru.runa.common.web.form.GroupForm" />
 		<form-bean name="processForm" type="ru.runa.wf.web.form.ProcessForm" />
 		<form-bean name="loginForm" type="ru.runa.af.web.form.LoginForm" />
@@ -91,8 +92,6 @@
 		<forward name="manage_observable_tasks" path="/manage_observable_tasks.do?tabForwardName=manage_observable_tasks" />
 		<forward name="configure_bot_station"
 			path="/configure_bot_station.do?tabForwardName=configure_bot_station" />
-		<forward name="bot_station_permission" path="/bot_station_permission.do" />
-		<forward name="grant_bot_station_permission" path="/grant_bot_station_permission.do" />
 		<forward name="edit_settings" path="/edit_settings.do" />
 		<forward name="drop_settings" path="/drop_settings.do" />
 	</global-forwards>
@@ -112,14 +111,6 @@
 			<forward name="submitTask" path="/submit_task.do" redirect="false" />
 			<forward name="tasksList" path="/manage_tasks.do" redirect="true" />
 		</action>
-		<action path="/grantPermissionsOnRelationGroup"
-			type="ru.runa.af.web.action.GrantPermissionsOnRelationGroupAction" name="idsForm"
-			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_relation_group_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_relation_group_permissions.do"
-				redirect="true" />
-		</action>
 		<action path="/save_bot" type="ru.runa.af.web.action.SaveBotAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/bot.jsp" unknown="false"
 			validate="false">
@@ -135,15 +126,6 @@
 		</action>
 		<action path="/setSorting" type="ru.runa.common.web.action.SetSortingAction"
 			name="setSortingForm" scope="request" unknown="false" validate="false">
-		</action>
-		<action path="/updatePermissionsOnRelation" type="ru.runa.af.web.action.UpdatePermissionsOnRelation"
-			name="updatePermissionsOnSecuredObjectForm" scope="request"
-			input="/WEB-INF/af/manage_relation.jsp" unknown="false"
-			validate="true">
-			<forward name="success" path="/manage_relation_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_relation_permissions.do"
-				redirect="true" />
 		</action>
 		<action path="/deploy_bot_station" type="ru.runa.af.web.action.DeployBotStationAction"
 			name="deployBotForm" scope="request" unknown="false" validate="false">
@@ -190,22 +172,6 @@
 			<forward name="failure" path="/WEB-INF/af/edit_substitution_criteria.jsp"
 				redirect="false" />
 		</action>
-		<action path="/updatePermissionOnProcessDefinition"
-			type="ru.runa.wf.web.action.UpdatePermissionsOnProcessDefinitionAction"
-			name="updatePermissionsOnSecuredObjectForm" scope="request"
-			input="/WEB-INF/wf/manage_process_definition.jsp" unknown="false"
-			validate="true">
-			<forward name="success" path="/manage_process_definition_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_process_definition_permissions.do"
-				redirect="true" />
-		</action>
-		<action path="/grantLoginPermissionOnSystem"
-			type="ru.runa.af.web.action.GrantPermissionsOnSystemAction" name="idsForm"
-			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_system.do" redirect="true" />
-			<forward name="failure" path="/manage_system.do" redirect="true" />
-		</action>
 		<action path="/processTaskAssignment"
 			type="ru.runa.wf.web.action.ProcessTaskAssignmentAction" name="strIdsForm"
 			scope="request" unknown="false" validate="false">
@@ -225,15 +191,6 @@
 		<action path="/startImageProcess" type="ru.runa.wf.web.action.StartImageProcessAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
 			unknown="false" validate="true">
-		</action>
-		<action path="/grantReadPermissionOnProcess"
-			type="ru.runa.wf.web.action.GrantPermissionsOnProcessAction" name="idsForm"
-			scope="request" input="/WEB-INF/wf/manage_process.jsp" unknown="false"
-			validate="true">
-			<forward name="success" path="/manage_process_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_process_permissions.do"
-				redirect="true" />
 		</action>
 		<action path="/hideableBlock" type="ru.runa.common.web.action.HideableBlockAction"
 			name="idNameForm" scope="request" unknown="false" validate="false">
@@ -347,24 +304,6 @@
 			scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
 			unknown="false" validate="true">
 		</action>
-		<action path="/grantPermissionsOnRelation"
-			type="ru.runa.af.web.action.GrantPermissionsOnRelationAction" name="idsForm"
-			scope="request" input="/WEB-INF/af/manage_relation_permissions.jsp" unknown="false"
-			validate="false">
-			<forward name="success" path="/manage_relation_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_relation_permissions.do"
-				redirect="true" />
-		</action>
-		<action path="/updatePermissionsOnRelationGroup"
-			type="ru.runa.af.web.action.UpdatePermissionsOnRelationGroup"
-			name="updatePermissionsOnSecuredObjectForm" scope="request" unknown="false"
-			validate="false">
-			<forward name="success" path="/manage_relation_group_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_relation_group_permissions.do"
-				redirect="true" />
-		</action>
 		<action path="/getHtmlFile"
 			type="ru.runa.wf.web.action.LoadProcessDefinitionHtmlFileAction"
 			name="idUrlForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
@@ -389,24 +328,6 @@
 		<action path="/historyGraphImage" type="ru.runa.wf.web.action.HistoryGraphImageAction"
 			name="taskIdForm" scope="request" input="/WEB-INF/wf/show_graph_history.jsp"
 			unknown="false" validate="true">
-		</action>
-		<action path="/updatePermissionsOnExecutor"
-			type="ru.runa.af.web.action.UpdatePermissionsOnExecutorAction" name="updatePermissionsOnSecuredObjectForm"
-			scope="request" input="/WEB-INF/af/manage_executor.jsp" unknown="false"
-			validate="true">
-			<forward name="success" path="/manage_executor_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_executor_permissions.do"
-				redirect="true" />
-		</action>
-		<action path="/updatePermissionOnProcess"
-			type="ru.runa.wf.web.action.UpdatePermissionsOnProcessAction" name="updatePermissionsOnSecuredObjectForm"
-			scope="request" input="/WEB-INF/wf/manage_process.jsp" unknown="false"
-			validate="true">
-			<forward name="success" path="/manage_process_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_process_permissions.do"
-				redirect="true" />
 		</action>
 		<action path="/deleteSubstitutions" type="ru.runa.af.web.action.DeleteSubstitutionsAction"
 			name="idsForm" scope="request" unknown="false" validate="false">
@@ -467,15 +388,6 @@
 			<forward name="success" path="/manage_process_definition.do"
 				redirect="true" />
 		</action>
-		<action path="/grantReadPermissionOnProcessDefinition"
-			type="ru.runa.wf.web.action.GrantPermissionsOnProcessDefinitionAction"
-			name="idsForm" scope="request" input="/WEB-INF/wf/manage_process_definition.jsp"
-			unknown="false" validate="true">
-			<forward name="success" path="/manage_process_definition_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_process_definition_permissions.do"
-				redirect="true" />
-		</action>
 		<action path="/create_bot_station" type="ru.runa.af.web.action.CreateBotStationAction"
 			name="botStationForm" scope="request" input="/WEB-INF/wf/add_bot_station.jsp"
 			unknown="false" validate="false">
@@ -493,14 +405,6 @@
 		<action path="/save_bot_station" type="ru.runa.af.web.action.SaveBotStationAction"
 			name="idForm" scope="request" input="/WEB-INF/wf/bot_station.jsp"
 			unknown="false" validate="false">
-		</action>
-		<action path="/grantBotStationPermission"
-			type="ru.runa.af.web.action.GrantPermissionsOnBotStationAction"
-			name="idsForm" scope="request" unknown="false" validate="false">
-			<forward name="success" path="/bot_station_permission.do"
-				redirect="true" />
-			<forward name="failure" path="/bot_station_permission.do"
-				redirect="true" />
 		</action>
 		<action path="/krblogin" type="ru.runa.af.web.action.KrbLoginAction"
 			unknown="false" validate="true">
@@ -526,12 +430,6 @@
 			type="ru.runa.af.web.action.StopPeriodicBotsInvocationAction" name="botStationForm"
 			scope="request" input="/WEB-INF/wf/bot_station.jsp" unknown="false"
 			validate="false">
-		</action>
-		<action path="/updatePermissionOnSystem"
-			type="ru.runa.af.web.action.UpdatePermissionsOnSystemAction" name="updatePermissionsOnSecuredObjectForm"
-			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_system.do" redirect="true" />
-			<forward name="failure" path="/manage_system.do" redirect="true" />
 		</action>
 		<action path="/undeployProcessDefinition"
 			type="ru.runa.wf.web.action.UndeployProcessDefinitionAction" name="idVersionForm"
@@ -619,48 +517,6 @@
 			<forward name="failure" path="/deploy_process_definition.do"
 				redirect="false" />
 		</action>
-		<action path="/manage_report_permissions" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/report/manage_report_permissions.jsp" />
-		<action path="/grant_permissions_on_report" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/report/grant_permissions_on_report.jsp" />
-		<action path="/manage_reports_permissions" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/report/manage_reports_permissions.jsp" />
-		<action path="/grant_permissions_on_reports" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/report/grant_permissions_on_reports.jsp" />
-		<action path="/grantPermissionsOnReport"
-			type="ru.runa.report.web.action.GrantPermissionsOnReportAction" name="idsForm"
-			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_report_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_report_permissions.do"
-				redirect="true" />
-		</action>
-		<action path="/updatePermissionsOnReport"
-			type="ru.runa.report.web.action.UpdatePermissionsOnReportAction"
-			name="updatePermissionsOnSecuredObjectForm" scope="request" unknown="false"
-			validate="false">
-			<forward name="success" path="/manage_report_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_report_permissions.do"
-				redirect="true" />
-		</action>
-		<action path="/grantPermissionsOnReports"
-			type="ru.runa.report.web.action.GrantPermissionsOnReportsAction" name="idsForm"
-			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_reports_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_reports_permissions.do"
-				redirect="true" />
-		</action>
-		<action path="/updatePermissionsOnReports"
-			type="ru.runa.report.web.action.UpdatePermissionsOnReportsAction"
-			name="updatePermissionsOnSecuredObjectForm" scope="request" unknown="false"
-			validate="false">
-			<forward name="success" path="/manage_reports_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_reports_permissions.do"
-				redirect="true" />
-		</action>
 		<action path="/deployReport"
 			type="ru.runa.report.web.action.DeployReportAction" name="deployReportForm"
 			scope="request" unknown="false" validate="false">
@@ -739,22 +595,13 @@
 			<forward name="success" path="/manage_relations.do" redirect="true" />
 			<forward name="failure" path="/manage_relation.do" redirect="true" />
 		</action>
-		<action path="/grantReadPermissionOnExecutor"
-			type="ru.runa.af.web.action.GrantPermissionsOnExecutorAction"
-			name="idsForm" scope="request" input="/WEB-INF/af/manage_executor.jsp"
-			unknown="false" validate="true">
-			<forward name="success" path="/manage_executor_permissions.do"
-				redirect="true" />
-			<forward name="failure" path="/manage_executor_permissions.do"
-				redirect="true" />
+		<action path="/updatePermissions"
+                type="ru.runa.af.web.action.UpdatePermissionsAction" name="updatePermissionsForm"
+			    scope="request" unknown="false" validate="false">
 		</action>
-		<action path="/updateBotStationPermission"
-			type="ru.runa.af.web.action.UpdatePermissionsOnBotStationAction" name="updatePermissionsOnSecuredObjectForm"
-			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/bot_station_permission.do"
-				redirect="true" />
-			<forward name="failure" path="/bot_station_permission.do"
-				redirect="true" />
+		<action path="/grantPermissions"
+                type="ru.runa.af.web.action.GrantPermissionsAction" name="grantPermissionsForm"
+			    scope="request" unknown="false" validate="false">
 		</action>
 		<action path="/admin_scripts" type="ru.runa.common.web.action.AdminkitScriptsAction"
 			name="adminScriptForm" scope="request" validate="false">
@@ -804,18 +651,6 @@
 		<action path="/manage_relations" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/af/manage_relations.jsp" />
 
-		<action path="/grant_permissions_on_relation_group" type="ru.runa.common.web.action.TabHeaderForwardAction"
-			parameter="/WEB-INF/af/grant_permissions_on_relation_group.jsp" />
-
-		<action path="/grant_permissions_on_relation" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/af/grant_permissions_on_relation.jsp" />
-
-		<action path="/grant_read_permission_on_executor" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/af/grant_read_permission_on_executor.jsp" />
-
-		<action path="/manage_executor_permissions" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/af/manage_executor_permissions.jsp" />
-
 		<action path="/editSubstitution" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/edit_substitution.jsp" />
 
@@ -843,9 +678,6 @@
 		<action path="/manage_datafile" type="ru.runa.af.web.action.ManageSystemAction"
 				parameter="/WEB-INF/af/manage_datafile.jsp" />
 
-		<action path="/grant_login_permission_on_system" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/af/grant_login_permission_on_system.jsp" />
-
 		<action path="/add_members_to_group" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/add_members_to_group.jsp" />
 		<!-- wf struts actions -->
@@ -863,8 +695,6 @@
 		</action>
 		<action path="/definitions_history" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_process_definitions_history.jsp" />
-		<action path="/manage_process_definition_permissions" type="ru.runa.common.web.action.TabHeaderForwardAction"
-			parameter="/WEB-INF/wf/manage_process_definition_permissions.jsp" />
 
 		<action path="/deploy_process_definition" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/deploy_process_definition.jsp" />
@@ -875,17 +705,11 @@
 		<action path="/validate_process_definition" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/validate_process_definition.jsp" />
 
-		<action path="/grant_read_permission_on_process_definition"
-			type="org.apache.struts.actions.ForwardAction" parameter="/WEB-INF/wf/grant_read_permission_on_process_definition.jsp" />
-
 		<action path="/manage_processes" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/manage_processes.jsp" />
 
 		<action path="/manage_process" type="ru.runa.wf.web.action.ShowProcessAction"
 			parameter="/WEB-INF/wf/manage_process.jsp" />
-
-		<action path="/manage_process_permissions" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/wf/manage_process_permissions.jsp" />
 
 		<action path="/submit_start_process" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_start_process.jsp" />
@@ -899,9 +723,6 @@
 		<action path="/submit_task" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/submit_task.jsp" />
 
-		<action path="/grant_read_permission_on_process" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/wf/grant_read_permission_on_process.jsp" />
-
 		<action path="/manage_relation" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/manage_relation.jsp" />
 
@@ -911,12 +732,6 @@
 		<action path="/create_relation_pair" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/create_relation_pair.jsp" />
 
-		<action path="/manage_relation_group_permissions" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/af/manage_relation_group_permissions.jsp" />
-
-		<action path="/manage_relation_permissions" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/af/manage_relation_permissions.jsp" />
-			
 		<action path="/configure_bot_station" type="ru.runa.common.web.action.TabHeaderForwardAction"
 			parameter="/WEB-INF/wf/configure_bot_station.jsp" />
 		
@@ -935,11 +750,10 @@
 		<action path="/bot_station" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/bot_station.jsp" />
 
-		<action path="/bot_station_permission" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/wf/bot_station_permission.jsp" />
-
-		<action path="/grant_bot_station_permission" type="org.apache.struts.actions.ForwardAction"
-			parameter="/WEB-INF/af/grant_bot_station_configure_permission.jsp" />
+		<action path="/grantPermissionsForm" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/af/grantPermissionsForm.jsp" />
+		<action path="/managePermissionsForm" type="org.apache.struts.actions.ForwardAction"
+				parameter="/WEB-INF/af/managePermissionsForm.jsp" />
 		<action path="/show_history" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/wf/show_history.jsp" />
 		<action path="/show_system_logs" type="org.apache.struts.actions.ForwardAction"

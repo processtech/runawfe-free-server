@@ -63,7 +63,7 @@ public class StartFormTag extends WFFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.LABEL_START_PROCESS.message(pageContext);
     }
 

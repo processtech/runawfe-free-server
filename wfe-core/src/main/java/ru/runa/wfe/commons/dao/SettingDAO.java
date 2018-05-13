@@ -21,11 +21,13 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * DAO for database initialization and variables managing. Creates appropriate
  * tables (drops tables if such tables already exists) and records.
  */
+@Transactional
 public class SettingDAO extends GenericDAO<Setting> {
     private static final Log log = LogFactory.getLog(SettingDAO.class);
 
@@ -64,5 +66,4 @@ public class SettingDAO extends GenericDAO<Setting> {
             delete(l);
         }
     }
-
 }

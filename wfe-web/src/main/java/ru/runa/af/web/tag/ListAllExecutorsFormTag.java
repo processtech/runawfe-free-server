@@ -18,10 +18,8 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveExecutorsAction;
@@ -65,11 +63,11 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(getUser(), getBatchPresentation());
         BatchPresentation batchPresentation = getBatchPresentation();
         buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation,
-                Permission.UPDATE_EXECUTOR);
+                Permission.UPDATE);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder[] prefixBuilders = new TDBuilder[] { new SecuredObjectCheckboxTDBuilder(Permission.UPDATE_EXECUTOR) };
+        TDBuilder[] prefixBuilders = new TDBuilder[] { new SecuredObjectCheckboxTDBuilder(Permission.UPDATE) };
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, getReturnAction(), IdForm.ID_INPUT_NAME, builders);
@@ -94,12 +92,12 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return buttonEnabled;
     }
 

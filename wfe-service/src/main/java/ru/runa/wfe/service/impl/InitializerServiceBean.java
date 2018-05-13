@@ -24,10 +24,8 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 import javax.transaction.UserTransaction;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.commons.logic.InitializerLogic;
 import ru.runa.wfe.service.InitializerService;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -46,5 +44,4 @@ public class InitializerServiceBean implements InitializerService {
         UserTransaction transaction = sessionContext.getUserTransaction();
         initializerLogic.onStartup(transaction);
     }
-
 }

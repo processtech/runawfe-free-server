@@ -48,8 +48,8 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
     protected boolean buttonEnabled;
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        return buttonEnabled && super.isFormButtonEnabled();
+    protected boolean isSubmitButtonEnabled() {
+        return buttonEnabled && super.isSubmitButtonEnabled();
     }
 
     private String batchPresentationId;
@@ -74,7 +74,7 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
     protected void fillFormData(TD tdFormElement) {
         int executorsCount = getExecutorsCount();
         List<? extends Executor> executors = getExecutors();
-        if (super.isFormButtonEnabled()) {
+        if (super.isSubmitButtonEnabled()) {
             buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, getBatchPresentation(),
                     getExecutorsPermission());
         }

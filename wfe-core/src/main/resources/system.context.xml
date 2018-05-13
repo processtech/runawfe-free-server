@@ -45,6 +45,11 @@
 	<tx:annotation-driven proxy-target-class="true" />
 	<context:annotation-config />
 
+	<!-- TODO Wiring fails if I try to mark BotDAO as @Component instead of this xml config: 'sessionFactory' or 'hibernateTemplate' is required
+              I believe it's because AnnotationSessionFactoryBean (used below as sessionFactory bean) does not inherit from SessionFactory;
+              so currently it works by Spring's HibernateDaoSupport magic, which works only by explicitly passing hibernateTemplate bean ref. -->
+    <context:component-scan base-package="ru.runa.wfe" />
+
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="hibernateProperties" ref="hibernateProperties" />

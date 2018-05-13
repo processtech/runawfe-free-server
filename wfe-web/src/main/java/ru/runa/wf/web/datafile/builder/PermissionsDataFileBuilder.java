@@ -4,11 +4,9 @@ import java.util.List;
 import java.util.zip.ZipOutputStream;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -48,10 +46,7 @@ public class PermissionsDataFileBuilder implements DataFileBuilder {
                 element.addAttribute("executor", executor.getName());
                 for (Permission permission : permissions) {
                     Element permissionElement = element.addElement("permission", XmlUtils.RUNA_NAMESPACE);
-                    // TODO This is temporary hack, until rm659 & rm660 are done; then replace this line with commented out next one.
-                    //      See also related TO_DO in Permission.valueOf().
-                    permissionElement.addAttribute("name", "permission." + permission.getName().toLowerCase());
-                    //permissionElement.addAttribute("name", permission.getName());
+                    permissionElement.addAttribute("name", permission.getName());
                 }
             }
         }
@@ -66,12 +61,6 @@ public class PermissionsDataFileBuilder implements DataFileBuilder {
         }
         if (securedObject instanceof WfDefinition) {
             return ((WfDefinition) securedObject).getName();
-        }
-        if (securedObject instanceof BotStation) {
-            return ((BotStation) securedObject).getName();
-        }
-        if (securedObject instanceof Relation) {
-            return ((Relation) securedObject).getName();
         }
         return "";
     }

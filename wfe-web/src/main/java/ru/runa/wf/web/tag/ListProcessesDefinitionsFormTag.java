@@ -42,6 +42,7 @@ import ru.runa.wf.web.html.StartProcessTDBuilder;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -67,7 +68,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TDBuilder[] { new CheckboxTDBuilder("id", Permission.UNDEPLOY_DEFINITION), new StartProcessTDBuilder() },
+                new TDBuilder[] { new CheckboxTDBuilder("id", Permission.ALL), new StartProcessTDBuilder() },
                 batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
@@ -89,12 +90,14 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private boolean isUndeployAllowed(List<WfDefinition> definitions) {
-        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UNDEPLOY_DEFINITION, definitions)) {
-            if (undeploy) {
-                return true;
-            }
-        }
-        return false;
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.DEFINITIONS);
+        // TODO If (when) hidden types & permissions are implemented, uncomment and review/edit this.
+//        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UNDEPLOY_DEFINITION, definitions)) {
+//            if (undeploy) {
+//                return true;
+//            }
+//        }
+//        return false;
     }
 
     class EnvImpl extends EnvBaseImpl {
@@ -132,12 +135,12 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(pageContext);
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return isButtonEnabled;
     }
 

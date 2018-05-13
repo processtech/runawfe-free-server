@@ -1,5 +1,5 @@
-<%@page import="ru.runa.common.Version"%>
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
+<%@ page import="ru.runa.common.Version"%>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -33,6 +33,16 @@
 </tiles:put>
 
 <tiles:put name="body" type="string" >
+<wf:managePermissionsForm securedObjectType="SCRIPTS">
+	<table width="100%">
+		<tr>
+			<td align="left">
+				<wf:grantPermissionsLink securedObjectType="SCRIPTS"/>
+			</td>
+		</tr>
+	</table>
+</wf:managePermissionsForm>
+
 <table class='box'><tr><th class='box'><bean:message key="adminkit.scripts" /></th></tr>
 <tr><td class='box'>
 	<div style="position: relative;">

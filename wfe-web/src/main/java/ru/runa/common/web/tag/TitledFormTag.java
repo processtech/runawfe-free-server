@@ -31,8 +31,7 @@ import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Resources;
 
 /**
- * Created on 08.09.2004
- *
+ * Constructs wrapper HTML table with title row around superclass FormTag.
  */
 public abstract class TitledFormTag extends FormTag {
     private static final long serialVersionUID = 1L;

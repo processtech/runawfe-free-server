@@ -18,8 +18,8 @@
 package ru.runa.af.web.tag;
 
 import ru.runa.common.web.tag.LinkTag;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 /**
@@ -30,6 +30,6 @@ public abstract class CreateExecutorLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE_EXECUTOR, ASystem.INSTANCE);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE, SecuredSingleton.EXECUTORS);
     }
 }

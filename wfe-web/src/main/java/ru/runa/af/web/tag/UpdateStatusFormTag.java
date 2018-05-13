@@ -19,7 +19,6 @@ package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateStatusAction;
 import ru.runa.af.web.html.StatusTableBuilder;
@@ -34,17 +33,17 @@ public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     public void fillFormData(TD formTd) {
-        StatusTableBuilder builder = new StatusTableBuilder((Actor) getExecutor(), !isFormButtonEnabled(), pageContext);
+        StatusTableBuilder builder = new StatusTableBuilder((Actor) getExecutor(), !isSubmitButtonEnabled(), pageContext);
         formTd.addElement(builder.build());
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.UPDATE_ACTOR_STATUS;
+    protected Permission getSubmitPermission() {
+        return Permission.UPDATE_STATUS;
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 

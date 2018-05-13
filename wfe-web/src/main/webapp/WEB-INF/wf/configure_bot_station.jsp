@@ -1,4 +1,4 @@
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
@@ -11,7 +11,7 @@
                 <tr>
                     <td align="left"><wf:createBotStationLink href="add_bot_station.do"/></td>
                     <td align="right">
-                        <wf:grantBotStationConfigurePermissionLink forward="bot_station_permission"/>
+                        <wf:managePermissionsLink securedObjectType="BOTSTATIONS" />
                     </td>
                 </tr>
             </table>

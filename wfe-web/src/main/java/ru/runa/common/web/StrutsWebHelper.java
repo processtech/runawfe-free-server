@@ -52,7 +52,7 @@ public class StrutsWebHelper implements WebHelper {
 
     @Override
     public boolean useLinkForExecutor(User user, Executor executor) {
-        return Delegates.getAuthorizationService().isAllowed(user, Permission.READ, executor);
+        return Delegates.getAuthorizationService().isAllowed(user, Permission.LIST, executor);
     }
 
     @Override

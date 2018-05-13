@@ -82,8 +82,8 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.REDEPLOY_DEFINITION;
+    protected Permission getSubmitPermission() {
+        return Permission.CREATE;
     }
 
     @Override
@@ -92,7 +92,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.TITLE_PROCESSES.message(pageContext);
     }
 
@@ -108,7 +108,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected boolean isVisible() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.REDEPLOY_DEFINITION, getSecuredObject());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE, getSecuredObject());
     }
 
     private static TR createFileInputRow(String label, String name, String value, boolean enabled, boolean required, String type,

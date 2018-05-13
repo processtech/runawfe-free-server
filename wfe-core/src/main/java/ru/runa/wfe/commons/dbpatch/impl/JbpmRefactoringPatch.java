@@ -1,31 +1,23 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import java.sql.Blob;
 import java.sql.Types;
 import java.util.List;
 import java.util.Map;
-
 import org.hibernate.SQLQuery;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.DBType;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
 
 /**
  * Increase TransactionTimeout in jboss-service.xml in case of timed out
@@ -41,11 +33,6 @@ public class JbpmRefactoringPatch extends DBPatch {
     private boolean jbpmCommentTableExists;
     private static final PropertyResources RESOURCES = new PropertyResources("JbpmRefactoringPatch.properties", false);
     private static final boolean handleManualIndexes = !RESOURCES.getBooleanProperty("skipPatchV21Indexes", true);
-
-    @Autowired
-    private PermissionDAO permissionDAO;
-    @Autowired
-    private ExecutorDAO executorDAO;
 
     private String getObjectName(String name) {
         return RESOURCES.getStringProperty(name, name);
@@ -677,18 +664,17 @@ public class JbpmRefactoringPatch extends DBPatch {
         }
         log.info("Deleted broken swimlanes: " + session.createSQLQuery("DELETE FROM BPM_SWIMLANE WHERE PROCESS_ID IS NULL").executeUpdate());
         //
-        List<Executor> adminWithGroupExecutors = executorDAO.getExecutors(Lists.newArrayList(1L, 2L));
         // define executor permissions
-        permissionDAO.addType(SecuredObjectType.ACTOR, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.GROUP, adminWithGroupExecutors);
+        addPrivilegedMapping(session, "ACTOR");
+        addPrivilegedMapping(session, "GROUP");
         // define system permissions
-        permissionDAO.addType(SecuredObjectType.SYSTEM, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATIONGROUP, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATIONPAIR, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.BOTSTATION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.DEFINITION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.PROCESS, adminWithGroupExecutors);
+        addPrivilegedMapping(session, "SYSTEM");
+        addPrivilegedMapping(session, "RELATIONGROUP");
+        addPrivilegedMapping(session, "RELATION");
+        addPrivilegedMapping(session, "RELATIONPAIR");
+        addPrivilegedMapping(session, "BOTSTATION");
+        addPrivilegedMapping(session, "DEFINITION");
+        addPrivilegedMapping(session, "PROCESS");
         // Variable
         q = "DELETE FROM BPM_VARIABLE WHERE PROCESS_ID IS NULL";
         log.info("Deleted broken variables [by PROCESS_ID]: " + session.createSQLQuery(q).executeUpdate());
@@ -725,6 +711,32 @@ public class JbpmRefactoringPatch extends DBPatch {
         log.info("Updated BOT.VERSION " + session.createSQLQuery("UPDATE BOT SET VERSION=1").executeUpdate());
         log.info("Updated BOT_TASK.VERSION " + session.createSQLQuery("UPDATE BOT_TASK SET VERSION=1").executeUpdate());
     }
+
+    private void addPrivilegedMapping(Session session, String type) {
+        String idName, idValue;
+        switch (dbType) {
+            case ORACLE:
+                idName = "id, ";
+                idValue = "seq_privileged_mapping.nextval, ";
+                break;
+            case POSTGRESQL:
+                idName = "id, ";
+                idValue = "nextval('seq_privileged_mapping'), ";
+                break;
+            default:
+                idName = "";
+                idValue = "";
+        }
+
+        SQLQuery query = session.createSQLQuery("insert into privileged_mapping(" + idName + ", type, executor_id) values(" + idValue + ", :type, :executorId)");
+        query.setParameter("type", type);
+        query.setParameter("executorId", 1);
+        query.executeUpdate();
+        query.setParameter("type", type);
+        query.setParameter("executorId", 2);
+        query.executeUpdate();
+    }
+
 
     /*
      * [sys].[indexes] 3.5 indexes CREATE INDEX [LOG_TOKEN_IDX] ON

@@ -83,23 +83,23 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     // start #179
 
     @Override
-    protected Permission getPermission() {
-        // @see #isFormButtonEnabled()
+    protected Permission getSubmitPermission() {
+        // @see #isSubmitButtonEnabled()
         return null;
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        return isFormButtonEnabled(getSecuredObject(), null);
+    protected boolean isSubmitButtonEnabled() {
+        return isSubmitButtonEnabled(getSecuredObject(), null);
     }
 
     @Override
-    protected boolean isFormButtonEnabled(SecuredObject securedObject, Permission permission) {
+    protected boolean isSubmitButtonEnabled(SecuredObject securedObject, Permission permission) {
         boolean ended = getProcess().isEnded();
         if (ended) {
             return WebResources.isProcessRemovalEnabled() && Delegates.getExecutorService().isAdministrator(getUser());
         } else {
-            return super.isFormButtonEnabled(securedObject, Permission.CANCEL_PROCESS);
+            return super.isSubmitButtonEnabled(securedObject, Permission.CANCEL_PROCESS);
         }
     }
 
@@ -116,7 +116,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         boolean ended = getProcess().isEnded();
         return ended ? MessagesCommon.BUTTON_REMOVE.message(pageContext) : MessagesProcesses.BUTTON_CANCEL_PROCESS.message(pageContext);
     }
@@ -253,7 +253,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     private boolean checkReadable(WfProcess parentProcess) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, parentProcess);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.LIST, parentProcess);
     }
 
     @Override

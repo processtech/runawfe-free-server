@@ -35,7 +35,7 @@ public abstract class ChooseByRelationBase extends FormComponent {
     }
 
     private List<Executor> getExecutors(String relationName, Executor relationParam, boolean inversed) {
-        List<Executor> executors = new ArrayList<Executor>();
+        List<Executor> executors = new ArrayList<>();
         executors.add(relationParam);
         BatchPresentation batchPresentation = BatchPresentationFactory.GROUPS.createNonPaged();
         executors.addAll(Delegates.getExecutorService().getExecutorGroups(user, relationParam, batchPresentation, false));
@@ -56,7 +56,7 @@ public abstract class ChooseByRelationBase extends FormComponent {
                 // http://sourceforge.net/tracker/?func=detail&aid=3478716&group_id=125156&atid=701698
             }
         }
-        return new ArrayList<Executor>(result);
+        return new ArrayList<>(result);
     }
 
     protected abstract void fillExecutors(Set<Executor> result, Executor executor);

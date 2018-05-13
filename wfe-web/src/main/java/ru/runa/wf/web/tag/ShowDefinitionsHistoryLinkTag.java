@@ -1,11 +1,10 @@
 package ru.runa.wf.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.wf.web.MessagesProcesses;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "showDefinitionsHistoryLink")
@@ -15,7 +14,7 @@ public class ShowDefinitionsHistoryLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_DEFINITION, ASystem.INSTANCE);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, SecuredSingleton.DEFINITIONS);
     }
 
     @Override

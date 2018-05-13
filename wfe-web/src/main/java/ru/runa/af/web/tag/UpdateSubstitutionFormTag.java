@@ -105,12 +105,12 @@ public class UpdateSubstitutionFormTag extends SecuredObjectFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
+    protected Permission getSubmitPermission() {
         return null;
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return (substitution != null ? MessagesCommon.BUTTON_SAVE : MessagesCommon.BUTTON_ADD).message(pageContext);
     }
 

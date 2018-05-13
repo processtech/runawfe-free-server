@@ -1,11 +1,10 @@
-<%@page import="ru.runa.common.Version"%>
-<%@page import="ru.runa.common.web.Commons"%>
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
+<%@ page import="ru.runa.common.Version"%>
+<%@ page import="ru.runa.common.web.Commons"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
-<%@ page import="ru.runa.common.web.form.IdForm" %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
@@ -33,16 +32,13 @@
 </tiles:put>
 
 <tiles:put name="body" type="string" >
-<%
-	String parameterName = IdForm.ID_INPUT_NAME;
-	Long id = Long.parseLong(request.getParameter(parameterName));
-%>
+<% long id = Long.parseLong(request.getParameter("id")); %>
 
 <wf:processDefinitionInfoForm identifiableId='<%= id %>'>	
 <table width="100%">
 	<tr>
 		<td align="right">
-			<wf:updatePermissionsOnSecuredObjectLink identifiableId='<%=id %>' href='<%= "/manage_process_definition_permissions.do?" + parameterName+ "=" + id %>'  />
+			<wf:managePermissionsLink securedObjectType="DEFINITION" identifiableId="<%= id %>" />
 		</td>
 	<tr>
 </table>

@@ -69,7 +69,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 
@@ -121,8 +121,8 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override

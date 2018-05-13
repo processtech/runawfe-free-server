@@ -33,7 +33,7 @@ public class PropertyTDBuilder extends BaseTDBuilder {
     public PropertyTDBuilder(Permission permission, String propertyName) {
         super(permission);
         this.propertyName = propertyName;
-        authState = permission == Permission.NO_PERMISSION ? AuthState.ALWAYS_ENABLE : AuthState.ASK_WFE;
+        authState = permission == Permission.NONE ? AuthState.ALWAYS_ENABLE : AuthState.ASK_WFE;
     }
 
     public PropertyTDBuilder(Permission permission, String propertyName, Boolean isAlwaysDisabled) {
@@ -45,7 +45,7 @@ public class PropertyTDBuilder extends BaseTDBuilder {
     public PropertyTDBuilder(Permission permission, String propertyName, SecuredObjectExtractor securedObjectExtractor) {
         super(permission, securedObjectExtractor);
         this.propertyName = propertyName;
-        authState = permission == Permission.NO_PERMISSION ? AuthState.ALWAYS_ENABLE : AuthState.ASK_WFE;
+        authState = permission == Permission.NONE ? AuthState.ALWAYS_ENABLE : AuthState.ASK_WFE;
     }
 
     @Override

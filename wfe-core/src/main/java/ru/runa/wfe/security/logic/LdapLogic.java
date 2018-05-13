@@ -17,6 +17,12 @@
  */
 package ru.runa.wfe.security.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.List;
@@ -24,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -34,29 +39,20 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Imports users and group from LDAP directory.
@@ -166,7 +162,7 @@ public class LdapLogic {
                     log.info("Creating " + actor);
                     executorDAO.create(actor);
                     executorDAO.addExecutorsToGroup(Lists.newArrayList(actor), importGroup);
-                    permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.READ), actor);
+                    permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), actor);
                     changesCount++;
                 } else {
                     ldapActorsToDelete.remove(actor);
@@ -281,7 +277,7 @@ public class LdapLogic {
                 log.info("Creating " + group);
                 executorDAO.create(group);
                 executorDAO.addExecutorsToGroup(Lists.newArrayList(group), importGroup);
-                permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.READ), group);
+                permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), group);
                 changesCount++;
             } else {
                 ldapGroupsToDelete.remove(group);
@@ -350,8 +346,7 @@ public class LdapLogic {
     }
 
     private DirContext getContext() throws NamingException {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.putAll(LdapProperties.getAllProperties());
+        Hashtable<String, String> env = new Hashtable<>(LdapProperties.getAllProperties());
         return new InitialDirContext(env);
     }
 
@@ -360,7 +355,7 @@ public class LdapLogic {
             group = executorDAO.getGroup(group.getName());
         } else {
             group = executorDAO.create(group);
-            permissionDAO.setPermissions(group, Lists.newArrayList(Permission.READ, Permission.LOGIN_TO_SYSTEM), ASystem.INSTANCE);
+            permissionDAO.setPermissions(group, Lists.newArrayList(Permission.LOGIN), SecuredSingleton.EXECUTORS);
         }
         return group;
     }
@@ -412,7 +407,7 @@ public class LdapLogic {
         }
     }
 
-    private static interface IChange {
+    private interface IChange {
 
     }
 
@@ -434,7 +429,7 @@ public class LdapLogic {
         final String oldValue;
         final String newValue;
 
-        public AttributeChange(String attributeName, String oldValue, String newValue) {
+        AttributeChange(String attributeName, String oldValue, String newValue) {
             this.attributeName = attributeName;
             this.oldValue = oldValue;
             this.newValue = newValue;

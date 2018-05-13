@@ -17,12 +17,12 @@
  */
 package ru.runa.wfe.user.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -34,9 +34,6 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Actor's profile management.
@@ -55,7 +52,7 @@ public class ProfileLogic extends CommonLogic {
         List<Profile> result = Lists.newArrayListWithCapacity(actorIds.size());
         for (Long actorId : actorIds) {
             Actor actor = executorDAO.getActor(actorId);
-            checkPermissionAllowed(user, actor, Permission.READ);
+            permissionDAO.checkAllowed(user, Permission.LIST, actor);
             result.add(getProfile(actor));
         }
         return result;
@@ -80,7 +77,7 @@ public class ProfileLogic extends CommonLogic {
 
     public void updateProfiles(User user, List<Profile> profiles) {
         for (Profile profile : profiles) {
-            checkPermissionAllowed(user, profile.getActor(), Permission.UPDATE_EXECUTOR);
+            permissionDAO.checkAllowed(user, Permission.UPDATE, profile.getActor());
             profileDAO.update(profile);
         }
     }

@@ -19,7 +19,6 @@ package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.IdLinkBaseTag;
 import ru.runa.wfe.security.Permission;
@@ -42,7 +41,7 @@ public class AddSubstitutionLinkTag extends IdLinkBaseTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_EXECUTOR, SecuredObjectType.ACTOR, getIdentifiableId());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredObjectType.ACTOR, getIdentifiableId());
     }
 
     @Override

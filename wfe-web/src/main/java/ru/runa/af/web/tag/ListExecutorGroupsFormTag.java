@@ -18,9 +18,7 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveExecutorFromGroupsAction;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -36,12 +34,12 @@ public class ListExecutorGroupsFormTag extends ListExecutorsBaseFormTag {
     private static final long serialVersionUID = -2141545567983138556L;
 
     @Override
-    protected Permission getPermission() {
-        return Permission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
@@ -69,7 +67,7 @@ public class ListExecutorGroupsFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return Permission.REMOVE_FROM_GROUP;
+        return Permission.UPDATE;  // TODO Was REMOVE_FROM_GROUP. Why in *List*ExecutorGroupsFormTag?
     }
 
     @Override

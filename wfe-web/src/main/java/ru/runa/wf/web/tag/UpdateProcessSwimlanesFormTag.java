@@ -144,7 +144,7 @@ public class UpdateProcessSwimlanesFormTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_UPDATE_SWIMLANE.message(pageContext);
     }
 

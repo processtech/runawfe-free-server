@@ -18,7 +18,6 @@
 package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.IdLinkBaseTag;
 import ru.runa.wfe.security.Permission;
@@ -33,7 +32,7 @@ public class AddGroupMembersLinkTag extends IdLinkBaseTag {
     @Override
     protected boolean isLinkEnabled() {
         Executor executor = Delegates.getExecutorService().getExecutor(getUser(), getIdentifiableId());
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ADD_TO_GROUP, executor);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, executor);
     }
 
     @Override

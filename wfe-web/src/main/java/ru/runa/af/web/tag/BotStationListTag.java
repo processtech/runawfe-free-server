@@ -32,6 +32,7 @@ import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -43,11 +44,11 @@ public class BotStationListTag extends TitledFormTag {
     private static final long serialVersionUID = -4263750161023575386L;
 
     protected Permission getPermission() {
-        return Permission.BOT_STATION_CONFIGURE;
+        return Permission.ALL;
     }
 
     protected SecuredObject getSecuredObject() {
-        return BotStation.INSTANCE;
+        return SecuredSingleton.BOTSTATIONS;
     }
 
     @Override
@@ -69,7 +70,7 @@ public class BotStationListTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
@@ -79,8 +80,8 @@ public class BotStationListTag extends TitledFormTag {
     }
 
     @Override
-    public boolean isFormButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+    public boolean isSubmitButtonEnabled() {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override

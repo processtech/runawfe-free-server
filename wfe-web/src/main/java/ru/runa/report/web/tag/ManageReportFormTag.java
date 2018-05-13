@@ -85,7 +85,7 @@ public class ManageReportFormTag extends BaseReportFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesReport.BUTTON_REDEPLOY_REPORT.message(pageContext);
     }
 }

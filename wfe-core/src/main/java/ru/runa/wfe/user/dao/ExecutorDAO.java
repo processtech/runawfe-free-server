@@ -141,16 +141,10 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
      * @return {@linkplain Actor} with specified name (case insensitive).
      */
     public Actor getActorCaseInsensitive(final String name) {
-        return getHibernateTemplate().execute(new HibernateCallback<Actor>() {
-
-            @Override
-            public Actor doInHibernate(Session session) {
-                Criteria criteria = session.createCriteria(Actor.class);
-                criteria.add(Restrictions.ilike(NAME_PROPERTY_NAME, name, MatchMode.EXACT));
-                Actor actor = (Actor) getFirstOrNull(criteria.list());
-                return checkExecutorNotNull(actor, name, Actor.class);
-            }
-        });
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Actor.class);
+        criteria.add(Restrictions.ilike(NAME_PROPERTY_NAME, name, MatchMode.EXACT));
+        Actor actor = (Actor) criteria.uniqueResult();
+        return checkExecutorNotNull(actor, name, Actor.class);
     }
 
     @Override

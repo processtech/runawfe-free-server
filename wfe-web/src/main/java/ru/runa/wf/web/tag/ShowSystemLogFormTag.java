@@ -65,7 +65,7 @@ public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
     }
 
     protected Permission getPermission() {
-        return Permission.READ;
+        return Permission.LIST;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 }

@@ -17,15 +17,10 @@
  */
 package ru.runa.common.web.action;
 
-import java.util.List;
-import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.User;
 
 public abstract class SecuredObjectAction extends ActionBase {
 
-    protected abstract List<Permission> getSecuredObjectPermissions();
-
     protected abstract SecuredObject getSecuredObject(User user, Long identifiableId);
-
 }

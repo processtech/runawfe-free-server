@@ -1,12 +1,11 @@
 package ru.runa.wfe.script.common;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
-
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.batch.ReplicateBatchPresentationOperation;
 import ru.runa.wfe.script.botstation.AddConfigurationsToBotOperation;
@@ -31,7 +30,6 @@ import ru.runa.wfe.script.permission.AddPermissionsOnDefinitionOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnGroupOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnProcessesOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnRelationGroupOperation;
-import ru.runa.wfe.script.permission.AddPermissionsOnRelationOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnReportOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnReportsOperation;
 import ru.runa.wfe.script.permission.AddPermissionsOnSystemOperation;
@@ -45,7 +43,6 @@ import ru.runa.wfe.script.permission.RemovePermissionsOnDefinitionOperation;
 import ru.runa.wfe.script.permission.RemovePermissionsOnGroupOperation;
 import ru.runa.wfe.script.permission.RemovePermissionsOnProcessesOperation;
 import ru.runa.wfe.script.permission.RemovePermissionsOnRelationGroupOperation;
-import ru.runa.wfe.script.permission.RemovePermissionsOnRelationOperation;
 import ru.runa.wfe.script.permission.RemovePermissionsOnReportOperation;
 import ru.runa.wfe.script.permission.RemovePermissionsOnReportsOperation;
 import ru.runa.wfe.script.permission.RemovePermissionsOnSystemOperation;
@@ -55,7 +52,6 @@ import ru.runa.wfe.script.permission.SetPermissionsOnDefinitionOperation;
 import ru.runa.wfe.script.permission.SetPermissionsOnGroupOperation;
 import ru.runa.wfe.script.permission.SetPermissionsOnProcessesOperation;
 import ru.runa.wfe.script.permission.SetPermissionsOnRelationGroupOperation;
-import ru.runa.wfe.script.permission.SetPermissionsOnRelationOperation;
 import ru.runa.wfe.script.permission.SetPermissionsOnReportOperation;
 import ru.runa.wfe.script.permission.SetPermissionsOnReportsOperation;
 import ru.runa.wfe.script.permission.SetPermissionsOnSystemOperation;
@@ -66,8 +62,6 @@ import ru.runa.wfe.script.processes.RemoveProcessesOperation;
 import ru.runa.wfe.script.relation.CreateRelationOperation;
 import ru.runa.wfe.script.report.DeployReportOperation;
 import ru.runa.wfe.script.substitution.ChangeSubstitutionOperation;
-
-import com.google.common.collect.Lists;
 
 @XmlTransient
 public abstract class OperationsListContainer {
@@ -115,9 +109,6 @@ public abstract class OperationsListContainer {
             @XmlElement(name = AddPermissionsOnRelationGroupOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOnRelationGroupOperation.class),
             @XmlElement(name = RemovePermissionsOnRelationGroupOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemovePermissionsOnRelationGroupOperation.class),
             @XmlElement(name = SetPermissionsOnRelationGroupOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOnRelationGroupOperation.class),
-            @XmlElement(name = AddPermissionsOnRelationOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = AddPermissionsOnRelationOperation.class),
-            @XmlElement(name = RemovePermissionsOnRelationOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = RemovePermissionsOnRelationOperation.class),
-            @XmlElement(name = SetPermissionsOnRelationOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = SetPermissionsOnRelationOperation.class),
 
             @XmlElement(name = CreateBotStationOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = CreateBotStationOperation.class),
             @XmlElement(name = UpdateBotStationOperation.SCRIPT_NAME, namespace = AdminScriptConstants.NAMESPACE, type = UpdateBotStationOperation.class),

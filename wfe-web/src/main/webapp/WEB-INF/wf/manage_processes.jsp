@@ -32,11 +32,16 @@
 %>
 
 <wf:listProcessesForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>">
-	<div>
-		<wf:viewControlsHideableBlock hideableBlockId="<%= batchPresentationId %>"  returnAction="<%= returnAction %>">
-			<wf:tableViewSetupForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>" excelExportAction="/exportExcelProcesses" />
-		</wf:viewControlsHideableBlock>
-	</div>
+    <div style="position: relative;">
+        <div>
+            <wf:viewControlsHideableBlock hideableBlockId="<%= batchPresentationId %>"  returnAction="<%= returnAction %>">
+                <wf:tableViewSetupForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>" excelExportAction="/exportExcelProcesses" />
+            </wf:viewControlsHideableBlock>
+        </div>
+        <div style="position: absolute; right: 5px; top: 5px;">
+            <wf:managePermissionsLink securedObjectType="PROCESSES" />
+        </div>
+    </div>
 </wf:listProcessesForm>
 </tiles:put>
 <tiles:put name="messages" value="../common/messages.jsp" />

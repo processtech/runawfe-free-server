@@ -1,26 +1,22 @@
 package ru.runa.common.web.tag;
 
+import com.google.common.base.Throwables;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
-
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.action.ViewLogsAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Throwables;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "viewLogs")
 public class ViewLogsTag extends TagSupport {
@@ -42,13 +38,13 @@ public class ViewLogsTag extends TagSupport {
             StringBuilder html = new StringBuilder();
             File dirFile = new File(logDirPath);
             if (dirFile.exists() && dirFile.isDirectory()) {
-                if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_LOGS, ASystem.INSTANCE)) {
+                if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.LOGS)) {
                     File[] logFiles = dirFile.listFiles();
                     Arrays.sort(logFiles);
                     for (File file : logFiles) {
                         if (file.isFile()) {
                             long kiloBytes = file.length() / 1024;
-                            Map<String, String> params = new HashMap<String, String>();
+                            Map<String, String> params = new HashMap<>();
                             params.put("fileName", file.getName());
                             String href = Commons.getActionUrl(ViewLogsAction.ACTION_PATH, params, pageContext, PortletUrlType.Action);
                             html.append("<a href=\"").append(href).append("\">").append(file.getName()).append(" (").append(kiloBytes).append("KB)</a>&nbsp;&nbsp;&nbsp;");

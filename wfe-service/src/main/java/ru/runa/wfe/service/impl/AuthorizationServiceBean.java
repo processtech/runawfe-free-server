@@ -36,6 +36,7 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.security.logic.AuthorizationLogic;
 import ru.runa.wfe.service.decl.AuthorizationServiceLocal;
 import ru.runa.wfe.service.decl.AuthorizationServiceRemote;
@@ -57,6 +58,18 @@ import ru.runa.wfe.user.User;
 public class AuthorizationServiceBean implements AuthorizationServiceLocal, AuthorizationServiceRemote, AuthorizationServiceRemoteWS {
     @Autowired
     private AuthorizationLogic authorizationLogic;
+    @Autowired
+    private PermissionDAO permissionDAO;
+
+    @Override
+    @WebMethod(exclude = true)
+    public void checkAllowed(@WebParam(name = "user") User user, @WebParam(name = "permission") Permission permission,
+            @WebParam(name = "identifiable") SecuredObject securedObject) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(permission != null, "permission");
+        Preconditions.checkArgument(securedObject != null, "identifiable");
+        permissionDAO.checkAllowed(user, permission, securedObject);
+    }
 
     @Override
     @WebResult(name = "result")
@@ -65,7 +78,7 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(permission != null, "permission");
         Preconditions.checkArgument(securedObject != null, "identifiable");
-        return authorizationLogic.isPermissionAllowed(user, securedObject, permission);
+        return permissionDAO.isAllowed(user, permission, securedObject);
     }
 
     @WebMethod(exclude = true)

@@ -18,15 +18,12 @@
 package ru.runa.common.web.tag;
 
 import java.io.IOException;
-
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.ConcreteElement;
-
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ProfileHttpSessionHelper;
@@ -80,6 +77,7 @@ public abstract class VisibleTag extends TagSupport {
                     writer.write("<span class=\"error\">" + ActionExceptionHelper.getErrorMessage(th, pageContext) + "</span>");
                 }
             } catch (IOException e1) {
+                // Do nothing.
             }
         }
         return doStartTagReturnedValue();
@@ -107,6 +105,7 @@ public abstract class VisibleTag extends TagSupport {
                 try {
                     writer.write("<span class=\"error\">" + ActionExceptionHelper.getErrorMessage(th, pageContext) + "</span>");
                 } catch (IOException e) {
+                    // Do nothing.
                 }
             }
         }

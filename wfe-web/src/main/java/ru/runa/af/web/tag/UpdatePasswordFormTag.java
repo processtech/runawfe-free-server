@@ -24,7 +24,6 @@ import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdatePasswordAction;
 import ru.runa.af.web.html.PasswordTableBuilder;
 import ru.runa.common.web.MessagesCommon;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 
@@ -35,34 +34,33 @@ public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     public void fillFormData(TD tdFormElement) {
-        PasswordTableBuilder builder = new PasswordTableBuilder(!isFormButtonEnabled(), pageContext);
+        PasswordTableBuilder builder = new PasswordTableBuilder(!isSubmitButtonEnabled(), pageContext);
         tdFormElement.addElement(builder.build());
     }
 
     @Override
-    protected Permission getPermission() {
-        return Permission.UPDATE_EXECUTOR;
+    protected Permission getSubmitPermission() {
+        // TODO Will this work?
+        return null;
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
     protected boolean isVisible() {
         boolean result = false;
-        if ((getExecutor() instanceof Actor) && isFormButtonEnabled()) {
+        if ((getExecutor() instanceof Actor) && isSubmitButtonEnabled()) {
             result = true;
         }
         return result;
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        return super.isFormButtonEnabled()
-                || (getUser().getActor().equals(getSecuredObject()) && super.isFormButtonEnabled(ASystem.INSTANCE,
-                        Permission.CHANGE_SELF_PASSWORD));
+    protected boolean isSubmitButtonEnabled() {
+        return super.isSubmitButtonEnabled() || getUser().getActor().equals(getSecuredObject());
     }
 
     @Override

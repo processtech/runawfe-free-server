@@ -21,7 +21,6 @@ import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
@@ -38,7 +37,7 @@ import ru.runa.wfe.security.Permission;
 public class RedeployProcessTDBuilder extends BaseTDBuilder {
 
     public RedeployProcessTDBuilder() {
-        super(Permission.REDEPLOY_DEFINITION);
+        super(Permission.UPDATE);
     }
 
     @Override

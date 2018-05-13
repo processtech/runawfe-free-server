@@ -77,6 +77,7 @@ import ru.runa.wfe.commons.dbpatch.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbpatch.impl.PerformancePatch401;
 import ru.runa.wfe.commons.dbpatch.impl.PermissionMappingPatch403;
 import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep1;
+import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep3;
 import ru.runa.wfe.commons.dbpatch.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskOpenedByExecutorsPatch;
@@ -175,6 +176,7 @@ public class InitializerLogic {
         patches.add(AddSubprocessBindingDatePatch.class);
         patches.add(AddTransactionalBotSupport.class);
         patches.add(RefactorPermissionsStep1.class);
+        patches.add(RefactorPermissionsStep3.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 
@@ -277,18 +279,11 @@ public class InitializerLogic {
         List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
         executorDAO.addExecutorToGroup(admin, adminGroup);
         executorDAO.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
-        // define executor permissions
-        permissionDAO.addType(SecuredObjectType.ACTOR, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.GROUP, adminWithGroupExecutors);
-        // define system permissions
-        permissionDAO.addType(SecuredObjectType.SYSTEM, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATIONGROUP, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.RELATIONPAIR, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.BOTSTATION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.DEFINITION, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.PROCESS, adminWithGroupExecutors);
-        permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
+        for (SecuredObjectType t : SecuredObjectType.values()) {
+            if (!t.hasObjectIds()) {
+                permissionDAO.addType(t, adminWithGroupExecutors);
+            }
+        }
     }
 
     /**

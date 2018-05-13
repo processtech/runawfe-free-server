@@ -345,7 +345,7 @@ public class SystemProperties {
      */
     public static List<Permission> getDefaultPermissions(SecuredObjectType securedObjectType) {
         List<Permission> result = new ArrayList<>();
-        List<Permission> applicablePermissions = ApplicablePermissions.list(securedObjectType);
+        List<Permission> applicablePermissions = ApplicablePermissions.listVisible(securedObjectType);
         List<String> permissionNames = RESOURCES.getMultipleStringProperty(securedObjectType.toString().toLowerCase() + ".default.permissions");
         for (String permissionName : permissionNames) {
             Permission foundPermission = null;

@@ -34,14 +34,6 @@ public final class IdentifiebleSetConvertions {
         return groups;
     }
 
-    public static Set<SecuredObject> getRelations(ScriptExecutionContext context, Set<String> relationNames) {
-        Set<SecuredObject> relations = Sets.newHashSet();
-        for (String groupName : relationNames) {
-            relations.add(context.getRelationLogic().getRelation(context.getUser(), groupName));
-        }
-        return relations;
-    }
-
     public static Set<SecuredObject> getProcessDefinitions(ScriptExecutionContext context, Set<String> processDefinitionNames) {
         Set<SecuredObject> processDefinitions = Sets.newHashSet();
         for (String definitionName : processDefinitionNames) {

@@ -46,7 +46,7 @@ public class TaskProcessDefinitionTDBuilder implements TDBuilder {
         TD td = new TD();
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         String definitionName = getValue(object, env);
-        if (env.hasProcessDefinitionPermission(Permission.READ, task.getDefinitionId())) {
+        if (env.hasProcessDefinitionPermission(Permission.LIST, task.getDefinitionId())) {
             String url = Commons.getActionUrl(WebResources.ACTION_MAPPING_MANAGE_DEFINITION, IdForm.ID_INPUT_NAME, task.getDefinitionId(),
                     env.getPageContext(), PortletUrlType.Render);
             A definitionNameLink = new A(url, definitionName);

@@ -39,9 +39,9 @@ public class GroupClassPresentation extends ClassPresentation {
     private GroupClassPresentation() {
         super(Group.class, "", true, new FieldDescriptor[] {
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Group.class, "name"), true, 1, BatchPresentationConsts.ASC,
-                		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NO_PERMISSION, "name" }),
+                		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Group.class, "description"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NO_PERMISSION, "description" }) });
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "description" }) });
     }
 
     public static ClassPresentation getInstance() {

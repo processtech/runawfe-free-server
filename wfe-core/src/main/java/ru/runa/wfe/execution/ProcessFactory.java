@@ -44,7 +44,7 @@ public class ProcessFactory {
     private static final Map<Permission, Permission> DEFINITION_TO_PROCESS_PERMISSION_MAP;
     static {
         DEFINITION_TO_PROCESS_PERMISSION_MAP = new HashMap<>();
-        DEFINITION_TO_PROCESS_PERMISSION_MAP.put(Permission.READ_PROCESS, Permission.READ);
+        DEFINITION_TO_PROCESS_PERMISSION_MAP.put(Permission.READ_PROCESS, Permission.LIST);
         DEFINITION_TO_PROCESS_PERMISSION_MAP.put(Permission.CANCEL_PROCESS, Permission.CANCEL_PROCESS);
     }
 

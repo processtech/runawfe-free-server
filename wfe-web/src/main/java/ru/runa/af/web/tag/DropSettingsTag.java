@@ -45,7 +45,7 @@ public class DropSettingsTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesOther.BUTTON_USE_DAFAULT_PROPERTIES.message(pageContext);
     }
 

@@ -18,35 +18,32 @@
 package ru.runa.wfe.security;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.springframework.util.Assert;
+import ru.runa.wfe.commons.CollectionUtil;
 
-import static ru.runa.wfe.security.Permission.ADD_TO_GROUP;
-import static ru.runa.wfe.security.Permission.BOT_STATION_CONFIGURE;
+import static ru.runa.wfe.security.Permission.ALL;
+import static ru.runa.wfe.security.Permission.CANCEL;
 import static ru.runa.wfe.security.Permission.CANCEL_PROCESS;
-import static ru.runa.wfe.security.Permission.CHANGE_SELF_PASSWORD;
-import static ru.runa.wfe.security.Permission.CREATE_EXECUTOR;
-import static ru.runa.wfe.security.Permission.DEPLOY_DEFINITION;
-import static ru.runa.wfe.security.Permission.DEPLOY_REPORT;
-import static ru.runa.wfe.security.Permission.LIST_GROUP;
-import static ru.runa.wfe.security.Permission.LOGIN_TO_SYSTEM;
+import static ru.runa.wfe.security.Permission.CREATE;
+import static ru.runa.wfe.security.Permission.DELETE;
+import static ru.runa.wfe.security.Permission.LIST;
+import static ru.runa.wfe.security.Permission.LOGIN;
 import static ru.runa.wfe.security.Permission.READ;
+import static ru.runa.wfe.security.Permission.READ_PERMISSIONS;
 import static ru.runa.wfe.security.Permission.READ_PROCESS;
-import static ru.runa.wfe.security.Permission.REDEPLOY_DEFINITION;
-import static ru.runa.wfe.security.Permission.REMOVE_FROM_GROUP;
-import static ru.runa.wfe.security.Permission.START_PROCESS;
-import static ru.runa.wfe.security.Permission.UNDEPLOY_DEFINITION;
-import static ru.runa.wfe.security.Permission.UPDATE_ACTOR_STATUS;
-import static ru.runa.wfe.security.Permission.UPDATE_EXECUTOR;
+import static ru.runa.wfe.security.Permission.START;
+import static ru.runa.wfe.security.Permission.UPDATE;
 import static ru.runa.wfe.security.Permission.UPDATE_PERMISSIONS;
-import static ru.runa.wfe.security.Permission.UPDATE_RELATION;
-import static ru.runa.wfe.security.Permission.VIEW_ACTOR_TASKS;
-import static ru.runa.wfe.security.Permission.VIEW_GROUP_TASKS;
-import static ru.runa.wfe.security.Permission.VIEW_LOGS;
+import static ru.runa.wfe.security.Permission.UPDATE_SELF;
+import static ru.runa.wfe.security.Permission.UPDATE_STATUS;
+import static ru.runa.wfe.security.Permission.VIEW_TASKS;
 
 /**
  * Extracted from class Permission because permission-to-securedObjectType applicability is separate piece of logic,
@@ -54,85 +51,130 @@ import static ru.runa.wfe.security.Permission.VIEW_LOGS;
  *
  * @see SecuredObjectType
  * @see Permission
- * @see LegacyPermissions
+ * @see PermissionSubstitutions
  */
 public final class ApplicablePermissions {
 
     // Both list and set are unmodifiable.
     private static final class ListAndSet {
-        final List<Permission> list;
-        final Set<Permission> set;
+        final ArrayList<Permission> visibleList = new ArrayList<>();
+        final HashSet<Permission> allSet = new HashSet<>();
+        final HashSet<Permission> defaultsSet = new HashSet<>();
 
-        ListAndSet(ArrayList<Permission> list, HashSet<Permission> set) {
-            this.list = Collections.unmodifiableList(list);
-            this.set = Collections.unmodifiableSet(set);
-        }
+        final List<Permission> unmodifiableVisibleList = Collections.unmodifiableList(visibleList);
     }
 
     // Mutable, but private. See accessors below.
     private static final HashMap<SecuredObjectType, ListAndSet> permissionsBySecuredObjectType = new HashMap<>();
-    private static final List<Permission> emptyList = Collections.emptyList();
+
+    private static ListAndSet getOrCreate(SecuredObjectType type) {
+        return CollectionUtil.mapGetOrPutDefault(permissionsBySecuredObjectType, type, new ListAndSet());
+    }
+
+
+    public static final class DSL {
+        final SecuredObjectType type;
+
+        private DSL(SecuredObjectType type) {
+            this.type = type;
+        }
+
+        /**
+         * Adds permissions that are invisible in permission editor form, but which are accepted by check() methods as applicable.
+         * Hidden permissions are mapped to visible ones by PermissionSubstitutions class.
+         * <p>
+         * The reasoning: some logic may need to check LIST permission on arbitrary object. But it may be called for system object
+         * which has only ALL permission applicable. To avoid polymorphic behaviour (choosing permission to check based on object type)
+         * be stretched thin over whole project, this permission hiding and substitution is managed centrally: here and in the class
+         * PermissionSubstitutions.
+         * <p>
+         * So, internally we have fine-grained permission system, while displaying coarse-grained permissions to users.
+         */
+        public DSL hidden(Permission... pp) {
+            getOrCreate(type).allSet.addAll(Arrays.asList(pp));
+            return this;
+        }
+
+        /**
+         * Permissions granted by default when executor is added to managePermissionsForm by grantPermissionsForm.
+         */
+        public DSL defaults(Permission... pp) {
+            List<Permission> ppList = Arrays.asList(pp);
+            ListAndSet ls = getOrCreate(type);
+            Set<Permission> unknown = CollectionUtil.diffSet(ppList, ls.visibleList);
+            if (!unknown.isEmpty()) {
+                throw new RuntimeException("For " + type + ", some default permissions are not visible: " + unknown);
+            }
+            ls.defaultsSet.addAll(ppList);
+            return this;
+        }
+    }
 
     /**
-     * Register permissions applicable to given SecuredObjectType. May be called multiple times for the same type;
-     * each next call appends permissions to the list, excluding already listed permissions.
+     * Register permissions applicable to given SecuredObjectType and visible (i.e. editable by user; see also {@link DSL#hidden(Permission...)}).
+     * May be called multiple times for the same type; each next call appends permissions to the list, except already listed permissions.
+     * <p>
+     * The order of visible permissions listed in the call to this method is important: it's the order they will show on permissions editor page.
+     * Also, first visible permission will be granted to the executor by default when he is granted permissions in permission editor dialog.
      */
-    public static void add(SecuredObjectType type, Permission... permissions) {
-        // Since ListAndSet is immutable, we fill temporary mutable collections and replace immutable instance.
-        ArrayList<Permission> list = new ArrayList<>();
-        HashSet<Permission> set = new HashSet<>();
-
-        ListAndSet old = permissionsBySecuredObjectType.get(type);
-        if (old != null) {
-            list.addAll(old.list);
-            set.addAll(old.set);
-        }
-        for (Permission p : permissions) {
+    public static DSL add(SecuredObjectType type, Permission... pp) {
+        ListAndSet ls = getOrCreate(type);
+        for (Permission p : pp) {
             // This also excludes duplications in `permissions` argument itself, even if we created empty list just above.
-            if (!set.contains(p)) {
-                list.add(p);
-                set.add(p);
+            if (!ls.allSet.contains(p)) {
+                ls.allSet.add(p);
+                ls.visibleList.add(p);
             }
         }
-
-        permissionsBySecuredObjectType.put(type, new ListAndSet(list, set));
+        return new DSL(type);
     }
 
     /**
-     * Returns permissions applicable to given SecuredObjectType. Returns unmodifiable list.
-     * If no permissions were assigned to given SecuredObjectType, returns empty list.
-     *
+     * Returns visible (editable by user) permissions applicable to given SecuredObjectType.
+     * Returns non-empty unmodifiable list. Throws if no visible permissions were defined for type.
+     * <p>
      * List with deterministic permission order is necessary for permission editor forms.
      */
-    public static List<Permission> list(SecuredObjectType type) {
-        // TODO After migrating to java 1.8, use getOrDefault().
-//        return permissionsBySecuredObjectType.getOrDefault(type, emptyListAndSet).list;
+    public static List<Permission> listVisible(SecuredObjectType type) {
         ListAndSet ls = permissionsBySecuredObjectType.get(type);
-        return (ls != null) ? ls.list : emptyList;
+        Assert.notNull(ls);
+        Assert.notEmpty(ls.unmodifiableVisibleList);
+        return ls.unmodifiableVisibleList;
     }
 
     /**
-     * Shortcut for <code>list(obj.getSecuredObjectType())</code>, see {@link #list(SecuredObjectType)}.
+     * Shortcut for <code>list(obj.getSecuredObjectType())</code>, see {@link #listVisible(SecuredObjectType)}.
      */
-    public static List<Permission> list(SecuredObject obj) {
-        return list(obj.getSecuredObjectType());
+    public static List<Permission> listVisible(SecuredObject obj) {
+        return listVisible(obj.getSecuredObjectType());
     }
 
     /**
-     * Throws if permission is not applicable to secured object type.
+     * Returns permissions granted by default, when user is added (granted permissions to object) on permissions editor page.
+     * If getDefaults() was not specified for type, returns first element from listVisible(obj).
+     */
+    public static Set<Permission> getDefaults(SecuredObject obj) {
+        ListAndSet ls = permissionsBySecuredObjectType.get(obj.getSecuredObjectType());
+        return ls.defaultsSet.isEmpty()
+                ? Collections.singleton(listVisible(obj).get(0))  // listVisible() has asserts, so called it instead of reading ls.listVisible.
+                : ls.defaultsSet;
+    }
+
+    /**
+     * Throws if permission is not applicable to secured object type, i.e. is not among neither visible nor hidden permissions.
      */
     public static void check(SecuredObjectType type, Permission permission) {
         ListAndSet ls = permissionsBySecuredObjectType.get(type);
-        if (ls == null || !ls.set.contains(permission)) {
+        if (ls == null || !ls.allSet.contains(permission)) {
             throw new UnapplicablePermissionException(type, Collections.singletonList(permission));
         }
     }
 
     /**
-     * Throws if permission is not applicable to secured object.
+     * Shortcut for <code>check(obj.getSecuredObjectType(), permission)</code>, see {@link #check(SecuredObjectType, Permission)}.
      */
-    public static void check(SecuredObject securedObject, Permission permission) {
-        check(securedObject.getSecuredObjectType(), permission);
+    public static void check(SecuredObject obj, Permission permission) {
+        check(obj.getSecuredObjectType(), permission);
     }
 
     /**
@@ -147,7 +189,7 @@ public final class ApplicablePermissions {
             throw new UnapplicablePermissionException(type, permissions);
         }
         // Used List instead of Set here, to have deterministic error message.
-        List<Permission> unapplicable = ru.runa.wfe.commons.CollectionUtil.diffList(permissions, ls.set);
+        List<Permission> unapplicable = ru.runa.wfe.commons.CollectionUtil.diffList(permissions, ls.allSet);
         if (unapplicable.size() > 0) {
             throw new UnapplicablePermissionException(type, unapplicable);
         }
@@ -160,16 +202,77 @@ public final class ApplicablePermissions {
         check(obj.getSecuredObjectType(), permissions);
     }
 
+    // List types in aplhabetic order, please. For each type:
+    // - Visible permissions: add(type, ...) - in the order they'll appear in editor.
+    // - Default permissions: .defaults(...) - in any order; optional: if omitted, first visible permission will be used.
+    // - Hidden  permissions: .hidden(...)   - in any order; READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST (unless visible) must be present for all types.
+    // ATTENTION!!! Lists of visible permissions are duplicated in RefactorPermissionsStep3 migration.
     static {
-        add(SecuredObjectType.ACTOR, READ, UPDATE_PERMISSIONS, UPDATE_EXECUTOR, UPDATE_ACTOR_STATUS, VIEW_ACTOR_TASKS);
-        add(SecuredObjectType.GROUP, READ, UPDATE_PERMISSIONS, UPDATE_EXECUTOR, LIST_GROUP, ADD_TO_GROUP, REMOVE_FROM_GROUP, VIEW_GROUP_TASKS);
-        add(SecuredObjectType.BOTSTATION, READ, UPDATE_PERMISSIONS, BOT_STATION_CONFIGURE);
-        add(SecuredObjectType.DEFINITION, READ, UPDATE_PERMISSIONS, REDEPLOY_DEFINITION, UNDEPLOY_DEFINITION, START_PROCESS, READ_PROCESS, CANCEL_PROCESS);
-        add(SecuredObjectType.PROCESS, READ, UPDATE_PERMISSIONS, CANCEL_PROCESS);
-        add(SecuredObjectType.RELATION, READ, UPDATE_PERMISSIONS, UPDATE_RELATION);
-        add(SecuredObjectType.RELATIONGROUP, READ, UPDATE_PERMISSIONS, UPDATE_RELATION);
-        add(SecuredObjectType.RELATIONPAIR, READ, UPDATE_PERMISSIONS, UPDATE_RELATION);
-        add(SecuredObjectType.REPORT, READ, UPDATE_PERMISSIONS, DEPLOY_REPORT);
-        add(SecuredObjectType.SYSTEM, READ, UPDATE_PERMISSIONS, LOGIN_TO_SYSTEM, CREATE_EXECUTOR, CHANGE_SELF_PASSWORD, VIEW_LOGS, DEPLOY_DEFINITION);
+
+        add(SecuredObjectType.ACTOR, LIST, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        // System singleton:
+        add(SecuredObjectType.BOTSTATIONS, ALL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+
+        // System singleton:
+        add(SecuredObjectType.DATAFILE, ALL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+
+        add(SecuredObjectType.DEFINITION, ALL, LIST, READ, START, READ_PROCESS, CANCEL_PROCESS, UPDATE)
+                .defaults(LIST)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        add(SecuredObjectType.DEFINITIONS, ALL, LIST, READ, START, READ_PROCESS, CANCEL_PROCESS, CREATE, UPDATE)
+                .defaults(LIST)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        // System singleton:
+        add(SecuredObjectType.ERRORS, ALL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+
+        add(SecuredObjectType.EXECUTORS, ALL, LOGIN, LIST, READ, VIEW_TASKS, CREATE, UPDATE, UPDATE_STATUS, UPDATE_SELF, DELETE)
+                .defaults(LOGIN)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        // Same setup for ACTOR & GROUP:
+        add(SecuredObjectType.GROUP, LIST, READ, VIEW_TASKS, UPDATE, UPDATE_STATUS, DELETE)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        // System singleton:
+        add(SecuredObjectType.LOGS, ALL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+
+        add(SecuredObjectType.PROCESSES, ALL, LIST, READ, CANCEL)
+                .defaults(LIST)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        add(SecuredObjectType.PROCESS, ALL, LIST, READ, CANCEL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        // System singleton:
+        add(SecuredObjectType.RELATIONS, ALL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+
+        add(SecuredObjectType.REPORTS, ALL, LIST)
+                .defaults(LIST)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        add(SecuredObjectType.REPORT, ALL, LIST)
+                .defaults(LIST)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+
+        // System singleton:
+        add(SecuredObjectType.SCRIPTS, ALL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+
+        // System singleton:
+        add(SecuredObjectType.SUBSTITUTION_CRITERIAS, ALL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
+
+        // System singleton:
+        add(SecuredObjectType.SYSTEM, ALL)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
     }
 }

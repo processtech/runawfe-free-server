@@ -32,7 +32,6 @@ import ru.runa.wfe.user.User;
 
 /**
  * Created on 14.03.2005
- * 
  */
 public class AuthorizationLogic extends CommonLogic {
     public boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId) {
@@ -48,14 +47,14 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject) {
-        checkPermissionsOnExecutor(user, performer, Permission.READ);
-        checkPermissionAllowed(user, securedObject, Permission.READ);
+        checkPermissionsOnExecutor(user, performer, Permission.LIST);
+        permissionDAO.checkAllowed(user, Permission.LIST, securedObject);
         return permissionDAO.getIssuedPermissions(performer, securedObject);
     }
 
     public void setPermissions(User user, List<Long> executorIds, Collection<Permission> permissions, SecuredObject securedObject) {
         List<Executor> executors = executorDAO.getExecutors(executorIds);
-        checkPermissionsOnExecutors(user, executors, Permission.READ);
+        checkPermissionsOnExecutors(user, executors, Permission.LIST);
         for (Executor executor : executors) {
             setPermissions(user, executor, permissions, securedObject);
         }
@@ -64,7 +63,7 @@ public class AuthorizationLogic extends CommonLogic {
     public void setPermissions(User user, List<Long> executorIds, List<Collection<Permission>> permissions, SecuredObject securedObject) {
         List<Executor> executors = executorDAO.getExecutors(executorIds);
         Preconditions.checkArgument(executors.size() == permissions.size(), "arrays length differs");
-        checkPermissionsOnExecutors(user, executors, Permission.READ);
+        checkPermissionsOnExecutors(user, executors, Permission.LIST);
         for (int i = 0; i < executors.size(); i++) {
             setPermissions(user, executors.get(i), permissions.get(i), securedObject);
         }
@@ -76,8 +75,8 @@ public class AuthorizationLogic extends CommonLogic {
     }
 
     public void setPermissions(User user, Executor executor, Collection<Permission> permissions, SecuredObject securedObject) {
-        checkPermissionsOnExecutor(user, executor, Permission.READ);
-        checkPermissionAllowed(user, securedObject, Permission.UPDATE_PERMISSIONS);
+        checkPermissionsOnExecutor(user, executor, Permission.LIST);
+        permissionDAO.checkAllowed(user, Permission.UPDATE_PERMISSIONS, securedObject);
         permissionDAO.setPermissions(executor, permissions, securedObject);
     }
 
@@ -96,14 +95,14 @@ public class AuthorizationLogic extends CommonLogic {
      */
     public List<? extends Executor> getExecutorsWithPermission(User user, SecuredObject securedObject, BatchPresentation batchPresentation,
             boolean hasPermission) {
-        checkPermissionAllowed(user, securedObject, Permission.READ);
+        permissionDAO.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createExecutorWithPermissionCompiler(user, securedObject,
                 batchPresentation, hasPermission);
         if (hasPermission) {
             List<Executor> executors = compiler.getBatch();
             for (Executor privelegedExecutor : permissionDAO.getPrivilegedExecutors(securedObject.getSecuredObjectType())) {
                 if (batchPresentation.getClassPresentation().getPresentationClass().isInstance(privelegedExecutor)
-                        && isPermissionAllowed(user, privelegedExecutor, Permission.READ)) {
+                        && permissionDAO.isAllowed(user, Permission.LIST, privelegedExecutor)) {
                     executors.add(0, privelegedExecutor);
                 }
             }
@@ -127,7 +126,7 @@ public class AuthorizationLogic extends CommonLogic {
      * @return Count of executors with or without permission on {@linkplain SecuredObject}.
      */
     public int getExecutorsWithPermissionCount(User user, SecuredObject securedObject, BatchPresentation batchPresentation, boolean hasPermission) {
-        checkPermissionAllowed(user, securedObject, Permission.READ);
+        permissionDAO.checkAllowed(user, Permission.READ_PERMISSIONS, securedObject);
         PresentationConfiguredCompiler<Executor> compiler = PresentationCompilerHelper.createExecutorWithPermissionCompiler(user, securedObject,
                 batchPresentation, hasPermission);
         return compiler.getCount();

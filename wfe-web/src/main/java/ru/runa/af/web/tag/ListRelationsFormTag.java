@@ -38,25 +38,24 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.relation.Relation;
-import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listRelationsForm")
 public class ListRelationsFormTag extends BatchReturningTitledFormTag {
     private static final long serialVersionUID = 1L;
-    private boolean formButtonVisible;
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
-        formButtonVisible = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_RELATION, RelationsGroupSecure.INSTANCE);
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
         List<Relation> relations = Delegates.getRelationService().getRelations(getUser(), getBatchPresentation());
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder checkboxBuilder = new SecuredObjectCheckboxTDBuilder(Permission.UPDATE_RELATION) {
+        TDBuilder checkboxBuilder = new SecuredObjectCheckboxTDBuilder(null) {
 
             @Override
             protected boolean isEnabled(Object object, Env env) {
-                return formButtonVisible;
+                return true;
             }
         };
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { checkboxBuilder }, getBatchPresentation(), null);
@@ -72,22 +71,7 @@ public class ListRelationsFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        return formButtonVisible;
-    }
-
-    @Override
-    protected boolean isFormButtonVisible() {
-        return formButtonVisible;
-    }
-
-    @Override
-    protected boolean isMultipleSubmit() {
-        return false;
-    }
-
-    @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 

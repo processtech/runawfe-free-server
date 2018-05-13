@@ -33,6 +33,8 @@ import ru.runa.wfe.user.User;
  */
 public interface AuthorizationService {
 
+    void checkAllowed(User user, Permission permission, SecuredObject securedObject);
+
     /**
      * Checks whether user has permission on securedObject.
      */

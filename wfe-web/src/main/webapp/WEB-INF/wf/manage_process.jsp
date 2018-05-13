@@ -43,8 +43,7 @@ function Reload() {
 <tiles:put name="body" type="string" >
 
 <%
-	String parameterName = IdForm.ID_INPUT_NAME;
-	Long id = Long.parseLong(request.getParameter(parameterName));
+	long id = Long.parseLong(request.getParameter("id"));
 	Long taskId = null;
 	String taskIdString = request.getParameter(TaskIdForm.TASK_ID_INPUT_NAME);
 	if (taskIdString != null && !"null".equals(taskIdString)) {
@@ -63,28 +62,27 @@ function Reload() {
 	<tr>
 		<td align="right">
 		<% if(graphMode) { %>
-			<wf:showProcessGraphLink identifiableId='<%=id %>' href='<%= "/show_process_graph.do?" + parameterName+ "=" + id + "&taskId=" + taskId + "&childProcessId=" + childProcessId %>'  />
+			<wf:showProcessGraphLink identifiableId='<%=id %>' href='<%= "/show_process_graph.do?id=" + id + "&taskId=" + taskId + "&childProcessId=" + childProcessId %>'  />
 		<% } %>
 		</td>
 		<td width="200" align="right">
-			<wf:showTasksHistoryLink identifiableId='<%=id %>' href='<%= "/show_tasks_history.do?" + parameterName+ "=" + id %>'  />
+			<wf:showTasksHistoryLink identifiableId='<%=id %>' href='<%= "/show_tasks_history.do?id=" + id %>'  />
 		</td>
 	</tr>
 	<tr>
 		<td align="right">
-			<wf:showHistoryLink identifiableId='<%=id %>' href='<%= "/show_history.do?" + parameterName+ "=" + id %>'  />
+			<wf:showHistoryLink identifiableId='<%=id %>' href='<%= "/show_history.do?id=" + id %>'  />
 		</td>
 		<td width="200" align="right">
-			<wf:showGanttDiagramLink identifiableId='<%=id %>' href='<%= "/show_gantt_diagram.do?" + parameterName+ "=" + id %>'  />
+			<wf:showGanttDiagramLink identifiableId='<%=id %>' href='<%= "/show_gantt_diagram.do?id=" + id %>'  />
 		</td>
 	</tr>
-	
 	<tr>
 		<td align="right">
-			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?" + parameterName+ "=" + id %>'  />
+			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?id=" + id %>'  />
 		</td>
 		<td width="200" align="right">
-			<wf:updatePermissionsOnSecuredObjectLink identifiableId='<%=id %>' href='<%= "/manage_process_permissions.do?" + parameterName+ "=" + id %>'  />
+			<wf:managePermissionsLink securedObjectType="PROCESS" identifiableId="<%= id %>"  />
 		</td>
 	</tr>
 

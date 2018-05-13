@@ -62,13 +62,13 @@ public class CommonLogic {
     protected SettingDAO settingDAO;
 
     protected <T extends Executor> T checkPermissionsOnExecutor(User user, T executor, Permission permission) {
-        if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.READ)) {
+        if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.LIST)) {
             return executor;
         }
-        if (executor instanceof TemporaryGroup && permission.equals(Permission.READ)) {
+        if (executor instanceof TemporaryGroup && permission.equals(Permission.LIST)) {
             return executor;
         }
-        checkPermissionAllowed(user, executor, permission);
+        permissionDAO.checkAllowed(user, permission, executor);
         return executor;
     }
 
@@ -77,16 +77,6 @@ public class CommonLogic {
             checkPermissionsOnExecutor(user, executor, permission);
         }
         return executors;
-    }
-
-    protected void checkPermissionAllowed(User user, SecuredObject securedObject, Permission permission) throws AuthorizationException {
-        if (!isPermissionAllowed(user, securedObject, permission)) {
-            throw new AuthorizationException(user + " does not have " + permission + " to " + securedObject);
-        }
-    }
-
-    public boolean isPermissionAllowed(User user, SecuredObject securedObject, Permission permission) {
-        return permissionDAO.isAllowed(user, permission, securedObject);
     }
 
     public <T extends SecuredObject> void isPermissionAllowed(User user, List<T> securedObjects, Permission permission,

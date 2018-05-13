@@ -47,7 +47,18 @@
 	<script type="text/javascript" src="<html:rewrite page='<%="/js/errorviewer.js?"+Version.getHash() %>' />">c=0;</script>
 </tiles:put>
 
-<tiles:put name="body" type="string" >
+<tiles:put name="body" type="string">
+<wf:managePermissionsForm securedObjectType="ERRORS">
+	<table width="100%">
+		<tr>
+			<td align="left">
+				<wf:grantPermissionsLink securedObjectType="ERRORS"/>
+			</td>
+		</tr>
+	</table>
+</wf:managePermissionsForm>
+
+
 <table class='box'><tr><th class='box'><bean:message key="title.errors" /></th></tr>
 <tr><td class='box'>
 	<div>

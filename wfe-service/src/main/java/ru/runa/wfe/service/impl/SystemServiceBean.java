@@ -17,10 +17,11 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -30,12 +31,10 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.dao.Localization;
@@ -46,16 +45,12 @@ import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.service.decl.SystemServiceLocal;
 import ru.runa.wfe.service.decl.SystemServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 /**
  * Represent system ru.runa.commons.test operations login/logout. Created on 16.08.2004
@@ -76,7 +71,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     @WebResult(name = "result")
     public void login(@WebParam(name = "user") User user) {
         Preconditions.checkArgument(user != null, "user");
-        auditLogic.login(user, ASystem.INSTANCE);
+        auditLogic.login(user);
     }
 
     @Override
@@ -143,7 +138,7 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     public List<ProcessError> getProcessErrors(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(processId != null, "processId");
-        List<ProcessError> list = new ArrayList<ProcessError>();
+        List<ProcessError> list = new ArrayList<>();
         List<ProcessError> cached = Errors.getProcessErrors(processId);
         if (cached != null) {
             list.addAll(cached);

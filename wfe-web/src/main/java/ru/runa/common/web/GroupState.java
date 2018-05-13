@@ -360,7 +360,7 @@ public class GroupState {
         return true;
     }
 
-    static public int getMaxAdditionalCellsNum(BatchPresentation batchPresentation, List<? extends Object> items, TDBuilder.Env env) {
+    static public int getMaxAdditionalCellsNum(BatchPresentation batchPresentation, List<?> items, TDBuilder.Env env) {
         FieldDescriptor[] grouppedFields = batchPresentation.getGrouppedFields();
         if (grouppedFields == null || grouppedFields.length == 0) {
             return 0;

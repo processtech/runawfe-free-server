@@ -21,21 +21,13 @@
  */
 package ru.runa.wfe.definition.dao;
 
-import java.sql.SQLException;
+import com.google.common.base.Objects;
 import java.util.Date;
 import java.util.List;
-
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
-
-import com.google.common.base.Objects;
 
 /**
  * DAO for {@link Deployment}.
@@ -104,41 +96,32 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
         return getHibernateTemplate().find(query, name);
     }
 
+    @SuppressWarnings("unchecked")
     public List<Number> findDeploymentVersionIds(String name, Long from, Long to) {
-        String query = "select id from Deployment where name=? and version<=? and version>=? order by version asc";
-        return getHibernateTemplate().find(query, name, from, to);
+        return sessionFactory.getCurrentSession()
+                .createQuery("select id from Deployment where name=? and version<=? and version>=? order by version asc")
+                .setParameter(0, name)
+                .setParameter(1, from)
+                .setParameter(2, to)
+                .list();
     }
 
     public Number findDeploymentIdLatestVersionLessThan(final String name, final Long version) {
-        List<Number> ids = getHibernateTemplate().executeFind(new HibernateCallback<List<Number>>() {
-
-            @Override
-            public List<Number> doInHibernate(Session session) throws HibernateException, SQLException {
-                Query query = session.createQuery("select id from Deployment where name=? and version<? order by version desc");
-                query.setMaxResults(1);
-                query.setParameter(0, name);
-                query.setParameter(1, version);
-                return query.list();
-            }
-
-        });
-        return getFirstOrNull(ids);
+        return (Number)sessionFactory.getCurrentSession()
+                .createQuery("select id from Deployment where name=? and version<? order by version desc")
+                .setParameter(0, name)
+                .setParameter(1, version)
+                .setMaxResults(1)
+                .uniqueResult();
     }
 
     public Number findDeploymentIdLatestVersionBeforeDate(final String name, final Date date) {
-        List<Number> ids = getHibernateTemplate().executeFind(new HibernateCallback<List<Number>>() {
-
-            @Override
-            public List<Number> doInHibernate(Session session) throws HibernateException, SQLException {
-                Query query = session.createQuery("select id from Deployment where name=? and createDate<? order by version desc");
-                query.setMaxResults(1);
-                query.setParameter(0, name);
-                query.setParameter(1, date);
-                return query.list();
-            }
-
-        });
-        return getFirstOrNull(ids);
+        return (Number)sessionFactory.getCurrentSession()
+                .createQuery("select id from Deployment where name=? and createDate<? order by version desc")
+                .setParameter(0, name)
+                .setParameter(1, date)
+                .setMaxResults(1)
+                .uniqueResult();
     }
 
     /**
@@ -147,8 +130,12 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
      * @deprecated use findAllDeploymentVersionIds
      */
     @Deprecated
+    @SuppressWarnings("unchecked")
     public List<Deployment> findAllDeploymentVersions(String name) {
-        return getHibernateTemplate().find("from Deployment where name=? order by version desc", name);
+        return sessionFactory.getCurrentSession()
+                .createQuery("from Deployment where name=? order by version desc")
+                .setParameter(0, name)
+                .list();
     }
 
 }

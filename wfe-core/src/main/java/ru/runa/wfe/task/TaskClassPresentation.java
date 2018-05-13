@@ -54,7 +54,7 @@ public class TaskClassPresentation extends ClassPresentation {
                 // display name field type DB source isSort filter mode
                 // get value/show in web getter parameters
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Task.class, "name"), true, 3, BatchPresentationConsts.ASC,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NO_PERMISSION, "name" }),
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Task.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDescriptionTDBuilder", new Object[] {}),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDBSource(Task.class, "process.deployment.name"), true,

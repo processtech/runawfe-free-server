@@ -17,31 +17,45 @@
  */
 package ru.runa.wfe.security;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.google.common.base.Objects;
+import java.io.Serializable;
+import java.util.HashMap;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
 
 
 /**
  * "Extensible enum": more "enum items" can be added elsewhere.
  * For example, if subproject needs additional permissions EXTRA_EXECUTOR_PERM and EXTRA_ACTOR_PERM
- * applicable to executors and actors respectively, code it like this:
+ * applicable to actors and groups, code it like this:
  *
  * <pre>
  * class ExtraPermission {
  *     public static final Permission EXTRA_EXECUTOR_PERM = new Permission("EXTRA_EXECUTOR_PERM");
  *     public static final Permission EXTRA_ACTOR_PERM = new Permission("EXTRA_ACTOR_PERM");
  *     static {
+ *         // Declare which types new permissions are applicable to.
  *         ApplicablePermissions.add(SecuredObjectType.ACTOR, EXTRA_EXECUTOR_PERM, EXTRA_ACTOR_PERM);
  *         ApplicablePermissions.add(SecuredObjectType.GROUP, EXTRA_EXECUTOR_PERM);
+ *
+ *         // Declare that if EXTRA_ACTOR_PERM is requested on ACTOR, then it's sufficient to have
+ *         // UDPATE permission on the same ACTOR instance, or ALL or UPDATE permission on EXECUTORS list.
+ *         // Note 1: declare substitutions after declaring applicability.
+ *         // Note 2: list type EXECUTORS is known from SecuredObjectType.ACTOR definition.
+ *         // Note 3: lists's ALL is already a substitution for list's UPDATE, and list's UPDATE is already
+ *         //         a substitution for instance's UDPATE (see PermissionSubstitutions static initialization),
+ *         //         so .list() call can be omitted here.
+ *         PermissionSubstitutions.add(SecuredObjectType.ACTOR, EXTRA_ACTOR_PERM)
+ *                 .self(Permission.UPDATE)
+ *                 .list(Permission.ALL, Permission.UPDATE);
  *     }
  * }
  * </pre>
  *
+ * These permissions are pretty fine-grained. Some of them are as hidden (globally or for specific object types),
+ * i.e. used internally but not editable by user. See method {@link ApplicablePermissions.DSL#hidden(Permission...)}
+ * for details.
+ * <p>
  * <b>ATTENTION!!!</b> Since once initialization completes, permissions are accessed as read-only,
  * no synchronization is done on internal structures to avoid unnecessary performance overhead.
  * So you MUST initialize permissions in single thread. Make sure that all classes that perform
@@ -50,7 +64,7 @@ import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
  *
  * @see SecuredObjectType
  * @see ApplicablePermissions
- * @see LegacyPermissions
+ * @see PermissionSubstitutions
  */
 @XmlJavaTypeAdapter(Permission2XmlAdapter.class)
 public final class Permission implements Serializable {
@@ -72,16 +86,7 @@ public final class Permission implements Serializable {
             throw new IllegalArgumentException("Illegal Permission name");
         }
         if (result == null) {
-            // Accept "permission.xxx" in addition to "XXX".
-            // TODO This is temporary hack, until rm659 & rm660 are done.
-            //      See also related TO_DO in PermissionsDataFileBuilder.build().
-            if (name != null && name.startsWith("permission.")) {
-                result = instancesByName.get(name.substring(11).toUpperCase());
-            }
-
-            if (result == null) {
-                throw new IllegalArgumentException("Unknown Permission name \"" + name + "\"");
-            }
+            throw new IllegalArgumentException("Unknown Permission name \"" + name + "\"");
         }
         return result;
     }
@@ -120,61 +125,92 @@ public final class Permission implements Serializable {
 
 
     /**
+     * All permissions.
+     */
+    public static final Permission ALL = new Permission("ALL");
+
+    /**
+     * Cancel specific process or any processes.
+     */
+    public static final Permission CANCEL = new Permission("CANCEL");
+
+    /**
+     * Grant CANCEL permission for process started from specific definition or from any definitions.
+     */
+    public static final Permission CANCEL_PROCESS = new Permission("CANCEL_PROCESS");
+
+    /**
+     * Create or import object of specific type.
+     */
+    public static final Permission CREATE = new Permission("CREATE");
+
+    /**
+     * Delete specific object (when applied to that object), or any object of specific type (when applied to objects list).
+     */
+    public static final Permission DELETE = new Permission("DELETE");
+
+    /**
+     * Actor is allowed to login into system.
+     */
+    public static final Permission LOGIN = new Permission("LOGIN");
+
+    /**
      * Formerly no-arg Permission constructor, used only as PropertyTDBuilder constructor argument in FieldDescriptor constructor calls.
      * PermissionDAO.isAllowed...() checks always return false for it, without accessing database.
      *
      * TODO Review all usages. PropertyTDBuilder's 2/3 constructors' behaviour looks contradictionary with its own base class.
-     *      Maybe with a little more refactoring, NO_PERMISSION can be removed and null can be passed everywhere instead.
+     *      Maybe with a little more refactoring, NONE can be removed and null can be passed everywhere instead.
      */
-    public static final Permission NO_PERMISSION = new Permission("NO_PERMISSION");
-
-    // Former Permission:
-    public static final Permission READ = new Permission("READ");
-    public static final Permission UPDATE_PERMISSIONS = new Permission("UPDATE_PERMISSIONS");
-
-    // Former ExecutorPermission:
-    public static final Permission UPDATE_EXECUTOR = new Permission("UPDATE_EXECUTOR");
-
-    // Former ActorPermission:
-    public static final Permission UPDATE_ACTOR_STATUS = new Permission("UPDATE_ACTOR_STATUS");
-    public static final Permission VIEW_ACTOR_TASKS = new Permission("VIEW_ACTOR_TASKS");
-
-    // Former GroupPermission:
-    public static final Permission LIST_GROUP = new Permission("LIST_GROUP");
-    public static final Permission ADD_TO_GROUP = new Permission("ADD_TO_GROUP");
-    public static final Permission REMOVE_FROM_GROUP = new Permission("REMOVE_FROM_GROUP");
-    public static final Permission VIEW_GROUP_TASKS = new Permission("VIEW_GROUP_TASKS");
-
-    // Former BotStationPermission:
-    public static final Permission BOT_STATION_CONFIGURE = new Permission("BOT_STATION_CONFIGURE");
-
-    // Former DefinitionPermission:
-    public static final Permission REDEPLOY_DEFINITION = new Permission("REDEPLOY_DEFINITION");
-    public static final Permission UNDEPLOY_DEFINITION = new Permission("UNDEPLOY_DEFINITION");
-    public static final Permission START_PROCESS = new Permission("START_PROCESS");
-    public static final Permission READ_PROCESS = new Permission("READ_PROCESS");
-
-    // Former DefinitionPermission and ProcessPermission:
-    public static final Permission CANCEL_PROCESS = new Permission("CANCEL_PROCESS");
-
-    // Former RelationPermission:
-    public static final Permission UPDATE_RELATION = new Permission("UPDATE_RELATION");
-
-    // Former ReportPermission:
-    public static final Permission DEPLOY_REPORT = new Permission("DEPLOY_REPORT");
-
-    // Former SystemPermission:
-    public static final Permission LOGIN_TO_SYSTEM = new Permission("LOGIN_TO_SYSTEM");
-    public static final Permission CREATE_EXECUTOR = new Permission("CREATE_EXECUTOR");
-    public static final Permission CHANGE_SELF_PASSWORD = new Permission("CHANGE_SELF_PASSWORD");
-    public static final Permission VIEW_LOGS = new Permission("VIEW_LOGS");
-
-    // Former WorkflowSystemPermission:
-    public static final Permission DEPLOY_DEFINITION = new Permission("DEPLOY_DEFINITION");
-
+    public static final Permission NONE = new Permission("NONE");
 
     /**
-     * Frequently used shortcut: unmodifiable list containing single READ element.
+     * Read objects list, corresponding menu item is visible.
+     * When applied to specific objects instead of whole list, only those objects will be visible in list.
      */
-    public static final List<Permission> readPermissions = Collections.unmodifiableList(Collections.singletonList(READ));
+    public static final Permission LIST = new Permission("LIST");
+
+    /**
+     * Can read and export any object details.
+     */
+    public static final Permission READ = new Permission("READ");
+
+    /**
+     * Can read object permissions.
+     */
+    public static final Permission READ_PERMISSIONS = new Permission("READ_PERMISSIONS");
+
+    /**
+     * Grant READ permission for process started from specific definition or from any definitions.
+     */
+    public static final Permission READ_PROCESS = new Permission("READ_PROCESS");
+
+    /**
+     * Can start specific process (when applied to process) or any processes (when applied to process list).
+     */
+    public static final Permission START = new Permission("START");
+
+    /**
+     * Can edit specific object (when applied to that object) or any object of specific type (when applied to objects list).
+     */
+    public static final Permission UPDATE = new Permission("UPDATE");
+
+    /**
+     * Can edit object permissions.
+     */
+    public static final Permission UPDATE_PERMISSIONS = new Permission("UPDATE_PERMISSIONS");
+
+    /**
+     * Actor can edit his own profile.
+     */
+    public static final Permission UPDATE_SELF = new Permission("UPDATE_SELF");
+
+    /**
+     * Can edit actors's status.
+     */
+    public static final Permission UPDATE_STATUS = new Permission("UPDATE_STATUS");
+
+    /**
+     * Can view actor's tasks.
+     */
+    public static final Permission VIEW_TASKS = new Permission("VIEW_TASKS");
 }

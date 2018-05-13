@@ -69,7 +69,7 @@ public class DeployReportFormTag extends BaseReportFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         if (isReportSelected()) {
             return MessagesReport.BUTTON_DEPLOY_REPORT.message(pageContext);
         } else {

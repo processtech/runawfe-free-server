@@ -34,6 +34,7 @@ import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "relationForm")
@@ -57,7 +58,7 @@ public class RelationFormTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return (relationId != null ? MessagesCommon.BUTTON_SAVE : MessagesCommon.BUTTON_CREATE).message(pageContext);
     }
 
@@ -67,9 +68,10 @@ public class RelationFormTag extends TitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         if (relationId != null) {
-            enabled = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_RELATION, SecuredObjectType.RELATION, relationId);
+            // TODO Was isAllowed(RELATION, relationId). Is this if() necessary? Where enabled was initialized?
+            enabled = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
         }
         return enabled;
     }
