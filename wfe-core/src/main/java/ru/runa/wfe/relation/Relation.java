@@ -28,6 +28,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import ru.runa.wfe.commons.EntityWithId;
 
 /**
  * Relation between executors. Each relation contains some RelationPair, which
@@ -36,7 +37,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "EXECUTOR_RELATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Relation {
+public class Relation implements EntityWithId {
     private static final long serialVersionUID = 1L;
 
     private Long id;
