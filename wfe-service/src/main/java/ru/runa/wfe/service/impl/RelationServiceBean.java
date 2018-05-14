@@ -134,6 +134,22 @@ public class RelationServiceBean implements RelationServiceLocal, RelationServic
 
     @Override
     @WebResult(name = "result")
+    public List<Relation> getRelationsContainingExecutorsOnLeft(@WebParam(name = "user") User user, @WebParam(name = "executor") List<Executor> executors) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(executors != null, "executor");
+        return relationLogic.getRelationsContainingExecutorsOnLeft(user, executors);
+    }
+
+    @Override
+    @WebResult(name = "result")
+    public List<Relation> getRelationsContainingExecutorsOnRight(@WebParam(name = "user") User user, @WebParam(name = "executor") List<Executor> executors) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(executors != null, "executor");
+        return relationLogic.getRelationsContainingExecutorsOnRight(user, executors);
+    }
+
+    @Override
+    @WebResult(name = "result")
     public List<RelationPair> getRelationPairs(@WebParam(name = "user") User user, @WebParam(name = "name") String name,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         Preconditions.checkArgument(user != null, "user");

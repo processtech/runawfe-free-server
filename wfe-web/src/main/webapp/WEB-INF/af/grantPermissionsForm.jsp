@@ -14,14 +14,14 @@
 %>
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
     <tiles:put name="body" type="string">
-        <wf:listExecutorsWithoutPermissionsForm securedObjectType="<%= securedObjectType %>" identifiableId="<%= identifiableId %>"
+        <wf:grantPermissionsForm securedObjectType="<%= securedObjectType %>" identifiableId="<%= identifiableId %>"
                 batchPresentationId="grantPermissionsForm" returnAction="<%= returnAction %>">
             <div>
                 <wf:viewControlsHideableBlock hideableBlockId="grantPermissionsForm" returnAction="<%= selfAction %>">
                     <wf:tableViewSetupForm batchPresentationId="grantPermissionsForm" returnAction="<%= selfAction %>"/>
                 </wf:viewControlsHideableBlock>
             </div>
-        </wf:listExecutorsWithoutPermissionsForm>
+        </wf:grantPermissionsForm>
     </tiles:put>
     <tiles:put name="messages" value="../common/messages.jsp"/>
 </tiles:insert>

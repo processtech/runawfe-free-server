@@ -115,6 +115,24 @@ public class RelationServiceDelegate extends EJB3Delegate implements RelationSer
     }
 
     @Override
+    public List<Relation> getRelationsContainingExecutorsOnLeft(User user, List<Executor> executors) {
+        try {
+            return getRelationService().getRelationsContainingExecutorsOnLeft(user, executors);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<Relation> getRelationsContainingExecutorsOnRight(User user, List<Executor> executors) {
+        try {
+            return getRelationService().getRelationsContainingExecutorsOnRight(user, executors);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public List<RelationPair> getRelationPairs(User user, String name, BatchPresentation batchPresentation) {
         try {
             return getRelationService().getRelationPairs(user, name, batchPresentation);

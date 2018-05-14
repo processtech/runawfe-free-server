@@ -12,8 +12,8 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
 /**
- * The purpose of this class is to generalize JSP tags (and maybe not only them). It incapsulates SecuredObject polymorphic construction
- * (polymorphic by SecuredObjectType). Thanks to this I could implement generalized permission editor form.
+ * The purpose of this class is to generalize JSP tags (and maybe not only them). It incapsulates SecuredObject construction
+ * polymorphic by SecuredObjectType. Thanks to this I could implement generalized permission editor form.
  * <p>
  * This class supports permission system extensibility (adding new SecuredObjectType and Permission pseudo-enum items),
  * by using pluggable lambda loaders.

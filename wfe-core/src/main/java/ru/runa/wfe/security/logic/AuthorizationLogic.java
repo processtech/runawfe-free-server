@@ -54,7 +54,6 @@ public class AuthorizationLogic extends CommonLogic {
 
     public void setPermissions(User user, List<Long> executorIds, Collection<Permission> permissions, SecuredObject securedObject) {
         List<Executor> executors = executorDAO.getExecutors(executorIds);
-        checkPermissionsOnExecutors(user, executors, Permission.LIST);
         for (Executor executor : executors) {
             setPermissions(user, executor, permissions, securedObject);
         }
@@ -63,7 +62,6 @@ public class AuthorizationLogic extends CommonLogic {
     public void setPermissions(User user, List<Long> executorIds, List<Collection<Permission>> permissions, SecuredObject securedObject) {
         List<Executor> executors = executorDAO.getExecutors(executorIds);
         Preconditions.checkArgument(executors.size() == permissions.size(), "arrays length differs");
-        checkPermissionsOnExecutors(user, executors, Permission.LIST);
         for (int i = 0; i < executors.size(); i++) {
             setPermissions(user, executors.get(i), permissions.get(i), securedObject);
         }

@@ -23,6 +23,8 @@ import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
+import ru.runa.wfe.relation.QRelation;
+import ru.runa.wfe.relation.QRelationPair;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationAlreadyExistException;
 import ru.runa.wfe.relation.RelationDoesNotExistException;
@@ -126,6 +128,18 @@ public class RelationLogic extends CommonLogic {
     public List<RelationPair> getExecutorRelationPairsLeft(User user, String relationName, List<? extends Executor> left) {
         Relation relation = relationName != null ? relationDAO.getNotNull(relationName) : null;
         return relationPairDAO.getExecutorsRelationPairsLeft(relation, left);
+    }
+
+    public List<Relation> getRelationsContainingExecutorsOnLeft(User user, List<Executor> executors) {
+        QRelation r = QRelation.relation;
+        QRelationPair rp = QRelationPair.relationPair;
+        return queryFactory.selectDistinct(r).from(r, rp).where(rp.relation.eq(r).and(rp.left.in(executors))).fetch();
+    }
+
+    public List<Relation> getRelationsContainingExecutorsOnRight(User user, List<Executor> executors) {
+        QRelation r = QRelation.relation;
+        QRelationPair rp = QRelationPair.relationPair;
+        return queryFactory.selectDistinct(r).from(r, rp).where(rp.relation.eq(r).and(rp.right.in(executors))).fetch();
     }
 
     /**

@@ -26,6 +26,8 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag2;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "managePermissionsForm")
 public class ManagePermissionsFormTag extends SecuredObjectFormTag2 {
@@ -38,6 +40,7 @@ public class ManagePermissionsFormTag extends SecuredObjectFormTag2 {
 
     @Override
     public final void fillFormElement(TD tdFormElement) {
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.READ_PERMISSIONS, getSecuredObject());
         super.fillFormElement(tdFormElement);
 
         // This is for UpdatePermissionsAction to return back to current page:

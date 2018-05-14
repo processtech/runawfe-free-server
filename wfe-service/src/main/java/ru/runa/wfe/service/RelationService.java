@@ -47,7 +47,7 @@ public interface RelationService {
      * @throws RelationAlreadyExistException
      *             Relation already exists.
      */
-    public Relation createRelation(User user, Relation relation) throws RelationAlreadyExistException;
+    Relation createRelation(User user, Relation relation) throws RelationAlreadyExistException;
 
     /**
      * Updates {@link Relation}.
@@ -60,7 +60,7 @@ public interface RelationService {
      * @throws RelationDoesNotExistException
      *             Relation does not exist with such id.
      */
-    public Relation updateRelation(User user, Relation relation) throws RelationDoesNotExistException;
+    Relation updateRelation(User user, Relation relation) throws RelationDoesNotExistException;
 
     /**
      * Return list of {@link Relation}, according to specified {@link BatchPresentation}.
@@ -71,7 +71,7 @@ public interface RelationService {
      *            Restrictions to get relations.
      * @return List of {@link Relation}.
      */
-    public List<Relation> getRelations(User user, BatchPresentation batchPresentation);
+    List<Relation> getRelations(User user, BatchPresentation batchPresentation);
 
     /**
      * Return {@link Relation} with specified name or throws {@link RelationDoesNotExistException} if relation with such name does not exists.
@@ -84,7 +84,7 @@ public interface RelationService {
      * @throws RelationDoesNotExistException
      *             Relation with specified name is not exists.
      */
-    public Relation getRelationByName(User user, String name) throws RelationDoesNotExistException;
+    Relation getRelationByName(User user, String name) throws RelationDoesNotExistException;
 
     /**
      * Return {@link Relation} with specified identity or throws {@link RelationDoesNotExistException} if relation with such identity does not exists.
@@ -97,7 +97,7 @@ public interface RelationService {
      * @throws RelationDoesNotExistException
      *             Relation with specified name is not exists.
      */
-    public Relation getRelation(User user, Long id) throws RelationDoesNotExistException;
+    Relation getRelation(User user, Long id) throws RelationDoesNotExistException;
 
     /**
      * Remove {@link Relation} with specified identity.
@@ -109,7 +109,7 @@ public interface RelationService {
      * @throws RelationDoesNotExistException
      *             Relation with specified identity does not exist.
      */
-    public void removeRelation(User user, Long id) throws RelationDoesNotExistException;
+    void removeRelation(User user, Long id) throws RelationDoesNotExistException;
 
     /**
      * Add {@link RelationPair} to {@link Relation} with specified name.
@@ -126,7 +126,7 @@ public interface RelationService {
      * @throws RelationDoesNotExistException
      *             Relation with specified name does not exist.
      */
-    public RelationPair addRelationPair(User user, Long relationId, Executor left, Executor right) throws RelationDoesNotExistException;
+    RelationPair addRelationPair(User user, Long relationId, Executor left, Executor right) throws RelationDoesNotExistException;
 
     /**
      * Removes {@link RelationPair} with specified identity.
@@ -138,7 +138,7 @@ public interface RelationService {
      * @throws RelationPairDoesnotExistException
      *             {@link RelationPair} does not exist.
      */
-    public void removeRelationPair(User user, Long id) throws RelationPairDoesNotExistException;
+    void removeRelationPair(User user, Long id) throws RelationPairDoesNotExistException;
 
     /**
      * Removes {@link RelationPair}'s with specified identity.
@@ -150,7 +150,7 @@ public interface RelationService {
      * @throws RelationPairDoesnotExistException
      *             {@link RelationPair} does not exist.
      */
-    public void removeRelationPairs(User user, List<Long> ids) throws RelationPairDoesNotExistException;
+    void removeRelationPairs(User user, List<Long> ids) throws RelationPairDoesNotExistException;
 
     /**
      * Return {@link RelationPair} for specified {@link Relation}, according to specified {@link BatchPresentation}.
@@ -164,7 +164,7 @@ public interface RelationService {
      * @return
      * @throws RelationDoesNotExistException
      */
-    public List<RelationPair> getRelationPairs(User user, String name, BatchPresentation batchPresentation) throws RelationDoesNotExistException;
+    List<RelationPair> getRelationPairs(User user, String name, BatchPresentation batchPresentation) throws RelationDoesNotExistException;
 
     /**
      * Return {@link RelationPair} for specified {@link Relation}, which right part contains executor from 'right' parameter.
@@ -179,7 +179,7 @@ public interface RelationService {
      * @throws RelationDoesNotExistException
      *             {@link Relation} with specified name does not exist.
      */
-    public List<RelationPair> getExecutorsRelationPairsRight(User user, String name, List<? extends Executor> right)
+    List<RelationPair> getExecutorsRelationPairsRight(User user, String name, List<? extends Executor> right)
             throws RelationDoesNotExistException;
 
     /**
@@ -189,12 +189,25 @@ public interface RelationService {
      *            User, which perform operation.
      * @param name
      *            {@link Relation} name.
-     * @param right
+     * @param left
      *            Collection of {@link Executor}, which contains in left part of {@link RelationPair}.
      * @return List of {@link RelationPair}.
      * @throws RelationDoesNotExistException
      *             {@link Relation} with specified name does not exist.
      */
-    public List<RelationPair> getExecutorsRelationPairsLeft(User user, String name, List<? extends Executor> left)
+    List<RelationPair> getExecutorsRelationPairsLeft(User user, String name, List<? extends Executor> left)
             throws RelationDoesNotExistException;
+
+    /**
+     * To show on "manage_executor" page.
+     */
+    // NOTE. Introduced because prevoisuly used getExecutorsRelationPairsLeft() required grouping results by relation in web layer,
+    //       and lazy loading RelationPair.getRelation() outside CMT-transaction now fails (no idea why it didn't previously).
+    //       Also this method is faster, and has no confusing "relation name" parameter.
+    List<Relation> getRelationsContainingExecutorsOnLeft(User user, List<Executor> executors);
+
+    /**
+     * To show on "manage_executor" page.
+     */
+    List<Relation> getRelationsContainingExecutorsOnRight(User user, List<Executor> executors);
 }

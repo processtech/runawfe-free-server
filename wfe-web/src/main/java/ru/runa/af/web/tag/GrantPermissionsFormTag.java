@@ -39,12 +39,13 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag2;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 
-@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsForm")
-public class ListExecutorsWithoutPermissionsFormTag extends SecuredObjectFormTag2 {
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "grantPermissionsForm")
+public class GrantPermissionsFormTag extends SecuredObjectFormTag2 {
 
     private static final long serialVersionUID = 1L;
 
@@ -54,6 +55,7 @@ public class ListExecutorsWithoutPermissionsFormTag extends SecuredObjectFormTag
 
     @Override
     public void fillFormElement(TD tdFormElement) {
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.UPDATE_PERMISSIONS, getSecuredObject());
         super.fillFormElement(tdFormElement);
         if (returnAction != null) {
             tdFormElement.addElement(new Input(Input.HIDDEN, "returnAction", returnAction));

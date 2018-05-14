@@ -31,6 +31,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dao.SettingDAO;
+import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
@@ -60,6 +61,10 @@ public class CommonLogic {
     protected ProcessDAO processDAO;
     @Autowired
     protected SettingDAO settingDAO;
+
+    // For the sake of mering DAO and logic layers:
+    @Autowired
+    protected HibernateQueryFactory queryFactory;
 
     protected <T extends Executor> T checkPermissionsOnExecutor(User user, T executor, Permission permission) {
         if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.LIST)) {

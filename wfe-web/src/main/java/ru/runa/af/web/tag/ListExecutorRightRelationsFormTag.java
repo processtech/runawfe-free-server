@@ -63,10 +63,7 @@ public class ListExecutorRightRelationsFormTag extends SecuredObjectFormTag {
         executors.add(getSecuredObject());
         BatchPresentation executorBatchPresentation = BatchPresentationFactory.GROUPS.createNonPaged();
         executors.addAll(Delegates.getExecutorService().getExecutorGroups(getUser(), getSecuredObject(), executorBatchPresentation, false));
-        Set<Relation> relations = new HashSet<>();
-        for (RelationPair pair : Delegates.getRelationService().getExecutorsRelationPairsRight(getUser(), null, executors)) {
-            relations.add(pair.getRelation());
-        }
+        List<Relation> relations = Delegates.getRelationService().getRelationsContainingExecutorsOnRight(getUser(), executors);
         TableBuilder tableBuilder = new TableBuilder();
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, BatchPresentationFactory.RELATIONS.createDefault(), null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(Lists.newArrayList(relations), executorBatchPresentation, pageContext,
