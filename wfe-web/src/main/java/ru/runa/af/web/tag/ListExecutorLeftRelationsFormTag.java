@@ -46,10 +46,9 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
 
 /**
- * List relations in which executor exists in left side.
+ * List relations which contain executor on the left side.
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorLeftRelationsForm")
 public class ListExecutorLeftRelationsFormTag extends SecuredObjectFormTag {
@@ -60,9 +59,7 @@ public class ListExecutorLeftRelationsFormTag extends SecuredObjectFormTag {
         List<Executor> executors = new ArrayList<>();
         executors.add(getSecuredObject());
         BatchPresentation batchPresentation = BatchPresentationFactory.GROUPS.createNonPaged();
-        for (Group group : Delegates.getExecutorService().getExecutorGroups(getUser(), getSecuredObject(), batchPresentation, false)) {
-            executors.add(group);
-        }
+        executors.addAll(Delegates.getExecutorService().getExecutorGroups(getUser(), getSecuredObject(), batchPresentation, false));
         List<Relation> relations = Delegates.getRelationService().getRelationsContainingExecutorsOnLeft(getUser(), executors);
         TableBuilder tableBuilder = new TableBuilder();
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, BatchPresentationFactory.RELATIONS.createDefault(), null);

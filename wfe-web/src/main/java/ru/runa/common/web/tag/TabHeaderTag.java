@@ -71,7 +71,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS));
     }
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setVertical(boolean isVertical) {
         this.isVertical = isVertical;
     }

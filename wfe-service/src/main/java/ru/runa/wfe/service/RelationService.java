@@ -201,9 +201,6 @@ public interface RelationService {
     /**
      * To show on "manage_executor" page.
      */
-    // NOTE. Introduced because prevoisuly used getExecutorsRelationPairsLeft() required grouping results by relation in web layer,
-    //       and lazy loading RelationPair.getRelation() outside CMT-transaction now fails (no idea why it didn't previously).
-    //       Also this method is faster, and has no confusing "relation name" parameter.
     List<Relation> getRelationsContainingExecutorsOnLeft(User user, List<Executor> executors);
 
     /**

@@ -358,6 +358,7 @@
 		<action path="/viewLogs" type="ru.runa.common.web.action.ViewLogsAction"
 			name="viewLogForm" scope="request" unknown="false" validate="false">
 			<forward name="success" path="/displayLogs.do" redirect="false" />
+			<forward name="failure" path="/messages_page.do" redirect="false" />
 		</action>
 		<action path="/addExecutorToGroups" type="ru.runa.af.web.action.AddExecutorToGroupsAction"
 			name="idsForm" scope="request" input="/WEB-INF/af/manage_executor.jsp"
@@ -663,22 +664,15 @@
 		<action path="/createSubstitutionCriteria" type="ru.runa.af.web.action.CreateSubstitutionCriteriaAction"
 			parameter="/WEB-INF/af/edit_substitution_criteria.jsp" />
 
-		<action path="/manage_system" type="ru.runa.af.web.action.ManageSystemAction"
-			parameter="/WEB-INF/af/manage_system.jsp" />
+		<action path="/manage_system" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SYSTEM" />
+		<action path="/manage_scripts" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SCRIPTS" />
+		<action path="/manage_errors" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="ERRORS" />
+		<action path="/manage_substitution_criteria" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="SUBSTITUTION_CRITERIAS" />
+		<action path="/manage_datafile" type="ru.runa.af.web.action.CheckSingletonPermissionAndForwardAction" parameter="DATAFILE" />
 
-		<action path="/manage_scripts" type="ru.runa.af.web.action.ManageSystemAction"
-				parameter="/WEB-INF/af/manage_scripts.jsp" />
+        <action path="/messages_page" type="org.apache.struts.actions.ForwardAction" parameter="/WEB-INF/common/messages_page.jsp" />
 
-		<action path="/manage_errors" type="ru.runa.af.web.action.ManageSystemAction"
-				parameter="/WEB-INF/af/manage_errors.jsp" />
-
-		<action path="/manage_substitution_criteria" type="ru.runa.af.web.action.ManageSystemAction"
-				parameter="/WEB-INF/af/manage_substitution_criteria.jsp" />
-
-		<action path="/manage_datafile" type="ru.runa.af.web.action.ManageSystemAction"
-				parameter="/WEB-INF/af/manage_datafile.jsp" />
-
-		<action path="/add_members_to_group" type="org.apache.struts.actions.ForwardAction"
+        <action path="/add_members_to_group" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/add_members_to_group.jsp" />
 		<!-- wf struts actions -->
 		<action path="/manage_process_definitions" type="ru.runa.common.web.action.TabHeaderForwardAction"

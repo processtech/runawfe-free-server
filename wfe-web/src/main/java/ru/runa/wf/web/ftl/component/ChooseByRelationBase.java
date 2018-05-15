@@ -49,7 +49,7 @@ public abstract class ChooseByRelationBase extends FormComponent {
         for (RelationPair pair : pairs) {
             Executor executor = inversed ? pair.getRight() : pair.getLeft();
             try {
-                Delegates.getExecutorService().getExecutor(user, executor.getId());
+                Delegates.getExecutorService().getExecutor(user, executor.getId());  // TODO Why load executor again if it's already loaded?
                 fillExecutors(result, executor);
             } catch (AuthorizationException e) {
                 // TODO may be filter executors in logic?

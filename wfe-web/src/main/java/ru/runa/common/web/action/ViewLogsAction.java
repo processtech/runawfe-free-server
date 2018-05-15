@@ -20,10 +20,15 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import ru.runa.common.WebResources;
+import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.ViewLogForm;
 import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.User;
 
 /**
  * @author dofs
@@ -39,6 +44,9 @@ public class ViewLogsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         try {
+            User user = Commons.getUser(request.getSession());
+            Delegates.getAuthorizationService().checkAllowed(user, Permission.ALL, SecuredSingleton.LOGS);
+
             String logDirPath = IOCommons.getLogDirPath();
             request.setAttribute("logDirPath", logDirPath);
             ViewLogForm form = (ViewLogForm) actionForm;
@@ -102,10 +110,11 @@ public class ViewLogsAction extends ActionBase {
             }
             form.setLimitLinesCount(limitLinesCount);
             request.setAttribute("autoReloadTimeoutSec", autoReloadTimeoutSec);
+            return mapping.findForward(Resources.FORWARD_SUCCESS);
         } catch (Exception e) {
             addError(request, e);
+            return mapping.findForward(Resources.FORWARD_FAILURE);
         }
-        return mapping.findForward(Resources.FORWARD_SUCCESS);
     }
 
     private int countLines(File file) throws IOException {
