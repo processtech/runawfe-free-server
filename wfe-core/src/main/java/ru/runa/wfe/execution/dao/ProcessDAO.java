@@ -1,26 +1,21 @@
 package ru.runa.wfe.execution.dao;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
-
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.QProcess;
+import ru.runa.wfe.execution.QSwimlane;
+import ru.runa.wfe.execution.QToken;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.task.QTask;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class ProcessDAO extends GenericDAO<Process> {
 
@@ -35,97 +30,91 @@ public class ProcessDAO extends GenericDAO<Process> {
      * fetches all processes for the given process definition from the database. The returned list of processs is sorted start date, youngest first.
      */
     public List<Process> findAllProcesses(Long definitionId) {
-        return getHibernateTemplate().find("from Process where deployment.id=? order by startDate desc", definitionId);
+        QProcess p = QProcess.process;
+        return queryFactory.selectFrom(p).where(p.deployment.id.eq(definitionId)).orderBy(p.startDate.desc()).fetch();
     }
 
     public List<Process> find(List<Long> ids) {
         if (ids.isEmpty()) {
             return Lists.newArrayList();
         }
-        return getHibernateTemplate().findByNamedParam("from Process where id in (:ids)", "ids", ids);
+        QProcess p = QProcess.process;
+        return queryFactory.selectFrom(p).where(p.id.in(ids)).fetch();
     }
 
     public Set<Number> getDependentProcessIds(Executor executor) {
         Set<Number> processes = Sets.newHashSet();
-        processes.addAll(getHibernateTemplate().find("select process.id from Swimlane where executor=?", executor));
-        processes.addAll(getHibernateTemplate().find("select process.id from Task where executor=?", executor));
+        QSwimlane s = QSwimlane.swimlane;
+        processes.addAll(queryFactory.select(s.process.id).from(s).where(s.executor.eq(executor)).fetch());
+        QTask t = QTask.task;
+        processes.addAll(queryFactory.select(t.process.id).from(t).where(t.executor.eq(executor)).fetch());
         return processes;
     }
 
     public List<Process> getProcesses(final ProcessFilter filter) {
-        return getHibernateTemplate().executeFind(new HibernateCallback<List<Process>>() {
+        QProcess p = QProcess.process;
+        JPQLQuery<Process> q = queryFactory.selectFrom(p).where();
 
-            @Override
-            public List<Process> doInHibernate(Session session) {
-                List<String> conditions = Lists.newArrayList();
-                Map<String, Object> parameters = Maps.newHashMap();
-                if (filter.getDefinitionName() != null) {
-                    conditions.add("deployment.name = :definitionName");
-                    parameters.put("definitionName", filter.getDefinitionName());
-                }
-                if (filter.getDefinitionVersion() != null) {
-                    conditions.add("deployment.version = :definitionVersion");
-                    parameters.put("definitionVersion", filter.getDefinitionVersion());
-                }
-                if (filter.getId() != null) {
-                    conditions.add("id = :id");
-                    parameters.put("id", filter.getId());
-                }
-                if (filter.getIdFrom() != null) {
-                    conditions.add("id >= :idFrom");
-                    parameters.put("idFrom", filter.getIdFrom());
-                }
-                if (filter.getIdTo() != null) {
-                    conditions.add("id <= :idTo");
-                    parameters.put("idTo", filter.getIdTo());
-                }
-                if (filter.getStartDateFrom() != null) {
-                    conditions.add("startDate >= :startDateFrom");
-                    parameters.put("startDateFrom", filter.getStartDateFrom());
-                }
-                if (filter.getStartDateTo() != null) {
-                    conditions.add("startDate <= :startDateTo");
-                    parameters.put("startDateTo", filter.getStartDateTo());
-                }
-                if (filter.getFinished() != null) {
-                    if (filter.getFinished()) {
-                        conditions.add("endDate is not null");
-                    } else {
-                        conditions.add("endDate is null");
-                    }
-                }
-                if (filter.getEndDateFrom() != null) {
-                    conditions.add("endDate >= :endDateFrom");
-                    parameters.put("endDateFrom", filter.getEndDateFrom());
-                }
-                if (filter.getEndDateTo() != null) {
-                    conditions.add("endDate <= :endDateTo");
-                    parameters.put("endDateTo", filter.getEndDateTo());
-                }
-                if (filter.getFailedOnly()) {
-                    conditions.add("executionStatus = :executionStatus");
-                    parameters.put("executionStatus", ExecutionStatus.FAILED);
-                }
-                if (conditions.size() == 0) {
-                    throw new IllegalArgumentException("Filter should be specified");
-                }
-                String hql = "from Process where " + Joiner.on(" and ").join(conditions);
-                Query query = session.createQuery(hql);
-                for (Entry<String, Object> param : parameters.entrySet()) {
-                    query.setParameter(param.getKey(), param.getValue());
-                }
-                return query.list();
-            }
-        });
+        boolean emptyFilter = true;
+        if (filter.getDefinitionName() != null) {
+            q.where(p.deployment.name.eq(filter.getDefinitionName()));
+            emptyFilter = false;
+        }
+        if (filter.getDefinitionVersion() != null) {
+            q.where(p.deployment.version.eq(filter.getDefinitionVersion()));
+            emptyFilter = false;
+        }
+        if (filter.getId() != null) {
+            q.where(p.id.eq(filter.getId()));
+            emptyFilter = false;
+        }
+        if (filter.getIdFrom() != null) {
+            q.where(p.id.goe(filter.getIdFrom()));
+            emptyFilter = false;
+        }
+        if (filter.getIdTo() != null) {
+            q.where(p.id.loe(filter.getIdTo()));
+            emptyFilter = false;
+        }
+        if (filter.getStartDateFrom() != null) {
+            q.where(p.startDate.goe(filter.getStartDateFrom()));
+            emptyFilter = false;
+        }
+        if (filter.getStartDateTo() != null) {
+            q.where(p.startDate.loe(filter.getStartDateTo()));
+            emptyFilter = false;
+        }
+        if (filter.getFinished() != null) {
+            q.where(filter.getFinished() ? p.endDate.isNotNull() : p.endDate.isNull());
+            emptyFilter = false;
+        }
+        if (filter.getEndDateFrom() != null) {
+            q.where(p.endDate.goe(filter.getEndDateFrom()));
+            emptyFilter = false;
+        }
+        if (filter.getEndDateTo() != null) {
+            q.where(p.endDate.loe(filter.getEndDateTo()));
+            emptyFilter = false;
+        }
+        if (filter.getFailedOnly()) {
+            q.where(p.executionStatus.eq(ExecutionStatus.FAILED));
+            emptyFilter = false;
+        }
+        if (emptyFilter) {
+            throw new IllegalArgumentException("Filter should be specified");
+        }
+
+        return q.fetch();
     }
 
     @Override
     public void delete(Process process) {
         log.debug("deleting tokens for " + process);
-        List<Token> tokens = getHibernateTemplate().find("from Token where process=? and parent is not null order by id desc", process);
+        QToken t = QToken.token;
+        List<Token> tokens = queryFactory.selectFrom(t).where(t.process.eq(process).and(t.parent.isNotNull())).orderBy(t.id.desc()).fetch();
         for (Token token : tokens) {
             log.debug("deleting " + token);
-            getHibernateTemplate().delete(token);
+            sessionFactory.getCurrentSession().delete(token);
         }
         super.delete(process);
     }

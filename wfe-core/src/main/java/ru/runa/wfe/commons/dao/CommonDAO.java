@@ -51,8 +51,10 @@ public abstract class CommonDAO extends HibernateDaoSupport {
      * @param parameters
      *            query parameters
      * @return first entity from list or <code>null</code>
+     * @deprecated Use HQL's setMaxResults(1) and uniqueResult(), or QueryDSL's fetchFirst() -- instead of querying whole list from SQL server.
      */
-    protected <T extends Object> T findFirstOrNull(String hql, Object... parameters) {
+    @Deprecated
+    protected <T> T findFirstOrNull(String hql, Object... parameters) {
         Query q = sessionFactory.getCurrentSession().createQuery(hql);
         for (int i = 0; i < parameters.length; i++) {
             q.setParameter(i, parameters[i]);

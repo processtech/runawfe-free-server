@@ -1,9 +1,8 @@
 package ru.runa.wfe.commons.dao;
 
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * DAO for managing {@link Localization}.
@@ -16,7 +15,7 @@ public class LocalizationDAO extends GenericDAO<Localization> {
     private Map<String, String> localizations = Maps.newHashMap();
 
     @Override
-    protected void initDao() throws Exception {
+    protected void initDao() {
         try {
             for (Localization localization : getAll()) {
                 localizations.put(localization.getName(), localization.getValue());
@@ -67,7 +66,8 @@ public class LocalizationDAO extends GenericDAO<Localization> {
      *            rewrite existing localization
      */
     private void saveLocalization(String name, String value, boolean rewrite) {
-        Localization localization = findFirstOrNull("from Localization where name=?", name);
+        QLocalization l = QLocalization.localization;
+        Localization localization = queryFactory.selectFrom(l).where(l.name.eq(name)).fetchFirst();
         if (localization == null || rewrite) {
             localizations.put(name, value);
         }
@@ -77,5 +77,4 @@ public class LocalizationDAO extends GenericDAO<Localization> {
             localization.setValue(value);
         }
     }
-
 }

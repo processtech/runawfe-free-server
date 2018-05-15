@@ -2,9 +2,9 @@ package ru.runa.wfe.execution.dao;
 
 import java.util.Collection;
 import java.util.List;
-
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.QToken;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.NodeType;
 
@@ -17,38 +17,52 @@ import ru.runa.wfe.lang.NodeType;
 public class TokenDAO extends GenericDAO<Token> {
 
     public List<Token> findByNodeTypeAndExecutionStatusIsActive(NodeType nodeType) {
-        return getHibernateTemplate().find("from Token where nodeType=? and executionStatus=?", nodeType, ExecutionStatus.ACTIVE);
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t).where(t.nodeType.eq(nodeType).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
     }
 
     public List<Token> findByProcessAndExecutionStatusIsNotEnded(ru.runa.wfe.execution.Process process) {
-        return getHibernateTemplate().find("from Token where process=? and executionStatus!=?", process, ExecutionStatus.ENDED);
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.executionStatus.ne(ExecutionStatus.ENDED))).fetch();
     }
 
     public List<Token> findByProcessAndExecutionStatus(ru.runa.wfe.execution.Process process, ExecutionStatus status) {
-        return getHibernateTemplate().find("from Token where process=? and executionStatus=?", process, status);
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.executionStatus.eq(status))).fetch();
     }
 
     public List<Token> findByProcessAndNodeIdAndExecutionStatusIsFailed(ru.runa.wfe.execution.Process process, String nodeId) {
-        return getHibernateTemplate().find("from Token where process=? and nodeId=? and executionStatus=?", process, nodeId, ExecutionStatus.FAILED);
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t)
+                .where(t.process.eq(process).and(t.nodeId.eq(nodeId)).and(t.executionStatus.eq(ExecutionStatus.FAILED)))
+                .fetch();
     }
 
     public List<Token> findByProcessAndNodeIdAndExecutionStatusIsEndedAndAbleToReactivateParent(ru.runa.wfe.execution.Process process, String nodeId) {
-        return getHibernateTemplate().find("from Token where process=? and nodeId=? and executionStatus=? and ableToReactivateParent=true", process,
-                nodeId, ExecutionStatus.ENDED);
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t)
+                .where(t.process.eq(process)
+                        .and(t.nodeId.eq(nodeId))
+                        .and(t.executionStatus.eq(ExecutionStatus.ENDED))
+                        .and(t.ableToReactivateParent.isTrue()))
+                .fetch();
+
     }
 
     public List<Token> findByMessageSelectorIsNullAndExecutionStatusIsActive() {
-        return getHibernateTemplate().find("from Token where nodeType=? and messageSelector=null and executionStatus=?", NodeType.RECEIVE_MESSAGE,
-                ExecutionStatus.ACTIVE);
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t)
+                .where(t.nodeType.eq(NodeType.RECEIVE_MESSAGE).and(t.messageSelector.isNull()).and(t.executionStatus.eq(ExecutionStatus.ACTIVE)))
+                .fetch();
     }
 
     public List<Token> findByMessageSelectorAndExecutionStatusIsActive(String messageSelector) {
-        return getHibernateTemplate().find("from Token where messageSelector=? and executionStatus=?", messageSelector, ExecutionStatus.ACTIVE);
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t).where(t.messageSelector.eq(messageSelector).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
     }
 
     public List<Token> findByMessageSelectorInAndExecutionStatusIsActive(Collection<String> messageSelectors) {
-        return getHibernateTemplate().findByNamedParam("from Token where messageSelector in (:selectors) and executionStatus=:status",
-                new String[] { "selectors", "status" }, new Object[] { messageSelectors, ExecutionStatus.ACTIVE });
+        QToken t = QToken.token;
+        return queryFactory.selectFrom(t).where(t.messageSelector.in(messageSelectors).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
     }
-
 }

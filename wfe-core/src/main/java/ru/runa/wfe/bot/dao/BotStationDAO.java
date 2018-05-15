@@ -2,6 +2,7 @@ package ru.runa.wfe.bot.dao;
 
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationDoesNotExistException;
+import ru.runa.wfe.bot.QBotStation;
 import ru.runa.wfe.commons.dao.GenericDAO;
 
 /**
@@ -26,7 +27,8 @@ public class BotStationDAO extends GenericDAO<BotStation> {
      *         station found
      */
     public BotStation get(String name) {
-        return findFirstOrNull("from BotStation where name=?", name);
+        QBotStation bs = QBotStation.botStation;
+        return queryFactory.selectFrom(bs).where(bs.name.eq(name)).fetchFirst();
     }
 
     /**
@@ -35,9 +37,8 @@ public class BotStationDAO extends GenericDAO<BotStation> {
      * @return loaded {@linkplain BotStation}, not <code>null</code>
      */
     public BotStation getNotNull(String name) {
-        BotStation botStation = findFirstOrNull("from BotStation where name=?", name);
+        BotStation botStation = get(name);
         checkNotNull(botStation, name);
         return botStation;
     }
-
 }

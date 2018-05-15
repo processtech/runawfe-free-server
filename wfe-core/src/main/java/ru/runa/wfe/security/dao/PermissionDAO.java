@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
@@ -54,6 +55,7 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
  * @author Konstantinov Aleksey 19.02.2012
  */
 @SuppressWarnings("unchecked")
+@Transactional
 public class PermissionDAO extends CommonDAO {
     @Autowired
     private ExecutorDAO executorDAO;
@@ -72,8 +74,9 @@ public class PermissionDAO extends CommonDAO {
     /**
      * Called once after patches are successfully applied
      */
-    public void init() throws Exception {
-        List<PrivelegedMapping> list = getHibernateTemplate().find("from PrivelegedMapping m");
+    public void init() {
+        QPrivelegedMapping pm = QPrivelegedMapping.privelegedMapping;
+        List<PrivelegedMapping> list = queryFactory.selectFrom(pm).fetch();
         for (PrivelegedMapping mapping : list) {
             privelegedExecutors.get(mapping.getType()).add(mapping.getExecutor());
             privelegedExecutorIds.add(mapping.getExecutor().getId());
@@ -269,8 +272,12 @@ public class PermissionDAO extends CommonDAO {
      * @return Loaded permissions.
      */
     private List<PermissionMapping> getOwnPermissionMappings(Executor executor, Identifiable identifiable) {
-        return getHibernateTemplate().find("from PermissionMapping where identifiableId=? and type=? and executor=?",
-                identifiable.getIdentifiableId(), identifiable.getSecuredObjectType(), executor);
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        return queryFactory.selectFrom(pm)
+                .where(pm.identifiableId.eq(identifiable.getIdentifiableId())
+                        .and(pm.type.eq(identifiable.getSecuredObjectType()))
+                        .and(pm.executor.eq(executor)))
+                .fetch();
     }
 
     private Set<Executor> getExecutorWithAllHisGroups(Executor executor) {
@@ -381,13 +388,13 @@ public class PermissionDAO extends CommonDAO {
      * 
      * @param type
      *            Type of SecuredObject.
-     * @param privelegedExecutors
+     * @param executors
      *            Privileged executors for target class.
      */
     public void addType(SecuredObjectType type, List<? extends Executor> executors) {
         for (Executor executor : executors) {
             PrivelegedMapping mapping = new PrivelegedMapping(type, executor);
-            getHibernateTemplate().save(mapping);
+            sessionFactory.getCurrentSession().save(mapping);
             privelegedExecutors.get(mapping.getType()).add(mapping.getExecutor());
             privelegedExecutorIds.add(mapping.getExecutor().getId());
         }
@@ -458,5 +465,4 @@ public class PermissionDAO extends CommonDAO {
                 "select pm.identifiableId from PermissionMapping pm where pm.executor = ? and pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
                 executor, resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask()).size() > 0;
     }
-
 }

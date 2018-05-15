@@ -2,8 +2,9 @@ package ru.runa.wfe.ss.dao;
 
 import java.util.Date;
 import java.util.List;
-
 import ru.runa.wfe.commons.dao.GenericDAO;
+import ru.runa.wfe.ss.QSubstitution;
+import ru.runa.wfe.ss.QSubstitutionCriteria;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 
@@ -23,11 +24,12 @@ public class SubstitutionCriteriaDAO extends GenericDAO<SubstitutionCriteria> {
     }
 
     public SubstitutionCriteria getByName(String name) {
-        return findFirstOrNull("from SubstitutionCriteria where name=?", name);
+        QSubstitutionCriteria sc = QSubstitutionCriteria.substitutionCriteria;
+        return queryFactory.selectFrom(sc).where(sc.name.eq(name)).fetchFirst();
     }
 
     public List<Substitution> getSubstitutionsByCriteria(SubstitutionCriteria criteria) {
-        return (List<Substitution>) getHibernateTemplate().find("from Substitution where criteria=?", criteria);
+        QSubstitution s = QSubstitution.substitution;
+        return queryFactory.selectFrom(s).where(s.criteria.eq(criteria)).fetch();
     }
-
 }

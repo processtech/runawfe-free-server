@@ -1,10 +1,10 @@
 package ru.runa.wfe.execution.dao;
 
 import java.util.List;
-
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.QSwimlane;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentException;
@@ -19,11 +19,13 @@ import ru.runa.wfe.lang.SwimlaneDefinition;
 public class SwimlaneDAO extends GenericDAO<Swimlane> {
 
     public List<Swimlane> findByProcess(Process process) {
-        return getHibernateTemplate().find("from Swimlane where process=?", process);
+        QSwimlane s = QSwimlane.swimlane;
+        return queryFactory.selectFrom(s).where(s.process.eq(process)).fetch();
     }
 
     public Swimlane findByProcessAndName(Process process, String name) {
-        return findFirstOrNull("from Swimlane where process=? and name=?", process, name);
+        QSwimlane s = QSwimlane.swimlane;
+        return queryFactory.selectFrom(s).where(s.process.eq(process).and(s.name.eq(name))).fetchFirst();
     }
 
     public Swimlane findOrCreate(Process process, SwimlaneDefinition swimlaneDefinition) {
@@ -53,6 +55,7 @@ public class SwimlaneDAO extends GenericDAO<Swimlane> {
 
     public void deleteAll(Process process) {
         log.debug("deleting swimlanes for process " + process.getId());
-        getHibernateTemplate().bulkUpdate("delete from Swimlane where process=?", process);
+        QSwimlane s = QSwimlane.swimlane;
+        queryFactory.delete(s).where(s.process.eq(process)).execute();
     }
 }

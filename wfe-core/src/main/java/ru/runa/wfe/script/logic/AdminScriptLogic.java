@@ -18,24 +18,27 @@
 package ru.runa.wfe.script.logic;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
+import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.script.AdminScript;
+import ru.runa.wfe.script.QAdminScript;
 import ru.runa.wfe.script.dao.AdminScriptDAO;
 
 public class AdminScriptLogic extends CommonLogic {
     @Autowired
     private AdminScriptDAO scriptDAO;
+    @Autowired
+    private HibernateQueryFactory queryFactory;
 
     public void updateSript(AdminScript script) {
         scriptDAO.update(script);
     }
 
     public List<String> getScriptsNames() {
-        return scriptDAO.getHibernateTemplate().find("select o.name from AdminScript o order by o.name");
+        QAdminScript as = QAdminScript.adminScript;
+        return queryFactory.select(as.name).from(as).orderBy(as.name.asc()).fetch();
     }
 
     public List<AdminScript> getScripts() {

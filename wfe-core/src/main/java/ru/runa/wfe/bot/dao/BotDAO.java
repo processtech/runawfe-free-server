@@ -18,7 +18,6 @@
 package ru.runa.wfe.bot.dao;
 
 import java.util.List;
-
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotDoesNotExistException;
 import ru.runa.wfe.bot.BotStation;
@@ -47,7 +46,8 @@ public class BotDAO extends GenericDAO<Bot> {
      * @return loaded {@linkplain Bot} or <code>null</code> if no bot found
      */
     public Bot get(BotStation botStation, String username) {
-        return findFirstOrNull("from Bot where botStation=? and username=?", botStation, username);
+        QBot b = QBot.bot;
+        return queryFactory.selectFrom(b).where(b.botStation.eq(botStation).and(b.username.eq(username))).fetchFirst();
     }
 
     /**
@@ -57,7 +57,8 @@ public class BotDAO extends GenericDAO<Bot> {
      * @return loaded {@linkplain Bot} or <code>null</code> if no bot found
      */
     public Bot get(String username) {
-        return findFirstOrNull("from Bot where username=?", username);
+        QBot b = QBot.bot;
+        return queryFactory.selectFrom(b).where(b.username.eq(username)).fetchFirst();
     }
 
     /**

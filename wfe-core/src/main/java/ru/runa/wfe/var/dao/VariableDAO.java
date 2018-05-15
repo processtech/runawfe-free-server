@@ -1,27 +1,27 @@
 package ru.runa.wfe.var.dao;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Lists;
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.var.QVariable;
 import ru.runa.wfe.var.Variable;
-
-import com.google.common.collect.Maps;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class VariableDAO extends GenericDAO<Variable> {
 
     public Variable<?> get(Process process, String name) {
-        return findFirstOrNull("from Variable where process=? and name=?", process, name);
+        QVariable v = QVariable.variable;
+        return queryFactory.selectFrom(v).where(v.process.eq(process).and(v.name.eq(name))).fetchFirst();
     }
 
     public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
@@ -35,7 +35,8 @@ public class VariableDAO extends GenericDAO<Variable> {
      */
     public Map<String, Object> getAll(Process process) {
         Map<String, Object> variables = Maps.newHashMap();
-        List<Variable<?>> list = getHibernateTemplate().find("from Variable where process=?", process);
+        QVariable v = QVariable.variable;
+        List<Variable<?>> list = queryFactory.selectFrom(v).where(v.process.eq(process)).fetch();
         for (Variable<?> variable : list) {
             try {
                 variables.put(variable.getName(), variable.getValue());
@@ -61,7 +62,8 @@ public class VariableDAO extends GenericDAO<Variable> {
         for (Process process : processes) {
             result.put(process, Maps.<String, Variable<?>> newHashMap());
         }
-        List<Variable<?>> list = getHibernateTemplate().findByNamedParam("from Variable where process in (:processes)", "processes", processes);
+        QVariable v = QVariable.variable;
+        List<Variable<?>> list = queryFactory.selectFrom(v).where(v.process.in(processes)).fetch();
         for (Variable<?> variable : list) {
             result.get(variable.getProcess()).put(variable.getName(), variable);
         }
@@ -92,9 +94,8 @@ public class VariableDAO extends GenericDAO<Variable> {
         }
         List<Variable<?>> list = new ArrayList<>();
         for (List<Process> processesPart : Lists.partition(Lists.newArrayList(processes), SystemProperties.getDatabaseParametersCount())) {
-            list.addAll(getHibernateTemplate().findByNamedParam("from Variable where process in (:processes) and name in (:variableNames)",///
-                    new String[]{"processes", "variableNames"},///
-                    new Object[]{processesPart, variableNames}));
+            QVariable v = QVariable.variable;
+            list.addAll(queryFactory.selectFrom(v).where(v.process.in(processesPart).and(v.name.in(variableNames))).fetch());
         }
         for (Variable<?> variable : list) {
             result.get(variable.getProcess()).put(variable.getName(), variable);
@@ -104,7 +105,7 @@ public class VariableDAO extends GenericDAO<Variable> {
 
     public void deleteAll(Process process) {
         log.debug("deleting variables for process " + process.getId());
-        getHibernateTemplate().bulkUpdate("delete from Variable where process=?", process);
+        QVariable v = QVariable.variable;
+        queryFactory.delete(v).where(v.process.eq(process)).execute();
     }
-
 }

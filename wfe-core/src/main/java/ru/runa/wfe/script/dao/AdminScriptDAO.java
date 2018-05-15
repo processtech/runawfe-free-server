@@ -23,11 +23,13 @@ package ru.runa.wfe.script.dao;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.script.AdminScript;
+import ru.runa.wfe.script.QAdminScript;
 
 @SuppressWarnings("unchecked")
 public class AdminScriptDAO extends GenericDAO<AdminScript> {
 
     public AdminScript getByName(String name) {
-        return findFirstOrNull("from AdminScript where name = ?", name);
+        QAdminScript as = QAdminScript.adminScript;
+        return queryFactory.selectFrom(as).where(as.name.eq(name)).fetchFirst();
     }
 }

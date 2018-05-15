@@ -1,18 +1,15 @@
 package ru.runa.wfe.commons.dao;
 
+import com.google.common.base.Preconditions;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.sql.SQLException;
 import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
-
-import com.google.common.base.Preconditions;
 
 /**
  * General DAO implementation (type-safe generic DAO pattern).
@@ -24,7 +21,7 @@ import com.google.common.base.Preconditions;
  *            entity class
  */
 @SuppressWarnings("unchecked")
-public abstract class GenericDAO<T extends Object> extends CommonDAO implements IGenericDAO<T> {
+public abstract class GenericDAO<T> extends CommonDAO implements IGenericDAO<T> {
     protected static final Log log = LogFactory.getLog(GenericDAO.class);
     private final Class<T> entityClass;
 
@@ -61,8 +58,6 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      *            test entity
      * @param identity
      *            search data
-     * @throws Exception
-     *             or any of its subclass (NullPointerException in base implementation)
      */
     protected void checkNotNull(T entity, Object identity) {
         if (entity == null) {
@@ -87,13 +82,15 @@ public abstract class GenericDAO<T extends Object> extends CommonDAO implements 
      * @param parameters
      *            query parameters
      * @return first entity from list or <code>null</code>
+     * @deprecated Use HQL's setMaxResults(1) and uniqueResult(), or QueryDSL's fetchFirst() -- instead of querying whole list from SQL server.
      */
     @Override
+    @Deprecated
     protected T findFirstOrNull(final String hql, final Object... parameters) {
         List<T> list = getHibernateTemplate().executeFind(new HibernateCallback<List<T>>() {
 
             @Override
-            public List<T> doInHibernate(Session session) throws HibernateException, SQLException {
+            public List<T> doInHibernate(Session session) throws HibernateException {
                 Query query = session.createQuery(hql);
                 query.setMaxResults(1);
                 if (parameters != null) {
