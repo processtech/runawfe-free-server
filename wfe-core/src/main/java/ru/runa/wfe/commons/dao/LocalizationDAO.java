@@ -3,6 +3,7 @@ package ru.runa.wfe.commons.dao;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author dofs
  * @since 4.0
  */
+@Component
 @Transactional
 public class LocalizationDAO extends GenericDAO<Localization> {
 

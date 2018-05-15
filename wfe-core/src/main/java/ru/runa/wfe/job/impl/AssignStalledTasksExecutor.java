@@ -18,9 +18,7 @@
 package ru.runa.wfe.job.impl;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDAO;

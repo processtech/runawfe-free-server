@@ -1,12 +1,12 @@
 package ru.runa.wfe.job.impl;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
 
+@Component
 public class ExpiredJobCheckerTask extends JobTask<JobTransactionalExecutor> {
     @Autowired
     private JobDAO jobDAO;

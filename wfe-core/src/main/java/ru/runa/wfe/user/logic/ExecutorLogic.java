@@ -125,7 +125,7 @@ public class ExecutorLogic extends CommonLogic {
         if (permissionDAO.isPrivilegedExecutor(executor) || SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {
             throw new AuthorizationException(executor.getName() + " can not be removed");
         }
-        Set<Number> processIds = processDAO.getDependentProcessIds(executor);
+        Set<Long> processIds = processDAO.getDependentProcessIds(executor);
         if (processIds.size() > 0) {
             throw new ExecutorParticipatesInProcessesException(executor.getName(), processIds);
         }

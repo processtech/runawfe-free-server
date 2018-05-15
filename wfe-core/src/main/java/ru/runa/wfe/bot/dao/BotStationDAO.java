@@ -1,5 +1,6 @@
 package ru.runa.wfe.bot.dao;
 
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.bot.BotStationDoesNotExistException;
 import ru.runa.wfe.bot.QBotStation;
@@ -11,6 +12,7 @@ import ru.runa.wfe.commons.dao.GenericDAO;
  * @author Konstantinov Aleksey 25.02.2012
  * @since 2.0
  */
+@Component
 public class BotStationDAO extends GenericDAO<BotStation> {
 
     @Override

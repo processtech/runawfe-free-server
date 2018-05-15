@@ -75,7 +75,7 @@ public class ReportDefinition {
         this.description = description;
         this.compiledReport = compiledReport;
         this.configType = ReportConfigurationType.RAW_SQL_REPORT;
-        this.parameters = new ArrayList<ReportParameter>(parameters);
+        this.parameters = new ArrayList<>(parameters);
         this.category = category;
         this.version = 1L;
     }

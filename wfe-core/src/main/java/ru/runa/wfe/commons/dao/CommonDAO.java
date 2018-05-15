@@ -1,11 +1,10 @@
 package ru.runa.wfe.commons.dao;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.dao.support.DaoSupport;
+import org.springframework.util.Assert;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 
 /**
@@ -15,13 +14,18 @@ import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
  * @since 4.0
  */
 @SuppressWarnings("unchecked")
-public abstract class CommonDAO extends HibernateDaoSupport {
-    protected static final Log log = LogFactory.getLog(CommonDAO.class);
+public abstract class CommonDAO extends DaoSupport {
 
     @Autowired
     protected SessionFactory sessionFactory;
     @Autowired
     protected HibernateQueryFactory queryFactory;
+
+    @Override
+    protected final void checkDaoConfig() throws IllegalArgumentException {
+        Assert.notNull(sessionFactory);
+        Assert.notNull(queryFactory);
+    }
 
     /**
      * Load entity from database by id.
@@ -34,7 +38,7 @@ public abstract class CommonDAO extends HibernateDaoSupport {
 
     /**
      * Finds entities.
-     * 
+     *
      * @param hql
      *            Hibernate query
      * @param parameters

@@ -200,10 +200,14 @@ public class InitializerLogic {
      */
     public void onStartup(UserTransaction transaction) {
         try {
-            Integer databaseVersion = constantDAO.getDatabaseVersion();
-            if (databaseVersion != null) {
+            Integer databaseVersion = null;
+            try {
+                // Since now CMT is in use, getDatabaseVersion() may throw from AOP wrapper even if its body is wrapped into try-catch.
+                databaseVersion = constantDAO.getDatabaseVersion();
                 applyPatches(transaction, databaseVersion);
-            } else {
+            } catch (Exception e) {
+                // This message was moved from ConstantDAO.getDatabaseVersion(), so continue logging it there for now.
+                LogFactory.getLog(ConstantDAO.class).warn("Unable to get database version", e);
                 initializeDatabase(transaction);
             }
             permissionDAO.init();

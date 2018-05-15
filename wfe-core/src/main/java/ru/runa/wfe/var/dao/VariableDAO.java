@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.SystemProperties;
@@ -16,6 +17,7 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.QVariable;
 import ru.runa.wfe.var.Variable;
 
+@Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class VariableDAO extends GenericDAO<Variable> {
 
@@ -26,8 +28,10 @@ public class VariableDAO extends GenericDAO<Variable> {
 
     public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
         StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(variableNamePattern);
-        String query = "from Variable where name " + expression.getComparisonOperator() + " ? and stringValue = ?";
-        return getHibernateTemplate().find(query, expression.getValue(), stringValue);
+        return sessionFactory.getCurrentSession().createQuery("from Variable where name " + expression.getComparisonOperator() + " :name and stringValue = :value")
+                .setParameter("name", expression.getValue())
+                .setParameter("value", stringValue)
+                .list();
     }
 
     /**

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import org.hibernate.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLog;
@@ -28,6 +29,7 @@ import ru.runa.wfe.lang.SubprocessDefinition;
  * @author dofs
  * @since 4.0
  */
+@Component
 public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLogDAO<ProcessLog> {
 
     @Autowired

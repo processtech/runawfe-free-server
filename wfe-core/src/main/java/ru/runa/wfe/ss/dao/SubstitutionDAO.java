@@ -1,7 +1,7 @@
 /*
  * This file is part of the RUNA WFE project.
  * 
- * This program is free software; you can redistribute it and/or 
+ * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License 
  * as published by the Free Software Foundation; version 2.1 
  * of the License. 
@@ -20,6 +20,7 @@ package ru.runa.wfe.ss.dao;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.ss.QSubstitution;
 import ru.runa.wfe.ss.Substitution;
@@ -31,7 +32,7 @@ import ru.runa.wfe.user.Actor;
  * 
  * @since 2.0
  */
-@SuppressWarnings("unchecked")
+@Component
 public class SubstitutionDAO extends GenericDAO<Substitution> {
 
     @Override
@@ -55,8 +56,8 @@ public class SubstitutionDAO extends GenericDAO<Substitution> {
      *            {@linkplain Substitution}s identity to load.
      * @return Loaded {@linkplain Substitution}s.
      */
-    public List<Substitution> get(final List<Long> ids) {
-        if (ids.size() == 0) {
+    public List<Substitution> get(List<Long> ids) {
+        if (ids.isEmpty()) {
             return Lists.newArrayList();
         }
         QSubstitution s = QSubstitution.substitution;

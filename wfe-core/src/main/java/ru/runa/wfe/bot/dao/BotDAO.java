@@ -18,6 +18,7 @@
 package ru.runa.wfe.bot.dao;
 
 import java.util.List;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotDoesNotExistException;
 import ru.runa.wfe.bot.BotStation;
@@ -31,7 +32,7 @@ import ru.runa.wfe.user.User;
  * @author Konstantinov Aleksey 25.02.2012
  * @since 2.0
  */
-@SuppressWarnings("unchecked")
+@Component
 public class BotDAO extends GenericDAO<Bot> {
 
     @Override
@@ -63,10 +64,10 @@ public class BotDAO extends GenericDAO<Bot> {
     }
 
     public boolean isBot(User u) {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select 0 from Bot where username=?")
-                .setParameter(0, u.getName())
-                .setMaxResults(1).uniqueResult() != null;
+        QBot b = QBot.bot;
+        // TODO Should be select(Expressions.constant(1)), but: https://github.com/querydsl/querydsl/issues/455
+        //      May be this is fixed in Hibernate 5? If yes, search for all ".fetchFirst() != null" and replace.
+        return queryFactory.select(b.id).from(b).where(b.username.eq(u.getName())).fetchFirst() != null;
     }
 
     /**

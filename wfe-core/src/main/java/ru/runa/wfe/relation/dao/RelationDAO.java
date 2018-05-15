@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.relation.dao;
 
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.relation.QRelation;
 import ru.runa.wfe.relation.QRelationPair;
@@ -30,6 +31,7 @@ import ru.runa.wfe.relation.RelationDoesNotExistException;
  * @author Konstantinov Aleksey 12.02.2012
  * @since 3.3
  */
+@Component
 public class RelationDAO extends GenericDAO<Relation> {
 
     @Override

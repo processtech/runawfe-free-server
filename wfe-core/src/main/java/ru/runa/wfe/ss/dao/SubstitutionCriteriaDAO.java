@@ -2,6 +2,7 @@ package ru.runa.wfe.ss.dao;
 
 import java.util.Date;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.ss.QSubstitution;
 import ru.runa.wfe.ss.QSubstitutionCriteria;
@@ -14,7 +15,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
  * @author dofs
  * @since 4.0
  */
-@SuppressWarnings("unchecked")
+@Component
 public class SubstitutionCriteriaDAO extends GenericDAO<SubstitutionCriteria> {
 
     @Override

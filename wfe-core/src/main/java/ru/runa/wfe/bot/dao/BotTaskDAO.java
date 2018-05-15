@@ -1,6 +1,7 @@
 package ru.runa.wfe.bot.dao;
 
 import java.util.List;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.BotTaskDoesNotExistException;
@@ -13,7 +14,7 @@ import ru.runa.wfe.commons.dao.GenericDAO;
  * @author Konstantinov Aleksey 25.02.2012
  * @since 2.0
  */
-@SuppressWarnings("unchecked")
+@Component
 public class BotTaskDAO extends GenericDAO<BotTask> {
 
     @Override

@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
 
 /**
  * General DAO implementation (type-safe generic DAO pattern).
@@ -74,24 +73,7 @@ public abstract class GenericDAO<T> extends CommonDAO implements IGenericDAO<T> 
      * @return entities list, not <code>null</code>.
      */
     public List<T> getAll() {
-        return getHibernateTemplate().loadAll(entityClass);
-    }
-
-    /**
-     * Finds entities.
-     * 
-     * @param hql
-     *            Hibernate query
-     * @param parameters
-     *            query parameters
-     * @return first entity from list or <code>null</code>
-     */
-    protected T findFirstOrNull(String hql, Object... parameters) {
-        Query q = sessionFactory.getCurrentSession().createQuery(hql);
-        for (int i = 0; i < parameters.length; i++) {
-            q.setParameter(i, parameters[i]);
-        }
-        return (T)q.setMaxResults(1).uniqueResult();
+        return sessionFactory.getCurrentSession().createQuery("from " + entityClass.getName()).list();
     }
 
     /**

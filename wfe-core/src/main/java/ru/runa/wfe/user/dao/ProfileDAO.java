@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.user.dao;
 
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Profile;
@@ -27,6 +28,7 @@ import ru.runa.wfe.user.QProfile;
  * 
  * @author Konstantinov Aleksey 23.02.2012
  */
+@Component
 public class ProfileDAO extends GenericDAO<Profile> {
 
     /**

@@ -21,11 +21,12 @@
  */
 package ru.runa.wfe.script.dao;
 
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.QAdminScript;
 
-@SuppressWarnings("unchecked")
+@Component
 public class AdminScriptDAO extends GenericDAO<AdminScript> {
 
     public AdminScript getByName(String name) {

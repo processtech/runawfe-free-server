@@ -2,6 +2,7 @@ package ru.runa.wfe.job.dao;
 
 import java.util.Date;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
@@ -16,6 +17,7 @@ import ru.runa.wfe.job.QTimerJob;
  * @author dofs
  * @since 4.0
  */
+@Component
 public class JobDAO extends GenericDAO<Job> {
 
     public List<Job> getExpiredJobs() {
@@ -38,9 +40,7 @@ public class JobDAO extends GenericDAO<Job> {
 
     public void deleteByToken(Token token) {
         QTimerJob tj = QTimerJob.timerJob;
-        List<Long> ids = queryFactory.select(tj.id).from(tj).where(tj.token.eq(token)).fetch();
-        log.debug("deleting " + ids.size() + " timers for " + token);
-        queryFactory.delete(tj).where(tj.id.in(ids)).execute();
+        queryFactory.delete(tj).where(tj.token.eq(token)).execute();
     }
 
     public void deleteByProcess(Process process) {

@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.job.impl;
 
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.cache.CacheStatistic;
 
@@ -25,6 +26,7 @@ import ru.runa.wfe.commons.cache.CacheStatistic;
  * 
  * @author Konstantinov Aleksey
  */
+@Component
 public class CacheUsageStatisticLogger extends JobTask<TransactionalExecutor> {
 
     @Override

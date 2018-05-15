@@ -1,20 +1,20 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
-import org.springframework.beans.factory.access.BeanFactoryReference;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
-
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDAO;
@@ -38,26 +38,21 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.logic.VariableLogic;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
-public class ApplicationContextFactory {
-    private static ApplicationContext applicationContext = null;
+@Component
+public class ApplicationContextFactory implements ApplicationContextAware {
+    private static ApplicationContext context;
     private static DBType dbType;
 
-    public static boolean isContextInitialized() {
-        return applicationContext != null;
+    /**
+     * Taken from: https://stackoverflow.com/a/28408260/4247442
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext c) throws BeansException {
+        context = c;
     }
 
     public static ApplicationContext getContext() {
-        if (!isContextInitialized()) {
-            BeanFactoryReference reference = ContextSingletonBeanFactoryLocator.getInstance().useBeanFactory(null);
-            applicationContext = (ApplicationContext) reference.getFactory();
-            if (applicationContext == null) {
-                throw new RuntimeException("Context is not initialized");
-            }
-        }
-        return applicationContext;
+        return context;
     }
 
     public static JobDAO getJobDAO() {
@@ -77,11 +72,11 @@ public class ApplicationContextFactory {
     }
 
     public static SettingDAO getSettingDAO() {
-        return getContext().getBean("settingDAO", SettingDAO.class);
+        return getContext().getBean(SettingDAO.class);
     }
 
     public static ProcessDAO getProcessDAO() {
-        return getContext().getBean("processDAO", ProcessDAO.class);
+        return getContext().getBean(ProcessDAO.class);
     }
 
     public static NodeProcessDAO getNodeProcessDAO() {
@@ -110,7 +105,7 @@ public class ApplicationContextFactory {
 
     // TODO avoid static methods, inject
     public static SessionFactory getSessionFactory() {
-        return getContext().getBean("sessionFactory", SessionFactory.class);
+        return getContext().getBean(SessionFactory.class);
     }
 
     public static Session getCurrentSession() {
@@ -154,15 +149,15 @@ public class ApplicationContextFactory {
     }
 
     public static ExecutorDAO getExecutorDAO() {
-        return getContext().getBean("executorDAO", ExecutorDAO.class);
+        return getContext().getBean(ExecutorDAO.class);
     }
 
     public static DeploymentDAO getDeploymentDAO() {
-        return getContext().getBean("deploymentDAO", DeploymentDAO.class);
+        return getContext().getBean(DeploymentDAO.class);
     }
 
     public static PermissionDAO getPermissionDAO() {
-        return getContext().getBean("permissionDAO", PermissionDAO.class);
+        return getContext().getBean(PermissionDAO.class);
     }
 
     public static RelationDAO getRelationDAO() {

@@ -19,12 +19,10 @@ package ru.runa.wfe.relation.dao;
 
 import com.google.common.collect.Lists;
 import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.hibernate.HibernateQuery;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
@@ -43,7 +41,7 @@ import ru.runa.wfe.user.Executor;
  * @author Konstantinov Aleksey 12.02.2012
  * @since 3.3
  */
-@SuppressWarnings("unchecked")
+@Component
 public class RelationPairDAO extends GenericDAO<RelationPair> {
 
     @Override
@@ -59,7 +57,7 @@ public class RelationPairDAO extends GenericDAO<RelationPair> {
             return exists.get(0);
         }
         RelationPair result = new RelationPair(relation, left, right);
-        getHibernateTemplate().save(result);
+        sessionFactory.getCurrentSession().save(result);
         return result;
     }
 
@@ -68,7 +66,7 @@ public class RelationPairDAO extends GenericDAO<RelationPair> {
      * 
      * @param relation
      *            {@link Relation} can be null.
-     * @param right
+     * @param from
      *            Collection of {@link Executor}, which contains in right part of {@link RelationPair}.
      * @return List of {@link RelationPair}.
      */
@@ -81,7 +79,7 @@ public class RelationPairDAO extends GenericDAO<RelationPair> {
      * 
      * @param relation
      *            {@link Relation} can be null
-     * @param right
+     * @param from
      *            Collection of {@link Executor}, which contains in left part of {@link RelationPair}.
      * @return List of {@link RelationPair}.
      */
@@ -109,8 +107,8 @@ public class RelationPairDAO extends GenericDAO<RelationPair> {
      * Deleted all relation pairs for executor.
      */
     public void removeAllRelationPairs(Executor executor) {
-        getHibernateTemplate().deleteAll(getRelationPairs(null, Lists.newArrayList(executor), null));
-        getHibernateTemplate().deleteAll(getRelationPairs(null, null, Lists.newArrayList(executor)));
+        QRelationPair rp = QRelationPair.relationPair;
+        queryFactory.delete(rp).where(rp.left.eq(executor).or(rp.right.eq(executor))).execute();
     }
 
     private List<RelationPair> getRelationPairs(Relation relation, Collection<? extends Executor> left, Collection<? extends Executor> right) {

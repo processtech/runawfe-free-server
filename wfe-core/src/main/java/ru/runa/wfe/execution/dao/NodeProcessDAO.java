@@ -3,13 +3,14 @@ package ru.runa.wfe.execution.dao;
 import com.google.common.collect.Lists;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.QNodeProcess;
 import ru.runa.wfe.execution.Token;
 
-@SuppressWarnings("unchecked")
+@Component
 public class NodeProcessDAO extends GenericDAO<NodeProcess> {
 
     public NodeProcess findBySubProcessId(Long processId) {
@@ -48,7 +49,7 @@ public class NodeProcessDAO extends GenericDAO<NodeProcess> {
     public void deleteByProcess(Process process) {
         log.debug("deleting subprocess nodes for process " + process.getId());
         QNodeProcess np = QNodeProcess.nodeProcess;
-        queryFactory.delete(np).where(np.process.eq(process));
+        queryFactory.delete(np).where(np.process.eq(process)).execute();
     }
 
     public List<Process> getSubprocesses(Process process) {

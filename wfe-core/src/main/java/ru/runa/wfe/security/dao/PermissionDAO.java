@@ -19,6 +19,8 @@ package ru.runa.wfe.security.dao;
 
 import com.google.common.base.Preconditions;
 import com.mysema.commons.lang.CloseableIterator;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,10 +29,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.runa.wfe.InternalApplicationException;
@@ -56,6 +58,7 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
  *
  * @author Konstantinov Aleksey 19.02.2012
  */
+@Component
 @Transactional
 @SuppressWarnings("unchecked")
 public class PermissionDAO extends CommonDAO {
@@ -108,7 +111,7 @@ public class PermissionDAO extends CommonDAO {
      */
     public void setPermissions(Executor executor, Collection<Permission> permissions, SecuredObject object) {
         if (isPrivilegedExecutor(object, executor)) {
-            log.debug(permissions + " not granted for privileged " + executor);
+            logger.debug(permissions + " not granted for privileged " + executor);
             return;
         }
         ApplicablePermissions.check(object, permissions);
@@ -162,6 +165,7 @@ public class PermissionDAO extends CommonDAO {
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long identifiableId) {
+        // Since identifiableId is boxed and may be null, pass additional "hasId = true" parameter to preserve old behaviour.
         return isAllowedImpl(user, permission, type, true, identifiableId);
     }
 
@@ -172,9 +176,6 @@ public class PermissionDAO extends CommonDAO {
         return isAllowedImpl(user, permission, type, false, null);
     }
 
-    /**
-     * @param hasId Needed to preserve existing behaviour: id is boxed Long which can be null.
-     */
     private boolean isAllowedImpl(User user, Permission permission, SecuredObjectType type, boolean hasId, Long id) {
         ApplicablePermissions.check(type, permission);
         Assert.isTrue((hasId && id == 0) != type.hasObjectIds(), "Assertion failed: (hasId && id == 0) != " + type + ".hasObjectIds()");
@@ -189,31 +190,17 @@ public class PermissionDAO extends CommonDAO {
             return true;
         }
 
-        // TODO Use QueryDSL expression composition.
         PermissionSubstitutions.ForCheck subst = PermissionSubstitutions.getForCheck(type, permission);
-        StringBuilder sb = new StringBuilder(240);
-        sb.append("select 0 from PermissionMapping where executor in (:executors) and ((objectType = :selfType and permission in (:selfPermissions)");
-        if (hasId) {
-            sb.append(" and objectId = :selfId");
-        }
-        sb.append(")");
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        BooleanExpression wherePermission = pm.objectType.eq(type).and(pm.permission.in(subst.selfPermissions));
         if (!subst.listPermissions.isEmpty()) {
-            sb.append(" or (objectType = :listType and objectId = 0 and permission in (:listPermissions))");
+            wherePermission = wherePermission.or(pm.objectType.eq(type.getListType()).and(pm.permission.in(subst.listPermissions)));
         }
-        sb.append(")");
-
-        Query q = sessionFactory.getCurrentSession().createQuery(sb.toString())
-                .setParameterList("executors", executorWithGroups)
-                .setParameter("selfType", type)
-                .setParameterList("selfPermissions", subst.selfPermissions);
+        JPQLQuery<Long> q = queryFactory.select(pm.id).from(pm).where(pm.executor.in(executorWithGroups).and(wherePermission));
         if (hasId) {
-            q.setParameter("selfId", id);
+            q.where(pm.objectId.eq(id));
         }
-        if (!subst.listPermissions.isEmpty()) {
-            q.setParameter("listType", type.getListType())
-                    .setParameterList("listPermissions", subst.listPermissions);
-        }
-        return q.setMaxResults(1).uniqueResult() != null;
+        return q.fetchFirst() != null;
     }
 
     /**
@@ -247,15 +234,14 @@ public class PermissionDAO extends CommonDAO {
         }
 
         PermissionSubstitutions.ForCheck subst = PermissionSubstitutions.getForCheck(type, permission);
-        // Same type for all objects, thus same listType, and listType does not have object ids. So we perform separate query.
-        if (!subst.listPermissions.isEmpty() && sessionFactory.getCurrentSession()
-                .createQuery("select 0 from PermissionMapping " +
-                        "where executor in (:executors) and (objectType = :listType and objectId = 0 and permission in (:listPermissions))")
-                .setParameterList("executors", executorWithGroups)
-                .setParameter("listType", type.getListType())
-                .setParameterList("listPermissions", subst.listPermissions)
-                .setMaxResults(1)
-                .uniqueResult() != null) {
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        // Same type for all objects, thus same listType. I believe it would be faster to perform separate query here.
+        if (!subst.listPermissions.isEmpty() && queryFactory.select(pm.id).from(pm)
+                .where(pm.executor.in(executorWithGroups)
+                        .and(pm.objectType.eq(type.getListType()))
+                        .and(pm.objectId.eq(0L))
+                        .and(pm.permission.in(subst.listPermissions)))
+                .fetchFirst() != null) {
             Arrays.fill(result, true);
             return result;
         }
@@ -277,14 +263,12 @@ public class PermissionDAO extends CommonDAO {
             if (identifiableIds.isEmpty()) {
                 break;
             }
-            allowedIdentifiableIds.addAll(sessionFactory.getCurrentSession()
-                    .createQuery("select distinct objectId from PermissionMapping " +
-                            "where executor in (:executors) and objectType=:objectType and objectId in (:objectIds) and permission in (:permissions)")
-                    .setParameterList("executors", executorWithGroups)
-                    .setParameter("objectType", type)
-                    .setParameterList("objectIds", identifiableIds)
-                    .setParameterList("permissions", subst.selfPermissions)
-                    .list());
+            allowedIdentifiableIds.addAll(queryFactory.selectDistinct(pm.objectId).from(pm)
+                    .where(pm.executor.in(executorWithGroups)
+                            .and(pm.objectType.eq(type))
+                            .and(pm.objectId.in(identifiableIds))
+                            .and(pm.permission.in(subst.selfPermissions)))
+                    .fetch());
         }
         for (int i = 0; i < securedObjects.size(); i++) {
             result[i] = allowedIdentifiableIds.contains(securedObjects.get(i).getIdentifiableId());
@@ -319,7 +303,7 @@ public class PermissionDAO extends CommonDAO {
      */
     public Set<Executor> getExecutorsWithPermission(SecuredObject obj) {
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
-        List<Executor> list = queryFactory.select(pm.executor).from(pm)
+        List<Executor> list = queryFactory.selectDistinct(pm.executor).from(pm)
                 .where(pm.objectType.eq(obj.getSecuredObjectType()).and(pm.objectId.eq(obj.getIdentifiableId())))
                 .fetch();
         Set<Executor> result = new HashSet<>(list);
@@ -455,14 +439,13 @@ public class PermissionDAO extends CommonDAO {
         return count;
     }
 
-    public boolean permissionExists(final Executor executor, final Permission permission, final SecuredObject resource) {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select 0 from PermissionMapping where executor = :executor and objectType=:objectType and objectId=:objectId and permission=:permission")
-                .setParameter("executor", executor)
-                .setParameter("objectType", resource.getSecuredObjectType())
-                .setParameter("objectId", resource.getIdentifiableId())
-                .setParameter("permission", permission)
-                .setMaxResults(1)
-                .uniqueResult() != null;
+    public boolean permissionExists(final Executor executor, final Permission permission, final SecuredObject object) {
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        return queryFactory.select(pm.id).from(pm)
+                .where(pm.executor.eq(executor)
+                        .and(pm.objectType.eq(object.getSecuredObjectType()))
+                        .and(pm.objectId.eq(object.getIdentifiableId()))
+                        .and(pm.permission.eq(permission)))
+                .fetchFirst() != null;
     }
 }

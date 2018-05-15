@@ -23,19 +23,15 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.querydsl.core.types.dsl.Expressions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.hibernate.Criteria;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.dao.CommonDAO;
@@ -56,13 +52,12 @@ import ru.runa.wfe.user.QTemporaryGroup;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.cache.ExecutorCache;
 
-import static com.querydsl.core.types.dsl.Expressions.constant;
-
 /**
  * DAO for managing executors.
  * 
  * @since 2.0
  */
+@Component
 @SuppressWarnings("unchecked")
 public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     private static final String ID_PROPERTY_NAME = "id";
@@ -394,11 +389,8 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
      *            List of executors which will be deleted from group
      */
     public void deleteExecutorsFromGroup(Group group, Collection<? extends Executor> executors) {
-        List<ExecutorGroupMembership> list = Lists.newArrayList();
-        for (Executor executor : executors) {
-            list.add(getMembership(group, executor));
-        }
-        getHibernateTemplate().deleteAll(list);
+        QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
+        queryFactory.delete(egm).where(egm.group.eq(group).and(egm.executor.in(executors))).execute();
     }
 
     /**
@@ -621,18 +613,17 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     }
 
     public void remove(Executor executor) {
-        getHibernateTemplate().deleteAll(getExecutorMemberships(executor));
+        Assert.notNull(executor.getId());
+        QExecutorGroupMembership egm = QExecutorGroupMembership.executorGroupMembership;
+        QActorPassword ap = QActorPassword.actorPassword;
+        QExecutor e = QExecutor.executor;
+        queryFactory.delete(egm).where(egm.executor.eq(executor)).execute();
         if (executor instanceof Group) {
-            getHibernateTemplate().deleteAll(getGroupMemberships((Group) executor));
+            queryFactory.delete(egm).where(egm.group.eq((Group)executor)).execute();
         } else {
-            ActorPassword actorPassword = getActorPassword((Actor) executor);
-            if (actorPassword != null) {
-                sessionFactory.getCurrentSession().delete(actorPassword);
-            }
+            queryFactory.delete(ap).where(ap.actorId.eq(executor.getId())).execute();
         }
-        // TODO avoid DuplicateKeyException
-        executor = getHibernateTemplate().get(executor.getClass(), executor.getId());
-        getHibernateTemplate().delete(executor);
+        queryFactory.delete(e).where(e.id.eq(executor.getId()));
     }
 
     /**
@@ -648,20 +639,9 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     private void checkActorCode(Actor actor, boolean cacheVerify) {
         if (actor.getCode() == null) {
-            Long nextCode = getHibernateTemplate().execute(new HibernateCallback<Long>() {
-                @Override
-                public Long doInHibernate(Session session) {
-                    Criteria criteria = session.createCriteria(Actor.class);
-                    criteria.setMaxResults(1);
-                    criteria.addOrder(Order.asc(CODE_PROPERTY_NAME));
-                    List<Actor> actors = criteria.list();
-                    if (actors.size() > 0) {
-                        return actors.get(0).getCode() - 1;
-                    }
-                    return -1L;
-                }
-            });
-            actor.setCode(nextCode);
+            QActor a = QActor.actor;
+            Long minCode = queryFactory.select(a.code.min()).from(a).fetchFirst();
+            actor.setCode(minCode == null ? -1 : minCode - 1);
         }
         if (isActorExist(actor.getCode(), cacheVerify)) {
             throw new ExecutorAlreadyExistsException(actor.getCode());
@@ -747,15 +727,9 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         if (executors != null) {
             return executors;
         }
-        List<T> list = getHibernateTemplate().executeFind(new HibernateCallback<List<T>>() {
-
-            @Override
-            public List<T> doInHibernate(Session session) {
-                Query query = session.createQuery("from " + clazz.getName() + " where " + propertyName + " in (:ids)");
-                query.setParameterList("ids", identifiers);
-                return query.list();
-            }
-        });
+        List<T> list = sessionFactory.getCurrentSession().createQuery("from " + clazz.getName() + " where " + propertyName + " in (:ids)")
+                .setParameterList("ids", identifiers)
+                .list();
         HashMap<Long, Executor> idExecutorMap = Maps.newHashMapWithExpectedSize(list.size());
         for (Executor executor : list) {
             idExecutorMap.put(loadByCodes ? ((Actor) executor).getCode() : executor.getId(), executor);
@@ -813,7 +787,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         if (executor != null) {
             return (T) (clazz.isAssignableFrom(executor.getClass()) ? executor : null);
         } else {
-            return (T) findFirstOrNull("from " + clazz.getName() + " where name=?", name);
+            return findFirstOrNull("from " + clazz.getName() + " where name=?", name);
         }
     }
 
@@ -858,7 +832,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
 
     public <T extends Executor> T createWithoutCacheVerify(T executor) {
         QExecutor e = QExecutor.executor;
-        boolean exists = queryFactory.select(constant(1)).from(e).where(e.name.eq(executor.getName())).fetchFirst() != null;
+        boolean exists = queryFactory.select(e.id).from(e).where(e.name.eq(executor.getName())).fetchFirst() != null;
         if (exists) {
             throw new ExecutorAlreadyExistsException(executor.getName());
         }
@@ -881,7 +855,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
             Group administratorsGroup = (Group) getExecutor(SystemProperties.getAdministratorsGroupName());
             return isExecutorInGroup(actor, administratorsGroup);
         } catch (ExecutorDoesNotExistException e) {
-            log.debug(e);
+            logger.debug(e);
             return false;
         }
     }

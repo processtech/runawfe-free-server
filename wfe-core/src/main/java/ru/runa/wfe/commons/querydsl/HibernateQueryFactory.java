@@ -32,7 +32,6 @@ public class HibernateQueryFactory extends com.querydsl.jpa.hibernate.HibernateQ
     private SessionFactory sessionFactory;
 
     public HibernateQueryFactory() {
-        // TODO Dialect?
         super(new SessionProvider());
         SessionProvider.instance.owner = this;
     }

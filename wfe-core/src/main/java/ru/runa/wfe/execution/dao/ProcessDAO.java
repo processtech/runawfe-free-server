@@ -1,10 +1,11 @@
 package ru.runa.wfe.execution.dao;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.querydsl.jpa.JPQLQuery;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
@@ -17,6 +18,7 @@ import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.task.QTask;
 import ru.runa.wfe.user.Executor;
 
+@Component
 public class ProcessDAO extends GenericDAO<Process> {
 
     @Override
@@ -36,18 +38,18 @@ public class ProcessDAO extends GenericDAO<Process> {
 
     public List<Process> find(List<Long> ids) {
         if (ids.isEmpty()) {
-            return Lists.newArrayList();
+            return new ArrayList<>();
         }
         QProcess p = QProcess.process;
         return queryFactory.selectFrom(p).where(p.id.in(ids)).fetch();
     }
 
-    public Set<Number> getDependentProcessIds(Executor executor) {
-        Set<Number> processes = Sets.newHashSet();
+    public Set<Long> getDependentProcessIds(Executor executor) {
+        Set<Long> processes = new HashSet<>();
         QSwimlane s = QSwimlane.swimlane;
-        processes.addAll(queryFactory.select(s.process.id).from(s).where(s.executor.eq(executor)).fetch());
+        processes.addAll(queryFactory.selectDistinct(s.process.id).from(s).where(s.executor.eq(executor)).fetch());
         QTask t = QTask.task;
-        processes.addAll(queryFactory.select(t.process.id).from(t).where(t.executor.eq(executor)).fetch());
+        processes.addAll(queryFactory.selectDistinct(t.process.id).from(t).where(t.executor.eq(executor)).fetch());
         return processes;
     }
 
@@ -111,6 +113,7 @@ public class ProcessDAO extends GenericDAO<Process> {
     public void delete(Process process) {
         log.debug("deleting tokens for " + process);
         QToken t = QToken.token;
+        // TODO Why select+delete instead of just delete.where?
         List<Token> tokens = queryFactory.selectFrom(t).where(t.process.eq(process).and(t.parent.isNotNull())).orderBy(t.id.desc()).fetch();
         for (Token token : tokens) {
             log.debug("deleting " + token);

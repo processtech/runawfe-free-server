@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
@@ -35,6 +36,7 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.user.Executor;
 
+@Component
 @SuppressWarnings("unchecked")
 public class TaskDAO extends GenericDAO<Task> {
 
@@ -86,12 +88,14 @@ public class TaskDAO extends GenericDAO<Task> {
     /**
      * @return tasks, opened by user.
      */
-    public List<Long> getOpenedTasks(Long actorId, List<Long> tasksIds) {
-        if (tasksIds.isEmpty()) {
+    public List<Long> getOpenedTasks(Long actorId, List<Long> taskIds) {
+        if (taskIds.isEmpty()) {
             return new ArrayList<>();
         }
-        return getHibernateTemplate().findByNamedParam("select id from Task where :actorId in elements(openedByExecutorIds) and id in (:tasksIds)",
-                new String[] { "actorId", "tasksIds" }, new Object[] { actorId, tasksIds });
+        return sessionFactory.getCurrentSession().createQuery("select id from Task where :actorId in elements(openedByExecutorIds) and id in (:taskIds)")
+                .setParameter("actorId", actorId)
+                .setParameter("taskIds", taskIds)
+                .list();
     }
 
     /**

@@ -24,6 +24,7 @@ package ru.runa.wfe.definition.dao;
 import com.google.common.base.Objects;
 import java.util.Date;
 import java.util.List;
+import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -36,6 +37,7 @@ import ru.runa.wfe.definition.QDeployment;
  * @author dofs
  * @since 4.0
  */
+@Component
 public class DeploymentDAO extends GenericDAO<Deployment> {
 
     public void deploy(Deployment deployment, Deployment previousLatestVersion) {
@@ -122,7 +124,6 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
      * @deprecated use findAllDeploymentVersionIds
      */
     @Deprecated
-    @SuppressWarnings("unchecked")
     public List<Deployment> findAllDeploymentVersions(String name) {
         QDeployment d = QDeployment.deployment;
         return queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetch();
