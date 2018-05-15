@@ -48,5 +48,4 @@ public abstract class CommonDAO extends HibernateDaoSupport {
         }
         return (T)q.setMaxResults(1).uniqueResult();
     }
-
 }

@@ -28,6 +28,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.QDeployment;
 
 /**
  * DAO for {@link Deployment}.
@@ -66,7 +67,8 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
      * queries the database for the latest version of a process definition with the given name.
      */
     public Deployment findLatestDeployment(String name) {
-        Deployment deployment = findFirstOrNull("from Deployment where name=? order by version desc", name);
+        QDeployment d = QDeployment.deployment;
+        Deployment deployment = queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetchFirst();
         if (deployment == null) {
             throw new DefinitionDoesNotExistException(name);
         }
@@ -74,7 +76,8 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     public Deployment findDeployment(String name, Long version) {
-        Deployment deployment = findFirstOrNull("from Deployment where name=? and version=?", name, version);
+        QDeployment d = QDeployment.deployment;
+        Deployment deployment = queryFactory.selectFrom(d).where(d.name.eq(name).and(d.version.eq(version))).fetchFirst();
         if (deployment == null) {
             throw new DefinitionDoesNotExistException(name + " v" + version);
         }
@@ -85,43 +88,32 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
      * queries the database for definition names.
      */
     public List<String> findDeploymentNames() {
-        return getHibernateTemplate().find("select distinct(name) from Deployment order by name desc");
+        QDeployment d = QDeployment.deployment;
+        return queryFactory.selectDistinct(d.name).from(d).orderBy(d.name.desc()).fetch();
     }
 
     /**
      * queries the database for all version ids of process definitions with the given name, ordered by version.
      */
-    public List<Number> findAllDeploymentVersionIds(String name, boolean ascending) {
-        String query = "select id from Deployment where name=? order by version " + (ascending ? "asc" : "desc");
-        return getHibernateTemplate().find(query, name);
+    public List<Long> findAllDeploymentVersionIds(String name, boolean ascending) {
+        QDeployment d = QDeployment.deployment;
+        return queryFactory.select(d.id).from(d).where(d.name.eq(name)).orderBy(ascending ? d.version.asc() : d.version.desc()).fetch();
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Number> findDeploymentVersionIds(String name, Long from, Long to) {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select id from Deployment where name=? and version<=? and version>=? order by version asc")
-                .setParameter(0, name)
-                .setParameter(1, from)
-                .setParameter(2, to)
-                .list();
+    public List<Long> findDeploymentVersionIds(String name, Long from, Long to) {
+        QDeployment d = QDeployment.deployment;
+        // Parameters "from" and "to" are flipped in between(). It was that way previously in HQL: version <= from && version >= to:
+        return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.version.between(to, from))).orderBy(d.version.asc()).fetch();
     }
 
-    public Number findDeploymentIdLatestVersionLessThan(final String name, final Long version) {
-        return (Number)sessionFactory.getCurrentSession()
-                .createQuery("select id from Deployment where name=? and version<? order by version desc")
-                .setParameter(0, name)
-                .setParameter(1, version)
-                .setMaxResults(1)
-                .uniqueResult();
+    public Long findDeploymentIdLatestVersionLessThan(String name, Long version) {
+        QDeployment d = QDeployment.deployment;
+        return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.version.lt(version))).orderBy(d.version.desc()).fetchFirst();
     }
 
-    public Number findDeploymentIdLatestVersionBeforeDate(final String name, final Date date) {
-        return (Number)sessionFactory.getCurrentSession()
-                .createQuery("select id from Deployment where name=? and createDate<? order by version desc")
-                .setParameter(0, name)
-                .setParameter(1, date)
-                .setMaxResults(1)
-                .uniqueResult();
+    public Long findDeploymentIdLatestVersionBeforeDate(String name, Date date) {
+        QDeployment d = QDeployment.deployment;
+        return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.createDate.lt(date))).orderBy(d.version.desc()).fetchFirst();
     }
 
     /**
@@ -132,10 +124,8 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     @Deprecated
     @SuppressWarnings("unchecked")
     public List<Deployment> findAllDeploymentVersions(String name) {
-        return sessionFactory.getCurrentSession()
-                .createQuery("from Deployment where name=? order by version desc")
-                .setParameter(0, name)
-                .list();
+        QDeployment d = QDeployment.deployment;
+        return queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetch();
     }
 
 }

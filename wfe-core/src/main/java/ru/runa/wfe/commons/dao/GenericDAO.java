@@ -61,8 +61,6 @@ public abstract class GenericDAO<T> extends CommonDAO implements IGenericDAO<T> 
      *            test entity
      * @param identity
      *            search data
-     * @throws Exception
-     *             or any of its subclass (NullPointerException in base implementation)
      */
     protected void checkNotNull(T entity, Object identity) {
         if (entity == null) {
@@ -88,12 +86,7 @@ public abstract class GenericDAO<T> extends CommonDAO implements IGenericDAO<T> 
      *            query parameters
      * @return first entity from list or <code>null</code>
      */
-    @Override
     protected T findFirstOrNull(String hql, Object... parameters) {
-        // TODO Duplicates superclass's implementation; the only difference is that T is method template parameter there.
-        //      Maybe this commented line will just work? Or Java will treat Object[] as Object (single arg)?
-//        return super.findFirstOrNull(hql, parameters);
-
         Query q = sessionFactory.getCurrentSession().createQuery(hql);
         for (int i = 0; i < parameters.length; i++) {
             q.setParameter(i, parameters[i]);

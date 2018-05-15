@@ -292,14 +292,14 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public List<ProcessDefinitionChange> getChanges(Long definitionId) {
         String definitionName = getDefinition(definitionId).getName();
-        List<Number> deploymentIds = deploymentDAO.findAllDeploymentVersionIds(definitionName, true);
+        List<Long> deploymentIds = deploymentDAO.findAllDeploymentVersionIds(definitionName, true);
         return getChanges(deploymentIds);
     }
 
     public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
         Preconditions.checkArgument(n > 0);
         String definitionName = getDefinition(definitionId).getName();
-        List<Number> deploymentIds = deploymentDAO.findAllDeploymentVersionIds(definitionName, false);
+        List<Long> deploymentIds = deploymentDAO.findAllDeploymentVersionIds(definitionName, false);
         if (n < deploymentIds.size()) {
             deploymentIds = new ArrayList<>(deploymentIds.subList(0, n.intValue()));
         }
@@ -308,7 +308,7 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
-        List<Number> deploymentIds = deploymentDAO.findDeploymentVersionIds(definitionName, version1, version2);
+        List<Long> deploymentIds = deploymentDAO.findDeploymentVersionIds(definitionName, version1, version2);
         return getChanges(deploymentIds);
     }
 
@@ -439,14 +439,14 @@ public class DefinitionLogic extends WFCommonLogic {
         return definitionsWithPermission;
     }
 
-    private List<ProcessDefinitionChange> getChanges(List<Number> deploymentIds) {
+    private List<ProcessDefinitionChange> getChanges(List<Long> deploymentIds) {
         List<ProcessDefinitionChange> ignoredChanges = null;
         if (!deploymentIds.isEmpty()) {
-            ProcessDefinition firstDefinition = getDefinition(deploymentIds.get(0).longValue());
+            ProcessDefinition firstDefinition = getDefinition(deploymentIds.get(0));
             Long firstDeploymentVersion = firstDefinition.getDeployment().getVersion();
-            Number previousDefinitionId = deploymentDAO.findDeploymentIdLatestVersionLessThan(firstDefinition.getName(), firstDeploymentVersion);
+            Long previousDefinitionId = deploymentDAO.findDeploymentIdLatestVersionLessThan(firstDefinition.getName(), firstDeploymentVersion);
             if (previousDefinitionId != null) {
-                ignoredChanges = getDefinition(previousDefinitionId.longValue()).getChanges();
+                ignoredChanges = getDefinition(previousDefinitionId).getChanges();
             }
         }
         List<ProcessDefinitionChange> result = new ArrayList<>();

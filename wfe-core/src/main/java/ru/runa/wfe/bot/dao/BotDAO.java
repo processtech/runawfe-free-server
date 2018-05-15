@@ -18,10 +18,10 @@
 package ru.runa.wfe.bot.dao;
 
 import java.util.List;
-
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotDoesNotExistException;
 import ru.runa.wfe.bot.BotStation;
+import ru.runa.wfe.bot.QBot;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.user.User;
 
@@ -47,7 +47,8 @@ public class BotDAO extends GenericDAO<Bot> {
      * @return loaded {@linkplain Bot} or <code>null</code> if no bot found
      */
     public Bot get(BotStation botStation, String username) {
-        return findFirstOrNull("from Bot where botStation=? and username=?", botStation, username);
+        QBot b = QBot.bot;
+        return queryFactory.selectFrom(b).where(b.botStation.eq(botStation).and(b.username.eq(username))).fetchFirst();
     }
 
     /**
@@ -57,7 +58,8 @@ public class BotDAO extends GenericDAO<Bot> {
      * @return loaded {@linkplain Bot} or <code>null</code> if no bot found
      */
     public Bot get(String username) {
-        return findFirstOrNull("from Bot where username=?", username);
+        QBot b = QBot.bot;
+        return queryFactory.selectFrom(b).where(b.username.eq(username)).fetchFirst();
     }
 
     public boolean isBot(User u) {
@@ -81,7 +83,8 @@ public class BotDAO extends GenericDAO<Bot> {
     /**
      * Load all {@linkplain Bot}s defined for {@linkplain BotStation}.
      */
-    public List<Bot> getAll(final BotStation botStation) {
-        return (List<Bot>) getHibernateTemplate().find("from Bot where botStation=?", botStation);
+    public List<Bot> getAll(Long botStationId) {
+        QBot b = QBot.bot;
+        return queryFactory.selectFrom(b).where(b.botStation.id.eq(botStationId)).fetch();
     }
 }

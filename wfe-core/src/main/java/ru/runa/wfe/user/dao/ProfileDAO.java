@@ -20,6 +20,7 @@ package ru.runa.wfe.user.dao;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Profile;
+import ru.runa.wfe.user.QProfile;
 
 /**
  * DAO for managing user profiles.
@@ -36,7 +37,8 @@ public class ProfileDAO extends GenericDAO<Profile> {
      * @return Actor profile or null.
      */
     public Profile get(Actor actor) {
-        return findFirstOrNull("from Profile where actor = ?", actor);
+        QProfile p = QProfile.profile;
+        return queryFactory.selectFrom(p).where(p.actor.eq(actor)).fetchFirst();
     }
 
     /**
@@ -48,8 +50,7 @@ public class ProfileDAO extends GenericDAO<Profile> {
     public void delete(Actor actor) {
         Profile profile = get(actor);
         if (profile != null) {
-            getHibernateTemplate().delete(profile);
+            sessionFactory.getCurrentSession().delete(profile);
         }
     }
-
 }

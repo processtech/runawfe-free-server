@@ -1,10 +1,10 @@
 package ru.runa.wfe.bot.dao;
 
 import java.util.List;
-
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.BotTaskDoesNotExistException;
+import ru.runa.wfe.bot.QBotTask;
 import ru.runa.wfe.commons.dao.GenericDAO;
 
 /**
@@ -29,7 +29,8 @@ public class BotTaskDAO extends GenericDAO<BotTask> {
      * @return loaded {@linkplain BotTask} or <code>null</code>
      */
     public BotTask get(Bot bot, String name) {
-        return findFirstOrNull("from BotTask where bot=? and name=?", bot, name);
+        QBotTask bt = QBotTask.botTask;
+        return queryFactory.selectFrom(bt).where(bt.bot.eq(bot).and(bt.name.eq(name))).fetchFirst();
     }
 
     /**
@@ -49,7 +50,7 @@ public class BotTaskDAO extends GenericDAO<BotTask> {
      * @return list, not <code>null</code>.
      */
     public List<BotTask> getAll(Bot bot) {
-        return (List<BotTask>) getHibernateTemplate().find("from BotTask where bot=?", bot);
+        QBotTask bt = QBotTask.botTask;
+        return queryFactory.selectFrom(bt).where(bt.bot.eq(bot)).fetch();
     }
-
 }

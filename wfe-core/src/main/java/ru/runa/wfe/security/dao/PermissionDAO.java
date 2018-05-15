@@ -390,12 +390,12 @@ public class PermissionDAO extends CommonDAO {
      * @param type
      *            Type of SecuredObject.
      * @param executors
-     *            Privileged(?) executors for target class.
+     *            Privileged executors for target class.
      */
     public void addType(SecuredObjectType type, List<? extends Executor> executors) {
         for (Executor executor : executors) {
             PrivelegedMapping mapping = new PrivelegedMapping(type, executor);
-            getHibernateTemplate().save(mapping);
+            sessionFactory.getCurrentSession().save(mapping);
             privelegedExecutors.get(mapping.getType()).add(mapping.getExecutor());
             privelegedExecutorIds.add(mapping.getExecutor().getId());
         }

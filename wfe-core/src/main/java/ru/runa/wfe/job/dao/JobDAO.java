@@ -7,7 +7,8 @@ import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.job.Job;
-import ru.runa.wfe.job.TimerJob;
+import ru.runa.wfe.job.QJob;
+import ru.runa.wfe.job.QTimerJob;
 
 /**
  * DAO for {@link Job} hierarchy.
@@ -18,27 +19,33 @@ import ru.runa.wfe.job.TimerJob;
 public class JobDAO extends GenericDAO<Job> {
 
     public List<Job> getExpiredJobs() {
-        return getHibernateTemplate().find("from Job where dueDate<=? and token.executionStatus=? order by dueDate", new Date(),
-                ExecutionStatus.ACTIVE);
+        QJob j = QJob.job;
+        return queryFactory.selectFrom(j)
+                .where(j.dueDate.loe(new Date()).and(j.token.executionStatus.eq(ExecutionStatus.ACTIVE)))
+                .orderBy(j.dueDate.asc())
+                .fetch();
     }
 
     public List<Job> findByProcess(Process process) {
-        return getHibernateTemplate().find("from Job where process=? order by dueDate", process);
+        QJob j = QJob.job;
+        return queryFactory.selectFrom(j).where(j.process.eq(process)).orderBy(j.dueDate.asc()).fetch();
     }
 
     public List<Job> findByProcessAndDeadlineExpressionContaining(Process process, String expression) {
-        return getHibernateTemplate().find("from Job where process=? and dueDateExpression like ?", process, "%" + expression + "%");
+        QJob j = QJob.job;
+        return queryFactory.selectFrom(j).where(j.process.eq(process).and(j.dueDateExpression.like("%" + expression + "%"))).fetch();
     }
 
     public void deleteByToken(Token token) {
-        List<TimerJob> timerJobs = getHibernateTemplate().find("from TimerJob where token=?", token);
-        log.debug("deleting " + timerJobs.size() + " timers for " + token);
-        getHibernateTemplate().deleteAll(timerJobs);
+        QTimerJob tj = QTimerJob.timerJob;
+        List<Long> ids = queryFactory.select(tj.id).from(tj).where(tj.token.eq(token)).fetch();
+        log.debug("deleting " + ids.size() + " timers for " + token);
+        queryFactory.delete(tj).where(tj.id.in(ids)).execute();
     }
 
     public void deleteByProcess(Process process) {
         log.debug("deleting jobs for process " + process.getId());
-        getHibernateTemplate().bulkUpdate("delete from Job where process=?", process);
+        QJob j = QJob.job;
+        queryFactory.delete(j).where(j.process.eq(process)).execute();
     }
-
 }

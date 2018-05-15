@@ -20,14 +20,12 @@ package ru.runa.wfe.commons.dao;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 
 /**
@@ -38,7 +36,7 @@ public class ConstantDAO extends GenericDAO<Constant> {
     private static final Log log = LogFactory.getLog(ConstantDAO.class);
     private static final String DATABASE_VERSION_VARIABLE_NAME = "ru.runa.database_version";
 
-    public Integer getDatabaseVersion() throws Exception {
+    public Integer getDatabaseVersion() {
         return getHibernateTemplate().executeWithNativeSession(new HibernateCallback<Integer>() {
 
             @SuppressWarnings("deprecation")
@@ -65,7 +63,8 @@ public class ConstantDAO extends GenericDAO<Constant> {
     }
 
     public Constant get(String name) {
-        return findFirstOrNull("from Constant where name = ?", name);
+        QConstant c = QConstant.constant;
+        return queryFactory.selectFrom(c).where(c.name.eq(name)).fetchFirst();
     }
 
     /**

@@ -30,7 +30,6 @@ import ru.runa.wfe.relation.RelationDoesNotExistException;
  * @author Konstantinov Aleksey 12.02.2012
  * @since 3.3
  */
-@SuppressWarnings("unchecked")
 public class RelationDAO extends GenericDAO<Relation> {
 
     @Override
