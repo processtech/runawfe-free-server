@@ -28,8 +28,8 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTDBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.security.Permission;
 
 /**
  * @author Gordienko_m
@@ -38,7 +38,7 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 public class RedeployProcessTDBuilder extends BaseTDBuilder {
 
     public RedeployProcessTDBuilder() {
-        super(DefinitionPermission.REDEPLOY_DEFINITION);
+        super(Permission.REDEPLOY_DEFINITION);
     }
 
     @Override
@@ -59,7 +59,6 @@ public class RedeployProcessTDBuilder extends BaseTDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        String result = MessagesProcesses.LABEL_REDEPLOY_PROCESS_DEFINIION.message(env.getPageContext());
-        return result;
+        return MessagesProcesses.LABEL_REDEPLOY_PROCESS_DEFINIION.message(env.getPageContext());
     }
 }

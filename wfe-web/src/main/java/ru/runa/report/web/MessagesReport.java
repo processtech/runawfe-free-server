@@ -5,7 +5,7 @@ import ru.runa.wfe.report.ReportClassPresentation;
 
 public final class MessagesReport {
 
-    public static final StrutsMessage DEPLOY_PERMISSION_NAME = new StrutsMessage("permission.report.deploy");
+    public static final StrutsMessage DEPLOY_PERMISSION_NAME = new StrutsMessage("permission.deploy_report");
 
     public static final StrutsMessage PRESENTATION_NAME = new StrutsMessage(ReportClassPresentation.NAME);
     public static final StrutsMessage PRESENTATION_DESCRIPTION = new StrutsMessage(ReportClassPresentation.DESCRIPTION);

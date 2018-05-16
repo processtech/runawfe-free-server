@@ -3,11 +3,9 @@ package ru.runa.wf.web.datafile.builder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
-
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.script.AdminScriptConstants;
@@ -33,9 +31,9 @@ public class ExecutorDataFileBuilder implements DataFileBuilder {
 
     @Override
     public void build(ZipOutputStream zos, Document script) {
-        List<Group> groupsForCreating = new ArrayList<Group>();
-        List<Actor> actorOnPermissions = new ArrayList<Actor>();
-        List<Group> groupOnPermissions = new ArrayList<Group>();
+        List<Group> groupsForCreating = new ArrayList<>();
+        List<Actor> actorOnPermissions = new ArrayList<>();
+        List<Group> groupOnPermissions = new ArrayList<>();
         List<? extends Executor> executors = Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.EXECUTORS.createNonPaged());
         for (Executor executor : executors) {
             if (executor instanceof TemporaryGroup) {

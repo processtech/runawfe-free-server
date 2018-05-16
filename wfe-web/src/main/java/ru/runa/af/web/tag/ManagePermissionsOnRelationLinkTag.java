@@ -54,7 +54,7 @@ public class ManagePermissionsOnRelationLinkTag extends LinkTag {
 
     @Override
     protected String getHref() {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put(IdForm.ID_INPUT_NAME, relationId);
         return Commons.getActionUrl(HREF, params, pageContext, PortletUrlType.Action);
     }

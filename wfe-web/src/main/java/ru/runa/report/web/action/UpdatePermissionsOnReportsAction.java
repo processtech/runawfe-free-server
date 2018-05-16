@@ -19,18 +19,17 @@ package ru.runa.report.web.action;
 
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.UpdatePermissionsOnIdentifiableAction;
+import ru.runa.common.web.action.UpdatePermissionsOnSecuredObjectAction;
 import ru.runa.wfe.report.ReportsSecure;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.User;
 
-public class UpdatePermissionsOnReportsAction extends UpdatePermissionsOnIdentifiableAction {
+public class UpdatePermissionsOnReportsAction extends UpdatePermissionsOnSecuredObjectAction {
     public static final String ACTION_PATH = "/updatePermissionsOnReports";
 
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return ReportsSecure.INSTANCE;
     }
 

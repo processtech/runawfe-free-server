@@ -36,7 +36,6 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessSwimlaneRowBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -82,7 +81,7 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ProcessPermission.READ;
+        return Permission.READ;
     }
 
     @Override

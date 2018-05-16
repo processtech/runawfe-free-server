@@ -21,9 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.IgnoreGrantedPermissionCallback;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -31,12 +29,11 @@ import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationAlreadyExistException;
 import ru.runa.wfe.relation.RelationDoesNotExistException;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.relation.RelationPermission;
 import ru.runa.wfe.relation.RelationsGroupSecure;
 import ru.runa.wfe.relation.dao.RelationDAO;
 import ru.runa.wfe.relation.dao.RelationPairDAO;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -67,7 +64,7 @@ public class RelationLogic extends CommonLogic {
      */
     public RelationPair addRelationPair(User user, Long relationId, Executor left, Executor right) {
         Relation relation = relationDAO.getNotNull(relationId);
-        checkPermissionAllowed(user, relation, RelationPermission.UPDATE);
+        checkPermissionAllowed(user, relation, Permission.UPDATE_RELATION);
         return relationPairDAO.addRelationPair(relation, left, right);
     }
 
@@ -80,12 +77,12 @@ public class RelationLogic extends CommonLogic {
      * @return Created relation.
      */
     public Relation createRelation(User user, Relation relation) {
-        checkPermissionAllowed(user, RelationsGroupSecure.INSTANCE, RelationPermission.UPDATE);
+        checkPermissionAllowed(user, RelationsGroupSecure.INSTANCE, Permission.UPDATE_RELATION);
         return relationDAO.create(relation);
     }
 
     public Relation updateRelation(User user, Relation relation) {
-        checkPermissionAllowed(user, RelationsGroupSecure.INSTANCE, RelationPermission.UPDATE);
+        checkPermissionAllowed(user, RelationsGroupSecure.INSTANCE, Permission.UPDATE_RELATION);
         return relationDAO.update(relation);
     }
 
@@ -117,7 +114,7 @@ public class RelationLogic extends CommonLogic {
      * @return List of {@link RelationPair}.
      */
     public List<RelationPair> getExecutorRelationPairsRight(User user, String relationName, List<? extends Executor> right) {
-        List<RelationPair> result = new ArrayList<RelationPair>();
+        List<RelationPair> result = new ArrayList<>();
         Relation relation = relationName != null ? relationDAO.getNotNull(relationName) : null;
         List<RelationPair> loadedPairs = relationPairDAO.getExecutorsRelationPairsRight(relation, right);
         Set<Relation> allowedRelations = getRelationsWithReadPermission(user, loadedPairs);
@@ -141,7 +138,7 @@ public class RelationLogic extends CommonLogic {
      * @return List of {@link RelationPair}.
      */
     public List<RelationPair> getExecutorRelationPairsLeft(User user, String relationName, List<? extends Executor> left) {
-        List<RelationPair> result = new ArrayList<RelationPair>();
+        List<RelationPair> result = new ArrayList<>();
         Relation relation = relationName != null ? relationDAO.getNotNull(relationName) : null;
         List<RelationPair> loadedPairs = relationPairDAO.getExecutorsRelationPairsLeft(relation, left);
         Set<Relation> allowedRelations = getRelationsWithReadPermission(user, loadedPairs);
@@ -191,7 +188,6 @@ public class RelationLogic extends CommonLogic {
      *            Relation name.
      * @param batchPresentation
      *            Restrictions to get {@link RelationPair}.
-     * @return
      */
     public List<RelationPair> getRelations(User user, String relationName, BatchPresentation batchPresentation) {
         Relation relation = relationDAO.getNotNull(relationName);
@@ -208,7 +204,6 @@ public class RelationLogic extends CommonLogic {
      *            Relation identity.
      * @param batchPresentation
      *            Restrictions to get {@link RelationPair}.
-     * @return
      */
     public List<RelationPair> getRelations(User user, Long relationId, BatchPresentation batchPresentation) {
         Relation relation = relationDAO.getNotNull(relationId);
@@ -226,7 +221,7 @@ public class RelationLogic extends CommonLogic {
      */
     public void removeRelationPair(User user, Long relationPairId) {
         RelationPair relationPair = relationPairDAO.getNotNull(relationPairId);
-        checkPermissionAllowed(user, relationPair.getRelation(), RelationPermission.UPDATE);
+        checkPermissionAllowed(user, relationPair.getRelation(), Permission.UPDATE_RELATION);
         permissionDAO.deleteAllPermissions(relationPair);
         relationPairDAO.delete(relationPair);
     }
@@ -240,16 +235,14 @@ public class RelationLogic extends CommonLogic {
      *            Relation identity.
      */
     public void removeRelation(User user, Long relationId) {
-        checkPermissionAllowed(user, RelationsGroupSecure.INSTANCE, RelationPermission.UPDATE);
+        checkPermissionAllowed(user, RelationsGroupSecure.INSTANCE, Permission.UPDATE_RELATION);
         permissionDAO.deleteAllPermissions(getRelation(user, relationId));
         relationDAO.delete(relationId);
     }
 
     /**
-     * Returns set of {@link Relation} from {@link relationPairs} parameter with Read permission for current user.
+     * Returns set of {@link Relation} from relationPairs parameter with Read permission for current user.
      * 
-     * @param daoHolder
-     *            Object to get different DAO.
      * @param user
      *            user, which perform operation.
      * @param relationPairs
@@ -257,14 +250,14 @@ public class RelationLogic extends CommonLogic {
      * @return {@link Relation}'s with READ permission.
      */
     private Set<Relation> getRelationsWithReadPermission(User user, List<RelationPair> relationPairs) {
-        final Set<Relation> result = new HashSet<Relation>();
+        final Set<Relation> result = new HashSet<>();
         for (RelationPair relationPair : relationPairs) {
             result.add(relationPair.getRelation());
         }
-        isPermissionAllowed(user, new ArrayList<Relation>(result), Permission.READ, new IgnoreGrantedPermissionCallback() {
+        isPermissionAllowed(user, new ArrayList<>(result), Permission.READ, new IgnoreGrantedPermissionCallback() {
             @Override
-            public void OnPermissionDenied(Identifiable identifiable) {
-                result.remove(identifiable);
+            public void OnPermissionDenied(SecuredObject securedObject) {
+                result.remove(securedObject);
             }
         });
         return result;

@@ -265,17 +265,25 @@ public class CompilerParameters {
      * 
      * @return Permission, which executor must have on object.
      */
-    public Permission getPermission() {
-        return permissionRestrictions == null ? null : permissionRestrictions.getPermission();
+    public String getPermissionName() {
+        return permissionRestrictions == null ? null : permissionRestrictions.getPermission().getName();
     }
 
     /**
      * Type of secured object for queried objects.
      * 
-     * @return {@link SecuredObject} types.
+     * @return {@link SecuredObjectType} types.
      */
-    public SecuredObjectType[] getSecuredObjectTypes() {
-        return permissionRestrictions == null ? null : permissionRestrictions.getSecuredObjectTypes();
+    public String[] getSecuredObjectTypeNames() {
+        if (permissionRestrictions == null) {
+            return null;
+        }
+        SecuredObjectType[] types = permissionRestrictions.getSecuredObjectTypes();
+        String[] result = new String[types.length];
+        for (int i = 0;  i < types.length;  i++) {
+            result[i] = types[i].getName();
+        }
+        return result;
     }
 
     /**
@@ -340,7 +348,6 @@ public class CompilerParameters {
 
     /**
      * 
-     * @param permissions
      * @return Returns batch presentation compiler parameters.
      */
     public CompilerParameters addPermissions(RestrictionsToPermissions permissions) {
@@ -396,9 +403,9 @@ public class CompilerParameters {
     }
 
     private static class IdRestriction {
-        public final String[] idRestriction;
+        final String[] idRestriction;
 
-        public IdRestriction(String[] idRestrictions) {
+        IdRestriction(String[] idRestrictions) {
             this.idRestriction = idRestrictions;
         }
     }

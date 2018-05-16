@@ -31,7 +31,6 @@ import ru.runa.wfe.presentation.dao.BatchPresentationDAO;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ProfileDAO;
@@ -81,7 +80,7 @@ public class ProfileLogic extends CommonLogic {
 
     public void updateProfiles(User user, List<Profile> profiles) {
         for (Profile profile : profiles) {
-            checkPermissionAllowed(user, profile.getActor(), ExecutorPermission.UPDATE);
+            checkPermissionAllowed(user, profile.getActor(), Permission.UPDATE_EXECUTOR);
             profileDAO.update(profile);
         }
     }

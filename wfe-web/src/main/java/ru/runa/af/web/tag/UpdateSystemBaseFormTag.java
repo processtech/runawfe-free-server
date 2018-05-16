@@ -18,18 +18,17 @@
 package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
-import ru.runa.common.web.tag.IdentifiableFormTag;
+import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.security.ASystem;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateSystemBaseForm")
-public abstract class UpdateSystemBaseFormTag extends IdentifiableFormTag {
+public abstract class UpdateSystemBaseFormTag extends SecuredObjectFormTag {
 
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return getSystem();
     }
 

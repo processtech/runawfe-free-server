@@ -18,14 +18,11 @@
 package ru.runa.common.web.html;
 
 import java.io.Serializable;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
-
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.User;
 
 /**
@@ -34,32 +31,32 @@ import ru.runa.wfe.user.User;
  */
 public interface TDBuilder {
 
-    public interface Env {
-        public interface IdentifiableExtractor extends Serializable {
-            public Identifiable getIdentifiable(Object o, Env env);
+    interface Env {
+        interface SecuredObjectExtractor extends Serializable {
+            SecuredObject getSecuredObject(Object o, Env env);
         }
 
-        public User getUser();
+        User getUser();
 
-        public PageContext getPageContext();
+        PageContext getPageContext();
 
-        public BatchPresentation getBatchPresentation();
+        BatchPresentation getBatchPresentation();
 
-        public String getURL(Object object);
+        String getURL(Object object);
 
-        public String getConfirmationMessage(Long pid);
+        String getConfirmationMessage(Long pid);
 
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor);
+        boolean isAllowed(Permission permission, ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor extractor);
 
-        public boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionId);
+        boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionId);
 
     }
 
-    public TD build(Object object, Env env);
+    TD build(Object object, Env env);
 
-    public String getValue(Object object, Env env);
+    String getValue(Object object, Env env);
 
-    public String[] getSeparatedValues(Object object, Env env);
+    String[] getSeparatedValues(Object object, Env env);
 
-    public int getSeparatedValuesCount(Object object, Env env);
+    int getSeparatedValuesCount(Object object, Env env);
 }

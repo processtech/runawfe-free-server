@@ -19,10 +19,9 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.Collection;
 import java.util.List;
-
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.user.Executor;
@@ -52,18 +51,18 @@ public class AuthorizationServiceDelegate extends EJB3Delegate implements Author
     }
 
     @Override
-    public boolean isAllowed(User user, Permission permission, Identifiable identifiable) {
+    public boolean isAllowed(User user, Permission permission, SecuredObject securedObject) {
         try {
-            return getAuthorizationService().isAllowed(user, permission, identifiable);
+            return getAuthorizationService().isAllowed(user, permission, securedObject);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public <T extends Identifiable> boolean[] isAllowed(User user, Permission permission, List<T> identifiables) {
+    public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
         try {
-            return getAuthorizationService().isAllowed(user, permission, identifiables);
+            return getAuthorizationService().isAllowed(user, permission, securedObjects);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -79,62 +78,62 @@ public class AuthorizationServiceDelegate extends EJB3Delegate implements Author
     }
 
     @Override
-    public void setPermissions(User user, Long executorId, Collection<Permission> permissions, Identifiable identifiable) {
+    public void setPermissions(User user, Long executorId, Collection<Permission> permissions, SecuredObject securedObject) {
         try {
-            getAuthorizationService().setPermissions(user, executorId, permissions, identifiable);
+            getAuthorizationService().setPermissions(user, executorId, permissions, securedObject);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void setPermissions(User user, List<Long> executorsId, List<Collection<Permission>> permissions, Identifiable identifiable) {
+    public void setPermissions(User user, List<Long> executorsId, List<Collection<Permission>> permissions, SecuredObject securedObject) {
         try {
-            getAuthorizationService().setPermissions(user, executorsId, permissions, identifiable);
+            getAuthorizationService().setPermissions(user, executorsId, permissions, securedObject);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void setPermissions(User user, List<Long> executorsId, Collection<Permission> permissions, Identifiable identifiable) {
+    public void setPermissions(User user, List<Long> executorsId, Collection<Permission> permissions, SecuredObject securedObject) {
         try {
-            getAuthorizationService().setPermissions(user, executorsId, permissions, identifiable);
+            getAuthorizationService().setPermissions(user, executorsId, permissions, securedObject);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<Permission> getIssuedPermissions(User user, Executor performer, Identifiable identifiable) {
+    public List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject) {
         try {
-            return getAuthorizationService().getIssuedPermissions(user, performer, identifiable);
+            return getAuthorizationService().getIssuedPermissions(user, performer, securedObject);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<Executor> getExecutorsWithPermission(User user, Identifiable identifiable, BatchPresentation batchPresentation, boolean hasPermission) {
+    public List<Executor> getExecutorsWithPermission(User user, SecuredObject securedObject, BatchPresentation batchPresentation, boolean hasPermission) {
         try {
-            return getAuthorizationService().getExecutorsWithPermission(user, identifiable, batchPresentation, hasPermission);
+            return getAuthorizationService().getExecutorsWithPermission(user, securedObject, batchPresentation, hasPermission);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public int getExecutorsWithPermissionCount(User user, Identifiable identifiable, BatchPresentation batchPresentation, boolean hasPermission) {
+    public int getExecutorsWithPermissionCount(User user, SecuredObject securedObject, BatchPresentation batchPresentation, boolean hasPermission) {
         try {
-            return getAuthorizationService().getExecutorsWithPermissionCount(user, identifiable, batchPresentation, hasPermission);
+            return getAuthorizationService().getExecutorsWithPermissionCount(user, securedObject, batchPresentation, hasPermission);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public <T extends Object> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Class<T> persistentClass,
-            Permission permission, SecuredObjectType[] securedObjectClasses, boolean enablePaging) {
+    public <T> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Class<T> persistentClass,
+                                                           Permission permission, SecuredObjectType[] securedObjectClasses, boolean enablePaging) {
         try {
             return getAuthorizationService().getPersistentObjects(user, batchPresentation, persistentClass, permission, securedObjectClasses,
                     enablePaging);

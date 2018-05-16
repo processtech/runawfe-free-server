@@ -17,8 +17,7 @@
  */
 package ru.runa.wfe.commons.logic;
 
-import ru.runa.wfe.commons.dbpatch.impl.AddTransactionalBotSupport;
-
+import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -66,6 +65,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSubprocessBindingDatePatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenMessageSelectorPatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddTransactionalBotSupport;
 import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
@@ -76,6 +76,7 @@ import ru.runa.wfe.commons.dbpatch.impl.JbpmRefactoringPatch;
 import ru.runa.wfe.commons.dbpatch.impl.NodeTypeChangePatch;
 import ru.runa.wfe.commons.dbpatch.impl.PerformancePatch401;
 import ru.runa.wfe.commons.dbpatch.impl.PermissionMappingPatch403;
+import ru.runa.wfe.commons.dbpatch.impl.RefactorPermissionsStep1;
 import ru.runa.wfe.commons.dbpatch.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskOpenedByExecutorsPatch;
@@ -91,7 +92,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-import com.google.common.collect.Lists;
 
 /**
  * Initial DB population and update during version change.
@@ -174,8 +174,9 @@ public class InitializerLogic {
         patches.add(AddTokenMessageSelectorPatch.class);
         patches.add(AddSubprocessBindingDatePatch.class);
         patches.add(AddTransactionalBotSupport.class);
+        patches.add(RefactorPermissionsStep1.class);
         dbPatches = Collections.unmodifiableList(patches);
-    };
+    }
 
     @Autowired
     private ConstantDAO constantDAO;
@@ -245,9 +246,6 @@ public class InitializerLogic {
 
     /**
      * Initialize database.
-     * 
-     * @param daoHolder
-     *            Helper object for getting DAO's.
      */
     private void initializeDatabase(UserTransaction transaction) {
         log.info("database is not initialized. initializing...");

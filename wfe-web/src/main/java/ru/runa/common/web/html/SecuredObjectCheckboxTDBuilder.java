@@ -17,26 +17,21 @@
  */
 package ru.runa.common.web.html;
 
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 
 /**
  * @author Gordienko_m
  * @author Vitaliy S aka Yilativs
  */
-public class AllEnabledIdentifiableCheckboxTDBuilder extends CheckboxTDBuilder {
-
-    public AllEnabledIdentifiableCheckboxTDBuilder() {
-        super(null, null);
+public class SecuredObjectCheckboxTDBuilder extends CheckboxTDBuilder {
+    public SecuredObjectCheckboxTDBuilder(Permission permission) {
+        super(null, permission);
     }
 
     @Override
     protected String getIdValue(Object object) {
-        Identifiable identifiable = (Identifiable) object;
-        return String.valueOf(identifiable.getIdentifiableId());
-    }
-
-    @Override
-    protected boolean isEnabled(Object object, Env env) {
-        return true;
+        SecuredObject securedObject = (SecuredObject) object;
+        return String.valueOf(securedObject.getIdentifiableId());
     }
 }

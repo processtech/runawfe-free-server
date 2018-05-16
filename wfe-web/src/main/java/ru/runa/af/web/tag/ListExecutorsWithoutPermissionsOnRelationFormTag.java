@@ -17,17 +17,14 @@
  */
 package ru.runa.af.web.tag;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.GrantPermissionsOnRelationAction;
 import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsOnRelationForm")
 public class ListExecutorsWithoutPermissionsOnRelationFormTag extends ListExecutorsWithoutPermissionsBase {
@@ -39,7 +36,7 @@ public class ListExecutorsWithoutPermissionsOnRelationFormTag extends ListExecut
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return Delegates.getRelationService().getRelation(getUser(), getIdentifiableId());
     }
 

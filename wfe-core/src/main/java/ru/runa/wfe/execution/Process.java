@@ -61,7 +61,7 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Synchronizable;
-import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
@@ -75,7 +75,7 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Process extends IdentifiableBase {
+public class Process extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Process.class);
 

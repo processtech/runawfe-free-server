@@ -26,7 +26,6 @@ import ru.runa.af.web.html.StatusTableBuilder;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ActorPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateStatusForm")
 public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
@@ -41,7 +40,7 @@ public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ActorPermission.UPDATE_STATUS;
+        return Permission.UPDATE_ACTOR_STATUS;
     }
 
     @Override

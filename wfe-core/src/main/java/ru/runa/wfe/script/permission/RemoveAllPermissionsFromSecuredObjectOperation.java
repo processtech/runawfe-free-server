@@ -1,32 +1,31 @@
 package ru.runa.wfe.script.permission;
 
+import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlTransient;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.Executor;
 
 @XmlTransient()
-public abstract class RemoveAllPermissionsFromIdentifiableOperation extends ScriptOperation {
+public abstract class RemoveAllPermissionsFromSecuredObjectOperation extends ScriptOperation {
 
     private final String elementName;
 
-    private final Identifiable identifiable;
+    private final SecuredObject securedObject;
 
-    RemoveAllPermissionsFromIdentifiableOperation() {
+    RemoveAllPermissionsFromSecuredObjectOperation() {
         this.elementName = null;
-        this.identifiable = null;
+        this.securedObject = null;
     }
 
-    public RemoveAllPermissionsFromIdentifiableOperation(String elementName, Identifiable identifiable) {
+    public RemoveAllPermissionsFromSecuredObjectOperation(String elementName, SecuredObject securedObject) {
         this.elementName = elementName;
-        this.identifiable = identifiable;
+        this.securedObject = securedObject;
     }
 
     @Override
@@ -36,10 +35,10 @@ public abstract class RemoveAllPermissionsFromIdentifiableOperation extends Scri
     @Override
     public final void execute(ScriptExecutionContext context) {
         BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
-        List<? extends Executor> executors = context.getAuthorizationLogic().getExecutorsWithPermission(context.getUser(), identifiable,
+        List<? extends Executor> executors = context.getAuthorizationLogic().getExecutorsWithPermission(context.getUser(), securedObject,
             batchPresentation, true);
         for (Executor executor : executors) {
-            context.getAuthorizationLogic().setPermissions(context.getUser(), executor, Permission.getNoPermissions(), identifiable);
+            context.getAuthorizationLogic().setPermissions(context.getUser(), executor, new ArrayList<Permission>(), securedObject);
         }
     }
 }

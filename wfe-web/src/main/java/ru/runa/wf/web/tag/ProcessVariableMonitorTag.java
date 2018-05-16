@@ -41,7 +41,6 @@ import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -123,7 +122,7 @@ public class ProcessVariableMonitorTag extends ProcessBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ProcessPermission.READ;
+        return Permission.READ;
     }
 
     @Override

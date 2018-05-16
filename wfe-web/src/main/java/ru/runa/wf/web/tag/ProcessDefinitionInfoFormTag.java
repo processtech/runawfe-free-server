@@ -39,8 +39,6 @@ import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
-import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
@@ -74,7 +72,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         nameTR.addElement(new TD(definitionName).setClass(Resources.CLASS_LIST_TABLE_TD));
         TD nameTD = new TD();
         nameTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-        if (Delegates.getAuthorizationService().isAllowed(getUser(), WorkflowSystemPermission.DEPLOY_DEFINITION, ASystem.INSTANCE)) {
+        if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_DEFINITION, ASystem.INSTANCE)) {
             nameTD.addElement(definition.getName() + " (");
             String historyUrl = Commons.getActionUrl(ShowDefinitionHistoryAction.ACTION, "name", definition.getName(), pageContext,
                     PortletUrlType.Render);
@@ -179,7 +177,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return DefinitionPermission.READ;
+        return Permission.READ;
     }
 
     @Override

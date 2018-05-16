@@ -28,8 +28,8 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTDBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 
 /**
  * Builds table cell for {@link Executor}
@@ -37,7 +37,7 @@ import ru.runa.wfe.user.ExecutorPermission;
 public abstract class BaseExecutorTDBuilder<T extends Object> extends BaseTDBuilder {
 
     public BaseExecutorTDBuilder() {
-        super(ExecutorPermission.READ);
+        super(Permission.READ);
     }
 
     protected abstract Executor getExecutor(T object, Env env);

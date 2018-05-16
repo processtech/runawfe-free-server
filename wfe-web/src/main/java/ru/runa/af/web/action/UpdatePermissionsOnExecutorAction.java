@@ -19,12 +19,11 @@ package ru.runa.af.web.action;
 
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.UpdatePermissionsOnIdentifiableAction;
+import ru.runa.common.web.action.UpdatePermissionsOnSecuredObjectAction;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
@@ -32,18 +31,18 @@ import ru.runa.wfe.user.User;
  * Created on 25.08.2004
  * 
  * @struts:action path="/updatePermissionsOnExecutor"
- *                name="updatePermissionsOnIdentifiableForm" validate="true"
+ *                name="updatePermissionsOnSecuredObjectForm" validate="true"
  *                input = "/WEB-INF/af/manage_executor.jsp"
  * @struts.action-forward name="success" path="/manage_executor_permissions.do"
  *                        redirect = "true"
  * @struts.action-forward name="failure" path="/manage_executor_permissions.do"
  *                        redirect = "true"
  */
-public class UpdatePermissionsOnExecutorAction extends UpdatePermissionsOnIdentifiableAction {
+public class UpdatePermissionsOnExecutorAction extends UpdatePermissionsOnSecuredObjectAction {
     public static final String ACTION_PATH = "/updatePermissionsOnExecutor";
 
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return Delegates.getExecutorService().getExecutor(user, identifiableId);
     }
 

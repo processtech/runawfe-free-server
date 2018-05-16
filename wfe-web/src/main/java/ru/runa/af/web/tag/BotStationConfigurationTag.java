@@ -19,36 +19,34 @@ package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.UpdatePermissionsOnBotStationAction;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
-import ru.runa.common.web.tag.IdentifiableFormTag;
+import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 
 /**
- * @author: stan79 Date: 25.05.2008 Time: 20:04:19
+ * @author stan79 Date: 25.05.2008 Time: 20:04:19
  */
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "botStationConfigurationTag")
-public class BotStationConfigurationTag extends IdentifiableFormTag {
+public class BotStationConfigurationTag extends SecuredObjectFormTag {
     private static final long serialVersionUID = -1187003724875968614L;
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        PermissionTableBuilder tableBuilder = new PermissionTableBuilder(getIdentifiable(), getUser(), pageContext);
+        PermissionTableBuilder tableBuilder = new PermissionTableBuilder(getSecuredObject(), getUser(), pageContext);
         tdFormElement.addElement(tableBuilder.buildTable());
     }
 
     @Override
     protected Permission getPermission() {
-        return BotStationPermission.READ;
+        return Permission.READ;
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return BotStation.INSTANCE;
     }
 

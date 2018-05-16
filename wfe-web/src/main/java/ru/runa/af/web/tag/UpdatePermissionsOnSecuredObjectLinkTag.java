@@ -15,23 +15,18 @@
  * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.common.web.html;
+package ru.runa.af.web.tag;
 
-import ru.runa.wfe.security.Identifiable;
-import ru.runa.wfe.security.Permission;
+import org.tldgen.annotations.BodyContent;
+import ru.runa.common.web.MessagesCommon;
+import ru.runa.common.web.tag.IdLinkBaseTag;
 
-/**
- * @author Gordienko_m
- * @author Vitaliy S aka Yilativs
- */
-public class IdentifiableCheckboxTDBuilder extends CheckboxTDBuilder {
-    public IdentifiableCheckboxTDBuilder(Permission permission) {
-        super(null, permission);
-    }
+@org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updatePermissionsOnSecuredObjectLink")
+public class UpdatePermissionsOnSecuredObjectLinkTag extends IdLinkBaseTag {
+    private static final long serialVersionUID = 9211226789239135433L;
 
     @Override
-    protected String getIdValue(Object object) {
-        Identifiable identifiable = (Identifiable) object;
-        return String.valueOf(identifiable.getIdentifiableId());
+    protected String getLinkText() {
+        return MessagesCommon.TITLE_PERMISSION_OWNERS.message(pageContext);
     }
 }

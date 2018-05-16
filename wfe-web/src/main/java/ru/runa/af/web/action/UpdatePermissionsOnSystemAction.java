@@ -19,29 +19,28 @@ package ru.runa.af.web.action;
 
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.UpdatePermissionsOnIdentifiableAction;
+import ru.runa.common.web.action.UpdatePermissionsOnSecuredObjectAction;
 import ru.runa.wfe.security.ASystem;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.User;
 
 /**
  * Created on 30.08.2004
  * 
  * @struts:action path="/updatePermissionOnSystem"
- *                name="updatePermissionsOnIdentifiableForm" validate="false"
+ *                name="updatePermissionsOnSecuredObjectForm" validate="false"
  * @struts.action-forward name="success" path="/manage_system.do" redirect =
  *                        "true"
  * @struts.action-forward name="failure" path="/manage_system.do" redirect =
  *                        "true"
  */
-public class UpdatePermissionsOnSystemAction extends UpdatePermissionsOnIdentifiableAction {
+public class UpdatePermissionsOnSystemAction extends UpdatePermissionsOnSecuredObjectAction {
 
     public static final String ACTION_PATH_NAME = "/updatePermissionOnSystem";
 
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return ASystem.INSTANCE;
     }
 

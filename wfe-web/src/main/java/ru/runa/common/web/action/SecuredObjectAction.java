@@ -15,23 +15,17 @@
  * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.wfe.security;
+package ru.runa.common.web.action;
 
-import ru.runa.wfe.InternalApplicationException;
+import java.util.List;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.user.User;
 
-/**
- * Signals that permission was not found by its name. Created on 29.09.2005
- */
-public class PermissionNotFoundException extends InternalApplicationException {
+public abstract class SecuredObjectAction extends ActionBase {
 
-    private static final long serialVersionUID = -2793634917387492819L;
+    protected abstract List<Permission> getSecuredObjectPermissions();
 
-    private static final String PERMISSION_SUBSTITUTION = "$";
-
-    private static final String DEFAULT_MESSAGE = "Permission " + PERMISSION_SUBSTITUTION + "  not found.";
-
-    public PermissionNotFoundException(String permissionName) {
-        super(DEFAULT_MESSAGE.replaceFirst(PERMISSION_SUBSTITUTION, permissionName));
-    }
+    protected abstract SecuredObject getSecuredObject(User user, Long identifiableId);
 
 }

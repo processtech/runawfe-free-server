@@ -6,7 +6,7 @@ import ru.runa.wfe.bot.BotStation;
 import ru.runa.wfe.script.AdminScriptConstants;
 
 @XmlType(name = SetPermissionsOnBotStationOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
-public class SetPermissionsOnBotStationOperation extends ChangePermissionsOnIdentifiableOperation {
+public class SetPermissionsOnBotStationOperation extends ChangePermissionsOnSecuredObjectOperation {
 
     public static final String SCRIPT_NAME = "setPermissionsOnBotStation";
 

@@ -54,7 +54,7 @@ public class TaskObservableClassPresentation extends ClassPresentation {
     private TaskObservableClassPresentation() {
         super(Task.class, "", false, new FieldDescriptor[] {
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Task.class, "name"), true, 3, BatchPresentationConsts.ASC,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NO_PERMISSION, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Task.class, "description"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDescriptionTDBuilder", new Object[] {}),
                 new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDBSource(Task.class, "process.deployment.name"), true,
@@ -79,7 +79,7 @@ public class TaskObservableClassPresentation extends ClassPresentation {
                         FieldFilterMode.APPLICATION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 

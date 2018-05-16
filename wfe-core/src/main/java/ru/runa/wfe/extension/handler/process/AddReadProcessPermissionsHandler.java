@@ -23,16 +23,16 @@ public class AddReadProcessPermissionsHandler extends ParamBasedHandlerActionHan
             log.warn("Null executors in " + this + ", returning");
             return;
         }
-        ru.runa.wfe.execution.Process identifiable = executionContext.getProcess();
+        ru.runa.wfe.execution.Process securedObject = executionContext.getProcess();
         Permission permission = Permission.READ;
         for (Executor executor : executors) {
-            List<Permission> permissions = permissionDAO.getIssuedPermissions(executor, identifiable);
+            List<Permission> permissions = permissionDAO.getIssuedPermissions(executor, securedObject);
             if (!permissions.contains(permission)) {
                 permissions.add(permission);
-                log.debug("Adding " + permission + " to " + executor + " on " + identifiable);
-                permissionDAO.setPermissions(executor, permissions, identifiable);
+                log.debug("Adding " + permission + " to " + executor + " on " + securedObject);
+                permissionDAO.setPermissions(executor, permissions, securedObject);
             } else {
-                log.debug(executor + " already contains " + permission + " on " + identifiable);
+                log.debug(executor + " already contains " + permission + " on " + securedObject);
             }
         }
     }

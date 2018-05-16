@@ -35,9 +35,9 @@ public class RelationClassPresentation extends ClassPresentation {
                 // display name field type DB source isSort filter mode get
                 // value/show in web getter parameters
                 new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Relation.class, "name"), true, 1, BatchPresentationConsts.ASC,
-                		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "name" }),
+                		FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NO_PERMISSION, "name" }),
                 new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Relation.class, "description"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "description" }) });
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NO_PERMISSION, "description" }) });
     }
 
     public static ClassPresentation getInstance() {

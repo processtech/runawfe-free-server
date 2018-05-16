@@ -17,6 +17,7 @@
  */
 package ru.runa.wf.web.tag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ecs.html.TD;
@@ -26,9 +27,10 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.html.PermissionTableBuilder;
 import ru.runa.wf.web.action.UpdatePermissionsOnProcessDefinitionAction;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.SystemExecutors;
@@ -49,9 +51,9 @@ public class UpdatePermissionsOnDefinitionFormTag extends ProcessDefinitionBaseF
     }
 
     private List<Permission> getUnmodifiablePermissions() {
-        List<Permission> result = new DefinitionPermission().getAllPermissions();
-        result.remove(DefinitionPermission.CANCEL_STARTED_PROCESS);
-        result.remove(DefinitionPermission.READ_STARTED_PROCESS);
+        List<Permission> result = new ArrayList<>(ApplicablePermissions.list(SecuredObjectType.DEFINITION));
+        result.remove(Permission.CANCEL_PROCESS);
+        result.remove(Permission.READ_PROCESS);
         return result;
     }
 

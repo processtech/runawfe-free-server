@@ -18,10 +18,9 @@
 package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.GrantPermissionsOnRelationGroupAction;
 import ru.runa.wfe.relation.RelationsGroupSecure;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsOnRelationGroupForm")
 public class ListExecutorsWithoutPermissionsOnRelationGroupFormTag extends ListExecutorsWithoutPermissionsBase {
@@ -33,7 +32,7 @@ public class ListExecutorsWithoutPermissionsOnRelationGroupFormTag extends ListE
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return RelationsGroupSecure.INSTANCE;
     }
 }

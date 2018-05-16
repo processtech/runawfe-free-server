@@ -17,24 +17,20 @@
  */
 package ru.runa.af.web.form;
 
+import com.google.common.collect.Maps;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.form.IdsForm;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Created on 25.08.2004
  * 
- * @struts:form name = "updatePermissionsOnIdentifiableForm"
+ * @struts:form name = "updatePermissionsOnSecuredObjectForm"
  */
-public class UpdatePermissionsOnIdentifiableForm extends IdsForm {
+public class UpdatePermissionsOnSecuredObjectForm extends IdsForm {
     private static final long serialVersionUID = -8537078929694016589L;
     private static final String ON_VALUE = "on";
     public static final String EXECUTOR_INPUT_NAME_PREFIX = "executor";
@@ -57,9 +53,6 @@ public class UpdatePermissionsOnIdentifiableForm extends IdsForm {
 
     /**
      * this method is used by Struts map backed forms
-     * 
-     * @param executorId
-     * @return
      */
     public Permissions getExecutor(String executorId) {
         Long id = Long.valueOf(executorId);
@@ -72,21 +65,18 @@ public class UpdatePermissionsOnIdentifiableForm extends IdsForm {
     }
 
     public static class Permissions {
-        private final Set<Long> permissionMasks = Sets.newHashSet();
+        private final Set<String> permissionNames = new HashSet<>();
 
-        public Set<Long> getPermissionMasks() {
-            return permissionMasks;
+        public Set<String> getPermissionNames() {
+            return permissionNames;
         }
 
         /**
          * this method is used by Struts map backed forms
-         * 
-         * @param permissionMask
-         * @param value
          */
-        public void setPermission(String permissionMask, Object value) {
+        public void setPermission(String permissionName, Object value) {
             if (ON_VALUE.equals(value)) {
-                permissionMasks.add(Long.valueOf(permissionMask));
+                permissionNames.add(permissionName);
             }
         }
 

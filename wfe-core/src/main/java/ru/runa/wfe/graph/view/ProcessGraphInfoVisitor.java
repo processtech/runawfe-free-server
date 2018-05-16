@@ -7,9 +7,9 @@ import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.User;
 
@@ -105,7 +105,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
      */
     private boolean hasReadPermission(Process process) {
         PermissionDAO permissionDAO = ApplicationContextFactory.getPermissionDAO();
-        return permissionDAO.isAllowed(user, ProcessPermission.READ, process);
+        return permissionDAO.isAllowed(user, Permission.READ, process);
     }
 
 }

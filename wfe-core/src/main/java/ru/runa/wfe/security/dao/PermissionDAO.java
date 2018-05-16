@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +39,10 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToPermissions;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.UnapplicablePermissionException;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
@@ -80,38 +79,36 @@ public class PermissionDAO extends CommonDAO {
         }
     }
 
-    public List<Permission> getIssuedPermissions(Executor executor, Identifiable identifiable) {
+    public List<Permission> getIssuedPermissions(Executor executor, SecuredObject securedObject) {
         List<Permission> permissions = Lists.newArrayList();
-        if (!isPrivilegedExecutor(identifiable, executor)) {
-            List<PermissionMapping> permissionMappings = getOwnPermissionMappings(executor, identifiable);
-            Permission noPermission = identifiable.getSecuredObjectType().getNoPermission();
-            for (PermissionMapping pm : permissionMappings) {
-                permissions.add(noPermission.getPermission(pm.getMask()));
+        if (!isPrivilegedExecutor(securedObject, executor)) {
+            for (PermissionMapping pm : getOwnPermissionMappings(executor, securedObject)) {
+                permissions.add(pm.getPermission());
             }
         }
         return permissions;
     }
 
     /**
-     * Sets permissions for executor on identifiable.
+     * Sets permissions for executor on securedObject.
      * 
      * @param executor
      *            Executor, which got permissions.
      * @param permissions
      *            Permissions for executor.
-     * @param identifiable
+     * @param securedObject
      *            Secured object to set permission on.
      */
-    public void setPermissions(Executor executor, Collection<Permission> permissions, Identifiable identifiable) {
-        if (isPrivilegedExecutor(identifiable, executor)) {
+    public void setPermissions(Executor executor, Collection<Permission> permissions, SecuredObject securedObject) {
+        if (isPrivilegedExecutor(securedObject, executor)) {
             log.debug(permissions + " not granted for privileged " + executor);
             return;
         }
+        ApplicablePermissions.check(securedObject, permissions);
         Session session = sessionFactory.getCurrentSession();
-        checkArePermissionAllowed(identifiable, permissions);
-        List<PermissionMapping> toDelete = getOwnPermissionMappings(executor, identifiable);
+        List<PermissionMapping> toDelete = getOwnPermissionMappings(executor, securedObject);
         for (Permission permission : permissions) {
-            PermissionMapping pm = new PermissionMapping(executor, identifiable, permission.getMask());
+            PermissionMapping pm = new PermissionMapping(executor, securedObject, permission);
             if (toDelete.contains(pm)) {
                 toDelete.remove(pm);
             } else {
@@ -124,52 +121,59 @@ public class PermissionDAO extends CommonDAO {
     }
 
     /**
-     * Checks whether executor has permission on identifiable.
+     * Checks whether executor has permission on securedObject.
      * 
      * @param user
      *            Executor, which permission must be check.
      * @param permission
      *            Checking permission.
-     * @param identifiable
+     * @param securedObject
      *            Secured object to check permission on.
      * @return true if executor has requested permission on secuedObject; false otherwise.
      */
-    public boolean isAllowed(final User user, final Permission permission, final Identifiable identifiable) {
-        return isAllowed(user, permission, identifiable.getSecuredObjectType(), identifiable.getIdentifiableId());
+    public boolean isAllowed(final User user, final Permission permission, final SecuredObject securedObject) {
+        return isAllowed(user, permission, securedObject.getSecuredObjectType(), securedObject.getIdentifiableId());
     }
 
     public boolean isAllowed(final User user, final Permission permission, final SecuredObjectType securedObjectType, final Long identifiableId) {
-        final Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(user.getActor());
-        if (isPrivilegedExecutor(securedObjectType, executorWithGroups)) {
-            return true;
+        if (permission == Permission.NO_PERMISSION) {
+            // Optimization; see comments at NO_PERMISSION definition.
+            return false;
         }
-        return !getHibernateTemplate().executeFind(new HibernateCallback<List<PermissionMapping>>() {
-
-            @Override
-            public List<PermissionMapping> doInHibernate(Session session) {
-                Query query = session.createQuery("from PermissionMapping where identifiableId=? and type=? and mask=? and executor in (:executors)");
-                query.setParameter(0, identifiableId);
-                query.setParameter(1, securedObjectType);
-                query.setParameter(2, permission.getMask());
-                query.setParameterList("executors", executorWithGroups);
-                return query.list();
-            }
-        }).isEmpty();
-    }
-
-    public boolean isAllowedForAny(final User user, final Permission permission, final SecuredObjectType securedObjectType) {
         final Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(user.getActor());
         if (isPrivilegedExecutor(securedObjectType, executorWithGroups)) {
             return true;
         }
         return getHibernateTemplate().execute(new HibernateCallback<Object>() {
-
             @Override
             public Object doInHibernate(Session session) {
-                return session.createQuery("select 0 from PermissionMapping where type=:type and mask=:mask and executor in (:executors)")
-                        .setParameter("type", securedObjectType)
-                        .setParameter("mask", permission.getMask())
+                return session.createQuery("select 0 from PermissionMapping where executor in (:executors) and objectType=:objectType and objectId=:objectId and permission=:permission")
                         .setParameterList("executors", executorWithGroups)
+                        .setParameter("objectType", securedObjectType)
+                        .setParameter("objectId", identifiableId)
+                        .setParameter("permission", permission)
+                        .setMaxResults(1)
+                        .uniqueResult();
+            }
+        }) != null;
+    }
+
+    public boolean isAllowedForAny(final User user, final Permission permission, final SecuredObjectType securedObjectType) {
+        if (permission == Permission.NO_PERMISSION) {
+            // Optimization; see comments at NO_PERMISSION definition.
+            return false;
+        }
+        final Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(user.getActor());
+        if (isPrivilegedExecutor(securedObjectType, executorWithGroups)) {
+            return true;
+        }
+        return getHibernateTemplate().execute(new HibernateCallback<Object>() {
+            @Override
+            public Object doInHibernate(Session session) {
+                return session.createQuery("select 0 from PermissionMapping where executor in (:executors) and objectType=:objectType and permission=:permission")
+                        .setParameterList("executors", executorWithGroups)
+                        .setParameter("objectType", securedObjectType)
+                        .setParameter("permission", permission)
                         .setMaxResults(1)
                         .uniqueResult();
             }
@@ -177,41 +181,48 @@ public class PermissionDAO extends CommonDAO {
     }
 
     /**
-     * Checks whether executor has permission on identifiable's. Create result array in same order, as identifiable's.
+     * Checks whether executor has permission on securedObject's. Create result array in same order, as securedObject's.
      * 
      * @param user
      *            Executor, which permission must be check.
      * @param permission
      *            Checking permission.
-     * @param identifiables
+     * @param securedObjects
      *            Secured objects to check permission on.
      * @return Array of: true if executor has requested permission on securedObject; false otherwise.
      */
-    public <T extends Identifiable> boolean[] isAllowed(final User user, final Permission permission, final List<T> identifiables) {
-        if (identifiables.size() == 0) {
-            return new boolean[0];
+    public <T extends SecuredObject> boolean[] isAllowed(final User user, final Permission permission, final List<T> securedObjects) {
+        boolean[] result = new boolean[securedObjects.size()];
+        if (securedObjects.size() == 0) {
+            return result;
+        }
+        if (permission == Permission.NO_PERMISSION) {
+            // Optimization; see comments at NO_PERMISSION definition.
+            for (int i = 0; i < securedObjects.size(); i++) {
+                result[i] = false;
+            }
+            return result;
         }
         final Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(user.getActor());
-        if (isPrivilegedExecutor(identifiables.get(0).getSecuredObjectType(), executorWithGroups)) {
-            boolean[] result = new boolean[identifiables.size()];
-            for (int i = 0; i < identifiables.size(); i++) {
+        if (isPrivilegedExecutor(securedObjects.get(0).getSecuredObjectType(), executorWithGroups)) {
+            for (int i = 0; i < securedObjects.size(); i++) {
                 result[i] = true;
             }
             return result;
         }
-        final SecuredObjectType securedObjectType = identifiables.get(0).getSecuredObjectType();
-        List<PermissionMapping> permissions = new ArrayList<PermissionMapping>();
+        final SecuredObjectType securedObjectType = securedObjects.get(0).getSecuredObjectType();
+        List<PermissionMapping> permissions = new ArrayList<>();
         int window = SystemProperties.getDatabaseParametersCount() - executorWithGroups.size() - 2;
         Preconditions.checkArgument(window > 100);
-        for (int i = 0; i <= (identifiables.size() - 1) / window; ++i) {
+        for (int i = 0; i <= (securedObjects.size() - 1) / window; ++i) {
             final int start = i * window;
-            final int end = (i + 1) * window > identifiables.size() ? identifiables.size() : (i + 1) * window;
-            final List<Long> identifiableIds = new ArrayList<Long>(end - start);
+            final int end = (i + 1) * window > securedObjects.size() ? securedObjects.size() : (i + 1) * window;
+            final List<Long> identifiableIds = new ArrayList<>(end - start);
             for (int j = start; j < end; j++) {
-                Identifiable identifiable = identifiables.get(j);
-                identifiableIds.add(identifiable.getIdentifiableId());
-                if (securedObjectType != identifiable.getSecuredObjectType()) {
-                    throw new InternalApplicationException("Identifiables should be of the same secured object type (" + securedObjectType + ")");
+                SecuredObject securedObject = securedObjects.get(j);
+                identifiableIds.add(securedObject.getIdentifiableId());
+                if (securedObjectType != securedObject.getSecuredObjectType()) {
+                    throw new InternalApplicationException("Secured objects should be of the same secured object type (" + securedObjectType + ")");
                 }
             }
             if (identifiableIds.isEmpty()) {
@@ -221,42 +232,25 @@ public class PermissionDAO extends CommonDAO {
 
                 @Override
                 public List<PermissionMapping> doInHibernate(Session session) {
-                    Query query = session
-                            .createQuery("from PermissionMapping where identifiableId in (:identifiableIds) and type=:type and mask=:mask and executor in (:executors)");
-                    query.setParameterList("identifiableIds", identifiableIds);
-                    query.setParameter("type", securedObjectType);
-                    query.setParameter("mask", permission.getMask());
-                    query.setParameterList("executors", executorWithGroups);
-                    return query.list();
+                    return session
+                            .createQuery("from PermissionMapping where executor in (:executors) and objectType=:objectType and objectId in (:objectIds) and permission=:permission")
+                            .setParameterList("executors", executorWithGroups)
+                            .setParameter("objectType", securedObjectType)
+                            .setParameterList("objectIds", identifiableIds)
+                            .setParameter("permission", permission)
+                            .list();
                 }
             });
             permissions.addAll(mappings);
         }
-        Set<Long> allowedIdentifiableIdsSet = new HashSet<Long>(permissions.size());
+        Set<Long> allowedIdentifiableIdsSet = new HashSet<>(permissions.size());
         for (PermissionMapping pm : permissions) {
-            allowedIdentifiableIdsSet.add(pm.getIdentifiableId());
+            allowedIdentifiableIdsSet.add(pm.getObjectId());
         }
-        boolean[] result = new boolean[identifiables.size()];
-        for (int i = 0; i < identifiables.size(); i++) {
-            result[i] = allowedIdentifiableIdsSet.contains(identifiables.get(i).getIdentifiableId());
+        for (int i = 0; i < securedObjects.size(); i++) {
+            result[i] = allowedIdentifiableIdsSet.contains(securedObjects.get(i).getIdentifiableId());
         }
         return result;
-    }
-
-    /**
-     * Check if {@linkplain Permission} is correct e. q. it's allowed for secured object.
-     * 
-     * @param identifiable
-     *            Secured object (permissions must be for this secured object).
-     * @param permissions
-     *            Permissions to check.
-     */
-    private void checkArePermissionAllowed(Identifiable identifiable, Collection<Permission> permissions) throws UnapplicablePermissionException {
-        List<Permission> applicablePermission = identifiable.getSecuredObjectType().getAllPermissions();
-        Set<Permission> notAllowedPermission = Permission.subtractPermissions(permissions, applicablePermission);
-        if (notAllowedPermission.size() > 0) {
-            throw new UnapplicablePermissionException(identifiable, permissions);
-        }
     }
 
     /**
@@ -264,13 +258,13 @@ public class PermissionDAO extends CommonDAO {
      * 
      * @param executor
      *            Executor, which permissions is loading.
-     * @param identifiable
+     * @param securedObject
      *            Secured object, which permissions is loading.
      * @return Loaded permissions.
      */
-    private List<PermissionMapping> getOwnPermissionMappings(Executor executor, Identifiable identifiable) {
-        return getHibernateTemplate().find("from PermissionMapping where identifiableId=? and type=? and executor=?",
-                identifiable.getIdentifiableId(), identifiable.getSecuredObjectType(), executor);
+    private List<PermissionMapping> getOwnPermissionMappings(Executor executor, SecuredObject securedObject) {
+        return getHibernateTemplate().find("from PermissionMapping where objectId=? and objectType=? and executor=?",
+                securedObject.getIdentifiableId(), securedObject.getSecuredObjectType(), executor);
     }
 
     private Set<Executor> getExecutorWithAllHisGroups(Executor executor) {
@@ -290,30 +284,30 @@ public class PermissionDAO extends CommonDAO {
     }
 
     /**
-     * Deletes all permissions for identifiable.
+     * Deletes all permissions for securedObject.
      * 
-     * @param identifiable
-     *            identifiable
+     * @param securedObject
+     *            securedObject
      */
-    public void deleteAllPermissions(Identifiable identifiable) {
-        getHibernateTemplate().bulkUpdate("delete from PermissionMapping where type=? and identifiableId=?", identifiable.getSecuredObjectType(),
-                identifiable.getIdentifiableId());
+    public void deleteAllPermissions(SecuredObject securedObject) {
+        getHibernateTemplate().bulkUpdate("delete from PermissionMapping where objectType=? and objectId=?", securedObject.getSecuredObjectType(),
+                securedObject.getIdentifiableId());
     }
 
     /**
-     * Load {@linkplain Executor}'s, which have permission on {@linkplain Identifiable}. <br/>
+     * Load {@linkplain Executor}'s, which have permission on {@linkplain SecuredObject}. <br/>
      * <b>Paging is not enabled.</b>
      * 
-     * @param identifiable
-     *            {@linkplain Identifiable} to load {@linkplain Executor}'s.
-     * @return List of {@linkplain Executor}'s with permission on {@linkplain Identifiable}.
+     * @param securedObject
+     *            {@linkplain SecuredObject} to load {@linkplain Executor}'s.
+     * @return List of {@linkplain Executor}'s with permission on {@linkplain SecuredObject}.
      */
-    public Set<Executor> getExecutorsWithPermission(Identifiable identifiable) {
+    public Set<Executor> getExecutorsWithPermission(SecuredObject securedObject) {
         List<Executor> list = getHibernateTemplate().find(
-                "select distinct(pm.executor) from PermissionMapping pm where pm.identifiableId=? and pm.type=?", identifiable.getIdentifiableId(),
-                identifiable.getSecuredObjectType());
+                "select distinct(pm.executor) from PermissionMapping pm where pm.objectId=? and pm.objectType=?", securedObject.getIdentifiableId(),
+                securedObject.getSecuredObjectType());
         Set<Executor> result = Sets.newHashSet(list);
-        result.addAll(getPrivilegedExecutors(identifiable.getSecuredObjectType()));
+        result.addAll(getPrivilegedExecutors(securedObject.getSecuredObjectType()));
         return result;
     }
 
@@ -321,8 +315,6 @@ public class PermissionDAO extends CommonDAO {
      * Return array of privileged {@linkplain Executor}s for given (@linkplain SecuredObject) type (i.e. executors whose permissions on SecuredObject
      * type can not be changed).
      * 
-     * @param identifiable
-     *            {@linkplain Identifiable} for which you want to get privileged executors.
      * @return Privileged {@linkplain Executor}'s array.
      */
     public Collection<Executor> getPrivilegedExecutors(SecuredObjectType securedObjectType) {
@@ -354,17 +346,17 @@ public class PermissionDAO extends CommonDAO {
     }
 
     /**
-     * Check if executor is privileged executor for given identifiable.
+     * Check if executor is privileged executor for given securedObject.
      * 
      * @param executor
      *            {@linkplain Executor}, to check if privileged.
-     * @param identifiable
-     *            {@linkplain Identifiable} object, to check if executor is privileged to it.
-     * @return true if executor is privileged for given identifiable and false otherwise.
+     * @param securedObject
+     *            {@linkplain SecuredObject} object, to check if executor is privileged to it.
+     * @return true if executor is privileged for given securedObject and false otherwise.
      */
-    private boolean isPrivilegedExecutor(Identifiable identifiable, Executor executor) {
+    private boolean isPrivilegedExecutor(SecuredObject securedObject, Executor executor) {
         Collection<Executor> executorWithGroups = getExecutorWithAllHisGroups(executor);
-        return isPrivilegedExecutor(identifiable.getSecuredObjectType(), executorWithGroups);
+        return isPrivilegedExecutor(securedObject.getSecuredObjectType(), executorWithGroups);
     }
 
     private boolean isPrivilegedExecutor(SecuredObjectType securedObjectType, Collection<Executor> executorWithGroups) {
@@ -381,8 +373,8 @@ public class PermissionDAO extends CommonDAO {
      * 
      * @param type
      *            Type of SecuredObject.
-     * @param privelegedExecutors
-     *            Privileged executors for target class.
+     * @param executors
+     *            Privileged(?) executors for target class.
      */
     public void addType(SecuredObjectType type, List<? extends Executor> executors) {
         for (Executor executor : executors) {
@@ -394,27 +386,27 @@ public class PermissionDAO extends CommonDAO {
     }
 
     /**
-     * Load list of {@linkplain Identifiable} for which executors have permission on.
+     * Load list of {@linkplain SecuredObject} for which executors have permission on.
      * 
      * @param user
-     *            User which must have permission on loaded {@linkplain Identifiable} (at least one).
+     *            User which must have permission on loaded {@linkplain SecuredObject} (at least one).
      * @param batchPresentation
-     *            {@linkplain BatchPresentation} with parameters for loading {@linkplain Identifiable}'s.
+     *            {@linkplain BatchPresentation} with parameters for loading {@linkplain SecuredObject}'s.
      * @param permission
-     *            {@linkplain Permission}, which executors must has on {@linkplain Identifiable}.
+     *            {@linkplain Permission}, which executors must has on {@linkplain SecuredObject}.
      * @param securedObjectTypes
      *            {@linkplain SecuredObjectType} types, used to check permissions.
      * @param enablePaging
      *            Flag, equals true, if paging must be enabled and false otherwise.
-     * @return List of {@link Identifiable}'s for which executors have permission on.
+     * @return List of {@link SecuredObject}'s for which executors have permission on.
      */
-    public List<? extends Identifiable> getPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
+    public List<? extends SecuredObject> getPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
             SecuredObjectType[] securedObjectTypes, boolean enablePaging) {
         TimeMeasurer timeMeasurer = new TimeMeasurer(logger, 1000);
         timeMeasurer.jobStarted();
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, permission, securedObjectTypes);
         CompilerParameters parameters = CompilerParameters.create(enablePaging).addPermissions(permissions);
-        List<? extends Identifiable> result = new PresentationCompiler(batchPresentation).getBatch(parameters);
+        List<? extends SecuredObject> result = new PresentationCompiler(batchPresentation).getBatch(parameters);
         timeMeasurer.jobEnded("getObjects: " + result.size());
         if (result.size() == 0 && enablePaging && batchPresentation.getPageNumber() > 1) {
             logger.debug("resetting batch presentation to first page due to 0 results");
@@ -425,17 +417,17 @@ public class PermissionDAO extends CommonDAO {
     }
 
     /**
-     * Load count of {@linkplain Identifiable} for which executors have permission on.
+     * Load count of {@linkplain SecuredObject} for which executors have permission on.
      * 
      * @param user
-     *            User which must have permission on loaded {@linkplain Identifiable} (at least one).
+     *            User which must have permission on loaded {@linkplain SecuredObject} (at least one).
      * @param batchPresentation
-     *            {@linkplain BatchPresentation} with parameters for loading {@linkplain Identifiable}'s.
+     *            {@linkplain BatchPresentation} with parameters for loading {@linkplain SecuredObject}'s.
      * @param permission
-     *            {@linkplain Permission}, which executors must has on {@linkplain Identifiable}.
+     *            {@linkplain Permission}, which executors must have on {@linkplain SecuredObject}.
      * @param securedObjectTypes
      *            {@linkplain SecuredObjectType} types, used to check permissions.
-     * @return Count of {@link Identifiable}'s for which executors have permission on.
+     * @return Count of {@link SecuredObject}'s for which executors have permission on.
      */
     public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission, SecuredObjectType[] securedObjectTypes) {
         TimeMeasurer timeMeasurer = new TimeMeasurer(logger, 1000);
@@ -447,16 +439,32 @@ public class PermissionDAO extends CommonDAO {
         return count;
     }
 
-    public boolean permissionExists(Permission permission, Identifiable resource) {
-        return getHibernateTemplate().find(
-                "select pm.identifiableId from PermissionMapping pm where pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
-                resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask()).size() > 0;
+    public boolean permissionExists(final Permission permission, final SecuredObject resource) {
+        return getHibernateTemplate().execute(new HibernateCallback<Object>() {
+            @Override
+            public Object doInHibernate(Session session) {
+                return session.createQuery("select 0 from PermissionMapping where objectType=:objectType and objectId=:objectId and permission=:permission")
+                        .setParameter("objectType", resource.getSecuredObjectType())
+                        .setParameter("objectId", resource.getIdentifiableId())
+                        .setParameter("permission", permission)
+                        .setMaxResults(1)
+                        .uniqueResult();
+            }
+        }) != null;
     }
 
-    public boolean permissionExists(Executor executor, Permission permission, Identifiable resource) {
-        return getHibernateTemplate().find(
-                "select pm.identifiableId from PermissionMapping pm where pm.executor = ? and pm.identifiableId = ? and pm.type = ? and pm.mask = ?",
-                executor, resource.getIdentifiableId(), resource.getSecuredObjectType(), permission.getMask()).size() > 0;
+    public boolean permissionExists(final Executor executor, final Permission permission, final SecuredObject resource) {
+        return getHibernateTemplate().execute(new HibernateCallback<Object>() {
+            @Override
+            public Object doInHibernate(Session session) {
+                return session.createQuery("select 0 from PermissionMapping where executor = :executor and objectType=:objectType and objectId=:objectId and permission=:permission")
+                        .setParameter("executor", executor)
+                        .setParameter("objectType", resource.getSecuredObjectType())
+                        .setParameter("objectId", resource.getIdentifiableId())
+                        .setParameter("permission", permission)
+                        .setMaxResults(1)
+                        .uniqueResult();
+            }
+        }) != null;
     }
-
 }

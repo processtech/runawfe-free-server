@@ -27,7 +27,6 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.action.ProcessDefinitionDescriptionAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.DefinitionService;
@@ -39,7 +38,7 @@ public class ProcessDefinitionDescriptionFormTag extends ProcessDefinitionBaseFo
 
     @Override
     protected void fillFormData(final TD tdFormElement) {
-        Long id = ((WfDefinition) getIdentifiable()).getId();
+        Long id = ((WfDefinition) getSecuredObject()).getId();
         String url = Commons.getActionUrl(ProcessDefinitionDescriptionAction.ACTION_PATH, IdForm.ID_INPUT_NAME, id, pageContext,
                 PortletUrlType.Action);
         tdFormElement.addElement(new IFrame().setSrc(url).setWidth("100%"));
@@ -53,7 +52,7 @@ public class ProcessDefinitionDescriptionFormTag extends ProcessDefinitionBaseFo
 
     @Override
     protected Permission getPermission() {
-        return DefinitionPermission.READ;
+        return Permission.READ;
     }
 
     @Override

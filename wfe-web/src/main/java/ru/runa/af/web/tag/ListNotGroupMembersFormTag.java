@@ -27,9 +27,7 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listNotGroupMembersForm")
 public class ListNotGroupMembersFormTag extends ListExecutorsBaseFormTag {
@@ -38,7 +36,7 @@ public class ListNotGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return GroupPermission.ADD_TO_GROUP;
+        return Permission.ADD_TO_GROUP;
     }
 
     @Override
@@ -70,6 +68,6 @@ public class ListNotGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return ExecutorPermission.READ;
+        return Permission.READ;
     }
 }

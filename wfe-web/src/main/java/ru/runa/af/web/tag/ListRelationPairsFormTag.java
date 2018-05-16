@@ -18,12 +18,10 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.af.web.action.RemoveRelationPairsAction;
 import ru.runa.af.web.form.RelationForm;
@@ -31,9 +29,9 @@ import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
-import ru.runa.common.web.html.IdentifiableCheckboxTDBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
+import ru.runa.common.web.html.SecuredObjectCheckboxTDBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
 import ru.runa.common.web.html.TDBuilder;
 import ru.runa.common.web.html.TableBuilder;
@@ -41,7 +39,7 @@ import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.relation.Relation;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.relation.RelationPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listRelationPairsForm")
@@ -62,11 +60,11 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
     @Override
     protected void fillFormElement(TD tdFormElement) {
         Relation relation = Delegates.getRelationService().getRelation(getUser(), relationId);
-        isFormButtonVisible = Delegates.getAuthorizationService().isAllowed(getUser(), RelationPermission.UPDATE, relation);
+        isFormButtonVisible = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_RELATION, relation);
         BatchPresentation batchPresentation = getBatchPresentation();
         List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(getUser(), relation.getName(), batchPresentation);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder checkboxBuilder = new IdentifiableCheckboxTDBuilder(RelationPermission.UPDATE) {
+        TDBuilder checkboxBuilder = new SecuredObjectCheckboxTDBuilder(Permission.UPDATE_RELATION) {
 
             @Override
             protected boolean isEnabled(Object object, Env env) {

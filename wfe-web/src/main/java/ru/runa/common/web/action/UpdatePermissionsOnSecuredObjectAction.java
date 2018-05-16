@@ -17,56 +17,57 @@
  */
 package ru.runa.common.web.action;
 
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
-import ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm;
+import ru.runa.af.web.form.UpdatePermissionsOnSecuredObjectForm;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-
-abstract public class UpdatePermissionsOnIdentifiableAction extends IdentifiableAction {
+abstract public class UpdatePermissionsOnSecuredObjectAction extends SecuredObjectAction {
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
-        UpdatePermissionsOnIdentifiableForm form = (UpdatePermissionsOnIdentifiableForm) actionForm;
+        UpdatePermissionsOnSecuredObjectForm form = (UpdatePermissionsOnSecuredObjectForm) actionForm;
         try {
-            Identifiable identifiable = getIdentifiable(getLoggedUser(request), form.getId());
+            SecuredObject securedObject = getSecuredObject(getLoggedUser(request), form.getId());
             List<Long> executorIds = Lists.newArrayList();
             List<Collection<Permission>> executorPermissions = Lists.newArrayList();
-            Permission noPermission = identifiable.getSecuredObjectType().getNoPermission();
+            SecuredObjectType type = securedObject.getSecuredObjectType();
             for (Long executorId : form.getIds()) {
                 executorIds.add(executorId);
                 List<Permission> permissions = Lists.newArrayList();
-                for (Long mask : form.getPermissions(executorId).getPermissionMasks()) {
-                    permissions.add(noPermission.getPermission(mask));
+                for (String name : form.getPermissions(executorId).getPermissionNames()) {
+                    Permission p = Permission.valueOf(name);
+                    ApplicablePermissions.check(type, p);
+                    permissions.add(p);
                 }
                 executorPermissions.add(permissions);
             }
             // unset permissions
             BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
-            List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(getLoggedUser(request), identifiable,
+            List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(getLoggedUser(request), securedObject,
                     batchPresentation, true);
             for (Executor executor : executors) {
                 if (!executorIds.contains(executor.getId())) {
                     executorIds.add(executor.getId());
-                    executorPermissions.add(Permission.getNoPermissions());
+                    executorPermissions.add(new ArrayList<Permission>());
                 }
             }
-            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), executorIds, executorPermissions, identifiable);
+            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), executorIds, executorPermissions, securedObject);
         } catch (Exception e) {
             addError(request, e);
             return getErrorForward(getLoggedUser(request), mapping, form.getId());
@@ -75,8 +76,8 @@ abstract public class UpdatePermissionsOnIdentifiableAction extends Identifiable
     }
 
     @Override
-    protected List<Permission> getIdentifiablePermissions() {
-        return Permission.getNoPermissions();
+    protected List<Permission> getSecuredObjectPermissions() {
+        return new ArrayList<>();
     }
 
     public abstract ActionForward getErrorForward(ActionMapping mapping, Long identifiableId);

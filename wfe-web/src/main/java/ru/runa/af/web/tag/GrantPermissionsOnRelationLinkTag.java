@@ -19,10 +19,8 @@ package ru.runa.af.web.tag;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
@@ -54,7 +52,7 @@ public class GrantPermissionsOnRelationLinkTag extends LinkTag {
 
     @Override
     protected String getHref() {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put(IdForm.ID_INPUT_NAME, relationId);
         return Commons.getActionUrl(HREF, params, pageContext, PortletUrlType.Action);
     }

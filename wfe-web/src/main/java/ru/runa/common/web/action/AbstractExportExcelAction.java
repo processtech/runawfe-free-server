@@ -17,13 +17,12 @@
  */
 package ru.runa.common.web.action;
 
+import com.google.common.net.MediaType;
 import java.util.Calendar;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
-
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -33,7 +32,6 @@ import org.apache.poi.ss.util.CellUtil;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.ProfileHttpSessionHelper;
@@ -49,12 +47,10 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 
-import com.google.common.net.MediaType;
-
 /**
  * @since 4.3.0
  */
-public abstract class AbstractExportExcelAction<T extends Object> extends ActionBase {
+public abstract class AbstractExportExcelAction<T> extends ActionBase {
 
     protected abstract List<T> getData(User user, BatchPresentation batchPresentation);
 
@@ -166,7 +162,7 @@ public abstract class AbstractExportExcelAction<T extends Object> extends Action
         }
 
         @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+        public boolean isAllowed(Permission permission, SecuredObjectExtractor extractor) {
             return false;
         }
 

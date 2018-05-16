@@ -18,19 +18,14 @@
 package ru.runa.af.web.action;
 
 import java.util.List;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.GrantPermisionsOnIdentifiableAction;
+import ru.runa.common.web.action.GrantPermisionsOnSecuredObjectAction;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 23.08.2004
@@ -42,19 +37,17 @@ import com.google.common.collect.Lists;
  * @struts.action-forward name="failure" path="/bot_station_permission.do"
  *                        redirect = "true"
  */
-public class GrantPermissionsOnBotStationAction extends GrantPermisionsOnIdentifiableAction {
+public class GrantPermissionsOnBotStationAction extends GrantPermisionsOnSecuredObjectAction {
 
     public static final String ACTION_PATH = "/grantBotStationPermission";
 
-    private static final List<Permission> BOT_STATION_READ_PERMISSION = Lists.newArrayList(BotStationPermission.READ);
-
     @Override
-    protected List<Permission> getIdentifiablePermissions() {
-        return BOT_STATION_READ_PERMISSION;
+    protected List<Permission> getSecuredObjectPermissions() {
+        return Permission.readPermissions;
     }
 
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return BotStation.INSTANCE;
     }
 

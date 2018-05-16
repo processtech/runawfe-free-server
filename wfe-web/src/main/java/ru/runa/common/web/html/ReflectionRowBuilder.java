@@ -17,14 +17,15 @@
  */
 package ru.runa.common.web.html;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Entities;
@@ -32,7 +33,6 @@ import org.apache.ecs.html.A;
 import org.apache.ecs.html.IMG;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
@@ -51,14 +51,10 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * @author Gritsenko_S
@@ -76,19 +72,19 @@ public class ReflectionRowBuilder implements RowBuilder {
     private final String basePartOfUrlToObject;
     private CssClassStrategy cssClassStrategy;
 
-    public ReflectionRowBuilder(List<? extends Object> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
+    public ReflectionRowBuilder(List<?> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
             String returnAction, String idPropertyName, TDBuilder[] builders) {
         this(items, batchPresentation, pageContext, actionUrl, returnAction, builders);
         itemUrlStrategy = new DefaultItemUrlStrategy(idPropertyName, pageContext);
     }
 
-    public ReflectionRowBuilder(List<? extends Object> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
+    public ReflectionRowBuilder(List<?> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
             String returnAction, ItemUrlStrategy itemUrlStrategy, TDBuilder[] builders) {
         this(items, batchPresentation, pageContext, actionUrl, returnAction, builders);
         this.itemUrlStrategy = itemUrlStrategy;
     }
 
-    protected ReflectionRowBuilder(List<? extends Object> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
+    protected ReflectionRowBuilder(List<?> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
             String returnAction, TDBuilder[] builders) {
         this.items = items;
         this.batchPresentation = batchPresentation;
@@ -109,7 +105,7 @@ public class ReflectionRowBuilder implements RowBuilder {
         TR tr = new TR();
         createEmptyCells(tr, currentState.getGroupIndex() + currentState.getAdditionalColumn());
 
-        IMG groupingImage = null;
+        IMG groupingImage;
         if (currentState.isVisible()) {
             groupingImage = new IMG(Commons.getUrl(Resources.GROUP_MINUS_IMAGE, pageContext, PortletUrlType.Resource));
             groupingImage.setAlt(Resources.GROUP_MINUS_ALT);
@@ -129,7 +125,7 @@ public class ReflectionRowBuilder implements RowBuilder {
         td.setClass(Resources.CLASS_GROUP_NAME);
         td.addElement(new A().setName(anchorId));
 
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put(SetSortingForm.BATCH_PRESENTATION_ID, batchPresentation.getCategory());
         params.put(GroupForm.GROUP_ID, groupId);
         params.put(ReturnActionForm.RETURN_ACTION, returnAction);
@@ -162,7 +158,7 @@ public class ReflectionRowBuilder implements RowBuilder {
         return buildItemRow(item);
     }
 
-    protected List<? extends Object> getItems() {
+    protected List<?> getItems() {
         return items;
     }
 
@@ -184,7 +180,7 @@ public class ReflectionRowBuilder implements RowBuilder {
             createEmptyCells(tr, currentState.getGroupIndex() + additionalEmptyCells);
         }
 
-        List<Object> listGroupTDBuilders = new ArrayList<Object>();
+        List<Object> listGroupTDBuilders = new ArrayList<>();
         for (FieldDescriptor fieldDescriptor : Arrays.asList(batchPresentation.getGrouppedFields())) {
             listGroupTDBuilders.add(fieldDescriptor.getTDBuilder());
         }
@@ -348,17 +344,17 @@ public class ReflectionRowBuilder implements RowBuilder {
         }
 
         @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+        public boolean isAllowed(Permission permission, SecuredObjectExtractor extractor) {
             boolean[] retVal = allowedCache.get(permission);
             if (retVal == null) {
                 if (extractor == null) {
-                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, (List<Identifiable>) getItems());
+                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, (List<SecuredObject>) getItems());
                 } else {
-                    List<Identifiable> identifiables = Lists.newArrayListWithExpectedSize(getItems().size());
+                    List<SecuredObject> securedObjects = Lists.newArrayListWithExpectedSize(getItems().size());
                     for (Object object : getItems()) {
-                        identifiables.add(extractor.getIdentifiable(object, this));
+                        securedObjects.add(extractor.getSecuredObject(object, this));
                     }
-                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, identifiables);
+                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, securedObjects);
                 }
                 allowedCache.put(permission, retVal);
             }
@@ -384,7 +380,7 @@ public class ReflectionRowBuilder implements RowBuilder {
 
     /**
      * TODO This is temporary workaround. Fix should be made in authorization subsystem by refactoring executor permissions. Only 1 SecuredObjectType
-     * should be introduced for identifiables hierarchy due to simplifying SQL quieries and non-crossing IDs.
+     * should be introduced for secured objects hierarchy due to simplifying SQL quieries and non-crossing IDs.
      * 
      * @author dofs
      * @since 4.0.6
@@ -393,7 +389,7 @@ public class ReflectionRowBuilder implements RowBuilder {
         private final Map<Executor, Boolean> allowedCache = Maps.newHashMap();
 
         @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+        public boolean isAllowed(Permission permission, SecuredObjectExtractor extractor) {
             List<Executor> executors = (List<Executor>) getItems();
             Executor executor = executors.get(currentState.getItemIndex());
             if (!allowedCache.containsKey(executor)) {

@@ -19,15 +19,13 @@ package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.CreateRelationPairAction;
 import ru.runa.af.web.form.RelationPairForm;
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.relation.RelationPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -57,6 +55,6 @@ public class CreateRelationPairLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), RelationPermission.UPDATE, SecuredObjectType.RELATION, getRelationId());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_RELATION, SecuredObjectType.RELATION, getRelationId());
     }
 }

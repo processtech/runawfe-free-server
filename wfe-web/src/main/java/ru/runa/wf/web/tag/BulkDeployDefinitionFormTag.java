@@ -25,7 +25,6 @@ import ru.runa.wf.web.action.RedeployProcessDefinitionAction;
 import ru.runa.wf.web.ftl.component.ViewUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -84,7 +83,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return DefinitionPermission.REDEPLOY_DEFINITION;
+        return Permission.REDEPLOY_DEFINITION;
     }
 
     @Override
@@ -109,7 +108,7 @@ public class BulkDeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected boolean isVisible() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.REDEPLOY_DEFINITION, getIdentifiable());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.REDEPLOY_DEFINITION, getSecuredObject());
     }
 
     private static TR createFileInputRow(String label, String name, String value, boolean enabled, boolean required, String type,

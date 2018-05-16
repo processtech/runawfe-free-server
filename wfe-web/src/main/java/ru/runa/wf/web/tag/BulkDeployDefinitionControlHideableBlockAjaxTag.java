@@ -22,8 +22,8 @@ import ru.runa.common.web.action.HideableBlockAction;
 import ru.runa.common.web.tag.AbstractReturningTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.security.ASystem;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
@@ -121,7 +121,7 @@ public class BulkDeployDefinitionControlHideableBlockAjaxTag extends AbstractRet
      */
     private boolean isBulkDeployEnabled() {
         User user = Commons.getUser(pageContext.getSession());
-        boolean isDeployAllowed = Delegates.getAuthorizationService().isAllowed(user, WorkflowSystemPermission.DEPLOY_DEFINITION, ASystem.INSTANCE);
+        boolean isDeployAllowed = Delegates.getAuthorizationService().isAllowed(user, Permission.DEPLOY_DEFINITION, ASystem.INSTANCE);
         return WebResources.isBulkDeploymentElements() && isDeployAllowed;
     }
 }

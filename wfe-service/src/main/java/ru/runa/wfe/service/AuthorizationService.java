@@ -19,10 +19,9 @@ package ru.runa.wfe.service;
 
 import java.util.Collection;
 import java.util.List;
-
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -35,101 +34,91 @@ import ru.runa.wfe.user.User;
 public interface AuthorizationService {
 
     /**
-     * Checks whether user has permission on identifiable.
+     * Checks whether user has permission on securedObject.
      */
-    public boolean isAllowed(User user, Permission permission, Identifiable identifiable);
+    boolean isAllowed(User user, Permission permission, SecuredObject securedObject);
 
     /**
      * Checks whether user has permission on object.
      */
-    public boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId);
+    boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId);
 
     /**
-     * Checks whether user has permission on identifiables of the same secured
-     * object type.
+     * Checks whether user has permission on secured objects of the same secured object type.
      */
-    public <T extends Identifiable> boolean[] isAllowed(User user, Permission permission, List<T> identifiables);
+    <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects);
 
     /**
      * Checks if user has parmission on any object of specified type.
      */
-    public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType);
+    boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType);
 
     /**
-     * Sets permissions for executor specified by id on identifiable.
+     * Sets permissions for executor specified by id on securedObject.
      */
-    public void setPermissions(User user, Long executorId, Collection<Permission> permissions, Identifiable identifiable);
+    void setPermissions(User user, Long executorId, Collection<Permission> permissions, SecuredObject securedObject);
 
     /**
-     * Sets permissions for executors specified by ids on identifiable.
+     * Sets permissions for executors specified by ids on securedObject.
      */
-    public void setPermissions(User user, List<Long> executorsId, List<Collection<Permission>> permissions, Identifiable identifiable);
+    void setPermissions(User user, List<Long> executorsId, List<Collection<Permission>> permissions, SecuredObject securedObject);
 
     /**
-     * Sets permissions for executors specified by ids on identifiable.
+     * Sets permissions for executors specified by ids on securedObject.
      */
-    public void setPermissions(User user, List<Long> executorsId, Collection<Permission> permissions, Identifiable identifiable);
+    void setPermissions(User user, List<Long> executorsId, Collection<Permission> permissions, SecuredObject securedObject);
 
     /**
-     * Returns permissions that executor himself has on identifiable.
+     * Returns permissions that executor himself has on securedObject.
      * Permissions by privilege will not return.
      * 
-     * @return Map of {Permission, Is permission can be modifiable}, not
-     *         <code>null</code>
+     * @return Map of {Permission, Is permission can be modifiable}, not <code>null</code>
      */
-    public List<Permission> getIssuedPermissions(User user, Executor performer, Identifiable identifiable);
+    List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject);
 
     /**
      * Load executor's which already has (or not has) some permission on
-     * specified identifiable. This query using paging.
+     * specified securedObject. This query using paging.
      * 
      * @param user
      *            Current user {@linkplain User}.
-     * @param identifiable
-     *            {@linkplain Identifiable} to load executors, which has (or
-     *            not) permission on this identifiable.
+     * @param securedObject
+     *            {@linkplain SecuredObject} to load executors, which has (or
+     *            not) permission on this securedObject.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading executors.
      * @param hasPermission
      *            Flag equals true to load executors with permissions on
-     *            {@linkplain Identifiable}; false to load executors without
+     *            {@linkplain SecuredObject}; false to load executors without
      *            permissions.
-     * @return Executors with or without permission on {@linkplain Identifiable}
+     * @return Executors with or without permission on {@linkplain SecuredObject}
      */
-    public List<Executor> getExecutorsWithPermission(User user, Identifiable identifiable, BatchPresentation batchPresentation, boolean hasPermission);
+    List<Executor> getExecutorsWithPermission(User user, SecuredObject securedObject, BatchPresentation batchPresentation, boolean hasPermission);
 
     /**
      * Load executor's count which already has (or not has) some permission on
-     * specified identifiable.
+     * specified securedObject.
      * 
      * @param user
      *            Current user {@linkplain User}.
-     * @param identifiable
-     *            {@linkplain Identifiable} to load executors, which has (or
-     *            not) permission on this identifiable.
+     * @param securedObject
+     *            {@linkplain SecuredObject} to load executors, which has (or
+     *            not) permission on this securedObject.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} for loading executors.
      * @param hasPermission
      *            Flag equals true to load executors with permissions on
-     *            {@linkplain Identifiable}; false to load executors without
+     *            {@linkplain SecuredObject}; false to load executors without
      *            permissions.
      * @return Count of executors with or without permission on
-     *         {@linkplain Identifiable}.
+     *         {@linkplain SecuredObject}.
      */
-    public int getExecutorsWithPermissionCount(User user, Identifiable identifiable, BatchPresentation batchPresentation, boolean hasPermission);
+    int getExecutorsWithPermissionCount(User user, SecuredObject securedObject, BatchPresentation batchPresentation, boolean hasPermission);
 
     /**
-     * Loads identifiables with permission filtering.
-     * 
-     * @param user
-     * @param batchPresentation
-     * @param persistentClass
-     * @param permission
-     * @param securedObjectTypes
-     * @param enablePaging
-     * @return
+     * Loads secured objects with permission filtering.
      */
-    public <T extends Object> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Class<T> persistentClass,
-            Permission permission, SecuredObjectType[] securedObjectTypes, boolean enablePaging);
+    <T> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Class<T> persistentClass,
+                                                           Permission permission, SecuredObjectType[] securedObjectTypes, boolean enablePaging);
 
 }

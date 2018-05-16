@@ -18,25 +18,24 @@
 package ru.runa.af.web.html;
 
 import org.apache.ecs.html.TD;
-
 import ru.runa.common.web.html.PropertyTDBuilder;
 import ru.runa.common.web.html.TDBuilder;
-import ru.runa.common.web.html.TDBuilder.Env.IdentifiableExtractor;
+import ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor;
 import ru.runa.wfe.relation.RelationPair;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 
 public abstract class RelationExecutorBaseTDBuilder implements TDBuilder {
-    final IdentifiableExtractor extractor = new IdentifiableExtractor() {
+    final SecuredObjectExtractor extractor = new SecuredObjectExtractor() {
         private static final long serialVersionUID = 1L;
 
         @Override
-        public Identifiable getIdentifiable(Object o, Env env) {
+        public SecuredObject getSecuredObject(Object o, Env env) {
             return getExecutor((RelationPair) o);
         }
     };
-    final PropertyTDBuilder builder = new PropertyTDBuilder(ExecutorPermission.READ, "name", extractor);
+    final PropertyTDBuilder builder = new PropertyTDBuilder(Permission.READ, "name", extractor);
 
     protected abstract Executor getExecutor(RelationPair relation);
 

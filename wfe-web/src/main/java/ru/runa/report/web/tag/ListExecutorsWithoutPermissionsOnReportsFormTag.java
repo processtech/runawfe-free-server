@@ -18,11 +18,10 @@
 package ru.runa.report.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.tag.ListExecutorsWithoutPermissionsBase;
 import ru.runa.report.web.action.GrantPermissionsOnReportsAction;
 import ru.runa.wfe.report.ReportsSecure;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsOnReportsForm")
 public class ListExecutorsWithoutPermissionsOnReportsFormTag extends ListExecutorsWithoutPermissionsBase {
@@ -34,7 +33,7 @@ public class ListExecutorsWithoutPermissionsOnReportsFormTag extends ListExecuto
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return ReportsSecure.INSTANCE;
     }
 }

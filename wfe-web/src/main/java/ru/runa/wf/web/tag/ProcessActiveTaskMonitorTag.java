@@ -28,7 +28,6 @@ import ru.runa.common.web.html.StringsHeaderBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessSwimlaneAssignmentRowBuilder;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
@@ -57,7 +56,7 @@ public class ProcessActiveTaskMonitorTag extends ProcessBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ProcessPermission.READ;
+        return Permission.READ;
     }
 
     @Override

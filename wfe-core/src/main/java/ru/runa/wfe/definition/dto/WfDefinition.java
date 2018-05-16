@@ -17,24 +17,21 @@
  */
 package ru.runa.wfe.definition.dto;
 
+import com.google.common.base.Objects;
 import java.util.Date;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
 import ru.runa.wfe.commons.EntityWithType;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
 
-import com.google.common.base.Objects;
-
 @XmlAccessorType(XmlAccessType.FIELD)
-public class WfDefinition extends Identifiable implements Comparable<WfDefinition>, EntityWithType {
+public class WfDefinition extends SecuredObject implements Comparable<WfDefinition>, EntityWithType {
     private static final long serialVersionUID = -6032491529439317948L;
     private Long id;
     private String name;
@@ -79,7 +76,7 @@ public class WfDefinition extends Identifiable implements Comparable<WfDefinitio
 
     @Override
     public Long getIdentifiableId() {
-        return Long.valueOf(getName().hashCode());
+        return (long) getName().hashCode();
     }
 
     @Override

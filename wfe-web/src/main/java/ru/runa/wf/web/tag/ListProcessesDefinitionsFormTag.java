@@ -19,12 +19,9 @@ package ru.runa.wf.web.tag;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -42,7 +39,6 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionsAction;
 import ru.runa.wf.web.html.PropertiesProcessTDBuilder;
 import ru.runa.wf.web.html.StartProcessTDBuilder;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
@@ -71,7 +67,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
         TDBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION), new StartProcessTDBuilder() },
+                new TDBuilder[] { new CheckboxTDBuilder("id", Permission.UNDEPLOY_DEFINITION), new StartProcessTDBuilder() },
                 batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
@@ -83,7 +79,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private String[] getGrouppingCells(BatchPresentation batchPresentation, List<WfDefinition> definitions) {
-        List<String> prefixCellsHeaders = new ArrayList<String>();
+        List<String> prefixCellsHeaders = new ArrayList<>();
         int grouppingCells = GroupState.getMaxAdditionalCellsNum(batchPresentation, definitions, new EnvImpl(batchPresentation));
         for (int i = 0; i < 1 + grouppingCells; ++i) {
             prefixCellsHeaders.add("");
@@ -93,7 +89,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private boolean isUndeployAllowed(List<WfDefinition> definitions) {
-        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.UNDEPLOY_DEFINITION, definitions)) {
+        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UNDEPLOY_DEFINITION, definitions)) {
             if (undeploy) {
                 return true;
             }
@@ -128,11 +124,11 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         }
 
         @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+        public boolean isAllowed(Permission permission, SecuredObjectExtractor extractor) {
             return false;
         }
 
-        BatchPresentation batchPresentation = null;
+        BatchPresentation batchPresentation;
     }
 
     @Override

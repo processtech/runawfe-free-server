@@ -19,12 +19,9 @@ package ru.runa.report.web.tag;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -41,9 +38,8 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.report.web.action.UndeployReportAction;
 import ru.runa.report.web.html.ReportPropertiesTDBuilder;
-import ru.runa.wf.web.html.IdentifiableUrlStrategy;
+import ru.runa.wf.web.html.SecuredObjectUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.report.ReportPermission;
 import ru.runa.wfe.report.ReportsSecure;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.security.Permission;
@@ -66,7 +62,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(reports);
         TDBuilder[] builders =
-                BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", ReportPermission.DEPLOY) }, batchPresentation,
+                BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", Permission.DEPLOY_REPORT) }, batchPresentation,
                     new TDBuilder[] { new ReportPropertiesTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, reports);
         SortingHeaderBuilder headerBuilder =
@@ -79,7 +75,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
     }
 
     private String[] getGrouppingCells(BatchPresentation batchPresentation, List<WfReport> reports) {
-        List<String> prefixCellsHeaders = new ArrayList<String>();
+        List<String> prefixCellsHeaders = new ArrayList<>();
         int grouppingCells = GroupState.getMaxAdditionalCellsNum(batchPresentation, reports, new EnvImpl(batchPresentation));
         for (int i = 0; i < 1 + grouppingCells; ++i) {
             prefixCellsHeaders.add("");
@@ -88,8 +84,8 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
     }
 
     private boolean isUndeployAllowed(List<WfReport> reports) {
-        boolean hasGlobalDeployPermission = Delegates.getAuthorizationService().isAllowed(getUser(), ReportPermission.DEPLOY, ReportsSecure.INSTANCE);
-        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), ReportPermission.DEPLOY, reports)) {
+        boolean hasGlobalDeployPermission = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_REPORT, ReportsSecure.INSTANCE);
+        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.DEPLOY_REPORT, reports)) {
             if (undeploy || hasGlobalDeployPermission) {
                 return true;
             }
@@ -99,7 +95,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
 
     class EnvImpl extends EnvBaseImpl {
 
-        BatchPresentation batchPresentation = null;
+        BatchPresentation batchPresentation;
 
         public EnvImpl(BatchPresentation batch) {
             batchPresentation = batch;
@@ -117,7 +113,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
 
         @Override
         public String getURL(Object object) {
-            return new IdentifiableUrlStrategy(pageContext).getUrl(WebResources.ACTION_MAPPING_BUILD_REPORT, object);
+            return new SecuredObjectUrlStrategy(pageContext).getUrl(WebResources.ACTION_MAPPING_BUILD_REPORT, object);
         }
 
         @Override
@@ -126,7 +122,7 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         }
 
         @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+        public boolean isAllowed(Permission permission, SecuredObjectExtractor extractor) {
             return false;
         }
     }

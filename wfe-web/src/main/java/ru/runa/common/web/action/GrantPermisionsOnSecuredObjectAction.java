@@ -17,33 +17,29 @@
  */
 package ru.runa.common.web.action;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.form.IdsForm;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 23.08.2004
  */
-public abstract class GrantPermisionsOnIdentifiableAction extends IdentifiableAction {
+public abstract class GrantPermisionsOnSecuredObjectAction extends SecuredObjectAction {
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         IdsForm idsForm = (IdsForm) form;
         List<Long> ids = Lists.newArrayList(idsForm.getIds());
         try {
-            Identifiable identifiable = getIdentifiable(getLoggedUser(request), idsForm.getId());
-            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), ids, getIdentifiablePermissions(), identifiable);
+            SecuredObject securedObject = getSecuredObject(getLoggedUser(request), idsForm.getId());
+            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), ids, getSecuredObjectPermissions(), securedObject);
         } catch (Exception e) {
             addError(request, e);
             return getErrorForward(mapping, idsForm.getId());

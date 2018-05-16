@@ -84,7 +84,7 @@ function Reload() {
 			<wf:showGraphHistoryLink identifiableId='<%=id %>' href='<%= "/show_graph_history.do?" + parameterName+ "=" + id %>'  />
 		</td>
 		<td width="200" align="right">
-			<wf:updatePermissionsOnIdentifiableLink identifiableId='<%=id %>' href='<%= "/manage_process_permissions.do?" + parameterName+ "=" + id %>'  />
+			<wf:updatePermissionsOnSecuredObjectLink identifiableId='<%=id %>' href='<%= "/manage_process_permissions.do?" + parameterName+ "=" + id %>'  />
 		</td>
 	</tr>
 

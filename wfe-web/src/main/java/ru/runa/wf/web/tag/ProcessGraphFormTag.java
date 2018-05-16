@@ -31,7 +31,6 @@ import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ProcessGraphImageAction;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -97,7 +96,7 @@ public class ProcessGraphFormTag extends ProcessBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ProcessPermission.READ;
+        return Permission.READ;
     }
 
     @Override

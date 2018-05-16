@@ -17,28 +17,25 @@
  */
 package ru.runa.wf.web.html;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.ItemUrlStrategy;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 
-import com.google.common.collect.Maps;
-
-public class IdentifiableUrlStrategy implements ItemUrlStrategy {
+public class SecuredObjectUrlStrategy implements ItemUrlStrategy {
     private final PageContext pageContext;
 
-    public IdentifiableUrlStrategy(PageContext pageContext) {
+    public SecuredObjectUrlStrategy(PageContext pageContext) {
         this.pageContext = pageContext;
     }
 
     @Override
     public String getUrl(String baseUrl, Object item) {
-        Identifiable definition = (Identifiable) item;
+        SecuredObject definition = (SecuredObject) item;
         Long definitionId = definition.getIdentifiableId();
         Map<String, Object> map = Maps.newHashMap();
         map.put(IdForm.ID_INPUT_NAME, definitionId);

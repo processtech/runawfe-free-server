@@ -11,7 +11,7 @@
 	<form-beans>
 
 		<form-bean name="createExecutorForm" type="ru.runa.af.web.form.CreateExecutorForm" />
-		<form-bean name="updatePermissionsOnIdentifiableForm" type="ru.runa.af.web.form.UpdatePermissionsOnIdentifiableForm" />
+		<form-bean name="updatePermissionsOnSecuredObjectForm" type="ru.runa.af.web.form.UpdatePermissionsOnSecuredObjectForm" />
 		<form-bean name="groupForm" type="ru.runa.common.web.form.GroupForm" />
 		<form-bean name="processForm" type="ru.runa.wf.web.form.ProcessForm" />
 		<form-bean name="loginForm" type="ru.runa.af.web.form.LoginForm" />
@@ -71,6 +71,10 @@
 		<forward name="manage_relations"
 			path="/manage_relations.do?tabForwardName=manage_relations" />
 		<forward name="manage_system" path="/manage_system.do?tabForwardName=manage_system" />
+		<forward name="manage_scripts" path="/manage_scripts.do?tabForwardName=manage_scripts" />
+		<forward name="manage_errors" path="/manage_errors.do?tabForwardName=manage_errors" />
+		<forward name="manage_substitution_criteria" path="/manage_substitution_criteria.do?tabForwardName=manage_substitution_criteria" />
+		<forward name="manage_datafile" path="/manage_datafile.do?tabForwardName=manage_datafile" />
 		<forward name="manage_settings"
 			path="/manage_settings.do?tabForwardName=manage_settings" />
 		<forward name="version" path="/version.do" />
@@ -133,7 +137,7 @@
 			name="setSortingForm" scope="request" unknown="false" validate="false">
 		</action>
 		<action path="/updatePermissionsOnRelation" type="ru.runa.af.web.action.UpdatePermissionsOnRelation"
-			name="updatePermissionsOnIdentifiableForm" scope="request"
+			name="updatePermissionsOnSecuredObjectForm" scope="request"
 			input="/WEB-INF/af/manage_relation.jsp" unknown="false"
 			validate="true">
 			<forward name="success" path="/manage_relation_permissions.do"
@@ -188,7 +192,7 @@
 		</action>
 		<action path="/updatePermissionOnProcessDefinition"
 			type="ru.runa.wf.web.action.UpdatePermissionsOnProcessDefinitionAction"
-			name="updatePermissionsOnIdentifiableForm" scope="request"
+			name="updatePermissionsOnSecuredObjectForm" scope="request"
 			input="/WEB-INF/wf/manage_process_definition.jsp" unknown="false"
 			validate="true">
 			<forward name="success" path="/manage_process_definition_permissions.do"
@@ -237,8 +241,8 @@
 		<action path="/deleteSubstitutionCriterias"
 			type="ru.runa.af.web.action.DeleteSubstitutionCriteriasAction" name="substitutionCriteriasForm"
 			scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_system.do" redirect="false" />
-			<forward name="failure" path="/manage_system.do" redirect="false" />
+			<forward name="success" path="/manage_substitution_criteria.do" redirect="true" />
+			<forward name="failure" path="/manage_substitution_criteria.do" redirect="true" />
 		</action>
 		<action path="/startProcess" type="ru.runa.wf.web.action.StartProcessAction"
 			name="startProcessForm" scope="request" input="/WEB-INF/wf/manage_process_definitions.jsp"
@@ -283,8 +287,8 @@
 			<forward name="failure" path="/manage_process.do" redirect="true" />
 		</action>
 		<action path="/activateFailedProcesses" type="ru.runa.wf.web.action.ActivateFailedProcessesAction" scope="request">
-			<forward name="success" path="/manage_system.do" redirect="true" />
-			<forward name="failure" path="/manage_system.do" redirect="true" />
+			<forward name="success" path="/manage_errors.do" redirect="true" />
+			<forward name="failure" path="/manage_errors.do" redirect="true" />
 		</action>
 		<action path="/suspendProcessExecution" type="ru.runa.wf.web.action.SuspendProcessExecutionAction" 
 			name="idForm" scope="request">
@@ -354,7 +358,7 @@
 		</action>
 		<action path="/updatePermissionsOnRelationGroup"
 			type="ru.runa.af.web.action.UpdatePermissionsOnRelationGroup"
-			name="updatePermissionsOnIdentifiableForm" scope="request" unknown="false"
+			name="updatePermissionsOnSecuredObjectForm" scope="request" unknown="false"
 			validate="false">
 			<forward name="success" path="/manage_relation_group_permissions.do"
 				redirect="true" />
@@ -387,7 +391,7 @@
 			unknown="false" validate="true">
 		</action>
 		<action path="/updatePermissionsOnExecutor"
-			type="ru.runa.af.web.action.UpdatePermissionsOnExecutorAction" name="updatePermissionsOnIdentifiableForm"
+			type="ru.runa.af.web.action.UpdatePermissionsOnExecutorAction" name="updatePermissionsOnSecuredObjectForm"
 			scope="request" input="/WEB-INF/af/manage_executor.jsp" unknown="false"
 			validate="true">
 			<forward name="success" path="/manage_executor_permissions.do"
@@ -396,7 +400,7 @@
 				redirect="true" />
 		</action>
 		<action path="/updatePermissionOnProcess"
-			type="ru.runa.wf.web.action.UpdatePermissionsOnProcessAction" name="updatePermissionsOnIdentifiableForm"
+			type="ru.runa.wf.web.action.UpdatePermissionsOnProcessAction" name="updatePermissionsOnSecuredObjectForm"
 			scope="request" input="/WEB-INF/wf/manage_process.jsp" unknown="false"
 			validate="true">
 			<forward name="success" path="/manage_process_permissions.do"
@@ -524,7 +528,7 @@
 			validate="false">
 		</action>
 		<action path="/updatePermissionOnSystem"
-			type="ru.runa.af.web.action.UpdatePermissionsOnSystemAction" name="updatePermissionsOnIdentifiableForm"
+			type="ru.runa.af.web.action.UpdatePermissionsOnSystemAction" name="updatePermissionsOnSecuredObjectForm"
 			scope="request" unknown="false" validate="false">
 			<forward name="success" path="/manage_system.do" redirect="true" />
 			<forward name="failure" path="/manage_system.do" redirect="true" />
@@ -633,7 +637,7 @@
 		</action>
 		<action path="/updatePermissionsOnReport"
 			type="ru.runa.report.web.action.UpdatePermissionsOnReportAction"
-			name="updatePermissionsOnIdentifiableForm" scope="request" unknown="false"
+			name="updatePermissionsOnSecuredObjectForm" scope="request" unknown="false"
 			validate="false">
 			<forward name="success" path="/manage_report_permissions.do"
 				redirect="true" />
@@ -650,7 +654,7 @@
 		</action>
 		<action path="/updatePermissionsOnReports"
 			type="ru.runa.report.web.action.UpdatePermissionsOnReportsAction"
-			name="updatePermissionsOnIdentifiableForm" scope="request" unknown="false"
+			name="updatePermissionsOnSecuredObjectForm" scope="request" unknown="false"
 			validate="false">
 			<forward name="success" path="/manage_reports_permissions.do"
 				redirect="true" />
@@ -745,7 +749,7 @@
 				redirect="true" />
 		</action>
 		<action path="/updateBotStationPermission"
-			type="ru.runa.af.web.action.UpdatePermissionsOnBotStationAction" name="updatePermissionsOnIdentifiableForm"
+			type="ru.runa.af.web.action.UpdatePermissionsOnBotStationAction" name="updatePermissionsOnSecuredObjectForm"
 			scope="request" unknown="false" validate="false">
 			<forward name="success" path="/bot_station_permission.do"
 				redirect="true" />
@@ -754,7 +758,7 @@
 		</action>
 		<action path="/admin_scripts" type="ru.runa.common.web.action.AdminkitScriptsAction"
 			name="adminScriptForm" scope="request" validate="false">
-			<forward name="success" path="/manage_system.do" redirect="false" />
+			<forward name="success" path="/manage_scripts.do" redirect="false" />
 		</action>
 		<action path="/getSessionFile"
 			type="ru.runa.common.web.action.GetSessionFileAction"
@@ -826,6 +830,18 @@
 
 		<action path="/manage_system" type="ru.runa.af.web.action.ManageSystemAction"
 			parameter="/WEB-INF/af/manage_system.jsp" />
+
+		<action path="/manage_scripts" type="ru.runa.af.web.action.ManageSystemAction"
+				parameter="/WEB-INF/af/manage_scripts.jsp" />
+
+		<action path="/manage_errors" type="ru.runa.af.web.action.ManageSystemAction"
+				parameter="/WEB-INF/af/manage_errors.jsp" />
+
+		<action path="/manage_substitution_criteria" type="ru.runa.af.web.action.ManageSystemAction"
+				parameter="/WEB-INF/af/manage_substitution_criteria.jsp" />
+
+		<action path="/manage_datafile" type="ru.runa.af.web.action.ManageSystemAction"
+				parameter="/WEB-INF/af/manage_datafile.jsp" />
 
 		<action path="/grant_login_permission_on_system" type="org.apache.struts.actions.ForwardAction"
 			parameter="/WEB-INF/af/grant_login_permission_on_system.jsp" />
@@ -957,8 +973,8 @@
 		</action>
 		<action path="/importDataFileAction" type="ru.runa.wf.web.action.ImportDataFileAction"
 			name="fileForm" scope="request" unknown="false" validate="false">
-			<forward name="success" path="/manage_system.do" redirect="true" />
-			<forward name="failure" path="/manage_system.do" redirect="true" />
+			<forward name="success" path="/manage_datafile.do" redirect="true" />
+			<forward name="failure" path="/manage_datafile.do" redirect="true" />
 		</action>
 		
 		<action path="/update_process_variables" type="org.apache.struts.actions.ForwardAction"

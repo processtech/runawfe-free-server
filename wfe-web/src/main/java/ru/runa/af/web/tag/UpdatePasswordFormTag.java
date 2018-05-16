@@ -26,9 +26,7 @@ import ru.runa.af.web.html.PasswordTableBuilder;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ExecutorPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updatePasswordForm")
 public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
@@ -43,7 +41,7 @@ public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ExecutorPermission.UPDATE;
+        return Permission.UPDATE_EXECUTOR;
     }
 
     @Override
@@ -63,8 +61,8 @@ public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
     @Override
     protected boolean isFormButtonEnabled() {
         return super.isFormButtonEnabled()
-                || (getUser().getActor().equals(getIdentifiable()) && super.isFormButtonEnabled(ASystem.INSTANCE,
-                        SystemPermission.CHANGE_SELF_PASSWORD));
+                || (getUser().getActor().equals(getSecuredObject()) && super.isFormButtonEnabled(ASystem.INSTANCE,
+                        Permission.CHANGE_SELF_PASSWORD));
     }
 
     @Override

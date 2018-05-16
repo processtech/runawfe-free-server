@@ -33,9 +33,9 @@ import ru.runa.wf.web.action.StartDisabledImageProcessAction;
 import ru.runa.wf.web.action.StartImageProcessAction;
 import ru.runa.wf.web.tag.DefinitionUrlStrategy;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
 /**
@@ -45,7 +45,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 public class StartProcessTDBuilder extends BaseTDBuilder {
 
     public StartProcessTDBuilder() {
-        super(DefinitionPermission.START_PROCESS);
+        super(Permission.START_PROCESS);
     }
 
     @Override

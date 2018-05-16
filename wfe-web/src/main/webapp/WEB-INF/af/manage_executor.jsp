@@ -18,7 +18,7 @@
 			<wf:listExecutorTasksLink identifiableId='<%= id %>' href='<%= "/manage_observable_tasks.do?executorId=" + id %>' />
 		</td>
 		<td width="200" align="right">
-			<wf:updatePermissionsOnIdentifiableLink identifiableId='<%=id %>' href='<%= "/manage_executor_permissions.do?" + parameterName+ "=" + id %>' />
+			<wf:updatePermissionsOnSecuredObjectLink identifiableId='<%=id %>' href='<%= "/manage_executor_permissions.do?" + parameterName+ "=" + id %>' />
 		</td>
 	</tr>
 </table>

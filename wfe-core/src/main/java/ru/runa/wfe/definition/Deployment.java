@@ -1,8 +1,9 @@
 package ru.runa.wfe.definition;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,23 +19,18 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
-
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
 
 @Entity
 @Table(name = "BPM_PROCESS_DEFINITION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Deployment extends Identifiable {
+public class Deployment extends SecuredObject {
     private static final long serialVersionUID = 1L;
     private Long id;
     private Long version;
@@ -170,7 +166,7 @@ public class Deployment extends Identifiable {
     @Transient
     @Override
     public Long getIdentifiableId() {
-        return Long.valueOf(getName().hashCode());
+        return (long) getName().hashCode();
     }
 
     @Transient

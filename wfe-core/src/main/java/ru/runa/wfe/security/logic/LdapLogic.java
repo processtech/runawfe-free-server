@@ -44,7 +44,6 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -361,7 +360,7 @@ public class LdapLogic {
             group = executorDAO.getGroup(group.getName());
         } else {
             group = executorDAO.create(group);
-            permissionDAO.setPermissions(group, Lists.newArrayList(Permission.READ, SystemPermission.LOGIN_TO_SYSTEM), ASystem.INSTANCE);
+            permissionDAO.setPermissions(group, Lists.newArrayList(Permission.READ, Permission.LOGIN_TO_SYSTEM), ASystem.INSTANCE);
         }
         return group;
     }

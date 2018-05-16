@@ -28,8 +28,8 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.BaseTDBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.security.Permission;
 
 /**
  * @author Gordienko_m
@@ -38,7 +38,7 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 public class PropertiesProcessTDBuilder extends BaseTDBuilder {
 
     public PropertiesProcessTDBuilder() {
-        super(DefinitionPermission.READ);
+        super(Permission.READ);
     }
 
     @Override
@@ -59,7 +59,6 @@ public class PropertiesProcessTDBuilder extends BaseTDBuilder {
 
     @Override
     public String getValue(Object object, Env env) {
-        String result = MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext());
-        return result;
+        return MessagesCommon.LABEL_PROPERTIES.message(env.getPageContext());
     }
 }

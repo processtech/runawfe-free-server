@@ -18,9 +18,8 @@
 package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.GrantPermissionsOnExecutorAction;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listExecutorsWithoutPermissionsOnExecutorForm")
@@ -34,7 +33,7 @@ public class ListExecutorsWithoutPermissionsOnExecutorFormTag extends ListExecut
     }
 
     @Override
-    protected Identifiable getIdentifiable() {
+    protected SecuredObject getSecuredObject() {
         return Delegates.getExecutorService().getExecutor(getUser(), getIdentifiableId());
     }
 }

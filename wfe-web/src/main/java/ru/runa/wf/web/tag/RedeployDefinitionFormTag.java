@@ -44,7 +44,6 @@ import ru.runa.wf.web.action.UpgradeProcessesToDefinitionVersionAction;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -88,7 +87,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return DefinitionPermission.REDEPLOY_DEFINITION;
+        return Permission.REDEPLOY_DEFINITION;
     }
 
     @Override
@@ -113,7 +112,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected boolean isVisible() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.REDEPLOY_DEFINITION, getIdentifiable());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.REDEPLOY_DEFINITION, getSecuredObject());
     }
 
     private Element addUpgradeProcessesLink(WfDefinition definition) {

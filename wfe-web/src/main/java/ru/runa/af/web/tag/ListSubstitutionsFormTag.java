@@ -53,8 +53,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ActorPermission;
-import ru.runa.wfe.user.ExecutorPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listSubstitutionsForm")
 public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
@@ -82,7 +80,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
             Actor actor = (Actor) getExecutor();
             List<Substitution> substitutions = substitutionService.getSubstitutions(getUser(), actor.getId());
             AuthorizationService authorizationService = ru.runa.wfe.service.delegate.Delegates.getAuthorizationService();
-            boolean disabled = !authorizationService.isAllowed(getUser(), ExecutorPermission.UPDATE, actor);
+            boolean disabled = !authorizationService.isAllowed(getUser(), Permission.UPDATE_EXECUTOR, actor);
             RowBuilder substitutionRowBuilder = new SubstitutionRowBuilder(substitutions, disabled);
             HeaderBuilder substitutionHeaderBuilder = new SubstitutionHeaderBuilder();
             TableBuilder tableBuilder = new TableBuilder();
@@ -100,7 +98,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     protected Permission getPermission() {
-        return ActorPermission.UPDATE;
+        return Permission.UPDATE_EXECUTOR;
     }
 
     class SubstitutionHeaderBuilder implements HeaderBuilder {
@@ -152,7 +150,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
 
             enabledTD.addElement(Entities.NBSP);
             if (index != substitutions.size()) {
-                Map<String, Object> downParams = new HashMap<String, Object>();
+                Map<String, Object> downParams = new HashMap<>();
                 downParams.put(IdsForm.IDS_INPUT_NAME, substitution.getId());
                 downParams.put(IdsForm.ID_INPUT_NAME, substitution.getActorId());
                 A moveDownHref = new A(
@@ -193,7 +191,7 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
             if (disabled) {
                 orgfunctionTD.addElement(string);
             } else {
-                Map<String, Object> params = new HashMap<String, Object>();
+                Map<String, Object> params = new HashMap<>();
                 params.put(IdForm.ID_INPUT_NAME, substitution.getId());
                 A editHref = new A(Commons.getActionUrl(UpdateSubstitutionAction.EDIT_ACTION, params, pageContext, PortletUrlType.Action));
                 editHref.addElement(string);

@@ -18,34 +18,28 @@
 package ru.runa.report.web.action;
 
 import java.util.List;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.GrantPermisionsOnIdentifiableAction;
+import ru.runa.common.web.action.GrantPermisionsOnSecuredObjectAction;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-
-public class GrantPermissionsOnReportAction extends GrantPermisionsOnIdentifiableAction {
+public class GrantPermissionsOnReportAction extends GrantPermisionsOnSecuredObjectAction {
 
     public static final String ACTION_PATH = "/grantPermissionsOnReport";
 
-    private static final List<Permission> PERMISSIONS = Lists.newArrayList(Permission.READ);
-
     @Override
-    protected List<Permission> getIdentifiablePermissions() {
-        return PERMISSIONS;
+    protected List<Permission> getSecuredObjectPermissions() {
+        return Permission.readPermissions;
     }
 
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return Delegates.getReportService().getReportDefinition(user, identifiableId);
     }
 

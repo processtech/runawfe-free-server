@@ -18,20 +18,16 @@
 package ru.runa.af.web.action;
 
 import java.util.List;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
-import ru.runa.common.web.action.GrantPermisionsOnIdentifiableAction;
+import ru.runa.common.web.action.GrantPermisionsOnSecuredObjectAction;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
 
 /**
  * Created on 23.08.2004
@@ -45,20 +41,18 @@ import com.google.common.collect.Lists;
  * @struts.action-forward name="failure_executor_does_not_exist"
  *                        path="/manage_executors.do" redirect = "true"
  */
-public class GrantPermissionsOnExecutorAction extends GrantPermisionsOnIdentifiableAction {
+public class GrantPermissionsOnExecutorAction extends GrantPermisionsOnSecuredObjectAction {
 
     public static final String ACTION_PATH = "/grantReadPermissionOnExecutor";
 
-    private static final List<Permission> READ_PERMISSONS = Lists.newArrayList(Permission.READ);
-
     @Override
-    protected Identifiable getIdentifiable(User user, Long identifiableId) {
+    protected SecuredObject getSecuredObject(User user, Long identifiableId) {
         return Delegates.getExecutorService().getExecutor(user, identifiableId);
     }
 
     @Override
-    protected List<Permission> getIdentifiablePermissions() {
-        return READ_PERMISSONS;
+    protected List<Permission> getSecuredObjectPermissions() {
+        return Permission.readPermissions;
     }
 
     @Override

@@ -22,7 +22,7 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deleteBotStationLink")
@@ -32,7 +32,7 @@ public class DeleteBotStationLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), BotStationPermission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
     }
 
     @Override

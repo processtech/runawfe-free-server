@@ -10,9 +10,9 @@ import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToPermissions;
 import ru.runa.wfe.report.ReportDefinition;
-import ru.runa.wfe.report.ReportPermission;
 import ru.runa.wfe.report.ReportWithNameExistsException;
 import ru.runa.wfe.report.dto.WfReport;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 
@@ -21,7 +21,7 @@ public class ReportDAO extends GenericDAO<ReportDefinition> {
     private static final SecuredObjectType[] SECURED_OBJECTS = new SecuredObjectType[] { SecuredObjectType.REPORT };
 
     public List<WfReport> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
-        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, ReportPermission.READ, SECURED_OBJECTS);
+        RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.READ, SECURED_OBJECTS);
         CompilerParameters parameters = CompilerParameters.create(enablePaging).addPermissions(permissions);
         List<ReportDefinition> deployments = new PresentationCompiler<ReportDefinition>(batchPresentation).getBatch(parameters);
         List<WfReport> definitions = Lists.newArrayList();

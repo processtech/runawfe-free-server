@@ -13,7 +13,7 @@ import ru.runa.af.web.form.BotStationForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
 import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.BotInvokerServiceDelegate;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -95,7 +95,7 @@ public class BotStationStatusTag extends TitledFormTag {
 
     @Override
     public boolean isFormButtonEnabled() {
-        boolean result = Delegates.getAuthorizationService().isAllowed(getUser(), BotStationPermission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+        boolean result = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
         if (!result) {
             return false;
         }
