@@ -284,9 +284,7 @@ public class InitializerLogic {
         executorDAO.addExecutorToGroup(admin, adminGroup);
         executorDAO.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
         for (SecuredObjectType t : SecuredObjectType.values()) {
-            if (!t.hasObjectIds()) {
-                permissionDAO.addType(t, adminWithGroupExecutors);
-            }
+            permissionDAO.addType(t, adminWithGroupExecutors);
         }
     }
 
