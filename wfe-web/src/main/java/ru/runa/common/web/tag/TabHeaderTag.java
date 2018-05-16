@@ -69,7 +69,7 @@ public class TabHeaderTag extends TagSupport {
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_ERRORS, ASystem.INSTANCE, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SUBSTITUTION_CRITERIA, ASystem.INSTANCE, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_DATAFILE, ASystem.INSTANCE, true));
-        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS));
+        FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_SETTINGS, ASystem.INSTANCE, true));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_LOGS, ASystem.INSTANCE));
         FORWARDS.add(new MenuForward(MessagesCommon.MAIN_MENU_ITEM_OBSERVABLE_TASKS, ASystem.INSTANCE));
     }
