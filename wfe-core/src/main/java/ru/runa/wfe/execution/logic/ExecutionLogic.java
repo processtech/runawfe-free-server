@@ -88,7 +88,7 @@ import ru.runa.wfe.var.Variable;
  * @author Dofs
  * @since 2.0
  */
-@Transactional
+@Transactional  // for manage_processes
 public class ExecutionLogic extends WFCommonLogic {
     private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = { SecuredObjectType.PROCESS };
     @Autowired
