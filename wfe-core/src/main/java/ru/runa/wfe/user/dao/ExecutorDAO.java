@@ -623,7 +623,7 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
         } else {
             queryFactory.delete(ap).where(ap.actorId.eq(executor.getId())).execute();
         }
-        queryFactory.delete(e).where(e.id.eq(executor.getId()));
+        queryFactory.delete(e).where(e.id.eq(executor.getId())).execute();
     }
 
     /**
