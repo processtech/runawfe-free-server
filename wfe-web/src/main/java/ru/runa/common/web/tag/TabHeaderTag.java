@@ -135,6 +135,9 @@ public class TabHeaderTag extends TagSupport {
 
     private boolean isMenuForwardVisible(MenuForward menuForward) {
         try {
+            if (menuForward.menuMessage.getKey().equals("manage_settings")) {
+                return Delegates.getExecutorService().isAdministrator(getUser());
+            }
             if (
                     menuForward.menuMessage.getKey().equals("manage_observable_tasks") &&
                     Delegates.getAuthorizationService().isAllowedForAny(getUser(), Permission.VIEW_TASKS, SecuredObjectType.ACTOR)
