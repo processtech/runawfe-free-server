@@ -272,8 +272,18 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("base.process.id.variable.read.all", true);
     }
 
+    /**
+     * Max.number of integer IDs in "in (...)" clause in queries.
+     */
     public static int getDatabaseParametersCount() {
         return RESOURCES.getIntegerProperty("database.parameters.count", 900);
+    }
+
+    /**
+     * Max.number of string names (executor names, definition names, etc.) in "in (...)" clause in queries.
+     */
+    public static int getDatabaseNameParametersCount() {
+        return RESOURCES.getIntegerProperty("database.name.parameters.count", 50);
     }
 
     public static List<String> getFreemarkerStaticClassNames() {

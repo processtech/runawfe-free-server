@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.timer.ScheduledTimerTask;
@@ -62,6 +63,8 @@ public class CommonLogic {
     protected SettingDAO settingDAO;
 
     // For the sake of mering DAO and logic layers:
+    @Autowired
+    protected SessionFactory sessionFactory;
     @Autowired
     protected HibernateQueryFactory queryFactory;
 

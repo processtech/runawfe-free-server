@@ -56,9 +56,6 @@ public class ExecutorDataFileBuilder implements DataFileBuilder {
             List<Actor> actors = Delegates.getExecutorService().getGroupActors(user, group);
             populateExecutorsToGroup(script, group, actors);
         }
-
-        new PermissionsDataFileBuilder(user, actorOnPermissions, "addPermissionsOnActor", true).build(zos, script);
-        new PermissionsDataFileBuilder(user, groupOnPermissions, "addPermissionsOnGroup", true).build(zos, script);
     }
 
     private void populateActorElement(Document script, Actor actor) {

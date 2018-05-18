@@ -17,17 +17,23 @@
  */
 package ru.runa.wfe.service.client;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-
+import org.w3c.dom.Element;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.IOCommons;
@@ -37,11 +43,6 @@ import ru.runa.wfe.script.common.TransactionScopeType;
 import ru.runa.wfe.script.common.WorkflowScriptDto;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 
 /**
  * Created on 12.12.2005
@@ -68,6 +69,11 @@ public class AdminScriptClient {
             run(user, scriptBytes, new Handler() {
 
                 @Override
+                public void onUnknownOperations(String msg) {
+                    System.out.println(msg);
+                }
+
+                @Override
                 public void onTransactionException(Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -84,6 +90,16 @@ public class AdminScriptClient {
         Unmarshaller unmarshaller = JAXBContext.newInstance(WorkflowScriptDto.class).createUnmarshaller();
         WorkflowScriptDto data = (WorkflowScriptDto) unmarshaller.unmarshal(new ByteArrayInputStream(scriptBytes));
         data.validate(true);
+        if (!data.unknownOperations.isEmpty()) {
+            HashSet<String> tagNamesSet = new HashSet<>(data.unknownOperations.size());
+            for (Element e : data.unknownOperations) {
+                tagNamesSet.add(e.getTagName());
+            }
+            ArrayList<String> tagNamesList = new ArrayList<>(tagNamesSet);
+            Collections.sort(tagNamesList);
+            handler.onUnknownOperations("Unknown operations will be ignored: " + String.join(", ", tagNamesList));
+        }
+
         List<List<ScriptOperation>> splitScriptToTransactions = splitScriptToTransactions(data);
         if (!data.transactionScopes.isEmpty()) {
             System.out.println("multiple docs [by <transactionScope>]: " + splitScriptToTransactions.size());
@@ -162,6 +178,9 @@ public class AdminScriptClient {
         }
 
         public void onEndTransaction() {
+        }
+
+        public void onUnknownOperations(String msg) {
         }
 
         public void onTransactionException(Exception e) {

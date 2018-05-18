@@ -19,6 +19,9 @@ package ru.runa.wfe.service.delegate;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.dom4j.Document;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
@@ -81,6 +84,51 @@ public class AuthorizationServiceDelegate extends EJB3Delegate implements Author
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectTypes) {
         try {
             return getAuthorizationService().isAllowedForAny(user, permission, securedObjectTypes);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void exportDataFile(Document script) {
+        try {
+            getAuthorizationService().exportDataFile(script);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void addPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        try {
+            getAuthorizationService().addPermissions(executorName, objectNames, permissions);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void removePermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        try {
+            getAuthorizationService().removePermissions(executorName, objectNames, permissions);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void removeAllPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
+        try {
+            getAuthorizationService().removeAllPermissions(executorName, objectNames);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public void setPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        try {
+            getAuthorizationService().setPermissions(executorName, objectNames, permissions);
         } catch (Exception e) {
             throw handleException(e);
         }

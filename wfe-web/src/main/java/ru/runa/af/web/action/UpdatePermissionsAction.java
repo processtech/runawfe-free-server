@@ -36,7 +36,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.service.security.SecuredObjectFactory;
+import ru.runa.wfe.security.SecuredObjectFactory;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -50,10 +50,10 @@ public class UpdatePermissionsAction extends ActionBase {
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         UpdatePermissionsForm form = (UpdatePermissionsForm) actionForm;
         try {
-            SecuredObject securedObject = SecuredObjectFactory.get(getLoggedUser(request), form.getSecuredObjectType(), form.getId());
+            SecuredObject obj = SecuredObjectFactory.getInstance().findById(SecuredObjectType.valueOf(form.getSecuredObjectType()), form.getId());
             List<Long> executorIds = Lists.newArrayList();
             List<Collection<Permission>> executorPermissions = Lists.newArrayList();
-            SecuredObjectType type = securedObject.getSecuredObjectType();
+            SecuredObjectType type = obj.getSecuredObjectType();
             for (Long executorId : form.getIds()) {
                 executorIds.add(executorId);
                 List<Permission> permissions = Lists.newArrayList();
@@ -66,15 +66,15 @@ public class UpdatePermissionsAction extends ActionBase {
             }
             // unset permissions
             BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
-            List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(getLoggedUser(request), securedObject,
+            List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(getLoggedUser(request), obj,
                     batchPresentation, true);
             for (Executor executor : executors) {
                 if (!executorIds.contains(executor.getId())) {
                     executorIds.add(executor.getId());
-                    executorPermissions.add(new ArrayList<Permission>());
+                    executorPermissions.add(new ArrayList<>());
                 }
             }
-            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), executorIds, executorPermissions, securedObject);
+            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), executorIds, executorPermissions, obj);
         } catch (Exception e) {
             addError(request, e);
         }

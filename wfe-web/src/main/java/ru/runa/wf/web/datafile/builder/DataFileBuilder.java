@@ -1,7 +1,6 @@
 package ru.runa.wf.web.datafile.builder;
 
 import java.util.zip.ZipOutputStream;
-
 import org.dom4j.Document;
 
 /**
@@ -12,11 +11,11 @@ import org.dom4j.Document;
  */
 public interface DataFileBuilder {
 
-    static final String FILE_NAME = "archive";
-    static final String FILE_EXT = ".datafile";
-    static final String PATH_TO_XML = "scripts/data.xml";
-    static final String PATH_TO_BOTTASK = "scripts/";
-    static final String PATH_TO_PROCESS_DEF = "processes/";
+    String FILE_NAME = "archive";
+    String FILE_EXT = ".datafile";
+    String PATH_TO_XML = "scripts/data.xml";
+    String PATH_TO_BOTTASK = "scripts/";
+    String PATH_TO_PROCESS_DEF = "processes/";
 
     /**
      * put data to zip archive and populate script file xml elements

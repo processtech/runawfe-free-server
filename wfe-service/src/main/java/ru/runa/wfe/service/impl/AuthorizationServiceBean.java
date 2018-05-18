@@ -20,6 +20,8 @@ package ru.runa.wfe.service.impl;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -29,6 +31,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import org.dom4j.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -124,6 +127,36 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
 
     @WebMethod(exclude = true)
     @Override
+    public void exportDataFile(Document script) {
+        authorizationLogic.exportDataFile(script);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public void addPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        authorizationLogic.addPermissions(executorName, objectNames, permissions);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public void removePermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        authorizationLogic.removePermissions(executorName, objectNames, permissions);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public void removeAllPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
+        authorizationLogic.removeAllPermissions(executorName, objectNames);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public void setPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        authorizationLogic.setPermissions(executorName, objectNames, permissions);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
     public void setPermissions(User user, List<Long> executorIds, List<Collection<Permission>> permissions, SecuredObject securedObject) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(executorIds != null, "executorIds");
@@ -202,5 +235,4 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
         Preconditions.checkArgument(identifiableId != null, "identifiableId");
         return authorizationLogic.isAllowed(user, permission, securedObjectType, identifiableId);
     }
-
 }

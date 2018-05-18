@@ -1,21 +1,18 @@
 package ru.runa.wfe.script.common;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
-
 import ru.runa.wfe.script.AdminScriptConstants;
 import ru.runa.wfe.script.AdminScriptException;
-
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import ru.runa.wfe.security.SecuredObjectType;
 
 @XmlType(name = "NamedIdentitySetType", namespace = AdminScriptConstants.NAMESPACE)
 public class NamedIdentitySet {
@@ -53,11 +50,7 @@ public class NamedIdentitySet {
     }
 
     /**
-     * Get defined identities
-     * 
-     * @param context
-     *            Script execution context.
-     * @return Return set of identities, defined in current element.
+     * Returns initial capacity for get() target set. Counts possible duplicates; uselsess if "all named identities" are queried; so "estimated".
      */
     public Set<String> get(ScriptExecutionContext context) {
         if (identities.size() == 0 && identitySetsReferences.size() == 0) {
@@ -66,14 +59,10 @@ public class NamedIdentitySet {
             }
             return context.getNamedIdentities(type, name);
         }
-        Set<String> result = Sets.newHashSet();
-        result.addAll(Lists.transform(identities, new Function<Identity, String>() {
-
-            @Override
-            public String apply(Identity input) {
-                return input.name;
-            }
-        }));
+        Set<String> result = new HashSet<>();
+        for (Identity id : identities) {
+            result.add(id.name);
+        }
         for (NamedIdentitySet innerSet : identitySetsReferences) {
             if (innerSet.type != type) {
                 throw new AdminScriptException("Inner named identity must be the same type as outer.");
@@ -101,44 +90,34 @@ public class NamedIdentitySet {
         }
     }
 
-    @XmlEnum(value = String.class)
+    @XmlEnum
     public enum NamedIdentityType {
         @XmlEnumValue(value = "ProcessDefinition")
-        PROCESS_DEFINITION {
-
-            @Override
-            public String getScriptName() {
-                return "ProcessDefinition";
-            }
-        },
+        PROCESS_DEFINITION(SecuredObjectType.DEFINITION, "ProcessDefinition"),
 
         @XmlEnumValue(value = "Executor")
-        EXECUTOR {
-
-            @Override
-            public String getScriptName() {
-                return "Executor";
-            }
-        },
-
-        @XmlEnumValue(value = "Relation")
-        RELATION {
-
-            @Override
-            public String getScriptName() {
-                return "Relation";
-            }
-        },
+        EXECUTOR(SecuredObjectType.EXECUTOR, "Executor"),
 
         @XmlEnumValue(value = "Report")
-        REPORT {
+        REPORT(SecuredObjectType.REPORT, "Report");
 
-            @Override
-            public String getScriptName() {
-                return "Report";
+        private SecuredObjectType securedObjectType;
+        private String scriptName;
+
+        NamedIdentityType(SecuredObjectType securedObjectType, String scriptName) {
+            this.securedObjectType = securedObjectType;
+            this.scriptName = scriptName;
+        }
+
+        public String getScriptName() {
+            return scriptName;
+        }
+
+        public SecuredObjectType getSecuredObjectType() {
+            if (securedObjectType == null) {
+                throw new ScriptValidationException("namedIdentitySet/@type = " + name() + " is no longer supported");
             }
-        };
-
-        public abstract String getScriptName();
+            return securedObjectType;
+        }
     }
 }

@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -85,7 +86,7 @@ public class DefinitionLogic extends WFCommonLogic {
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
         deploymentDAO.deploy(definition.getDeployment(), null);
-        permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.listVisible(SecuredObjectType.DEFINITION), definition.getDeployment());
+        permissionDAO.setPermissions(user.getActor(), Collections.singletonList(Permission.ALL), definition.getDeployment());
         log.debug("Deployed process definition " + definition);
         return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, definition.getDeployment()));
     }

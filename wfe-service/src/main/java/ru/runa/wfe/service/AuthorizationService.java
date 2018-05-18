@@ -19,6 +19,9 @@ package ru.runa.wfe.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.dom4j.Document;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
@@ -54,6 +57,31 @@ public interface AuthorizationService {
      * Checks if user has parmission on any object of specified type.
      */
     boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType);
+
+    /**
+     * Exports &lt;addPermissions&gt; elements to XML script. Everything is done under single transaction, using optimized queries.
+     */
+    void exportDataFile(Document script);
+
+    /**
+     * Used by script's AddPermissionsOperation.
+     */
+    void addPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
+
+    /**
+     * Used by script's RemovePermissionsOperation.
+     */
+    void removePermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
+
+    /**
+     * Used by script's RemoveAllPermissionsOperation.
+     */
+    void removeAllPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames);
+
+    /**
+     * Used by script's SetPermissionsOperation.
+     */
+    void setPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
 
     /**
      * Sets permissions for executor specified by id on securedObject.
@@ -122,5 +150,4 @@ public interface AuthorizationService {
      */
     <T> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Class<T> persistentClass,
                                                            Permission permission, SecuredObjectType[] securedObjectTypes, boolean enablePaging);
-
 }

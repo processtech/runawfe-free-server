@@ -1,12 +1,10 @@
 package ru.runa.wfe.script.common;
 
+import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.bot.logic.BotLogic;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.logic.DefinitionLogic;
@@ -21,11 +19,7 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.user.logic.ProfileLogic;
 
-import com.google.common.collect.Maps;
-
 public class ScriptExecutionContext {
-
-    public static final Log LOG = LogFactory.getLog(ScriptExecutionContext.class);
 
     @Autowired
     ExecutorLogic executorLogic;
@@ -57,7 +51,7 @@ public class ScriptExecutionContext {
     public ScriptExecutionContext() {
         super();
         for (NamedIdentityType type : NamedIdentityType.values()) {
-            namedIdentitySets.put(type, Maps.<String, Set<String>> newHashMap());
+            namedIdentitySets.put(type, new HashMap<>());
         }
     }
 

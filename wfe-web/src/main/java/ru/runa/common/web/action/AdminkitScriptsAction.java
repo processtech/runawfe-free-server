@@ -47,45 +47,11 @@ public class AdminkitScriptsAction extends ActionBase {
                     writeResponse(response, script);
                 }
             } else if ("execute".equals(action)) {
-                log.info("Executing script");
-                final List<String> scriptErrors = new ArrayList<>();
-                AdminScriptClient.run(getLoggedUser(request), getScript(form), new Handler() {
-
-                    @Override
-                    public void onTransactionException(Exception e) {
-                        scriptErrors.add(e.getMessage());
-                    }
-                });
-                if (ajaxRequest) {
-                    writeResponse(response, String.valueOf(scriptErrors.size()).getBytes());
-                } else {
-                    if (scriptErrors.size() == 0) {
-                        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.execution.success"));
-                    } else {
-                        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.execution.failed"));
-                    }
-                }
+                executeRun(request, response, getScript(form), ajaxRequest, errors);
             } else if ("executeUploadedScript".equals(action)) {
-                log.info("Executing script");
-                final List<String> scriptErrors = new ArrayList<>();
                 File file = new File(IOCommons.getAdminkitScriptsDirPath() + fileName);
                 byte[] script = FileUtils.readFileToByteArray(file);
-                AdminScriptClient.run(getLoggedUser(request), script, new Handler() {
-
-                    @Override
-                    public void onTransactionException(Exception e) {
-                        scriptErrors.add(e.getMessage());
-                    }
-                });
-                if (ajaxRequest) {
-                    writeResponse(response, String.valueOf(scriptErrors.size()).getBytes());
-                } else {
-                    if (scriptErrors.size() == 0) {
-                        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.execution.success"));
-                    } else {
-                        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.execution.failed"));
-                    }
-                }
+                executeRun(request, response, script, ajaxRequest, errors);
             } else if ("save".equals(action)) {
                 if (Strings.isNullOrEmpty(fileName)) {
                     throw new Exception("File name is required");
@@ -118,6 +84,35 @@ public class AdminkitScriptsAction extends ActionBase {
             saveErrors(request, errors);
         }
         return mapping.findForward(Resources.FORWARD_SUCCESS);
+    }
+
+    private void executeRun(HttpServletRequest request, HttpServletResponse response, byte[] script, boolean ajaxRequest, ActionMessages errors)
+            throws Exception
+    {
+        log.info("Executing script");
+        final List<String> scriptErrors = new ArrayList<>();
+        AdminScriptClient.run(getLoggedUser(request), script, new Handler() {
+
+            @Override
+            public void onUnknownOperations(String msg) {
+                log.warn(msg);
+                scriptErrors.add(msg);
+            }
+
+            @Override
+            public void onTransactionException(Exception e) {
+                scriptErrors.add(e.getMessage());
+            }
+        });
+        if (ajaxRequest) {
+            writeResponse(response, String.valueOf(scriptErrors.size()).getBytes());
+        } else {
+            if (scriptErrors.size() == 0) {
+                errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.execution.success"));
+            } else {
+                errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("adminkit.script.execution.failed"));
+            }
+        }
     }
 
     private byte[] getScript(AdminScriptForm form) throws IOException {

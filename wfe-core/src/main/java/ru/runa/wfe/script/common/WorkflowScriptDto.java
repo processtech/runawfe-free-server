@@ -1,28 +1,30 @@
 package ru.runa.wfe.script.common;
 
+import java.util.ArrayList;
 import java.util.List;
-
+import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
+import org.w3c.dom.Element;
 import ru.runa.wfe.script.AdminScriptConstants;
-
-import com.google.common.collect.Lists;
 
 @XmlType(name = "workflowScriptType", namespace = AdminScriptConstants.NAMESPACE)
 @XmlRootElement(name = "workflowScript", namespace = AdminScriptConstants.NAMESPACE)
 public class WorkflowScriptDto extends OperationsListContainer {
 
     @XmlElement(name = AdminScriptConstants.NAMED_IDENTITY_ELEMENT_NAME, namespace = AdminScriptConstants.NAMESPACE)
-    public List<NamedIdentitySet> identitySets = Lists.newArrayList();
+    public List<NamedIdentitySet> identitySets = new ArrayList<>();
 
     @XmlAttribute(name = "defaultTransactionScope")
     public TransactionScopeType defaultTransactionScope;
 
     @XmlElement(name = "transactionScope", namespace = AdminScriptConstants.NAMESPACE)
-    public List<TransactionScopeDto> transactionScopes = Lists.newArrayList();
+    public List<TransactionScopeDto> transactionScopes = new ArrayList<>();
+
+    @XmlAnyElement
+    public List<Element> unknownOperations = new ArrayList<>();
 
     public void validate(boolean allowTransactionScope) {
         if (!operations.isEmpty() && !transactionScopes.isEmpty()) {

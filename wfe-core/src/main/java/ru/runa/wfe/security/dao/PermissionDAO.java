@@ -62,6 +62,7 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 @Transactional
 @SuppressWarnings("unchecked")
 public class PermissionDAO extends CommonDAO {
+
     @Autowired
     private ExecutorDAO executorDAO;
     @Autowired
@@ -110,11 +111,11 @@ public class PermissionDAO extends CommonDAO {
      *            Secured object to set permission on.
      */
     public void setPermissions(Executor executor, Collection<Permission> permissions, SecuredObject object) {
+        ApplicablePermissions.check(object, permissions);
         if (isPrivilegedExecutor(object, executor)) {
             logger.debug(permissions + " not granted for privileged " + executor);
             return;
         }
-        ApplicablePermissions.check(object, permissions);
 
         List<Permission> issued = getIssuedPermissions(executor, object);
         Set<Permission> toAdd = new HashSet<>(permissions);
@@ -176,9 +177,12 @@ public class PermissionDAO extends CommonDAO {
         return isAllowedImpl(user, permission, type, false, null);
     }
 
+    /**
+     * @param hasId False means "called from isAllowedForAny()".
+     */
     private boolean isAllowedImpl(User user, Permission permission, SecuredObjectType type, boolean hasId, Long id) {
         ApplicablePermissions.check(type, permission);
-        Assert.isTrue((hasId && id == 0) != type.hasObjectIds(), "Assertion failed: (hasId && id == 0) != " + type + ".hasObjectIds()");
+        Assert.isTrue((hasId && id == 0) == type.isSingleton(), "Assertion failed: (hasId && id == 0) == " + type + ".isSingleton()");
 
         if (permission == Permission.NONE) {
             // Optimization; see comments at NONE definition.

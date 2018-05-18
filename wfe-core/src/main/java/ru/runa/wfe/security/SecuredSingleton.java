@@ -39,7 +39,7 @@ public final class SecuredSingleton extends SecuredObjectBase {
      * Public because subprojects may extend SecuredObjectType enum, so they must be able to define corresponding singletons.
      */
     public SecuredSingleton(SecuredObjectType type) {
-        Assert.isTrue(!type.hasObjectIds());
+        Assert.isTrue(type.isSingleton());
         this.type = type;
     }
 

@@ -67,7 +67,8 @@ import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
  * @see PermissionSubstitutions
  */
 @XmlJavaTypeAdapter(Permission2XmlAdapter.class)
-public final class Permission implements Serializable {
+public final class Permission implements Serializable, Comparable<Permission> {
+    private static final long serialVersionUID = 2L;
 
     private static HashMap<String, Permission> instancesByName = new HashMap<>();
 
@@ -113,6 +114,11 @@ public final class Permission implements Serializable {
      */
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int compareTo(Permission o) {
+        return getName().compareTo(o.getName());
     }
 
     /**

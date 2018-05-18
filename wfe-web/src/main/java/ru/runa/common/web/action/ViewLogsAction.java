@@ -44,8 +44,7 @@ public class ViewLogsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         try {
-            User user = Commons.getUser(request.getSession());
-            Delegates.getAuthorizationService().checkAllowed(user, Permission.ALL, SecuredSingleton.LOGS);
+            Delegates.getAuthorizationService().checkAllowed(Commons.getUser(request.getSession()), Permission.ALL, SecuredSingleton.LOGS);
 
             String logDirPath = IOCommons.getLogDirPath();
             request.setAttribute("logDirPath", logDirPath);

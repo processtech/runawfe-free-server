@@ -49,6 +49,5 @@ public class DefinitionDataFileBuilder implements DataFileBuilder {
             element.addAttribute("file", PATH_TO_PROCESS_DEF + fileName);
             element.addAttribute("type", definition.getCategories()[0]);
         }
-        new PermissionsDataFileBuilder(user, definitions, "addPermissionsOnDefinition", true).build(zos, script);
     }
 }

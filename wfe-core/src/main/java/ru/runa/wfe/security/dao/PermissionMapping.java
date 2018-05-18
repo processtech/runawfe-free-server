@@ -18,6 +18,8 @@
 package ru.runa.wfe.security.dao;
 
 import com.google.common.base.Objects;
+import com.querydsl.core.annotations.PropertyType;
+import com.querydsl.core.annotations.QueryType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -66,6 +68,13 @@ public class PermissionMapping {
         setPermission(permission);
     }
 
+    public PermissionMapping(Executor executor, SecuredObjectType objectType, Long objectId, Permission permission) {
+        setExecutor(executor);
+        setObjectType(objectType);
+        setObjectId(objectId);
+        setPermission(permission);
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_PERMISSION_MAPPING", allocationSize = 1)
@@ -91,6 +100,7 @@ public class PermissionMapping {
 
     @Column(name = "OBJECT_TYPE", nullable = false)
     @Type(type = "ru.runa.wfe.commons.hibernate.SecuredObjectTypeType")
+    @QueryType(PropertyType.COMPARABLE)
     public SecuredObjectType getObjectType() {
         return objectType;
     }
@@ -110,6 +120,7 @@ public class PermissionMapping {
 
     @Column(name = "PERMISSION", nullable = false)
     @Type(type = "ru.runa.wfe.commons.hibernate.PermissionType")
+    @QueryType(PropertyType.COMPARABLE)
     public Permission getPermission() {
         return permission;
     }

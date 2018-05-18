@@ -24,7 +24,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.service.security.SecuredObjectFactory;
+import ru.runa.wfe.security.SecuredObjectFactory;
 
 /**
  * Has "securedObjectType" and "identifiableId" attributes. Base class for universal tags that apply to multiple object types.
@@ -48,7 +48,7 @@ public abstract class SecuredObjectFormTag2 extends TitledFormTag {
     }
 
     protected final SecuredObject getSecuredObject() {
-        return SecuredObjectFactory.get(getUser(), securedObjectType, identifiableId);
+        return SecuredObjectFactory.getInstance().findById(securedObjectType, identifiableId);
     }
 
     /**

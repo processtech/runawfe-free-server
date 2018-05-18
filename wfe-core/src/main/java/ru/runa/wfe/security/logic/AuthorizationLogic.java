@@ -18,22 +18,77 @@
 package ru.runa.wfe.security.logic;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.mysema.commons.lang.CloseableIterator;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
+import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.definition.QDeployment;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectFactory;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.dao.PermissionMapping;
+import ru.runa.wfe.security.dao.QPermissionMapping;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.QExecutor;
 import ru.runa.wfe.user.User;
+
+import static ru.runa.wfe.security.SecuredObjectType.ACTOR;
+import static ru.runa.wfe.security.SecuredObjectType.DEFINITION;
+import static ru.runa.wfe.security.SecuredObjectType.GROUP;
 
 /**
  * Created on 14.03.2005
  */
 public class AuthorizationLogic extends CommonLogic {
+
+    /**
+     * Used by addPermissions() and setPermissions(), to avoid duplicated rows in table "permission_mapping".
+     */
+    private static class IdAndPermission {
+        final Long id;
+        final Permission permission;
+
+        IdAndPermission(Long id, Permission permission) {
+            this.id = id;
+            this.permission = permission;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            IdAndPermission that = (IdAndPermission) o;
+            return Objects.equals(id, that.id) &&
+                    Objects.equals(permission, that.permission);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, permission);
+        }
+    }
+
+
     public boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId) {
         return permissionDAO.isAllowed(user, permission, securedObjectType, identifiableId);
     }
@@ -50,6 +105,221 @@ public class AuthorizationLogic extends CommonLogic {
         checkPermissionsOnExecutor(user, performer, Permission.LIST);
         permissionDAO.checkAllowed(user, Permission.LIST, securedObject);
         return permissionDAO.getIssuedPermissions(performer, securedObject);
+    }
+
+    /**
+     * Exports permissions to xml, see: manage_datafile, ExportDataFileAction.
+     * <p>
+     * Placed here and added all that PermissionService stuff, because must be executed under transaction.
+     */
+    public void exportDataFile(Document script) {
+        Element parentElement = script.getRootElement();
+
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        QExecutor e = QExecutor.executor;
+
+        // Export permissions of all singletons.
+        {
+            List<SecuredObjectType> allTypes = SecuredObjectType.values();
+            ArrayList<SecuredObjectType> singletonTypes = new ArrayList<>(allTypes.size());
+            for (SecuredObjectType t : allTypes) {
+                if (t.isSingleton()) {
+                    singletonTypes.add(t);
+                }
+            }
+            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType)
+                    .from(pm, e)
+                    .where(pm.objectType.in(singletonTypes).and(pm.objectId.eq(0L)).and(pm.executor.eq(e)))
+                    .orderBy(pm.objectType.asc(), e.name.asc(), pm.permission.asc()));
+        }
+
+        // Export ACTOR and GROUP permissions.
+        {
+            QExecutor e2 = new QExecutor("e2");  // same table as `e`, but different alias
+            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, e2.name)
+                    .from(pm, e, e2)
+                    .where(pm.objectType.in(ACTOR, GROUP).and(pm.objectId.eq(e2.id)).and(pm.executor.eq(e)))
+                    .orderBy(pm.objectType.asc(), e2.name.asc(), e.name.asc(), pm.permission.asc()));
+        }
+
+        // Export DEFINITION permissions.
+        {
+            QDeployment d = QDeployment.deployment;
+            exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
+                    .from(pm, e, d)
+                    .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(d.id)).and(pm.executor.eq(e)))
+                    .orderBy(d.name.asc(), e.name.asc(), pm.permission.asc()));
+        }
+    }
+
+    /**
+     *
+     * @param parentElement  Parent for "addPermissions" elements.
+     * @param query  Must return fields in order: permission, executorName, objectType, [objectName].
+     */
+    private void exportDataFileImpl(Element parentElement, JPQLQuery<Tuple> query) {
+        SecuredObjectType lastObjectType = null;
+        String lastObjectName = null;
+        String lastExecutorName = null;
+        Element addPermissionsElement = null;
+
+        try (CloseableIterator<Tuple> i = query.iterate()) {
+            while (i.hasNext()) {
+                Tuple t = i.next();
+                Permission permission = t.get(0, Permission.class);
+                String executorName = t.get(1, String.class);
+                SecuredObjectType objectType = t.get(2, SecuredObjectType.class);
+                String objectName = t.size() == 4 ? t.get(3, String.class) : null;
+
+                // Manually group by objectType, objectName, executorName.
+                if (objectType != lastObjectType || !Objects.equals(objectName, lastObjectName) || !Objects.equals(executorName, lastExecutorName)) {
+                    lastObjectType = objectType;
+                    lastObjectName = objectName;
+                    lastExecutorName = executorName;
+
+                    addPermissionsElement = parentElement.addElement("addPermissions", XmlUtils.RUNA_NAMESPACE);
+                    //noinspection ConstantConditions
+                    addPermissionsElement.addAttribute("type", objectType.getName());
+                    if (objectName != null) {
+                        addPermissionsElement.addAttribute("name", objectName);
+                    }
+                    addPermissionsElement.addAttribute("executor", executorName);
+                }
+
+                //noinspection ConstantConditions
+                addPermissionsElement.addElement("permission", XmlUtils.RUNA_NAMESPACE).addAttribute("name", permission.getName());
+            }
+        }
+    }
+
+    /**
+     * Used by script's AddPermissionsOperation.
+     * All security and other checks are done by the caller, except executor and object existence checks which are done here.
+     */
+    public void addPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        setPermissionsImpl(executorName, objectNames, permissions, false);
+    }
+
+    /**
+     * Used by script's SetPermissionsOperation.
+     * All security and other checks are done by the caller, except executor and object existence checks which are done here.
+     */
+    public void setPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        setPermissionsImpl(executorName, objectNames, permissions, true);
+    }
+
+    private void setPermissionsImpl(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions, boolean deleteExisting) {
+        Executor executor = executorDAO.getExecutor(executorName);
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+
+        for (Map.Entry<SecuredObjectType, Set<String>> kv : objectNames.entrySet()) {
+            SecuredObjectType type = kv.getKey();
+            Set<String> names = kv.getValue();
+
+            if (type.isSingleton()) {
+                // To handle both singletons and non-singletons in the same for(namesPart...) loop and thus avoid `q` construction duplication.
+                // I'd rather have inner function (closure) for `q` construction, but this is java.
+                names = new HashSet<>(1);
+                names.add(null);
+            }
+
+            for (List<String> namesPart : Lists.partition(new ArrayList<>(names), SystemProperties.getDatabaseNameParametersCount())) {
+                List<Long> objectIds;
+
+                if (type.isSingleton()) {
+                    // Ignore namesPart: it contains single null element added above, in single loop iteration.
+                    objectIds = Collections.singletonList(0L);
+                } else {
+                    objectIds = SecuredObjectFactory.getInstance().getIdsByNames(type, new HashSet<>(namesPart));
+                }
+
+                HashSet<IdAndPermission> existing = new HashSet<>();
+                try (CloseableIterator<Tuple> i = queryFactory.select(pm.objectId, pm.permission)
+                        .from(pm)
+                        .where(pm.executor.eq(executor)
+                                .and(pm.objectType.eq(type))
+                                .and(pm.objectId.in(objectIds))
+                                .and(pm.permission.in(permissions)))
+                        .iterate()
+                ) {
+                    while (i.hasNext()) {
+                        Tuple t = i.next();
+                        existing.add(new IdAndPermission(t.get(0, Long.class), t.get(1, Permission.class)));
+                    }
+                }
+
+                for (Long id : objectIds) {
+                    for (Permission perm : permissions) {
+                        if (!existing.remove(new IdAndPermission(id, perm))) {
+                            // Unfortunately, no way for batch insert with Hibernate/JPA instead of SQL.
+                            sessionFactory.getCurrentSession().save(new PermissionMapping(executor, type, id, perm));
+                        }
+                    }
+                }
+
+                if (deleteExisting && !existing.isEmpty()) {
+                    // Delete in single statement: getDatabaseNameParametersCount() is much less than getDatabaseParametersCount(), so we should be OK.
+                    BooleanExpression cond = Expressions.FALSE;
+                    for (IdAndPermission ip : existing) {
+                        cond = cond.or(pm.objectId.eq(ip.id).and(pm.permission.eq(ip.permission)));
+                    }
+                    queryFactory.delete(pm).where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(cond)).execute();
+                }
+            }
+        }
+    }
+
+    /**
+     * Used by script's RemovePermissionsOperation.
+     * All security and other checks are done by the caller, except executor and object existence checks which are done here.
+     */
+    public void removePermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        removePermissionsImpl(executorName, objectNames, permissions);
+    }
+
+    /**
+     * Used by script's RemoveAllPermissionsOperation.
+     * All security and other checks are done by the caller, except executor and object existence checks which are done here.
+     */
+    public void removeAllPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
+        removePermissionsImpl(executorName, objectNames, null);
+    }
+
+    /**
+     *
+     * @param objectNames Non-empty. Contains null values for singleton keys.
+     * @param permissions Null if called from removeAllPermissions().
+     */
+    private void removePermissionsImpl(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        Executor executor = executorDAO.getExecutor(executorName);
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+
+        for (Map.Entry<SecuredObjectType, Set<String>> kv : objectNames.entrySet()) {
+            SecuredObjectType type = kv.getKey();
+            Set<String> names = kv.getValue();
+
+            if (type.isSingleton()) {
+                names = new HashSet<>(1);
+                names.add(null);
+            }
+
+            for (List<String> namesPart : Lists.partition(new ArrayList<>(names), SystemProperties.getDatabaseNameParametersCount())) {
+                List<Long> objectIds;
+
+                if (type.isSingleton()) {
+                    objectIds = Collections.singletonList(0L);
+                } else {
+                    objectIds = SecuredObjectFactory.getInstance().getIdsByNames(type, new HashSet<>(namesPart));
+                }
+
+                HibernateDeleteClause q = queryFactory.delete(pm)
+                        .where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(pm.objectId.in(objectIds)));
+                if (permissions != null) {
+                    q.where(pm.permission.in(permissions));
+                }
+                q.execute();
+            }
+        }
     }
 
     public void setPermissions(User user, List<Long> executorIds, Collection<Permission> permissions, SecuredObject securedObject) {

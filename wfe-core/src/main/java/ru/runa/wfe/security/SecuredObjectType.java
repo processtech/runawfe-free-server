@@ -16,7 +16,8 @@ import ru.runa.wfe.commons.xml.SecuredObejctTypeXmlAdapter;
  * @see PermissionSubstitutions
  */
 @XmlJavaTypeAdapter(SecuredObejctTypeXmlAdapter.class)
-public final class SecuredObjectType implements Serializable {
+public final class SecuredObjectType implements Serializable, Comparable<SecuredObjectType> {
+    private static final long serialVersionUID = 3L;
 
     private static HashMap<String, SecuredObjectType> instancesByName = new HashMap<>();
     private static ArrayList<SecuredObjectType> instancesList = new ArrayList<>();
@@ -62,6 +63,7 @@ public final class SecuredObjectType implements Serializable {
         }
         this.listType = listType;
         instancesList.add(this);
+        Collections.sort(instancesList);
     }
 
     public SecuredObjectType(String name) {
@@ -80,10 +82,15 @@ public final class SecuredObjectType implements Serializable {
     }
 
     /**
-     * Used for assertions. Currently, <code>permission_mapping.object_id != 0</code> only for types which have parent list type.
+     * Used for assertions. Currently, all non-singletons (those <code>permission_mapping.object_id != 0</code>) have parent singleton list types.
      */
-    public boolean hasObjectIds() {
-        return listType != null;
+    public boolean isSingleton() {
+        return listType == null;
+    }
+
+    @Override
+    public int compareTo(SecuredObjectType o) {
+        return getName().compareTo(o.getName());
     }
 
     @Override
@@ -96,6 +103,13 @@ public final class SecuredObjectType implements Serializable {
     public static final SecuredObjectType EXECUTORS = new SecuredObjectType("EXECUTORS");
     public static final SecuredObjectType ACTOR = new SecuredObjectType("ACTOR", EXECUTORS);
     public static final SecuredObjectType GROUP = new SecuredObjectType("GROUP", EXECUTORS);
+
+    /**
+     * @deprecated Fake, don't use. Hack added to support NamedIdentityType in scripts.
+     * TODO Dofs wanted to merge ACTOR and GROUP types into EXECUTOR, this would be good.
+     */
+    @Deprecated
+    public static final SecuredObjectType EXECUTOR = new SecuredObjectType("EXECUTOR", EXECUTORS);
 
     public static final SecuredObjectType DEFINITIONS = new SecuredObjectType("DEFINITIONS");
     public static final SecuredObjectType DEFINITION = new SecuredObjectType("DEFINITION", DEFINITIONS);

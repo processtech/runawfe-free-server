@@ -78,11 +78,11 @@ public class ProcessFactory {
 
     private void grantProcessPermissions(ProcessDefinition processDefinition, Process process, Actor actor) {
         boolean permissionsAreSetToProcessStarter = false;
+        Executor processStarter = executorDAO.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
+        Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, processDefinition);
         for (Executor executor : permissionDAO.getExecutorsWithPermission(processDefinition.getDeployment())) {
             Set<Permission> permissions = getProcessPermissions(executor, processDefinition);
             if (Objects.equal(actor, executor)) {
-                Executor processStarter = executorDAO.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
-                Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, processDefinition);
                 permissions = CollectionUtil.unionSet(permissions, processStarterPermissions);
                 permissionsAreSetToProcessStarter = true;
             }
@@ -91,8 +91,6 @@ public class ProcessFactory {
             }
         }
         if (!permissionsAreSetToProcessStarter) {
-            Executor processStarter = executorDAO.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
-            Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, processDefinition);
             permissionDAO.setPermissions(actor, processStarterPermissions, process);
         }
     }

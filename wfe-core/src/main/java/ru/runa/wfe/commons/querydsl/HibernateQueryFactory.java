@@ -28,6 +28,7 @@ public class HibernateQueryFactory extends com.querydsl.jpa.hibernate.HibernateQ
 
     }
 
+
     @Autowired
     private SessionFactory sessionFactory;
 

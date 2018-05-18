@@ -1,6 +1,5 @@
 package ru.runa.wf.web.datafile;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
@@ -11,7 +10,6 @@ import ru.runa.wf.web.datafile.builder.DefinitionDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.ExecutorDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.PermissionsDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.RelationDataFileBuilder;
-import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.User;
 
 /**
@@ -28,14 +26,11 @@ public class DataFileCreator {
     public DataFileCreator(ZipOutputStream zos, Document script, User user) {
         this.zos = zos;
         this.script = script;
-
         builders.add(new ExecutorDataFileBuilder(user));
         builders.add(new DefinitionDataFileBuilder(user));
         builders.add(new BotDataFileBuilder(user));
         builders.add(new RelationDataFileBuilder(user));
-        builders.add(new PermissionsDataFileBuilder(user, Lists.newArrayList(SecuredSingleton.SYSTEM), "addPermissionsOnSystem", false));
-        builders.add(new PermissionsDataFileBuilder(user, Lists.newArrayList(SecuredSingleton.RELATIONS), "addPermissionsOnRelationGroup", false));
-        builders.add(new PermissionsDataFileBuilder(user, Lists.newArrayList(SecuredSingleton.BOTSTATIONS), "addPermissionsOnBotStations", false));
+        builders.add(new PermissionsDataFileBuilder(user));
     }
 
     public void process() throws Exception {
