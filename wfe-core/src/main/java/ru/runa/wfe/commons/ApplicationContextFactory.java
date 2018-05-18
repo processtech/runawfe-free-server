@@ -30,7 +30,6 @@ import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.relation.dao.RelationDAO;
 import ru.runa.wfe.relation.dao.RelationPairDAO;
 import ru.runa.wfe.report.dao.ReportDAO;
-import ru.runa.wfe.security.SecuredObjectFactory;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.ss.dao.SubstitutionDAO;
 import ru.runa.wfe.task.dao.TaskDAO;

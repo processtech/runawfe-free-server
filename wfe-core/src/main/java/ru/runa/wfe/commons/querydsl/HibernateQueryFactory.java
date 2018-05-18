@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 @Component
 public class HibernateQueryFactory extends com.querydsl.jpa.hibernate.HibernateQueryFactory {
@@ -29,11 +30,20 @@ public class HibernateQueryFactory extends com.querydsl.jpa.hibernate.HibernateQ
     }
 
 
+    private static HibernateQueryFactory instance = null;
+
     @Autowired
     private SessionFactory sessionFactory;
 
     public HibernateQueryFactory() {
         super(new SessionProvider());
         SessionProvider.instance.owner = this;
+        instance = this;
+    }
+
+    public static HibernateQueryFactory getInstance() {
+        Assert.notNull(instance);
+        Assert.notNull(instance.sessionFactory);
+        return instance;
     }
 }

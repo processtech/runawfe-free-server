@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.NotImplementedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -33,7 +32,7 @@ import ru.runa.wfe.user.QExecutor;
  * @see ru.runa.wfe.security.PermissionSubstitutions
  */
 @Component
-//@Transactional
+@Transactional  // Required because this class is called from SecuredObjectFormTag2.getSecuredObject().
 public class SecuredObjectFactory {
 
     private static SecuredObjectFactory instance;
@@ -43,11 +42,13 @@ public class SecuredObjectFactory {
     }
 
 
-    @Autowired
-    protected HibernateQueryFactory queryFactory;
-
     public SecuredObjectFactory() {
         instance = this;
+    }
+
+    // When I added @Transactional annotation, @Autowired queryFactory field became null.
+    private static HibernateQueryFactory getQueryFactory() {
+        return HibernateQueryFactory.getInstance();
     }
 
 
@@ -167,7 +168,7 @@ public class SecuredObjectFactory {
             @Override
             public SecuredObject findById(Long id) {
                 QExecutor e = QExecutor.executor;
-                Executor o = getInstance().queryFactory.selectFrom(e).where(e.id.eq(id)).fetchFirst();
+                Executor o = getQueryFactory().selectFrom(e).where(e.id.eq(id)).fetchFirst();
                 Assert.isTrue(o == null || o instanceof Actor);
                 return o;
             }
@@ -191,7 +192,7 @@ public class SecuredObjectFactory {
             @Override
             public SecuredObject findById(Long id) {
                 QDeployment d = QDeployment.deployment;
-                return getInstance().queryFactory.selectFrom(d).where(d.id.eq(id)).fetchFirst();
+                return getQueryFactory().selectFrom(d).where(d.id.eq(id)).fetchFirst();
             }
 //            @Override
 //            SecuredObject getByName(User user, String name) {
@@ -200,7 +201,7 @@ public class SecuredObjectFactory {
             @Override
             List<Tuple> getByNames(Set<String> names) {
                 QDeployment d = QDeployment.deployment;
-                return getInstance().queryFactory.select(d.id, d.name).from(d).where(d.name.in(names)).fetch();
+                return getQueryFactory().select(d.id, d.name).from(d).where(d.name.in(names)).fetch();
             }
         });
 
@@ -210,7 +211,7 @@ public class SecuredObjectFactory {
             @Override
             public SecuredObject findById(Long id) {
                 QExecutor e = QExecutor.executor;
-                return getInstance().queryFactory.selectFrom(e).where(e.id.eq(id)).fetchFirst();
+                return getQueryFactory().selectFrom(e).where(e.id.eq(id)).fetchFirst();
             }
 //            @Override
 //            SecuredObject getByName(User user, String name) {
@@ -221,7 +222,7 @@ public class SecuredObjectFactory {
             @Override
             List<Tuple> getByNames(Set<String> names) {
                 QExecutor e = QExecutor.executor;
-                return getInstance().queryFactory.select(e.id, e.name).from(e).where(e.name.in(names)).fetch();
+                return getQueryFactory().select(e.id, e.name).from(e).where(e.name.in(names)).fetch();
             }
         });
 
@@ -231,7 +232,7 @@ public class SecuredObjectFactory {
             @Override
             public SecuredObject findById(Long id) {
                 QExecutor e = QExecutor.executor;
-                Executor o = getInstance().queryFactory.selectFrom(e).where(e.id.eq(id)).fetchFirst();
+                Executor o = getQueryFactory().selectFrom(e).where(e.id.eq(id)).fetchFirst();
                 Assert.isTrue(o == null || o instanceof Group);
                 return o;
             }
@@ -253,7 +254,7 @@ public class SecuredObjectFactory {
             @Override
             public SecuredObject findById(Long id) {
                 QProcess p = QProcess.process;
-                return getInstance().queryFactory.selectFrom(p).where(p.id.eq(id)).fetchFirst();
+                return getQueryFactory().selectFrom(p).where(p.id.eq(id)).fetchFirst();
             }
         });
 
@@ -265,7 +266,7 @@ public class SecuredObjectFactory {
             @Override
             public SecuredObject findById(Long id) {
                 QReportDefinition rd = QReportDefinition.reportDefinition;
-                return new WfReport(getInstance().queryFactory.selectFrom(rd).where(rd.id.eq(id)).fetchFirst());
+                return new WfReport(getQueryFactory().selectFrom(rd).where(rd.id.eq(id)).fetchFirst());
             }
         });
 
