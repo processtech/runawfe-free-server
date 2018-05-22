@@ -1,12 +1,14 @@
 package ru.runa.wfe.var.format;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import java.util.Map;
-
+import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
@@ -14,9 +16,6 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 public class UserTypeFormat extends VariableFormat implements VariableDisplaySupport {
     private static final Log log = LogFactory.getLog(UserTypeFormat.class);
@@ -61,20 +60,20 @@ public class UserTypeFormat extends VariableFormat implements VariableDisplaySup
         return JSONValue.toJSONString(convertToJSONValue(obj));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected UserTypeMap convertFromJSONValue(Object jsonValue) {
         JSONObject object = (JSONObject) jsonValue;
         UserTypeMap result = new UserTypeMap(userType);
-        for (VariableDefinition attributeDefinition : userType.getAttributes()) {
+        for (Map.Entry<String, Object> entry : (Set<Map.Entry<String, Object>>) object.entrySet()) {
+            VariableDefinition attributeDefinition = userType.getAttributeNotNull(entry.getKey());
             try {
                 VariableFormat attributeFormat = FormatCommons.create(attributeDefinition);
-                Object attributeValue = object.get(attributeDefinition.getName());
-                if (attributeValue != null) {
-                    attributeValue = attributeFormat.convertFromJSONValue(attributeValue);
-                    result.put(attributeDefinition.getName(), attributeValue);
-                }
+                Object attributeValue = attributeFormat.convertFromJSONValue(entry.getValue());
+                result.put(attributeDefinition.getName(), attributeValue);
             } catch (Exception e) {
-                log.error(attributeDefinition.toString(), e);
+                log.error("Near " + attributeDefinition.toString() + ": " + e);
+                Throwables.propagate(e);
             }
         }
         return result;

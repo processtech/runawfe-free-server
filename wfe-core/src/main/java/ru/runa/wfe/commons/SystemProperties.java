@@ -2,16 +2,17 @@ package ru.runa.wfe.commons;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 import ru.runa.wfe.execution.logic.IProcessExecutionListener;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 public class SystemProperties {
     public static final String CONFIG_FILE_NAME = "system.properties";
@@ -361,4 +362,13 @@ public class SystemProperties {
         }
         return result;
     }
+
+    public static boolean isVariablesInvalidDefaultValuesAllowed() {
+        return RESOURCES.getBooleanProperty("variables.invalid.default.values.allowed", false);
+    }
+
+    public static Date getVariablesInvalidDefaultValuesAllowedBefore() {
+        return RESOURCES.getDateProperty("variables.invalid.default.values.allowed.before", new Date());
+    }
+
 }
