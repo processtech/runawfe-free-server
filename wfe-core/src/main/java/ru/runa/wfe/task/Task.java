@@ -24,6 +24,7 @@ package ru.runa.wfe.task;
 import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -55,6 +56,9 @@ import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.TaskExpiredLog;
 import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
@@ -63,8 +67,12 @@ import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.BaseTaskNode;
+import ru.runa.wfe.lang.BoundaryEvent;
+import ru.runa.wfe.lang.BoundaryEventContainer;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.TaskDefinition;
+import ru.runa.wfe.lang.bpmn2.TimerNode;
+import ru.runa.wfe.lang.jpdl.CreateTimerAction;
 import ru.runa.wfe.task.logic.ITaskNotifier;
 import ru.runa.wfe.user.Executor;
 
@@ -98,10 +106,14 @@ public class Task implements Assignable {
     public Task() {
     }
 
-    public Task(TaskDefinition taskDefinition) {
+    public Task(ExecutionContext executionContext, TaskDefinition taskDefinition) {
+        setToken(executionContext.getToken());
+        setProcess(executionContext.getProcess());
         setNodeId(taskDefinition.getNodeId());
-        setName(taskDefinition.getName());
-        setDescription(taskDefinition.getDescription());
+        setName(ExpressionEvaluator.substitute(taskDefinition.getName(), executionContext.getVariableProvider()));
+        setDescription(ExpressionEvaluator.substitute(taskDefinition.getDescription(), executionContext.getVariableProvider()));
+        setDeadlineDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), getDeadlineDuration(taskDefinition)));
+        setDeadlineDateExpression(taskDefinition.getDeadlineDuration());
         setCreateDate(new Date());
         openedByExecutorIds = Sets.newHashSet();
     }
@@ -334,4 +346,26 @@ public class Task implements Assignable {
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("name", name).add("assignedTo", executor).toString();
     }
+
+    private String getDeadlineDuration(TaskDefinition taskDefinition) {
+        if (taskDefinition.getDeadlineDuration() != null) {
+            return taskDefinition.getDeadlineDuration();
+        }
+        if (taskDefinition.getNode().getProcessDefinition().getDeployment().getLanguage() == Language.BPMN2) {
+            if (taskDefinition.getNode() instanceof BoundaryEventContainer) {
+                for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) taskDefinition.getNode()).getBoundaryEvents()) {
+                    if (boundaryEvent instanceof TimerNode) {
+                        return ((TimerNode) boundaryEvent).getDueDateExpression();
+                    }
+                }
+            }
+        } else {
+            List<CreateTimerAction> timerActions = CreateTimerAction.getNodeTimerActions(taskDefinition.getNode(), true);
+            if (timerActions.size() > 0) {
+                return timerActions.get(0).getDueDate();
+            }
+        }
+        return SystemProperties.getDefaultTaskDeadline();
+    }
+
 }
