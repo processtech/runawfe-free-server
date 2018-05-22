@@ -62,7 +62,7 @@ public class StartProcessAction extends ActionBase {
             ActionForward forward;
             saveToken(request);
             Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getLoggedUser(request), definitionId);
-            if (interaction.hasForm() || interaction.getOutputTransitionNames().size() > 1) {
+            if (interaction.hasForm() || interaction.getOutputTransitions().size() > 1) {
                 forward = Commons.forward(mapping.findForward(WebResources.FORWARD_SUCCESS_DISPLAY_START_FORM), IdForm.ID_INPUT_NAME, definitionId);
             } else {
                 WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getLoggedUser(request), definitionId);

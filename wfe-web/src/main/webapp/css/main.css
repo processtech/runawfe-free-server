@@ -289,3 +289,13 @@ tr.executor_group {
 	padding: 1px;
 	margin-top: 10px;
 }
+
+.button-green {
+	background-color: palegreen;
+}
+.button-yellow {
+	background-color: yellow;
+}
+.button-red {
+	background-color: tomato;
+}

@@ -24,11 +24,11 @@ package ru.runa.wfe.lang;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.runa.wfe.audit.TransitionLog;
-import ru.runa.wfe.execution.ExecutionContext;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
+import ru.runa.wfe.audit.TransitionLog;
+import ru.runa.wfe.execution.ExecutionContext;
 
 public class Transition extends GraphElement {
     private static final long serialVersionUID = 1L;
@@ -38,6 +38,7 @@ public class Transition extends GraphElement {
     // used only in jpdl
     private boolean timerTransition;
     private List<Bendpoint> bendpoints = Lists.newArrayList();
+    private String color;
 
     public String getNodeIdBackCompatibilityPre4_3_0() {
         return from.getNodeId() + "/" + name;
@@ -85,6 +86,14 @@ public class Transition extends GraphElement {
 
     public void setTimerTransition(boolean timerTransition) {
         this.timerTransition = timerTransition;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     /**
