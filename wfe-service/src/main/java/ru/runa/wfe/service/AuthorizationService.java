@@ -61,27 +61,27 @@ public interface AuthorizationService {
     /**
      * Exports &lt;addPermissions&gt; elements to XML script. Everything is done under single transaction, using optimized queries.
      */
-    void exportDataFile(Document script);
+    void exportDataFile(User user, Document script);
 
     /**
      * Used by script's AddPermissionsOperation.
      */
-    void addPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
+    void addPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
 
     /**
      * Used by script's RemovePermissionsOperation.
      */
-    void removePermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
+    void removePermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
 
     /**
      * Used by script's RemoveAllPermissionsOperation.
      */
-    void removeAllPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames);
+    void removeAllPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames);
 
     /**
      * Used by script's SetPermissionsOperation.
      */
-    void setPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
+    void setPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions);
 
     /**
      * Sets permissions for executor specified by id on securedObject.

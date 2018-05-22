@@ -20,6 +20,6 @@ public class RemoveAllPermissionsOperation extends ChangePermissionsOperation {
 
     @Override
     public void execute(ScriptExecutionContext context) {
-        context.getAuthorizationLogic().removeAllPermissions(xmlExecutor, objectNames);
+        context.getAuthorizationLogic().removeAllPermissions(context.getUser(), xmlExecutor, objectNames);
     }
 }

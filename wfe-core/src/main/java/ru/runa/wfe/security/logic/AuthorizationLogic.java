@@ -46,6 +46,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectFactory;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.security.dao.PermissionMapping;
 import ru.runa.wfe.security.dao.QPermissionMapping;
 import ru.runa.wfe.user.Executor;
@@ -112,9 +113,9 @@ public class AuthorizationLogic extends CommonLogic {
      * <p>
      * Placed here and added all that PermissionService stuff, because must be executed under transaction.
      */
-    public void exportDataFile(Document script) {
+    public void exportDataFile(User user, Document script) {
+        permissionDAO.checkAllowed(user, Permission.ALL, SecuredSingleton.DATAFILE);
         Element parentElement = script.getRootElement();
-
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
         QExecutor e = QExecutor.executor;
 
@@ -194,22 +195,23 @@ public class AuthorizationLogic extends CommonLogic {
 
     /**
      * Used by script's AddPermissionsOperation.
-     * All security and other checks are done by the caller, except executor and object existence checks which are done here.
      */
-    public void addPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        setPermissionsImpl(executorName, objectNames, permissions, false);
+    public void addPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        setPermissionsImpl(user, executorName, objectNames, permissions, false);
     }
 
     /**
      * Used by script's SetPermissionsOperation.
-     * All security and other checks are done by the caller, except executor and object existence checks which are done here.
      */
-    public void setPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        setPermissionsImpl(executorName, objectNames, permissions, true);
+    public void setPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        setPermissionsImpl(user, executorName, objectNames, permissions, true);
     }
 
-    private void setPermissionsImpl(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions, boolean deleteExisting) {
-        Executor executor = executorDAO.getExecutor(executorName);
+    private void setPermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions,
+            boolean deleteExisting) {
+        Executor executor = executorDAO.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
+        permissionDAO.checkAllowed(user, Permission.LIST, executor);
+
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
 
         for (Map.Entry<SecuredObjectType, Set<String>> kv : objectNames.entrySet()) {
@@ -232,6 +234,7 @@ public class AuthorizationLogic extends CommonLogic {
                 } else {
                     objectIds = SecuredObjectFactory.getInstance().getIdsByNames(type, new HashSet<>(namesPart));
                 }
+                permissionDAO.checkAllowedForAll(user, Permission.UPDATE_PERMISSIONS, type, objectIds);
 
                 HashSet<IdAndPermission> existing = new HashSet<>();
                 try (CloseableIterator<Tuple> i = queryFactory.select(pm.objectId, pm.permission)
@@ -248,17 +251,17 @@ public class AuthorizationLogic extends CommonLogic {
                     }
                 }
 
-                for (Long id : objectIds) {
-                    for (Permission perm : permissions) {
+                for (Permission perm : permissions) {
+                    for (Long id : objectIds) {
                         if (!existing.remove(new IdAndPermission(id, perm))) {
-                            // Unfortunately, no way for batch insert with Hibernate/JPA instead of SQL.
+                            // [SQL] Optimizable: for(perm) { insert-select from executor where id in (objectIds) }
                             sessionFactory.getCurrentSession().save(new PermissionMapping(executor, type, id, perm));
                         }
                     }
                 }
 
                 if (deleteExisting && !existing.isEmpty()) {
-                    // Delete in single statement: getDatabaseNameParametersCount() is much less than getDatabaseParametersCount(), so we should be OK.
+                    // Delete in single statement; getDatabaseNameParametersCount() is much less than getDatabaseParametersCount(), so should be OK.
                     BooleanExpression cond = Expressions.FALSE;
                     for (IdAndPermission ip : existing) {
                         cond = cond.or(pm.objectId.eq(ip.id).and(pm.permission.eq(ip.permission)));
@@ -271,18 +274,16 @@ public class AuthorizationLogic extends CommonLogic {
 
     /**
      * Used by script's RemovePermissionsOperation.
-     * All security and other checks are done by the caller, except executor and object existence checks which are done here.
      */
-    public void removePermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        removePermissionsImpl(executorName, objectNames, permissions);
+    public void removePermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        removePermissionsImpl(user, executorName, objectNames, permissions);
     }
 
     /**
      * Used by script's RemoveAllPermissionsOperation.
-     * All security and other checks are done by the caller, except executor and object existence checks which are done here.
      */
-    public void removeAllPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
-        removePermissionsImpl(executorName, objectNames, null);
+    public void removeAllPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
+        removePermissionsImpl(user, executorName, objectNames, null);
     }
 
     /**
@@ -290,8 +291,10 @@ public class AuthorizationLogic extends CommonLogic {
      * @param objectNames Non-empty. Contains null values for singleton keys.
      * @param permissions Null if called from removeAllPermissions().
      */
-    private void removePermissionsImpl(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        Executor executor = executorDAO.getExecutor(executorName);
+    private void removePermissionsImpl(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        Executor executor = executorDAO.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
+        permissionDAO.checkAllowed(user, Permission.LIST, executor);
+
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
 
         for (Map.Entry<SecuredObjectType, Set<String>> kv : objectNames.entrySet()) {
@@ -311,6 +314,7 @@ public class AuthorizationLogic extends CommonLogic {
                 } else {
                     objectIds = SecuredObjectFactory.getInstance().getIdsByNames(type, new HashSet<>(namesPart));
                 }
+                permissionDAO.checkAllowedForAll(user, Permission.UPDATE_PERMISSIONS, type, objectIds);
 
                 HibernateDeleteClause q = queryFactory.delete(pm)
                         .where(pm.executor.eq(executor).and(pm.objectType.eq(type)).and(pm.objectId.in(objectIds)));

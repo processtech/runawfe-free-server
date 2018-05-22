@@ -274,7 +274,7 @@ public class TaskLogic extends WFCommonLogic {
             }
         }
         DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), taskId);
-        List<Permission> selfPermissions = Lists.newArrayList(Permission.LIST);
+        List<Permission> selfPermissions = Lists.newArrayList(Permission.READ);
         if (executorDAO.isExecutorExist(delegationGroup.getName())) {
             delegationGroup = (DelegationGroup) executorDAO.getExecutor(delegationGroup.getName());
             Set<Executor> oldExecutors = executorDAO.getGroupChildren(delegationGroup);

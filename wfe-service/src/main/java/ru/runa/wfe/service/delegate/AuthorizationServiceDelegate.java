@@ -90,45 +90,45 @@ public class AuthorizationServiceDelegate extends EJB3Delegate implements Author
     }
 
     @Override
-    public void exportDataFile(Document script) {
+    public void exportDataFile(User user, Document script) {
         try {
-            getAuthorizationService().exportDataFile(script);
+            getAuthorizationService().exportDataFile(user, script);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void addPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+    public void addPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
         try {
-            getAuthorizationService().addPermissions(executorName, objectNames, permissions);
+            getAuthorizationService().addPermissions(user, executorName, objectNames, permissions);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void removePermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+    public void removePermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
         try {
-            getAuthorizationService().removePermissions(executorName, objectNames, permissions);
+            getAuthorizationService().removePermissions(user, executorName, objectNames, permissions);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void removeAllPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
+    public void removeAllPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
         try {
-            getAuthorizationService().removeAllPermissions(executorName, objectNames);
+            getAuthorizationService().removeAllPermissions(user, executorName, objectNames);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void setPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+    public void setPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
         try {
-            getAuthorizationService().setPermissions(executorName, objectNames, permissions);
+            getAuthorizationService().setPermissions(user, executorName, objectNames, permissions);
         } catch (Exception e) {
             throw handleException(e);
         }

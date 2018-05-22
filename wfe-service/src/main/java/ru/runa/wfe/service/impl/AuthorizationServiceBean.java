@@ -127,32 +127,32 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
 
     @WebMethod(exclude = true)
     @Override
-    public void exportDataFile(Document script) {
-        authorizationLogic.exportDataFile(script);
+    public void exportDataFile(User user, Document script) {
+        authorizationLogic.exportDataFile(user, script);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void addPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        authorizationLogic.addPermissions(executorName, objectNames, permissions);
+    public void addPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        authorizationLogic.addPermissions(user, executorName, objectNames, permissions);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void removePermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        authorizationLogic.removePermissions(executorName, objectNames, permissions);
+    public void removePermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        authorizationLogic.removePermissions(user, executorName, objectNames, permissions);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void removeAllPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
-        authorizationLogic.removeAllPermissions(executorName, objectNames);
+    public void removeAllPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames) {
+        authorizationLogic.removeAllPermissions(user, executorName, objectNames);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public void setPermissions(String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
-        authorizationLogic.setPermissions(executorName, objectNames, permissions);
+    public void setPermissions(User user, String executorName, Map<SecuredObjectType, Set<String>> objectNames, Set<Permission> permissions) {
+        authorizationLogic.setPermissions(user, executorName, objectNames, permissions);
     }
 
     @WebMethod(exclude = true)

@@ -11,6 +11,6 @@ public class AddPermissionsOperation extends ChangePermissionsOperation {
 
     @Override
     public void execute(ScriptExecutionContext context) {
-        context.getAuthorizationLogic().addPermissions(xmlExecutor, objectNames, permissions);
+        context.getAuthorizationLogic().addPermissions(context.getUser(), xmlExecutor, objectNames, permissions);
     }
 }

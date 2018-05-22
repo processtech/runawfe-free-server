@@ -188,11 +188,11 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(VariableLogic.class);
     }
 
-    public static <T extends Object> T createAutowiredBean(String className) {
+    public static <T> T createAutowiredBean(String className) {
         return (T) createAutowiredBean(ClassLoaderUtil.loadClass(className));
     }
 
-    public static <T extends Object> T createAutowiredBean(Class<T> clazz) {
+    public static <T> T createAutowiredBean(Class<T> clazz) {
         try {
             T object = clazz.newInstance();
             autowireBean(object);
@@ -202,7 +202,7 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         }
     }
 
-    public static <T extends Object> T autowireBean(T bean) {
+    public static <T> T autowireBean(T bean) {
         getContext().getAutowireCapableBeanFactory().autowireBean(bean);
         return bean;
     }

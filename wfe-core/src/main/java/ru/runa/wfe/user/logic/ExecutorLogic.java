@@ -141,15 +141,11 @@ public class ExecutorLogic extends CommonLogic {
 
     public <T extends Executor> T create(User user, T executor) {
         permissionDAO.checkAllowed(user, Permission.CREATE, SecuredSingleton.EXECUTORS);
-        Collection<Permission> selfPermissions = SystemProperties.getDefaultPermissions(executor.getSecuredObjectType());
         executorDAO.create(executor);
-        postCreateExecutor(user, executor, selfPermissions);
-        return executor;
-    }
-
-    private void postCreateExecutor(User user, Executor executor, Collection<Permission> selfPermissions) {
+        Collection<Permission> selfPermissions = SystemProperties.getDefaultPermissions(executor.getSecuredObjectType());
         permissionDAO.setPermissions(user.getActor(), ApplicablePermissions.listVisible(executor), executor);
         permissionDAO.setPermissions(executor, selfPermissions, executor);
+        return executor;
     }
 
     public void addExecutorsToGroup(User user, List<? extends Executor> executors, Group group) {
@@ -337,9 +333,8 @@ public class ExecutorLogic extends CommonLogic {
                 grantedExecutors.addAll(permissionDAO.getExecutorsWithPermission(executor));
             }
             for (Executor executor : grantedExecutors) {
-                permissionDAO.setPermissions(executor, Lists.newArrayList(Permission.READ, Permission.LIST), temporaryGroup);
+                permissionDAO.setPermissions(executor, Lists.newArrayList(Permission.READ), temporaryGroup);
             }
         }
     }
-
 }

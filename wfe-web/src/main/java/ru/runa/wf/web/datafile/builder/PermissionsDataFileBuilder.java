@@ -7,15 +7,14 @@ import ru.runa.wfe.user.User;
 
 public class PermissionsDataFileBuilder implements DataFileBuilder {
 
-    /**
-     * Parameter "user" is unused: if someone has "export datafile" permissions, they should not get permission check exceptions
-     * in the middle of the process.
-     */
-    public PermissionsDataFileBuilder(@SuppressWarnings("unused") User user) {
+    private User user;
+
+    public PermissionsDataFileBuilder(User user) {
+        this.user = user;
     }
 
     @Override
     public void build(ZipOutputStream zos, Document script) {
-        Delegates.getAuthorizationService().exportDataFile(script);
+        Delegates.getAuthorizationService().exportDataFile(user, script);
     }
 }

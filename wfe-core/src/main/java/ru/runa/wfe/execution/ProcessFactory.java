@@ -41,15 +41,13 @@ public class ProcessFactory {
     @Autowired
     private SwimlaneDAO swimlaneDAO;
 
-    private static final Map<Permission, Permission> DEFINITION_TO_PROCESS_PERMISSION_MAP;
-    static {
-        DEFINITION_TO_PROCESS_PERMISSION_MAP = new HashMap<>();
-        DEFINITION_TO_PROCESS_PERMISSION_MAP.put(Permission.READ_PROCESS, Permission.LIST);
-        DEFINITION_TO_PROCESS_PERMISSION_MAP.put(Permission.CANCEL_PROCESS, Permission.CANCEL_PROCESS);
-    }
+    private static final Map<Permission, Permission> DEFINITION_TO_PROCESS_PERMISSION_MAP = new HashMap<Permission, Permission>() {{
+        put(Permission.READ_PROCESS, Permission.READ);
+        put(Permission.CANCEL_PROCESS, Permission.CANCEL);
+    }};
 
     private Set<Permission> getProcessPermissions(Executor executor, ProcessDefinition processDefinition) {
-        List<Permission> definitionPermissions = permissionDAO.getIssuedPermissions(executor, processDefinition.getDeployment());
+        Set<Permission> definitionPermissions = permissionDAO.getIssuedPermissionsWithListSubstitutions(executor, processDefinition.getDeployment());
         Set<Permission> result = new HashSet<>();
         for (Permission p : definitionPermissions) {
             if (DEFINITION_TO_PROCESS_PERMISSION_MAP.containsKey(p)) {
