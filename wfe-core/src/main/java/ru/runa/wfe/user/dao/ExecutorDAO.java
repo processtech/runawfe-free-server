@@ -560,14 +560,14 @@ public class ExecutorDAO extends CommonDAO implements IExecutorDAO {
     public Set<Actor> getGroupActors(Group group) {
         Set<Actor> result = executorCacheCtrl.getGroupActorsAll(group);
         if (result == null) {
-            result = getGroupActors(group, new HashSet<Group>());
+            result = getGroupActors(group, new HashSet<>());
         }
         return result;
     }
 
     @Override
     public Set<Group> getExecutorParentsAll(Executor executor, boolean includeTemporaryGroups) {
-        Set<Group> executorGroupsAll = getExecutorGroupsAll(executor, new HashSet<Executor>(), includeTemporaryGroups);
+        Set<Group> executorGroupsAll = getExecutorGroupsAll(executor, new HashSet<>(), includeTemporaryGroups);
         if (!includeTemporaryGroups) {
             Set<Group> withoutTemporary = Sets.newHashSet();
             for (Group group : executorGroupsAll) {

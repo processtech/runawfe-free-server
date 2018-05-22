@@ -34,14 +34,14 @@ public class AddSubstitutionLinkTag extends IdLinkBaseTag {
         return text;
     }
 
-    @Attribute(required = true, rtexprvalue = true)
+    @Attribute(required = true)
     public void setText(String text) {
         this.text = text;
     }
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredObjectType.ACTOR, getIdentifiableId());
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, SecuredObjectType.ACTOR, getIdentifiableId());
     }
 
     @Override

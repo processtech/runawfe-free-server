@@ -1,13 +1,13 @@
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.commons.CollectionUtil;
@@ -25,9 +25,6 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
 public class ProcessFactory {
     @Autowired
@@ -47,11 +44,11 @@ public class ProcessFactory {
     }};
 
     private Set<Permission> getProcessPermissions(Executor executor, ProcessDefinition processDefinition) {
-        Set<Permission> definitionPermissions = permissionDAO.getIssuedPermissionsWithListSubstitutions(executor, processDefinition.getDeployment());
         Set<Permission> result = new HashSet<>();
-        for (Permission p : definitionPermissions) {
-            if (DEFINITION_TO_PROCESS_PERMISSION_MAP.containsKey(p)) {
-                result.add(DEFINITION_TO_PROCESS_PERMISSION_MAP.get(p));
+        for (Map.Entry<Permission, Permission> kv : DEFINITION_TO_PROCESS_PERMISSION_MAP.entrySet()) {
+            // Using isAllowed() because it takes DEFINITIONS list & executor groups into account.
+            if (permissionDAO.isAllowed(executor, kv.getKey(), processDefinition.getDeployment(), false)) {
+                result.add(kv.getValue());
             }
         }
         return result;

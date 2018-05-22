@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import org.springframework.util.Assert;
 import ru.runa.wfe.commons.CollectionUtil;
 
 import static ru.runa.wfe.security.Permission.ALL;
@@ -81,17 +80,6 @@ public class PermissionSubstitutions {
         public final Set<Permission> listPermissions = Collections.unmodifiableSet(mutableListPermissions);
     }
 
-    /**
-     * Immutable. Needed for getIssuedPermissions() called on list items, to take issued list permissions into account.
-     * <p>
-     * This is reverse mapping: when add(type, p1).list(p2, p3, ...) is called, permission p1 is added to ListDependents.permissions
-     * under keys (listType, p2), (listType, p3), ... and (listType, sp) for sp in list's self permissions which are subsitutions for these keys.
-     */
-    public static final class ListDependents {
-        private final HashSet<Permission> mutablePermissions = new HashSet<>();
-        public final Set<Permission> permissions = Collections.unmodifiableSet(mutablePermissions);
-    }
-
     private static class Key {
         final SecuredObjectType type;
         final Permission permission;
@@ -116,8 +104,6 @@ public class PermissionSubstitutions {
     }
 
     private static HashMap<Key, ForCheck> forCheck = new HashMap<>();
-    private static HashMap<Key, ListDependents> listDependents = new HashMap<>();
-    private static ListDependents emptyListDependents = new ListDependents();
 
     private static ForCheck getOrCreateForCheck(Key key) {
         return CollectionUtil.mapGetOrPutDefault(forCheck, key, new ForCheck());
@@ -144,21 +130,10 @@ public class PermissionSubstitutions {
             return false;
         }
 
-        SecuredObjectType listType = key.type.getListType();
-        Key listKey = new Key(listType, p);
-
         // Add transitive substitutions.
-        ForCheck fc2 = forCheck.get(listKey);
+        ForCheck fc2 = forCheck.get(new Key(key.type.getListType(), p));
         if (fc2 != null) {
             fc.mutableListPermissions.addAll(fc2.selfPermissions);
-        }
-
-        // Fill listDependents reverse mapping.
-        CollectionUtil.mapGetOrPutDefault(listDependents, listKey, new ListDependents()).mutablePermissions.add(key.permission);
-        if (fc2 != null) {
-            for (Permission sp : fc2.selfPermissions) {
-                CollectionUtil.mapGetOrPutDefault(listDependents, new Key(listType, sp), new ListDependents()).mutablePermissions.add(key.permission);
-            }
         }
 
         return true;
@@ -273,16 +248,6 @@ public class PermissionSubstitutions {
             r.mutableSelfPermissions.add(p);
         }
         return r;
-    }
-
-    /**
-     * Never returns null; returned set may be empty, but not null. Returned response contains list item permissions for which (t,p) is substitution.
-     *
-     * @param t List type.
-     */
-    public static ListDependents getListDependents(SecuredObjectType t, Permission p) {
-        Assert.isTrue(t.isSingleton());
-        return listDependents.getOrDefault(new Key(t, p), emptyListDependents);
     }
 
 

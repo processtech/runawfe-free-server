@@ -51,7 +51,6 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
-import ru.runa.wfe.security.SecuredObjectFactory;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
@@ -105,29 +104,6 @@ public class PermissionDAO extends CommonDAO {
                         .and(pm.objectId.eq(object.getIdentifiableId()))
                         .and(pm.executor.eq(executor)))
                 .fetch();
-    }
-
-    /**
-     * Same as getIssuedPermissions() but also includes permissions substituted by executor's issued permissions on list, if object is list item.
-     * <p></p>
-     * Used by ProcessFactory.getProcessPermissions() to correctly create Process permissions from ProcessDefinition permissions: e.g. if user has
-     * ALL permissions on DEFINITIONS list but no permissions on specific DEFINITION, he still must be granted full access on process being created.
-     */
-    public Set<Permission> getIssuedPermissionsWithListSubstitutions(Executor executor, SecuredObject object) {
-        Set<Permission> pp = new HashSet<>(getIssuedPermissions(executor, object));
-
-        // TODO Review after a while.
-        //      In theory, this second query can be optimized out of user has all permissions on object.
-        //      But in practice, too many things must be considered to handle this correctly: self-substitutions, caller algorithms.
-        //      I'm not even sure if current implementation will work correctly.
-        SecuredObjectType listType = object.getSecuredObjectType().getListType();
-        if (listType != null) {
-            for (Permission p : getIssuedPermissions(executor, SecuredObjectFactory.getInstance().findById(listType, 0L))) {
-                pp.addAll(PermissionSubstitutions.getListDependents(listType, p).permissions);
-            }
-        }
-
-        return pp;
     }
 
     /**
@@ -193,7 +169,7 @@ public class PermissionDAO extends CommonDAO {
      */
     public void checkAllowedForAll(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
         Assert.notNull(ids);
-        List<Long> notAllowed = CollectionUtil.diffList(ids, filterAllowedIds(user, permission, type, ids));
+        List<Long> notAllowed = CollectionUtil.diffList(ids, filterAllowedIds(user.getActor(), permission, type, ids));
         if (!notAllowed.isEmpty()) {
             Collections.sort(notAllowed);
             throw new AuthorizationException("User " + user + " does not have " + permission + " on all of (" + type + ", " + notAllowed + ")");
@@ -204,27 +180,43 @@ public class PermissionDAO extends CommonDAO {
      * Returns true if user have permission to object.
      */
     public boolean isAllowed(User user, Permission permission, SecuredObject object) {
-        Assert.notNull(object);
-        return isAllowed(user, permission, object.getSecuredObjectType(), object.getIdentifiableId());
+        return isAllowed(user.getActor(), permission, object.getSecuredObjectType(), object.getIdentifiableId());
     }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
+        return isAllowed(user.getActor(), permission, type, id);
+    }
+
+    public boolean isAllowed(Executor executor, Permission permission, SecuredObjectType type, Long id) {
         Assert.notNull(id);
-        return !filterAllowedIds(user, permission, type, Collections.singletonList(id)).isEmpty();
+        return !filterAllowedIds(executor, permission, type, Collections.singletonList(id)).isEmpty();
+    }
+
+    public boolean isAllowed(Executor executor, Permission permission, SecuredObject object, boolean checkPrivileged) {
+        Long id = object.getIdentifiableId();
+        SecuredObjectType type = object.getSecuredObjectType();
+        Assert.notNull(id);
+        return !filterAllowedIds(executor, permission, type, Collections.singletonList(id), checkPrivileged).isEmpty();
     }
 
     /**
      * Returns true if user have permission to {type, any id}.
      */
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType type) {
-        return !filterAllowedIds(user, permission, type, null).isEmpty();
+        return !filterAllowedIds(user.getActor(), permission, type, null).isEmpty();
+    }
+
+    public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull) {
+        return filterAllowedIds(executor, permission, type, idsOrNull, true);
     }
 
     /**
      * Returns subset of `idsOrNull` for which `actor` has `permission`. If `idsOrNull` is null (e.g. when called from isAllowedForAny()),
      * non-empty set (containing arbitrary value) means positive check result.
+     *
+     * @param checkPrivileged If false, only permission_mapping table is checked, but not privileged_mapping.
      */
-    public Set<Long> filterAllowedIds(User user, Permission permission, SecuredObjectType type, List<Long> idsOrNull) {
+    public Set<Long> filterAllowedIds(Executor executor, Permission permission, SecuredObjectType type, List<Long> idsOrNull, boolean checkPrivileged) {
         ApplicablePermissions.check(type, permission);
         boolean haveIds = idsOrNull != null;
 
@@ -233,8 +225,8 @@ public class PermissionDAO extends CommonDAO {
             return Collections.emptySet();
         }
 
-        final Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(user.getActor());
-        if (isPrivilegedExecutor(type, executorWithGroups)) {
+        final Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(executor);
+        if (checkPrivileged && isPrivilegedExecutor(type, executorWithGroups)) {
             return haveIds ? new HashSet<>(idsOrNull) : nonEmptySet;
         }
 
