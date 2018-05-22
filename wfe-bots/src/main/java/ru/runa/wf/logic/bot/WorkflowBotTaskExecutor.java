@@ -227,7 +227,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
 
                     @Override
                     protected void doExecuteInTransaction() throws Exception {
-                        Utils.sendBpmnErrorMessage(task.getProcessId(), task.getTokenId(), task.getNodeId(), th);
+                        Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
                     }
                 }.executeInTransaction(false);
             } else {

@@ -47,7 +47,9 @@ public class UpdateStatusAction extends ActionBase {
             Actor actor = Delegates.getExecutorService().getExecutor(getLoggedUser(request), form.getId());
             Delegates.getExecutorService().setStatus(getLoggedUser(request), actor, form.isActive());
             // to reflect changes in ManageTasksAction
-            getLoggedUser(request).getActor().setActive(form.isActive());
+            if (getLoggedUser(request).getActor().equals(actor)) {
+                getLoggedUser(request).getActor().setActive(form.isActive());
+            }
         } catch (Exception e) {
             addError(request, e);
             return mapping.findForward(Resources.FORWARD_FAILURE);

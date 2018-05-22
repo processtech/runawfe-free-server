@@ -64,8 +64,10 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
+import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.format.ListFormat;
 
 /**
  * Executes SQL.
@@ -137,20 +139,28 @@ public class SQLActionHandler extends ActionHandlerBase {
                         while (resultSet.next()) {
                             Map<String, Object> result = extractResults(variableProvider, resultSet, query);
                             if (first) {
-                                out.putAll(result);
+                                for (Map.Entry<String, Object> entry : result.entrySet()) {
+                                    WfVariable variable = variableProvider.getVariableNotNull(entry.getKey());
+                                    Object variableValue;
+                                    if (variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
+                                        ArrayList<Object> list = new ArrayList<Object>();
+                                        list.add(entry.getValue());
+                                        variableValue = list;
+                                    } else {
+                                        variableValue = entry.getValue();
+                                    }
+                                    out.put(entry.getKey(), variableValue);
+                                }
+                                first = false;
                             } else {
                                 for (Map.Entry<String, Object> entry : result.entrySet()) {
                                     Object object = out.get(entry.getKey());
                                     if (!(object instanceof List)) {
-                                        ArrayList<Object> list = new ArrayList<Object>();
-                                        list.add(object);
-                                        out.put(entry.getKey(), list);
-                                        object = list;
+                                        throw new Exception("Variable " + entry.getKey() + " expected to have List<X> format");
                                     }
                                     ((List<Object>) object).add(entry.getValue());
                                 }
                             }
-                            first = false;
                         }
                     }
                 }

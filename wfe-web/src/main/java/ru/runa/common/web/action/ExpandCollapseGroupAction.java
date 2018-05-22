@@ -33,8 +33,7 @@ import ru.runa.wfe.user.Profile;
 /**
  * Created on 06.07.2005
  * 
- * @struts:action path="/changeGroupping" name="groupForm" validate="true" input
- *                = "/error.do"
+ * @struts:action path="/changeGroupping" name="groupForm" validate="true" input = "/error.do"
  */
 public class ExpandCollapseGroupAction extends ActionBase {
 

@@ -81,17 +81,15 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
 
     @Override
     @WebResult(name = "result")
-    public List<Localization> getLocalizations(@WebParam(name = "user") User user) {
-        Preconditions.checkArgument(user != null, "user");
-        return auditLogic.getLocalizations(user);
+    public List<Localization> getLocalizations() {
+        return auditLogic.getLocalizations();
     }
 
     @Override
     @WebResult(name = "result")
-    public String getLocalized(@WebParam(name = "user") User user, @WebParam(name = "name") String name) {
-        Preconditions.checkArgument(user != null, "user");
+    public String getLocalized(@WebParam(name = "name") String name) {
         Preconditions.checkArgument(name != null, "name");
-        return auditLogic.getLocalized(user, name);
+        return auditLogic.getLocalized(name);
     }
 
     @Override

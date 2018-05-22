@@ -5,9 +5,9 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import ru.runa.wfe.lang.Transition;
-
 import com.google.common.base.Objects;
+
+import ru.runa.wfe.lang.Transition;
 
 /**
  * @since 4.3.0
@@ -20,6 +20,7 @@ public class WfTransition implements Serializable {
     private String description;
     private String nodeFromId;
     private String nodeToId;
+    private String color;
 
     public WfTransition() {
     }
@@ -30,6 +31,7 @@ public class WfTransition implements Serializable {
         this.description = transition.getDescription();
         this.nodeFromId = transition.getParent().getNodeId();
         this.nodeToId = transition.getTo().getNodeId();
+        this.color = transition.getColor();
     }
 
     public String getId() {
@@ -50,6 +52,10 @@ public class WfTransition implements Serializable {
 
     public String getNodeToId() {
         return nodeToId;
+    }
+
+    public String getColor() {
+        return color;
     }
 
     @Override

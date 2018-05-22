@@ -43,7 +43,9 @@ import ru.runa.wfe.report.ReportsSecure;
 import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.User;
 
 /**
@@ -141,6 +143,12 @@ public class TabHeaderTag extends TagSupport {
         try {
             if (menuForward.getMenuMessage().getKey().equals("manage_settings")) {
                 return Delegates.getExecutorService().isAdministrator(getUser());
+            }
+            if (
+                    menuForward.getMenuMessage().getKey().equals("manage_observable_tasks") &&
+                    Delegates.getAuthorizationService().isAllowedForAny(getUser(), ActorPermission.VIEW_TASKS, SecuredObjectType.ACTOR)
+            ) {
+                return true;
             }
             if (menuForward.menuSecuredObject != null) {
                 return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, menuForward.menuSecuredObject);

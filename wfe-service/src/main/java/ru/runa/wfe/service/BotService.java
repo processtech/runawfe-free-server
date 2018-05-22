@@ -1,7 +1,6 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotAlreadyExistsException;
 import ru.runa.wfe.bot.BotDoesNotExistException;
@@ -115,7 +114,7 @@ public interface BotService {
      * @throws BotAlreadyExistsException
      *             if name collision occurs
      */
-    public void updateBot(User user, Bot bot) throws BotAlreadyExistsException;
+    public void updateBot(User user, Bot bot, boolean incrementBotStationVersion) throws BotAlreadyExistsException;
 
     /**
      * Removes bot with all bot tasks by id.

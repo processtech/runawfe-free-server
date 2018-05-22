@@ -23,12 +23,12 @@ import java.util.Set;
 
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
+
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 
 /**
  * Created on 30.09.2004
@@ -45,6 +45,7 @@ public class WebResources {
 
     public static final String ACTION_MAPPING_MANAGE_DEFINITION = "/manage_process_definition";
     public static final String ACTION_MAPPING_MANAGE_PROCESS = "/manage_process";
+    public static final String ACTION_SHOW_PROCESS_HISTORY = "/show_history";
     public static final String ACTION_SHOW_PROCESS_GRAPH = "/show_process_graph";
     public static final String ACTION_SHOW_GRAPH_HISTORY = "/show_graph_history";
     public static final String ACTION_MAPPING_START_PROCESS = "/startProcess";

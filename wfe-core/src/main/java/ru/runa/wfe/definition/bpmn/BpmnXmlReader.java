@@ -110,6 +110,7 @@ public class BpmnXmlReader {
     private static final String ASYNC_COMPLETION_MODE = "asyncCompletionMode";
     private static final String ACCESS_TYPE = "accessType";
     private static final String EMBEDDED = "embedded";
+    private static final String TRANSACTIONAL = "transactional";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String TEXT_ANNOTATION = "textAnnotation";
     private static final String TEXT = "text";
@@ -123,6 +124,7 @@ public class BpmnXmlReader {
     private static final String TYPE = "type";
     private static final String ACTION_HANDLER = "actionHandler";
     private static final String EVENT_TYPE = "eventType";
+    private static final String COLOR = "color";
 
     @Autowired
     private LocalizationDAO localizationDAO;
@@ -303,6 +305,9 @@ public class BpmnXmlReader {
         if (node instanceof SubprocessNode) {
             SubprocessNode subprocessNode = (SubprocessNode) node;
             subprocessNode.setSubProcessName(element.attributeValue(QName.get(PROCESS, RUNA_NAMESPACE)));
+            if (properties.containsKey(TRANSACTIONAL)) {
+                subprocessNode.setTransactional((Boolean.parseBoolean(properties.get(TRANSACTIONAL))));
+            }
             if (properties.containsKey(EMBEDDED)) {
                 subprocessNode.setEmbedded(Boolean.parseBoolean(properties.get(EMBEDDED)));
             }
@@ -415,6 +420,7 @@ public class BpmnXmlReader {
             transition.setName(name);
             transition.setDescription(element.elementTextTrim(DOCUMENTATION));
             transition.setProcessDefinition(processDefinition);
+            transition.setColor(parseExtensionProperties(element).get(COLOR));
             // add the transition to the node
             source.addLeavingTransition(transition);
             // set destinationNode of the transition

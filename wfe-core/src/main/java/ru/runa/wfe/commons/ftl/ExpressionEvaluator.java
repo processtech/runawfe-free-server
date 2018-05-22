@@ -1,12 +1,15 @@
 package ru.runa.wfe.commons.ftl;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import freemarker.ext.beans.BeansWrapper;
+import freemarker.template.TemplateModel;
 import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarInterval;
@@ -17,13 +20,6 @@ import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-
-import freemarker.ext.beans.BeansWrapper;
-import freemarker.template.TemplateModel;
 
 public class ExpressionEvaluator {
     private static final Pattern VARIABLE_REGEXP = Pattern.compile("\\$\\{(.*?[^\\\\])\\}");
@@ -123,7 +119,9 @@ public class ExpressionEvaluator {
     }
 
     public static String substitute(String value, IVariableProvider variableProvider) {
-        Preconditions.checkNotNull(value, "invalid string to substitute");
+        if (value == null) {
+            return null;
+        }
         Matcher matcher = VARIABLE_REGEXP.matcher(value);
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
