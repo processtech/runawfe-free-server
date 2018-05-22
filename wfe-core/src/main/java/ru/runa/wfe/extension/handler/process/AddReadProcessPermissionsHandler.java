@@ -24,7 +24,7 @@ public class AddReadProcessPermissionsHandler extends ParamBasedHandlerActionHan
             return;
         }
         ru.runa.wfe.execution.Process securedObject = executionContext.getProcess();
-        Permission permission = Permission.LIST;
+        Permission permission = Permission.READ;
         for (Executor executor : executors) {
             List<Permission> permissions = permissionDAO.getIssuedPermissions(executor, securedObject);
             if (!permissions.contains(permission)) {
