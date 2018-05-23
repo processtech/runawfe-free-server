@@ -18,10 +18,13 @@
 package ru.runa.wfe.presentation.hibernate;
 
 import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.hibernate.Hibernate;
+import org.springframework.util.Assert;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DBSource.AccessType;
@@ -29,6 +32,9 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.PermissionSubstitutions;
+import ru.runa.wfe.security.SecuredObjectType;
 
 /**
  * Builds HQL query for {@link BatchPresentation}.
@@ -309,11 +315,64 @@ public class HibernateCompilerHQLBuider {
      */
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<>();
-        if (parameters.getExecutorIdsToCheckPermission() != null) {
-            result.add("(instance.id in (select pm.objectId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.objectType in (:securedTypes) and pm.permission=:securedPermission))");
-            placeholders.add("securedOwnersIds", parameters.getExecutorIdsToCheckPermission());
-            placeholders.add("securedPermission", parameters.getPermissionName());
-            placeholders.add("securedTypes", parameters.getSecuredObjectTypeNames(), Hibernate.STRING);
+        List<Long> executorIds = parameters.getExecutorIdsToCheckPermission();
+        if (executorIds != null) {
+            Permission permission = parameters.getPermission();
+            SecuredObjectType types[] = parameters.getSecuredObjectTypes();
+            Assert.notNull(permission);
+            Assert.notEmpty(executorIds);
+            Assert.notEmpty(types);
+
+            // Check that list types and permission substitutions are the same for all types.
+            // TODO After ACTOR and GROUP types are merged into EXECUTOR, see to replace `types` to single `type`... if that would be an improvement.
+            PermissionSubstitutions.ForCheck subst = null;
+            SecuredObjectType listType = null;
+            for (SecuredObjectType type : types) {
+                PermissionSubstitutions.ForCheck subst1 = PermissionSubstitutions.getForCheck(type, permission);
+                if (subst == null) {
+                    subst = subst1;
+                    listType = type.getListType();
+                } else {
+                    Assert.isTrue(Objects.equals(subst, subst1));
+                    Assert.isTrue(listType == type.getListType());
+                }
+            }
+            Assert.notNull(subst);
+            Assert.notNull(listType);
+
+            // TODO After Spring upgrade (to 4 or 5, don't know), try to use lambdas (see commented code below).
+            ArrayList<String> selfTypeNames = new ArrayList<>(types.length);
+            for (SecuredObjectType t : types) {
+                selfTypeNames.add(t.getName());
+            }
+            ArrayList<String> selfPermissionNames = new ArrayList<>(subst.selfPermissions.size());
+            for (Permission p : subst.selfPermissions) {
+                selfPermissionNames.add(p.getName());
+            }
+            ArrayList<String> listPermissionNames = new ArrayList<>(subst.listPermissions.size());
+            for (Permission p : subst.listPermissions) {
+                listPermissionNames.add(p.getName());
+            }
+
+            // TODO This logic duplicates PermissionDAO; after (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
+            StringBuilder sb = new StringBuilder(
+                    "(instance.id in (select pm.objectId from PermissionMapping pm where pm.executor.id in (:securedOwnerIds) and (" +
+                    "(pm.objectType in (:securedSelfTypes) and pm.permission in (:securedSelfPermissions))");
+            placeholders.add("securedOwnerIds", executorIds);
+//            placeholders.add("securedSelfTypes", Arrays.stream(types).map(SecuredObjectType::getName).collect(Collectors.toList()), Hibernate.STRING);
+//            placeholders.add("securedSelfPermissions", subst.selfPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);
+            placeholders.add("securedSelfTypes", selfTypeNames, Hibernate.STRING);
+            placeholders.add("securedSelfPermissions", selfPermissionNames, Hibernate.STRING);
+
+            if (!subst.listPermissions.isEmpty()) {
+                sb.append(" or (pm.objectType = :securedListType and pm.permission in (:securedListPermissions))");
+                placeholders.add("securedListType", listType.getName());
+//                placeholders.add("securedListPermissions", subst.listPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);
+                placeholders.add("securedListPermissions", listPermissionNames);
+            }
+
+            sb.append(")))");
+            result.add(sb.toString());
         }
         return result;
     }

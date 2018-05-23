@@ -78,6 +78,20 @@ public class PermissionSubstitutions {
         private final HashSet<Permission> mutableListPermissions = new HashSet<>();
         public final Set<Permission> selfPermissions = Collections.unmodifiableSet(mutableSelfPermissions);
         public final Set<Permission> listPermissions = Collections.unmodifiableSet(mutableListPermissions);
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ForCheck forCheck = (ForCheck) o;
+            return Objects.equals(mutableSelfPermissions, forCheck.mutableSelfPermissions) &&
+                    Objects.equals(mutableListPermissions, forCheck.mutableListPermissions);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mutableSelfPermissions, mutableListPermissions);
+        }
     }
 
     private static class Key {

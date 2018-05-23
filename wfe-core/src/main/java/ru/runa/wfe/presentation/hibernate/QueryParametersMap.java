@@ -45,12 +45,12 @@ public class QueryParametersMap {
         map.put(name, new QueryParameterValue(value, Hibernate.DATE, false));
     }
 
-    public void add(String name, Object[] value, Type type) {
-        map.put(name, new QueryParameterValue(value, type, true));
-    }
-
     public void add(String name, Collection<?> value) {
         map.put(name, new QueryParameterValue(value, null, true));
+    }
+
+    public void add(String name, Collection<?> value, Type type) {
+        map.put(name, new QueryParameterValue(value, type, true));
     }
 
     public void apply(Query q) {

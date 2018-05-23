@@ -20,6 +20,7 @@ package ru.runa.wfe.presentation.hibernate;
 import java.util.Collection;
 import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 
@@ -263,8 +264,8 @@ public class CompilerParameters {
      * 
      * @return Permission, which executor must have on object.
      */
-    public String getPermissionName() {
-        return permissionRestrictions == null ? null : permissionRestrictions.getPermission().getName();
+    public Permission getPermission() {
+        return permissionRestrictions == null ? null : permissionRestrictions.getPermission();
     }
 
     /**
@@ -272,16 +273,8 @@ public class CompilerParameters {
      * 
      * @return {@link SecuredObjectType} types.
      */
-    public String[] getSecuredObjectTypeNames() {
-        if (permissionRestrictions == null) {
-            return null;
-        }
-        SecuredObjectType[] types = permissionRestrictions.getSecuredObjectTypes();
-        String[] result = new String[types.length];
-        for (int i = 0;  i < types.length;  i++) {
-            result[i] = types[i].getName();
-        }
-        return result;
+    public SecuredObjectType[] getSecuredObjectTypes() {
+        return permissionRestrictions == null ? null : permissionRestrictions.getSecuredObjectTypes();
     }
 
     /**

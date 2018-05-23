@@ -18,11 +18,7 @@
 package ru.runa.wfe.presentation.hibernate;
 
 import java.util.List;
-import java.util.Map;
-
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 
