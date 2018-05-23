@@ -250,31 +250,8 @@ public class CompilerParameters {
         return ownersRestrictions == null ? null : ownersRestrictions.getOwnersDBPath();
     }
 
-    /**
-     * User which must has permission on queried objects.
-     * 
-     * @return ids or <code>null</code>
-     */
-    public List<Long> getExecutorIdsToCheckPermission() {
-        return permissionRestrictions == null ? null : permissionRestrictions.getExecutorIdsToCheckPermission();
-    }
-
-    /**
-     * Permission, which at least one executors must has on queried objects.
-     * 
-     * @return Permission, which executor must have on object.
-     */
-    public Permission getPermission() {
-        return permissionRestrictions == null ? null : permissionRestrictions.getPermission();
-    }
-
-    /**
-     * Type of secured object for queried objects.
-     * 
-     * @return {@link SecuredObjectType} types.
-     */
-    public SecuredObjectType[] getSecuredObjectTypes() {
-        return permissionRestrictions == null ? null : permissionRestrictions.getSecuredObjectTypes();
+    public RestrictionsToPermissions getPermissionRestrictions() {
+        return permissionRestrictions;
     }
 
     /**

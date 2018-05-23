@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Objects;
 import org.hibernate.Hibernate;
 import org.springframework.util.Assert;
+import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DBSource.AccessType;
@@ -35,6 +37,9 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.QPermissionMapping;
+import ru.runa.wfe.user.dao.ExecutorDAO;
 
 /**
  * Builds HQL query for {@link BatchPresentation}.
@@ -313,67 +318,62 @@ public class HibernateCompilerHQLBuider {
      * 
      * @return List of string, represents expressions.
      */
+    // TODO Largely duplicates PermissionDAO logic. After (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<>();
-        List<Long> executorIds = parameters.getExecutorIdsToCheckPermission();
-        if (executorIds != null) {
-            Permission permission = parameters.getPermission();
-            SecuredObjectType types[] = parameters.getSecuredObjectTypes();
-            Assert.notNull(permission);
-            Assert.notEmpty(executorIds);
-            Assert.notEmpty(types);
-
-            // Check that list types and permission substitutions are the same for all types.
-            // TODO After ACTOR and GROUP types are merged into EXECUTOR, see to replace `types` to single `type`... if that would be an improvement.
-            PermissionSubstitutions.ForCheck subst = null;
-            SecuredObjectType listType = null;
-            for (SecuredObjectType type : types) {
-                PermissionSubstitutions.ForCheck subst1 = PermissionSubstitutions.getForCheck(type, permission);
-                if (subst == null) {
-                    subst = subst1;
-                    listType = type.getListType();
-                } else {
-                    Assert.isTrue(Objects.equals(subst, subst1));
-                    Assert.isTrue(listType == type.getListType());
-                }
-            }
-            Assert.notNull(subst);
-            Assert.notNull(listType);
-
-            // TODO After Spring upgrade (to 4 or 5, don't know), try to use lambdas (see commented code below).
-            ArrayList<String> selfTypeNames = new ArrayList<>(types.length);
-            for (SecuredObjectType t : types) {
-                selfTypeNames.add(t.getName());
-            }
-            ArrayList<String> selfPermissionNames = new ArrayList<>(subst.selfPermissions.size());
-            for (Permission p : subst.selfPermissions) {
-                selfPermissionNames.add(p.getName());
-            }
-            ArrayList<String> listPermissionNames = new ArrayList<>(subst.listPermissions.size());
-            for (Permission p : subst.listPermissions) {
-                listPermissionNames.add(p.getName());
-            }
-
-            // TODO This logic duplicates PermissionDAO; after (if ever) BatchPresentation uses QueryDSL, try to merge duplicates.
-            StringBuilder sb = new StringBuilder(
-                    "(instance.id in (select pm.objectId from PermissionMapping pm where pm.executor.id in (:securedOwnerIds) and (" +
-                    "(pm.objectType in (:securedSelfTypes) and pm.permission in (:securedSelfPermissions))");
-            placeholders.add("securedOwnerIds", executorIds);
-//            placeholders.add("securedSelfTypes", Arrays.stream(types).map(SecuredObjectType::getName).collect(Collectors.toList()), Hibernate.STRING);
-//            placeholders.add("securedSelfPermissions", subst.selfPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);
-            placeholders.add("securedSelfTypes", selfTypeNames, Hibernate.STRING);
-            placeholders.add("securedSelfPermissions", selfPermissionNames, Hibernate.STRING);
-
-            if (!subst.listPermissions.isEmpty()) {
-                sb.append(" or (pm.objectType = :securedListType and pm.permission in (:securedListPermissions))");
-                placeholders.add("securedListType", listType.getName());
-//                placeholders.add("securedListPermissions", subst.listPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);
-                placeholders.add("securedListPermissions", listPermissionNames);
-            }
-
-            sb.append(")))");
-            result.add(sb.toString());
+        RestrictionsToPermissions pp = parameters.getPermissionRestrictions();
+        if (pp == null) {
+            return result;
         }
+
+        // Check all types have same list type and permission substitutions. List type must not be null, since we're querying list.
+        // TODO After ACTOR and GROUP types are merged into EXECUTOR, consider to replace `types` to single `type`.
+        SecuredObjectType listType = pp.types[0].getListType();
+        PermissionSubstitutions.ForCheck subst = PermissionSubstitutions.getForCheck(pp.types[0], pp.permission);
+        Assert.notNull(listType);
+        for (int i = 1;  i < pp.types.length;  i++) {
+            Assert.isTrue(listType == pp.types[i].getListType());
+            Assert.isTrue(Objects.equals(subst, PermissionSubstitutions.getForCheck(pp.types[i], pp.permission)));
+        }
+
+        ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
+        PermissionDAO permissionDAO = ApplicationContextFactory.getPermissionDAO();
+        HibernateQueryFactory queryFactory = HibernateQueryFactory.getInstance();
+
+        // Need to check privileged & list permissions only once.
+        List<Long> executorIds = executorDAO.getActorAndNotTemporaryGroupsIds(pp.user.getActor());
+        if (permissionDAO.hasPrivilegedExecutor(executorIds)) {
+            return result;
+        }
+        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        if (!subst.listPermissions.isEmpty() && queryFactory.select(pm.id).from(pm)
+                .where(pm.executor.id.in(executorIds)
+                        .and(pm.objectType.eq(listType))
+                        .and(pm.objectId.eq(0L))
+                        .and(pm.permission.in(subst.listPermissions)))
+                .fetchFirst() != null) {
+            return result;
+        }
+
+        // TODO After Spring upgrade (to 4 or 5, don't know), try to use lambdas (see commented code below).
+        ArrayList<String> typeNames = new ArrayList<>(pp.types.length);
+        for (SecuredObjectType t : pp.types) {
+            typeNames.add(t.getName());
+        }
+        ArrayList<String> permissionNames = new ArrayList<>(subst.selfPermissions.size());
+        for (Permission p : subst.selfPermissions) {
+            permissionNames.add(p.getName());
+        }
+
+        result.add("(instance.id in (select pm.objectId from PermissionMapping pm where pm.executor.id in (:securedOwnerIds) and " +
+                "pm.objectType in (:securedTypes) and pm.permission in (:securedPermissions)" +
+                "))");
+        placeholders.add("securedOwnerIds", executorIds);
+//        placeholders.add("securedTypes", Arrays.stream(types).map(SecuredObjectType::getName).collect(Collectors.toList()), Hibernate.STRING);
+//        placeholders.add("securedPermissions", subst.selfPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);
+        placeholders.add("securedTypes", typeNames, Hibernate.STRING);
+        placeholders.add("securedPermissions", permissionNames, Hibernate.STRING);
+
         return result;
     }
 
