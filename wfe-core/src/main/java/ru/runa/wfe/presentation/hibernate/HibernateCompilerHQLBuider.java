@@ -17,11 +17,11 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
-import java.util.HashMap;
+import com.google.common.base.Strings;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
+import org.hibernate.Hibernate;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DBSource.AccessType;
@@ -29,8 +29,6 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-
-import com.google.common.base.Strings;
 
 /**
  * Builds HQL query for {@link BatchPresentation}.
@@ -71,7 +69,7 @@ public class HibernateCompilerHQLBuider {
      * Map from HQL positional parameter name to parameter value. All place holders must be put into this map (maybe with null values). It will be
      * used later to replace positional parameters in SQL query.
      */
-    private final Map<String, QueryParameter> placeholders = new HashMap<>();
+    private final QueryParametersMap placeholders = new QueryParametersMap();
 
     /**
      * Creates component to build HQL query for {@link BatchPresentation}.
@@ -92,7 +90,7 @@ public class HibernateCompilerHQLBuider {
      * 
      * @return Map from HQL positional parameter name to parameter value.
      */
-    public Map<String, QueryParameter> getPlaceholders() {
+    public QueryParametersMap getPlaceholders() {
         return placeholders;
     }
 
@@ -239,8 +237,7 @@ public class HibernateCompilerHQLBuider {
                             field.displayName.indexOf(':', ClassPresentation.removable_prefix.length()));
                     joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath)
                             .append("=:removableUserValue").append(field.fieldIdx).append(")");
-                    placeholders.put("removableUserValue" + field.fieldIdx, new QueryParameter("removableUserValue" + field.fieldIdx,
-                            field.displayName.substring(field.displayName.lastIndexOf(':') + 1)));
+                    placeholders.add("removableUserValue" + field.fieldIdx, field.displayName.substring(field.displayName.lastIndexOf(':') + 1));
                 }
                 joinRestriction.append(")");
                 result.add(joinRestriction.toString());
@@ -261,7 +258,7 @@ public class HibernateCompilerHQLBuider {
             return result;
         }
         String owners = "(" + ClassPresentation.classNameSQL + "." + parameters.getOwnerDBPath() + " in (:ownersIds) )";
-        placeholders.put("ownersIds", null);
+        placeholders.add("ownersIds", parameters.getOwners());
         result.add(owners);
         return result;
     }
@@ -314,9 +311,9 @@ public class HibernateCompilerHQLBuider {
         List<String> result = new LinkedList<>();
         if (parameters.getExecutorIdsToCheckPermission() != null) {
             result.add("(instance.id in (select pm.objectId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.objectType in (:securedTypes) and pm.permission=:securedPermission))");
-            placeholders.put("securedOwnersIds", null);
-            placeholders.put("securedPermission", null);
-            placeholders.put("securedTypes", null);
+            placeholders.add("securedOwnersIds", parameters.getExecutorIdsToCheckPermission());
+            placeholders.add("securedPermission", parameters.getPermissionName());
+            placeholders.add("securedTypes", parameters.getSecuredObjectTypeNames(), Hibernate.STRING);
         }
         return result;
     }

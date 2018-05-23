@@ -18,13 +18,10 @@
 package ru.runa.wfe.presentation.hibernate;
 
 import java.util.List;
-import java.util.Map;
-
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 
@@ -89,7 +86,7 @@ public class HibernateCompilerQueryBuilder {
      *
      * @return Map from SQL positional parameter name to parameter value.
      */
-    public Map<String, QueryParameter> getPlaceholders() {
+    public QueryParametersMap getPlaceholders() {
         return hqlBuilder.getPlaceholders();
     }
 

@@ -19,7 +19,7 @@ package ru.runa.wfe.presentation.filter;
 
 import java.util.Map;
 
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
+import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 /**
  * Base class for filter criteria's, supporting selecting from predefined set of
@@ -48,10 +48,10 @@ public abstract class EnumerationFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
-        StringBuilder whereStringBuilder = new StringBuilder(aliasedFieldName);
-        whereStringBuilder.append(" = '").append(getFilterTemplate(0)).append("' ");
-        return whereStringBuilder.toString();
+    public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
+        StringBuilder sb = new StringBuilder(aliasedFieldName);
+        sb.append(" = '").append(getFilterTemplate(0)).append("' ");
+        return sb.toString();
     }
 
     @Override

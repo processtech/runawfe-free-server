@@ -17,11 +17,9 @@
  */
 package ru.runa.wfe.presentation.filter;
 
-import java.util.Map;
-
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
+import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 public class StringFilterCriteria extends FilterCriteria {
     public static final String ANY_SYMBOLS = SQLCommons.ANY_SYMBOLS;
@@ -43,7 +41,7 @@ public class StringFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
         StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
         String searchValue = expression.getValue();
         String alias = makePlaceHolderName(aliasedFieldName);
@@ -59,7 +57,7 @@ public class StringFilterCriteria extends FilterCriteria {
         where += " ";
         where += expression.getComparisonOperator();
         where += " :" + alias + " ";
-        placeholders.put(alias, new QueryParameter(alias, searchValue));
+        placeholders.add(alias, searchValue);
         return where;
     }
 

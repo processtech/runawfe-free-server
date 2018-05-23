@@ -17,9 +17,7 @@
  */
 package ru.runa.wfe.presentation.filter;
 
-import java.util.Map;
-
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
+import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 /**
  * Created on 01.09.2005 TODO add BETWEEN support
@@ -46,13 +44,13 @@ public class LongFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
         final String placeHolderName = makePlaceHolderName(aliasedFieldName);
-        final StringBuilder whereStringBuilder = new StringBuilder(aliasedFieldName);
-        whereStringBuilder.append(" = :").append(placeHolderName);
-        whereStringBuilder.append(" ");
-        placeholders.put(placeHolderName, new QueryParameter(placeHolderName, Long.valueOf(getFilterTemplate(0))));
-        return whereStringBuilder.toString();
+        final StringBuilder sb = new StringBuilder(aliasedFieldName);
+        sb.append(" = :").append(placeHolderName);
+        sb.append(" ");
+        placeholders.add(placeHolderName, Long.valueOf(getFilterTemplate(0)));
+        return sb.toString();
     }
 
 }

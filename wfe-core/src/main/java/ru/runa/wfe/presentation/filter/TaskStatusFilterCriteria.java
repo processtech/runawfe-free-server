@@ -1,10 +1,8 @@
 package ru.runa.wfe.presentation.filter;
 
-import java.util.Map;
-
 import ru.runa.wfe.commons.SQLCommons;
 import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
+import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 /**
  *
@@ -24,14 +22,14 @@ public class TaskStatusFilterCriteria extends FilterCriteria {
 	}
 
 	@Override
-	public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+	public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
         StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
         String alias = makePlaceHolderName(aliasedFieldName);
         StringBuilder paramStringBuilder = new StringBuilder();
         paramStringBuilder.append(expression.getComparisonOperator());
         paramStringBuilder.append(":");
         paramStringBuilder.append(alias);
-        placeholders.put(alias, new QueryParameter(alias, expression.getValue()));
+        placeholders.add(alias, expression.getValue());
 
         int taskStatus = TASK_STATUS_ACTIVE;
         if (!getFilterTemplate(1).isEmpty())

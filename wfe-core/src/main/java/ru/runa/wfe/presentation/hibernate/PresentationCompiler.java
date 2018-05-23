@@ -67,26 +67,10 @@ public class PresentationCompiler<T> implements IBatchPresentationCompiler<T> {
     protected Query getBatchQuery(CompilerParameters compilerParams) {
         HibernateCompilerQueryBuilder builder = new HibernateCompilerQueryBuilder(batchPresentation, compilerParams);
         Query query = builder.build();
-        Map<String, QueryParameter> placeholders = builder.getPlaceholders();
-        if (compilerParams.getExecutorIdsToCheckPermission() != null) {
-            query.setParameterList("securedOwnersIds", compilerParams.getExecutorIdsToCheckPermission());
-            query.setString("securedPermission", compilerParams.getPermissionName());
-            query.setParameterList("securedTypes", compilerParams.getSecuredObjectTypeNames(), Hibernate.STRING);
-            placeholders.remove("securedOwnersIds");
-            placeholders.remove("securedPermission");
-            placeholders.remove("securedTypes");
-        }
-        if (compilerParams.hasOwners()) {
-            query.setParameterList("ownersIds", compilerParams.getOwners());
-            placeholders.remove("ownersIds");
-        }
+        builder.getPlaceholders().apply(query);
         if (compilerParams.isPagingEnabled() && batchPresentation.getRangeSize() != BatchPresentationConsts.RANGE_SIZE_UNLIMITED) {
             query.setFirstResult((batchPresentation.getPageNumber() - 1) * batchPresentation.getRangeSize());
             query.setMaxResults(batchPresentation.getRangeSize());
-        }
-        for (Map.Entry<String, QueryParameter> e : placeholders.entrySet()) {
-            QueryParameter queryParameter = e.getValue();
-            query.setParameter(queryParameter.getName(), queryParameter.getValue());
         }
         return query;
     }

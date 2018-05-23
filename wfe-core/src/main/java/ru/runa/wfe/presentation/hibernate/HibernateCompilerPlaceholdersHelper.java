@@ -20,8 +20,6 @@ package ru.runa.wfe.presentation.hibernate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
 import ru.runa.wfe.InternalApplicationException;
 
 /**
@@ -36,10 +34,10 @@ public final class HibernateCompilerPlaceholdersHelper {
      * @param placeholders Map from HQL positional parameter name to parameter value.
      * @return HQL parameters name in correct order.
      */
-    public static final List<String> getPlaceholdersFromHQL(String hqlQuery, Map<String, QueryParameter> placeholders) {
+    public static final List<String> getPlaceholdersFromHQL(String hqlQuery, QueryParametersMap placeholders) {
         List<String> result = new ArrayList<>();
         for (int idx = searchInString(hqlQuery, ':', 0); idx != -1; idx = searchInString(hqlQuery, ':', idx + 1)) {
-            for (String placeholder : placeholders.keySet()) {
+            for (String placeholder : placeholders.getNames()) {
                 if (hqlQuery.startsWith(placeholder, idx + 1) && !Character.isLetterOrDigit(hqlQuery.charAt(idx + 1 + placeholder.length()))) {
                     result.add(placeholder);
                 }
