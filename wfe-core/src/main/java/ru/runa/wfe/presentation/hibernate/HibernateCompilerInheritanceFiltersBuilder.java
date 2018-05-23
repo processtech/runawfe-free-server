@@ -21,10 +21,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.DBSource;
 import ru.runa.wfe.presentation.DBSource.AccessType;
@@ -111,10 +109,10 @@ public class HibernateCompilerInheritanceFiltersBuilder {
     private List<String> buildFiltersStatements() {
         Map<Integer, FilterCriteria> filteredMap = batchPresentation.getFilteredFields();
         if (filteredMap.size() == 0) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
         FieldDescriptor[] fields = batchPresentation.getAllFields();
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         for (Map.Entry<Integer, FilterCriteria> entry : filteredMap.entrySet()) {
             int index = entry.getKey();
             if (fields[index].filterMode != FieldFilterMode.DATABASE || fields[index].fieldState == FieldState.DISABLED) {
@@ -147,7 +145,7 @@ public class HibernateCompilerInheritanceFiltersBuilder {
      * @return SQL statements to filter by field.
      */
     private List<String> buildFiltersForField(FieldDescriptor field, FilterCriteria criteria) {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         for (DBSource dbSource : field.dbSources) {
             if (dbSource.getValueDBPath(AccessType.FILTER, null) == null) {
                 continue;

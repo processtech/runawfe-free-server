@@ -19,9 +19,7 @@ package ru.runa.wfe.presentation.hibernate;
 
 import java.util.Collection;
 import java.util.List;
-
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 
@@ -347,7 +345,6 @@ public class CompilerParameters {
     }
 
     /**
-     * 
      * @return Returns batch presentation compiler parameters.
      */
     public CompilerParameters addPermissions(RestrictionsToPermissions permissions) {

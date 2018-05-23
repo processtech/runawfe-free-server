@@ -103,7 +103,7 @@ public class HibernateCompilerAliasMapping {
      */
     public List<FieldDescriptor> getFields(String alias) {
         if (!aliasToField.containsKey(alias)) {
-            aliasToField.put(alias, new ArrayList<FieldDescriptor>());
+            aliasToField.put(alias, new ArrayList<>());
         }
         return aliasToField.get(alias);
     }

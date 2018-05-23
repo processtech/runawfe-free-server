@@ -37,7 +37,7 @@ public final class HibernateCompilerPlaceholdersHelper {
      * @return HQL parameters name in correct order.
      */
     public static final List<String> getPlaceholdersFromHQL(String hqlQuery, Map<String, QueryParameter> placeholders) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (int idx = searchInString(hqlQuery, ':', 0); idx != -1; idx = searchInString(hqlQuery, ':', idx + 1)) {
             for (String placeholder : placeholders.keySet()) {
                 if (hqlQuery.startsWith(placeholder, idx + 1) && !Character.isLetterOrDigit(hqlQuery.charAt(idx + 1 + placeholder.length()))) {

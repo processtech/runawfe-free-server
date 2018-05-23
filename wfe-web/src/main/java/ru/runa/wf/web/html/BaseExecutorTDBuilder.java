@@ -34,7 +34,7 @@ import ru.runa.wfe.user.Executor;
 /**
  * Builds table cell for {@link Executor}
  */
-public abstract class BaseExecutorTDBuilder<T extends Object> extends BaseTDBuilder {
+public abstract class BaseExecutorTDBuilder<T> extends BaseTDBuilder {
 
     public BaseExecutorTDBuilder() {
         super(Permission.LIST);

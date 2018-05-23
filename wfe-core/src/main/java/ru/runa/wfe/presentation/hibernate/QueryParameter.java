@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.presentation.hibernate;
 
-
 public class QueryParameter {
     private final String name;
     private final Object value;

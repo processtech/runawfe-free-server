@@ -62,8 +62,7 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
         int executorsCount = Delegates.getExecutorService().getExecutorsCount(getUser(), getBatchPresentation());
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(getUser(), getBatchPresentation());
         BatchPresentation batchPresentation = getBatchPresentation();
-        buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation,
-                Permission.UPDATE);
+        buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation, Permission.UPDATE);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
         TableBuilder tableBuilder = new TableBuilder();
