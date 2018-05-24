@@ -19,6 +19,7 @@ package ru.runa.wf.web.tag;
 
 import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.definition.dto.WfDefinition;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -37,5 +38,10 @@ public abstract class ProcessDefinitionBaseFormTag extends SecuredObjectFormTag 
 
     protected WfDefinition getDefinition() {
         return Delegates.getDefinitionService().getProcessDefinition(getUser(), getIdentifiableId());
+    }
+
+    @Override
+    protected boolean isVisible() {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, getDefinition());
     }
 }

@@ -50,11 +50,6 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
     private static final long serialVersionUID = 7118850164438509260L;
 
     @Override
-    protected boolean isVisible() {
-        return true;
-    }
-
-    @Override
     protected boolean isSubmitButtonVisible() {
         return false;
     }

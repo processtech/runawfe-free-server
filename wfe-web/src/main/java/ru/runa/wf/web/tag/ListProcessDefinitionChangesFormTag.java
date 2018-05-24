@@ -18,15 +18,12 @@
 package ru.runa.wf.web.tag;
 
 import java.util.List;
-
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TH;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.MessagesProcesses;
@@ -39,22 +36,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFormTag {
     private static final long serialVersionUID = 7128850164438509265L;
 
-    private Long processDefinitionId;
-
-    @Attribute(required = true, rtexprvalue = true)
-    public void setProcessDefinitionId(Long processDefinitionId) {
-        this.processDefinitionId = processDefinitionId;
-    }
-
-    public Long getProcessDefinitionId() {
-        return processDefinitionId;
-    }
-
-    @Override
-    protected boolean isVisible() {
-        return true;
-    }
-
     @Override
     protected boolean isSubmitButtonVisible() {
         return false;
@@ -66,7 +47,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
         final String DATE = "process_definition_changes.date";
         final String AUTHOR = "process_definition_changes.author";
         final String COMMENT = "process_definition_changes.comment";
-        List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().getLastChanges(getProcessDefinitionId(), 5L);
+        List<ProcessDefinitionChange> changes = Delegates.getDefinitionService().getLastChanges(getIdentifiableId(), 5L);
         if (!changes.isEmpty()) {
             Table table = new Table();
             tdFormElement.addElement(table);
@@ -82,7 +63,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
             long currentVersion = 0;
             for (int i = changes.size() - 1; i >= 0; i--) {
                 ProcessDefinitionChange change = changes.get(i);
-                if (change.getVersion() <= Delegates.getDefinitionService().getProcessDefinition(getUser(), getProcessDefinitionId()).getVersion()
+                if (change.getVersion() <= Delegates.getDefinitionService().getProcessDefinition(getUser(), getIdentifiableId()).getVersion()
                         && !change.getComment().isEmpty()) {
                     TR row = new TR();
                     table.addElement(row);
@@ -112,7 +93,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
             }
 
             A link = new A();
-            link.setHref("/wfe/processDefinitionChanges?action=loadAllChanges&id=" + getProcessDefinitionId());
+            link.setHref("/wfe/processDefinitionChanges?action=loadAllChanges&id=" + getIdentifiableId());
             link.setID("showAllProcessDefinitionChanges");
             link.addElement(Messages.getMessage("process_definition_changes.showAllChanges", pageContext));
             tdFormElement.addElement(link);
@@ -121,7 +102,7 @@ public class ListProcessDefinitionChangesFormTag extends ProcessDefinitionBaseFo
 
     @Override
     protected Permission getSubmitPermission() {
-        return Permission.LIST;
+        return Permission.UPDATE;
     }
 
     @Override

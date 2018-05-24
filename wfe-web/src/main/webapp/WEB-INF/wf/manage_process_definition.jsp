@@ -44,9 +44,11 @@
 </table>
 </wf:processDefinitionInfoForm>
 
-<wf:listProcessDefinitionChangesForm processDefinitionId='<%= id %>'>
+<wf:listProcessDefinitionChangesForm identifiableId='<%= id %>'>
 </wf:listProcessDefinitionChangesForm>
+
 <wf:redeployDefinitionForm identifiableId='<%= id %>'  />
+
 <wf:definitionGraphForm identifiableId='<%= id %>' />	
 
 

@@ -35,7 +35,7 @@ public abstract class SecuredObjectFormTag extends TitledFormTag {
     private static final long serialVersionUID = 1L;
     private Long identifiableId;
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setIdentifiableId(Long identifiableId) {
         this.identifiableId = identifiableId;
     }

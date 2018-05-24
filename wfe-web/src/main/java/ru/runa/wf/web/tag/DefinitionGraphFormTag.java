@@ -47,7 +47,7 @@ public class DefinitionGraphFormTag extends ProcessDefinitionBaseFormTag {
         return subprocessId;
     }
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setSubprocessId(String subprocessId) {
         this.subprocessId = subprocessId;
     }

@@ -44,7 +44,6 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
@@ -86,7 +85,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected Permission getSubmitPermission() {
-        return Permission.CREATE;
+        return Permission.UPDATE;
     }
 
     @Override
@@ -111,7 +110,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected boolean isVisible() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE, SecuredSingleton.DEFINITIONS);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE, getDefinition());
     }
 
     private Element addUpgradeProcessesLink(WfDefinition definition) {

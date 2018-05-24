@@ -221,11 +221,11 @@ public final class ApplicablePermissions {
         add(SecuredObjectType.DATAFILE, ALL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
-        add(SecuredObjectType.DEFINITION, ALL, LIST, READ, START, READ_PROCESS, CANCEL_PROCESS, UPDATE)
+        add(SecuredObjectType.DEFINITION, ALL, LIST, READ, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
                 .defaults(LIST)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.DEFINITIONS, ALL, LIST, READ, START, READ_PROCESS, CANCEL_PROCESS, CREATE, UPDATE)
+        add(SecuredObjectType.DEFINITIONS, ALL, LIST, READ, CREATE, UPDATE, START, READ_PROCESS, CANCEL_PROCESS)
                 .defaults(LIST)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 

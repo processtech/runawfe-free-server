@@ -38,7 +38,7 @@ import ru.runa.wfe.security.Permission;
 public class PropertiesProcessTDBuilder extends BaseTDBuilder {
 
     public PropertiesProcessTDBuilder() {
-        super(Permission.LIST);
+        super(Permission.READ);
     }
 
     @Override
