@@ -24,6 +24,7 @@ import ru.runa.af.web.action.UpdateStatusAction;
 import ru.runa.af.web.html.StatusTableBuilder;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateStatusForm")
@@ -38,11 +39,6 @@ public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
     }
 
     @Override
-    protected Permission getSubmitPermission() {
-        return Permission.UPDATE_STATUS;
-    }
-
-    @Override
     public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
@@ -50,6 +46,11 @@ public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
     @Override
     protected boolean isVisible() {
         return getExecutor() instanceof Actor;
+    }
+
+    @Override
+    protected boolean isSubmitButtonEnabled() {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_STATUS, getExecutor());
     }
 
     @Override

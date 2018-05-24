@@ -40,6 +40,7 @@ import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.security.WeakPasswordException;
+import ru.runa.wfe.security.logic.AuthorizationLogic;
 import ru.runa.wfe.ss.dao.SubstitutionDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -62,6 +63,8 @@ public class ExecutorLogic extends CommonLogic {
     private RelationPairDAO relationPairDAO;
     @Autowired
     private SubstitutionDAO substitutionDAO;
+    @Autowired
+    private AuthorizationLogic authorizationLogic;
 
     @Required
     public void setSetStatusHandlers(List<SetStatusHandler> setStatusHandlers) {
@@ -113,8 +116,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public void remove(User user, List<Long> ids) {
-        List<Executor> executors = getExecutors(user, ids);
-        checkPermissionsOnExecutors(user, executors, Permission.DELETE);
+        List<Executor> executors = checkPermissionsOnExecutors(user, executorDAO.getExecutors(ids), Permission.DELETE);
         for (Executor executor : executors) {
             remove(executor);
         }
@@ -242,13 +244,7 @@ public class ExecutorLogic extends CommonLogic {
         if (!Strings.isNullOrEmpty(passwordsRegexp) && !Pattern.compile(passwordsRegexp).matcher(password).matches()) {
             throw new WeakPasswordException();
         }
-        if (!permissionDAO.isAllowed(user, Permission.UPDATE, actor)) {
-            if (user.getActor().equals(actor)) {
-                permissionDAO.checkAllowed(user, Permission.UPDATE_SELF, SecuredSingleton.EXECUTORS);
-            } else {
-                throw new AuthorizationException(user + " hasn't permission to change password for actor " + actor);
-            }
-        }
+        authorizationLogic.checkAllowedUpdateExecutor(user, actor);
         executorDAO.setPassword(actor, password);
     }
 
@@ -288,11 +284,7 @@ public class ExecutorLogic extends CommonLogic {
     }
 
     public Executor getExecutor(User user, Long id) {
-        return checkPermissionsOnExecutor(user, executorDAO.getExecutor(id), Permission.LIST);
-    }
-
-    public List<Executor> getExecutors(User user, List<Long> ids) {
-        return checkPermissionsOnExecutors(user, executorDAO.getExecutors(ids), Permission.LIST);
+        return checkPermissionsOnExecutor(user, executorDAO.getExecutor(id), Permission.READ);
     }
 
     public Actor getActorByCode(User user, Long code) {

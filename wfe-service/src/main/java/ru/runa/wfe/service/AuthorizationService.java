@@ -59,6 +59,17 @@ public interface AuthorizationService {
     boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType);
 
     /**
+     * Special case to check UPDATE and/or UPDATE_SELF permissions.
+     */
+    boolean isAllowedUpdateExecutor(User user, Executor object);
+
+    /**
+     * Special case to check UPDATE and/or UPDATE_SELF permissions.
+     * Overloaded version for cases where otherwise getExecutor() would be called and perform extra READ check.
+     */
+    boolean isAllowedUpdateExecutor(User user, Long id);
+
+    /**
      * Exports &lt;addPermissions&gt; elements to XML script. Everything is done under single transaction, using optimized queries.
      */
     void exportDataFile(User user, Document script);

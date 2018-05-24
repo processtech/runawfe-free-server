@@ -86,7 +86,7 @@ public class ListExecutorRightRelationsFormTag extends SecuredObjectFormTag {
 
     @Override
     protected Permission getSubmitPermission() {
-        return Permission.LIST;
+        return Permission.READ;
     }
 
     protected String[] getNames() {

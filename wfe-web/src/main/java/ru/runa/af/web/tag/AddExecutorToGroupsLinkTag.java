@@ -18,9 +18,9 @@
 package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.IdLinkBaseTag;
+import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "addExecutorToGroupsLink")
 public class AddExecutorToGroupsLinkTag extends IdLinkBaseTag {
@@ -29,5 +29,10 @@ public class AddExecutorToGroupsLinkTag extends IdLinkBaseTag {
     @Override
     protected String getLinkText() {
         return MessagesCommon.BUTTON_ADD.message(pageContext);
+    }
+
+    @Override
+    protected boolean isLinkEnabled() {
+        return Delegates.getAuthorizationService().isAllowedUpdateExecutor(getUser(), getIdentifiableId());
     }
 }

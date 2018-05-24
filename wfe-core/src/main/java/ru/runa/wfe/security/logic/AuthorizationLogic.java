@@ -42,6 +42,7 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.QDeployment;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
+import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectFactory;
@@ -89,6 +90,15 @@ public class AuthorizationLogic extends CommonLogic {
         }
     }
 
+    public void checkAllowedUpdateExecutor(User user, Executor object) {
+        if (!isAllowedUpdateExecutor(user, object)) {
+            throw new AuthorizationException("User " + user + " does not have permissions to update " + object);
+        }
+    }
+
+    public boolean isAllowed(User user, Permission permission, SecuredObject object) {
+        return permissionDAO.isAllowed(user, permission, object.getSecuredObjectType(), object.getIdentifiableId());
+    }
 
     public boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId) {
         return permissionDAO.isAllowed(user, permission, securedObjectType, identifiableId);
@@ -100,6 +110,17 @@ public class AuthorizationLogic extends CommonLogic {
 
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType) {
         return permissionDAO.isAllowedForAny(user, permission, securedObjectType);
+    }
+
+    public boolean isAllowedUpdateExecutor(User user, Executor object) {
+        return isAllowed(user, Permission.UPDATE, object) || (
+                Objects.equals(user.getActor().getId(), object.getId()) &&
+                        isAllowed(user, Permission.UPDATE_SELF, SecuredSingleton.EXECUTORS)
+        );
+    }
+
+    public boolean isAllowedUpdateExecutor(User user, Long id) {
+        return isAllowedUpdateExecutor(user, executorDAO.getExecutor(id));
     }
 
     public List<Permission> getIssuedPermissions(User user, Executor performer, SecuredObject securedObject) {

@@ -46,11 +46,6 @@ public class UpdateExecutorDetailsFormTag extends UpdateExecutorBaseFormTag {
     }
 
     @Override
-    protected Permission getSubmitPermission() {
-        return Permission.UPDATE;
-    }
-
-    @Override
     public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }

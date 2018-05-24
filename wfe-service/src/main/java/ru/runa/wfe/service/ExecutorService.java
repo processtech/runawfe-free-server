@@ -38,93 +38,63 @@ public interface ExecutorService {
     /**
      * Creates new executor (either actor or group).
      * 
-     * @param user
-     * @param executor
-     * @return
      * @throws ExecutorAlreadyExistsException
      */
-    public <T extends Executor> T create(User user, T executor) throws ExecutorAlreadyExistsException;
+    <T extends Executor> T create(User user, T executor) throws ExecutorAlreadyExistsException;
 
     /**
      * Gets executors for {@link BatchPresentation}.
-     * 
-     * @param user
-     * @param batchPresentation
-     * @return
      */
-    public List<? extends Executor> getExecutors(User user, BatchPresentation batchPresentation);
+    List<? extends Executor> getExecutors(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets executors count for {@link BatchPresentation}.
-     * 
-     * @param user
-     * @param batchPresentation
-     * @return
      */
-    public int getExecutorsCount(User user, BatchPresentation batchPresentation);
+    int getExecutorsCount(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets actor by code.
-     * 
-     * @param user
-     * @param code
-     * @return
+     *
      * @throws ExecutorDoesNotExistException
      */
-    public Actor getActorByCode(User user, Long code) throws ExecutorDoesNotExistException;
+    Actor getActorByCode(User user, Long code) throws ExecutorDoesNotExistException;
 
     /**
      * Gets actor case-insensitive.
-     * 
-     * @param login
-     * @return
+     *
      * @throws ExecutorDoesNotExistException
      */
-    public Actor getActorCaseInsensitive(String login) throws ExecutorDoesNotExistException;
+    Actor getActorCaseInsensitive(String login) throws ExecutorDoesNotExistException;
 
     /**
      * Gets executor (either actor or group) by id.
-     * 
-     * @param user
-     * @param id
-     * @return
+     *
      * @throws ExecutorDoesNotExistException
      */
-    public <T extends Executor> T getExecutor(User user, Long id) throws ExecutorDoesNotExistException;
+    <T extends Executor> T getExecutor(User user, Long id) throws ExecutorDoesNotExistException;
 
     /**
      * Gets executor (either actor or group) by name.
      * 
-     * @param user
-     * @param name
-     * @return
      * @throws ExecutorDoesNotExistException
      */
-    public <T extends Executor> T getExecutorByName(User user, String name) throws ExecutorDoesNotExistException;
+    <T extends Executor> T getExecutorByName(User user, String name) throws ExecutorDoesNotExistException;
 
     /**
      * Updates executor (either actor or group).
      * 
-     * @param user
-     * @param executor
      * @throws ExecutorAlreadyExistsException
      */
-    public void update(User user, Executor executor) throws ExecutorAlreadyExistsException;
+    void update(User user, Executor executor) throws ExecutorAlreadyExistsException;
 
     /**
      * Deletes executors by ids.
-     * 
-     * @param user
-     * @param ids
      */
     public void remove(User user, List<Long> ids);
 
     /**
      * Adds executors specified by ids to group specified by id.
      * 
-     * @param user
-     * @param executorIds
-     * @param groupId
      * @throws ExecutorDoesNotExistException
      */
     public void addExecutorsToGroup(User user, List<Long> executorIds, Long groupId) throws ExecutorDoesNotExistException;
@@ -132,9 +102,6 @@ public interface ExecutorService {
     /**
      * Adds executor specified by id to groups specified by ids.
      * 
-     * @param user
-     * @param executorId
-     * @param groupIds
      * @throws ExecutorDoesNotExistException
      */
     public void addExecutorToGroups(User user, Long executorId, List<Long> groupIds) throws ExecutorDoesNotExistException;
@@ -142,9 +109,6 @@ public interface ExecutorService {
     /**
      * Removes executors specified by ids from group specified by id.
      * 
-     * @param user
-     * @param executorIds
-     * @param groupId
      * @throws ExecutorDoesNotExistException
      */
     public void removeExecutorsFromGroup(User user, List<Long> executorIds, Long groupId) throws ExecutorDoesNotExistException;
@@ -152,9 +116,6 @@ public interface ExecutorService {
     /**
      * Removes executor specified by id from groups specified by ids.
      * 
-     * @param user
-     * @param executorId
-     * @param groupIds
      * @throws ExecutorDoesNotExistException
      */
     public void removeExecutorFromGroups(User user, Long executorId, List<Long> groupIds) throws ExecutorDoesNotExistException;

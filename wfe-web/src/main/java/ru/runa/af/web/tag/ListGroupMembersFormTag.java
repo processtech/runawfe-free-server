@@ -36,11 +36,6 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
     private static final long serialVersionUID = -2400457393576894819L;
 
     @Override
-    protected Permission getSubmitPermission() {
-        return Permission.UPDATE;  // TODO Was REMOVE_FROM_GROUP. What this permission is for in *List*GroupMembersFormTag?
-    }
-
-    @Override
     public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }

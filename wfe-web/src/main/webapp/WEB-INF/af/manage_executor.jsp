@@ -36,9 +36,8 @@
 			<wf:tableViewSetupForm batchPresentationId="listExecutorGroupsForm" returnAction="<%= returnAction %>" />
 		</wf:viewControlsHideableBlock>
 	</div>
-	<wf:addExecutorToGroupsLink identifiableId='<%=id %>' href='<%= "/add_executor_to_groups.do?id=" + id %>' />
+	<wf:addExecutorToGroupsLink identifiableId='<%= id %>' href='<%= "/add_executor_to_groups.do?id=" + id %>' />
 </wf:listExecutorGroupsForm>
-
 
 <wf:listGroupMembersForm batchPresentationId="listGroupMembersForm" buttonAlignment="right" identifiableId="<%= id %>" returnAction="<%= returnAction %>" >
 	<div>

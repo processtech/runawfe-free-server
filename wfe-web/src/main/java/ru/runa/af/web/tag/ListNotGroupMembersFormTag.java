@@ -33,11 +33,6 @@ public class ListNotGroupMembersFormTag extends ListExecutorsBaseFormTag {
     private static final long serialVersionUID = 1770247337446619592L;
 
     @Override
-    protected Permission getSubmitPermission() {
-        return Permission.UPDATE;  // TODO Was ADD_TO_GROUP. Why is this in *List*NotGroupMembersFormTag?
-    }
-
-    @Override
     public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_ADD.message(pageContext);
     }

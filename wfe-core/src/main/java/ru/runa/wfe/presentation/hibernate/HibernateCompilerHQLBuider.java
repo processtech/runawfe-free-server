@@ -341,6 +341,7 @@ public class HibernateCompilerHQLBuider {
         HibernateQueryFactory queryFactory = HibernateQueryFactory.getInstance();
 
         // Need to check privileged & list permissions only once.
+        // ATTENTION!!! Also, HQL query with two conditions (on both type and listType) always returns empty rowset. :(
         List<Long> executorIds = executorDAO.getActorAndNotTemporaryGroupsIds(pp.user.getActor());
         if (permissionDAO.hasPrivilegedExecutor(executorIds)) {
             return result;

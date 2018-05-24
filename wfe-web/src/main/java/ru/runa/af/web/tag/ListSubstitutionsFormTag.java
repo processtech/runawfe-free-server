@@ -94,11 +94,6 @@ public class ListSubstitutionsFormTag extends UpdateExecutorBaseFormTag {
         return DeleteSubstitutionsAction.ACTION_PATH;
     }
 
-    @Override
-    protected Permission getSubmitPermission() {
-        return Permission.UPDATE;
-    }
-
     class SubstitutionHeaderBuilder implements HeaderBuilder {
 
         @Override

@@ -54,7 +54,7 @@ public abstract class ListExecutorsBaseFormTag extends UpdateExecutorBaseFormTag
 
     private String batchPresentationId;
 
-    @Attribute(required = true, rtexprvalue = true)
+    @Attribute(required = true)
     @Override
     public void setBatchPresentationId(String batchPresentationId) {
         this.batchPresentationId = batchPresentationId;

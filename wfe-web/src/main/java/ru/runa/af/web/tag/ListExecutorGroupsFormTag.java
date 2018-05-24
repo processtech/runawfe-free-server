@@ -34,11 +34,6 @@ public class ListExecutorGroupsFormTag extends ListExecutorsBaseFormTag {
     private static final long serialVersionUID = -2141545567983138556L;
 
     @Override
-    protected Permission getSubmitPermission() {
-        return Permission.LIST;
-    }
-
-    @Override
     public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }

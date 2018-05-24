@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -52,6 +53,7 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
@@ -232,20 +234,30 @@ public class PermissionDAO extends CommonDAO {
 
         PermissionSubstitutions.ForCheck subst = PermissionSubstitutions.getForCheck(type, permission);
         QPermissionMapping pm = QPermissionMapping.permissionMapping;
-        BooleanExpression wherePermission = pm.objectType.eq(type).and(pm.permission.in(subst.selfPermissions));
-        if (!subst.listPermissions.isEmpty()) {
-            wherePermission = wherePermission.or(pm.objectType.eq(type.getListType()).and(pm.permission.in(subst.listPermissions)));
+
+        // Same type for all objects, thus same listType. I believe it would be faster to perform separate query here.
+        // ATTENTION!!! Also, HQL query with two conditions (on both type and listType) always returns empty rowset. :(
+        //              (Both here with QueryDSL and in HibernateCompilerHQLBuilder.addSecureCheck() with raw HQL.)
+        if (!subst.listPermissions.isEmpty() && queryFactory.select(pm.id).from(pm)
+                .where(pm.executor.in(executorWithGroups)
+                        .and(pm.objectType.eq(type.getListType()))
+                        .and(pm.objectId.eq(0L))
+                        .and(pm.permission.in(subst.listPermissions)))
+                .fetchFirst() != null) {
+            return haveIds ? new HashSet<>(idsOrNull) : nonEmptySet;
         }
 
         Set<Long> result = new HashSet<>();
         for (List<Long> idsPart : haveIds ? Lists.partition(idsOrNull, SystemProperties.getDatabaseParametersCount()) : nonEmptyListList) {
-            JPQLQuery<Long> q = queryFactory.select(pm.id).from(pm).where(pm.executor.in(executorWithGroups).and(wherePermission));
+            JPQLQuery<Long> q = queryFactory.select(pm.id).from(pm)
+                    .where(pm.executor.in(executorWithGroups)
+                            .and(pm.objectType.eq(type))
+                            .and(pm.permission.in(subst.selfPermissions)));
             if (haveIds) {
                 result.addAll(q.where(pm.objectId.in(idsPart)).fetch());
             } else if (q.fetchFirst() != null) {
                 return nonEmptySet;
             }
-
         }
         return result;
     }

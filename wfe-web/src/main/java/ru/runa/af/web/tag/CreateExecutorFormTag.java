@@ -28,6 +28,9 @@ import ru.runa.af.web.form.CreateExecutorForm;
 import ru.runa.af.web.html.ExecutorTableBuilder;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.tag.TitledFormTag;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "createExecutorForm")
 public class CreateExecutorFormTag extends TitledFormTag {
@@ -47,13 +50,14 @@ public class CreateExecutorFormTag extends TitledFormTag {
         return type;
     }
 
-    @Attribute(required = true, rtexprvalue = true)
+    @Attribute(required = true)
     public void setType(String type) {
         this.type = type;
     }
 
     @Override
     public void fillFormElement(TD tdFormElement) {
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.CREATE, SecuredSingleton.EXECUTORS);
         boolean isActor = CreateExecutorForm.TYPE_ACTOR.equals(type);
         ExecutorTableBuilder builder = new ExecutorTableBuilder(isActor, pageContext);
         tdFormElement.addElement(builder.buildTable());

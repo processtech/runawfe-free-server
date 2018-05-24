@@ -39,7 +39,6 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag2;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.AuthorizationService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;

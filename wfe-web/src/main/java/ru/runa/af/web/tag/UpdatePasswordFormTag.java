@@ -19,12 +19,10 @@ package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdatePasswordAction;
 import ru.runa.af.web.html.PasswordTableBuilder;
 import ru.runa.common.web.MessagesCommon;
-import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updatePasswordForm")
@@ -36,12 +34,6 @@ public class UpdatePasswordFormTag extends UpdateExecutorBaseFormTag {
     public void fillFormData(TD tdFormElement) {
         PasswordTableBuilder builder = new PasswordTableBuilder(!isSubmitButtonEnabled(), pageContext);
         tdFormElement.addElement(builder.build());
-    }
-
-    @Override
-    protected Permission getSubmitPermission() {
-        // TODO Will this work?
-        return null;
     }
 
     @Override
