@@ -68,6 +68,7 @@ public class ReportLogic extends WFCommonLogic {
     }
 
     public void redeployReport(User user, WfReport report, byte[] file) throws ReportFileMissingException {
+        permissionDAO.checkAllowed(user, Permission.ALL, report);
         ReportDefinition existingByName = reportDAO.getReportDefinition(report.getName());
         if (existingByName != null && !existingByName.getId().equals(report.getId())) {
             throw new ReportWithNameExistsException(report.getName());

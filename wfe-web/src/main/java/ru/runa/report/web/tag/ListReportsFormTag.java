@@ -61,9 +61,10 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, reports.size());
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(reports);
-        TDBuilder[] builders =
-                BatchPresentationUtils.getBuilders(new TDBuilder[] { new CheckboxTDBuilder("id", Permission.ALL) }, batchPresentation,
-                    new TDBuilder[] { new ReportPropertiesTDBuilder() });
+        TDBuilder[] builders = BatchPresentationUtils.getBuilders(
+                new TDBuilder[] { new CheckboxTDBuilder("id", Permission.ALL) },
+                batchPresentation,
+                new TDBuilder[] { new ReportPropertiesTDBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, reports);
         SortingHeaderBuilder headerBuilder =
                 new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(), pageContext);

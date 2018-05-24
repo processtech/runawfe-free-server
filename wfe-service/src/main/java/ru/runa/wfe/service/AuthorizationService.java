@@ -38,6 +38,8 @@ public interface AuthorizationService {
 
     void checkAllowed(User user, Permission permission, SecuredObject securedObject);
 
+    void checkAllowed(User user, Permission permission, SecuredObjectType type, Long id);
+
     /**
      * Checks whether user has permission on securedObject.
      */

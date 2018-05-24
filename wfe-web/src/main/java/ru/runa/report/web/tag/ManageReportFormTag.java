@@ -35,25 +35,29 @@ import ru.runa.report.web.action.AnalyzeReportAction;
 import ru.runa.report.web.action.RedeployReportAction;
 import ru.runa.wfe.report.dto.WfReport;
 import ru.runa.wfe.report.dto.WfReportParameter;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "manageReportForm")
 public class ManageReportFormTag extends BaseReportFormTag {
     private static final long serialVersionUID = -3361459425268889410L;
 
-    private Long reportId;
+    private long reportId;
 
-    @Attribute(required = true, rtexprvalue = true)
-    public void setReportId(Long reportId) {
+    @Attribute(required = true)
+    public void setReportId(long reportId) {
         this.reportId = reportId;
     }
 
-    public Long getReportId() {
+    public long getReportId() {
         return reportId;
     }
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
+        Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredObjectType.REPORT, getReportId());
+
         ServletRequest request = pageContext.getRequest();
         List<WfReportParameter> parameters = (List<WfReportParameter>) request.getAttribute(DeployReportFormTag.REPORT_PARAMETERS);
 

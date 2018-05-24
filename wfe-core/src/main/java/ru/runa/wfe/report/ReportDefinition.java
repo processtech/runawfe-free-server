@@ -1,8 +1,8 @@
 package ru.runa.wfe.report;
 
+import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,11 +20,8 @@ import javax.persistence.OrderColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import com.google.common.base.Joiner;
 
 /**
  * DTO for report description.
@@ -88,7 +85,7 @@ public class ReportDefinition {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -110,7 +107,7 @@ public class ReportDefinition {
         this.name = reportName;
     }
 
-    @Column(name = "DESCRIPTION", length = 2048, nullable = true)
+    @Column(name = "DESCRIPTION", length = 2048)
     public String getDescription() {
         return description;
     }

@@ -37,7 +37,7 @@ import ru.runa.wfe.security.Permission;
  */
 public class ReportPropertiesTDBuilder extends BaseTDBuilder {
     public ReportPropertiesTDBuilder() {
-        super(Permission.LIST);
+        super(Permission.ALL);
     }
 
     @Override

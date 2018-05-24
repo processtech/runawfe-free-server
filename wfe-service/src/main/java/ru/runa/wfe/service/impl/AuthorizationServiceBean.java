@@ -66,12 +66,21 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
 
     @Override
     @WebMethod(exclude = true)
-    public void checkAllowed(@WebParam(name = "user") User user, @WebParam(name = "permission") Permission permission,
-            @WebParam(name = "identifiable") SecuredObject securedObject) {
+    public void checkAllowed(User user, Permission permission, SecuredObject securedObject) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(permission != null, "permission");
         Preconditions.checkArgument(securedObject != null, "identifiable");
         permissionDAO.checkAllowed(user, permission, securedObject);
+    }
+
+    @Override
+    @WebMethod(exclude = true)
+    public void checkAllowed(User user, Permission permission, SecuredObjectType type, Long id) {
+        Preconditions.checkArgument(user != null, "user");
+        Preconditions.checkArgument(permission != null, "permission");
+        Preconditions.checkArgument(type != null, "type");
+        Preconditions.checkArgument(id != null, "id");
+        permissionDAO.checkAllowed(user, permission, type, id);
     }
 
     @Override

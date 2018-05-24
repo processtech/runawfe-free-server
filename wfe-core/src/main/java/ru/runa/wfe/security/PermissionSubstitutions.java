@@ -357,11 +357,13 @@ public class PermissionSubstitutions {
         add(RELATIONS, UPDATE_PERMISSIONS).self(ALL);
 
         add(REPORT, ALL).list();
-        add(REPORT, LIST).self(ALL).list();
+        add(REPORT, READ).self(ALL).list();
+        add(REPORT, LIST).self(READ).list();
         add(REPORT, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS).list();
         add(REPORT, UPDATE_PERMISSIONS).self(ALL).list();
 
-        add(REPORTS, LIST).self(ALL);
+        add(REPORTS, READ).self(ALL);
+        add(REPORTS, LIST).self(READ);
         add(REPORTS, READ_PERMISSIONS).self(ALL, UPDATE_PERMISSIONS);
         add(REPORTS, UPDATE_PERMISSIONS).self(ALL);
 

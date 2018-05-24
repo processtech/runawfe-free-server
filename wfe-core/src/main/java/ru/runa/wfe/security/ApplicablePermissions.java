@@ -249,24 +249,24 @@ public final class ApplicablePermissions {
         add(SecuredObjectType.LOGS, ALL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
-        add(SecuredObjectType.PROCESSES, ALL, LIST, READ, CANCEL)
-                .defaults(LIST)
+        add(SecuredObjectType.PROCESS, ALL, LIST, READ, CANCEL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
-        add(SecuredObjectType.PROCESS, ALL, LIST, READ, CANCEL)
+        add(SecuredObjectType.PROCESSES, ALL, LIST, READ, CANCEL)
+                .defaults(LIST)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
 
         // System singleton:
         add(SecuredObjectType.RELATIONS, ALL)
                 .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
-        add(SecuredObjectType.REPORTS, ALL, LIST)
-                .defaults(LIST)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+        add(SecuredObjectType.REPORT, ALL, READ)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
-        add(SecuredObjectType.REPORT, ALL, LIST)
-                .defaults(LIST)
-                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS);
+        add(SecuredObjectType.REPORTS, ALL, READ)
+                .defaults(READ)
+                .hidden(READ_PERMISSIONS, UPDATE_PERMISSIONS, LIST);
 
         // System singleton:
         add(SecuredObjectType.SCRIPTS, ALL)
