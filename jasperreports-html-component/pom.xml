@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>ru.runa.wfe</groupId>
 		<artifactId>wfe-app</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
+		<version>4.3.0</version>
 		<relativePath>../wfe-app/pom.xml</relativePath>
 	</parent>
 	<groupId>net.sf.jasperreports</groupId>
