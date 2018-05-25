@@ -17,15 +17,15 @@
  */
 package ru.runa.wf.web.tag;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -66,6 +66,17 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
         navigation.addPagingNavigationTable(tdFormElement);
         tdFormElement.addElement(table);
         navigation.addPagingNavigationTable(tdFormElement);
+
+        if (!tasks.isEmpty()) {
+            String tasksIds = Joiner.on(",").join(Lists.transform(tasks, new Function<WfTask, Long>() {
+
+                @Override
+                public Long apply(WfTask input) {
+                    return input.getId();
+                }
+            }));
+            pageContext.setAttribute("tasksIds", tasksIds, PageContext.REQUEST_SCOPE);
+        }
     }
 
     public static Table buildTasksTable(PageContext pageContext, BatchPresentation batchPresentation, List<WfTask> tasks, String returnAction,

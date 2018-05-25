@@ -17,13 +17,13 @@
  */
 package ru.runa.wfe.commons.logic;
 
+import ru.runa.wfe.commons.dbpatch.impl.AddTransactionalBotSupport;
+
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
 import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
@@ -32,7 +32,6 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.timer.ScheduledTimerTask;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.DatabaseProperties;
@@ -92,7 +91,6 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
 import com.google.common.collect.Lists;
 
 /**
@@ -175,6 +173,7 @@ public class InitializerLogic {
         patches.add(EmptyPatch.class);
         patches.add(AddTokenMessageSelectorPatch.class);
         patches.add(AddSubprocessBindingDatePatch.class);
+        patches.add(AddTransactionalBotSupport.class);
         dbPatches = Collections.unmodifiableList(patches);
     };
 

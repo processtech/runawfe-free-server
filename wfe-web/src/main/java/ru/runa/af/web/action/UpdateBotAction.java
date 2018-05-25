@@ -2,11 +2,9 @@ package ru.runa.af.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.af.web.form.BotForm;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wfe.bot.Bot;
@@ -16,8 +14,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 /**
  * User: petrmikheev
  * 
- * @struts:action path="/update_bot" name="botForm" validate="false" input =
- *                "/WEB-INF/wf/bot.jsp"
+ * @struts:action path="/update_bot" name="botForm" validate="false" input = "/WEB-INF/wf/bot.jsp"
  */
 public class UpdateBotAction extends ActionBase {
     public static final String UPDATE_BOT_ACTION_PATH = "/update_bot";
@@ -30,10 +27,11 @@ public class UpdateBotAction extends ActionBase {
             Bot bot = botService.getBot(getLoggedUser(request), botForm.getBotId());
             bot.setUsername(botForm.getWfeUser());
             bot.setPassword(botForm.getWfePassword());
-            bot.setSequentialExecution(botForm.isSequential());
-            // bot.setStartTimeout(botForm.getBotTimeout());
+            bot.setSequentialExecution(botForm.isTransactional() ? true : botForm.isSequential());
+            bot.setTransactional(botForm.isTransactional());
+            bot.setTransactionalTimeout(botForm.isTransactional() ? botForm.getTransactionalTimeout() : null);
             bot.setBotStation(botService.getBotStation(botForm.getBotStationId()));
-            botService.updateBot(getLoggedUser(request), bot);
+            botService.updateBot(getLoggedUser(request), bot, true);
         } catch (Exception e) {
             addError(request, e);
         }

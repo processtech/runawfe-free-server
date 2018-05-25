@@ -1,13 +1,17 @@
 package ru.runa.wfe.commons.ftl;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import freemarker.ext.beans.BeansWrapper;
+import freemarker.template.TemplateMethodModelEx;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
@@ -16,14 +20,6 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
-import freemarker.ext.beans.BeansWrapper;
-import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 
 public abstract class FormComponent implements TemplateMethodModelEx, Serializable {
     public static final String TARGET_PROCESS_PREFIX = "TargetProcess";
@@ -63,9 +59,7 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
             setArguments(arguments);
             return renderRequest();
         } catch (Throwable th) {
-            LogFactory.getLog(getClass()).error(
-                    String.format("Process %s:%s:%s", variableProvider.getProcessDefinitionName(), variableProvider.getProcessId(),
-                            arguments.toString()), th);
+            log.error(String.format("Process %s:%s", variableProvider.getProcessId(), arguments.toString()), th);
             return "<div style=\"background-color: #ffb0b0; border: 1px solid red; padding: 3px;\">" + th.getMessage() + "</div>";
         }
     }
@@ -177,7 +171,7 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
             InputStream javascriptStream = ClassLoaderUtil.getAsStreamNotNull(path, getClass());
             return WebUtils.getFormComponentScript(javascriptStream, substitutions);
         } catch (Exception e) {
-            LogFactory.getLog(getClass()).error("Tag execution error", e);
+            log.error("Tag execution error", e);
             return "<p style='color: red;'>Unable to export script <b>" + path + "</b> to page</p>";
         }
     }
