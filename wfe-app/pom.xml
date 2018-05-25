@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.runa.wfe</groupId>
 	<artifactId>wfe-app</artifactId>
-	<version>4.3.0</version>
+	<version>4.3.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>RunaWFE application</name>
 
