@@ -53,9 +53,6 @@ import com.google.common.collect.Lists;
 public class EmailUtils {
     private static final Log log = LogFactory.getLog(EmailConfig.class);
     private static MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
-    static {
-        System.setProperty("mail.mime.encodefilename", "true");
-    }
 
     /**
      * Sends email in non-blocking and transactional mode
@@ -111,7 +108,6 @@ public class EmailUtils {
                 config.getHeaderProperties().put("From", username);
             }
         }
-
         Session session = Session.getInstance(props, authenticator);
         MimeMessage msg = new MimeMessage(session);
         for (String headerName : config.getHeaderProperties().keySet()) {
