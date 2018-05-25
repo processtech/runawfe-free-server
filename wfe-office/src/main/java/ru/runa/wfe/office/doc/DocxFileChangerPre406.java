@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -13,10 +12,8 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.office.doc.DocxConfig.TableConfig;
-import ru.runa.wfe.office.doc.DocxUtils.StylesHolder;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
@@ -24,6 +21,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 /**
  * @deprecated remove before release 4.2.0
  */
+@Deprecated
 public class DocxFileChangerPre406 {
     private static final String PLACEHOLDER_END = "}";
     private static final String PLACEHOLDER_START = "${";
@@ -89,7 +87,6 @@ public class DocxFileChangerPre406 {
             if (!text.contains(PLACEHOLDER_START)) {
                 continue;
             }
-            StylesHolder stylesHolder = new StylesHolder(run);
             String placeholder = text.substring(text.indexOf(PLACEHOLDER_START) + 2);
             while (!placeholder.contains(PLACEHOLDER_END)) {
                 // search end in next run
@@ -159,7 +156,7 @@ public class DocxFileChangerPre406 {
                 paragraph.removeRun(i);
                 XWPFRun newRun = paragraph.insertNewRun(i);
                 newRun.setText(replacement + remainder);
-                stylesHolder.applyStyles(newRun);
+                DocxUtils.copyStyles(newRun, run);
             }
         }
     }
