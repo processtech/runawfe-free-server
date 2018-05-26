@@ -19,7 +19,6 @@ package ru.runa.wfe.presentation;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.runa.wfe.commons.ArraysCommons;
 
 /**
@@ -60,14 +59,14 @@ class Store {
      */
     public Store(BatchPresentation batchPresentation) {
         List<DynamicField> dynamicFields = batchPresentation.getDynamicFields();
-        allFields = new FieldDescriptor[batchPresentation.getClassPresentation().getFields().length + dynamicFields.size()];
+        allFields = new FieldDescriptor[batchPresentation.getType().getFields().length + dynamicFields.size()];
         for (int idx = 0; idx < dynamicFields.size(); ++idx) {
             DynamicField dynamicField = dynamicFields.get(idx);
-            allFields[idx] = batchPresentation.getClassPresentation().getFields()[dynamicField.getFieldIdx().intValue()].createConcreteEditableField(
+            allFields[idx] = batchPresentation.getType().getFields()[dynamicField.getFieldIdx().intValue()].createConcreteEditableField(
                     dynamicField.getDynamicValue(), idx);
         }
-        for (int idx = 0; idx < batchPresentation.getClassPresentation().getFields().length; ++idx) {
-            allFields[idx + dynamicFields.size()] = batchPresentation.getClassPresentation().getFields()[idx].createConcreteField(idx
+        for (int idx = 0; idx < batchPresentation.getType().getFields().length; ++idx) {
+            allFields[idx + dynamicFields.size()] = batchPresentation.getType().getFields()[idx].createConcreteField(idx
                     + dynamicFields.size());
         }
         displayFields = removeNotEnabled((FieldDescriptor[]) ArraysCommons.createArrayValuesByIndex(allFields,
@@ -88,7 +87,7 @@ class Store {
      * @return ENABLED fields list.
      */
     private FieldDescriptor[] removeNotEnabled(FieldDescriptor[] fields) {
-        List<FieldDescriptor> result = new ArrayList<FieldDescriptor>();
+        List<FieldDescriptor> result = new ArrayList<>();
         for (FieldDescriptor fieldDescriptor : fields) {
             if (fieldDescriptor.fieldState == FieldState.ENABLED) {
                 result.add(fieldDescriptor);

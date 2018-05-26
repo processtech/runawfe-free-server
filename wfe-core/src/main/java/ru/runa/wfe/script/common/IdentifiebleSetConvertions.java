@@ -46,7 +46,7 @@ public final class IdentifiebleSetConvertions {
         Set<SecuredObject> processInstances = Sets.newHashSet();
         for (String definitionName : processDefinitionNames) {
             BatchPresentation batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
-            int definitionNameIndex = batchPresentation.getClassPresentation().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
+            int definitionNameIndex = batchPresentation.getType().getFieldIndex(ProcessClassPresentation.DEFINITION_NAME);
             batchPresentation.getFilteredFields().put(definitionNameIndex, new StringFilterCriteria(definitionName));
             processInstances.addAll(context.getExecutionLogic().getProcesses(context.getUser(), batchPresentation));
         }

@@ -76,7 +76,7 @@ public class HibernateCompilerQueryBuilder {
             return session.createSQLQuery(sqlRequest).setResultTransformer(CountIdResultTransformer.INSTANCE);
         } else {
             SQLQuery query = session.createSQLQuery(sqlRequest);
-            query.addEntity(batchPresentation.getClassPresentation().getPresentationClass());
+            query.addEntity(batchPresentation.getType().getPresentationClass());
             return query;
         }
     }

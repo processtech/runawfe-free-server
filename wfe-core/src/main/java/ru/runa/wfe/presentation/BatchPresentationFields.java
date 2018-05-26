@@ -1,5 +1,8 @@
 package ru.runa.wfe.presentation;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,14 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
@@ -88,9 +85,9 @@ public class BatchPresentationFields implements Serializable {
 
     public void setFirstFieldToSort(int newSortFieldId, FieldDescriptor[] allFields) {
         int fieldIndex = ArraysCommons.findPosition(sortIds, newSortFieldId);
-        boolean alreadyUsed = fieldIndex == -1 ? false : true;
-        boolean[] newFieldsToSortModes = null;
-        int[] newFieldsToSortIds = null;
+        boolean alreadyUsed = fieldIndex != -1;
+        boolean[] newFieldsToSortModes;
+        int[] newFieldsToSortIds;
         // Bug fix
         while (sortIds.length < sortModes.length) {
             sortModes = ArraysCommons.remove(sortModes, 0);
@@ -110,7 +107,7 @@ public class BatchPresentationFields implements Serializable {
     public void addDynamicField(long fieldIdx, String fieldValue) {
         fieldIdx = fieldIdx - dynamics.size();
         for (DynamicField dynamo : dynamics) {
-            if (dynamo.getDynamicValue().equals(fieldValue) && dynamo.getFieldIdx().longValue() == fieldIdx) {
+            if (dynamo.getDynamicValue().equals(fieldValue) && dynamo.getFieldIdx() == fieldIdx) {
                 return;
             }
         }
@@ -124,7 +121,7 @@ public class BatchPresentationFields implements Serializable {
         for (int i = 0; i < displayIds.length; ++i) {
             displayIds[i] = displayIds[i] + 1;
         }
-        Map<Integer, FilterCriteria> filteredFieldsMap = new HashMap<Integer, FilterCriteria>();
+        Map<Integer, FilterCriteria> filteredFieldsMap = new HashMap<>();
         for (Map.Entry<Integer, FilterCriteria> entry : filters.entrySet()) {
             filteredFieldsMap.put(entry.getKey() + 1, entry.getValue());
         }
@@ -162,7 +159,7 @@ public class BatchPresentationFields implements Serializable {
                 displayIds[i] = displayIds[i] - 1;
             }
         }
-        Map<Integer, FilterCriteria> filteredFieldsMap = new HashMap<Integer, FilterCriteria>();
+        Map<Integer, FilterCriteria> filteredFieldsMap = new HashMap<>();
         for (Map.Entry<Integer, FilterCriteria> entry : filters.entrySet()) {
             if (entry.getKey() > fieldIdx) {
                 filteredFieldsMap.put(entry.getKey() - 1, entry.getValue());
@@ -176,14 +173,14 @@ public class BatchPresentationFields implements Serializable {
         // calculate newSortingIdList
         List<Integer> sortingIdList = ArraysCommons.createIntegerList(sortIds);
         List<Integer> groupingIdList = ArraysCommons.createIntegerList(fieldsToGroupIds);
-        List<Integer> sortingNotGroupingIdList = new ArrayList<Integer>(sortingIdList);
+        List<Integer> sortingNotGroupingIdList = new ArrayList<>(sortingIdList);
         sortingNotGroupingIdList.removeAll(groupingIdList);
-        List<Integer> sortingAndGroupingIdList = new ArrayList<Integer>(sortingIdList);
+        List<Integer> sortingAndGroupingIdList = new ArrayList<>(sortingIdList);
         sortingAndGroupingIdList.removeAll(sortingNotGroupingIdList);
-        List<Integer> groupingNotSortingIdList = new ArrayList<Integer>(groupingIdList);
+        List<Integer> groupingNotSortingIdList = new ArrayList<>(groupingIdList);
         groupingNotSortingIdList.removeAll(sortingAndGroupingIdList);
 
-        List<Integer> newSortingIdList = new ArrayList<Integer>(
+        List<Integer> newSortingIdList = new ArrayList<>(
                 sortingAndGroupingIdList.size() + groupingNotSortingIdList.size() + sortingNotGroupingIdList.size());
         newSortingIdList.addAll(sortingAndGroupingIdList);
         newSortingIdList.addAll(groupingNotSortingIdList);
@@ -210,7 +207,7 @@ public class BatchPresentationFields implements Serializable {
         sortModes = newSortingModes;
 
         // calculate newGroupingIds
-        List<Integer> newGroupingIdList = new ArrayList<Integer>(sortingAndGroupingIdList.size() + groupingNotSortingIdList.size());
+        List<Integer> newGroupingIdList = new ArrayList<>(sortingAndGroupingIdList.size() + groupingNotSortingIdList.size());
         newGroupingIdList.addAll(sortingAndGroupingIdList);
         newGroupingIdList.addAll(groupingNotSortingIdList);
         // end of calculate newGroupingIds
@@ -250,19 +247,19 @@ public class BatchPresentationFields implements Serializable {
     }
 
     public static BatchPresentationFields createDefaultFields(ClassPresentationType type) {
-        ClassPresentation classPresentation = ClassPresentations.getClassPresentation(type);
+        FieldDescriptor[] fieldDescriptors = type.getFields();
         BatchPresentationFields fields = new BatchPresentationFields();
         fields.groupIds = new int[0];
-        int displayedFieldsCount = classPresentation.getFields().length;
-        for (FieldDescriptor fieldDescriptor : classPresentation.getFields()) {
+        int displayedFieldsCount = fieldDescriptors.length;
+        for (FieldDescriptor fieldDescriptor : fieldDescriptors) {
             if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
                     || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 displayedFieldsCount--;
             }
         }
         fields.displayIds = new int[displayedFieldsCount];
-        for (int i = classPresentation.getFields().length - 1; i >= 0; i--) {
-            FieldDescriptor fieldDescriptor = classPresentation.getFields()[i];
+        for (int i = fieldDescriptors.length - 1; i >= 0; i--) {
+            FieldDescriptor fieldDescriptor = fieldDescriptors[i];
             if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
                     || !(fieldDescriptor.isVisible() && fieldDescriptor.isShowable())) {
                 continue;
@@ -275,21 +272,21 @@ public class BatchPresentationFields implements Serializable {
         // All based on info from FieldDescriptors in current type ClassPresentation
         // (e.g. TaskClassPresentation, ProcessClassPresentation... - all can be found in ClassPresentations class).
         int sortedByDefaultFieldsCount = 0;
-        for (FieldDescriptor field : classPresentation.getFields()) {
+        for (FieldDescriptor field : fieldDescriptors) {
             if (field.defaultSortOrder > 0) {
                 sortedByDefaultFieldsCount++;
             }
         }
         fields.sortIds = new int[sortedByDefaultFieldsCount];
         fields.sortModes = new boolean[sortedByDefaultFieldsCount];
-        for (int i = 0; i < classPresentation.getFields().length; i++) {
-            if (classPresentation.getFields()[i].defaultSortOrder > 0) {
+        for (int i = 0; i < fieldDescriptors.length; i++) {
+            if (fieldDescriptors[i].defaultSortOrder > 0) {
                 try {
-                    fields.sortIds[classPresentation.getFields()[i].defaultSortOrder - 1] = i;
-                    fields.sortModes[classPresentation.getFields()[i].defaultSortOrder - 1] = classPresentation.getFields()[i].defaultSortMode;
+                    fields.sortIds[fieldDescriptors[i].defaultSortOrder - 1] = i;
+                    fields.sortModes[fieldDescriptors[i].defaultSortOrder - 1] = fieldDescriptors[i].defaultSortMode;
                 } catch (IndexOutOfBoundsException e) {
                     throw new InternalApplicationException("Sequence of indexes for default sorted fields in class " + type.name()
-                            + "-ClassPresentation are broken with index " + classPresentation.getFields()[i].defaultSortOrder + ". "
+                            + "-ClassPresentation are broken with index " + fieldDescriptors[i].defaultSortOrder + ". "
                             + "Revise noted class please. " + "Sorted fields indexes must start with 1 and be exactly sequential.");
                 }
             }

@@ -19,7 +19,6 @@ package ru.runa.wfe.presentation.hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -51,12 +50,12 @@ public class HibernateCompilerLeftJoinBuilder {
      *            SQL query to inject left joins.
      */
     public void injectLeftJoin(StringBuilder sqlRequest) {
-        List<LeftJoinDescription> leftJoins = new ArrayList<LeftJoinDescription>();
+        List<LeftJoinDescription> leftJoins = new ArrayList<>();
         for (FieldDescriptor field : batchPresentation.getAllFields()) {
             if (field.displayName.startsWith(ClassPresentation.editable_prefix)) {
                 continue;
             }
-            if (field.dbSources[0].getSourceObject().equals(batchPresentation.getClassPresentation().getPresentationClass())) {
+            if (field.dbSources[0].getSourceObject().equals(batchPresentation.getType().getPresentationClass())) {
                 continue;
             }
             if (!HibernateCompilerHelper.isFieldSQLAffects(field, batchPresentation)) {
@@ -92,7 +91,7 @@ public class HibernateCompilerLeftJoinBuilder {
         removeJoinedTable(sqlRequest, tableName);
         String restriction = getJoinRestriction(sqlRequest, joinedTableAlias);
         String rootJoinTable = getRootJoinTable(joinedTableAlias, restriction);
-        String leftJoinQuery = null;
+        String leftJoinQuery;
         if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
             String condition = getRemovableFieldCondition(sqlRequest, joinedTableAlias);
             leftJoinQuery = " left join (select " + joinedTableAlias + ".* from " + tableName + " " + joinedTableAlias + " where " + condition + ")"
@@ -189,10 +188,10 @@ public class HibernateCompilerLeftJoinBuilder {
             ++restrTo;
         }
         restriction = sqlRequest.substring(restrFrom, restrTo);
-        if (restriction.indexOf(" and ") != -1) {
+        if (restriction.contains(" and ")) {
             restriction = restriction.substring(0, restriction.indexOf(" and ")) + "))";
         }
-        if (restriction.indexOf(" AND ") != -1) {
+        if (restriction.contains(" AND ")) {
             restriction = restriction.substring(0, restriction.indexOf(" AND ")) + "))";
         }
         sqlRequest.replace(restrFrom, restrTo, "(1=1)");

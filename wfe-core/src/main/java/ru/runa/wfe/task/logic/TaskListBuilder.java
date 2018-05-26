@@ -33,6 +33,7 @@ import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
@@ -142,7 +143,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
     @Override
     public List<WfTask> getObservableTasks(Actor actor, BatchPresentation batchPresentation) {
         Preconditions.checkNotNull(batchPresentation, "batchPresentation");
-        Preconditions.checkArgument(batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation);
+        Preconditions.checkArgument(batchPresentation.getType() == ClassPresentationType.TASK_OBSERVABLE);
         List<TaskInListState> tasksState = loadObservableTasks(actor, batchPresentation);
         List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
         Map<Process, Map<String, Variable<?>>> variables = variableDAO.getVariables(getTasksProcesses(tasksState), variableNames);
@@ -228,7 +229,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
      * @return set of processes, which tasks is in user tasks list.
      */
     private HashSet<Process> getTasksProcesses(List<TaskInListState> tasksState) {
-        return new HashSet<Process>(Lists.transform(tasksState, new Function<TaskInListState, Process>() {
+        return new HashSet<>(Lists.transform(tasksState, new Function<TaskInListState, Process>() {
             @Override
             public Process apply(TaskInListState input) {
                 return input.getTask().getProcess();
@@ -244,7 +245,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
      * @return list of tasks id, which tasks is in user tasks list.
      */
     private ArrayList<Long> getTasksIds(List<TaskInListState> tasksState) {
-        return new ArrayList<Long>(Lists.transform(tasksState, new Function<TaskInListState, Long>() {
+        return new ArrayList<>(Lists.transform(tasksState, new Function<TaskInListState, Long>() {
             @Override
             public Long apply(TaskInListState input) {
                 return input.getTask().getId();
@@ -552,10 +553,7 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
             Actor actor;
             try {
                 actor = executorDAO.getActor(actorId);
-            } catch (DataAccessException e) {
-                log.warn(String.format("checkSubstitutionCriteriaRules: exception: %s on DAO-access with actorId: %s", e, actorId));
-                continue;
-            } catch (ExecutorDoesNotExistException e) {
+            } catch (DataAccessException | ExecutorDoesNotExistException e) {
                 log.warn(String.format("checkSubstitutionCriteriaRules: exception: %s on DAO-access with actorId: %s", e, actorId));
                 continue;
             }

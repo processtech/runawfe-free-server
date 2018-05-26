@@ -20,10 +20,8 @@ package ru.runa.wf.web.action;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.wf.web.form.ProcessForm;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -41,12 +39,12 @@ public class AutoShowFormHelper {
 
     public static ActionForward getNextActionForward(User user, ActionMapping mapping, Profile profile, Long processId) {
         BatchPresentation batchPresentation = BatchPresentationFactory.TASKS.createDefault("getNextActionForward");
-        int fieldIndex = batchPresentation.getClassPresentation().getFieldIndex(TaskClassPresentation.PROCESS_ID);
+        int fieldIndex = batchPresentation.getType().getFieldIndex(TaskClassPresentation.PROCESS_ID);
         batchPresentation.getFilteredFields().put(fieldIndex, new LongFilterCriteria(processId));
         List<WfTask> tasks = Delegates.getTaskService().getMyTasks(user, batchPresentation);
         if (tasks.size() == 1) {
         	WfTask task = tasks.get(0);
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = new HashMap<>();
             params.put(ProcessForm.ID_INPUT_NAME, task.getId());
             params.put(ProcessForm.ACTOR_ID_INPUT_NAME, task.getOwner().getId());
             return Commons.forward(mapping.findForward(LOCAL_FORWARD_SUBMIT_TASK), params);

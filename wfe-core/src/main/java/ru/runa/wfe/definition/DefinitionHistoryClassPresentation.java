@@ -18,7 +18,6 @@
 package ru.runa.wfe.definition;
 
 import java.util.Date;
-
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DefaultDBSource;
 import ru.runa.wfe.presentation.FieldDescriptor;

@@ -33,6 +33,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
 import ru.runa.wfe.security.ApplicablePermissions;
@@ -43,7 +44,6 @@ import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskCompletionBy;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskDoesNotExistException;
-import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
@@ -208,7 +208,7 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
-        if (batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation) {
+        if (batchPresentation.getType() == ClassPresentationType.TASK_OBSERVABLE) {
             return observableTaskListBuilder.getObservableTasks(user.getActor(), batchPresentation);
         }
         if (!executorLogic.isAdministrator(user)) {

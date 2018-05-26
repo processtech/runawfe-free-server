@@ -1,17 +1,14 @@
 package ru.runa.af.web.tag;
 
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.html.B;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.wf.web.MessagesProcesses;
@@ -54,7 +51,7 @@ public class ListObservableTasksFormTag extends ListTasksFormTag {
             FilterCriteria executorNameCriteria = new StringFilterCriteria();
             executorNameCriteria.applyFilterTemplates(new String[] { Delegates.getExecutorService().getExecutor(getUser(), executorId).getName() });
             Map<Integer, FilterCriteria> filterMap = Maps.newHashMap();
-            filterMap.put(executorTasksPresentation.getClassPresentation().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR),
+            filterMap.put(executorTasksPresentation.getType().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR),
                     executorNameCriteria);
             executorTasksPresentation.setFilteredFields(filterMap);
             Delegates.getProfileService().createBatchPresentation(getUser(), executorTasksPresentation);
@@ -88,24 +85,25 @@ public class ListObservableTasksFormTag extends ListTasksFormTag {
         try {
             // TODO move to service method
             Utils.getTransactionManager().begin();
-            int fieldIndex = getBatchPresentation().getClassPresentation().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
+            int fieldIndex = getBatchPresentation().getType().getFieldIndex(TaskObservableClassPresentation.TASK_OBSERVABLE_EXECUTOR);
             FilterCriteria filterCriteria = getBatchPresentation().getFilteredFields().get(fieldIndex);
             String executorName = filterCriteria != null ? filterCriteria.getFilterTemplates()[0] : null;
             TaskListBuilder taskListBuilder = ApplicationContextFactory.getContext().getBean(TaskListBuilder.class);
             Set<Executor> executors = taskListBuilder.getObservableExecutors(actor, executorName);
             Utils.getTransactionManager().rollback();
-            String title = MessagesProcesses.TITLE_OBSERVABLE_EXECUTORS.message(pageContext) + " (" + executors.size() + "):<br/>";
+            StringBuilder title = new StringBuilder();
+            title.append(MessagesProcesses.TITLE_OBSERVABLE_EXECUTORS.message(pageContext)).append(" (").append(executors.size()).append("):<br/>");
             int maxCount = 20;
             for (Executor executor : executors) {
-                title += executor.getName() + "<br/>";
+                title.append(executor.getName()).append("<br/>");
                 if (--maxCount <= 0) {
-                    title += "...<br/>";
+                    title.append("...<br/>");
                     break;
                 }
             }
             B b = new B();
             b.addElement(Commons.getMessage("content.observable_tasks.help", pageContext));
-            b.setTitle(title);
+            b.setTitle(title.toString());
             tdFormElement.addElement(b);
         } catch (Exception e) {
             LogFactory.getLog(getClass()).error("Unable to build header", e);

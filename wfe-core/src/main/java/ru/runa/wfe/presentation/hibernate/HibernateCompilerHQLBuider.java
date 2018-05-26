@@ -167,7 +167,7 @@ public class HibernateCompilerHQLBuider {
         if (parameters.getQueriedClass() != null) {
             query.append(parameters.getQueriedClass().getName());
         } else {
-            query.append(batchPresentation.getClassPresentation().getPresentationClass().getName());
+            query.append(batchPresentation.getType().getPresentationClass().getName());
         }
         query.append(" as ").append(ClassPresentation.classNameSQL);
     }
@@ -215,7 +215,7 @@ public class HibernateCompilerHQLBuider {
      */
     private List<String> addClassPresentationRestriction() {
         List<String> result = new LinkedList<>();
-        String restrictions = batchPresentation.getClassPresentation().getRestrictions();
+        String restrictions = batchPresentation.getType().getRestrictions();
         if (!Strings.isNullOrEmpty(restrictions)) {
             result.add(restrictions);
         }
@@ -246,8 +246,8 @@ public class HibernateCompilerHQLBuider {
                 if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
                     String propertyDBPath = field.displayName.substring(ClassPresentation.removable_prefix.length(),
                             field.displayName.indexOf(':', ClassPresentation.removable_prefix.length()));
-                    joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath)
-                            .append("=:removableUserValue").append(field.fieldIdx).append(")");
+                    joinRestriction.append(" and (").append(alias).append(".").append(propertyDBPath).append("=:removableUserValue")
+                            .append(field.fieldIdx).append(")");
                     placeholders.add("removableUserValue" + field.fieldIdx, field.displayName.substring(field.displayName.lastIndexOf(':') + 1));
                 }
                 joinRestriction.append(")");

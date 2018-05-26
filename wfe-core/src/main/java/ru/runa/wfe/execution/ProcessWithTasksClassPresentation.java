@@ -18,7 +18,6 @@
 package ru.runa.wfe.execution;
 
 import java.util.Date;
-
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
@@ -165,7 +164,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                         "ru.runa.wf.web.html.ProcessVariableTDBuilder", new Object[] {}) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

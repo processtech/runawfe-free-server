@@ -394,7 +394,7 @@ public class AuthorizationLogic extends CommonLogic {
         if (hasPermission) {
             List<Executor> executors = compiler.getBatch();
             for (Executor privelegedExecutor : permissionDAO.getPrivilegedExecutors(securedObject.getSecuredObjectType())) {
-                if (batchPresentation.getClassPresentation().getPresentationClass().isInstance(privelegedExecutor)
+                if (batchPresentation.getType().getPresentationClass().isInstance(privelegedExecutor)
                         && permissionDAO.isAllowed(user, Permission.LIST, privelegedExecutor)) {
                     executors.add(0, privelegedExecutor);
                 }
