@@ -1,12 +1,9 @@
 package ru.runa.wfe.var.format;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
-
 import org.json.simple.JSONObject;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;

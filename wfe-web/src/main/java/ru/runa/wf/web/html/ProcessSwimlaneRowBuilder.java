@@ -17,15 +17,11 @@
  */
 package ru.runa.wf.web.html;
 
+import com.google.common.base.Strings;
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
-
-import com.google.common.base.Strings;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.common.web.html.RowBuilder;

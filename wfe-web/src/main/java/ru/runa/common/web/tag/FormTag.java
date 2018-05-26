@@ -111,15 +111,11 @@ abstract public class FormTag extends VisibleTag {
         return null;
     }
 
-    protected List<String> getSubmitButtonNames() {
-        return null;
-    }
-
     protected boolean isMultipleSubmit() {
         return false;
     }
 
-    protected List<Map<String, String>> getFormButtonsData() {
+    protected List<Map<String, String>> getSubmitButtonsData() {
         return null;
     }
 
@@ -174,7 +170,7 @@ abstract public class FormTag extends VisibleTag {
             }
             if (isMultipleSubmit()) {
                 td.addElement(new Input(Input.HIDDEN, MULTIPLE_SUBMIT_BUTTONS, "true"));
-                for (Map<String, String> buttonData : getFormButtonsData()) {
+                for (Map<String, String> buttonData : getSubmitButtonsData()) {
                     Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, buttonData.get("name"));
                     String color = buttonData.get("color");
                     submitButton.setClass(Resources.CLASS_BUTTON + (Strings.isNullOrEmpty(color) ? "" : "-" + color));

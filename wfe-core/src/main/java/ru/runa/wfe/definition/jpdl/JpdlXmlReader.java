@@ -1,19 +1,16 @@
 package ru.runa.wfe.definition.jpdl;
 
-import java.util.List;
-import java.util.Map;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.util.List;
+import java.util.Map;
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
