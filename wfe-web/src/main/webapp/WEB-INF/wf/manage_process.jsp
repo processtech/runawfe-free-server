@@ -1,7 +1,6 @@
-<%@page import="ru.runa.common.Version"%>
-<%@page import="ru.runa.common.web.Commons"%>
-<%@ page language="java" pageEncoding="UTF-8" %>
-<%@ page import="ru.runa.common.web.form.IdForm" %>
+<%@ page pageEncoding="UTF-8" %>
+<%@ page import="ru.runa.common.Version"%>
+<%@ page import="ru.runa.common.web.Commons"%>
 <%@ page import="ru.runa.wf.web.form.TaskIdForm" %>
 <%@ page import="ru.runa.wf.web.action.ShowGraphModeHelper" %>
 <%@ page import="ru.runa.common.WebResources" %>
@@ -13,11 +12,10 @@
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
 <tiles:put name="head" type="string">
-
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/errorviewer.js?"+Version.getHash() %>' />">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
-	<script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
-	<script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
+<script type="text/javascript" src="<html:rewrite page='<%="/js/errorviewer.js?"+Version.getHash() %>' />">c=0;</script>
+<script type="text/javascript" src="<html:rewrite page='<%="/js/processgraphutils.js?"+Version.getHash() %>' />">c=0;</script>
+<script type="text/javascript" src="/wfe/js/i18n/processupgrade.dialog-<%= Commons.getLocale(pageContext).getLanguage() %>.js">c=0;</script>
+<script type="text/javascript" src="<html:rewrite page='<%="/js/processupgrade.dialog.js?"+Version.getHash() %>' />">c=0;</script>
 <% if (WebResources.getDiagramRefreshInterval() > 0) { %>
 <script type="text/javascript">
 $(window).load(function() {
@@ -35,13 +33,10 @@ function Reload() {
    $("#graph").attr("src", src);
 }  
 </script>
-
 <% } %>
-
 </tiles:put>
 
-<tiles:put name="body" type="string" >
-
+<tiles:put name="body" type="string">
 <%
 	long id = Long.parseLong(request.getParameter("id"));
 	Long taskId = null;
@@ -85,7 +80,6 @@ function Reload() {
 			<wf:managePermissionsLink securedObjectType="PROCESS" identifiableId="<%= id %>"  />
 		</td>
 	</tr>
-
 </table>
 </wf:processInfoForm>
 
@@ -95,7 +89,7 @@ function Reload() {
 <% if(!graphMode) { %>
 	<wf:processGraphForm identifiableId='<%= id %>' taskId='<%= taskId %>' childProcessId='<%= childProcessId %>'/>
 <% } %>
-
 </tiles:put>
+
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>

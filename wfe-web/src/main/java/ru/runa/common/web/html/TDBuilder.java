@@ -36,6 +36,13 @@ public interface TDBuilder {
             SecuredObject getSecuredObject(Object o, Env env);
         }
 
+        final class IdentitySecuredObjectExtractor<T extends SecuredObject> implements SecuredObjectExtractor {
+            @Override
+            public SecuredObject getSecuredObject(Object o, Env env) {
+                return (T)o;
+            }
+        }
+
         User getUser();
 
         PageContext getPageContext();

@@ -117,7 +117,7 @@ public class ExecutionLogic extends WFCommonLogic {
     public void deleteProcesses(User user, final ProcessFilter filter) {
         List<Process> processes = getProcessesInternal(user, filter);
         // TODO add ProcessPermission.DELETE_PROCESS
-        processes = filterSecuredObject(user, processes, Permission.CANCEL_PROCESS);
+        processes = filterSecuredObject(user, processes, Permission.CANCEL);
         for (Process process : processes) {
             deleteProcess(user, process);
         }
@@ -125,7 +125,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public void cancelProcesses(User user, final ProcessFilter filter) {
         List<Process> processes = getProcessesInternal(user, filter);
-        processes = filterSecuredObject(user, processes, Permission.CANCEL_PROCESS);
+        processes = filterSecuredObject(user, processes, Permission.CANCEL);
         for (Process process : processes) {
             ProcessDefinition processDefinition = getDefinition(process);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);

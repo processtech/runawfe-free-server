@@ -167,13 +167,7 @@ public class ShowGraphHistoryFormTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected boolean isVisible() {
-        return true;
-    }
-
-    @Override
     protected String getTitle() {
         return MessagesProcesses.TITLE_PROCESS_GRAPH.message(pageContext);
     }
-
 }

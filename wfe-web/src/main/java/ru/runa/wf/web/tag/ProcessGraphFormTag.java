@@ -105,11 +105,6 @@ public class ProcessGraphFormTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected boolean isVisible() {
-        return true;
-    }
-
-    @Override
     protected String getTitle() {
         if (subprocessId != null) {
             return null;

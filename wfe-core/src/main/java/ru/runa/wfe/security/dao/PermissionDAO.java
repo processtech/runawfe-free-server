@@ -20,7 +20,6 @@ package ru.runa.wfe.security.dao;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.mysema.commons.lang.CloseableIterator;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -53,10 +51,10 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDAO;
+
 
 /**
  * Permission DAO level implementation via Hibernate.
@@ -64,7 +62,13 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
  * @author Konstantinov Aleksey 19.02.2012
  */
 @Component
-@Transactional
+@Transactional(
+        // TODO This is hack, otherwise /manage_process_definition.do?id=N crashed with internall error if user had no permission.
+        //      That's because ProcessDefinitionBaseFormTag.getDefinition() calls DefinitionService.getProcessDefinition() which
+        //      checks permissions on its own. This @Transactional annotation is required for initialization and cannot be removed,
+        //      but it's just a symptom: problem root is a mess in permission checks.
+        noRollbackFor = {AuthorizationException.class}
+)
 @SuppressWarnings("unchecked")
 public class PermissionDAO extends CommonDAO {
 

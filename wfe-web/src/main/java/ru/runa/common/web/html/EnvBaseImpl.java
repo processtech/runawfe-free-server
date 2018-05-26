@@ -56,5 +56,5 @@ public abstract class EnvBaseImpl implements Env {
         }
     }
 
-    private final Map<Long, Boolean> processDefPermissionCache = new HashMap<Long, Boolean>();
+    private final Map<Long, Boolean> processDefPermissionCache = new HashMap<>();
 }

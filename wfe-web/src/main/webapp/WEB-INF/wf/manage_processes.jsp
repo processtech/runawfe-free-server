@@ -1,4 +1,4 @@
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -23,14 +23,13 @@
 		input.replaceWith(select);
 	});
 	</script>
-
 </tiles:put>
+
 <tiles:put name="body" type="string">
 <%
 	String returnAction = "/manage_processes.do";
 	String batchPresentationId = ru.runa.common.WebResources.isProcessTaskFiltersEnabled() ? "listProcessesWithTasksForm" : "listProcessesForm";
 %>
-
 <wf:listProcessesForm batchPresentationId="<%= batchPresentationId %>" returnAction="<%= returnAction %>">
     <div style="position: relative;">
         <div>
@@ -44,5 +43,6 @@
     </div>
 </wf:listProcessesForm>
 </tiles:put>
+
 <tiles:put name="messages" value="../common/messages.jsp" />
 </tiles:insert>

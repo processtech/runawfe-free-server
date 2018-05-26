@@ -66,18 +66,13 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
     private Long taskId;
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
     public Long getTaskId() {
         return taskId;
-    }
-
-    @Override
-    protected boolean isVisible() {
-        return true;
     }
 
     // start #179
@@ -99,7 +94,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         if (ended) {
             return WebResources.isProcessRemovalEnabled() && Delegates.getExecutorService().isAdministrator(getUser());
         } else {
-            return super.isSubmitButtonEnabled(securedObject, Permission.CANCEL_PROCESS);
+            return super.isSubmitButtonEnabled(securedObject, Permission.CANCEL);
         }
     }
 
