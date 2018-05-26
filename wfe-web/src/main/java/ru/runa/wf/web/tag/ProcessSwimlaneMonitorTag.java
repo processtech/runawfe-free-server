@@ -26,6 +26,9 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
@@ -39,9 +42,6 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "processSwimlaneMonitor")
 public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
@@ -72,6 +72,7 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
         List<WfSwimlane> swimlanes = Delegates.getExecutionService().getSwimlanes(getUser(), getIdentifiableId());
         List<String> headerNames = Lists.newArrayList();
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_NAME.message(pageContext));
+        headerNames.add(MessagesProcesses.LABEL_GLOBAL.message(pageContext));
         headerNames.add(MessagesProcesses.LABEL_SWIMLANE_ASSIGNMENT.message(pageContext));
         headerNames.add(MessagesExecutor.LABEL_SWIMLANE_ORGFUNCTION.message(pageContext));
         HeaderBuilder headerBuilder = new StringsHeaderBuilder(headerNames);

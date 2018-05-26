@@ -1,6 +1,5 @@
 package ru.runa.wfe.var.format;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,8 +74,8 @@ public class MapFormat extends VariableFormat implements VariableFormatContainer
     }
 
     @Override
-    public List<?> convertFromStringValue(String json) throws Exception {
-        return (List<?>) parseJSON(json);
+    public Map<?, ?> convertFromStringValue(String json) throws Exception {
+        return (Map<?, ?>) parseJSON(json);
     }
 
     @Override

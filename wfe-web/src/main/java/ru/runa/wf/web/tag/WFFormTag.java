@@ -18,6 +18,7 @@
 package ru.runa.wf.web.tag;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ecs.StringElement;
 import org.apache.ecs.html.Form;
@@ -29,12 +30,15 @@ import org.apache.struts.Globals;
 import org.apache.struts.taglib.html.Constants;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import ru.runa.common.web.ActionExceptionHelper;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wfe.form.Interaction;
+import ru.runa.wfe.lang.dto.WfTransition;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 
 public abstract class WFFormTag extends TitledFormTag {
@@ -108,7 +112,7 @@ public abstract class WFFormTag extends TitledFormTag {
 
     @Override
     protected boolean isMultipleSubmit() {
-        return getTransitionNames().size() > 1;
+        return getTransitions().size() > 1;
     }
 
     @Override
@@ -116,13 +120,36 @@ public abstract class WFFormTag extends TitledFormTag {
         return MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
     }
 
-    @Override
-    protected List<String> getSubmitButtonNames() {
-        return getTransitionNames();
+    protected List<String> getTransitionNames() {
+        List<String> names = Lists.newArrayList();
+        for (WfTransition transition : interaction.getOutputTransitions()) {
+            names.add(transition.getName());
+        }
+        return names;
     }
 
-    protected List<String> getTransitionNames() {
-        return interaction.getOutputTransitionNames();
+    protected List<String> getTransitionColors() {
+        List<String> colors = Lists.newArrayList();
+        for (WfTransition transition : interaction.getOutputTransitions()) {
+            colors.add(transition.getColor());
+        }
+        return colors;
+    }
+
+    protected List<WfTransition> getTransitions() {
+        return interaction.getOutputTransitions();
+    }
+
+    @Override
+    protected List<Map<String, String>> getFormButtonsData() {
+        List<Map<String, String>> data = Lists.newArrayList();
+        for (WfTransition transition : interaction.getOutputTransitions()) {
+            Map<String, String> transitionData = Maps.newHashMap();
+            transitionData.put("name", transition.getName());
+            transitionData.put("color", transition.getColor());
+            data.add(transitionData);
+        }
+        return data;
     }
 
     protected abstract Long getDefinitionId();

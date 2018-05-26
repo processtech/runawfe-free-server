@@ -41,6 +41,7 @@ public class SwimlaneDefinition extends GraphElement {
     private String orgFunctionLabel;
     private List<String> flowNodeIds;
     private String scriptingName;
+    private boolean global;
 
     public Delegation getDelegation() {
         return delegation;
@@ -84,4 +85,13 @@ public class SwimlaneDefinition extends GraphElement {
         }
         return BotSwimlaneInitializer.isValid(delegation.getConfiguration());
     }
+
+    public boolean isGlobal() {
+        return global;
+    }
+
+    public void setGlobal(boolean global) {
+        this.global = global;
+    }
+
 }

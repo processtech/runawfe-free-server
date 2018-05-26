@@ -30,6 +30,8 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 
+import com.google.common.base.Strings;
+
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.MessagesCommon;
@@ -83,7 +85,7 @@ abstract public class FormTag extends VisibleTag {
      * In this method descendants fill the form.
      * 
      * @param tdFormElement
-     *            @ if any exception occurred
+     * @ if any exception occurred
      */
     abstract protected void fillFormElement(final TD tdFormElement);
 
@@ -115,6 +117,10 @@ abstract public class FormTag extends VisibleTag {
 
     protected boolean isMultipleSubmit() {
         return false;
+    }
+
+    protected List<Map<String, String>> getFormButtonsData() {
+        return null;
     }
 
     private Form form;
@@ -168,9 +174,10 @@ abstract public class FormTag extends VisibleTag {
             }
             if (isMultipleSubmit()) {
                 td.addElement(new Input(Input.HIDDEN, MULTIPLE_SUBMIT_BUTTONS, "true"));
-                for (String buttonName : getSubmitButtonNames()) {
-                    Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, buttonName);
-                    submitButton.setClass(Resources.CLASS_BUTTON);
+                for (Map<String, String> buttonData : getFormButtonsData()) {
+                    Input submitButton = new Input(Input.SUBMIT, SUBMIT_BUTTON_NAME, buttonData.get("name"));
+                    String color = buttonData.get("color");
+                    submitButton.setClass(Resources.CLASS_BUTTON + (Strings.isNullOrEmpty(color) ? "" : "-" + color));
                     try {
                         if (!isSubmitButtonEnabled()) {
                             submitButton.setDisabled(true);

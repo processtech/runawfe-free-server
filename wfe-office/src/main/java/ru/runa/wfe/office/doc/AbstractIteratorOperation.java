@@ -1,16 +1,14 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 public class AbstractIteratorOperation extends Operation {
     protected IterateBy iterateBy;
@@ -68,6 +66,14 @@ public class AbstractIteratorOperation extends Operation {
             }
             return indexes.iterator();
         }
+        if (iterateBy == IterateBy.numbers) {
+            List<?> list = (List<?>) getContainerValue();
+            List<Long> indexes = Lists.newArrayListWithExpectedSize(list.size());
+            for (int i = 0; i < list.size(); i++) {
+                indexes.add(new Long(i + 1));
+            }
+            return indexes.iterator();
+        }
         if (iterateBy == IterateBy.keys) {
             return ((Map<?, ?>) getContainerValue()).keySet().iterator();
         }
@@ -81,7 +87,7 @@ public class AbstractIteratorOperation extends Operation {
     }
 
     public String getIteratorFormatClassName() {
-        if (iterateBy == IterateBy.indexes) {
+        if (iterateBy == IterateBy.indexes || iterateBy == IterateBy.numbers) {
             return LongFormat.class.getName();
         }
         if (containerVariable == null) {

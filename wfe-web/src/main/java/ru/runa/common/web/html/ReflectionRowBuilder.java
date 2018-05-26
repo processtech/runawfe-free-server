@@ -60,7 +60,7 @@ import ru.runa.wfe.user.Executor;
  * @author Gritsenko_S
  */
 public class ReflectionRowBuilder implements RowBuilder {
-    protected final List<? extends Object> items;
+    protected final List<?> items;
     protected final BatchPresentation batchPresentation;
     protected GroupState currentState;
     protected final String returnAction;
@@ -335,7 +335,7 @@ public class ReflectionRowBuilder implements RowBuilder {
                     && ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_PARAMETER)
                     || ConfirmationPopupHelper.getInstance().isEnabled(ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER)) {
                 Interaction interaction = Delegates.getDefinitionService().getStartInteraction(getUser(), pid);
-                if (!(interaction.hasForm() || interaction.getOutputTransitionNames().size() > 1)) {
+                if (!(interaction.hasForm() || interaction.getOutputTransitions().size() > 1)) {
                     String actionParameter = ConfirmationPopupHelper.START_PROCESS_FORM_PARAMETER;
                     return ConfirmationPopupHelper.getInstance().getConfirmationPopupCodeHTML(actionParameter, getPageContext());
                 }

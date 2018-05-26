@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
@@ -84,10 +85,9 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
     private void buildHeader(HttpServletRequest request, HSSFWorkbook workbook, BatchPresentation batchPresentation) {
         CellStyle boldCellStyle = workbook.createCellStyle();
         Font boldFont = workbook.createFont();
-        boldFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        boldFont.setBold(true);
         boldCellStyle.setFont(boldFont);
         Row header = workbook.getSheetAt(0).createRow(0);
-        header.setRowStyle(boldCellStyle);
         int i = 0;
         for (FieldDescriptor fieldDescriptor : batchPresentation.getDisplayFields()) {
             if (fieldDescriptor.displayName.startsWith(ClassPresentation.editable_prefix)
@@ -95,7 +95,9 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
                     || fieldDescriptor.fieldState != FieldState.ENABLED) {
                 continue;
             }
-            header.createCell(i++).setCellValue(getDisplayString(request, fieldDescriptor));
+            Cell cell = header.createCell(i++);
+            cell.setCellStyle(boldCellStyle);
+            cell.setCellValue(getDisplayString(request, fieldDescriptor));
         }
     }
 

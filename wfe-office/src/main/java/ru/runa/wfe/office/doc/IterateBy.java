@@ -2,10 +2,10 @@ package ru.runa.wfe.office.doc;
 
 public enum IterateBy {
     indexes,
+    numbers,
     items,
     keys,
-    values,
-    numbers;
+    values;
 
     public static IterateBy identifyByString(DocxConfig config, String string) {
         for (IterateBy iterateBy : IterateBy.values()) {
