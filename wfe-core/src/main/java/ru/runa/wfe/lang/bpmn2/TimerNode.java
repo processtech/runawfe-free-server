@@ -1,9 +1,9 @@
 package ru.runa.wfe.lang.bpmn2;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.CreateTimerLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -27,9 +27,6 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 public class TimerNode extends Node implements BoundaryEventContainer, BoundaryEvent {
     private static final long serialVersionUID = 1L;
     private Boolean boundaryEventInterrupting;
@@ -44,7 +41,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
     public List<BoundaryEvent> getBoundaryEvents() {
         return boundaryEvents;
     }
-    
+
     @Override
     public Boolean getBoundaryEventInterrupting() {
         return boundaryEventInterrupting;
@@ -90,8 +87,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
 
     @Override
     public void cancelBoundaryEvent(Token token) {
-        jobDAO.deleteTimersByName(token, getNodeId());
-        jobDAO.deleteTimersByName(token, getName());
+        jobDAO.deleteByToken(token);
         // TODO 212
         // executionContext.addLog(new ActionLog(this));
     }

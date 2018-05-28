@@ -33,7 +33,7 @@ public class DeployBotAction extends ActionBase {
             BotStation station = Delegates.getBotService().getBotStation(form.getBotStationId());
             if (WebResources.isBulkDeploymentElements()) {
                 Map<String, UploadedFile> uploadedBotFiles = BulkUploadServlet.getUploadedFilesMap(request);
-                List<String> successKeys = new ArrayList<String>();
+                List<String> successKeys = new ArrayList<>();
                 for (Map.Entry<String, UploadedFile> entry : uploadedBotFiles.entrySet()) {
                     UploadedFile uploadedFile = entry.getValue();
                     try {

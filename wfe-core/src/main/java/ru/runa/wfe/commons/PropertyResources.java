@@ -1,5 +1,8 @@
 package ru.runa.wfe.commons;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -8,12 +11,12 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.dao.SettingDAO;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.dao.SettingDAO;
 
 public class PropertyResources {
     private static final Log log = LogFactory.getLog(PropertyResources.class);
@@ -154,6 +157,18 @@ public class PropertyResources {
             return defaultValue;
         }
         return Long.parseLong(result);
+    }
+
+    public Date getDateProperty(String name, Date defaultValue) {
+        String result = getStringProperty(name);
+        try {
+            if (result != null) {
+                return new SimpleDateFormat(SystemProperties.getDateFormatPattern()).parse(result);
+            }
+        } catch (ParseException e) {
+            log.error("Date '" + result + "' parsing error", e);
+        }
+        return defaultValue;
     }
 
 }

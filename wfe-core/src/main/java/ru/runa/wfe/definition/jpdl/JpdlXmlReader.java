@@ -101,12 +101,14 @@ public class JpdlXmlReader {
     private static final String ACTION_NODE = "action";
     private static final String ACCESS_TYPE = "accessType";
     private static final String EMBEDDED = "embedded";
+    private static final String TRANSACTIONAL = "transactional";
     private static final String IGNORE_SUBSTITUTION_RULES = "ignoreSubstitutionRules";
     private static final String MULTI_TASK_CREATION_MODE = "multiTaskCreationMode";
     private static final String NODE_ASYNC_EXECUTION = "asyncExecution";
     private static final String BEHAVIOUR = "behavior";
     private static final String BEHAVIOUR_TERMINATE = "TERMINATE";
     private static final String EXECUTION_CONDITION = "executionCondition";
+    private static final String GLOBAL = "global";
 
     private static Map<String, Class<? extends Node>> nodeTypes = Maps.newHashMap();
     static {
@@ -177,6 +179,7 @@ public class JpdlXmlReader {
             }
             SwimlaneDefinition swimlaneDefinition = new SwimlaneDefinition();
             swimlaneDefinition.setName(swimlaneName);
+            swimlaneDefinition.setGlobal("true".equals(element.attributeValue(GLOBAL)));
             Element assignmentElement = element.element(ASSIGNMENT_NODE);
             if (assignmentElement != null) {
                 swimlaneDefinition.setDelegation(readDelegation(processDefinition, assignmentElement));
@@ -336,6 +339,7 @@ public class JpdlXmlReader {
             if (subProcessElement != null) {
                 subprocessNode.setSubProcessName(subProcessElement.attributeValue(NAME_ATTR));
                 subprocessNode.setEmbedded(Boolean.parseBoolean(subProcessElement.attributeValue(EMBEDDED, "false")));
+                subprocessNode.setTransactional(Boolean.parseBoolean(subProcessElement.attributeValue(TRANSACTIONAL, "false")));
             }
             if (node instanceof MultiSubprocessNode) {
                 ((MultiSubprocessNode) node).setDiscriminatorCondition(element.attributeValue(EXECUTION_CONDITION));

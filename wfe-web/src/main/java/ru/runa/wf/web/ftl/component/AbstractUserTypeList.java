@@ -13,6 +13,9 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.UserTypeFormat;
+
+import com.google.common.base.Preconditions;
+
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
@@ -76,7 +79,9 @@ public abstract class AbstractUserTypeList extends FormComponent {
                 attributes.addAll(userType.getAttributes());
             } else {
                 for (final String field : attributeNames) {
-                    attributes.add(userType.getAttributeNotNull(field));
+                    VariableDefinition expandedDefinition = userType.getAttributeExpanded(field);
+                    Preconditions.checkNotNull(expandedDefinition, field);
+                    attributes.add(expandedDefinition);
                 }
             }
             return attributes;

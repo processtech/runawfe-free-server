@@ -199,7 +199,7 @@ public class WFCommonLogic extends CommonLogic {
             deleteProcess(user, subProcess);
         }
         processLogDAO.deleteAll(process.getId());
-        jobDAO.deleteAll(process);
+        jobDAO.deleteByProcess(process);
         variableDAO.deleteAll(process);
         processDAO.delete(process);
         taskDAO.deleteAll(process);

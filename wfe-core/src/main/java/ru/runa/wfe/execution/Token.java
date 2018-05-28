@@ -21,12 +21,13 @@
  */
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -42,7 +43,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -51,7 +51,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.Utils;
@@ -64,9 +63,6 @@ import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.lang.ProcessDefinition}.
@@ -326,25 +322,27 @@ public class Token implements Serializable {
      */
     public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
         ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
-        if (endDate == null) {
-            log.info("Ending " + this + " by " + canceller);
-            setEndDate(new Date());
-            Node node = processDefinition.getNode(getNodeId());
-            if (node instanceof SubprocessNode) {
-                for (Process subProcess : executionContext.getTokenSubprocesses()) {
-                    ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
-                    subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
-                }
-            } else if (node instanceof BaseTaskNode) {
-                ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
-            } else if (node instanceof BoundaryEvent) {
-                log.info("Cancelling " + node + " with " + this);
-                ((BoundaryEvent) node).cancelBoundaryEvent(this);
-            } else if (node == null) {
-                log.warn("Node " + node + " is null");
-            }
+        if (hasEnded()) {
+            log.debug(this + " already ended");
+            return;
         }
+        log.info("Ending " + this + " by " + canceller);
+        setEndDate(new Date());
         setExecutionStatus(ExecutionStatus.ENDED);
+        Node node = processDefinition.getNode(getNodeId());
+        if (node instanceof SubprocessNode) {
+            for (Process subProcess : executionContext.getTokenSubprocesses()) {
+                ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+            }
+        } else if (node instanceof BaseTaskNode) {
+            ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
+        } else if (node instanceof BoundaryEvent) {
+            log.info("Cancelling " + node + " with " + this);
+            ((BoundaryEvent) node).cancelBoundaryEvent(this);
+        } else if (node == null) {
+            log.warn("Node " + node + " is null");
+        }
         if (recursive) {
             for (Token child : getChildren()) {
                 child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, recursive);
@@ -353,7 +351,7 @@ public class Token implements Serializable {
     }
 
     public boolean hasEnded() {
-        return endDate != null;
+        return executionStatus == ExecutionStatus.ENDED;
     }
 
     @Transient

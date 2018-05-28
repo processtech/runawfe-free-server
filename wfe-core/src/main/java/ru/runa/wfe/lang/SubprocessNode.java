@@ -1,11 +1,12 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -17,14 +18,11 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class SubprocessNode extends VariableContainerNode implements Synchronizable, BoundaryEventContainer {
     private static final long serialVersionUID = 1L;
@@ -32,6 +30,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
     private String subProcessName;
     private boolean embedded;
+    private boolean transactional;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
     private transient IProcessDefinitionLoader processDefinitionLoader;
@@ -73,6 +72,14 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
 
     public void setEmbedded(boolean embedded) {
         this.embedded = embedded;
+    }
+
+    public boolean isTransactional() {
+        return transactional;
+    }
+
+    public void setTransactional(boolean transactional) {
+        this.transactional = transactional;
     }
 
     @Override
@@ -142,11 +149,10 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             if (copyValue) {
                 Object value = variableProvider.getValue(variableName);
                 if (value != null) {
-                    log.debug("copying super process var '" + variableName + "' to sub process var '" + mappedName + "': " + value
-                            + " of " + value.getClass());
+                    log.debug("copying " + variableName + " to subprocess variable " + mappedName + ": '" + value + "' of " + value.getClass());
                     variables.put(mappedName, value);
                 } else {
-                    log.warn("super process var '" + variableName + "' is null (ignored mapping to '" + mappedName + "')");
+                    log.warn(variableName + " is null (ignored mapping to subprocess variable " + mappedName + ")");
                 }
             }
         }
@@ -193,6 +199,25 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
         ProcessDefinition superDefinition = processDefinitionLoader.getDefinition(superDefinitionId);
         return new ExecutionContext(superDefinition, parentNodeProcess.getParentToken());
+    }
+
+    @Override
+    protected boolean endBoundaryEventTokensOnNodeLeave() {
+        return !async;
+    }
+
+    @Override
+    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
+        super.onBoundaryEvent(processDefinition, token, boundaryEvent);
+        if (async) {
+            List<Process> processes = new ExecutionContext(processDefinition, token).getTokenSubprocesses();
+            for (Process process : processes) {
+                if (process.hasEnded()) {
+                    continue;
+                }
+                process.end(new ExecutionContext(getSubProcessDefinition(), process), null);
+            }
+        }
     }
 
 }

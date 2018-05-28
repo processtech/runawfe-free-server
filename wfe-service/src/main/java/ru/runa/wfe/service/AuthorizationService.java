@@ -51,6 +51,11 @@ public interface AuthorizationService {
     public <T extends Identifiable> boolean[] isAllowed(User user, Permission permission, List<T> identifiables);
 
     /**
+     * Checks if user has parmission on any object of specified type.
+     */
+    public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType);
+
+    /**
      * Sets permissions for executor specified by id on identifiable.
      */
     public void setPermissions(User user, Long executorId, Collection<Permission> permissions, Identifiable identifiable);

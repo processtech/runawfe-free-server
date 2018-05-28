@@ -1,5 +1,7 @@
 package ru.runa.wfe.lang.jpdl;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.Errors;
@@ -17,9 +19,6 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.task.TaskCompletionInfo;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
 
 public class WaitNode extends Node {
     private static final long serialVersionUID = 1L;
@@ -56,7 +55,7 @@ public class WaitNode extends Node {
                 executionContext.getNode().leave(executionContext, transition);
             } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
                 log.debug("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
-                ApplicationContextFactory.getJobDAO().deleteTimersByName(timerJob.getToken(), timerJob.getName());
+                ApplicationContextFactory.getJobDAO().deleteByToken(timerJob.getToken());
             } else if (timerJob.getRepeatDurationString() != null) {
                 // restart timer
                 BusinessDuration repeatDuration = BusinessDurationParser.parse(timerJob.getRepeatDurationString());
@@ -70,7 +69,7 @@ public class WaitNode extends Node {
                 }
             } else {
                 log.debug("Deleting " + timerJob + " after execution");
-                ApplicationContextFactory.getJobDAO().deleteTimersByName(timerJob.getToken(), timerJob.getName());
+                ApplicationContextFactory.getJobDAO().deleteByToken(timerJob.getToken());
             }
             Errors.removeProcessError(processError);
         } catch (Throwable th) {

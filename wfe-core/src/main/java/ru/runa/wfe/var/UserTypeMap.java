@@ -1,12 +1,15 @@
 package ru.runa.wfe.var;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
@@ -15,11 +18,6 @@ import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.MapFormat;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 public class UserTypeMap extends HashMap<String, Object> {
     private static final long serialVersionUID = 1L;
@@ -45,23 +43,22 @@ public class UserTypeMap extends HashMap<String, Object> {
 
     public void merge(Map<?, ?> map, boolean override) {
         for (VariableDefinition attributeDefinition : userType.getAttributes()) {
-            Object targetValue = map.get(attributeDefinition.getName());
-            if (Utils.isNullOrEmpty(targetValue) || Objects.equal(targetValue, attributeDefinition.getDefaultValue())) {
-                continue;
-            }
             Object localValue = get(attributeDefinition.getName());
+            Object targetValue = map.get(attributeDefinition.getName());
             if (Objects.equal(localValue, targetValue)) {
                 continue;
             }
-            if (attributeDefinition.isUserType() && localValue instanceof UserTypeMap) {
+            if (localValue == null && Objects.equal(targetValue, attributeDefinition.getDefaultValue())) {
+                continue;
+            }
+            if (attributeDefinition.isUserType() && localValue instanceof UserTypeMap && targetValue instanceof Map) {
                 ((UserTypeMap) localValue).merge((Map<?, ?>) targetValue, override);
                 // in case of empty local user map
                 put(attributeDefinition.getName(), localValue);
             } else {
-                if (!override && !Utils.isNullOrEmpty(localValue) && !Objects.equal(localValue, attributeDefinition.getDefaultValue())) {
-                    continue;
+                if (override || localValue == null || (targetValue != null && Objects.equal(localValue, attributeDefinition.getDefaultValue()))) {
+                    put(attributeDefinition.getName(), targetValue);
                 }
-                put(attributeDefinition.getName(), targetValue);
             }
         }
     }
@@ -112,6 +109,7 @@ public class UserTypeMap extends HashMap<String, Object> {
 
     private UserTypeMap buildUserTypeVariable(String prefix, VariableDefinition variableDefinition) {
         UserTypeMap userTypeMap = new UserTypeMap(variableDefinition);
+        UserTypeMap defaultValue = (UserTypeMap) variableDefinition.getDefaultValue();
         for (VariableDefinition attributeDefinition : variableDefinition.getUserType().getAttributes()) {
             String attributeName = prefix + UserType.DELIM + attributeDefinition.getName();
             Object value = super.get(attributeName);
@@ -119,7 +117,12 @@ public class UserTypeMap extends HashMap<String, Object> {
                 value = buildUserTypeVariable(attributeName, attributeDefinition);
             }
             if (value == null) {
-                value = attributeDefinition.getDefaultValue();
+                if (defaultValue != null) {
+                    value = defaultValue.get(attributeDefinition.getName());
+                }
+                if (value == null) {
+                    value = attributeDefinition.getDefaultValue();
+                }
             }
             userTypeMap.put(attributeDefinition.getName(), value);
         }
@@ -129,15 +132,18 @@ public class UserTypeMap extends HashMap<String, Object> {
     public WfVariable getAttributeValue(String attributeName) {
         int dotIndex = attributeName.indexOf(UserType.DELIM);
         if (dotIndex != -1) {
+            VariableDefinition variableDefinition = userType.getAttributeExpanded(attributeName);
+            if (variableDefinition == null) {
+                throw new InternalApplicationException("No attribute '" + attributeName + "' found in " + userType);
+            }
+            Object value = null;
             String embeddedComplexVariable = attributeName.substring(0, dotIndex);
             String embeddedAttributeName = attributeName.substring(dotIndex + 1);
             UserTypeMap embeddedUserTypeMap = (UserTypeMap) super.get(embeddedComplexVariable);
             if (embeddedUserTypeMap != null) {
-                return embeddedUserTypeMap.getAttributeValue(embeddedAttributeName);
-            } else {
-                VariableDefinition variableDefinition = getUserType().getAttributeNotNull(attributeName);
-                return new WfVariable(variableDefinition, null);
+                value = embeddedUserTypeMap.getAttributeValue(embeddedAttributeName).getValue();
             }
+            return new WfVariable(variableDefinition, value);
         }
         String qualifier = null;
         Matcher dictMatcher = DICT_QUALIFIER.matcher(attributeName);
