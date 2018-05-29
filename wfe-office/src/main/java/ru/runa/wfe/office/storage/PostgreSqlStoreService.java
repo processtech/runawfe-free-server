@@ -16,32 +16,32 @@ import ru.runa.wfe.var.format.TextFormat;
 import ru.runa.wfe.var.format.TimeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
 
-public class SqlServerStoreService extends JdbcStoreService {
+public class PostgreSqlStoreService extends JdbcStoreService {
 
     @SuppressWarnings({ "serial" })
     private static final Map<Class<? extends VariableFormat>, String> typeMap = new HashMap<Class<? extends VariableFormat>, String>() {
         {
-            put(StringFormat.class, "nvarchar(4000)");
-            put(TextFormat.class, "nvarchar(4000)");
-            put(FormattedTextFormat.class, "nvarchar(4000)");
-            put(LongFormat.class, "int");
-            put(DoubleFormat.class, "real"); // The ISO synonym for real is float(24).
-            put(BooleanFormat.class, "nvarchar(5)");
+            put(StringFormat.class, "varchar(4000)");
+            put(TextFormat.class, "varchar(4000)");
+            put(FormattedTextFormat.class, "varchar(4000)");
+            put(LongFormat.class, "bigint");
+            put(DoubleFormat.class, "real");
+            put(BooleanFormat.class, "varchar(5)");
             put(BigDecimalFormat.class, "decimal");
-            put(DateTimeFormat.class, "datetime2");
+            put(DateTimeFormat.class, "timestamp");
             put(DateFormat.class, "date");
             put(TimeFormat.class, "time");
 
         }
     };
 
-    public SqlServerStoreService(IVariableProvider variableProvider) {
+    public PostgreSqlStoreService(IVariableProvider variableProvider) {
         super(variableProvider);
     }
 
     @Override
     protected String tableExistsSql() {
-        return "select null from information_schema.tables where table_type = ''BASE TABLE'' and table_name = N''{0}''";
+        return "select null from information_schema.tables Where table_schema = ''public'' and table_name = ''{0}''";
     }
 
     @Override
@@ -51,7 +51,7 @@ public class SqlServerStoreService extends JdbcStoreService {
 
     @Override
     protected String driverClassName() {
-        return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+        return "org.postgresql.Driver";
     }
 
 }

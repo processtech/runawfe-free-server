@@ -72,24 +72,9 @@ public class DataSourceStorage implements DataSourceStuff {
             } else {
                 psw.setText(password);
             }
-            //OutputFormat format = OutputFormat.createPrettyPrint();
-            /*
-            OutputFormat format = new OutputFormat("  ", true);
-            format.setEncoding(Charsets.UTF_8.name());
-            format.setPadText(true);
-            format.setTrimText(true);
-            */
             save(XmlUtils.save(document, OutputFormat.createPrettyPrint()));
         }
     }
-
-    /*
-    private static synchronized void setDefaultPassword(String password) {
-        for (String dsName : getNames()) {
-            changePassword(dsName, password);
-        }
-    }
-    */
 
     public static DataSource getDataSource(String dsName) {
         Document document = XmlUtils.parseWithoutValidation(restore(dsName));
