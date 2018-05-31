@@ -173,7 +173,7 @@ public class DocxFileChangerTest extends Assert {
         return mapFormat;
     }
 
-    private void testDocx(boolean strictMode, String templateFileName, Map<String, Object> data) throws IOException {
+    protected void testDocx(boolean strictMode, String templateFileName, Map<String, Object> data) throws IOException {
         for (String appPrefix : prefixes) {
             String appTemplateFileName = appPrefix + templateFileName;
             InputStream templateInputStream = ClassLoaderUtil.getAsStream(appTemplateFileName, getClass());
