@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.DBSource.AccessType;
@@ -29,8 +31,6 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-
-import com.google.common.base.Strings;
 
 /**
  * Builds HQL query for {@link BatchPresentation}.
@@ -287,16 +287,16 @@ public class HibernateCompilerHQLBuider {
             }
             if (field.filterMode == FieldFilterMode.DATABASE) {
                 StringBuilder filter = new StringBuilder();
-                String condition = entry.getValue().buildWhereCondition(
-                        field.dbSources[0].getValueDBPath(AccessType.FILTER, aliasMapping.getAlias(field)), placeholders);
-                filter.append("(").append(condition).append(")");
+                String condition = entry.getValue()
+                        .buildWhereCondition(field.dbSources[0].getValueDBPath(AccessType.FILTER, aliasMapping.getAlias(field)), placeholders);
+                filter.append((entry.getValue().isExclusive() ? " not " : "") + "(").append(condition).append(")");
                 result.add(filter.toString());
             }
             if (field.filterMode == FieldFilterMode.DATABASE_ID_RESTRICTION) {
                 StringBuilder filter = new StringBuilder();
                 String condition = entry.getValue().buildWhereCondition(field.dbSources[0].getValueDBPath(AccessType.FILTER, "subQuery"),
                         placeholders);
-                filter.append("(").append(ClassPresentation.classNameSQL).append(".id IN (SELECT ")
+                filter.append((entry.getValue().isExclusive() ? " not " : "") + "(").append(ClassPresentation.classNameSQL).append(".id IN (SELECT ")
                         .append(field.dbSources[0].getJoinExpression("subQuery")).append(" FROM ")
                         .append(field.dbSources[0].getSourceObject().getName()).append(" AS subQuery WHERE ").append(condition).append("))");
                 result.add(filter.toString());
@@ -313,7 +313,8 @@ public class HibernateCompilerHQLBuider {
     private List<String> addSecureCheck() {
         List<String> result = new LinkedList<String>();
         if (parameters.getExecutorIdsToCheckPermission() != null) {
-            result.add("(instance.id in (select pm.identifiableId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.type in (:securedTypes) and pm.mask=:securedPermission))");
+            result.add(
+                    "(instance.id in (select pm.identifiableId from PermissionMapping pm where pm.executor.id in (:securedOwnersIds) and pm.type in (:securedTypes) and pm.mask=:securedPermission))");
             placeholders.put("securedOwnersIds", null);
             placeholders.put("securedPermission", null);
             placeholders.put("securedTypes", null);
@@ -362,8 +363,8 @@ public class HibernateCompilerHQLBuider {
                 isOrderByInheritance = true;
                 continue; // Fields with inheritance will be processed later
             }
-            query.append(needComma ? ", " : " ").append(
-                    sortedFields[i].dbSources[0].getValueDBPath(AccessType.ORDER, aliasMapping.getAlias(sortedFields[i])));
+            query.append(needComma ? ", " : " ")
+                    .append(sortedFields[i].dbSources[0].getValueDBPath(AccessType.ORDER, aliasMapping.getAlias(sortedFields[i])));
             query.append(fieldsToSortModes[i] ? " asc" : " desc");
             needComma = true;
         }

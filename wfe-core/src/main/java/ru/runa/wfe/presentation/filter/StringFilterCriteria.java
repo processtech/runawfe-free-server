@@ -44,7 +44,13 @@ public class StringFilterCriteria extends FilterCriteria {
 
     @Override
     public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
-        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
+        String template = getFilterTemplate(0);
+        if (template.contains(",")) {
+            return buildInOperator(aliasedFieldName);
+        } else if (template.contains("-")) {
+            return buildBetweenOperator(aliasedFieldName);
+        }
+        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(template);
         String searchValue = expression.getValue();
         String alias = makePlaceHolderName(aliasedFieldName);
         String where = "";
