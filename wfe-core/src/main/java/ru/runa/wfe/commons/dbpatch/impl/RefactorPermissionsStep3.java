@@ -177,7 +177,10 @@ public class RefactorPermissionsStep3 extends DBPatch {
                     "update permission_mapping set permission = 'VIEW_TASKS' where object_type = 'ACTOR' and permission = 'VIEW_ACTOR_TASKS'",
                     "update permission_mapping set permission = 'VIEW_TASKS' where object_type = 'GROUP' and permission = 'VIEW_GROUP_TASKS'",
                     "update permission_mapping set permission = 'READ' where object_type = 'GROUP' and permission = 'LIST_GROUP'",
-                    "update permission_mapping set permission = 'UPDATE' where object_type = 'GROUP' and permission in ('ADD_TO_GROUP', 'REMOVE_FROM_GROUP')",
+
+                    "update permission_mapping set permission = 'UPDATE' where object_type = 'GROUP' and permission = 'ADD_TO_GROUP'",
+                    "delete from permission_mapping where object_type = 'GROUP' and permission = 'REMOVE_FROM_GROUP'",
+
                     "update permission_mapping set permission = 'UPDATE' where object_type = 'BOTSTATIONS' and permission = 'BOT_STATION_CONFIGURE'",
                     "update permission_mapping set permission = 'START' where object_type = 'PROCESS' and permission = 'START_PROCESS'",
                     "update permission_mapping set permission = 'CANCEL' where object_type = 'PROCESS' and permission = 'CANCEL_PROCESS'",
