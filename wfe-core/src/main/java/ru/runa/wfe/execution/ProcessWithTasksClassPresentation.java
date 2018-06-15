@@ -44,6 +44,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
     public static final String PROCESS_END_DATE = "batch_presentation.process.ended";
     public static final String DEFINITION_VERSION = "batch_presentation.process.definition_version";
     public static final String PROCESS_EXECUTION_STATUS = "batch_presentation.process.execution_status";
+    public static final String PROCESS_EXECUTION_ERROR_MESSAGE = "batch_presentation.process.execution_error_message";
     public static final String TASK_EXECUTOR = "batch_presentation.process.task.executor.name";
     public static final String TASK_SWIMLINE = "batch_presentation.task.swimlane";
     public static final String TASK_NAME = "batch_presentation.process.task.name";
@@ -138,6 +139,8 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "version" }),
                 new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDBSource(Process.class, "executionStatus"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTDBuilder", new Object[] {}),
+                new FieldDescriptor(PROCESS_EXECUTION_ERROR_MESSAGE, String.class.getName(), new DefaultDBSource(Process.class, "rootToken.errorMessage"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(), "errorMessage"}),
                 new FieldDescriptor(TASK_EXECUTOR, UserOrGroupFilterCriteria.class.getName(), new ChildDBSource(Task.class, "executor.name"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { new Permission(),
                                 "executor" }).setShowable(false),
