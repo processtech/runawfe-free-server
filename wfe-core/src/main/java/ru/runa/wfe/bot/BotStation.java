@@ -18,6 +18,7 @@
 package ru.runa.wfe.bot;
 
 import com.google.common.base.Objects;
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -35,7 +36,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "BOT_STATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BotStation {
+public class BotStation implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;

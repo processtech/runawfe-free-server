@@ -18,6 +18,7 @@
 package ru.runa.wfe.relation;
 
 import com.google.common.base.Objects;
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,7 +38,7 @@ import ru.runa.wfe.commons.EntityWithId;
 @Entity
 @Table(name = "EXECUTOR_RELATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Relation implements EntityWithId {
+public class Relation implements EntityWithId, Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
