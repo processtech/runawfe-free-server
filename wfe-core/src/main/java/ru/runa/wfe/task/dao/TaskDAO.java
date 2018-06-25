@@ -24,7 +24,6 @@ package ru.runa.wfe.task.dao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -94,12 +93,12 @@ public class TaskDAO extends GenericDAO<Task> {
         }
         return sessionFactory.getCurrentSession().createQuery("select id from Task where :actorId in elements(openedByExecutorIds) and id in (:taskIds)")
                 .setParameter("actorId", actorId)
-                .setParameter("taskIds", taskIds)
+                .setParameterList("taskIds", taskIds)
                 .list();
     }
 
     /**
-     * @return return all expired tasks.
+     * @return return all expired tasks
      */
     public List<Task> getAllExpiredTasks(Date curDate) {
         QTask t = QTask.task;

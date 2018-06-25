@@ -1,14 +1,20 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
+import com.google.common.collect.Lists;
 import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.user.Actor;
+import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
 public class CreateReportsTables extends DBPatch implements IDbPatchPostProcessor {
@@ -74,5 +80,14 @@ public class CreateReportsTables extends DBPatch implements IDbPatchPostProcesso
 
     @Override
     public void postExecute() {
+        if (permissionDAO.getPrivilegedExecutors(SecuredObjectType.REPORT).isEmpty()) {
+            log.info("Adding " + SecuredObjectType.REPORT + " tokens message hash");
+            String administratorName = SystemProperties.getAdministratorName();
+            Actor admin = executorDAO.getActor(administratorName);
+            String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
+            Group adminGroup = executorDAO.getGroup(administratorsGroupName);
+            List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
+            permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
+        }
     }
 }

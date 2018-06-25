@@ -15,7 +15,7 @@ public abstract class CheckMassPermissionCallback {
      * @param securedObject
      *            SecuredObject, which has requested permission.
      */
-    public void OnPermissionGranted(SecuredObject securedObject) {
+    public void onPermissionGranted(SecuredObject securedObject) {
     }
 
     /**
@@ -24,6 +24,6 @@ public abstract class CheckMassPermissionCallback {
      * @param securedObject
      *            SecuredObject, which denied to requested permission.
      */
-    public void OnPermissionDenied(SecuredObject securedObject) {
+    public void onPermissionDenied(SecuredObject securedObject) {
     }
 }

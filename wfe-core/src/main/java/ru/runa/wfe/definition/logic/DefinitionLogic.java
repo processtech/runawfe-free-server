@@ -245,7 +245,7 @@ public class DefinitionLogic extends WFCommonLogic {
         final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(deploymentVersions.size());
         isPermissionAllowed(user, deploymentVersions, Permission.LIST, new CheckMassPermissionCallback() {
             @Override
-            public void OnPermissionGranted(SecuredObject securedObject) {
+            public void onPermissionGranted(SecuredObject securedObject) {
                 result.add(new WfDefinition((Deployment) securedObject));
             }
         });
@@ -431,7 +431,7 @@ public class DefinitionLogic extends WFCommonLogic {
         final List<String> definitionsWithPermission = new ArrayList<>();
         isPermissionAllowed(user, definitionSecuredObjects, Permission.LIST, new CheckMassPermissionCallback() {
             @Override
-            public void OnPermissionGranted(SecuredObject securedObject) {
+            public void onPermissionGranted(SecuredObject securedObject) {
                 definitionsWithPermission.add(((ru.runa.wfe.definition.logic.DefinitionLogic.DefinitionSecuredObject) securedObject).getDeploymentName());
             }
         });
@@ -496,12 +496,12 @@ public class DefinitionLogic extends WFCommonLogic {
         }
 
         @Override
-        public void OnPermissionGranted(SecuredObject securedObject) {
+        public void onPermissionGranted(SecuredObject securedObject) {
             addDefinitionToResult(securedObject, true);
         }
 
         @Override
-        public void OnPermissionDenied(SecuredObject securedObject) {
+        public void onPermissionDenied(SecuredObject securedObject) {
             addDefinitionToResult(securedObject, false);
         }
 

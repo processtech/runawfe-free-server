@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * DAO for managing {@link Localization}.
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 4.0
  */
 @Component
-@Transactional
 public class LocalizationDAO extends GenericDAO<Localization> {
 
     private Map<String, String> localizations = Maps.newHashMap();

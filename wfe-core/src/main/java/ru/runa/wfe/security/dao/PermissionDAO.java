@@ -34,7 +34,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CollectionUtil;
@@ -62,13 +61,6 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
  * @author Konstantinov Aleksey 19.02.2012
  */
 @Component
-@Transactional(
-        // TODO This is hack, otherwise /manage_process_definition.do?id=N crashed with internall error if user had no permission.
-        //      That's because ProcessDefinitionBaseFormTag.getDefinition() calls DefinitionService.getProcessDefinition() which
-        //      checks permissions on its own. This @Transactional annotation is required for initialization and cannot be removed,
-        //      but it's just a symptom: problem root is a mess in permission checks.
-        noRollbackFor = {AuthorizationException.class}
-)
 @SuppressWarnings("unchecked")
 public class PermissionDAO extends CommonDAO {
 

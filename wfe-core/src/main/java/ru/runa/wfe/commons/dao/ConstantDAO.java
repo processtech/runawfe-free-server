@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SQLQuery;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.TypeConversionUtil;
 
 /**
@@ -35,7 +34,6 @@ public class ConstantDAO extends GenericDAO<Constant> {
     private static final Log log = LogFactory.getLog(ConstantDAO.class);
     private static final String DATABASE_VERSION_VARIABLE_NAME = "ru.runa.database_version";
 
-    @Transactional
     public Integer getDatabaseVersion() throws Exception {
         org.hibernate.classic.Session session = sessionFactory.getCurrentSession();
         Connection connection = session.connection();

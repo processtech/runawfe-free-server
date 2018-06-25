@@ -1,13 +1,19 @@
 package ru.runa.wfe.commons.dbpatch;
 
 import com.google.common.collect.Lists;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.ConstantDAO;
+import ru.runa.wfe.commons.dao.Localization;
+import ru.runa.wfe.commons.dao.LocalizationDAO;
+import ru.runa.wfe.commons.logic.LocalizationParser;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.Actor;
@@ -25,6 +31,8 @@ public class DbTransactionalInitializer {
     private ExecutorDAO executorDAO;
     @Autowired
     private PermissionDAO permissionDAO;
+    @Autowired
+    private LocalizationDAO localizationDAO;
 
     public void execute(DBPatch dbPatch, int databaseVersion) throws Exception {
         dbPatch.execute();
@@ -45,6 +53,31 @@ public class DbTransactionalInitializer {
         } catch (Throwable th) {
             log.info("unable to insert initial data", th);
         }
+    }
+
+    public Integer getDatabaseVersion() throws Exception {
+        return constantDAO.getDatabaseVersion();
+    }
+
+    public void initPermissions() {
+        permissionDAO.init();
+    }
+
+    public void initLocalizations() {
+        String localizedFileName = "localizations." + Locale.getDefault().getLanguage() + ".xml";
+        InputStream stream = ClassLoaderUtil.getAsStream(localizedFileName, getClass());
+        if (stream == null) {
+            stream = ClassLoaderUtil.getAsStreamNotNull("localizations.xml", getClass());
+        }
+        List<Localization> localizations = LocalizationParser.parseLocalizations(stream);
+        stream = ClassLoaderUtil.getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + localizedFileName, getClass());
+        if (stream == null) {
+            stream = ClassLoaderUtil.getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + "localizations.xml", getClass());
+        }
+        if (stream != null) {
+            localizations.addAll(LocalizationParser.parseLocalizations(stream));
+        }
+        localizationDAO.saveLocalizations(localizations, false);
     }
 
     /**

@@ -41,7 +41,6 @@
 		<copy todir="${adminkit.dir}/conf" flatten="true" overwrite="true">
 			<fileset dir="resources">
 				<include name="wf/wfe.delegate.properties" />
-				<include name="wf/workflowScript.xsd" />
 			</fileset>
 		</copy>
 

@@ -13,7 +13,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.security.SecuredObjectFactory;
 import ru.runa.wfe.user.User;
 
 import static ru.runa.wfe.security.SecuredObjectType.DATAFILE;
@@ -56,7 +55,7 @@ public class CheckSingletonPermissionAndForwardAction extends ActionBase {
             if (config == null) {
                 throw new RuntimeException("No config for securedObjectType = " + securedObjectType);
             }
-            SecuredObject securedObject = SecuredObjectFactory.getInstance().findById(securedObjectType, 0L);
+            SecuredObject securedObject = Delegates.getAuthorizationService().findSecuredObject(securedObjectType, 0L);
             Delegates.getAuthorizationService().checkAllowed(user, config.permission, securedObject);
             return new ActionForward(config.path);
         } catch (Exception e) {

@@ -87,9 +87,9 @@ public class CommonLogic {
         boolean[] allowedArray = permissionDAO.isAllowed(user, permission, securedObjects);
         for (int i = 0; i < allowedArray.length; i++) {
             if (allowedArray[i]) {
-                callback.OnPermissionGranted(securedObjects.get(i));
+                callback.onPermissionGranted(securedObjects.get(i));
             } else {
-                callback.OnPermissionDenied(securedObjects.get(i));
+                callback.onPermissionDenied(securedObjects.get(i));
             }
         }
     }

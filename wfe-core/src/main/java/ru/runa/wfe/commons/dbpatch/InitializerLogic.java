@@ -19,10 +19,8 @@ package ru.runa.wfe.commons.dbpatch;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
@@ -31,13 +29,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.DatabaseProperties;
 import ru.runa.wfe.commons.PropertyResources;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.dao.ConstantDAO;
-import ru.runa.wfe.commons.dao.Localization;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAssignDateColumnPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddBatchPresentationIsSharedPatch;
@@ -76,12 +69,6 @@ import ru.runa.wfe.commons.dbpatch.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskOpenedByExecutorsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
-import ru.runa.wfe.commons.logic.LocalizationParser;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.dao.ProcessDAO;
-import ru.runa.wfe.execution.dao.TokenDAO;
-import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.user.dao.ExecutorDAO;
 
 /**
  * Initial DB population and update during version change.
@@ -170,55 +157,25 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         dbPatches = Collections.unmodifiableList(patches);
     }
 
-    @Autowired
-    private ConstantDAO constantDAO;
-    @Autowired
-    private ExecutorDAO executorDAO;
-    @Autowired
-    private PermissionDAO permissionDAO;
-    @Autowired
-    private LocalizationDAO localizationDAO;
-    @Autowired
-    private TokenDAO tokenDAO;
-    @Autowired
-    private ProcessDAO processDAO;
-    @Autowired
-    private IProcessDefinitionLoader processDefinitionLoader;
-
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             Integer databaseVersion = null;
             try {
-                // Since now CMT is in use, getDatabaseVersion() may throw from AOP wrapper even if its body is wrapped into try-catch.
-                databaseVersion = constantDAO.getDatabaseVersion();
+                databaseVersion = dbTransactionalInitializer.getDatabaseVersion();
                 applyPatches(databaseVersion);
             } catch (Exception e) {
-                // This message was moved from ConstantDAO.getDatabaseVersion(), so continue logging it there for now.
-                LogFactory.getLog(ConstantDAO.class).warn("Unable to get database version", e);
+                log.debug("Unable to get database version:" + e);
                 log.info("initializing database");
                 SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
                 schemaExport.execute(true, true, false, true);
                 dbTransactionalInitializer.initialize(dbPatches.size());
             }
-            permissionDAO.init();
+            dbTransactionalInitializer.initPermissions();
             if (databaseVersion != null) {
                 postProcessPatches(databaseVersion);
             }
-            String localizedFileName = "localizations." + Locale.getDefault().getLanguage() + ".xml";
-            InputStream stream = ClassLoaderUtil.getAsStream(localizedFileName, getClass());
-            if (stream == null) {
-                stream = ClassLoaderUtil.getAsStreamNotNull("localizations.xml", getClass());
-            }
-            List<Localization> localizations = LocalizationParser.parseLocalizations(stream);
-            stream = ClassLoaderUtil.getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + localizedFileName, getClass());
-            if (stream == null) {
-                stream = ClassLoaderUtil.getAsStream(SystemProperties.RESOURCE_EXTENSION_PREFIX + "localizations.xml", getClass());
-            }
-            if (stream != null) {
-                localizations.addAll(LocalizationParser.parseLocalizations(stream));
-            }
-            localizationDAO.saveLocalizations(localizations, false);
+            dbTransactionalInitializer.initLocalizations();
             if (DatabaseProperties.isDynamicSettingsEnabled()) {
                 PropertyResources.setDatabaseAvailable(true);
             }

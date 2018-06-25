@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
  * tables (drops tables if such tables already exists) and records.
  */
 @Component
+// TODO rm700
 @Transactional
 public class SettingDAO extends GenericDAO<Setting> {
     private static final Log log = LogFactory.getLog(SettingDAO.class);

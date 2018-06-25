@@ -104,8 +104,7 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
 
     public List<Long> findDeploymentVersionIds(String name, Long from, Long to) {
         QDeployment d = QDeployment.deployment;
-        // Parameters "from" and "to" are flipped in between(). It was that way previously in HQL: version <= from && version >= to:
-        return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.version.between(to, from))).orderBy(d.version.asc()).fetch();
+        return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.version.between(from, to))).orderBy(d.version.asc()).fetch();
     }
 
     public Long findDeploymentIdLatestVersionLessThan(String name, Long version) {

@@ -1,7 +1,5 @@
 package ru.runa.wfe.audit.dao;
 
-import com.querydsl.core.QueryFactory;
-import java.util.List;
 import org.hibernate.SessionFactory;
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.AdminActionLog;

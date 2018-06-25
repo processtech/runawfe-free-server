@@ -25,7 +25,6 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
@@ -88,7 +87,6 @@ import ru.runa.wfe.var.Variable;
  * @author Dofs
  * @since 2.0
  */
-@Transactional  // for manage_processes
 public class ExecutionLogic extends WFCommonLogic {
     private static final SecuredObjectType[] PROCESS_EXECUTION_CLASSES = { SecuredObjectType.PROCESS };
     @Autowired

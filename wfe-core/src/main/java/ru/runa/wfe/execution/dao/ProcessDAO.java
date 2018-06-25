@@ -56,56 +56,39 @@ public class ProcessDAO extends GenericDAO<Process> {
     public List<Process> getProcesses(final ProcessFilter filter) {
         QProcess p = QProcess.process;
         JPQLQuery<Process> q = queryFactory.selectFrom(p).where();
-
-        boolean emptyFilter = true;
         if (filter.getDefinitionName() != null) {
             q.where(p.deployment.name.eq(filter.getDefinitionName()));
-            emptyFilter = false;
         }
         if (filter.getDefinitionVersion() != null) {
             q.where(p.deployment.version.eq(filter.getDefinitionVersion()));
-            emptyFilter = false;
         }
         if (filter.getId() != null) {
             q.where(p.id.eq(filter.getId()));
-            emptyFilter = false;
         }
         if (filter.getIdFrom() != null) {
             q.where(p.id.goe(filter.getIdFrom()));
-            emptyFilter = false;
         }
         if (filter.getIdTo() != null) {
             q.where(p.id.loe(filter.getIdTo()));
-            emptyFilter = false;
         }
         if (filter.getStartDateFrom() != null) {
             q.where(p.startDate.goe(filter.getStartDateFrom()));
-            emptyFilter = false;
         }
         if (filter.getStartDateTo() != null) {
             q.where(p.startDate.loe(filter.getStartDateTo()));
-            emptyFilter = false;
         }
         if (filter.getFinished() != null) {
             q.where(filter.getFinished() ? p.endDate.isNotNull() : p.endDate.isNull());
-            emptyFilter = false;
         }
         if (filter.getEndDateFrom() != null) {
             q.where(p.endDate.goe(filter.getEndDateFrom()));
-            emptyFilter = false;
         }
         if (filter.getEndDateTo() != null) {
             q.where(p.endDate.loe(filter.getEndDateTo()));
-            emptyFilter = false;
         }
         if (filter.getFailedOnly()) {
             q.where(p.executionStatus.eq(ExecutionStatus.FAILED));
-            emptyFilter = false;
         }
-        if (emptyFilter) {
-            throw new IllegalArgumentException("Filter should be specified");
-        }
-
         return q.fetch();
     }
 
@@ -113,7 +96,7 @@ public class ProcessDAO extends GenericDAO<Process> {
     public void delete(Process process) {
         log.debug("deleting tokens for " + process);
         QToken t = QToken.token;
-        // TODO Why select+delete instead of just delete.where?
+        // TODO Try delete.where (order matters due to foreign keys)
         List<Token> tokens = queryFactory.selectFrom(t).where(t.process.eq(process).and(t.parent.isNotNull())).orderBy(t.id.desc()).fetch();
         for (Token token : tokens) {
             log.debug("deleting " + token);

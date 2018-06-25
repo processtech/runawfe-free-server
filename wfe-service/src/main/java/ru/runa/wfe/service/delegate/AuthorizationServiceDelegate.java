@@ -226,4 +226,12 @@ public class AuthorizationServiceDelegate extends EJB3Delegate implements Author
         }
     }
 
+    @Override
+    public SecuredObject findSecuredObject(SecuredObjectType type, Long id) {
+        try {
+            return getAuthorizationService().findSecuredObject(type, id);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
 }

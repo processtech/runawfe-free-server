@@ -27,7 +27,7 @@ import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.MessagesCommon;
-import ru.runa.common.web.html.EntityWithIdCheckboxTDBuilder;
+import ru.runa.common.web.html.CheckboxTDBuilder;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ItemUrlStrategy;
 import ru.runa.common.web.html.ReflectionRowBuilder;
@@ -51,7 +51,12 @@ public class ListRelationsFormTag extends BatchReturningTitledFormTag {
         Delegates.getAuthorizationService().checkAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
         List<Relation> relations = Delegates.getRelationService().getRelations(getUser(), getBatchPresentation());
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder checkboxBuilder = new EntityWithIdCheckboxTDBuilder(null) {
+        TDBuilder checkboxBuilder = new CheckboxTDBuilder(null, null) {
+
+            @Override
+            protected String getIdValue(Object object) {
+                return String.valueOf(((Relation) object).getId());
+            }
 
             @Override
             protected boolean isEnabled(Object object, Env env) {

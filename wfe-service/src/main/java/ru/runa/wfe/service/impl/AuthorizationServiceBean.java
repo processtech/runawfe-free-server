@@ -254,6 +254,13 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
 
     @Override
     @WebResult(name = "result")
+    public SecuredObject findSecuredObject(@WebParam(name = "type") SecuredObjectType type, @WebParam(name = "id") Long id) {
+        Preconditions.checkArgument(type != null, "type");
+        return authorizationLogic.findSecuredObject(type, id);
+    }
+
+    @Override
+    @WebResult(name = "result")
     public boolean isAllowedWS(@WebParam(name = "user") User user, @WebParam(name = "permission") Permission permission,
             @WebParam(name = "securedObjectType") SecuredObjectType securedObjectType, @WebParam(name = "identifiableId") Long identifiableId) {
         Preconditions.checkArgument(user != null, "user");

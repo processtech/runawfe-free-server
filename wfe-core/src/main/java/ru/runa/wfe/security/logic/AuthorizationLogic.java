@@ -35,6 +35,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
@@ -62,7 +63,8 @@ import static ru.runa.wfe.security.SecuredObjectType.GROUP;
  * Created on 14.03.2005
  */
 public class AuthorizationLogic extends CommonLogic {
-
+    @Autowired
+    private SecuredObjectFactory securedObjectFactory;
     /**
      * Used by addPermissions() and setPermissions(), to avoid duplicated rows in table "permission_mapping".
      */
@@ -77,8 +79,12 @@ public class AuthorizationLogic extends CommonLogic {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             IdAndPermission that = (IdAndPermission) o;
             return Objects.equals(id, that.id) &&
                     Objects.equals(permission, that.permission);
@@ -253,7 +259,7 @@ public class AuthorizationLogic extends CommonLogic {
                     // Ignore namesPart: it contains single null element added above, in single loop iteration.
                     objectIds = Collections.singletonList(0L);
                 } else {
-                    objectIds = SecuredObjectFactory.getInstance().getIdsByNames(type, new HashSet<>(namesPart));
+                    objectIds = securedObjectFactory.getIdsByNames(type, new HashSet<>(namesPart));
                 }
                 permissionDAO.checkAllowedForAll(user, Permission.UPDATE_PERMISSIONS, type, objectIds);
 
@@ -333,7 +339,7 @@ public class AuthorizationLogic extends CommonLogic {
                 if (type.isSingleton()) {
                     objectIds = Collections.singletonList(0L);
                 } else {
-                    objectIds = SecuredObjectFactory.getInstance().getIdsByNames(type, new HashSet<>(namesPart));
+                    objectIds = securedObjectFactory.getIdsByNames(type, new HashSet<>(namesPart));
                 }
                 permissionDAO.checkAllowedForAll(user, Permission.UPDATE_PERMISSIONS, type, objectIds);
 
@@ -425,4 +431,7 @@ public class AuthorizationLogic extends CommonLogic {
         return compiler.getCount();
     }
 
+    public SecuredObject findSecuredObject(SecuredObjectType type, Long id) {
+        return securedObjectFactory.findById(type, id);
+    }
 }

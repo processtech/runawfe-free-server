@@ -21,28 +21,18 @@ public class NodeProcessDAO extends GenericDAO<NodeProcess> {
     public List<NodeProcess> getNodeProcesses(final Process process, final Token parentToken, final String nodeId, final Boolean finished) {
         QNodeProcess np = QNodeProcess.nodeProcess;
         JPQLQuery<NodeProcess> q = queryFactory.selectFrom(np).orderBy(np.id.asc());
-
-        boolean emptyFilter = true;
         if (process != null) {
             q.where(np.process.eq(process));
-            emptyFilter = false;
         }
         if (parentToken != null) {
             q.where(np.parentToken.eq(parentToken));
-            emptyFilter = false;
         }
         if (nodeId != null) {
             q.where(np.nodeId.eq(nodeId));
-            emptyFilter = false;
         }
         if (finished != null) {
             q.where(finished ? np.subProcess.endDate.isNotNull() : np.subProcess.endDate.isNull());
-            emptyFilter = false;
         }
-        if (emptyFilter) {
-            throw new IllegalArgumentException("Filter should be specified");
-        }
-
         return q.fetch();
     }
 

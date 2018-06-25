@@ -163,4 +163,6 @@ public interface AuthorizationService {
      */
     <T> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Class<T> persistentClass,
                                                            Permission permission, SecuredObjectType[] securedObjectTypes, boolean enablePaging);
+
+    SecuredObject findSecuredObject(SecuredObjectType type, Long id);
 }

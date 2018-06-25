@@ -38,6 +38,7 @@ public enum ClassPresentationType {
     private final FieldDescriptor[] fields;
     private final HashMap<String, Integer> fieldIndexesByName = new HashMap<>();
 
+    // dimgel want transform ClassPresentation class hierarchy to enum
 //    ClassPresentationType(Class<?> presentationClass, String restrictions, boolean withPaging, FieldDescriptor[] fields) {
 //        this.presentationClass = presentationClass;
 //        this.restrictions = restrictions;

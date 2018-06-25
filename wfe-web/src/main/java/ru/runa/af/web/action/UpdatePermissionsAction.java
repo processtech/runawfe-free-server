@@ -36,7 +36,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.security.SecuredObjectFactory;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -50,23 +49,23 @@ public class UpdatePermissionsAction extends ActionBase {
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         UpdatePermissionsForm form = (UpdatePermissionsForm) actionForm;
         try {
-            SecuredObject obj = SecuredObjectFactory.getInstance().findById(SecuredObjectType.valueOf(form.getSecuredObjectType()), form.getId());
+            SecuredObjectType securedObjectType = SecuredObjectType.valueOf(form.getSecuredObjectType());
+            SecuredObject object = Delegates.getAuthorizationService().findSecuredObject(securedObjectType, form.getId());
             List<Long> executorIds = Lists.newArrayList();
             List<Collection<Permission>> executorPermissions = Lists.newArrayList();
-            SecuredObjectType type = obj.getSecuredObjectType();
             for (Long executorId : form.getIds()) {
                 executorIds.add(executorId);
                 List<Permission> permissions = Lists.newArrayList();
                 for (String name : form.getPermissions(executorId).getPermissionNames()) {
                     Permission p = Permission.valueOf(name);
-                    ApplicablePermissions.check(type, p);
+                    ApplicablePermissions.check(securedObjectType, p);
                     permissions.add(p);
                 }
                 executorPermissions.add(permissions);
             }
             // unset permissions
             BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
-            List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(getLoggedUser(request), obj,
+            List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(getLoggedUser(request), object,
                     batchPresentation, true);
             for (Executor executor : executors) {
                 if (!executorIds.contains(executor.getId())) {
@@ -74,7 +73,7 @@ public class UpdatePermissionsAction extends ActionBase {
                     executorPermissions.add(new ArrayList<>());
                 }
             }
-            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), executorIds, executorPermissions, obj);
+            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), executorIds, executorPermissions, object);
         } catch (Exception e) {
             addError(request, e);
         }

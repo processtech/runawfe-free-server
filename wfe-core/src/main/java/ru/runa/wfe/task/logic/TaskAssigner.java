@@ -3,8 +3,6 @@ package ru.runa.wfe.task.logic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
@@ -25,7 +23,6 @@ public class TaskAssigner {
     @Autowired
     private TaskDAO taskDAO;
 
-    @Transactional
     public boolean assignTask(Task task) {
         ProcessError processError = new ProcessError(ProcessErrorType.assignment, task.getProcess().getId(), task.getNodeId());
         try {

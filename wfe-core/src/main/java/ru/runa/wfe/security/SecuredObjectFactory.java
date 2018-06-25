@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.QDeployment;
@@ -32,7 +31,6 @@ import ru.runa.wfe.user.QExecutor;
  * @see ru.runa.wfe.security.PermissionSubstitutions
  */
 @Component
-@Transactional  // Required because this class is called from SecuredObjectFormTag2.getSecuredObject().
 public class SecuredObjectFactory {
 
     private static SecuredObjectFactory instance;
@@ -40,7 +38,6 @@ public class SecuredObjectFactory {
     public static SecuredObjectFactory getInstance() {
         return instance;
     }
-
 
     public SecuredObjectFactory() {
         instance = this;
@@ -113,9 +110,11 @@ public class SecuredObjectFactory {
     /**
      * Loads entity or returns singleton.
      *
-     * @param id Boxed Long because it is met in many places in JSP tags. Mus be null or 0 if rquesting singleton.
+     * @param id
+     *            Boxed Long because it is met in many places in JSP tags. Must be null or 0 if requesting singleton.
      * @return Null if object does not exist.
-     * @throws RuntimeException If type is unknown, or singleton is requested with non-empty id, or exception from object loader.
+     * @throws RuntimeException
+     *             If type is unknown, or singleton is requested with non-empty id, or exception from object loader.
      */
     public SecuredObject findById(SecuredObjectType type, Long id) {
         return getLoader(type).findById(id);

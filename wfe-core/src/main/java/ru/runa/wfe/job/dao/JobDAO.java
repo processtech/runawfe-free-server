@@ -3,7 +3,6 @@ package ru.runa.wfe.job.dao;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
@@ -21,7 +20,6 @@ import ru.runa.wfe.job.QTimerJob;
 @Component
 public class JobDAO extends GenericDAO<Job> {
 
-    @Transactional  // for ExpiredJobCheckerTask
     public List<Job> getExpiredJobs() {
         QJob j = QJob.job;
         return queryFactory.selectFrom(j)

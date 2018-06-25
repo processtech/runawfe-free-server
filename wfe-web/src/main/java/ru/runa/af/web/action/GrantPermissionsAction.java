@@ -31,7 +31,6 @@ import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.security.SecuredObjectFactory;
 
 /**
  * @struts:action path="/grantPermissions" name="grantPermissionsForm" validate="false"
@@ -45,8 +44,9 @@ public class GrantPermissionsAction extends ActionBase {
         GrantPermissionsForm form = (GrantPermissionsForm) actionForm;
         List<Long> ids = Lists.newArrayList(form.getIds());
         try {
-            SecuredObject obj = SecuredObjectFactory.getInstance().findById(SecuredObjectType.valueOf(form.getSecuredObjectType()), form.getId());
-            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), ids, ApplicablePermissions.getDefaults(obj), obj);
+            SecuredObjectType securedObjectType = SecuredObjectType.valueOf(form.getSecuredObjectType());
+            SecuredObject object = Delegates.getAuthorizationService().findSecuredObject(securedObjectType, form.getId());
+            Delegates.getAuthorizationService().setPermissions(getLoggedUser(request), ids, ApplicablePermissions.getDefaults(object), object);
         } catch (Exception e) {
             addError(request, e);
         }
