@@ -17,14 +17,12 @@
  */
 package ru.runa.wfe.commons.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
@@ -59,14 +57,10 @@ import ru.runa.wfe.validation.ValidatorManager;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.dao.VariableDAO;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Sets;
-
 /**
  * Created on 15.03.2005
  */
 public class WFCommonLogic extends CommonLogic {
-    protected final Log log = LogFactory.getLog(getClass());
 
     @Autowired
     protected ProcessDefinitionLoader processDefinitionLoader;

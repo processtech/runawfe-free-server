@@ -15,35 +15,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-package ru.runa.wfe.commons.logic;
+package ru.runa.wfe.commons.dbpatch;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.CacheMode;
-import org.hibernate.Session;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.timer.ScheduledTimerTask;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.DatabaseProperties;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.ConstantDAO;
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
-import ru.runa.wfe.commons.dbpatch.EmptyPatch;
-import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
-import ru.runa.wfe.commons.dbpatch.UnsupportedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAggregatedTaskIndexPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddAssignDateColumnPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddBatchPresentationIsSharedPatch;
@@ -82,27 +76,23 @@ import ru.runa.wfe.commons.dbpatch.impl.TaskCreateLogSeverityChangedPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskEndDateRemovalPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TaskOpenedByExecutorsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
+import ru.runa.wfe.commons.logic.LocalizationParser;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
-import ru.runa.wfe.job.impl.JobTask;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
 /**
  * Initial DB population and update during version change.
- * 
+ *
  * @author Dofs
  */
-public class InitializerLogic {
+public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
     protected static final Log log = LogFactory.getLog(InitializerLogic.class);
-
-    public static final List<Class<? extends DBPatch>> dbPatches;
+    private static final List<Class<? extends DBPatch>> dbPatches;
+    @Autowired
+    private DbTransactionalInitializer dbTransactionalInitializer;
 
     static {
         List<Class<? extends DBPatch>> patches = Lists.newArrayList();
@@ -195,24 +185,25 @@ public class InitializerLogic {
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
 
-    /**
-     * Initialize database if needed.
-     */
-    public void onStartup(UserTransaction transaction) {
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             Integer databaseVersion = null;
             try {
                 // Since now CMT is in use, getDatabaseVersion() may throw from AOP wrapper even if its body is wrapped into try-catch.
                 databaseVersion = constantDAO.getDatabaseVersion();
-                applyPatches(transaction, databaseVersion);
+                applyPatches(databaseVersion);
             } catch (Exception e) {
                 // This message was moved from ConstantDAO.getDatabaseVersion(), so continue logging it there for now.
                 LogFactory.getLog(ConstantDAO.class).warn("Unable to get database version", e);
-                initializeDatabase(transaction);
+                log.info("initializing database");
+                SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
+                schemaExport.execute(true, true, false, true);
+                dbTransactionalInitializer.initialize(dbPatches.size());
             }
             permissionDAO.init();
             if (databaseVersion != null) {
-                postProcessPatches(transaction, databaseVersion);
+                postProcessPatches(databaseVersion);
             }
             String localizedFileName = "localizations." + Locale.getDefault().getLanguage() + ".xml";
             InputStream stream = ClassLoaderUtil.getAsStream(localizedFileName, getClass());
@@ -231,106 +222,42 @@ public class InitializerLogic {
             if (DatabaseProperties.isDynamicSettingsEnabled()) {
                 PropertyResources.setDatabaseAvailable(true);
             }
-            setScheduledTaskTimerSettings();
-            JobTask.setSystemStartupCompleted(true);
+            log.info("initialization completed");
         } catch (Exception e) {
-            log.error("initialization failed", e);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private void setScheduledTaskTimerSettings() {
-        ApplicationContext context = ApplicationContextFactory.getContext();
-        PropertyResources resources = SystemProperties.getResources();
-        ScheduledTimerTask jobExecutorTask = context.getBean("jobExecutorTask", ScheduledTimerTask.class);
-        jobExecutorTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_JOB_EXECUTION_NAME, 60000));
-        jobExecutorTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_JOB_EXECUTION_NAME, 60000));
-        ScheduledTimerTask tasksAssignTask = context.getBean("tasksAssignTask", ScheduledTimerTask.class);
-        tasksAssignTask.setDelay(resources.getLongProperty(SystemProperties.TIMERTASK_START_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME, 60000));
-        tasksAssignTask.setPeriod(resources.getLongProperty(SystemProperties.TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME, 60000));
-    }
-
-    /**
-     * Initialize database.
-     */
-    private void initializeDatabase(UserTransaction transaction) {
-        log.info("database is not initialized. initializing...");
-        SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
-        schemaExport.execute(true, true, false, true);
-        try {
-            transaction.begin();
-            insertInitialData();
-            constantDAO.setDatabaseVersion(dbPatches.size());
-            transaction.commit();
-        } catch (Throwable th) {
-            Utils.rollbackTransaction(transaction);
-            log.info("unable to insert initial data", th);
-        }
-    }
-
-    /**
-     * Inserts initial data on database creation stage
-     */
-    private void insertInitialData() {
-        // create privileged Executors
-        String administratorName = SystemProperties.getAdministratorName();
-        Actor admin = new Actor(administratorName, administratorName, administratorName);
-        admin = executorDAO.create(admin);
-        executorDAO.setPassword(admin, SystemProperties.getAdministratorDefaultPassword());
-        String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-        Group adminGroup = executorDAO.create(new Group(administratorsGroupName, administratorsGroupName));
-        executorDAO.create(new Group(SystemProperties.getBotsGroupName(), SystemProperties.getBotsGroupName()));
-        List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-        executorDAO.addExecutorToGroup(admin, adminGroup);
-        executorDAO.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
-        for (SecuredObjectType t : SecuredObjectType.values()) {
-            permissionDAO.addType(t, adminWithGroupExecutors);
+            Throwables.propagate(e);
         }
     }
 
     /**
      * Apply patches to initialized database.
      */
-    private void applyPatches(UserTransaction transaction, int databaseVersion) {
+    private void applyPatches(int databaseVersion) {
         log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
         while (databaseVersion < dbPatches.size()) {
-            DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
-            databaseVersion++;
-            log.info("Applying patch " + patch + " (" + databaseVersion + ")");
+            DBPatch patch = null;
             try {
-                transaction.begin();
-                Session session = ApplicationContextFactory.getCurrentSession();
-                patch.executeDDLBefore(session);
-                session.setCacheMode(CacheMode.IGNORE);
-                patch.executeDML(session);
-                session.flush();
-                patch.executeDDLAfter(session);
-                constantDAO.setDatabaseVersion(databaseVersion);
-                transaction.commit();
-                log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is applied to database successfully.");
+                patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
+                databaseVersion++;
+                log.info("Applying patch " + patch + " (" + databaseVersion + ")");
+                dbTransactionalInitializer.execute(patch, databaseVersion);
+                log.info("Patch " + patch + "(" + databaseVersion + ") is applied to database successfully.");
             } catch (Throwable th) {
-                log.error("Can't apply patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);
-                Utils.rollbackTransaction(transaction);
-                break;
+                throw new InternalApplicationException("Can't apply patch " + patch + "(" + databaseVersion + ").", th);
             }
         }
     }
 
-    private void postProcessPatches(UserTransaction transaction, Integer databaseVersion) {
+    private void postProcessPatches(Integer databaseVersion) {
         while (databaseVersion < dbPatches.size()) {
             DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
             databaseVersion++;
             if (patch instanceof IDbPatchPostProcessor) {
                 log.info("Post-processing patch " + patch + " (" + databaseVersion + ")");
                 try {
-                    transaction.begin();
-                    Session session = ApplicationContextFactory.getCurrentSession();
-                    ((IDbPatchPostProcessor) patch).postExecute(session);
-                    transaction.commit();
+                    dbTransactionalInitializer.postExecute((IDbPatchPostProcessor) patch);
                     log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is post-processed successfully.");
                 } catch (Throwable th) {
                     log.error("Can't post-process patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);
-                    Utils.rollbackTransaction(transaction);
                     break;
                 }
             }

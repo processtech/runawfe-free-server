@@ -1,5 +1,10 @@
 package ru.runa.wfe.commons.email;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
-
 import javax.activation.DataHandler;
 import javax.activation.MimetypesFileTypeMap;
 import javax.mail.Address;
@@ -24,10 +28,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -44,12 +46,6 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.file.IFileVariable;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
 public class EmailUtils {
     private static final Log log = LogFactory.getLog(EmailConfig.class);
     private static MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
@@ -57,7 +53,7 @@ public class EmailUtils {
     /**
      * Sends email in non-blocking and transactional mode
      */
-    public static void sendMessageRequest(EmailConfig config) throws Exception {
+    public static void sendMessageRequest(EmailConfig config) {
         config.checkValid();
         if (Strings.isNullOrEmpty(config.getHeaderProperties().get(EmailConfig.HEADER_TO))) {
             log.warn("Ignored message with empty 'To' recipients: " + config);

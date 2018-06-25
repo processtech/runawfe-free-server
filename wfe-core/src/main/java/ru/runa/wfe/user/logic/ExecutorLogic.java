@@ -25,8 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.commons.SystemProperties;
@@ -54,7 +52,6 @@ import ru.runa.wfe.user.dao.ProfileDAO;
  * Created on 14.03.2005
  */
 public class ExecutorLogic extends CommonLogic {
-    private static final Log log = LogFactory.getLog(ExecutorLogic.class);
     private List<SetStatusHandler> setStatusHandlers;
 
     @Autowired

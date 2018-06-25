@@ -36,10 +36,6 @@
 			<value>true</value>
 			<value>false</value>
 		</property>
-		<property title="timertask.period.millis.job.execution" pattern="\d*" />
-		<property title="timertask.start.millis.job.execution" pattern="\d*" />
-		<property title="timertask.period.millis.unassigned.tasks.execution" pattern="\d*" />
-		<property title="timertask.start.millis.unassigned.tasks.execution" pattern="\d*" />
 		<property title="trusted.authentication.enabled">
 			<value>true</value>
 			<value>false</value>

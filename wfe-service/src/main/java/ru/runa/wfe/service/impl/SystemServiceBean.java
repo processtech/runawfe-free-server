@@ -68,6 +68,11 @@ public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemot
     private ExecutionLogic executionLogic;
 
     @Override
+    public void initialize() {
+        // interceptors are invoked
+    }
+
+    @Override
     @WebResult(name = "result")
     public void login(@WebParam(name = "user") User user) {
         Preconditions.checkArgument(user != null, "user");

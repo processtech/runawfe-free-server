@@ -18,7 +18,6 @@
 package ru.runa.wfe.service;
 
 import java.util.List;
-
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.SystemError;
@@ -34,7 +33,15 @@ import ru.runa.wfe.user.User;
 public interface SystemService {
 
     /**
+     * Performs application context startup.
+     */
+    public void initialize();
+
+    /**
      * Logins to the system. Acquires {@link Permission#LOGIN_TO_SYSTEM} permission.
+     * 
+     * @param user
+     * @throws AuthorizationException
      */
     void login(User user) throws AuthorizationException;
 
@@ -45,7 +52,9 @@ public interface SystemService {
 
     /**
      * Get localization of string from database.
-     *
+     * 
+     * @param name
+     * 
      * @return localized string
      */
     String getLocalized(String name);

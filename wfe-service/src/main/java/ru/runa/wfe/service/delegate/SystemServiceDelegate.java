@@ -18,7 +18,6 @@
 package ru.runa.wfe.service.delegate;
 
 import java.util.List;
-
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.SystemError;
@@ -33,6 +32,15 @@ public class SystemServiceDelegate extends EJB3Delegate implements SystemService
 
     private SystemService getSystemService() {
         return getService();
+    }
+
+    @Override
+    public void initialize() {
+        try {
+            getSystemService().initialize();
+        } catch (Exception e) {
+            throw handleException(e);
+        }
     }
 
     @Override

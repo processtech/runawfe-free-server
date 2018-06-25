@@ -17,14 +17,13 @@
  */
 package ru.runa.wfe.ss.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.ss.Substitution;
@@ -36,10 +35,6 @@ import ru.runa.wfe.ss.dao.SubstitutionDAO;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 /**
  * Created on 27.01.2006
  * 
@@ -47,7 +42,6 @@ import com.google.common.collect.Sets;
  * @author Gordienko_m
  */
 public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic {
-    private static final Log log = LogFactory.getLog(SubstitutionLogic.class);
     @Autowired
     private SubstitutionCache substitutionCacheCtrl;
     @Autowired

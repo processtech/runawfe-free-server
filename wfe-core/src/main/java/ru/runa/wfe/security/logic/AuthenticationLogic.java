@@ -20,16 +20,11 @@ package ru.runa.wfe.security.logic;
 
 import java.security.Principal;
 import java.util.List;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.security.AuthenticationException;
 import ru.runa.wfe.security.auth.KerberosCallbackHandler;
@@ -45,7 +40,6 @@ import ru.runa.wfe.user.User;
  * Created on 14.03.2005
  */
 public class AuthenticationLogic extends CommonLogic {
-    private static final Log log = LogFactory.getLog(AuthenticationLogic.class);
     private List<LoginHandler> loginHandlers;
 
     @Required

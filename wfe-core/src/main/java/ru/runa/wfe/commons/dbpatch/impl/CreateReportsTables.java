@@ -3,7 +3,6 @@ package ru.runa.wfe.commons.dbpatch.impl;
 import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.dbpatch.DBPatch;
 import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
@@ -74,6 +73,6 @@ public class CreateReportsTables extends DBPatch implements IDbPatchPostProcesso
     }
 
     @Override
-    public void postExecute(Session session) {
+    public void postExecute() {
     }
 }
