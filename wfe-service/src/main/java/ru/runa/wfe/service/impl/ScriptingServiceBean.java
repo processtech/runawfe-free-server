@@ -17,13 +17,13 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
 import groovy.lang.GroovyShell;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -33,10 +33,9 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.script.AdminScript;
@@ -52,10 +51,6 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Sets;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -78,10 +73,7 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebMethod(exclude = true)
-    public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(configData != null, "configData");
-        Preconditions.checkArgument(externalResources != null, "externalResources");
+    public void executeAdminScript(@NonNull User user, @NonNull byte[] configData, @NonNull Map<String, byte[]> externalResources) {
         ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, null);
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
             @Override
@@ -98,13 +90,10 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebMethod(exclude = true)
-    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(configData != null, "configData");
-        Preconditions.checkArgument(externalResources != null, "externalResources");
-        Preconditions.checkArgument(defaultPasswordValue != null, "defaultPasswordValue");
+    public List<String> executeAdminScriptSkipError(@NonNull User user, @NonNull byte[] configData, @NonNull Map<String, byte[]> externalResources,
+            @NonNull String defaultPasswordValue) {
         ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, defaultPasswordValue);
-        final List<String> errors = new ArrayList<String>();
+        final List<String> errors = new ArrayList<>();
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
             @Override
             public void handle(Throwable th) {
@@ -121,9 +110,7 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebResult(name = "result")
-    public void executeGroovyScript(@WebParam(name = "user") User user, @WebParam(name = "script") String script) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(script != null, "script");
+    public void executeGroovyScript(@WebParam(name = "user") @NonNull User user, @WebParam(name = "script") @NonNull String script) {
         if (!SystemProperties.isExecuteGroovyScriptInAPIEnabled()) {
             throw new ConfigurationException(
                     "In order to enable script execution set property 'scripting.groovy.enabled' to 'true' in system.properties or wfe.custom.system.properties");
