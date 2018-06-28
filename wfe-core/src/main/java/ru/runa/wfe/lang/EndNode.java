@@ -33,6 +33,7 @@ public class EndNode extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
+        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
         executionContext.getProcess().end(executionContext, null);
     }
 
