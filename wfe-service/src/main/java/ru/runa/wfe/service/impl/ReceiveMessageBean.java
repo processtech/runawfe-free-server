@@ -17,10 +17,12 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -33,12 +35,10 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ReceiveMessageLog;
 import ru.runa.wfe.audit.dao.ProcessLogDAO;
@@ -48,7 +48,9 @@ import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.Signal;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.dao.SignalDao;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
@@ -59,10 +61,6 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/bpmMessages"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
@@ -80,6 +78,8 @@ public class ReceiveMessageBean implements MessageListener {
     private ProcessLogDAO processLogDAO;
     @Resource
     private MessageDrivenContext context;
+    @Autowired
+    private SignalDao signalDao;
 
     @Override
     public void onMessage(Message jmsMessage) {
@@ -157,7 +157,13 @@ public class ReceiveMessageBean implements MessageListener {
                 log.error(errorMessage);
                 Errors.addSystemError(new InternalApplicationException(errorMessage));
             } else {
-                throw new MessagePostponedException(messageString);
+                try {
+                    Signal signal = new Signal(message);
+                    log.debug("Rejecting message request " + messageString + ", persisting to " + signal);
+                    signalDao.create(signal);
+                } catch (JMSException e) {
+                    Throwables.propagate(e);
+                }
             }
         }
         for (ReceiveMessageData data : handlers) {

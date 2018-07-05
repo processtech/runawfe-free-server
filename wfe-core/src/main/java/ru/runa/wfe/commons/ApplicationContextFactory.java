@@ -24,6 +24,7 @@ import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.async.INodeAsyncExecutor;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.SignalDao;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.dao.JobDAO;
@@ -69,6 +70,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static TokenDAO getTokenDAO() {
         return getContext().getBean(TokenDAO.class);
+    }
+
+    public static SignalDao getSignalDao() {
+        return getContext().getBean(SignalDao.class);
     }
 
     public static SettingDAO getSettingDAO() {
