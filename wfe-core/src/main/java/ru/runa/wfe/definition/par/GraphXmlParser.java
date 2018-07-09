@@ -9,7 +9,7 @@ import org.dom4j.Element;
 import com.google.common.base.Throwables;
 
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.lang.Bendpoint;
 import ru.runa.wfe.lang.GraphElement;
@@ -33,7 +33,7 @@ public class GraphXmlParser implements ProcessArchiveParser {
     @Override
     public void readFromArchive(ProcessArchive archive, ProcessDefinition processDefinition) {
         try {
-            String fileName = IFileDataProvider.GPD_XML_FILE_NAME;
+            String fileName = FileDataProvider.GPD_XML_FILE_NAME;
             if (processDefinition instanceof SubprocessDefinition) {
                 fileName = processDefinition.getNodeId() + "." + fileName;
             }

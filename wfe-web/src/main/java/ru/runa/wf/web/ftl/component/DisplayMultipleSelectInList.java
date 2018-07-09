@@ -4,7 +4,7 @@ import java.util.List;
 
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.ISelectable;
+import ru.runa.wfe.var.SelectableOption;
 
 import com.google.common.collect.Lists;
 
@@ -25,8 +25,8 @@ public class DisplayMultipleSelectInList extends FormComponent {
         for (Object option : list) {
             String optionValue;
             String optionLabel;
-            if (option instanceof ISelectable) {
-                ISelectable selectable = (ISelectable) option;
+            if (option instanceof SelectableOption) {
+                SelectableOption selectable = (SelectableOption) option;
                 optionValue = selectable.getValue();
                 optionLabel = selectable.getLabel();
             } else if (option instanceof Executor) {

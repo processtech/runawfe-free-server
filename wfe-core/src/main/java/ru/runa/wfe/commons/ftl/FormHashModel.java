@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Throwables;
 
@@ -21,10 +21,10 @@ import freemarker.template.TemplateModelException;
 public class FormHashModel extends SimpleHash {
     private static final long serialVersionUID = 1L;
     private final User user;
-    private final IVariableProvider variableProvider;
+    private final VariableProvider variableProvider;
     private final WebHelper webHelper;
 
-    public FormHashModel(User user, IVariableProvider variableProvider, WebHelper webHelper) {
+    public FormHashModel(User user, VariableProvider variableProvider, WebHelper webHelper) {
         super(ObjectWrapper.BEANS_WRAPPER);
         this.user = user;
         this.variableProvider = variableProvider;
@@ -46,7 +46,7 @@ public class FormHashModel extends SimpleHash {
         return webHelper;
     }
 
-    public IVariableProvider getVariableProvider() {
+    public VariableProvider getVariableProvider() {
         return variableProvider;
     }
 

@@ -23,7 +23,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * 
@@ -34,7 +34,7 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 @Deprecated
 public class ActorNameActionHandler extends CommonParamBasedHandler {
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {
@@ -43,9 +43,9 @@ public class ActorNameActionHandler extends CommonParamBasedHandler {
         String format = handlerData.getInputParamValueNotNull("format");
         Actor actor;
         if (actorCode != null) {
-            actor = executorDAO.getActorByCode(actorCode);
+            actor = executorDao.getActorByCode(actorCode);
         } else if (actorLogin != null) {
-            actor = executorDAO.getActor(actorLogin);
+            actor = executorDao.getActor(actorLogin);
         } else {
             throw new InternalApplicationException("Neither actor code and login are not defined in configuration.");
         }

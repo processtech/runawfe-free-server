@@ -1,12 +1,7 @@
 package ru.runa.wfe.task.logic;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.Sets;
 import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +10,17 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
-import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
-import com.google.common.collect.Sets;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
@@ -36,15 +33,15 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
     @DataProvider(name = "testcases")
     public Object[][] getTestcases() {
-        return new Object[][] { { "applies with one of DataAccessException testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
+        return new Object[][] { { "applies with one of DataAccessException testcase", TaskListBuilderImpl.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(ExecutorDao executorDao) {
                 Actor actor = mock(Actor.class);
                 when(actor.isActive()).thenReturn(true);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
-                when(executorDAO.getActor(new Long(2))).thenThrow(mock(org.springframework.dao.DataAccessException.class));
-                when(executorDAO.getActor(new Long(3))).thenReturn(actor);
-                when(executorDAO.getActor(new Long(4))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(2))).thenThrow(mock(org.springframework.dao.DataAccessException.class));
+                when(executorDao.getActor(new Long(3))).thenReturn(actor);
+                when(executorDao.getActor(new Long(4))).thenReturn(actor);
             }
 
             @Override
@@ -59,15 +56,15 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
                 return Sets.newHashSet(new Long(1), new Long(2), new Long(3), new Long(4));
             }
 
-        } }, { "applies with one of ExecutorDoesNotExistException testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
+        } }, { "applies with one of ExecutorDoesNotExistException testcase", TaskListBuilderImpl.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(ExecutorDao executorDao) {
                 Actor actor = mock(Actor.class);
                 when(actor.isActive()).thenReturn(true);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
-                when(executorDAO.getActor(new Long(2))).thenThrow(mock(ExecutorDoesNotExistException.class));
-                when(executorDAO.getActor(new Long(3))).thenReturn(actor);
-                when(executorDAO.getActor(new Long(4))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(2))).thenThrow(mock(ExecutorDoesNotExistException.class));
+                when(executorDao.getActor(new Long(3))).thenReturn(actor);
+                when(executorDao.getActor(new Long(4))).thenReturn(actor);
             }
 
             @Override
@@ -82,15 +79,15 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
                 return Sets.newHashSet(new Long(1), new Long(2), new Long(3), new Long(4));
             }
 
-        } }, { "applies testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
+        } }, { "applies testcase", TaskListBuilderImpl.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
 
             Actor actor;
 
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(ExecutorDao executorDao) {
                 actor = mock(Actor.class);
                 when(actor.isActive()).thenReturn(true);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
             }
 
             @Override
@@ -104,14 +101,14 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
             public Set<Long> getIds() {
                 return Sets.newHashSet(new Long(1));
             }
-        } }, { "can substitute testcase", TaskListBuilder.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
+        } }, { "can substitute testcase", TaskListBuilderImpl.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
 
             Actor actor;
 
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(ExecutorDao executorDao) {
                 actor = mock(Actor.class);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
             }
 
             @Override
@@ -131,15 +128,15 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
                 return Sets.newHashSet(new Long(1));
             }
 
-        } }, { "applies and can substitute testcase", TaskListBuilder.SUBSTITUTION_APPLIES | TaskListBuilder.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
+        } }, { "applies and can substitute testcase", TaskListBuilderImpl.SUBSTITUTION_APPLIES | TaskListBuilderImpl.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
 
             Actor actor;
 
             @Override
-            public void mockRules(IExecutorDAO executorDAO) {
+            public void mockRules(ExecutorDao executorDao) {
                 actor = mock(Actor.class);
                 when(actor.isActive()).thenReturn(true);
-                when(executorDAO.getActor(new Long(1))).thenReturn(actor);
+                when(executorDao.getActor(new Long(1))).thenReturn(actor);
             }
 
             @Override

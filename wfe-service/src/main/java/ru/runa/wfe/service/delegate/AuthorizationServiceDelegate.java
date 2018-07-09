@@ -34,7 +34,7 @@ import ru.runa.wfe.user.User;
  * 
  * Created 14.10.2005
  */
-public class AuthorizationServiceDelegate extends EJB3Delegate implements AuthorizationService {
+public class AuthorizationServiceDelegate extends Ejb3Delegate implements AuthorizationService {
 
     public AuthorizationServiceDelegate() {
         super(AuthorizationService.class);

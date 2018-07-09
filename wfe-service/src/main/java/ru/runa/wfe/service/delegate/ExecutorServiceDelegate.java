@@ -29,7 +29,7 @@ import ru.runa.wfe.user.User;
 /*
  * Created on 10.08.2004
  */
-public class ExecutorServiceDelegate extends EJB3Delegate implements ExecutorService {
+public class ExecutorServiceDelegate extends Ejb3Delegate implements ExecutorService {
 
     public ExecutorServiceDelegate() {
         super(ExecutorService.class);

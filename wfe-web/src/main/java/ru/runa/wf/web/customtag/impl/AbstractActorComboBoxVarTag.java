@@ -30,7 +30,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Created on Mar 24, 2006
@@ -50,7 +50,7 @@ public abstract class AbstractActorComboBoxVarTag implements VarTag {
     }
 
     @Override
-    public String getHtml(User user, String varName, Object varValue, PageContext pageContext, IVariableProvider variableProvider) throws Exception {
+    public String getHtml(User user, String varName, Object varValue, PageContext pageContext, VariableProvider variableProvider) throws Exception {
         StringBuilder htmlContent = new StringBuilder();
 
         List<Actor> actors = getActors(user, varName);

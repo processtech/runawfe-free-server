@@ -15,33 +15,33 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
-import ru.runa.wfe.commons.dao.SettingDAO;
+import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.hibernate.Converters;
-import ru.runa.wfe.definition.dao.DeploymentDAO;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.execution.async.INodeAsyncExecutor;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
-import ru.runa.wfe.execution.dao.SwimlaneDAO;
-import ru.runa.wfe.execution.dao.TokenDAO;
-import ru.runa.wfe.job.dao.JobDAO;
-import ru.runa.wfe.relation.dao.RelationDAO;
-import ru.runa.wfe.relation.dao.RelationPairDAO;
-import ru.runa.wfe.report.dao.ReportDAO;
-import ru.runa.wfe.security.dao.PermissionDAO;
-import ru.runa.wfe.ss.dao.SubstitutionDAO;
-import ru.runa.wfe.task.dao.TaskDAO;
-import ru.runa.wfe.task.logic.ITaskNotifier;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.definition.dao.DeploymentDao;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.async.NodeAsyncExecutor;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.job.dao.JobDao;
+import ru.runa.wfe.relation.dao.RelationDao;
+import ru.runa.wfe.relation.dao.RelationPairDao;
+import ru.runa.wfe.report.dao.ReportDao;
+import ru.runa.wfe.security.dao.PermissionDao;
+import ru.runa.wfe.ss.dao.SubstitutionDao;
+import ru.runa.wfe.task.dao.TaskDao;
+import ru.runa.wfe.task.logic.TaskNotifier;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.logic.VariableLogic;
 
 @Component
 public class ApplicationContextFactory implements ApplicationContextAware {
     private static ApplicationContext context;
-    private static DBType dbType;
+    private static DbType dbType;
 
     /**
      * Taken from: https://stackoverflow.com/a/28408260/4247442
@@ -55,36 +55,36 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return context;
     }
 
-    public static JobDAO getJobDAO() {
-        return getContext().getBean(JobDAO.class);
+    public static JobDao getJobDAO() {
+        return getContext().getBean(JobDao.class);
     }
 
-    public static TaskDAO getTaskDAO() {
-        return getContext().getBean(TaskDAO.class);
+    public static TaskDao getTaskDAO() {
+        return getContext().getBean(TaskDao.class);
     }
 
-    public static SwimlaneDAO getSwimlaneDAO() {
-        return getContext().getBean(SwimlaneDAO.class);
+    public static SwimlaneDao getSwimlaneDAO() {
+        return getContext().getBean(SwimlaneDao.class);
     }
 
-    public static TokenDAO getTokenDAO() {
-        return getContext().getBean(TokenDAO.class);
+    public static TokenDao getTokenDAO() {
+        return getContext().getBean(TokenDao.class);
     }
 
-    public static SettingDAO getSettingDAO() {
-        return getContext().getBean(SettingDAO.class);
+    public static SettingDao getSettingDAO() {
+        return getContext().getBean(SettingDao.class);
     }
 
-    public static ProcessDAO getProcessDAO() {
-        return getContext().getBean(ProcessDAO.class);
+    public static ProcessDao getProcessDAO() {
+        return getContext().getBean(ProcessDao.class);
     }
 
-    public static NodeProcessDAO getNodeProcessDAO() {
-        return getContext().getBean(NodeProcessDAO.class);
+    public static NodeProcessDao getNodeProcessDAO() {
+        return getContext().getBean(NodeProcessDao.class);
     }
 
-    public static ProcessLogDAO getProcessLogDAO() {
-        return getContext().getBean(ProcessLogDAO.class);
+    public static ProcessLogDao getProcessLogDAO() {
+        return getContext().getBean(ProcessLogDao.class);
     }
 
     public static Converters getConverters() {
@@ -95,12 +95,12 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(BusinessCalendar.class);
     }
 
-    public static IProcessDefinitionLoader getProcessDefinitionLoader() {
-        return getContext().getBean(IProcessDefinitionLoader.class);
+    public static ProcessDefinitionLoader getProcessDefinitionLoader() {
+        return getContext().getBean(ProcessDefinitionLoader.class);
     }
 
-    public static INodeAsyncExecutor getNodeAsyncExecutor() {
-        return getContext().getBean(INodeAsyncExecutor.class);
+    public static NodeAsyncExecutor getNodeAsyncExecutor() {
+        return getContext().getBean(NodeAsyncExecutor.class);
     }
 
     // TODO avoid static methods, inject
@@ -126,58 +126,58 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return Dialect.getDialect(getConfiguration().getProperties());
     }
 
-    public static DBType getDBType() {
+    public static DbType getDBType() {
         if (dbType == null) {
             String hibernateDialect = getConfiguration().getProperty("hibernate.dialect");
             if (hibernateDialect.contains("HSQL")) {
-                dbType = DBType.HSQL;
+                dbType = DbType.HSQL;
             } else if (hibernateDialect.contains("Oracle")) {
-                dbType = DBType.ORACLE;
+                dbType = DbType.ORACLE;
             } else if (hibernateDialect.contains("Postgre")) {
-                dbType = DBType.POSTGRESQL;
+                dbType = DbType.POSTGRESQL;
             } else if (hibernateDialect.contains("MySQL")) {
-                dbType = DBType.MYSQL;
+                dbType = DbType.MYSQL;
             } else if (hibernateDialect.contains("SQLServer")) {
-                dbType = DBType.MSSQL;
+                dbType = DbType.MSSQL;
             } else if (hibernateDialect.contains("H2")) {
-                dbType = DBType.H2;
+                dbType = DbType.H2;
             } else {
-                dbType = DBType.GENERIC;
+                dbType = DbType.GENERIC;
             }
         }
         return dbType;
     }
 
-    public static ExecutorDAO getExecutorDAO() {
-        return getContext().getBean(ExecutorDAO.class);
+    public static ExecutorDao getExecutorDAO() {
+        return getContext().getBean(ExecutorDao.class);
     }
 
-    public static DeploymentDAO getDeploymentDAO() {
-        return getContext().getBean(DeploymentDAO.class);
+    public static DeploymentDao getDeploymentDAO() {
+        return getContext().getBean(DeploymentDao.class);
     }
 
-    public static PermissionDAO getPermissionDAO() {
-        return getContext().getBean(PermissionDAO.class);
+    public static PermissionDao getPermissionDAO() {
+        return getContext().getBean(PermissionDao.class);
     }
 
-    public static RelationDAO getRelationDAO() {
-        return getContext().getBean(RelationDAO.class);
+    public static RelationDao getRelationDAO() {
+        return getContext().getBean(RelationDao.class);
     }
 
-    public static RelationPairDAO getRelationPairDAO() {
-        return getContext().getBean(RelationPairDAO.class);
+    public static RelationPairDao getRelationPairDAO() {
+        return getContext().getBean(RelationPairDao.class);
     }
 
-    public static SubstitutionDAO getSubstitutionDAO() {
-        return getContext().getBean(SubstitutionDAO.class);
+    public static SubstitutionDao getSubstitutionDAO() {
+        return getContext().getBean(SubstitutionDao.class);
     }
 
-    public static ReportDAO getReportDAO() {
-        return getContext().getBean(ReportDAO.class);
+    public static ReportDao getReportDAO() {
+        return getContext().getBean(ReportDao.class);
     }
 
-    public static List<ITaskNotifier> getTaskNotifiers() {
-        return Lists.newArrayList(getContext().getBeansOfType(ITaskNotifier.class).values());
+    public static List<TaskNotifier> getTaskNotifiers() {
+        return Lists.newArrayList(getContext().getBeansOfType(TaskNotifier.class).values());
     }
 
     public static ExecutorLogic getExecutorLogic() {

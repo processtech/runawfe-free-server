@@ -13,7 +13,7 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TRRowBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesError;
@@ -46,7 +46,7 @@ public class ShowSystemErrorsTag extends VisibleTag {
             rows.add(tr);
         }
         ErrorsHeaderBuilder tasksHistoryHeaderBuilder = new ErrorsHeaderBuilder();
-        RowBuilder rowBuilder = new TRRowBuilder(rows);
+        RowBuilder rowBuilder = new TrRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         return tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder);
     }

@@ -19,12 +19,12 @@ public class VariableLoaderFromMap extends AbstractVariableLoader {
 
     /**
      * Preloaded variables. For each process contains map from variable name to variable. If no entry for variable name exists in preloaded variables,
-     * then it will be loaded via {@link VariableDAO}.
+     * then it will be loaded via {@link VariableDao}.
      */
     private final Map<Process, Map<String, Variable<?>>> loadedVariables;
 
     /**
-     * Supports variable loading via {@link VariableDAO} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component
+     * Supports variable loading via {@link VariableDao} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component
      * in case of mass variables loading.
      *
      * @param loadedVariables

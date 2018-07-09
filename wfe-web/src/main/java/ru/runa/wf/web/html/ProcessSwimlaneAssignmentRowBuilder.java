@@ -69,7 +69,7 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
         tr.addElement(new TD(HTMLUtils.createExecutorElement(user, pageContext, task.getOwner())).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         tr.addElement(new TD(CalendarUtil.formatDateTime(task.getCreationDate())).setClass(Resources.CLASS_LIST_TABLE_TD));
-        tr.addElement(new TaskDeadlineTDBuilder().build(task, null).setClass(Resources.CLASS_LIST_TABLE_TD));
+        tr.addElement(new TaskDeadlineTdBuilder().build(task, null).setClass(Resources.CLASS_LIST_TABLE_TD));
 
         Date currentDate = new Date();
         String duration = TaskDeadlineUtils.calculateTimeDuration(task.getCreationDate(), currentDate);

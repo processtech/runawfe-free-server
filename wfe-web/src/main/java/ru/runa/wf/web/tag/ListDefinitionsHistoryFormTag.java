@@ -28,12 +28,12 @@ import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
-import ru.runa.wf.web.html.PropertiesProcessTDBuilder;
-import ru.runa.wf.web.html.UndeployProcessDefinitionTDBuilder;
+import ru.runa.wf.web.html.PropertiesProcessTdBuilder;
+import ru.runa.wf.web.html.UndeployProcessDefinitionTdBuilder;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.DefinitionService;
@@ -52,8 +52,8 @@ public class ListDefinitionsHistoryFormTag extends BatchReturningTitledFormTag {
         List<WfDefinition> definitions = definitionService.getDeployments(getUser(), batchPresentation, true);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, count, "/definitions_history.do");
         navigation.addPagingNavigationTable(tdFormElement);
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, new TDBuilder[] {
-                new UndeployProcessDefinitionTDBuilder(), new PropertiesProcessTDBuilder() });
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, new TdBuilder[] {
+                new UndeployProcessDefinitionTdBuilder(), new PropertiesProcessTdBuilder() });
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 0, 2, getReturnAction(), pageContext);
         RowBuilder rowBuilder = new ReflectionRowBuilder(definitions, batchPresentation, pageContext, WebResources.ACTION_MAPPING_MANAGE_DEFINITION,
                 getReturnAction(), new DefinitionUrlStrategy(pageContext), builders);

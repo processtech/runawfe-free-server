@@ -25,7 +25,7 @@ import ru.runa.wfe.presentation.BatchPresentationConsts;
 /**
  * Creates {@link Query} to load data according to {@link BatchPresentation}.
  */
-public class PresentationCompiler<T> implements IBatchPresentationCompiler<T> {
+public class PresentationCompiler<T> implements BatchPresentationCompiler<T> {
 
     /**
      * {@link BatchPresentation}, used to load data.

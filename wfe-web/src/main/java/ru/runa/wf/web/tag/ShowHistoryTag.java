@@ -37,7 +37,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TRRowBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
@@ -140,7 +140,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         }
         HeaderBuilder tasksHistoryHeaderBuilder = new HistoryHeaderBuilder(maxLevel, MessagesOther.LABEL_HISTORY_DATE.message(pageContext),
                 MessagesOther.LABEL_HISTORY_EVENT.message(pageContext));
-        RowBuilder rowBuilder = new TRRowBuilder(rows);
+        RowBuilder rowBuilder = new TrRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         tdFormElement.addElement(tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder));
     }

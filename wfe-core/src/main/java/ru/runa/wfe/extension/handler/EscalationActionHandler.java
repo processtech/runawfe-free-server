@@ -38,14 +38,14 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 
 import com.google.common.base.Strings;
 
 public class EscalationActionHandler extends ActionHandlerBase {
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
     private ExecutorLogic executorLogic;
     private String hierarchyLoader;
@@ -95,7 +95,7 @@ public class EscalationActionHandler extends ActionHandlerBase {
                 } else {
                     originalExecutor = swimlaneGroup;
                 }
-                for (Executor executor : executorDAO.getGroupChildren(swimlaneGroup)) {
+                for (Executor executor : executorDao.getGroupChildren(swimlaneGroup)) {
                     if (executor instanceof Actor) {
                         previousSwimlaneActors.add((Actor) executor);
                     } else {

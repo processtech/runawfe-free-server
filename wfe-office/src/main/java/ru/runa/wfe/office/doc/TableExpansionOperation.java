@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.collect.Lists;
 
@@ -59,7 +59,7 @@ public class TableExpansionOperation extends Operation {
         }
     }
 
-    public String getStringValue(DocxConfig config, IVariableProvider variableProvider, int columnIndex, int rowIndex) {
+    public String getStringValue(DocxConfig config, VariableProvider variableProvider, int columnIndex, int rowIndex) {
         ColumnExpansionOperation operation = operations.get(columnIndex);
         if (operation != null) {
             Object key;

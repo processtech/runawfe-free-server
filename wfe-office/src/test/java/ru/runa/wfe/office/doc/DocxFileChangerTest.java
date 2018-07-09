@@ -16,7 +16,7 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.DateFormat;
 import ru.runa.wfe.var.format.DateTimeFormat;
@@ -122,9 +122,9 @@ public class DocxFileChangerTest extends Assert {
     public void testImages() throws IOException {
         Map<String, Object> data = Maps.newHashMap();
         data.put("image1",
-                new FileVariable("image1.jpg", ByteStreams.toByteArray(ClassLoaderUtil.getAsStreamNotNull("image1.jpg", getClass())), null));
+                new FileVariableImpl("image1.jpg", ByteStreams.toByteArray(ClassLoaderUtil.getAsStreamNotNull("image1.jpg", getClass())), null));
         data.put("image2",
-                new FileVariable("image2.png", ByteStreams.toByteArray(ClassLoaderUtil.getAsStreamNotNull("image2.png", getClass())), null));
+                new FileVariableImpl("image2.png", ByteStreams.toByteArray(ClassLoaderUtil.getAsStreamNotNull("image2.png", getClass())), null));
         testDocx(true, "images.docx", data);
     }
 

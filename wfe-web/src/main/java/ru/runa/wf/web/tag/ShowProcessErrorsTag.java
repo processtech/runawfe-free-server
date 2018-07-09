@@ -19,7 +19,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TRRowBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.VisibleTag;
 import ru.runa.wf.web.MessagesError;
@@ -87,7 +87,7 @@ public class ShowProcessErrorsTag extends VisibleTag {
         filters.append("</div>");
         resultElement.addElement(filters.toString());
         ErrorsHeaderBuilder headerBuilder = new ErrorsHeaderBuilder();
-        RowBuilder rowBuilder = new TRRowBuilder(rows);
+        RowBuilder rowBuilder = new TrRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         Table table = tableBuilder.build(headerBuilder, rowBuilder);
         resultElement.addElement(table);

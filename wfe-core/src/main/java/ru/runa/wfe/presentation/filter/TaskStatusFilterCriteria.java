@@ -1,7 +1,7 @@
 package ru.runa.wfe.presentation.filter;
 
-import ru.runa.wfe.commons.SQLCommons;
-import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
+import ru.runa.wfe.commons.SqlCommons;
+import ru.runa.wfe.commons.SqlCommons.StringEqualsExpression;
 import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 /**
@@ -23,7 +23,7 @@ public class TaskStatusFilterCriteria extends FilterCriteria {
 
 	@Override
 	public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
-        StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
+        StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(getFilterTemplate(0));
         String alias = makePlaceHolderName(aliasedFieldName);
         StringBuilder paramStringBuilder = new StringBuilder();
         paramStringBuilder.append(expression.getComparisonOperator());

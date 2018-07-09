@@ -24,7 +24,7 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.DBType;
+import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.CachingLogic;
 import ru.runa.wfe.commons.cache.Change;
@@ -33,7 +33,7 @@ public class CacheInterceptor extends EmptyInterceptor {
     private static final long serialVersionUID = 1L;
 
     private boolean isOracleDatabase() {
-        return ApplicationContextFactory.getDBType() == DBType.ORACLE;
+        return ApplicationContextFactory.getDBType() == DbType.ORACLE;
     }
 
     private boolean onChanges(Object entity, Change change, Object[] state, Object[] previousState, String[] propertyNames, Type[] types,

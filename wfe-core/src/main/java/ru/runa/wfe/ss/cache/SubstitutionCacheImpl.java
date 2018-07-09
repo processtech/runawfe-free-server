@@ -37,12 +37,12 @@ import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
-import ru.runa.wfe.ss.dao.SubstitutionDAO;
+import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 import com.google.common.collect.Maps;
 
@@ -52,15 +52,15 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
     public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
     private final Cache<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutorsCache;
     private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
-    private final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-    private final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
+    private final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+    private final SubstitutionDao substitutionDao = ApplicationContextFactory.getSubstitutionDAO();
 
     public SubstitutionCacheImpl() {
         actorToSubstitutorsCache = createCache(substitutorsName, true);
         actorToSubstitutedCache = createCache(substitutedName, true);
         Map<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutors = getMapActorToSubstitutors();
         Map<Long, HashSet<Long>> actorToSubstituted = getMapActorToSubstituted(actorToSubstitutors);
-        for (Actor actor : executorDAO.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged())) {
+        for (Actor actor : executorDao.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged())) {
             if (actorToSubstituted.get(actor.getId()) == null) {
                 actorToSubstituted.put(actor.getId(), new HashSet<Long>());
             }
@@ -123,11 +123,11 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
     private Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors() {
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
         try {
-            for (Substitution substitution : substitutionDAO.getAll()) {
+            for (Substitution substitution : substitutionDao.getAll()) {
                 try {
                     Long actorId;
                     try {
-                        actorId = executorDAO.getActor(substitution.getActorId()).getId();
+                        actorId = executorDao.getActor(substitution.getActorId()).getId();
                     } catch (ExecutorDoesNotExistException e) {
                         log.error("in " + substitution + ": " + e);
                         continue;
@@ -150,7 +150,7 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
                         if (sub instanceof Actor) {
                             substitutors.add(sub.getId());
                         } else {
-                            for (Actor groupActor : executorDAO.getGroupActors((Group) sub)) {
+                            for (Actor groupActor : executorDao.getGroupActors((Group) sub)) {
                                 substitutors.add(groupActor.getId());
                             }
                         }
@@ -170,7 +170,7 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
         Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
         for (Long substituted : mapActorToSubstitutors.keySet()) {
             try {
-                Actor substitutedActor = executorDAO.getActor(substituted);
+                Actor substitutedActor = executorDao.getActor(substituted);
                 if (substitutedActor.isActive()) {
                     continue;
                 }
@@ -198,7 +198,7 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
         for (Map.Entry<Long, TreeMap<Substitution, HashSet<Long>>> entry1 : mapActorToSubstitutors.entrySet()) {
             final Long substitutedId = entry1.getKey();
             try {
-                Actor substitutedActor = executorDAO.getActor(substitutedId);
+                Actor substitutedActor = executorDao.getActor(substitutedId);
                 if (substitutedActor.isActive()) {
                     continue;
                 }

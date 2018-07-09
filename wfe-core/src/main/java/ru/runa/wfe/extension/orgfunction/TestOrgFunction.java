@@ -12,7 +12,7 @@ public class TestOrgFunction extends OrgFunction {
 
     @Override
     public List<? extends Executor> getExecutors(Object... parameters) throws OrgFunctionException {
-        return Lists.newArrayList(executorDAO.getActor("test"));
+        return Lists.newArrayList(executorDao.getActor("test"));
     }
 
 }

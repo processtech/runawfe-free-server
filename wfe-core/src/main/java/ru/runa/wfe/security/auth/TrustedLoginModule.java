@@ -40,11 +40,11 @@ public class TrustedLoginModule extends LoginModuleBase {
                 return null;
             }
             TrustedLoginModuleCallbackHandler handler = (TrustedLoginModuleCallbackHandler) callbackHandler;
-            Group administratorsGroup = executorDAO.getGroup(SystemProperties.getAdministratorsGroupName());
-            if (!executorDAO.isExecutorInGroup(handler.getServiceUser().getActor(), administratorsGroup)) {
+            Group administratorsGroup = executorDao.getGroup(SystemProperties.getAdministratorsGroupName());
+            if (!executorDao.isExecutorInGroup(handler.getServiceUser().getActor(), administratorsGroup)) {
                 throw new LoginException("Service user does not belongs to administrators");
             }
-            return executorDAO.getActor(handler.getLogin());
+            return executorDao.getActor(handler.getLogin());
         }
         return null;
     }

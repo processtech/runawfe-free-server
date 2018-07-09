@@ -5,7 +5,7 @@ import java.util.Map;
 
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
-import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
@@ -42,7 +42,7 @@ public class LoadFileVariableFromFileSystemHandler extends CommonParamBasedHandl
         if (mediaType == null) {
             mediaType = MediaType.ANY_APPLICATION_TYPE;
         }
-        FileVariable fileVariable = new FileVariable(file.getName(), mediaType.toString());
+        FileVariableImpl fileVariable = new FileVariableImpl(file.getName(), mediaType.toString());
         fileVariable.setData(Files.toByteArray(file));
         handlerData.setOutputParam("result", fileVariable);
     }

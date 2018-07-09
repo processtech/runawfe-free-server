@@ -41,7 +41,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import org.apache.commons.beanutils.PropertyUtils;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.SQLCommons;
+import ru.runa.wfe.commons.SqlCommons;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.sqltask.AbstractQuery;
 import ru.runa.wfe.commons.sqltask.DatabaseTask;
@@ -59,9 +59,9 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.ListFormat;
 
 /**
@@ -71,7 +71,7 @@ import ru.runa.wfe.var.format.ListFormat;
 public class DatabaseTaskHandler extends TaskHandlerBase {
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         Map<String, Object> outputVariables = Maps.newHashMap();
         if (variableProvider.getVariable(DatabaseTask.INSTANCE_ID_VARIABLE_NAME) != null) {
             outputVariables.put(DatabaseTask.INSTANCE_ID_VARIABLE_NAME, task.getProcessId());
@@ -84,7 +84,7 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
         return outputVariables;
     }
 
-    private void executeDatabaseTasks(User user, IVariableProvider variableProvider, WfTask task, Map<String, Object> outputVariables,
+    private void executeDatabaseTasks(User user, VariableProvider variableProvider, WfTask task, Map<String, Object> outputVariables,
             DatabaseTask[] databaseTasks) throws Exception {
         Context context = new InitialContext();
         for (DatabaseTask databaseTask : databaseTasks) {
@@ -161,16 +161,16 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
                             }
                         }
                     } finally {
-                        SQLCommons.releaseResources(ps);
+                        SqlCommons.releaseResources(ps);
                     }
                 }
             } finally {
-                SQLCommons.releaseResources(conn);
+                SqlCommons.releaseResources(conn);
             }
         }
     }
 
-    private Map<String, Object> extractResultsToProcessVariables(User user, IVariableProvider variableProvider,
+    private Map<String, Object> extractResultsToProcessVariables(User user, VariableProvider variableProvider,
             Function<Integer, Object> getValueAtIndex, AbstractQuery query) throws Exception {
         Map<String, Object> outputVariables = Maps.newHashMap();
         for (int i = 0; i < query.getResultVariableCount(); i++) {
@@ -216,7 +216,7 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
         return outputVariables;
     }
 
-    private void fillQueryParameters(User user, PreparedStatement ps, IVariableProvider variableProvider, AbstractQuery query, WfTask task)
+    private void fillQueryParameters(User user, PreparedStatement ps, VariableProvider variableProvider, AbstractQuery query, WfTask task)
             throws Exception {
         Set<Integer> outParamIdx = Sets.newHashSet();
         for (int i = 0; i < query.getResultVariableCount(); i++) {
@@ -238,7 +238,7 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
         }
     }
 
-    private Object getVariableValue(User user, IVariableProvider variableProvider, WfTask task, Parameter parameter, String variableName)
+    private Object getVariableValue(User user, VariableProvider variableProvider, WfTask task, Parameter parameter, String variableName)
             throws Exception {
         Object value = variableProvider.getValue(variableName);
         if (value == null) {
@@ -262,8 +262,8 @@ public class DatabaseTaskHandler extends TaskHandlerBase {
         if (value instanceof FileVariableProxy) {
             value = Delegates.getExecutionService().getFileVariableValue(user, task.getProcessId(), variableName);
         }
-        if (value instanceof IFileVariable) {
-            IFileVariable fileVariable = (IFileVariable) value;
+        if (value instanceof FileVariable) {
+            FileVariable fileVariable = (FileVariable) value;
             if ("name".equals(parameter.getFieldName())) {
                 value = fileVariable.getName();
             } else if ("data".equals(parameter.getFieldName())) {

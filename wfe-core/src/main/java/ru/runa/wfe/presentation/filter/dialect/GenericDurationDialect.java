@@ -1,6 +1,6 @@
 package ru.runa.wfe.presentation.filter.dialect;
 
-public class GenericDurationDialect implements IDurationDialect {
+public class GenericDurationDialect implements DurationDialect {
 
     @Override
     public String convertOperator(String fields) {

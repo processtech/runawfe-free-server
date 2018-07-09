@@ -15,7 +15,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 
-public class TaskListBuilderTestProvider extends TaskListBuilder implements ITaskListBuilderTestProvider {
+public class TaskListBuilderTestProvider extends TaskListBuilderImpl implements ITaskListBuilderTestProvider {
 
     private static TaskCache taskCache = mock(TaskCache.class);
 

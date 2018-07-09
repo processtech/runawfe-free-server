@@ -19,7 +19,7 @@ public class PrincipalLoginModule extends LoginModuleBase {
         if (principal == null) {
             throw new LoginException("No actor logged in.");
         }
-        return executorDAO.getActor(principal.getName());
+        return executorDao.getActor(principal.getName());
     }
 
 }

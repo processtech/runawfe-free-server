@@ -7,7 +7,7 @@ import ru.runa.wfe.extension.Configurable;
 import ru.runa.wfe.extension.TaskHandler;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Charsets;
 
@@ -35,6 +35,6 @@ public abstract class TaskHandlerBase implements TaskHandler, Configurable {
     }
 
     @Override
-    public void onRollback(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public void onRollback(User user, VariableProvider variableProvider, WfTask task) throws Exception {
     }
 }

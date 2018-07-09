@@ -2,9 +2,9 @@ package ru.runa.wfe.commons.dbpatch.impl;
 
 import java.sql.Types;
 import java.util.List;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class AddTransactionalBotSupport extends DBPatch {
+public class AddTransactionalBotSupport extends DbPatch {
     private static final String TABLE_NAME = "BOT";
 
     @Override

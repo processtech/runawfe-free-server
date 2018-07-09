@@ -10,36 +10,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.dao.ConstantDAO;
+import ru.runa.wfe.commons.dao.ConstantDao;
 import ru.runa.wfe.commons.dao.Localization;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
+import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.logic.LocalizationParser;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.SystemExecutors;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 @Transactional
 public class DbTransactionalInitializer {
     protected static final Log log = LogFactory.getLog(DbTransactionalInitializer.class);
     @Autowired
-    private ConstantDAO constantDAO;
+    private ConstantDao constantDao;
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
-    private PermissionDAO permissionDAO;
+    private PermissionDao permissionDao;
     @Autowired
-    private LocalizationDAO localizationDAO;
+    private LocalizationDao localizationDao;
 
-    public void execute(DBPatch dbPatch, int databaseVersion) throws Exception {
+    public void execute(DbPatch dbPatch, int databaseVersion) throws Exception {
         dbPatch.execute();
-        constantDAO.setDatabaseVersion(databaseVersion);
+        constantDao.setDatabaseVersion(databaseVersion);
     }
 
-    public void postExecute(IDbPatchPostProcessor dbPatch) throws Exception {
+    public void postExecute(DbPatchPostProcessor dbPatch) throws Exception {
         dbPatch.postExecute();
     }
 
@@ -49,18 +49,18 @@ public class DbTransactionalInitializer {
     public void initialize(int version) {
         try {
             insertInitialData();
-            constantDAO.setDatabaseVersion(version);
+            constantDao.setDatabaseVersion(version);
         } catch (Throwable th) {
             log.info("unable to insert initial data", th);
         }
     }
 
     public Integer getDatabaseVersion() throws Exception {
-        return constantDAO.getDatabaseVersion();
+        return constantDao.getDatabaseVersion();
     }
 
     public void initPermissions() {
-        permissionDAO.init();
+        permissionDao.init();
     }
 
     public void initLocalizations() {
@@ -77,7 +77,7 @@ public class DbTransactionalInitializer {
         if (stream != null) {
             localizations.addAll(LocalizationParser.parseLocalizations(stream));
         }
-        localizationDAO.saveLocalizations(localizations, false);
+        localizationDao.saveLocalizations(localizations, false);
     }
 
     /**
@@ -87,16 +87,16 @@ public class DbTransactionalInitializer {
         // create privileged Executors
         String administratorName = SystemProperties.getAdministratorName();
         Actor admin = new Actor(administratorName, administratorName, administratorName);
-        admin = executorDAO.create(admin);
-        executorDAO.setPassword(admin, SystemProperties.getAdministratorDefaultPassword());
+        admin = executorDao.create(admin);
+        executorDao.setPassword(admin, SystemProperties.getAdministratorDefaultPassword());
         String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-        Group adminGroup = executorDAO.create(new Group(administratorsGroupName, administratorsGroupName));
-        executorDAO.create(new Group(SystemProperties.getBotsGroupName(), SystemProperties.getBotsGroupName()));
+        Group adminGroup = executorDao.create(new Group(administratorsGroupName, administratorsGroupName));
+        executorDao.create(new Group(SystemProperties.getBotsGroupName(), SystemProperties.getBotsGroupName()));
         List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-        executorDAO.addExecutorToGroup(admin, adminGroup);
-        executorDAO.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
+        executorDao.addExecutorToGroup(admin, adminGroup);
+        executorDao.create(new Actor(SystemExecutors.PROCESS_STARTER_NAME, SystemExecutors.PROCESS_STARTER_DESCRIPTION));
         for (SecuredObjectType t : SecuredObjectType.values()) {
-            permissionDAO.addType(t, adminWithGroupExecutors);
+            permissionDao.addType(t, adminWithGroupExecutors);
         }
     }
 

@@ -5,23 +5,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.Job;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.ProcessDefinition;
 
 public class JobExecutor {
     protected final Log log = LogFactory.getLog(getClass());
 
     @Autowired
-    private JobDAO jobDAO;
+    private JobDao jobDao;
     @Autowired
-    private IProcessDefinitionLoader processDefinitionLoader;
+    private ProcessDefinitionLoader processDefinitionLoader;
 
     @Transactional
     public void execute() {
-        List<Job> jobs = jobDAO.getExpiredJobs();
+        List<Job> jobs = jobDao.getExpiredJobs();
         log.debug("Expired jobs: " + jobs.size());
         for (Job job : jobs) {
             try {

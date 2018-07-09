@@ -11,28 +11,28 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.audit.TransitionLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.Transition;
 
 import com.google.common.collect.Maps;
 
-public class TransitionLogPatch extends DBPatch {
+public class TransitionLogPatch extends DbPatch {
 
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ProcessDAO processDAO;
+    private ProcessDao processDao;
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDao;
 
     @Override
     public void executeDML(Session session) throws Exception {
@@ -52,7 +52,7 @@ public class TransitionLogPatch extends DBPatch {
         int success = 0;
         Map<Deployment, Date> failedDeployments = Maps.newHashMap();
         while (scrollableResults.next()) {
-            Process process = processDAO.get(((Number) scrollableResults.get(0)).longValue());
+            Process process = processDao.get(((Number) scrollableResults.get(0)).longValue());
             Deployment deployment = process.getDeployment();
             try {
                 ProcessDefinition definition = processDefinitionLoader.getDefinition(deployment.getId());
@@ -63,7 +63,7 @@ public class TransitionLogPatch extends DBPatch {
                     transitionLog.setProcessId(process.getId());
                     transitionLog.setTokenId(process.getRootToken().getId());
                     transitionLog.setCreateDate(new Date());
-                    processLogDAO.create(transitionLog);
+                    processLogDao.create(transitionLog);
                     success++;
                 } catch (Exception e) {
                     log.warn(e);

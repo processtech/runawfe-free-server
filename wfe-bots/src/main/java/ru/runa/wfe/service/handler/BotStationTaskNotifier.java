@@ -9,15 +9,15 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.logic.ITaskNotifier;
+import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
-public class BotStationTaskNotifier implements ITaskNotifier {
+public class BotStationTaskNotifier implements TaskNotifier {
     private List<BotStation> botStations;
 
     @Override
-    public void onTaskAssigned(ProcessDefinition processDefinition, IVariableProvider variableProvider, Task task, Executor previousExecutor) {
+    public void onTaskAssigned(ProcessDefinition processDefinition, VariableProvider variableProvider, Task task, Executor previousExecutor) {
         if (SystemProperties.isAutoInvocationLocalBotStationEnabled() && task.getSwimlane() != null) {
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(task.getSwimlaneName());
             if (swimlaneDefinition.isBotExecutor()) {

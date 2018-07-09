@@ -25,12 +25,12 @@ import ru.runa.wf.web.customtag.VarTag;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 public class DateValueDisplayVarTag implements VarTag {
 
     @Override
-    public String getHtml(User user, String varName, Object var, PageContext pageContext, IVariableProvider variableProvider) {
+    public String getHtml(User user, String varName, Object var, PageContext pageContext, VariableProvider variableProvider) {
         if (var == null) {
             return "<p class='error'>null</p>";
         }

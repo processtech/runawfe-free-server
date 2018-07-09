@@ -24,13 +24,13 @@ import ru.runa.wfe.commons.cache.CachingLogic;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.ProcessDefChangeListener;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.dao.DeploymentDAO;
+import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.lang.ProcessDefinition;
 
 class ProcessDefCacheCtrl extends BaseCacheCtrl<ProcessDefCacheImpl> implements ProcessDefChangeListener, DefinitionCache {
 
     @Autowired
-    private DeploymentDAO deploymentDAO;
+    private DeploymentDao deploymentDao;
 
     ProcessDefCacheCtrl() {
         CachingLogic.registerChangeListener(this);
@@ -65,11 +65,11 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ProcessDefCacheImpl> implements 
 
     @Override
     public ProcessDefinition getDefinition(Long definitionId) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(this).getDefinition(deploymentDAO, definitionId);
+        return CachingLogic.getCacheImpl(this).getDefinition(deploymentDao, definitionId);
     }
 
     @Override
     public ProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(this).getLatestDefinition(deploymentDAO, definitionName);
+        return CachingLogic.getCacheImpl(this).getLatestDefinition(deploymentDao, definitionName);
     }
 }

@@ -2,14 +2,13 @@ package ru.runa.wfe.graph.view;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.User;
 
 /**
@@ -26,7 +25,7 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
     /**
      * Process definition cache.
      */
-    private final IProcessDefinitionLoader loader;
+    private final ProcessDefinitionLoader processDefinitionLoader;
     private final ProcessDefinition definition;
 
     /**
@@ -39,16 +38,16 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
      * @param loader
      *            Process definition loader.
      */
-    public ProcessDefinitionInfoVisitor(User user, ProcessDefinition definition, IProcessDefinitionLoader loader) {
+    public ProcessDefinitionInfoVisitor(User user, ProcessDefinition definition, ProcessDefinitionLoader loader) {
         this.user = user;
         this.definition = definition;
-        this.loader = loader;
+        this.processDefinitionLoader = loader;
     }
 
     @Override
     protected void onMultiSubprocessNode(MultiSubprocessNodeGraphElement element) {
         try {
-            ProcessDefinition processDefinition = loader.getLatestDefinition(element.getSubprocessName());
+            ProcessDefinition processDefinition = processDefinitionLoader.getLatestDefinition(element.getSubprocessName());
             element.setSubprocessAccessible(hasReadPermission(processDefinition));
             element.setSubprocessId(processDefinition.getId());
         } catch (DefinitionDoesNotExistException e) {
@@ -67,7 +66,7 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
             element.setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);
         } else {
             try {
-                ProcessDefinition processDefinition = loader.getLatestDefinition(element.getSubprocessName());
+                ProcessDefinition processDefinition = processDefinitionLoader.getLatestDefinition(element.getSubprocessName());
                 element.setSubprocessAccessible(hasReadPermission(processDefinition));
                 element.setSubprocessId(processDefinition.getId());
             } catch (DefinitionDoesNotExistException e) {
@@ -84,7 +83,7 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
      * @return true, if current actor can read process definition and false otherwise.
      */
     private boolean hasReadPermission(ProcessDefinition processDefinition) {
-        PermissionDAO permissionDAO = ApplicationContextFactory.getPermissionDAO();
-        return permissionDAO.isAllowed(user, Permission.LIST, processDefinition.getDeployment());
+        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDAO();
+        return permissionDao.isAllowed(user, Permission.LIST, processDefinition.getDeployment());
     }
 }

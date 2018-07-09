@@ -1,21 +1,21 @@
 package ru.runa.wfe.var.dao;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.lang.MultiSubprocessNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -28,9 +28,6 @@ import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
-
 public class BaseProcessVariableLoader {
     private static Log log = LogFactory.getLog(BaseProcessVariableLoader.class);
     private final VariableLoader variableLoader;
@@ -38,11 +35,11 @@ public class BaseProcessVariableLoader {
     private final ProcessDefinition processDefinition;
     private final SubprocessSyncCache subprocessSyncCache;
     @Autowired
-    private NodeProcessDAO nodeProcessDAO;
+    private NodeProcessDao nodeProcessDao;
     @Autowired
-    private IProcessDefinitionLoader processDefinitionLoader;
+    private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ProcessDAO processDAO;
+    private ProcessDao processDao;
 
     public BaseProcessVariableLoader(VariableLoader variableLoader, ProcessDefinition processDefinition, Process process) {
         this.variableLoader = variableLoader;
@@ -79,7 +76,7 @@ public class BaseProcessVariableLoader {
             name = subprocessSyncCache.getBaseProcessReadVariableName(process, name);
             if (name != null) {
                 log.debug("Loading variable '" + name + "' from process '" + baseProcessId + "'");
-                Process baseProcess = processDAO.getNotNull(baseProcessId);
+                Process baseProcess = processDao.getNotNull(baseProcessId);
                 ProcessDefinition baseProcessDefinition = processDefinitionLoader.getDefinition(baseProcess);
                 WfVariable baseVariable = variableLoader.getVariable(baseProcessDefinition, baseProcess, name);
                 if (variable != null && variable.getValue() instanceof UserTypeMap && baseVariable != null
@@ -132,7 +129,7 @@ public class BaseProcessVariableLoader {
 
         private NodeProcess getSubprocessNodeInfo(Process process) {
             if (!subprocessesInfoMap.containsKey(process)) {
-                NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDAO.findBySubProcessId(process.getId());
+                NodeProcess nodeProcess = baseProcessVariableLoader.nodeProcessDao.findBySubProcessId(process.getId());
                 if (nodeProcess != null) {
                     Map<String, String> readVariableNames = Maps.newHashMap();
                     Map<String, String> syncVariableNames = Maps.newHashMap();

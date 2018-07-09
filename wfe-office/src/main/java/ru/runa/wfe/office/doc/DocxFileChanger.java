@@ -13,7 +13,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
 import com.google.common.collect.Lists;
@@ -23,7 +23,7 @@ public class DocxFileChanger {
     private final MapDelegableVariableProvider variableProvider;
     private final XWPFDocument document;
 
-    public DocxFileChanger(DocxConfig config, IVariableProvider variableProvider, InputStream templateInputStream) throws IOException {
+    public DocxFileChanger(DocxConfig config, VariableProvider variableProvider, InputStream templateInputStream) throws IOException {
         this.config = config;
         this.variableProvider = new MapDelegableVariableProvider(new HashMap<String, Object>(), variableProvider);
         this.document = new XWPFDocument(templateInputStream);

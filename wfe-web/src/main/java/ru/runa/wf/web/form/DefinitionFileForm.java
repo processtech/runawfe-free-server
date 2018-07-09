@@ -23,7 +23,7 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 
 import ru.runa.common.web.form.IdForm;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 
 /**
  * @struts:form name = "idUrlForm"
@@ -46,7 +46,7 @@ public class DefinitionFileForm extends IdForm {
     @Override
     public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         if (fileName == null) {
-            fileName = IFileDataProvider.INDEX_FILE_NAME;
+            fileName = FileDataProvider.INDEX_FILE_NAME;
         }
         return super.validate(mapping, request);
     }

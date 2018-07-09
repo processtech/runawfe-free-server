@@ -1,22 +1,22 @@
 package ru.runa.wfe.office.doc;
 
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 
 import com.google.common.base.Strings;
 
 public class InsertImageOperation extends ReplaceOperation {
-    private IFileVariable fileVariable;
+    private FileVariable fileVariable;
     private int imageType;
     private int width;
     private int height;
 
-    public InsertImageOperation(String placeholder, IFileVariable fileVariable) {
+    public InsertImageOperation(String placeholder, FileVariable fileVariable) {
         this.placeholder = placeholder;
         this.placeholderRead = true;
         this.fileVariable = fileVariable;
     }
 
-    public IFileVariable getFileVariable() {
+    public FileVariable getFileVariable() {
         return fileVariable;
     }
 

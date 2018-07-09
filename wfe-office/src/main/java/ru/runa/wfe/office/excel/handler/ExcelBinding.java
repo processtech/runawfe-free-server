@@ -1,16 +1,16 @@
 package ru.runa.wfe.office.excel.handler;
 
-import ru.runa.wfe.office.excel.IExcelConstraints;
+import ru.runa.wfe.office.excel.ExcelConstraints;
 
 public class ExcelBinding {
-    private IExcelConstraints constraints;
+    private ExcelConstraints constraints;
     private String variableName;
 
-    public IExcelConstraints getConstraints() {
+    public ExcelConstraints getConstraints() {
         return constraints;
     }
 
-    public void setConstraints(IExcelConstraints constraints) {
+    public void setConstraints(ExcelConstraints constraints) {
         this.constraints = constraints;
     }
 

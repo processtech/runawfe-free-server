@@ -17,9 +17,10 @@
  */
 package ru.runa.wfe.service;
 
+import ru.runa.wfe.var.file.FileVariable;
+
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.ParentProcessExistsException;
@@ -36,7 +37,6 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
-import ru.runa.wfe.var.file.FileVariable;
 
 /**
  * Process execution service.
@@ -262,7 +262,7 @@ public interface ExecutionService {
      *            process id
      * @param variableName
      *            variable name
-     * @return IFileVariable or <code>null</code>
+     * @return FileVariable or <code>null</code>
      * @throws ProcessDoesNotExistException
      */
     public FileVariable getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
