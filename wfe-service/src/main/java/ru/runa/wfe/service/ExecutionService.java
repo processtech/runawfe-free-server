@@ -17,7 +17,7 @@
  */
 package ru.runa.wfe.service;
 
-import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 import java.util.List;
 import java.util.Map;
@@ -265,7 +265,7 @@ public interface ExecutionService {
      * @return FileVariable or <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public FileVariable getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
+    public FileVariableImpl getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException;
 
     /**
      * Updates process variables without any signalling.

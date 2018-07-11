@@ -285,7 +285,7 @@
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />
 	
-	<bean id="executionContextFactory" class="ru.runa.wfe.execution.DefaultExecutionContextFactory" />
+	<bean id="executionContextFactory" class="ru.runa.wfe.execution.ExecutionContextFactory" />
 	
 	<bean id="batchPresentationCompilerFactory" class="ru.runa.wfe.presentation.hibernate.BatchPresentationHibernateCompilerFactory" />
 	

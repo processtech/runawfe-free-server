@@ -17,7 +17,7 @@
  */
 package ru.runa.wfe.service.delegate;
 
-import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.var.file.FileVariableImpl;
 
 import java.util.List;
 import java.util.Map;
@@ -176,7 +176,7 @@ public class ExecutionServiceDelegate extends Ejb3Delegate implements ExecutionS
     }
 
     @Override
-    public FileVariable getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
+    public FileVariableImpl getFileVariableValue(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
         try {
             return getExecutionService().getFileVariableValue(user, processId, variableName);
         } catch (Exception e) {
