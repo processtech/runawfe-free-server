@@ -64,6 +64,7 @@ public class DbTransactionalInitializer {
     }
 
     public void initLocalizations() {
+        localizationDAO.init();
         String localizedFileName = "localizations." + Locale.getDefault().getLanguage() + ".xml";
         InputStream stream = ClassLoaderUtil.getAsStream(localizedFileName, getClass());
         if (stream == null) {

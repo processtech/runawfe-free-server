@@ -160,12 +160,10 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
-            Integer databaseVersion = null;
-            try {
-                databaseVersion = dbTransactionalInitializer.getDatabaseVersion();
+            Integer databaseVersion = dbTransactionalInitializer.getDatabaseVersion();
+            if (databaseVersion != null) {
                 applyPatches(databaseVersion);
-            } catch (Exception e) {
-                log.debug("Unable to get database version:" + e);
+            } else {
                 log.info("initializing database");
                 SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
                 schemaExport.execute(true, true, false, true);
