@@ -107,18 +107,27 @@ public class DataSourceStorage implements DataSourceStuff {
     }
 
     public static void save(byte[] content) {
+        save(content, true);
+    }
+
+    public static boolean save(byte[] content, boolean force) {
         Document document = XmlUtils.parseWithoutValidation(content);
         String dsName = document.getRootElement().attributeValue(ATTR_NAME);
         File dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
-        if (dsFile.exists()) {
-            if (moveToHistory(dsFile)) {
-                dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
+        if (force || !dsFile.exists()) {
+            if (dsFile.exists()) {
+                if (moveToHistory(dsFile)) {
+                    dsFile = new File(getStorageDir(), dsName + DATA_SOURCE_FILE_SUFFIX);
+                }
             }
-        }
-        try (FileOutputStream fos = new FileOutputStream(dsFile)) {
-            fos.write(content);
-        } catch (IOException e) {
-            throw new InternalApplicationException(e);
+            try (FileOutputStream fos = new FileOutputStream(dsFile)) {
+                fos.write(content);
+                return true;
+            } catch (IOException e) {
+                throw new InternalApplicationException(e);
+            }
+        } else {
+            return false;
         }
     }
 
