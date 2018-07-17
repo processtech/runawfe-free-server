@@ -32,6 +32,9 @@ public interface ScriptingService {
 
     public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue);
 
+    public List<String> executeAdminScriptSkipError(User user, byte[] configData, Map<String, byte[]> externalResources, String defaultPasswordValue,
+            String dataSourceDefaultPasswordValue);
+
     /**
      * Executes Groovy script.
      *

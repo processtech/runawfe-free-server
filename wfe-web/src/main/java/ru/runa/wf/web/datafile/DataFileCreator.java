@@ -3,9 +3,12 @@ package ru.runa.wf.web.datafile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
+
 import org.dom4j.Document;
+
 import ru.runa.wf.web.datafile.builder.BotDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.DataFileBuilder;
+import ru.runa.wf.web.datafile.builder.DataSourceDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.DefinitionDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.ExecutorDataFileBuilder;
 import ru.runa.wf.web.datafile.builder.PermissionsDataFileBuilder;
@@ -31,6 +34,7 @@ public class DataFileCreator {
         builders.add(new BotDataFileBuilder(user));
         builders.add(new RelationDataFileBuilder(user));
         builders.add(new PermissionsDataFileBuilder(user));
+        builders.add(new DataSourceDataFileBuilder(user));
     }
 
     public void process() throws Exception {
