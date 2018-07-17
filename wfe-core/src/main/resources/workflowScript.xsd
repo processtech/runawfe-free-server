@@ -73,6 +73,7 @@
 			<xs:element ref="removeProcessDefinitions" minOccurs="0"/>
 			<xs:element ref="relation" minOccurs="0"/>
 			<xs:element ref="stopProcess" minOccurs="0"/>
+			<xs:element ref="deployDataSource" minOccurs="0"/>
 		</xs:choice>
 	</xs:group>
 
@@ -642,4 +643,11 @@
 			<xs:attribute name="idTo" type="xs:long" use="optional"/>
 		</xs:complexType>
 	</xs:element>
+
+	<xs:element name="deployDataSource">
+		<xs:complexType>
+			<xs:attribute name="file" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
 </xs:schema>

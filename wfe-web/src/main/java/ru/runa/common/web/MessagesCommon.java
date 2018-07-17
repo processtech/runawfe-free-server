@@ -19,6 +19,8 @@ public final class MessagesCommon {
     public static final StrutsMessage MAIN_MENU_ITEM_RELATIONS = new StrutsMessage("manage_relations");
     // Forward menu (left main menu items) -> Bot station.
     public static final StrutsMessage MAIN_MENU_ITEM_BOT_STATION = new StrutsMessage("configure_bot_station");
+    // Forward menu (left main menu items) -> Data sources.
+    public static final StrutsMessage MAIN_MENU_ITEM_DATA_SOURCES = new StrutsMessage("manage_data_sources");
     // Forward menu (left main menu items) -> System.
     public static final StrutsMessage MAIN_MENU_ITEM_SYSTEM = new StrutsMessage("manage_system");
     // Forward menu (left main menu items) -> Settings.

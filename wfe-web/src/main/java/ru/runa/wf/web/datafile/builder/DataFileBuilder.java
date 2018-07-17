@@ -17,6 +17,7 @@ public interface DataFileBuilder {
     static final String PATH_TO_XML = "scripts/data.xml";
     static final String PATH_TO_BOTTASK = "scripts/";
     static final String PATH_TO_PROCESS_DEF = "processes/";
+    static final String PATH_TO_DATA_SOURCE = "data-sources/";
 
     /**
      * put data to zip archive and populate script file xml elements

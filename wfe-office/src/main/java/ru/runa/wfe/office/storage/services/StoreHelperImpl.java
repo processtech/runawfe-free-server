@@ -8,21 +8,22 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.office.storage.BlockedFileException;
 import ru.runa.wfe.office.storage.StoreHelper;
 import ru.runa.wfe.office.storage.StoreOperation;
 import ru.runa.wfe.office.storage.StoreService;
-import ru.runa.wfe.office.storage.StoreServiceImpl;
 import ru.runa.wfe.office.storage.binding.DataBinding;
 import ru.runa.wfe.office.storage.binding.DataBindings;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.office.storage.binding.QueryType;
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.VariableFormat;
-
-import com.google.common.collect.Maps;
 
 public class StoreHelperImpl implements StoreHelper {
 
@@ -40,11 +41,11 @@ public class StoreHelperImpl implements StoreHelper {
 
     Map<String, ParamDef> inputParams;
 
-    public StoreHelperImpl(DataBindings config, IVariableProvider variableProvider) {
+    public StoreHelperImpl(DataBindings config, IVariableProvider variableProvider, StoreService storeService) {
         setConfig(config);
         registerHandlers();
         this.variableProvider = variableProvider;
-        storeService = new StoreServiceImpl(variableProvider);
+        this.storeService = storeService;
     }
 
     private void setConfig(DataBindings config) {
@@ -58,6 +59,12 @@ public class StoreHelperImpl implements StoreHelper {
 
     @Override
     public ExecutionResult execute(DataBinding binding, WfVariable variable) {
+        VariableDefinition vd = variable.getDefinition();
+        if (!vd.isUserType() && (!vd.getFormatClassName().equals(ListFormat.class.getName()) || vd.getFormatComponentUserTypes() == null
+                || vd.getFormatComponentUserTypes().length == 0)) {
+            log.error("Variable type" + vd.getFormat() + " not supported.");
+            return ExecutionResult.EMPTY;
+        }
         try {
             Method method = invocationMap.get(config.getQueryType());
             return (ExecutionResult) method.invoke(this, binding, variable, config.getCondition());
