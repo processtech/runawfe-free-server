@@ -7,6 +7,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.datasource.DataSource;
 import ru.runa.wfe.datasource.DataSourceStorage;
 import ru.runa.wfe.datasource.DataSourceStuff;
+import ru.runa.wfe.datasource.ExcelDataSource;
 import ru.runa.wfe.datasource.JdbcDataSource;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.office.shared.FilesSupplierConfigParser;
@@ -54,13 +55,11 @@ public class ExternalStorageHandler extends OfficeFilesSupplierHandler<DataBindi
                 case PostgreSql:
                     storeService = new PostgreSqlStoreService(variableProvider);
                     break;
-                // TODO
-                // case MySql:
-                // case Db2:
-                // case Other:
                 default:
                     throw new InternalApplicationException("Database type " + ((JdbcDataSource) ds).getDbType().name() + " not supported.");
                 }
+            } else if (ds instanceof ExcelDataSource) {
+                storeService = new StoreServiceImpl(variableProvider);
             } else {
                 throw new InternalApplicationException("Data source type " + ds.getClass().getSimpleName() + " not supported.");
             }
