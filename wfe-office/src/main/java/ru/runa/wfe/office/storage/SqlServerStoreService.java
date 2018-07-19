@@ -4,13 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.DateFormat;
 import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
+import ru.runa.wfe.var.format.ExecutorFormat;
+import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormattedTextFormat;
+import ru.runa.wfe.var.format.GroupFormat;
 import ru.runa.wfe.var.format.LongFormat;
+import ru.runa.wfe.var.format.ProcessIdFormat;
 import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.TextFormat;
 import ru.runa.wfe.var.format.TimeFormat;
@@ -31,7 +36,11 @@ public class SqlServerStoreService extends JdbcStoreService {
             put(DateTimeFormat.class, "datetime2");
             put(DateFormat.class, "date");
             put(TimeFormat.class, "time");
-
+            put(ExecutorFormat.class, "nvarchar(4000)");
+            put(ActorFormat.class, "nvarchar(4000)");
+            put(GroupFormat.class, "nvarchar(4000)");
+            put(ProcessIdFormat.class, "int");
+            put(FileFormat.class, "nvarchar(4000)");
         }
     };
 

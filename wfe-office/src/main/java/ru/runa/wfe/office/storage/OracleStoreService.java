@@ -1,18 +1,24 @@
 package ru.runa.wfe.office.storage;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Charsets;
 
 import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.DateFormat;
 import ru.runa.wfe.var.format.DateTimeFormat;
 import ru.runa.wfe.var.format.DoubleFormat;
+import ru.runa.wfe.var.format.ExecutorFormat;
+import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormattedTextFormat;
+import ru.runa.wfe.var.format.GroupFormat;
 import ru.runa.wfe.var.format.LongFormat;
+import ru.runa.wfe.var.format.ProcessIdFormat;
 import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.TextFormat;
 import ru.runa.wfe.var.format.TimeFormat;
@@ -32,15 +38,30 @@ public class OracleStoreService extends JdbcStoreService {
             put(DoubleFormat.class, "number(19, 4)");
             put(BooleanFormat.class, "nvarchar2(5)");
             put(BigDecimalFormat.class, "number(38)");
-            put(DateTimeFormat.class, "date");
+            put(DateTimeFormat.class, "timestamp");
             put(DateFormat.class, "date");
-            put(TimeFormat.class, "date");
-
+            put(TimeFormat.class, "timestamp");
+            put(ExecutorFormat.class, "nvarchar2(2000)");
+            put(ActorFormat.class, "nvarchar2(2000)");
+            put(GroupFormat.class, "nvarchar2(2000)");
+            put(ProcessIdFormat.class, "number(19)");
+            put(FileFormat.class, "nvarchar2(2000)");
         }
     };
 
     public OracleStoreService(IVariableProvider variableProvider) {
         super(variableProvider);
+    }
+
+    @Override
+    protected String sqlValue(Object value, VariableFormat format) {
+        if (format instanceof DateFormat) {
+            return MessageFormat.format("DATE" + SQL_VALUE_VARCHAR, FORMAT_DATE.format(value));
+        } else if (format instanceof TimeFormat || format instanceof DateTimeFormat) {
+            return MessageFormat.format("TIMESTAMP" + SQL_VALUE_VARCHAR, FORMAT_DATETIME.format(value));
+        } else {
+            return super.sqlValue(value, format);
+        }
     }
 
     @Override

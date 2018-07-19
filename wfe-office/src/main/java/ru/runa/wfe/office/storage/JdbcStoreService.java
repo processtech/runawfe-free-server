@@ -27,16 +27,21 @@ import ru.runa.wfe.extension.handler.ParamsDef;
 import ru.runa.wfe.office.excel.IExcelConstraints;
 import ru.runa.wfe.office.excel.OnSheetConstraints;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
+import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.DateFormat;
 import ru.runa.wfe.var.format.DateTimeFormat;
+import ru.runa.wfe.var.format.ExecutorFormat;
+import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.ListFormat;
+import ru.runa.wfe.var.format.ProcessIdFormat;
 import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.TimeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
@@ -52,6 +57,7 @@ public abstract class JdbcStoreService implements StoreService {
     protected static final String SQL_TABLE_NAME_PREFIX = "SHEET";
     protected static final String SQL_VALUE_NVARCHAR = "N''{0}''";
     protected static final String SQL_VALUE_VARCHAR = "''{0}''";
+    protected static final String SQL_VALUE_NULL = "NULL";
     protected static final String SQL_LIST_SEPARATOR = ", ";
     protected static final String SQL_TRUE_SEARCH_CONDITION = "1 = 1";
     protected static final String SQL_AND = " and ";
@@ -142,8 +148,14 @@ public abstract class JdbcStoreService implements StoreService {
             return MessageFormat.format(SQL_VALUE_VARCHAR, FORMAT_TIME.format(value));
         } else if (format instanceof DateTimeFormat) {
             return MessageFormat.format(SQL_VALUE_VARCHAR, FORMAT_DATETIME.format(value));
+        } else if (format instanceof ExecutorFormat) {
+            return MessageFormat.format(SQL_VALUE_NVARCHAR, ((Executor) value).getName());
+        } else if (format instanceof ProcessIdFormat) {
+            return MessageFormat.format(SQL_VALUE_VARCHAR, ((Long) value).toString());
+        } else if (format instanceof FileFormat) {
+            return MessageFormat.format(SQL_VALUE_NVARCHAR, ((IFileVariable) value).getName());
         } else {
-            return value.toString();
+            return value == null ? SQL_VALUE_NULL : value.toString();
         }
     }
 
