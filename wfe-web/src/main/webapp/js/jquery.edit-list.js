@@ -10,7 +10,7 @@
 			updateIndexes(container);
 			container.find(".add[name='add_" + container.attr("id") + "']").click(function(event) {
 				event.stopPropagation();
-				var rows = container.find("div[row]");
+				var rows = container.children("div").children("div[row]");
 				var rowIndex = rows.length < 1 ? 0 : parseInt(rows.last().attr("row")) + 1;
 				var copy = container.find("div[template]").first().clone();
 				copy.children().each(function() {
