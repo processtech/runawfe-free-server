@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,8 +52,8 @@ public abstract class JdbcStoreService implements StoreService {
     private static final Log log = LogFactory.getLog(JdbcStoreService.class);
 
     protected static final SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("yyyy-MM-dd");
-    protected static final SimpleDateFormat FORMAT_TIME = new SimpleDateFormat("HH:mm:ss");
-    protected static final SimpleDateFormat FORMAT_DATETIME = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    protected static final SimpleDateFormat FORMAT_TIME = new SimpleDateFormat("HH:mm");
+    protected static final SimpleDateFormat FORMAT_DATETIME = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     protected static final String SQL_TABLE_NAME_PREFIX = "SHEET";
     protected static final String SQL_VALUE_NVARCHAR = "N''{0}''";
@@ -69,6 +70,11 @@ public abstract class JdbcStoreService implements StoreService {
     protected static final String SQL_UPDATE = "update \"{0}\" set {1} where {2}";
     protected static final String SQL_COLUMN_SET = "\"{0}\" = {1}";
     protected static final String SQL_DELETE = "delete from \"{0}\" where {1}";
+
+    private static final String SPACE = " ";
+    private static final String LIKE_LITERAL = "LIKE";
+    private static final String EQUALS = "=";
+    private static final String DOUBLE_EQUALS = "==";
 
     protected IExcelConstraints constraints;
     protected String fullPath;
@@ -138,24 +144,28 @@ public abstract class JdbcStoreService implements StoreService {
     abstract protected String driverClassName();
 
     protected String sqlValue(Object value, VariableFormat format) {
-        if (format instanceof StringFormat) {
-            return MessageFormat.format(SQL_VALUE_NVARCHAR, value);
-        } else if (format instanceof BooleanFormat) {
-            return MessageFormat.format(SQL_VALUE_VARCHAR, value);
-        } else if (format instanceof DateFormat) {
-            return MessageFormat.format(SQL_VALUE_VARCHAR, FORMAT_DATE.format(value));
-        } else if (format instanceof TimeFormat) {
-            return MessageFormat.format(SQL_VALUE_VARCHAR, FORMAT_TIME.format(value));
-        } else if (format instanceof DateTimeFormat) {
-            return MessageFormat.format(SQL_VALUE_VARCHAR, FORMAT_DATETIME.format(value));
-        } else if (format instanceof ExecutorFormat) {
-            return MessageFormat.format(SQL_VALUE_NVARCHAR, ((Executor) value).getName());
-        } else if (format instanceof ProcessIdFormat) {
-            return MessageFormat.format(SQL_VALUE_VARCHAR, ((Long) value).toString());
-        } else if (format instanceof FileFormat) {
-            return MessageFormat.format(SQL_VALUE_NVARCHAR, ((IFileVariable) value).getName());
+        if (value == null) {
+            return SQL_VALUE_NULL;
         } else {
-            return value == null ? SQL_VALUE_NULL : value.toString();
+            if (format instanceof StringFormat) {
+                return MessageFormat.format(SQL_VALUE_NVARCHAR, value);
+            } else if (format instanceof BooleanFormat) {
+                return MessageFormat.format(SQL_VALUE_VARCHAR, value);
+            } else if (format instanceof DateFormat) {
+                return MessageFormat.format(SQL_VALUE_VARCHAR, FORMAT_DATE.format(value));
+            } else if (format instanceof TimeFormat) {
+                return MessageFormat.format(SQL_VALUE_VARCHAR, FORMAT_TIME.format(value));
+            } else if (format instanceof DateTimeFormat) {
+                return MessageFormat.format(SQL_VALUE_VARCHAR, FORMAT_DATETIME.format(value));
+            } else if (format instanceof ExecutorFormat) {
+                return MessageFormat.format(SQL_VALUE_NVARCHAR, ((Executor) value).getName());
+            } else if (format instanceof ProcessIdFormat) {
+                return MessageFormat.format(SQL_VALUE_VARCHAR, ((Long) value).toString());
+            } else if (format instanceof FileFormat) {
+                return MessageFormat.format(SQL_VALUE_NVARCHAR, ((IFileVariable) value).getName());
+            } else {
+                return value.toString();
+            }
         }
     }
 
@@ -249,9 +259,45 @@ public abstract class JdbcStoreService implements StoreService {
     private String condition(String condition) {
         if (Strings.isNullOrEmpty(condition)) {
             return SQL_TRUE_SEARCH_CONDITION;
-        } else {
-            return condition.replaceAll("==", "=").replaceAll("\\[", "\"").replaceAll("\\]", "\"");
         }
+        StringBuilder sb = new StringBuilder();
+        StringTokenizer st = new StringTokenizer(condition);
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            if (token.startsWith("[") && token.endsWith("]")) {
+                sb.append(SPACE);
+                sb.append('"').append(token.substring(1, token.length() - 1)).append('"');
+            } else if (token.equalsIgnoreCase(LIKE_LITERAL)) {
+                sb.append(SPACE);
+                sb.append(LIKE_LITERAL);
+                sb.append(SPACE);
+                sb.append(st.nextToken());
+            } else if (token.startsWith("@")) {
+                String variableName = token.substring(1);
+                String toAppend = "";
+                if (variableProvider instanceof ParamBasedVariableProvider) {
+                    ParamsDef paramsDef = ((ParamBasedVariableProvider) variableProvider).getParamsDef();
+                    if (paramsDef != null) {
+                        if (paramsDef.getInputParam(variableName) != null) {
+                            Object inputParamValue = paramsDef.getInputParamValue(variableName, variableProvider);
+                            toAppend = sqlValue(inputParamValue, variableProvider.getVariable(variableName).getDefinition().getFormatNotNull());
+                        } else {
+                            WfVariable wfVariable = variableProvider.getVariableNotNull(variableName);
+                            toAppend = sqlValue(wfVariable.getValue(), wfVariable.getDefinition().getFormatNotNull());
+                        }
+                    }
+                    sb.append(SPACE);
+                    sb.append(toAppend);
+                }
+            } else if (token.equals(DOUBLE_EQUALS)) {
+                sb.append(SPACE);
+                sb.append(EQUALS);
+            } else {
+                sb.append(SPACE);
+                sb.append(token);
+            }
+        }
+        return sb.toString();
     }
 
     @Override

@@ -40,7 +40,7 @@ public class OracleStoreService extends JdbcStoreService {
             put(BigDecimalFormat.class, "number(38)");
             put(DateTimeFormat.class, "timestamp");
             put(DateFormat.class, "date");
-            put(TimeFormat.class, "timestamp");
+            put(TimeFormat.class, "varchar2(5)");
             put(ExecutorFormat.class, "nvarchar2(2000)");
             put(ActorFormat.class, "nvarchar2(2000)");
             put(GroupFormat.class, "nvarchar2(2000)");
@@ -55,12 +55,16 @@ public class OracleStoreService extends JdbcStoreService {
 
     @Override
     protected String sqlValue(Object value, VariableFormat format) {
-        if (format instanceof DateFormat) {
-            return MessageFormat.format("DATE" + SQL_VALUE_VARCHAR, FORMAT_DATE.format(value));
-        } else if (format instanceof TimeFormat || format instanceof DateTimeFormat) {
-            return MessageFormat.format("TIMESTAMP" + SQL_VALUE_VARCHAR, FORMAT_DATETIME.format(value));
+        if (value == null) {
+            return SQL_VALUE_NULL;
         } else {
-            return super.sqlValue(value, format);
+            if (format instanceof DateFormat) {
+                return MessageFormat.format("DATE" + SQL_VALUE_VARCHAR, FORMAT_DATE.format(value));
+            } else if (format instanceof DateTimeFormat) {
+                return MessageFormat.format("TIMESTAMP" + SQL_VALUE_VARCHAR, FORMAT_DATETIME.format(value));
+            } else {
+                return super.sqlValue(value, format);
+            }
         }
     }
 
