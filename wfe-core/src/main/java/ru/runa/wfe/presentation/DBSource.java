@@ -20,7 +20,18 @@ package ru.runa.wfe.presentation;
 /**
  * Interface for components, describes HQL statement to access stored field value.
  */
-public interface DBSource {
+public abstract class DBSource {
+
+    public enum AccessType {
+        FILTER,
+        ORDER
+    }
+
+    private final Class<?> sourceObject;
+
+    DBSource(Class<?> sourceObject) {
+        this.sourceObject = sourceObject;
+    }
 
     /**
      * Source persistent object of this field. Alias to this object will be passed to other function. Persistent class will be added to HQL query then
@@ -28,7 +39,9 @@ public interface DBSource {
      * 
      * @return Persistent class of this field.
      */
-    public Class<?> getSourceObject();
+    public final Class<?> getSourceObject() {
+        return sourceObject;
+    }
 
     /**
      * Returns HQL expression to access field value. Use alias parameter to access field persistent object (May be null, see parameter description).
@@ -41,7 +54,7 @@ public interface DBSource {
      *            persistent class.
      * @return HQL expression to access field value. See alias parameter for more information.
      */
-    public String getValueDBPath(AccessType accessType, String alias);
+    public abstract String getValueDBPath(AccessType accessType, String alias);
 
     /**
      * How to join root {@link ClassPresentation} persistent object with field persistent object. If field is a property of root persistent object,
@@ -52,10 +65,5 @@ public interface DBSource {
      *            Alias, assigned to field persistent class in HQL query.
      * @return HQL expression to join root persistent object with field persistent object.
      */
-    public String getJoinExpression(String alias);
-
-    public static enum AccessType {
-        FILTER,
-        ORDER
-    }
+    public abstract String getJoinExpression(String alias);
 }

@@ -20,6 +20,7 @@
  */
 package ru.runa.wfe.presentation;
 
+import com.google.common.base.Preconditions;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.impl.DateVariable;
@@ -28,10 +29,9 @@ import ru.runa.wfe.var.impl.LongVariable;
 import ru.runa.wfe.var.impl.StringVariable;
 
 /**
- * Implementation of {@link DBSource} interface for referencing variable values.
+ * Implementation of {@link DBSource} interface for referencing variable values. See #394.
  * 
  * @author Dofs
- * @see #394
  */
 public class VariableDBSources {
 
@@ -42,20 +42,24 @@ public class VariableDBSources {
      *            process path join expression, can be <code>null</code>
      */
     public static DBSource[] get(String processPath) {
-        return new DBSource[] { new BaseVariableDBSource(Variable.class, processPath), new StorableVariableDBSource(DateVariable.class),
-                new StorableVariableDBSource(DoubleVariable.class), new StorableVariableDBSource(LongVariable.class),
-                new StringVariableDBSource(StringVariable.class) };
+        return new DBSource[] {
+                new BaseVariableDBSource(Variable.class, processPath),
+                new StorableVariableDBSource(DateVariable.class),
+                new StorableVariableDBSource(DoubleVariable.class),
+                new StorableVariableDBSource(LongVariable.class),
+                new StringVariableDBSource(StringVariable.class)
+        };
     }
 
     /**
      * Used as inheritance root and for filtering.
      */
-    public static class BaseVariableDBSource extends DefaultDBSource {
-        public static final String STRING_VALUE = "stringValue";
+    public static class BaseVariableDBSource extends DBSource {
+        static final String STRING_VALUE = "stringValue";
         private final String processPath;
 
-        public BaseVariableDBSource(Class<?> sourceObject, String processPath) {
-            super(sourceObject, null);
+        BaseVariableDBSource(Class<?> sourceObject, String processPath) {
+            super(sourceObject);
             this.processPath = processPath;
         }
 
@@ -74,9 +78,13 @@ public class VariableDBSources {
             if (accessType == AccessType.FILTER) {
                 return alias == null ? STRING_VALUE : alias + "." + STRING_VALUE;
             }
-            return super.getValueDBPath(accessType, alias);
+            // Formerly, class inherited from DefaultDBSource but passed valueDBPath = null to super constructor.
+            // And this method (being called from HibernateCompilerInheritanceOrderBuilder.buildOrderToField with alias = null)
+            // called super (which would return valueDBPath = null) if accessType != FILTER.
+            // Making sure I understood it right:
+            Preconditions.checkArgument(alias == null);  // Formerly, junk (alias + ".null") would be returned otherwise.
+            return null;
         }
-
     }
 
     /**
@@ -84,10 +92,9 @@ public class VariableDBSources {
      */
     public static class StorableVariableDBSource extends DefaultDBSource {
 
-        public StorableVariableDBSource(Class<?> sourceObject) {
+        StorableVariableDBSource(Class<?> sourceObject) {
             super(sourceObject, "storableValue");
         }
-
     }
 
     /**
@@ -95,10 +102,9 @@ public class VariableDBSources {
      */
     public static class StringVariableDBSource extends DefaultDBSource {
 
-        public StringVariableDBSource(Class<?> sourceObject) {
+        StringVariableDBSource(Class<?> sourceObject) {
             super(sourceObject, BaseVariableDBSource.STRING_VALUE);
         }
-
     }
 
 }

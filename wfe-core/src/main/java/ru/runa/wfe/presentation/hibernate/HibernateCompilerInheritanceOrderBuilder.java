@@ -20,7 +20,6 @@ package ru.runa.wfe.presentation.hibernate;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.DBSource;
 import ru.runa.wfe.presentation.DBSource.AccessType;
@@ -30,7 +29,7 @@ import ru.runa.wfe.presentation.FieldState;
 /**
  * Builds order by SQL statements for fields with inheritance.
  */
-public class HibernateCompilerInheritanceOrderBuilder {
+class HibernateCompilerInheritanceOrderBuilder {
 
     /**
      * {@link BatchPresentation}, used to build query.
@@ -57,7 +56,7 @@ public class HibernateCompilerInheritanceOrderBuilder {
      * @param queryTranslator
      *            Translator, used to translate HQL query to SQL.
      */
-    public HibernateCompilerInheritanceOrderBuilder(BatchPresentation batchPresentation, HibernateCompilerHQLBuider hqlBuilder,
+    HibernateCompilerInheritanceOrderBuilder(BatchPresentation batchPresentation, HibernateCompilerHQLBuider hqlBuilder,
             HibernateCompilerTranslator queryTranslator) {
         this.batchPresentation = batchPresentation;
         this.hqlBuilder = hqlBuilder;
@@ -70,12 +69,12 @@ public class HibernateCompilerInheritanceOrderBuilder {
      * @param sqlQuery
      *            SQL query to inject order statements.
      */
-    public void injectOrderStatements(StringBuilder sqlQuery) {
+    void injectOrderStatements(StringBuilder sqlQuery) {
         if (!hqlBuilder.isOrderByInheritance()) {
             return;
         }
         String[] orders = buildSQLOrderClause().toArray(new String[] {});
-        int[] inheritedFieldPositions = getIneritanceFieldIndexes(orders);
+        int[] inheritedFieldPositions = getInheritanceFieldIndexes(orders);
         {
             boolean hasOrderBySimpleField = getFieldPositionInSql(sqlQuery, inheritedFieldPositions);
             for (int i = inheritedFieldPositions.length - 1; i >= 0; --i) {
@@ -131,7 +130,7 @@ public class HibernateCompilerInheritanceOrderBuilder {
      *            Statements, which will be inserted into order by clause.
      * @return Position (order position) of sorted field with inheritance.
      */
-    private int[] getIneritanceFieldIndexes(String[] orders) {
+    private int[] getInheritanceFieldIndexes(String[] orders) {
         FieldDescriptor[] sortedFields = batchPresentation.getSortedFields();
         int[] sfIdx = new int[orders.length];
         int idx = 0;
@@ -149,7 +148,7 @@ public class HibernateCompilerInheritanceOrderBuilder {
      * @return List of statements for fields with inheritance.
      */
     private List<String> buildSQLOrderClause() {
-        List<String> orderClause = new LinkedList<String>();
+        List<String> orderClause = new LinkedList<>();
         FieldDescriptor[] sortedFields = batchPresentation.getSortedFields();
         boolean[] fieldsToSortModes = batchPresentation.getFieldsToSortModes();
         if (sortedFields.length <= 0) {
@@ -186,7 +185,7 @@ public class HibernateCompilerInheritanceOrderBuilder {
      * @return List of statements to add to order by clause.
      */
     private List<String> buildOrderToField(FieldDescriptor field, boolean sortingMode) {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         for (DBSource dbSource : field.dbSources) {
             String alias = hqlBuilder.getAliasMapping().getAlias(field);
             if (dbSource.getValueDBPath(AccessType.ORDER, null) == null) {

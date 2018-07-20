@@ -22,14 +22,9 @@ package ru.runa.wfe.presentation;
  * Default implementation of {@link DBSource} interface. Reference directly to field value. E.q. id property will be referenced as 'alias.id'. This
  * {@link DBSource} not contains join restrictions, so can be used only to access properties of root persistence object.
  */
-public class DefaultDBSource implements DBSource {
+public class DefaultDBSource extends DBSource {
 
-    /**
-     * Persistent object of field. Property will be accessed throw this object instance.
-     */
-    protected final Class<?> sourceObject;
-
-    /**
+     /**
      * HQL path to access property value. For example for id property this path is 'id'; for id property of field child is 'child.id'.
      */
     protected final String valueDBPath;
@@ -43,13 +38,8 @@ public class DefaultDBSource implements DBSource {
      *            HQL path to access property value.
      */
     public DefaultDBSource(Class<?> sourceObject, String valueDBPath) {
+        super(sourceObject);
         this.valueDBPath = valueDBPath;
-        this.sourceObject = sourceObject;
-    }
-
-    @Override
-    public Class<?> getSourceObject() {
-        return sourceObject;
     }
 
     @Override

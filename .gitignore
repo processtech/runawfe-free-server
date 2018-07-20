@@ -13,3 +13,6 @@ target
 wfe-web/src/main/webapp/WEB-INF/wf.tld
 wfe-web/src/main/webapp/WEB-INF/classes/struts_en.properties
 wfe-webservice-client/src/main/
+
+# For those who don't like the idea of deploying by `mvn package`:
+wfe-ear/${jboss.home.dir}

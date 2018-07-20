@@ -58,7 +58,7 @@ public class HibernateCompilerQueryBuilder {
      * @param parameters
      *            Parameters, used to build query.
      */
-    public HibernateCompilerQueryBuilder(BatchPresentation batchPresentation, CompilerParameters parameters) {
+    HibernateCompilerQueryBuilder(BatchPresentation batchPresentation, CompilerParameters parameters) {
         hqlBuilder = new HibernateCompilerHQLBuider(batchPresentation, parameters);
         this.parameters = parameters;
         this.batchPresentation = batchPresentation;

@@ -21,9 +21,9 @@
  */
 package ru.runa.wfe.var;
 
+import com.google.common.base.Objects;
 import java.util.Arrays;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -41,13 +41,11 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
@@ -60,8 +58,6 @@ import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 
-import com.google.common.base.Objects;
-
 /**
  * Base class for classes that store variable values in the database.
  */
@@ -71,7 +67,7 @@ import com.google.common.base.Objects;
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public abstract class Variable<T extends Object> {
+public abstract class Variable<T> {
 
     public static int getMaxStringSize() {
         return SystemProperties.getStringVariableValueLength();
