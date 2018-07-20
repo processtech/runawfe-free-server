@@ -16,15 +16,9 @@ public class LocalizationDAO extends GenericDAO<Localization> {
 
     private Map<String, String> localizations = Maps.newHashMap();
 
-    @Override
-    protected void initDao() {
-        try {
-            for (Localization localization : getAll()) {
-                localizations.put(localization.getName(), localization.getValue());
-            }
-        } catch (Exception e) {
-            log.error("localization was not loaded (if this exception occurs in empty DB just ignore it)");
-            log.debug("", e);
+    public void init() {
+        for (Localization localization : getAll()) {
+            localizations.put(localization.getName(), localization.getValue());
         }
     }
 
