@@ -324,24 +324,24 @@ public class Token implements Serializable {
         ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
         if (hasEnded()) {
             log.debug(this + " already ended");
-            return;
-        }
-        log.info("Ending " + this + " by " + canceller);
-        setEndDate(new Date());
-        setExecutionStatus(ExecutionStatus.ENDED);
-        Node node = processDefinition.getNode(getNodeId());
-        if (node instanceof SubprocessNode) {
-            for (Process subProcess : executionContext.getTokenSubprocesses()) {
-                ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
-                subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+        } else {
+            log.info("Ending " + this + " by " + canceller);
+            setEndDate(new Date());
+            setExecutionStatus(ExecutionStatus.ENDED);
+            Node node = processDefinition.getNode(getNodeId());
+            if (node instanceof SubprocessNode) {
+                for (Process subProcess : executionContext.getTokenSubprocesses()) {
+                    ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                    subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                }
+            } else if (node instanceof BaseTaskNode) {
+                ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
+            } else if (node instanceof BoundaryEvent) {
+                log.info("Cancelling " + node + " with " + this);
+                ((BoundaryEvent) node).cancelBoundaryEvent(this);
+            } else if (node == null) {
+                log.warn("Node " + node + " is null");
             }
-        } else if (node instanceof BaseTaskNode) {
-            ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
-        } else if (node instanceof BoundaryEvent) {
-            log.info("Cancelling " + node + " with " + this);
-            ((BoundaryEvent) node).cancelBoundaryEvent(this);
-        } else if (node == null) {
-            log.warn("Node " + node + " is null");
         }
         if (recursive) {
             for (Token child : getChildren()) {
