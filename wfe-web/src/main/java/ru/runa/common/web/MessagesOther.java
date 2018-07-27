@@ -39,6 +39,7 @@ public class MessagesOther {
     public static final StrutsMessage EXECUTOR_STATE_DONT_UPDATE = new StrutsMessage("executor.state.dont.update");
     public static final StrutsMessage IMPORT_DATA_SUCCESS = new StrutsMessage("import.data.success");
     public static final StrutsMessage ERROR_BLOCKED_FILE = new StrutsMessage("error.blocked.file");
+    public static final StrutsMessage ERROR_JDBC_STORE = new StrutsMessage("error.jdbc.store");
 
     public static final StrutsMessage LABEL_SYNCHRONIZE_LDAP = new StrutsMessage("label.synchronize.ldap");
     public static final StrutsMessage LABEL_IS_MISSED = new StrutsMessage("label.is.missed");

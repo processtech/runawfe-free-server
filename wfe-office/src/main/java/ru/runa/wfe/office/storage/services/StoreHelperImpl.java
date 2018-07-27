@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.office.storage.BlockedFileException;
+import ru.runa.wfe.office.storage.JdbcStoreException;
 import ru.runa.wfe.office.storage.StoreHelper;
 import ru.runa.wfe.office.storage.StoreOperation;
 import ru.runa.wfe.office.storage.StoreService;
@@ -73,9 +74,13 @@ public class StoreHelperImpl implements StoreHelper {
                 Throwable targetEx = ((InvocationTargetException) e).getTargetException();
                 if (targetEx instanceof BlockedFileException) {
                     throw (BlockedFileException) targetEx;
+                } else if (targetEx instanceof JdbcStoreException) {
+                    throw (JdbcStoreException) targetEx;
                 }
             } else if (e instanceof BlockedFileException) {
                 throw (BlockedFileException) e;
+            } else if (e instanceof JdbcStoreException) {
+                throw (JdbcStoreException) e;
             }
             log.error("", e);
             return ExecutionResult.EMPTY;

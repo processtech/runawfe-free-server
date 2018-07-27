@@ -53,7 +53,7 @@ public abstract class JdbcStoreService implements StoreService {
 
     protected static final SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("yyyy-MM-dd");
     protected static final SimpleDateFormat FORMAT_TIME = new SimpleDateFormat("HH:mm");
-    protected static final SimpleDateFormat FORMAT_DATETIME = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    protected static final SimpleDateFormat FORMAT_DATETIME = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     protected static final String SQL_TABLE_NAME_PREFIX = "SHEET";
     protected static final String SQL_VALUE_NVARCHAR = "N''{0}''";
@@ -127,6 +127,9 @@ public abstract class JdbcStoreService implements StoreService {
         log.info(sql);
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             return ps.execute() && ps.getResultSet().next() || ps.getUpdateCount() > 0;
+        } catch (Exception e) {
+            log.error(e);
+            throw new JdbcStoreException(e);
         }
     }
 
