@@ -19,7 +19,6 @@ package ru.runa.wfe.service.impl;
 
 import java.util.List;
 import java.util.Map;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -29,10 +28,9 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.SystemProperties;
@@ -65,8 +63,6 @@ import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.logic.VariableLogic;
 
-import com.google.common.base.Preconditions;
-
 @Stateless(name = "ExecutionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
@@ -82,18 +78,14 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public Long startProcess(User user, String definitionName, Map<String, Object> variables) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionName != null, "definitionName");
+    public Long startProcess(@NonNull User user, @NonNull String definitionName, Map<String, Object> variables) {
         FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
         return executionLogic.startProcess(user, definitionName, variables);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public Long startProcessById(User user, Long definitionId, Map<String, Object> variables) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public Long startProcessById(@NonNull User user, @NonNull Long definitionId, Map<String, Object> variables) {
         FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
         return executionLogic.startProcess(user, definitionId, variables);
     }
@@ -109,8 +101,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public int getProcessesCount(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null, "user");
+    public int getProcessesCount(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
         }
@@ -119,8 +111,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public List<WfProcess> getProcesses(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null, "user");
+    public List<WfProcess> getProcesses(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
         }
@@ -129,34 +121,26 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public WfProcess getProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public WfProcess getProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         return executionLogic.getProcess(user, processId);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfProcess getParentProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public WfProcess getParentProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         return executionLogic.getParentProcess(user, processId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<WfProcess> getSubprocesses(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
+    public List<WfProcess> getSubprocesses(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "recursive") boolean recursive) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.getSubprocesses(user, processId, recursive);
     }
 
     @WebMethod(exclude = true)
     @Override
-    public List<WfVariable> getVariables(User user, Long processId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public List<WfVariable> getVariables(@NonNull User user, @NonNull Long processId) {
         List<WfVariable> list = variableLogic.getVariables(user, processId);
         for (WfVariable variable : list) {
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
@@ -166,9 +150,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processIds != null, "processIds");
+    public Map<Long, List<WfVariable>> getVariables(@NonNull User user, @NonNull List<Long> processIds) {
         Map<Long, List<WfVariable>> result = variableLogic.getVariables(user, processIds);
         for (Map.Entry<Long, List<WfVariable>> entry : result.entrySet()) {
             for (WfVariable variable : entry.getValue()) {
@@ -180,9 +162,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, ProcessLogFilter filter) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(filter != null, "filter");
+    public WfVariableHistoryState getHistoricalVariables(@NonNull User user, @NonNull ProcessLogFilter filter) {
         long processId = filter.getProcessId();
         WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, filter);
         for (WfVariable variable : result.getVariables()) {
@@ -193,9 +173,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariableHistoryState getHistoricalVariables(User user, Long processId, Long taskId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public WfVariableHistoryState getHistoricalVariables(@NonNull User user, @NonNull Long processId, Long taskId) {
         WfVariableHistoryState result = variableLogic.getHistoricalVariables(user, processId, taskId);
         for (WfVariable variable : result.getVariables()) {
             FileVariablesUtil.proxyFileVariables(user, processId, variable);
@@ -212,10 +190,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariable getVariable(User user, Long processId, String variableName) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        Preconditions.checkArgument(variableName != null, "variableName");
+    public WfVariable getVariable(@NonNull User user, @NonNull Long processId, @NonNull String variableName) {
         WfVariable variable = variableLogic.getVariable(user, processId, variableName);
         FileVariablesUtil.proxyFileVariables(user, processId, variable);
         return variable;
@@ -234,12 +209,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public WfVariable getTaskVariable(User user, Long processId, Long taskId, String variableName) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        Preconditions.checkArgument(taskId != null, "taskId");
-        Preconditions.checkArgument(variableName != null, "variableName");
-        Preconditions.checkArgument(variableName != null);
+    public WfVariable getTaskVariable(@NonNull User user, @NonNull Long processId, @NonNull Long taskId, @NonNull String variableName) {
         WfVariable variable = variableLogic.getTaskVariable(user, processId, taskId, variableName);
         FileVariablesUtil.proxyFileVariables(user, processId, variable);
         return variable;
@@ -247,11 +217,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public FileVariable getFileVariableValue(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "variableName") String variableName) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        Preconditions.checkArgument(variableName != null, "variableName");
+    public FileVariable getFileVariableValue(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "variableName") @NonNull String variableName) {
         WfVariable variable = variableLogic.getVariable(user, processId, variableName);
         if (variable != null) {
             IFileVariable fileVariable = (IFileVariable) variable.getValue();
@@ -262,10 +229,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public void updateVariables(User user, Long processId, Map<String, Object> variables) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        Preconditions.checkArgument(variables != null, "variables");
+    public void updateVariables(@NonNull User user, @NonNull Long processId, @NonNull Map<String, Object> variables) {
         if (!SystemProperties.isUpdateProcessVariablesInAPIEnabled()) {
             throw new ConfigurationException(
                     "In order to enable script execution set property 'executionServiceAPI.updateVariables.enabled' to 'true' in system.properties or wfe.custom.system.properties");
@@ -276,83 +240,62 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public void cancelProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public void cancelProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         executionLogic.cancelProcess(user, processId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<WfSwimlane> getSwimlanes(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public List<WfSwimlane> getSwimlanes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         return executionLogic.getSwimlanes(user, processId);
     }
 
     @Override
     @WebResult(name = "result")
-    public void assignSwimlane(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "swimlaneName") String swimlaneName, @WebParam(name = "executor") Executor executor) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        Preconditions.checkArgument(swimlaneName != null, "swimlaneName");
+    public void assignSwimlane(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
+            @WebParam(name = "swimlaneName") @NonNull String swimlaneName, @WebParam(name = "executor") Executor executor) {
         executionLogic.assignSwimlane(user, processId, swimlaneName, executor);
     }
 
     @Override
     @WebResult(name = "result")
-    public byte[] getProcessDiagram(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
+    public byte[] getProcessDiagram(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "taskId") Long taskId, @WebParam(name = "childProcessId") Long childProcessId,
             @WebParam(name = "subprocessId") String subprocessId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.getProcessDiagram(user, processId, taskId, childProcessId, subprocessId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<NodeGraphElement> getProcessDiagramElements(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "subprocessId") String subprocessId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public List<NodeGraphElement> getProcessDiagramElements(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "processId") @NonNull Long processId, @WebParam(name = "subprocessId") String subprocessId) {
         return executionLogic.getProcessDiagramElements(user, processId, subprocessId);
     }
 
     @Override
     @WebResult(name = "result")
-    public NodeGraphElement getProcessDiagramElement(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "nodeId") String nodeId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
-        Preconditions.checkArgument(nodeId != null, "nodeId");
+    public NodeGraphElement getProcessDiagramElement(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "processId") @NonNull Long processId, @WebParam(name = "nodeId") @NonNull String nodeId) {
         return executionLogic.getProcessDiagramElement(user, processId, nodeId);
     }
 
     @Override
     @WebResult(name = "result")
-    public void removeProcesses(@WebParam(name = "user") User user, @WebParam(name = "") ProcessFilter filter) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(filter != null, "filter");
+    public void removeProcesses(@WebParam(name = "user") @NonNull User user, @WebParam(name = "") @NonNull ProcessFilter filter) {
         executionLogic.deleteProcesses(user, filter);
     }
 
     @Override
     @WebResult(name = "result")
-    public boolean upgradeProcessToDefinitionVersion(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "version") Long version) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public boolean upgradeProcessToDefinitionVersion(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "processId") @NonNull Long processId, @WebParam(name = "version") Long version) {
         return executionLogic.upgradeProcessToDefinitionVersion(user, processId, version);
     }
 
     @Override
     @WebResult(name = "result")
-    public int upgradeProcessesToDefinitionVersion(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
-            @WebParam(name = "version") Long newVersion) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
-        Preconditions.checkArgument(newVersion != null, "version");
+    public int upgradeProcessesToDefinitionVersion(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "version") @NonNull Long newVersion) {
         return executionLogic.upgradeProcessesToDefinitionVersion(user, definitionId, newVersion);
     }
 
@@ -367,36 +310,27 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public List<WfJob> getProcessJobs(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
+    public List<WfJob> getProcessJobs(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "recursive") boolean recursive) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.getJobs(user, processId, recursive);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<WfToken> getProcessTokens(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
+    public List<WfToken> getProcessTokens(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "recursive") boolean recursive) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.getTokens(user, processId, recursive);
     }
 
     @Override
     @WebResult(name = "result")
-    public void activateProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public void activateProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         executionLogic.activateProcess(user, processId);
     }
 
     @Override
     @WebResult(name = "result")
-    public void suspendProcess(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public void suspendProcess(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId) {
         executionLogic.suspendProcess(user, processId);
     }
-
 }

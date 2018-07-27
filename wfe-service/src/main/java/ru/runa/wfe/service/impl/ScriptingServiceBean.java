@@ -40,6 +40,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 
 import groovy.lang.GroovyShell;
+import lombok.NonNull;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.script.AdminScript;
@@ -77,10 +78,7 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebMethod(exclude = true)
-    public void executeAdminScript(User user, byte[] configData, Map<String, byte[]> externalResources) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(configData != null, "configData");
-        Preconditions.checkArgument(externalResources != null, "externalResources");
+    public void executeAdminScript(@NonNull User user, @NonNull byte[] configData, @NonNull Map<String, byte[]> externalResources) {
         ScriptExecutionContext context = ScriptExecutionContext.create(user, externalResources, null);
         runner.runScript(configData, context, new AdminScriptOperationErrorHandler() {
             @Override
@@ -128,9 +126,7 @@ public class ScriptingServiceBean implements ScriptingService {
 
     @Override
     @WebResult(name = "result")
-    public void executeGroovyScript(@WebParam(name = "user") User user, @WebParam(name = "script") String script) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(script != null, "script");
+    public void executeGroovyScript(@WebParam(name = "user") @NonNull User user, @WebParam(name = "script") @NonNull String script) {
         if (!SystemProperties.isExecuteGroovyScriptInAPIEnabled()) {
             throw new ConfigurationException(
                     "In order to enable script execution set property 'scripting.groovy.enabled' to 'true' in system.properties or wfe.custom.system.properties");

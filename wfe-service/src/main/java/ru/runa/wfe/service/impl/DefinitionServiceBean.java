@@ -19,7 +19,6 @@ package ru.runa.wfe.service.impl;
 
 import java.util.Date;
 import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -29,10 +28,9 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -57,8 +55,6 @@ import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 
-import com.google.common.base.Preconditions;
-
 @Stateless(name = "DefinitionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
@@ -70,82 +66,65 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition deployProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "par") byte[] par,
-            @WebParam(name = "categories") List<String> categories) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(par != null, "par");
-        Preconditions.checkArgument(categories != null, "categories");
+    public WfDefinition deployProcessDefinition(@WebParam(name = "user") @NonNull User user, @WebParam(name = "par") @NonNull byte[] par,
+            @WebParam(name = "categories") @NonNull List<String> categories) {
         return definitionLogic.deployProcessDefinition(user, par, categories);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition redeployProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
-            @WebParam(name = "par") byte[] par, @WebParam(name = "categories") List<String> categories) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public WfDefinition redeployProcessDefinition(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "par") byte[] par,
+            @WebParam(name = "categories") List<String> categories) {
         return definitionLogic.redeployProcessDefinition(user, definitionId, par, categories);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition updateProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
-            @WebParam(name = "processArchive") byte[] processArchive) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
-        Preconditions.checkArgument(processArchive != null, "processArchive");
+    public WfDefinition updateProcessDefinition(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "processArchive") @NonNull byte[] processArchive) {
         return definitionLogic.updateProcessDefinition(user, definitionId, processArchive);
     }
 
     @Override
-    public void setProcessDefinitionSubprocessBindingDate(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
-            @WebParam(name = "date") Date date) throws DefinitionDoesNotExistException {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public void setProcessDefinitionSubprocessBindingDate(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "date") Date date) throws DefinitionDoesNotExistException {
         definitionLogic.setProcessDefinitionSubprocessBindingDate(user, definitionId, date);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition getLatestProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionName != null, "definitionName");
+    public WfDefinition getLatestProcessDefinition(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionName") @NonNull String definitionName) {
         return definitionLogic.getLatestProcessDefinition(user, definitionName);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition getProcessDefinitionVersion(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
-            @WebParam(name = "definitionVersion") Long definitionVersion) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionName != null, "definitionName");
-        Preconditions.checkArgument(definitionVersion != null, "definitionVersion");
+    public WfDefinition getProcessDefinitionVersion(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionName") @NonNull String definitionName,
+            @WebParam(name = "definitionVersion") @NonNull Long definitionVersion) {
         return definitionLogic.getProcessDefinitionVersion(user, definitionName, definitionVersion);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition getProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public WfDefinition getProcessDefinition(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId) {
         return definitionLogic.getProcessDefinition(user, definitionId);
     }
 
     @Override
     @WebResult(name = "result")
-    public ProcessDefinition getParsedProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public ProcessDefinition getParsedProcessDefinition(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId) {
         return definitionLogic.getParsedProcessDefinition(user, definitionId);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfNode getNode(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
-            @WebParam(name = "nodeId") String nodeId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
-        Preconditions.checkArgument(nodeId != null, "nodeId");
+    public WfNode getNode(@WebParam(name = "user") @NonNull User user, @WebParam(name = "definitionId") @NonNull Long definitionId,
+            @WebParam(name = "nodeId") @NonNull String nodeId) {
         ProcessDefinition processDefinition = definitionLogic.getDefinition(definitionId);
         Node node = processDefinition.getNode(nodeId);
         if (node != null) {
@@ -156,17 +135,14 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebMethod(exclude = true)
-    public List<WfDefinition> getDeployments(User user, BatchPresentation batchPresentation, boolean enablePaging) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(batchPresentation != null, "batchPresentation");
+    public List<WfDefinition> getDeployments(@NonNull User user, @NonNull BatchPresentation batchPresentation, boolean enablePaging) {
         return definitionLogic.getDeployments(user, batchPresentation, enablePaging);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<WfDefinition> getProcessDefinitions(@WebParam(name = "user") User user,
+    public List<WfDefinition> getProcessDefinitions(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation, @WebParam(name = "enablePaging") boolean enablePaging) {
-        Preconditions.checkArgument(user != null, "user");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.DEFINITIONS.createDefault();
         }
@@ -175,9 +151,8 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public int getProcessDefinitionsCount(@WebParam(name = "user") User user,
+    public int getProcessDefinitionsCount(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null, "user");
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.DEFINITIONS.createDefault();
         }
@@ -186,80 +161,61 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public void undeployProcessDefinition(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
-            @WebParam(name = "version") Long version) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionName != null, "definitionName");
+    public void undeployProcessDefinition(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionName") @NonNull String definitionName, @WebParam(name = "version") Long version) {
         definitionLogic.undeployProcessDefinition(user, definitionName, version);
     }
 
     @Override
     @WebResult(name = "result")
-    public Interaction getStartInteraction(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public Interaction getStartInteraction(@WebParam(name = "user") @NonNull User user, @WebParam(name = "definitionId") @NonNull Long definitionId) {
         return definitionLogic.getStartInteraction(user, definitionId);
     }
 
     @Override
     @WebResult(name = "result")
-    public Interaction getTaskNodeInteraction(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId, String nodeId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
-        Preconditions.checkArgument(nodeId != null, "nodeId");
+    public Interaction getTaskNodeInteraction(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId, @NonNull String nodeId) {
         return definitionLogic.getTaskNodeInteraction(user, definitionId, nodeId);
     }
 
     @Override
     @WebResult(name = "result")
-    public byte[] getProcessDefinitionFile(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
-            @WebParam(name = "fileName") String fileName) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
-        Preconditions.checkArgument(fileName != null, "fileName");
+    public byte[] getProcessDefinitionFile(@WebParam(name = "user") @NonNull User user, @WebParam(name = "definitionId") @NonNull Long definitionId,
+            @WebParam(name = "fileName") @NonNull String fileName) {
         return definitionLogic.getFile(user, definitionId, fileName);
     }
 
     @Override
     @WebResult(name = "result")
-    public byte[] getProcessDefinitionGraph(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
+    public byte[] getProcessDefinitionGraph(@WebParam(name = "user") @NonNull User user, @WebParam(name = "definitionId") @NonNull Long definitionId,
             @WebParam(name = "subprocessId") String subprocessId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
         return definitionLogic.getGraph(user, definitionId, subprocessId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<SwimlaneDefinition> getSwimlaneDefinitions(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public List<SwimlaneDefinition> getSwimlaneDefinitions(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId) {
         return definitionLogic.getSwimlanes(user, definitionId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<UserType> getUserTypes(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public List<UserType> getUserTypes(@WebParam(name = "user") @NonNull User user, @WebParam(name = "definitionId") @NonNull Long definitionId) {
         return definitionLogic.getDefinition(definitionId).getUserTypes();
     }
 
     @Override
     @WebResult(name = "result")
-    public UserType getUserType(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long definitionId,
-            @WebParam(name = "name") String name) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
-        Preconditions.checkArgument(name != null, "name");
+    public UserType getUserType(@WebParam(name = "user") @NonNull User user, @WebParam(name = "definitionId") @NonNull Long definitionId,
+            @WebParam(name = "name") @NonNull String name) {
         return definitionLogic.getDefinition(definitionId).getUserType(name);
     }
 
     @Override
     @WebMethod(exclude = true)
-    public List<VariableDefinition> getVariableDefinitions(User user, Long definitionId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public List<VariableDefinition> getVariableDefinitions(@NonNull User user, @NonNull Long definitionId) {
         return definitionLogic.getProcessDefinitionVariables(user, definitionId);
     }
 
@@ -272,11 +228,7 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebMethod(exclude = true)
-    public VariableDefinition getVariableDefinition(User user, Long definitionId, String variableName) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
-        Preconditions.checkArgument(variableName != null, "variableName");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public VariableDefinition getVariableDefinition(@NonNull User user, @NonNull Long definitionId, @NonNull String variableName) {
         return definitionLogic.getProcessDefinitionVariable(user, definitionId, variableName);
     }
 
@@ -293,18 +245,15 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public List<NodeGraphElement> getProcessDefinitionGraphElements(@WebParam(name = "user") User user,
-            @WebParam(name = "definitionId") Long definitionId, @WebParam(name = "subprocessId") String subprocessId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(definitionId != null, "definitionId");
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "subprocessId") String subprocessId) {
         return definitionLogic.getProcessDefinitionGraphElements(user, definitionId, subprocessId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<WfDefinition> getProcessDefinitionHistory(@WebParam(name = "user") User user, @WebParam(name = "name") String name) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(name != null, "name");
+    public List<WfDefinition> getProcessDefinitionHistory(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "name") @NonNull String name) {
         return definitionLogic.getProcessDefinitionHistory(user, name);
     }
 
