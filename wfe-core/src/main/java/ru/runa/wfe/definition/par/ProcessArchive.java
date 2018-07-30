@@ -21,6 +21,9 @@
  */
 package ru.runa.wfe.definition.par;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +33,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.Deployment;
@@ -38,12 +40,7 @@ import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
-
 public class ProcessArchive {
-    private final Deployment deployment;
     public static final List<String> UNSECURED_FILE_NAMES = Lists.newArrayList();
     static {
         UNSECURED_FILE_NAMES.add(IFileDataProvider.START_IMAGE_FILE_NAME);
@@ -51,7 +48,7 @@ public class ProcessArchive {
         UNSECURED_FILE_NAMES.add(IFileDataProvider.BOTS_XML_FILE);
     }
 
-    static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<ProcessArchiveParser>();
+    static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<>();
     static {
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new FileArchiveParser()));
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new ProcessDefinitionParser()));
@@ -61,9 +58,11 @@ public class ProcessArchive {
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new GraphXmlParser()));
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new CommentsParser()));
     }
+
     private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)."
             + IFileDataProvider.PROCESSDEFINITION_XML_FILE_NAME);
 
+    private final Deployment deployment;
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
     public ProcessArchive(Deployment deployment) {
@@ -87,9 +86,11 @@ public class ProcessArchive {
 
     public ProcessDefinition parseProcessDefinition() {
         ProcessDefinition processDefinition = new ProcessDefinition(deployment);
+
         for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
             processArchiveParser.readFromArchive(this, processDefinition);
         }
+
         for (Map.Entry<String, byte[]> entry : processDefinition.getProcessFiles().entrySet()) {
             Matcher matcher = SUBPROCESS_DEFINITION_PATTERN.matcher(entry.getKey());
             if (matcher.matches()) {
@@ -111,5 +112,4 @@ public class ProcessArchive {
     public Map<String, byte[]> getFileData() {
         return fileData;
     }
-
 }

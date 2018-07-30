@@ -238,7 +238,7 @@ public class RefactorPermissionsStep1 extends DBPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         return new ArrayList<String>() {{
-            add(getDDLRemoveTable("permission_mapping__old"));
+            add(getDDLDropTable("permission_mapping__old"));
             add(getDDLCreateIndex("permission_mapping", "ix_permission_mapping_data", "executor_id", "object_type", "permission", "object_id"));
             add(getDDLCreateForeignKey("permission_mapping", "fk_permission_executor", "executor_id", "executor", "id"));
         }};

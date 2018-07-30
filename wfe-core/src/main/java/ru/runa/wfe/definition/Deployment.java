@@ -2,52 +2,37 @@ package ru.runa.wfe.definition;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
-import java.util.Date;
 import java.util.List;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.user.Actor;
 
 @Entity
-@Table(name = "BPM_PROCESS_DEFINITION")
+@Table(name = "BPM_DEFINITION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Deployment extends SecuredObject {
     private static final long serialVersionUID = 1L;
     private Long id;
-    private Long version;
-    private Language language;
     private String name;
+    private Language language;
     private String description;
     private String category;
-    private byte[] content;
-    private Date createDate;
-    private Actor createActor;
-    private Date updateDate;
-    private Actor updateActor;
-    private Date subprocessBindingDate;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_PROCESS_DEFINITION", allocationSize = 1)
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_DEFINITION", allocationSize = 1)
     @Column(name = "ID", nullable = false)
     public Long getId() {
         return id;
@@ -55,25 +40,6 @@ public class Deployment extends SecuredObject {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    @Column(name = "VERSION", nullable = false)
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    @Column(name = "LANGUAGE", nullable = false, length = 1024)
-    @Enumerated(value = EnumType.STRING)
-    public Language getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(Language language) {
-        this.language = language;
     }
 
     @Column(name = "NAME", nullable = false, length = 1024)
@@ -85,6 +51,19 @@ public class Deployment extends SecuredObject {
         this.name = name;
     }
 
+    /**
+     * "BPMN" или "JPDL".
+     */
+    @Column(name = "LANGUAGE", nullable = false, length = 4)
+    @Enumerated(value = EnumType.STRING)
+    public Language getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(Language language) {
+        this.language = language;
+    }
+
     @Column(name = "DESCRIPTION", length = 1024)
     public String getDescription() {
         return description;
@@ -94,6 +73,9 @@ public class Deployment extends SecuredObject {
         this.description = description;
     }
 
+    /**
+     * Тип процесса. Перезаписывается при redeploy / update.
+     */
     @Column(name = "CATEGORY", nullable = false, length = 1024)
     public String getCategory() {
         return category;
@@ -103,70 +85,10 @@ public class Deployment extends SecuredObject {
         this.category = category;
     }
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(length = 16777216, name = "BYTES")
-    public byte[] getContent() {
-        return content;
-    }
-
-    public void setContent(byte[] content) {
-        this.content = content;
-    }
-
-    @Column(name = "CREATE_DATE", nullable = false)
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "CREATE_USER_ID")
-    @ForeignKey(name = "FK_DEFINITION_CREATE_USER")
-    public Actor getCreateActor() {
-        return createActor;
-    }
-
-    public void setCreateActor(Actor createActor) {
-        this.createActor = createActor;
-    }
-
-    @Column(name = "UPDATE_DATE")
-    public Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
-    }
-
-    @ManyToOne
-    @JoinColumn(name = "UPDATE_USER_ID")
-    @ForeignKey(name = "FK_DEFINITION_UPDATE_USER")
-    public Actor getUpdateActor() {
-        return updateActor;
-    }
-
-    public void setUpdateActor(Actor updateActor) {
-        this.updateActor = updateActor;
-    }
-
-    @Column(name = "SUBPROCESS_BINDING_DATE")
-    public Date getSubprocessBindingDate() {
-        return subprocessBindingDate;
-    }
-
-    public void setSubprocessBindingDate(Date subprocessBindingDate) {
-        this.subprocessBindingDate = subprocessBindingDate;
-    }
-
     @Transient
     @Override
     public Long getIdentifiableId() {
-        return (long) getName().hashCode();
+        return getId();
     }
 
     @Transient
@@ -189,21 +111,21 @@ public class Deployment extends SecuredObject {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, version);
+        return Objects.hashCode(id);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Deployment) {
             Deployment d = (Deployment) obj;
-            return Objects.equal(name, d.name) && Objects.equal(version, d.version);
+            return Objects.equal(id, d.id);
         }
         return super.equals(obj);
     }
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("name", name).add("version", version).toString();
+        return Objects.toStringHelper(this).add("id", id).add("name", name).toString();
     }
 
     @Transient

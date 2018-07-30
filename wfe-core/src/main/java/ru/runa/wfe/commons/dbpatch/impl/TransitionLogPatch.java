@@ -91,7 +91,7 @@ public class TransitionLogPatch extends DBPatch {
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = super.getDDLQueriesAfter();
-        sql.add(getDDLRemoveTable("JBPM_PASSTRANS"));
+        sql.add(getDDLDropTable("JBPM_PASSTRANS"));
         return sql;
     }
 }

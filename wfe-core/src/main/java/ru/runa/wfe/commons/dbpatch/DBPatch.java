@@ -56,7 +56,7 @@ public abstract class DBPatch {
         return Lists.newArrayList();
     }
 
-    private void executeDDL(Session session, String category, List<String> queries) throws Exception {
+    private void executeDDL(Session session, String category, List<String> queries) {
         for (String query : queries) {
             if (!Strings.isNullOrEmpty(query)) {
                 log.info(category + ": " + query);
@@ -73,12 +73,12 @@ public abstract class DBPatch {
     }
 
     protected final String getDDLCreateTable(String tableName, List<ColumnDef> columnDefinitions, String unique) {
-        String query = "CREATE TABLE " + tableName + " (";
+        StringBuilder query = new StringBuilder("CREATE TABLE " + tableName + " (");
         for (ColumnDef columnDef : columnDefinitions) {
             if (columnDefinitions.indexOf(columnDef) > 0) {
-                query += ", ";
+                query.append(", ");
             }
-            query += columnDef.name + " " + columnDef.getSqlTypeName(dialect);
+            query.append(columnDef.name).append(" ").append(columnDef.getSqlTypeName(dialect));
             if (columnDef.primaryKey) {
                 String primaryKeyModifier;
                 switch (dbType) {
@@ -102,18 +102,18 @@ public abstract class DBPatch {
                     primaryKeyModifier = "PRIMARY KEY";
                     break;
                 }
-                query += " " + primaryKeyModifier;
+                query.append(" ").append(primaryKeyModifier);
                 continue;
             }
             if (!columnDef.allowNulls) {
-                query += " NOT NULL";
+                query.append(" NOT NULL");
             }
         }
         if (unique != null) {
-            query += ", UNIQUE " + unique;
+            query.append(", UNIQUE ").append(unique);
         }
-        query += ")";
-        return query;
+        query.append(")");
+        return query.toString();
     }
 
     protected final String getDDLRenameTable(String oldTableName, String newTableName) {
@@ -132,7 +132,7 @@ public abstract class DBPatch {
         return query;
     }
 
-    protected final String getDDLRemoveTable(String tableName) {
+    protected final String getDDLDropTable(String tableName) {
         return "DROP TABLE " + tableName;
     }
 
@@ -158,7 +158,7 @@ public abstract class DBPatch {
         return query;
     }
 
-    protected final String getDDLRemoveIndex(String tableName, String indexName) {
+    protected final String getDDLDropIndex(String tableName, String indexName) {
         switch (dbType) {
         case H2:
         case ORACLE:
@@ -186,7 +186,7 @@ public abstract class DBPatch {
         return query;
     }
 
-    protected final String getDDLRemoveForeignKey(String tableName, String keyName) {
+    protected final String getDDLDropForeignKey(String tableName, String keyName) {
         String constraint;
         switch (dbType) {
         case MYSQL:
@@ -257,7 +257,8 @@ public abstract class DBPatch {
         return query;
     }
 
-    protected final String getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName, boolean nullable) {
+    protected final String getDDLModifyColumnNullability(String tableName, String columnName, String currentSqlTypeName,
+            @SuppressWarnings("SameParameterValue") boolean nullable) {
         String query;
         switch (dbType) {
         case ORACLE:
@@ -280,7 +281,7 @@ public abstract class DBPatch {
         return query;
     }
 
-    protected final String getDDLRemoveColumn(String tableName, String columnName) {
+    protected final String getDDLDropColumn(String tableName, String columnName) {
         return "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
     }
 
@@ -288,7 +289,7 @@ public abstract class DBPatch {
         return "TRUNCATE TABLE " + tableName;
     }
 
-    protected final String getDDLTruncateTableUsingDelete(String tableName) {
+    protected final String getDDLTruncateTableUsingDelete(@SuppressWarnings("SameParameterValue") String tableName) {
         return "DELETE FROM " + tableName;
     }
 
@@ -305,12 +306,20 @@ public abstract class DBPatch {
         private final boolean allowNulls;
         private String defaultValue;
 
+        /**
+         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, make this constructor protected.
+         */
+        @Deprecated
         public ColumnDef(String name, int sqlType, boolean allowNulls) {
             this.name = name;
             this.sqlType = sqlType;
             this.allowNulls = allowNulls;
         }
 
+        /**
+         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, make this constructor protected.
+         */
+        @Deprecated
         public ColumnDef(String name, String sqlTypeName, boolean allowNulls) {
             this.name = name;
             this.sqlTypeName = sqlTypeName;
@@ -319,14 +328,20 @@ public abstract class DBPatch {
 
         /**
          * Creates column def which allows null values.
+         *
+         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, delete this constructor.
          */
+        @Deprecated
         public ColumnDef(String name, int sqlType) {
             this(name, sqlType, true);
         }
 
         /**
          * Creates column def which allows null values.
+         *
+         * @deprecated Use shortcut subclasses; create missing subclasses. Finally, delete this constructor.
          */
+        @Deprecated
         public ColumnDef(String name, String sqlTypeName) {
             this(name, sqlTypeName, true);
         }
@@ -349,24 +364,66 @@ public abstract class DBPatch {
         }
     }
 
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class BigintColumnDef extends ColumnDef {
         public BigintColumnDef(String name, boolean allowNulls) {
             super(name, Types.BIGINT, allowNulls);
         }
+        public BigintColumnDef(String name) {
+            this(name, true);
+        }
     }
 
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class BlobColumnDef extends ColumnDef {
+        public BlobColumnDef(String name, boolean allowNulls) {
+            super(name, dialect.getTypeName(Types.BLOB), allowNulls);
+        }
+        public BlobColumnDef(String name) {
+            this(name, true);
+        }
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class DateColumnDef extends ColumnDef {
+        public DateColumnDef(String name, boolean allowNulls) {
+            super(name, dialect.getTypeName(Types.DATE), allowNulls);
+        }
+        public DateColumnDef(String name) {
+            this(name, true);
+        }
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class IntColumnDef extends ColumnDef {
         public IntColumnDef(String name, boolean allowNulls) {
             super(name, Types.INTEGER, allowNulls);
         }
+        public IntColumnDef(String name) {
+            this(name, true);
+        }
     }
 
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
+    public class TimestampColumnDef extends ColumnDef {
+        public TimestampColumnDef(String name, boolean allowNulls) {
+            super(name, Types.TIMESTAMP, allowNulls);
+        }
+        public TimestampColumnDef(String name) {
+            this(name, true);
+        }
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
     public class VarcharColumnDef extends ColumnDef {
         public VarcharColumnDef(String name, int length, boolean allowNulls) {
             // Don't know why length is passed 3 times here (as length, precision and scale),
             // but I didn't like it and thus made this helper class.
             // Other helper classes (BigintColumnDef, IntColumnDef) are just for company.
             super(name, dialect.getTypeName(Types.VARCHAR, length, length, length), allowNulls);
+        }
+        public VarcharColumnDef(String name, int length) {
+            this(name, length, true);
         }
     }
 }

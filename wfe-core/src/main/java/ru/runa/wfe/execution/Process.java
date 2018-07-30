@@ -51,7 +51,7 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentVersion;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.job.dao.JobDAO;
@@ -86,14 +86,14 @@ public class Process extends SecuredObjectBase {
     private Date endDate;
     private Token rootToken;
     private String hierarchyIds;
-    private Deployment deployment;
+    private DeploymentVersion deploymentVersion;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public Process() {
     }
 
-    public Process(Deployment deployment) {
-        setDeployment(deployment);
+    public Process(DeploymentVersion deploymentVersion) {
+        setDeploymentVersion(deploymentVersion);
         setStartDate(new Date());
     }
 
@@ -162,16 +162,16 @@ public class Process extends SecuredObjectBase {
         this.endDate = endDate;
     }
 
-    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFINITION_ID", nullable = false)
-    @ForeignKey(name = "FK_PROCESS_DEFINITION")
-    @Index(name = "IX_PROCESS_DEFINITION")
-    public Deployment getDeployment() {
-        return deployment;
+    @ManyToOne(targetEntity = DeploymentVersion.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEFINITION_VERSION_ID", nullable = false)
+    @ForeignKey(name = "FK_PROCESS_DEFINITION_VERSION")
+    @Index(name = "IX_PROCESS_DEFINITION_VERSION")
+    public DeploymentVersion getDeploymentVersion() {
+        return deploymentVersion;
     }
 
-    public void setDeployment(Deployment deployment) {
-        this.deployment = deployment;
+    public void setDeploymentVersion(DeploymentVersion deploymentVersion) {
+        this.deploymentVersion = deploymentVersion;
     }
 
     @ManyToOne(targetEntity = Token.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })

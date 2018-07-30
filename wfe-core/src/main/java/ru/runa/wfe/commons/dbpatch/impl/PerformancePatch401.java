@@ -42,17 +42,17 @@ public class PerformancePatch401 extends DBPatch {
     protected List<String> getDDLQueriesBefore() {
         List<String> sql = Lists.newArrayList();
         sql.add(getDDLCreateColumn("PERMISSION_MAPPING", new ColumnDef("TYPE_ID", Types.BIGINT)));
-        sql.add(getDDLRemoveColumn("PERMISSION_MAPPING", "VERSION"));
+        sql.add(getDDLDropColumn("PERMISSION_MAPPING", "VERSION"));
         return sql;
     }
 
     @Override
     protected List<String> getDDLQueriesAfter() {
         List<String> sql = Lists.newArrayList();
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPING", "IX_PERMISSION_IDENTIFIABLE_ID"));
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPING", "IX_PERMISSION_TYPE"));
-        sql.add(getDDLRemoveIndex("PERMISSION_MAPPING", "IX_PERMISSION_EXECUTOR"));
-        sql.add(getDDLRemoveColumn("PERMISSION_MAPPING", "TYPE"));
+        sql.add(getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_IDENTIFIABLE_ID"));
+        sql.add(getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_TYPE"));
+        sql.add(getDDLDropIndex("PERMISSION_MAPPING", "IX_PERMISSION_EXECUTOR"));
+        sql.add(getDDLDropColumn("PERMISSION_MAPPING", "TYPE"));
         sql.add(getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_EXECUTOR", "EXECUTOR_ID", "TYPE_ID", "MASK", "IDENTIFIABLE_ID"));
         sql.add(getDDLCreateIndex("PERMISSION_MAPPING", "IX_PERMISSION_BY_IDENTIFIABLE", "IDENTIFIABLE_ID", "TYPE_ID", "MASK", "EXECUTOR_ID"));
         //

@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.definition.logic;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -68,27 +70,27 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
         permissionDAO.checkAllowed(user, Permission.CREATE, SecuredSingleton.DEFINITIONS);
-        ProcessDefinition definition;
-        try {
-            definition = parseProcessDefinition(processArchiveBytes);
-        } catch (Exception e) {
-            throw new DefinitionArchiveFormatException(e);
-        }
+        ProcessDefinition definition = parseProcessDefinition(processArchiveBytes);
         try {
             getLatestDefinition(definition.getName());
             throw new DefinitionAlreadyExistException(definition.getName());
         } catch (DefinitionDoesNotExistException e) {
-            // expected
+            // Expected.
         }
-        definition.getDeployment().setCategories(categories);
-        definition.getDeployment().setCreateDate(new Date());
-        definition.getDeployment().setCreateActor(user.getActor());
-        deploymentDAO.deploy(definition.getDeployment(), null);
-        permissionDAO.setPermissions(user.getActor(), Collections.singletonList(Permission.ALL), definition.getDeployment());
+        Deployment deployment = definition.getDeployment();
+        deployment.setCategories(categories);
+        deployment.setCreateDate(new Date());
+        deployment.setCreateActor(user.getActor());
+        deployment.setVersion(1L);
+        deploymentDAO.create(deployment);
+        permissionDAO.setPermissions(user.getActor(), Collections.singletonList(Permission.ALL), deployment);
         log.debug("Deployed process definition " + definition);
-        return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, definition.getDeployment()));
+        return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, deployment));
     }
 
+    /**
+     * Adds new definition version.
+     */
     public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
         Deployment oldDeployment = deploymentDAO.getNotNull(definitionId);
         permissionDAO.checkAllowed(user, Permission.UPDATE, oldDeployment);
@@ -97,86 +99,74 @@ public class DefinitionLogic extends WFCommonLogic {
             oldDeployment.setCategories(categories);
             return getProcessDefinition(user, definitionId);
         }
-        ProcessDefinition definition;
-        try {
-            definition = parseProcessDefinition(processArchiveBytes);
-        } catch (Exception e) {
-            throw new DefinitionArchiveFormatException(e);
+
+        // TODO If categories can be changed only for latest version, move this check up, above "if (processArchiveBytes == null)".
+        Deployment oldLatestDeployment = deploymentDAO.findLatestDeployment(oldDeployment.getName());
+        if (!Objects.equal(oldLatestDeployment.getId(), oldDeployment.getId())) {
+            throw new InternalApplicationException("Last deployed version of process definition '" + oldLatestDeployment.getName() + "' is '"
+                    + oldLatestDeployment.getVersion() + "'. You provided process definition id for version '"
+                    + oldDeployment.getVersion() + "'");
         }
+
+        ProcessDefinition definition = parseProcessDefinition(processArchiveBytes);
         if (!oldDeployment.getName().equals(definition.getName())) {
             throw new DefinitionNameMismatchException("Expected definition name " + oldDeployment.getName(), definition.getName(),
                     oldDeployment.getName());
         }
+        Deployment deployment = definition.getDeployment();
         if (categories != null) {
-            definition.getDeployment().setCategories(categories);
+            deployment.setCategories(categories);
         } else {
-            definition.getDeployment().setCategory(oldDeployment.getCategory());
+            deployment.setCategory(oldDeployment.getCategory());
         }
         try {
-            ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment.getContent());
-            boolean containsAllPreviousComments = definition.getChanges().containsAll(oldDefinition.getChanges());
-            if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
-                if (!containsAllPreviousComments) {
-                    throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
-                            + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
-                }
-            }
-            if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
-                if (containsAllPreviousComments && definition.getChanges().size() == oldDefinition.getChanges().size()) {
-                    throw new InternalApplicationException("The new version of definition must contain more than "
-                            + oldDefinition.getChanges().size() + " version comments. Uploaded definition contains " + definition.getChanges().size()
-                            + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
-                }
-            }
+            checkCommentsOnDeploy(parseProcessDefinition(oldDeployment.getContent()), definition);
         } catch (InvalidDefinitionException e) {
             log.warn(oldDeployment + ": " + e);
         }
-        definition.getDeployment().setCreateDate(new Date());
-        definition.getDeployment().setCreateActor(user.getActor());
-        deploymentDAO.deploy(definition.getDeployment(), oldDeployment);
+
+        deployment.setCreateDate(new Date());
+        deployment.setCreateActor(user.getActor());
+        deployment.setVersion(oldLatestDeployment.getVersion() + 1);
+        deploymentDAO.create(deployment);
         log.debug("Process definition " + oldDeployment + " was successfully redeployed");
         return new WfDefinition(definition, true);
     }
 
     /**
-     * Updates process definition.
+     * Updates process definition (same version).
      */
-    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes) {
-        Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
+    public WfDefinition updateProcessDefinition(User user, Long definitionId, @NonNull byte[] processArchiveBytes) {
         Deployment deployment = deploymentDAO.getNotNull(definitionId);
         permissionDAO.checkAllowed(user, Permission.UPDATE, deployment);
-        ProcessDefinition uploadedDefinition;
-        try {
-            uploadedDefinition = parseProcessDefinition(processArchiveBytes);
-        } catch (Exception e) {
-            throw new DefinitionArchiveFormatException(e);
-        }
-        if (!deployment.getName().equals(uploadedDefinition.getName())) {
-            throw new DefinitionNameMismatchException("Expected definition name " + deployment.getName(), uploadedDefinition.getName(),
+        ProcessDefinition definition = parseProcessDefinition(processArchiveBytes);
+        if (!deployment.getName().equals(definition.getName())) {
+            throw new DefinitionNameMismatchException("Expected definition name " + deployment.getName(), definition.getName(),
                     deployment.getName());
         }
-        ProcessDefinition oldDefinition = parseProcessDefinition(deployment.getContent());
-        boolean containsAllPreviousComments = uploadedDefinition.getChanges().containsAll(oldDefinition.getChanges());
-        if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed()) {
-            if (!containsAllPreviousComments) {
-                throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
-                        + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
-            }
-        }
-        if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed()) {
-            if (containsAllPreviousComments && uploadedDefinition.getChanges().size() == oldDefinition.getChanges().size()) {
-                throw new InternalApplicationException("The new version of definition must contain more than " + oldDefinition.getChanges().size()
-                        + " version comments. Uploaded definition contains " + uploadedDefinition.getChanges().size()
-                        + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
-            }
-        }
-        deployment.setContent(uploadedDefinition.getDeployment().getContent());
+        checkCommentsOnDeploy(parseProcessDefinition(deployment.getContent()), definition);
+        deployment.setContent(definition.getDeployment().getContent());
         deployment.setUpdateDate(new Date());
         deployment.setUpdateActor(user.getActor());
         deploymentDAO.update(deployment);
         addUpdatedDefinitionInProcessLog(user, deployment);
         log.debug("Process definition " + deployment + " was successfully updated");
         return new WfDefinition(deployment);
+    }
+
+    private void checkCommentsOnDeploy(ProcessDefinition oldDefinition, ProcessDefinition definition) {
+        boolean containsAllPreviousComments = definition.getChanges().containsAll(oldDefinition.getChanges());
+        if (!SystemProperties.isDefinitionDeploymentWithCommentsCollisionsAllowed() && !containsAllPreviousComments) {
+            throw new InternalApplicationException("The new version of definition must contain all version comments which exists in earlier "
+                    + "uploaded definition. Most likely you try to upload an old version of definition (page update is recommended).");
+        }
+        if (!SystemProperties.isDefinitionDeploymentWithEmptyCommentsAllowed() &&
+                containsAllPreviousComments &&
+                definition.getChanges().size() == oldDefinition.getChanges().size()) {
+            throw new InternalApplicationException("The new version of definition must contain more than "
+                        + oldDefinition.getChanges().size() + " version comments. Uploaded definition contains " + definition.getChanges().size()
+                        + " comments. Most likely you try to upload an old version of definition (page update is recommended). ");
+        }
     }
 
     public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) {
@@ -260,8 +250,10 @@ public class DefinitionLogic extends WFCommonLogic {
         List<Process> processes = processDAO.getProcesses(filter);
         for (Process process : processes) {
             if (nodeProcessDAO.findBySubProcessId(process.getId()) != null) {
-                throw new ParentProcessExistsException(definitionName, nodeProcessDAO.findBySubProcessId(process.getId()).getProcess()
-                        .getDeployment().getName());
+                throw new ParentProcessExistsException(
+                        definitionName,
+                        nodeProcessDAO.findBySubProcessId(process.getId()).getProcess().getDeployment().getName()
+                );
             }
         }
         if (version == null) {
@@ -389,10 +381,16 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     private ProcessDefinition parseProcessDefinition(byte[] data) {
-        Deployment deployment = new Deployment();
-        deployment.setContent(data);
-        ProcessArchive archive = new ProcessArchive(deployment);
-        return archive.parseProcessDefinition();
+        try {
+            Deployment deployment = new Deployment();
+            deployment.setContent(data);
+            ProcessArchive archive = new ProcessArchive(deployment);
+            return archive.parseProcessDefinition();
+        } catch (DefinitionArchiveFormatException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new DefinitionArchiveFormatException(e);
+        }
     }
 
     private List<WfDefinition> getProcessDefinitions(User user, BatchPresentation batchPresentation, CompilerParameters parameters) {

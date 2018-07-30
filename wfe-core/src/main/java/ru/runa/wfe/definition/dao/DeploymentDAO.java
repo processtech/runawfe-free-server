@@ -21,11 +21,9 @@
  */
 package ru.runa.wfe.definition.dao;
 
-import com.google.common.base.Objects;
 import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
@@ -39,24 +37,6 @@ import ru.runa.wfe.definition.QDeployment;
  */
 @Component
 public class DeploymentDAO extends GenericDAO<Deployment> {
-
-    public void deploy(Deployment deployment, Deployment previousLatestVersion) {
-        // if there is a current latest process definition
-        if (previousLatestVersion != null) {
-            Deployment latestDeployment = findLatestDeployment(previousLatestVersion.getName());
-            if (!Objects.equal(latestDeployment.getId(), previousLatestVersion.getId())) {
-                throw new InternalApplicationException("Last deployed version of process definition '" + latestDeployment.getName() + "' is '"
-                        + latestDeployment.getVersion() + "'. You were provided process definition id for version '"
-                        + previousLatestVersion.getVersion() + "'");
-            }
-            // take the next version number
-            deployment.setVersion(previousLatestVersion.getVersion() + 1);
-        } else {
-            // start from 1
-            deployment.setVersion(1L);
-        }
-        create(deployment);
-    }
 
     @Override
     protected void checkNotNull(Deployment entity, Object identity) {
