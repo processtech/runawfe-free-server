@@ -14,6 +14,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Actor;
@@ -124,5 +125,21 @@ public class DeploymentVersion implements Serializable {
 
     public void setSubprocessBindingDate(Date subprocessBindingDate) {
         this.subprocessBindingDate = subprocessBindingDate;
+    }
+
+    @Transient
+    public DeploymentVersion getCopy() {
+        DeploymentVersion o = new DeploymentVersion();
+        o.id = id;
+
+        o.category = category;
+        o.content = content;
+        o.createDate = createDate;
+        o.description = description;
+        o.language = language;
+        o.name = name;
+        o.subprocessBindingDate = subprocessBindingDate;
+        o.version = version;
+        return o;
     }
 }

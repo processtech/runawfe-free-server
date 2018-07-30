@@ -31,6 +31,7 @@ import java.util.Map;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
@@ -47,6 +48,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
     protected Deployment deployment;
+    protected DeploymentVersion deploymentVersion;
     protected Map<String, byte[]> processFiles = Maps.newHashMap();
     protected StartNode startNode;
     protected final List<Node> nodes = Lists.newArrayList();
@@ -65,8 +67,9 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     protected ProcessDefinition() {
     }
 
-    public ProcessDefinition(Deployment deployment) {
+    public ProcessDefinition(Deployment deployment, DeploymentVersion deploymentVersion) {
         this.deployment = deployment;
+        this.deploymentVersion = deploymentVersion;
         processDefinition = this;
     }
 
@@ -100,6 +103,10 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
 
     public Deployment getDeployment() {
         return deployment;
+    }
+
+    public DeploymentVersion getDeploymentVersion() {
+        return deploymentVersion;
     }
 
     public ProcessDefinitionAccessType getAccessType() {

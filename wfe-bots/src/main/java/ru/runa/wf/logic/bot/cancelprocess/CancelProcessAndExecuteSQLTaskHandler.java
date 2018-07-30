@@ -17,9 +17,9 @@
  */
 package ru.runa.wf.logic.bot.cancelprocess;
 
+import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.util.Map;
-
 import ru.runa.wf.logic.bot.DatabaseTaskHandler;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.definition.dto.WfDefinition;
@@ -29,8 +29,6 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
-
-import com.google.common.io.ByteStreams;
 
 /**
  * Cancels process by id and executes arbitrary SQL.

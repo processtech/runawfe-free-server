@@ -130,16 +130,12 @@ public class Deployment extends SecuredObject {
 
     @Transient
     public Deployment getCopy() {
-        Deployment deployment = new Deployment();
-        deployment.category = category;
-        deployment.content = content;
-        deployment.createDate = createDate;
-        deployment.description = description;
-        deployment.id = id;
-        deployment.language = language;
-        deployment.name = name;
-        deployment.subprocessBindingDate = subprocessBindingDate;
-        deployment.version = version;
-        return deployment;
+        Deployment o = new Deployment();
+        o.id = id;
+        o.name = name;
+        o.language = language;
+        o.description = description;
+        o.category = category;
+        return o;
     }
 }

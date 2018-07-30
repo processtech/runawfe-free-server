@@ -53,11 +53,12 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
     }
 
     @Override
-    public IFileVariable convertFromStringValue(String string) throws Exception {
+    public IFileVariable convertFromStringValue(String string) {
         return (IFileVariable) convertFromJSONValue(JSONValue.parse(string.replaceAll("&quot;", "\"")));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected Object convertToJSONValue(Object value) {
         IFileVariable fileVariable = (IFileVariable) value;
         JSONObject jsonObject = new JSONObject();

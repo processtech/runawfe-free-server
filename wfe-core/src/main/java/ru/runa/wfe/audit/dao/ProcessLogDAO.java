@@ -163,10 +163,10 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
     /**
      * Deletes all process logs.
      */
-    public void deleteAll(Long processId) {
-        log.debug("deleting logs for process " + processId);
+    public void deleteAll(Process process) {
+        log.debug("deleting logs for process " + process.getId());
         QProcessLog pl = QProcessLog.processLog;
-        queryFactory.delete(pl).where(pl.processId.eq(processId)).execute();
+        queryFactory.delete(pl).where(pl.processId.eq(process.getId())).execute();
     }
 
     public boolean isNodeEntered(Process process, String nodeId) {

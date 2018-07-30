@@ -18,10 +18,8 @@
 package ru.runa.wfe.definition.cache;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
-
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -40,7 +38,6 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
 
     private final Cache<Long, ProcessDefinition> definitionIdToDefinition;
     private final Cache<String, Long> definitionNameToId;
-
     private final AtomicBoolean isLocked = new AtomicBoolean(false);
 
     public ProcessDefCacheImpl() {
@@ -72,7 +69,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
 
     @Override
     public ProcessDefinition getDefinition(DeploymentDAO deploymentDAO, Long definitionId) throws DefinitionDoesNotExistException {
-        ProcessDefinition processDefinition = null;
+        ProcessDefinition processDefinition;
         // synchronized (this) {
         processDefinition = definitionIdToDefinition.get(definitionId);
         if (processDefinition != null) {
@@ -94,7 +91,7 @@ class ProcessDefCacheImpl extends BaseCacheImpl implements ManageableProcessDefi
 
     @Override
     public ProcessDefinition getLatestDefinition(DeploymentDAO deploymentDAO, String definitionName) {
-        Long definitionId = null;
+        Long definitionId;
         // synchronized (this) {
         definitionId = definitionNameToId.get(definitionName);
         if (definitionId != null) {

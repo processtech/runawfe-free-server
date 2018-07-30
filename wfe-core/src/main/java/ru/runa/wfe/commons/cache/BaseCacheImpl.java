@@ -54,7 +54,7 @@ public abstract class BaseCacheImpl implements CacheImplementation {
     /**
      * Creates base cache implementation.
      */
-    public BaseCacheImpl() {
+    protected BaseCacheImpl() {
         currentCacheVersion = cacheVersion.get();
     }
 
@@ -74,7 +74,7 @@ public abstract class BaseCacheImpl implements CacheImplementation {
      * @return Returns versionned cached data model.
      */
     protected <TData> VersionedCacheData<TData> getVersionnedData(TData data) {
-        return new VersionedCacheDataImpl<TData>(data, currentCacheVersion);
+        return new VersionedCacheDataImpl<>(data, currentCacheVersion);
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class BaseCacheImpl implements CacheImplementation {
      * @return Cache to store cached values.
      */
     protected <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
-        Cache<K, V> result = new CacheStatisticProxy<K, V>(new EhCacheSupport<K, V>(cacheName), cacheName);
+        Cache<K, V> result = new CacheStatisticProxy<>(new EhCacheSupport<>(cacheName), cacheName);
         caches.add(result);
         return result;
     }
@@ -122,7 +122,7 @@ public abstract class BaseCacheImpl implements CacheImplementation {
      * @return Cache to store cached values.
      */
     protected <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName, boolean infiniteLifeTime) {
-        Cache<K, V> result = new CacheStatisticProxy<K, V>(new EhCacheSupport<K, V>(cacheName, infiniteLifeTime), cacheName);
+        Cache<K, V> result = new CacheStatisticProxy<>(new EhCacheSupport<>(cacheName, infiniteLifeTime), cacheName);
         caches.add(result);
         return result;
     }

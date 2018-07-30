@@ -227,7 +227,7 @@ public class DefinitionLogic extends WFCommonLogic {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
         ProcessDefinitionInfoVisitor visitor = new ProcessDefinitionInfoVisitor(user, definition, processDefinitionLoader);
-        return getDefinitionGraphElements(user, definition, visitor);
+        return getDefinitionGraphElements(definition, visitor);
     }
 
     public List<WfDefinition> getProcessDefinitionHistory(User user, String name) {

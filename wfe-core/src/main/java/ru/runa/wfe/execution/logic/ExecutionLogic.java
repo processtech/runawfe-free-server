@@ -265,7 +265,7 @@ public class ExecutionLogic extends WFCommonLogic {
             processLogs.addLogs(processLogDAO.getAll(filter), false);
         }
         ProcessGraphInfoVisitor visitor = new ProcessGraphInfoVisitor(user, definition, process, processLogs, nodeProcesses);
-        return getDefinitionGraphElements(user, definition, visitor);
+        return getDefinitionGraphElements(definition, visitor);
     }
 
     public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) {

@@ -17,14 +17,14 @@
  */
 package ru.runa.wf.logic.bot;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
@@ -48,9 +48,6 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
 
 /**
  * Execute task handlers for particular bot.
@@ -127,15 +124,14 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
         return getExecutionStatus() == WorkflowBotTaskExecutionStatus.FAILED && started.before(Calendar.getInstance());
     }
 
-    private void doHandle() throws Exception {
+    private void doHandle() {
         User user = botExecutor.getUser();
         Bot bot = botExecutor.getBot();
-        BotTask botTask = null;
         IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
         TaskHandler taskHandler = null;
         try {
             String botTaskName = BotTaskConfigurationUtils.getBotTaskName(user, task);
-            botTask = botExecutor.getBotTasks().get(botTaskName);
+            BotTask botTask = botExecutor.getBotTasks().get(botTaskName);
             if (botTask == null) {
                 log.error("No handler for bot task " + botTaskName + " in " + bot);
                 throw new ConfigurationException(CoreErrorProperties.getMessage(CoreErrorProperties.BOT_TASK_MISSED, botTaskName, bot.getUsername()));
@@ -162,7 +158,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
             log.info("Starting bot task " + task + " with config \n" + taskHandler.getConfiguration());
             Map<String, Object> variables = taskHandler.handle(user, variableProvider, task);
             if (variables == null) {
-                variables = new HashMap<String, Object>();
+                variables = new HashMap<>();
             }
             Object skipTaskCompletion = variables.remove(TaskHandler.SKIP_TASK_COMPLETION_VARIABLE_NAME);
             if (Objects.equal(Boolean.TRUE, skipTaskCompletion)) {
@@ -172,7 +168,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                     ParamsDef paramsDef = ((ParamBasedVariableProvider) variableProvider).getParamsDef();
                     for (Map.Entry<String, ParamDef> entry : paramsDef.getOutputParams().entrySet()) {
                         String paramName = entry.getKey();
-                        Object object = null;
+                        Object object;
                         // back compatibility before v4.1.0
                         if (variables.containsKey(paramName)) {
                             object = variables.remove(paramName);
@@ -226,7 +222,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
                 new TransactionalExecutor() {
 
                     @Override
-                    protected void doExecuteInTransaction() throws Exception {
+                    protected void doExecuteInTransaction() {
                         Utils.sendBpmnErrorMessage(task.getProcessId(), task.getNodeId(), th);
                     }
                 }.executeInTransaction(false);

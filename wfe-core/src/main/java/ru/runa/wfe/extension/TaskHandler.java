@@ -31,7 +31,7 @@ public interface TaskHandler {
      * If this variable assigned to Boolean.TRUE then bot subsystem will not
      * complete task.
      */
-    public static final String SKIP_TASK_COMPLETION_VARIABLE_NAME = "skipTaskCompletion";
+    String SKIP_TASK_COMPLETION_VARIABLE_NAME = "skipTaskCompletion";
 
     /**
      * Configuring bot task.
@@ -41,12 +41,12 @@ public interface TaskHandler {
      * @param embeddedFile
      * 			  Embedded BotTask file which can be used in TaskHandler.
      */
-    public void setConfiguration(byte[] configuration, byte[] embeddedFile) throws Exception;
+    void setConfiguration(byte[] configuration, byte[] embeddedFile) throws Exception;
 
     /**
      * Get configuration for debug purpose.
      */
-    public String getConfiguration();
+    String getConfiguration();
 
     /**
      * Handles task assigned to bot.
@@ -58,7 +58,7 @@ public interface TaskHandler {
      * @param task
      *            task to be processed.
      */
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception;
+    Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception;
 
     /**
      * Invoked if task completion fails.
@@ -70,5 +70,5 @@ public interface TaskHandler {
      * @param task
      *            task to be processed.
      */
-    public void onRollback(User user, IVariableProvider variableProvider, WfTask task) throws Exception;
+    void onRollback(User user, IVariableProvider variableProvider, WfTask task) throws Exception;
 }

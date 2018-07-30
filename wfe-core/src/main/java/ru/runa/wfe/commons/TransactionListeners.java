@@ -1,11 +1,9 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * This class holds current transaction listeners from EJB call and should be
@@ -39,5 +37,4 @@ public class TransactionListeners {
     public static void reset() {
         listeners.remove();
     }
-
 }

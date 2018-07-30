@@ -1,16 +1,15 @@
 package ru.runa.wfe.service.interceptors;
 
+import com.google.common.base.Throwables;
 import javax.annotation.Resource;
 import javax.ejb.EJBContext;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.dao.OptimisticLockingFailureException;
-
 import ru.runa.wfe.commons.ITransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.Utils;
@@ -18,8 +17,6 @@ import ru.runa.wfe.security.auth.SubjectPrincipalsHelper;
 import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.service.utils.ApiProperties;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Throwables;
 
 /**
  * It is important to understand that in a BMT, the message consumed by the MDB is not part of the transaction. When an MDB uses container-managed
@@ -34,7 +31,7 @@ public class EjbTransactionSupport {
     private EJBContext ejbContext;
 
     @AroundInvoke
-    public Object process(InvocationContext ic) throws Exception {
+    public Object process(InvocationContext ic) {
         UserTransaction transaction = ejbContext.getUserTransaction();
         try {
             if (ic.getParameters() != null && ic.getParameters().length > 0 && ic.getParameters()[0] instanceof User) {
@@ -59,8 +56,6 @@ public class EjbTransactionSupport {
     /**
      * Make invocation with retry on optimistic lock failure exception.
      *
-     * @param invocation
-     *            current invocation
      * @param transaction
      *            current transaction
      * @return invocation result.

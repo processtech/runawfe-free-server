@@ -1,7 +1,6 @@
 package ru.runa.wfe.var.dao;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.runa.wfe.execution.Process;
@@ -15,7 +14,7 @@ import ru.runa.wfe.var.dto.WfVariable;
  * @author AL
  */
 @SuppressWarnings({ "unchecked" })
-public class VariableLoaderDAOFallback extends AbstractVariableLoader {
+public class VariableLoaderDAOFallback extends VariableLoader {
 
     /**
      * {@link VariableDAO} for loading variables if no preloaded variable is available.
@@ -39,21 +38,15 @@ public class VariableLoaderDAOFallback extends AbstractVariableLoader {
      */
     public VariableLoaderDAOFallback(VariableDAO dao, Map<Process, Map<String, Variable<?>>> loadedVariables) {
         this.dao = dao;
-        this.loadedVariables = loadedVariables == null ? new HashMap<Process, Map<String, Variable<?>>>() : loadedVariables;
+        this.loadedVariables = loadedVariables == null ? new HashMap<>() : loadedVariables;
     }
 
     @Override
     public Variable<?> get(Process process, String name) {
         Map<String, Variable<?>> loadedProcessVariables = loadedVariables.get(process);
-        if (loadedProcessVariables == null || !loadedProcessVariables.containsKey(name)) {
-            return dao.get(process, name);
-        }
-        return loadedProcessVariables.get(name);
-    }
-
-    @Override
-    public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
-        return dao.findByNameLikeAndStringValueEqualTo(variableNamePattern, stringValue);
+        return loadedProcessVariables != null && loadedProcessVariables.containsKey(name)
+                ? loadedProcessVariables.get(name)
+                : dao.get(process, name);
     }
 
     @Override

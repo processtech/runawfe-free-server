@@ -18,7 +18,7 @@
 package ru.runa.wfe.commons.cache;
 
 /**
- * Interface for all components, controlling cache life circle.
+ * Interface for all components, controlling cache life cycle.
  * @param <CacheImpl> Cache type, controlled by component.
  */
 public interface CacheControl<CacheImpl extends CacheImplementation> {
@@ -27,42 +27,41 @@ public interface CacheControl<CacheImpl extends CacheImplementation> {
      * If system decide to make created cache as default, initCache will be called.  
      * @return Cache instance.
      */
-    public CacheImpl buildCache();
+    CacheImpl buildCache();
 
     /**
      * Set default cache instance. Controlling object may return this cache instance on {@link #getCache()} calls.
      * Then cache become invalid, {@link #getCache()} must return null. 
-     * @param cache
      */
-    public void initCache(CacheImpl cache);
+    void initCache(CacheImpl cache);
 
     /**
      * Return cache instance, set by previous {@link #initCache(Object)} call. 
-     * Then cache instance become invalid, {@link #getCache()} must return null.
+     * Then cache instance become invalid, getCache() must return null.
      * @return Current cache instance, controlled by this controlling object.
      */
-    public CacheImpl getCache();
+    CacheImpl getCache();
 
     /**
      * Return control object state. If exists at least one transaction, which affecting controlled cache,
      * when return true, otherwise return false.   
      * @return Control object state.
      */
-    public boolean isLocked();
+    boolean isLocked();
 
     /**
      * Set control object initiating flag.
      */
-    public void initiateInProcess();
+    void initiateInProcess();
 
     /**
      * Reset control object initiating flag.
      */
-    public void initiateComplete();
+    void initiateComplete();
 
     /**
      * Return control object initiating flag state.
      * @return Control object initiating flag state
      */
-    public boolean isInInitiate();
+    boolean isInInitiate();
 }

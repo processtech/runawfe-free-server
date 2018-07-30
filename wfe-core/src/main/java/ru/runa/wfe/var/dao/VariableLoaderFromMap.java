@@ -1,21 +1,18 @@
 package ru.runa.wfe.var.dao;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dto.WfVariable;
-
-import com.google.common.collect.Maps;
 
 /**
  * All variables must be preloaded and passed to this component.
  *
  * @author AL
  */
-public class VariableLoaderFromMap extends AbstractVariableLoader {
+public class VariableLoaderFromMap extends VariableLoader {
 
     /**
      * Preloaded variables. For each process contains map from variable name to variable. If no entry for variable name exists in preloaded variables,
@@ -31,21 +28,13 @@ public class VariableLoaderFromMap extends AbstractVariableLoader {
      *            Preloaded variables. For each process contains map from variable name to variable. May be null.
      */
     public VariableLoaderFromMap(Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this.loadedVariables = loadedVariables == null ? new HashMap<Process, Map<String, Variable<?>>>() : loadedVariables;
+        this.loadedVariables = loadedVariables == null ? new HashMap<>() : loadedVariables;
     }
 
     @Override
     public Variable<?> get(Process process, String name) {
         Map<String, Variable<?>> loadedProcessVariables = loadedVariables.get(process);
-        if (loadedProcessVariables == null || !loadedProcessVariables.containsKey(name)) {
-            return null;
-        }
-        return loadedProcessVariables.get(name);
-    }
-
-    @Override
-    public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
-        return null;
+        return loadedProcessVariables == null ? null : loadedProcessVariables.get(name);
     }
 
     @Override

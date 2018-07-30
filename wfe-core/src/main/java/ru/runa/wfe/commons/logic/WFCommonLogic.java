@@ -192,27 +192,23 @@ public class WFCommonLogic extends CommonLogic {
             log.debug("deleting sub process " + subProcess.getId());
             deleteProcess(user, subProcess);
         }
-        processLogDAO.deleteAll(process.getId());
+        processLogDAO.deleteAll(process);
         jobDAO.deleteByProcess(process);
         variableDAO.deleteAll(process);
         processDAO.delete(process);
         taskDAO.deleteAll(process);
         swimlaneDAO.deleteAll(process);
-        systemLogDAO.create(new ProcessDeleteLog(user.getActor().getId(), process.getDeployment().getName(), process.getId()));
+        systemLogDAO.create(new ProcessDeleteLog(user.getActor().getId(), process.getDeploymentVersion().getDeployment().getName(), process.getId()));
     }
 
     /**
      * Loads graph presentation elements for process definition.
      * 
-     * @param user
-     *            Current user.
-     * @param id
-     *            Identity of process definition, which presentation elements must be loaded.
      * @param visitor
      *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.
      * @return List of graph presentation elements.
      */
-    public List<NodeGraphElement> getDefinitionGraphElements(User user, ProcessDefinition definition, NodeGraphElementVisitor visitor) {
+    protected List<NodeGraphElement> getDefinitionGraphElements(ProcessDefinition definition, NodeGraphElementVisitor visitor) {
         List<NodeGraphElement> elements = NodeGraphElementBuilder.createElements(definition);
         if (visitor != null) {
             visitor.visit(elements);

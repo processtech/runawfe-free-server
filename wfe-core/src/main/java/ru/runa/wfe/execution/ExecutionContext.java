@@ -21,15 +21,16 @@
  */
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
@@ -43,7 +44,6 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
@@ -68,11 +68,6 @@ import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
     private final ProcessDefinition processDefinition;
@@ -90,8 +85,6 @@ public class ExecutionContext {
     @Autowired
     private VariableCreator variableCreator;
     @Autowired
-    private ProcessDAO processDAO;
-    @Autowired
     private TokenDAO tokenDAO;
     @Autowired
     private NodeProcessDAO nodeProcessDAO;
@@ -106,12 +99,12 @@ public class ExecutionContext {
     @Autowired
     private SwimlaneDAO swimlaneDAO;
 
-    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
+    protected ExecutionContext(ProcessDefinition processDefinition, Token token,
             Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
-        applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
+        ApplicationContextFactory.getContext().getAutowireCapableBeanFactory().autowireBean(this);
         if (disableVariableDaoLoading) {
             this.variableLoader = new VariableLoaderFromMap(loadedVariables);
         } else {
@@ -121,24 +114,24 @@ public class ExecutionContext {
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
-    }
-
-    public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
+        this(processDefinition, token, loadedVariables, false);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables,
             boolean disableVariableDaoLoading) {
-        this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
+        this(processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
+    }
+
+    public ExecutionContext(ProcessDefinition processDefinition, Token token) {
+        this(processDefinition, token, null, false);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Process process) {
-        this(processDefinition, process.getRootToken());
+        this(processDefinition, process.getRootToken(), null, false);
     }
 
     public ExecutionContext(ProcessDefinition processDefinition, Task task) {
-        this(processDefinition, task.getToken());
+        this(processDefinition, task.getToken(), null, false);
     }
 
     /**

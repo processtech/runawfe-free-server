@@ -23,9 +23,13 @@ public class VariableDAO extends GenericDAO<Variable> {
 
     public Variable<?> get(Process process, String name) {
         QVariable v = QVariable.variable;
-        return queryFactory.selectFrom(v).where(v.process.eq(process).and(v.name.eq(name))).fetchFirst();
+        return queryFactory.selectFrom(v).where(v.process.id.eq(process.getId()).and(v.name.eq(name))).fetchFirst();
     }
 
+    /**
+     * Used by TNMS.
+     */
+    @SuppressWarnings("unused")
     public List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
         StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(variableNamePattern);
         return sessionFactory.getCurrentSession().createQuery("from Variable where name " + expression.getComparisonOperator() + " :name and stringValue = :value")
@@ -44,7 +48,7 @@ public class VariableDAO extends GenericDAO<Variable> {
         for (Variable<?> variable : list) {
             try {
                 variables.put(variable.getName(), variable.getValue());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 log.error("Unable to revert " + variable + " in " + process, e);
             }
         }
@@ -64,7 +68,7 @@ public class VariableDAO extends GenericDAO<Variable> {
             return result;
         }
         for (Process process : processes) {
-            result.put(process, Maps.<String, Variable<?>> newHashMap());
+            result.put(process, Maps.newHashMap());
         }
         QVariable v = QVariable.variable;
         List<Variable<?>> list = queryFactory.selectFrom(v).where(v.process.in(processes)).fetch();
@@ -110,6 +114,6 @@ public class VariableDAO extends GenericDAO<Variable> {
     public void deleteAll(Process process) {
         log.debug("deleting variables for process " + process.getId());
         QVariable v = QVariable.variable;
-        queryFactory.delete(v).where(v.process.eq(process)).execute();
+        queryFactory.delete(v).where(v.process.id.eq(process.getId())).execute();
     }
 }

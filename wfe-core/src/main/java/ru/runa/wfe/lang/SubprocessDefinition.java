@@ -20,7 +20,7 @@ public class SubprocessDefinition extends ProcessDefinition {
     }
 
     public SubprocessDefinition(ProcessDefinition parentProcessDefinition) {
-        super(parentProcessDefinition.getDeployment().getCopy());
+        super(parentProcessDefinition.getDeployment().getCopy(), parentProcessDefinition.getDeploymentVersion().getCopy());
         this.parentProcessDefinition = parentProcessDefinition;
     }
 

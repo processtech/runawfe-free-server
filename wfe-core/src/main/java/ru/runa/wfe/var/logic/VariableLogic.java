@@ -17,6 +17,11 @@
  */
 package ru.runa.wfe.var.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,9 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
@@ -68,12 +71,6 @@ import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.format.VariableFormatContainer;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Variables access logic.
@@ -179,8 +176,7 @@ public class VariableLogic extends WFCommonLogic {
         Calendar dateFrom = CalendarUtil.dateToCalendar(taskCompletePressedDate != null ? taskCompletePressedDate : taskEndDate);
         dateFrom.add(Calendar.MILLISECOND, -100);
         filter.setCreateDateFrom(dateFrom.getTime());
-        WfVariableHistoryState completeTaskState = getHistoricalVariableOnRange(user, filter);
-        return completeTaskState;
+        return getHistoricalVariableOnRange(user, filter);
     }
 
     public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
@@ -224,7 +220,7 @@ public class VariableLogic extends WFCommonLogic {
     }
 
     private WfVariableHistoryState getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {
-        HashSet<String> simpleVariablesChanged = Sets.<String> newHashSet();
+        HashSet<String> simpleVariablesChanged = Sets.newHashSet();
         // Next call is for filling simpleVariablesChanged structure.
         loadSimpleVariablesState(user, processDAO.getNotNull(filter.getProcessId()), filter, simpleVariablesChanged);
         Date dateFrom = filter.getCreateDateFrom();
@@ -256,7 +252,7 @@ public class VariableLogic extends WFCommonLogic {
                 }
             }
         }
-        return new WfVariableHistoryState(Lists.<WfVariable> newArrayList(), result, simpleVariablesChanged);
+        return new WfVariableHistoryState(Lists.newArrayList(), result, simpleVariablesChanged);
     }
 
     /**
@@ -375,10 +371,10 @@ public class VariableLogic extends WFCommonLogic {
         ProcessLogFilter localFilter = new ProcessLogFilter(filter);
         localFilter.setRootClassName(VariableLog.class.getName());
         localFilter.setProcessId(process.getId());
-        HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
+        HashMap<String, Object> processVariables = Maps.newHashMap();
         for (VariableLog variableLog : auditLogic.getProcessLogs(user, localFilter).getLogs(VariableLog.class)) {
             String variableName = variableLog.getVariableName();
-            if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {
+            if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(variableLog.getVariableNewValue())) {
                 simpleVariablesChanged.add(variableName);
             }
             if (variableLog instanceof VariableDeleteLog) {
