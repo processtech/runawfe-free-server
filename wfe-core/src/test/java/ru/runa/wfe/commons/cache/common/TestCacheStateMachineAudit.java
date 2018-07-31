@@ -1,13 +1,10 @@
 package ru.runa.wfe.commons.cache.common;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.transaction.Transaction;
-
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.states.CacheState;
-import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 import ru.runa.wfe.commons.cache.states.audit.BeforeTransactionCompleteAudit;
 import ru.runa.wfe.commons.cache.states.audit.CacheStateMachineAudit;
 import ru.runa.wfe.commons.cache.states.audit.CommitCacheAudit;
@@ -17,85 +14,85 @@ import ru.runa.wfe.commons.cache.states.audit.InitializationErrorAudit;
 import ru.runa.wfe.commons.cache.states.audit.OnChangeAudit;
 import ru.runa.wfe.commons.cache.states.audit.StageSwitchAudit;
 
-public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> implements CacheStateMachineAudit<CacheImpl, DefaultStateContext> {
+public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> implements CacheStateMachineAudit<CacheImpl> {
 
-    private volatile GetCacheAudit<CacheImpl, DefaultStateContext> _getCacheAudit = new TestGetCacheAudit<CacheImpl>();
+    private volatile GetCacheAudit<CacheImpl> _getCacheAudit = new TestGetCacheAudit<>();
 
-    private volatile OnChangeAudit<CacheImpl, DefaultStateContext> _onChangeAudit = new TestOnChangeAudit<CacheImpl>();
+    private volatile OnChangeAudit<CacheImpl> _onChangeAudit = new TestOnChangeAudit<>();
 
-    private volatile CompleteTransactionAudit<CacheImpl, DefaultStateContext> _completeTransactionAudit =
-            new TestCompleteTransactionAudit<CacheImpl>();
+    private volatile CompleteTransactionAudit<CacheImpl> _completeTransactionAudit =
+            new TestCompleteTransactionAudit<>();
 
-    private volatile CommitCacheAudit<CacheImpl, DefaultStateContext> _commitCacheAudit = new TestCommitCacheAudit<CacheImpl>();
+    private volatile CommitCacheAudit<CacheImpl> _commitCacheAudit = new TestCommitCacheAudit<>();
 
-    private volatile InitializationErrorAudit<CacheImpl, DefaultStateContext> _initializationErrorAudit =
-            new TestInitializationErrorAudit<CacheImpl>();
+    private volatile InitializationErrorAudit<CacheImpl> _initializationErrorAudit =
+            new TestInitializationErrorAudit<>();
 
-    private volatile StageSwitchAudit<CacheImpl, DefaultStateContext> _uninitializeAudit = new TestStageSwitchAudit<CacheImpl>();
+    private volatile StageSwitchAudit<CacheImpl> _uninitializeAudit = new TestStageSwitchAudit<>();
 
-    private volatile BeforeTransactionCompleteAudit<CacheImpl, DefaultStateContext> _beforeTransactionCompleteAudit =
-            new TestBeforeTransactionCompleteAudit<CacheImpl>();
+    private volatile BeforeTransactionCompleteAudit<CacheImpl> _beforeTransactionCompleteAudit =
+            new TestBeforeTransactionCompleteAudit<>();
 
     @Override
-    public GetCacheAudit<CacheImpl, DefaultStateContext> auditGetCache() {
+    public GetCacheAudit<CacheImpl> auditGetCache() {
         return _getCacheAudit;
     }
 
     @Override
-    public OnChangeAudit<CacheImpl, DefaultStateContext> auditOnChange() {
+    public OnChangeAudit<CacheImpl> auditOnChange() {
         return _onChangeAudit;
     }
 
     @Override
-    public CompleteTransactionAudit<CacheImpl, DefaultStateContext> auditCompleteTransaction() {
+    public CompleteTransactionAudit<CacheImpl> auditCompleteTransaction() {
         return _completeTransactionAudit;
     }
 
     @Override
-    public CommitCacheAudit<CacheImpl, DefaultStateContext> auditCommitCache() {
+    public CommitCacheAudit<CacheImpl> auditCommitCache() {
         return _commitCacheAudit;
     }
 
     @Override
-    public InitializationErrorAudit<CacheImpl, DefaultStateContext> auditInitializationError() {
+    public InitializationErrorAudit<CacheImpl> auditInitializationError() {
         return _initializationErrorAudit;
     }
 
     @Override
-    public StageSwitchAudit<CacheImpl, DefaultStateContext> auditUninitialize() {
+    public StageSwitchAudit<CacheImpl> auditUninitialize() {
         return _uninitializeAudit;
     }
 
     @Override
-    public BeforeTransactionCompleteAudit<CacheImpl, DefaultStateContext> auditBeforeTransactionComplete() {
+    public BeforeTransactionCompleteAudit<CacheImpl> auditBeforeTransactionComplete() {
         return _beforeTransactionCompleteAudit;
     }
 
-    public void set_getCacheAudit(GetCacheAudit<CacheImpl, DefaultStateContext> _getCacheAudit) {
+    public void set_getCacheAudit(GetCacheAudit<CacheImpl> _getCacheAudit) {
         this._getCacheAudit = _getCacheAudit;
     }
 
-    public void set_onChangeAudit(OnChangeAudit<CacheImpl, DefaultStateContext> _onChangeAudit) {
+    public void set_onChangeAudit(OnChangeAudit<CacheImpl> _onChangeAudit) {
         this._onChangeAudit = _onChangeAudit;
     }
 
-    public void set_completeTransactionAudit(CompleteTransactionAudit<CacheImpl, DefaultStateContext> _completeTransactionAudit) {
+    public void set_completeTransactionAudit(CompleteTransactionAudit<CacheImpl> _completeTransactionAudit) {
         this._completeTransactionAudit = _completeTransactionAudit;
     }
 
-    public void set_commitCacheAudit(CommitCacheAudit<CacheImpl, DefaultStateContext> _commitCacheAudit) {
+    public void set_commitCacheAudit(CommitCacheAudit<CacheImpl> _commitCacheAudit) {
         this._commitCacheAudit = _commitCacheAudit;
     }
 
-    public void set_initializationErrorAudit(InitializationErrorAudit<CacheImpl, DefaultStateContext> _initializationErrorAudit) {
+    public void set_initializationErrorAudit(InitializationErrorAudit<CacheImpl> _initializationErrorAudit) {
         this._initializationErrorAudit = _initializationErrorAudit;
     }
 
-    public void set_beforeTransactionCompleteAudit(BeforeTransactionCompleteAudit<CacheImpl, DefaultStateContext> _beforeTransactionCompleteAudit) {
+    public void set_beforeTransactionCompleteAudit(BeforeTransactionCompleteAudit<CacheImpl> _beforeTransactionCompleteAudit) {
         this._beforeTransactionCompleteAudit = _beforeTransactionCompleteAudit;
     }
 
-    public static class TestStageSwitchAudit<CacheImpl extends CacheImplementation> implements StageSwitchAudit<CacheImpl, DefaultStateContext> {
+    public static class TestStageSwitchAudit<CacheImpl extends CacheImplementation> implements StageSwitchAudit<CacheImpl> {
 
         private final AtomicInteger stayCount = new AtomicInteger();
         private final AtomicInteger switchedCount = new AtomicInteger();
@@ -112,21 +109,21 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
         }
 
         @Override
-        public final void stageSwitched(CacheState<CacheImpl, DefaultStateContext> from, CacheState<CacheImpl, DefaultStateContext> to) {
+        public final void stageSwitched(CacheState<CacheImpl> from, CacheState<CacheImpl> to) {
             switchedCount.incrementAndGet();
             _stageSwitched(from, to);
         }
 
-        protected void _stageSwitched(CacheState<CacheImpl, DefaultStateContext> from, CacheState<CacheImpl, DefaultStateContext> to) {
+        protected void _stageSwitched(CacheState<CacheImpl> from, CacheState<CacheImpl> to) {
         }
 
         @Override
-        public final void stageSwitchFailed(CacheState<CacheImpl, DefaultStateContext> from, CacheState<CacheImpl, DefaultStateContext> to) {
+        public final void stageSwitchFailed(CacheState<CacheImpl> from, CacheState<CacheImpl> to) {
             switchFailedCount.incrementAndGet();
             _stageSwitchFailed(from, to);
         }
 
-        protected void _stageSwitchFailed(CacheState<CacheImpl, DefaultStateContext> from, CacheState<CacheImpl, DefaultStateContext> to) {
+        protected void _stageSwitchFailed(CacheState<CacheImpl> from, CacheState<CacheImpl> to) {
         }
 
         @Override
@@ -153,7 +150,7 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
     }
 
     public static class TestGetCacheAudit<CacheImpl extends CacheImplementation> extends TestStageSwitchAudit<CacheImpl>
-            implements GetCacheAudit<CacheImpl, DefaultStateContext> {
+            implements GetCacheAudit<CacheImpl> {
         private final AtomicInteger quickResultCount = new AtomicInteger();
         private final AtomicInteger beforeCreationCount = new AtomicInteger();
         private final AtomicInteger afterCreationCount = new AtomicInteger();
@@ -199,7 +196,7 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
     }
 
     public static class TestOnChangeAudit<CacheImpl extends CacheImplementation> extends TestStageSwitchAudit<CacheImpl>
-            implements OnChangeAudit<CacheImpl, DefaultStateContext> {
+            implements OnChangeAudit<CacheImpl> {
 
         private final AtomicInteger beforeOnChangeCount = new AtomicInteger();
         private final AtomicInteger afterOnChangeCount = new AtomicInteger();
@@ -232,7 +229,7 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
     }
 
     public static class TestCompleteTransactionAudit<CacheImpl extends CacheImplementation> extends TestStageSwitchAudit<CacheImpl>
-            implements CompleteTransactionAudit<CacheImpl, DefaultStateContext> {
+            implements CompleteTransactionAudit<CacheImpl> {
 
         private final AtomicInteger beforeCompleteTransactionCount = new AtomicInteger();
         private final AtomicInteger afterCompleteTransactionCount = new AtomicInteger();
@@ -279,7 +276,7 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
     }
 
     public static class TestCommitCacheAudit<CacheImpl extends CacheImplementation> extends TestStageSwitchAudit<CacheImpl>
-            implements CommitCacheAudit<CacheImpl, DefaultStateContext> {
+            implements CommitCacheAudit<CacheImpl> {
 
         private final AtomicInteger stageIsNotCommitStageCount = new AtomicInteger();
         private final AtomicInteger beforeCommitCount = new AtomicInteger();
@@ -326,7 +323,7 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
     }
 
     public static class TestInitializationErrorAudit<CacheImpl extends CacheImplementation> extends TestStageSwitchAudit<CacheImpl>
-            implements InitializationErrorAudit<CacheImpl, DefaultStateContext> {
+            implements InitializationErrorAudit<CacheImpl> {
 
         private final AtomicInteger onInitializationErrorCount = new AtomicInteger();
 
@@ -345,6 +342,6 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
     }
 
     public static class TestBeforeTransactionCompleteAudit<CacheImpl extends CacheImplementation> extends TestStageSwitchAudit<CacheImpl>
-            implements BeforeTransactionCompleteAudit<CacheImpl, DefaultStateContext> {
+            implements BeforeTransactionCompleteAudit<CacheImpl> {
     }
 }

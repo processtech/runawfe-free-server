@@ -36,9 +36,6 @@ class CacheStatisticProxy<K extends Serializable, V extends Serializable> implem
      */
     private final StatisticCounter stats;
 
-    /**
-     * @param delegatedImpl
-     */
     public CacheStatisticProxy(Cache<K, V> delegatedImpl, String counterName) {
         super();
         this.delegatedImpl = delegatedImpl;

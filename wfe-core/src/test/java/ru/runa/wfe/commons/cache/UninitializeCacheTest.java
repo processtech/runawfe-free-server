@@ -1,34 +1,26 @@
 package ru.runa.wfe.commons.cache;
 
 import javax.transaction.Transaction;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
 import ru.runa.wfe.commons.DaemonSafeThread;
 import ru.runa.wfe.commons.ManualResetEvent;
 import ru.runa.wfe.commons.cache.common.TestCacheIface;
 import ru.runa.wfe.commons.cache.common.TestCacheStateMachineAudit;
 import ru.runa.wfe.commons.cache.common.TestCacheStateMachineAudit.TestOnChangeAudit;
-import ru.runa.wfe.commons.cache.common.TestLazyCache;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheCtrl;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheFactory;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
-import ru.runa.wfe.commons.cache.common.TestLazyCacheProxy;
 import ru.runa.wfe.commons.cache.states.CacheState;
-import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 
 public class UninitializeCacheTest {
-
-    final Class<? extends TestCacheIface> cacheClass = TestLazyCache.class;
-    final Class<? extends TestCacheIface> proxyClass = TestLazyCacheProxy.class;
 
     @Test()
     public void uninitializeEmptyStateTest() {
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), false);
         Assert.assertNull(ctrl.getCurrentCacheInstance());
-        ctrl.onChanged(new ChangedObjectParameter(1, Change.DELETE, null, null, null, null));
+        ctrl.onChanged(new ChangedObjectParameter(1, Change.DELETE, null, null, null));
         Assert.assertNull(ctrl.getCurrentCacheInstance());
     }
 
@@ -42,7 +34,7 @@ public class UninitializeCacheTest {
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), false);
         ctrl.getAudit().set_commitCacheAudit(new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
             @Override
-            protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from, CacheState<TestCacheIface, DefaultStateContext> to) {
+            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
                 initializationCompleteEvent.setEvent();
             }
         });
@@ -61,7 +53,7 @@ public class UninitializeCacheTest {
 
             @Override
             public void run() {
-                ctrl.onChanged(new ChangedObjectParameter(1L, Change.DELETE, null, null, null, null));
+                ctrl.onChanged(new ChangedObjectParameter(1L, Change.DELETE, null, null, null));
                 Assert.assertNull(ctrl.getCurrentCacheInstance().cachedValue(1));
                 Assert.assertEquals(new Long(2L), ctrl.getCurrentCacheInstance().cachedValue(2));
                 thread2ReleaseBlockEvent.setEvent();
@@ -80,7 +72,7 @@ public class UninitializeCacheTest {
                         thread2ReleaseBlockEvent.tryWaitEvent();
                     }
                 });
-                ctrl.onChanged(new ChangedObjectParameter(-1L, Change.DELETE, null, null, null, null));
+                ctrl.onChanged(new ChangedObjectParameter(-1L, Change.DELETE, null, null, null));
                 Assert.assertNull(ctrl.getCurrentCacheInstance());
                 TestOnChangeAudit<TestCacheIface> changeAudit = (TestOnChangeAudit<TestCacheIface>) ctrl.getAudit().auditOnChange();
                 Assert.assertEquals(2, changeAudit.getBeforeOnChangeCount());

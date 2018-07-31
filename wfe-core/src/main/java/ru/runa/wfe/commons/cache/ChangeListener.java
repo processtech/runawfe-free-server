@@ -34,7 +34,7 @@ public interface ChangeListener {
      * @param changedObject
      *            Changed object data.
      */
-    public void onChange(Transaction transaction, ChangedObjectParameter changedObject);
+    void onChange(Transaction transaction, ChangedObjectParameter changedObject);
 
     /**
      * Called, then transaction in current thread is completed. Cache controller must mark transaction as completed, but must not recreate cache.
@@ -47,7 +47,7 @@ public interface ChangeListener {
      * @param transaction
      *            Commit or rollback transaction.
      */
-    public void markTransactionComplete(Transaction transaction);
+    void markTransactionComplete(Transaction transaction);
 
     /**
      * Drops current cache implementation.
@@ -55,6 +55,5 @@ public interface ChangeListener {
      * @param object
      *            Changed object, which leads to cache drop.
      */
-    public void uninitialize(Object object, Change change);
-
+    void uninitialize(Object object, Change change);
 }

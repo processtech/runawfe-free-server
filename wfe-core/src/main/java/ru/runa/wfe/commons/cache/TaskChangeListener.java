@@ -21,8 +21,6 @@ package ru.runa.wfe.commons.cache;
 /**
  * Specific sub interface of {@link ChangeListener} interface for components,
  * receiving events from task related objects.
- * 
- * @see {@link ChangeListener}
  */
 public interface TaskChangeListener extends ChangeListener {
 }

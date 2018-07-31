@@ -16,10 +16,11 @@ public class CacheInitializationContextImpl<CacheImpl extends CacheImplementatio
     /**
      * Callback object to receive notification on lazy initialization complete.
      */
-    private final CacheInitializationCallback<CacheImpl, NonRuntimeCacheContext> callback;
+    private final CacheInitializationCallback<CacheImpl> callback;
 
-    public CacheInitializationContextImpl(CacheInitializingState<CacheImpl> state,
-            CacheInitializationCallback<CacheImpl, NonRuntimeCacheContext> callback) {
+    public CacheInitializationContextImpl(
+            CacheInitializingState<CacheImpl> state, CacheInitializationCallback<CacheImpl> callback
+    ) {
         this.state = state;
         this.callback = callback;
     }

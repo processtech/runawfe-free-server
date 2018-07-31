@@ -5,15 +5,14 @@ import ru.runa.wfe.commons.cache.CacheImplementation;
 /**
  * Command result on state machine state method call.
  */
-public class StateCommandResultWithData<CacheImpl extends CacheImplementation, TData, StateContext>
-        extends StateCommandResult<CacheImpl, StateContext> {
+public class StateCommandResultWithData<CacheImpl extends CacheImplementation, TData> extends StateCommandResult<CacheImpl> {
 
     /**
      * Some data, returned by command.
      */
     private final TData data;
 
-    private StateCommandResultWithData(CacheState<CacheImpl, StateContext> nextState, TData data) {
+    private StateCommandResultWithData(CacheState<CacheImpl> nextState, TData data) {
         super(nextState);
         this.data = data;
     }
@@ -30,12 +29,11 @@ public class StateCommandResultWithData<CacheImpl extends CacheImplementation, T
      *
      * @param nextState
      *            State for switch to.
-     * @param cache
-     *            Cache instance.
      * @return Returns command result.
      */
-    public static <CacheImpl extends CacheImplementation, TData, StateContext> StateCommandResultWithData<CacheImpl, TData, StateContext> create(
-            CacheState<CacheImpl, StateContext> nextState, TData data) {
-        return new StateCommandResultWithData<CacheImpl, TData, StateContext>(nextState, data);
+    public static <CacheImpl extends CacheImplementation, TData> StateCommandResultWithData<CacheImpl, TData> create(
+            CacheState<CacheImpl> nextState, TData data
+    ) {
+        return new StateCommandResultWithData<>(nextState, data);
     }
 }

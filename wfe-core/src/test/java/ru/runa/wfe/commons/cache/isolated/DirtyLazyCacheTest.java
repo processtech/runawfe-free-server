@@ -2,7 +2,6 @@ package ru.runa.wfe.commons.cache.isolated;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
 import ru.runa.wfe.commons.ManualResetEvent;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
@@ -15,7 +14,6 @@ import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheProxy;
 import ru.runa.wfe.commons.cache.common.TestTransaction;
 import ru.runa.wfe.commons.cache.states.CacheState;
-import ru.runa.wfe.commons.cache.states.DefaultStateContext;
 
 public class DirtyLazyCacheTest {
 
@@ -29,7 +27,7 @@ public class DirtyLazyCacheTest {
         final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
         ctrl.getAudit().set_commitCacheAudit(new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
             @Override
-            protected void _stageSwitched(CacheState<TestCacheIface, DefaultStateContext> from, CacheState<TestCacheIface, DefaultStateContext> to) {
+            protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {
                 initializationCompleteEvent.setEvent();
             }
         });
@@ -41,7 +39,7 @@ public class DirtyLazyCacheTest {
         Assert.assertSame(ctrl.getCacheIfNotLocked(false), cacheInstance);
         Assert.assertSame(ctrl.getCache(true), cacheInstance);
         Assert.assertSame(ctrl.getCacheIfNotLocked(true), cacheInstance);
-        ctrl.onChanged(new ChangedObjectParameter(1L, Change.DELETE, null, null, null, null));
+        ctrl.onChanged(new ChangedObjectParameter(1L, Change.DELETE, null, null, null));
         Assert.assertSame(ctrl.getCacheIfNotLocked(false), null);
         Assert.assertSame(ctrl.getCacheIfNotLocked(true), null);
         Assert.assertSame(ctrl.getCache(false).getClass(), proxyClass);

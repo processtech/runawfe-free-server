@@ -6,7 +6,7 @@ import ru.runa.wfe.commons.cache.states.CacheStateFactory;
 /**
  * Context for cache state machine with common used data.
  */
-public class CacheStateMachineContext<CacheImpl extends CacheImplementation, StateContext> {
+public class CacheStateMachineContext<CacheImpl extends CacheImplementation> {
 
     /**
      * Factory, used to create cache instances.
@@ -16,7 +16,7 @@ public class CacheStateMachineContext<CacheImpl extends CacheImplementation, Sta
     /**
      * Callback object to receive notifications about lazy initialization complete.
      */
-    private final CacheInitializationCallback<CacheImpl, StateContext> callback;
+    private final CacheInitializationCallback<CacheImpl> callback;
 
     /**
      * Monitor, used for exclusive access.
@@ -31,10 +31,10 @@ public class CacheStateMachineContext<CacheImpl extends CacheImplementation, Sta
     /**
      * Factory to create states.
      */
-    private final CacheStateFactory<CacheImpl, StateContext> stateFactory;
+    private final CacheStateFactory<CacheImpl> stateFactory;
 
-    public CacheStateMachineContext(CacheFactory<CacheImpl> cacheFactory, CacheInitializationCallback<CacheImpl, StateContext> callback,
-            CacheTransactionalExecutor transactionalExecutor, Object monitor, CacheStateFactory<CacheImpl, StateContext> stateFactory) {
+    public CacheStateMachineContext(CacheFactory<CacheImpl> cacheFactory, CacheInitializationCallback<CacheImpl> callback,
+            CacheTransactionalExecutor transactionalExecutor, Object monitor, CacheStateFactory<CacheImpl> stateFactory) {
         this.cacheFactory = cacheFactory;
         this.callback = callback;
         this.transactionalExecutor = transactionalExecutor;
@@ -52,7 +52,7 @@ public class CacheStateMachineContext<CacheImpl extends CacheImplementation, Sta
     /**
      * Callback object to receive notifications about lazy initialization complete.
      */
-    public CacheInitializationCallback<CacheImpl, StateContext> getCallback() {
+    public CacheInitializationCallback<CacheImpl> getCallback() {
         return callback;
     }
 
@@ -73,7 +73,7 @@ public class CacheStateMachineContext<CacheImpl extends CacheImplementation, Sta
     /**
      * Factory to create states.
      */
-    public CacheStateFactory<CacheImpl, StateContext> getStateFactory() {
+    public CacheStateFactory<CacheImpl> getStateFactory() {
         return stateFactory;
     }
 }

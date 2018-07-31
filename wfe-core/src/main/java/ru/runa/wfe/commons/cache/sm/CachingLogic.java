@@ -17,26 +17,17 @@
  */
 package ru.runa.wfe.commons.cache.sm;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.xa.XAResource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.type.Type;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.transaction.Synchronization;
+import javax.transaction.Transaction;
+import javax.transaction.xa.XAResource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -120,14 +111,14 @@ public class CachingLogic {
     /**
      * Enables/disables changes tracking. It may be set to false in case of mass update for performance reason.
      *
-     * @param enabled
+     * @param e
      *            Flag, equals true, to enable changes tracking and false otherwise.
      */
-    public static void setEnabled(boolean enabled) {
-        if (enabled) {
-            CachingLogic.enabled.decrementAndGet();
+    public static void setEnabled(boolean e) {
+        if (e) {
+            enabled.decrementAndGet();
         } else {
-            CachingLogic.enabled.incrementAndGet();
+            enabled.incrementAndGet();
         }
     }
 
@@ -144,14 +135,12 @@ public class CachingLogic {
      *            Previous state of object properties.
      * @param propertyNames
      *            Property names (same order as in currentState).
-     * @param types
-     *            Property types.
      */
-    public static void onChange(Object entity, Change change, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types) {
+    public static void onChange(Object entity, Change change, Object[] currentState, Object[] previousState, String[] propertyNames) {
         if (enabled.get() > 0) {
             return;
         }
-        onWriteTransaction(getChangeListeners(entity.getClass()), entity, change, currentState, previousState, propertyNames, types);
+        onWriteTransaction(getChangeListeners(entity.getClass()), entity, change, currentState, previousState, propertyNames);
     }
 
     /**
@@ -159,7 +148,7 @@ public class CachingLogic {
      *
      * @return If transaction change some objects, return true; return false otherwise.
      */
-    public static boolean isWriteTransaction() {
+    private static boolean isWriteTransaction() {
         Transaction transaction = Utils.getTransaction();
         if (transaction == null) {
             return false;
@@ -172,7 +161,7 @@ public class CachingLogic {
      *
      * @param notifyThis
      *            Listeners to notify. May be null.
-     * @param object
+     * @param changed
      *            Changed object.
      * @param currentState
      *            Current state of object properties.
@@ -180,11 +169,9 @@ public class CachingLogic {
      *            Previous state of object properties.
      * @param propertyNames
      *            Property names (same order as in currentState).
-     * @param types
-     *            Property types.
      */
     private static void onWriteTransaction(Set<ChangeListener> notifyThis, Object changed, Change change, Object[] currentState,
-            Object[] previousState, String[] propertyNames, Type[] types) {
+            Object[] previousState, String[] propertyNames) {
         Preconditions.checkNotNull(changed);
         Transaction transaction = Utils.getTransaction();
         if (transaction == null) {
@@ -192,14 +179,14 @@ public class CachingLogic {
         }
         Set<ChangeListener> toNotify = dirtyTransactions.get(transaction);
         if (toNotify == null) {
-            toNotify = Sets.<ChangeListener>newConcurrentHashSet();
+            toNotify = Sets.newConcurrentHashSet();
             dirtyTransactions.put(transaction, toNotify);
             DirtyTransactionSynchronization.register(transaction);
         }
         if (notifyThis != null) {
             toNotify.addAll(notifyThis);
             for (ChangeListener listener : notifyThis) {
-                listener.onChange(transaction, new ChangedObjectParameter(changed, change, currentState, previousState, propertyNames, types));
+                listener.onChange(transaction, new ChangedObjectParameter(changed, change, currentState, previousState, propertyNames));
             }
         }
     }
@@ -244,8 +231,7 @@ public class CachingLogic {
      *            Cache lifetime state machine.
      * @return Return cache implementation (always not null).
      */
-    public static <CacheImpl extends CacheImplementation, StateContext> CacheImpl getCacheImpl(
-            CacheStateMachine<CacheImpl, StateContext> stateMachine) {
+    public static <CacheImpl extends CacheImplementation> CacheImpl getCacheImpl(CacheStateMachine<CacheImpl> stateMachine) {
         return stateMachine.getCache(getTransactionToGetCache(), isWriteTransaction());
     }
 
@@ -256,8 +242,7 @@ public class CachingLogic {
      *            Cache lifetime state machine.
      * @return Return cache implementation or null, if cache is locked (dirty transaction exists).
      */
-    public static <CacheImpl extends CacheImplementation, StateContext> CacheImpl getCacheImplIfNotLocked(
-            CacheStateMachine<CacheImpl, StateContext> stateMachine) {
+    public static <CacheImpl extends CacheImplementation> CacheImpl getCacheImplIfNotLocked(CacheStateMachine<CacheImpl> stateMachine) {
         return stateMachine.getCacheIfNotLocked(getTransactionToGetCache(), isWriteTransaction());
     }
 
@@ -283,7 +268,7 @@ public class CachingLogic {
 
         private final Transaction transaction;
 
-        public DirtyTransactionSynchronization(Transaction transaction) {
+        DirtyTransactionSynchronization(Transaction transaction) {
             super();
             this.transaction = transaction;
         }
@@ -318,46 +303,42 @@ public class CachingLogic {
 
         public static Transaction getInstance() {
             StringBuilder message = new StringBuilder("Non transactional access detected:").append("\n");
-            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-            if (stack != null) {
-                for (StackTraceElement element : stack) {
-                    message.append("\t").append(element).append("\n");
-                }
+            for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+                message.append("\t").append(element).append("\n");
             }
             log.error(message);
             return instance;
         }
 
         @Override
-        public void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, IllegalStateException,
-                SystemException {
+        public void commit() {
         }
 
         @Override
-        public boolean delistResource(XAResource xaRes, int flag) throws IllegalStateException, SystemException {
+        public boolean delistResource(XAResource xaRes, int flag) {
             return false;
         }
 
         @Override
-        public boolean enlistResource(XAResource xaRes) throws RollbackException, IllegalStateException, SystemException {
+        public boolean enlistResource(XAResource xaRes) {
             return false;
         }
 
         @Override
-        public int getStatus() throws SystemException {
+        public int getStatus() {
             return 0;
         }
 
         @Override
-        public void registerSynchronization(Synchronization sync) throws RollbackException, IllegalStateException, SystemException {
+        public void registerSynchronization(Synchronization sync) {
         }
 
         @Override
-        public void rollback() throws IllegalStateException, SystemException {
+        public void rollback() {
         }
 
         @Override
-        public void setRollbackOnly() throws IllegalStateException, SystemException {
+        public void setRollbackOnly() {
         }
     }
 }

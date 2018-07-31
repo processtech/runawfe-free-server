@@ -115,8 +115,7 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
     @Override
     @SuppressWarnings("unchecked")
     public V get(K key) {
-        V value = getImpl(key);
-        return value;
+        return getImpl(key);
     }
 
     /**

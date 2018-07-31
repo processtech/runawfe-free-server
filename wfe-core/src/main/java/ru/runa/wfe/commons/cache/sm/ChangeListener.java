@@ -40,7 +40,7 @@ public interface ChangeListener {
      * @param changedObject
      *            Changed object data.
      */
-    public void onChange(Transaction transaction, ChangedObjectParameter changedObject);
+    void onChange(Transaction transaction, ChangedObjectParameter changedObject);
 
     /**
      * Called, before transaction in current thread will be completed (commit or rollback). This method called only if this listener was notified
@@ -50,7 +50,7 @@ public interface ChangeListener {
      * @param transaction
      *            Commit or rollback transaction.
      */
-    public void beforeTransactionComplete(Transaction transaction);
+    void beforeTransactionComplete(Transaction transaction);
 
     /**
      * Called, then transaction in current thread is completed. This method called only if this listener was notified about changes in completed
@@ -59,7 +59,7 @@ public interface ChangeListener {
      * @param transaction
      *            Commit or rollback transaction.
      */
-    public void onTransactionCompleted(Transaction transaction);
+    void onTransactionCompleted(Transaction transaction);
 
     /**
      * Drops current cache implementation.
@@ -69,12 +69,12 @@ public interface ChangeListener {
      * @param change
      *            Change type.
      */
-    public void uninitialize(Object object, Change change);
+    void uninitialize(Object object, Change change);
 
     /**
      * Object types, which change may cause cache invalidation. Cache will be notified about changes only for this objects.
      *
      * @return Return object types, which change may cause cache invalidation.
      */
-    public List<Class<?>> getListenObjectTypes();
+    List<Class<?>> getListenObjectTypes();
 }

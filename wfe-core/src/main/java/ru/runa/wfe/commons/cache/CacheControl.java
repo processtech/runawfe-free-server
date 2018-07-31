@@ -36,7 +36,7 @@ public interface CacheControl<CacheImpl extends CacheImplementation> {
     void initCache(CacheImpl cache);
 
     /**
-     * Return cache instance, set by previous {@link #initCache(Object)} call. 
+     * Return cache instance, set by previous {@link #initCache(CacheImpl)} call.
      * Then cache instance become invalid, getCache() must return null.
      * @return Current cache instance, controlled by this controlling object.
      */

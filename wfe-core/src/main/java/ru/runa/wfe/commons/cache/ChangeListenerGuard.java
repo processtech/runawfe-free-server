@@ -18,7 +18,6 @@
 package ru.runa.wfe.commons.cache;
 
 import javax.transaction.Transaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,7 +44,7 @@ public class ChangeListenerGuard implements ChangeListener {
      * @param delegated
      *            {@linkplain ChangeListener}, which must be guarded.
      */
-    public ChangeListenerGuard(ChangeListener delegated) {
+    ChangeListenerGuard(ChangeListener delegated) {
         super();
         this.delegated = delegated;
     }
@@ -54,7 +53,7 @@ public class ChangeListenerGuard implements ChangeListener {
     public void markTransactionComplete(Transaction transaction) {
         try {
             delegated.markTransactionComplete(transaction);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("markTransactionComplete(transaction) call failed on " + delegated.getClass().getName(), e);
         }
     }
@@ -63,7 +62,7 @@ public class ChangeListenerGuard implements ChangeListener {
     public void onChange(Transaction transaction, ChangedObjectParameter changedObject) {
         try {
             delegated.onChange(transaction, changedObject);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("onChange(transaction, changedObject) call failed on " + delegated.getClass().getName(), e);
         }
     }
@@ -72,7 +71,7 @@ public class ChangeListenerGuard implements ChangeListener {
     public void uninitialize(Object object, Change change) {
         try {
             delegated.uninitialize(object, change);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("uninitialize() call failed on " + delegated.getClass().getName(), e);
         }
     }

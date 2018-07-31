@@ -75,7 +75,6 @@ public interface Cache<K extends Serializable, V extends Serializable> {
 
     /**
      * Returns {@linkplain Iterable} to iterate other cached objects keys.
-     * @return
      */
     Iterable<K> keySet();
 }
