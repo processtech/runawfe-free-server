@@ -20,6 +20,7 @@ package ru.runa.wfe.commons.cache;
 import javax.transaction.UserTransaction;
 import ru.runa.wfe.commons.ITransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
+import ru.runa.wfe.commons.cache.sm.CachingLogic;
 
 /**
  * Resets caches on transaction commit if registered in {@link TransactionListeners}.

@@ -17,14 +17,12 @@
  */
 package ru.runa.wfe.commons.cache;
 
+import com.google.common.collect.Queues;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Queues;
 
 /**
  * Base cache implementation. Contains support for cache versions.

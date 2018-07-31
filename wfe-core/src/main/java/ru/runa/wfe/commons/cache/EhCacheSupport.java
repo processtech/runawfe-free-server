@@ -217,8 +217,6 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
 
     /**
      * Returns {@linkplain Iterable} to iterate other cached objects keys.
-     * 
-     * @return
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -231,13 +229,13 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
     }
 
     /**
-     * Creates {@linkplain Element} to put into {@linkplain CacheControl}.
+     * Creates {@linkplain Element} to put into EhCache.
      * 
      * @param key
      *            Cached object key.
      * @param value
      *            Cached object.
-     * @return {@linkplain Element} to put into {@linkplain CacheControl}.
+     * @return {@linkplain Element} to put into EhCache.
      */
     private Element createElement(K key, V value) {
         return infiniteLifeTime ? new Element(key, value, true, 0, 0) : new Element(key, value);

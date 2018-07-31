@@ -2,8 +2,7 @@ package ru.runa.wfe.service.interceptors;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
-
-import ru.runa.wfe.commons.cache.CachingLogic;
+import ru.runa.wfe.commons.cache.sm.CachingLogic;
 
 public class CacheReloader {
 
@@ -11,12 +10,10 @@ public class CacheReloader {
     public Object process(InvocationContext ic) throws Exception {
         try {
             CachingLogic.setEnabled(false);
-            Object result = ic.proceed();
-            return result;
+            return ic.proceed();
         } finally {
             CachingLogic.setEnabled(true);
             CachingLogic.resetAllCaches();
         }
     }
-
 }
