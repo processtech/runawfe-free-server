@@ -14,7 +14,7 @@ import ru.runa.wfe.commons.cache.common.TestLazyCache;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheCtrl;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheFactory;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
-import ru.runa.wfe.commons.cache.common.TestLazyCacheProxy;
+import ru.runa.wfe.commons.cache.common.TestLazyCacheStub;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.audit.CommitCacheAudit;
 import ru.runa.wfe.commons.cache.states.audit.GetCacheAudit;
@@ -22,7 +22,7 @@ import ru.runa.wfe.commons.cache.states.audit.GetCacheAudit;
 public class InitializeLazyCacheTest {
 
     final Class<? extends TestCacheIface> cacheClass = TestLazyCache.class;
-    final Class<? extends TestCacheIface> proxyClass = TestLazyCacheProxy.class;
+    final Class<? extends TestCacheIface> proxyClass = TestLazyCacheStub.class;
 
     @DataProvider
     public Object[][] getCacheMethodType() {

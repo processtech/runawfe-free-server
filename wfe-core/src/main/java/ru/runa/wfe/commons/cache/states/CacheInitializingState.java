@@ -2,7 +2,6 @@ package ru.runa.wfe.commons.cache.states;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.transaction.Transaction;
-import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
@@ -10,7 +9,6 @@ import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 /**
  * Cache lifetime state machine. Current state is initializing cache (lazy initialization is in progress).
  */
-@CommonsLog
 class CacheInitializingState<CacheImpl extends CacheImplementation> extends CacheState<CacheImpl> {
 
     /**
@@ -60,14 +58,14 @@ class CacheInitializingState<CacheImpl extends CacheImplementation> extends Cach
     }
 
     @Override
-    public StateCommandResult<CacheImpl> beforeTransactionComplete(Transaction transaction) {
-        log.error("beforeTransactionComplete must not be called on " + this);
+    public StateCommandResult<CacheImpl> onBeforeTransactionComplete(Transaction transaction) {
+        log.error("onBeforeTransactionComplete must not be called on " + this);
         return StateCommandResult.createNoStateSwitch();
     }
 
     @Override
-    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(Transaction transaction) {
-        log.error("completeTransaction must not be called on " + this);
+    public StateCommandResultWithData<CacheImpl, Boolean> onAfterTransactionComplete(Transaction transaction) {
+        log.error("onAfterTransactionComplete must not be called on " + this);
         return StateCommandResultWithData.create(getStateFactory().createEmptyState(null), true);
     }
 
@@ -85,11 +83,6 @@ class CacheInitializingState<CacheImpl extends CacheImplementation> extends Cach
     @Override
     public void accept() {
         getCacheFactory().startDelayedInitialization(new CacheInitializationContextImpl<>(this, getInitializationCallback()));
-    }
-
-    @Override
-    public StateCommandResult<CacheImpl> dropCache() {
-        return StateCommandResult.create(getStateFactory().createEmptyState(null));
     }
 
     public boolean isInitializationStillRequired() {

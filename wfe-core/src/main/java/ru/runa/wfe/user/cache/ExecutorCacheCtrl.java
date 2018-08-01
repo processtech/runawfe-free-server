@@ -111,8 +111,8 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
     private static class ExecutorCacheFactory implements LazyInitializedCacheFactory<ManageableExecutorCache> {
 
         @Override
-        public ManageableExecutorCache createProxy() {
-            return new ExecutorCacheProxy();
+        public ManageableExecutorCache createStub() {
+            return new ExecutorCacheStub();
         }
 
         @Override

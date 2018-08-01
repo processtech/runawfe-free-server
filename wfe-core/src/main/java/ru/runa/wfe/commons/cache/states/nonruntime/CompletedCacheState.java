@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.cache.states.nonruntime;
 
 import javax.transaction.Transaction;
-import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
@@ -14,7 +13,6 @@ import ru.runa.wfe.commons.cache.states.StateCommandResultWithData;
 /**
  * Cache lifetime state machine. Current state is fully operational cache (cache is initialized).
  */
-@CommonsLog
 public class CompletedCacheState<CacheImpl extends CacheImplementation> extends CacheState<CacheImpl> {
 
     /**
@@ -60,32 +58,13 @@ public class CompletedCacheState<CacheImpl extends CacheImplementation> extends 
     }
 
     @Override
-    public StateCommandResult<CacheImpl> beforeTransactionComplete(Transaction transaction) {
+    public StateCommandResult<CacheImpl> onBeforeTransactionComplete(Transaction transaction) {
         return StateCommandResult.createNoStateSwitch();
     }
 
     @Override
-    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(Transaction transaction) {
-        log.error("completeTransaction must not be called on " + this);
+    public StateCommandResultWithData<CacheImpl, Boolean> onAfterTransactionComplete(Transaction transaction) {
+        log.error("onAfterTransactionComplete must not be called on " + this);
         return StateCommandResultWithData.create(getStateFactory().createEmptyState(cache), true);
-    }
-
-    @Override
-    public StateCommandResult<CacheImpl> commitCache(CacheImpl cache) {
-        log.error("commitCache must not be called on " + this);
-        return StateCommandResult.createNoStateSwitch();
-    }
-
-    @Override
-    public void discard() {
-    }
-
-    @Override
-    public void accept() {
-    }
-
-    @Override
-    public StateCommandResult<CacheImpl> dropCache() {
-        return StateCommandResult.create(getStateFactory().createEmptyState(null));
     }
 }

@@ -38,7 +38,7 @@ public interface ExecutorCache {
      *            Actor code.
      * @return {@link Actor} with specified code.
      */
-    public Actor getActor(Long code);
+    Actor getActor(Long code);
 
     /**
      * Return {@link Executor} with specified name, or null, if such executor not exists or cache is not valid.
@@ -47,7 +47,7 @@ public interface ExecutorCache {
      *            Executor name.
      * @return {@link Executor} with specified name.
      */
-    public Executor getExecutor(String name);
+    Executor getExecutor(String name);
 
     /**
      * Return {@link Executor} with specified id, or null, if such executor not exists or cache is not valid.
@@ -56,7 +56,7 @@ public interface ExecutorCache {
      *            Executor identity.
      * @return {@link Executor} with specified identity.
      */
-    public Executor getExecutor(Long id);
+    Executor getExecutor(Long id);
 
     /**
      * Return first level {@link Group} members. Only {@link Executor}, which directly contains in {@link Group} is returning. No recursive group
@@ -66,7 +66,7 @@ public interface ExecutorCache {
      *            {@link Group}, which members will be returned.
      * @return First level {@link Group} members.
      */
-    public Set<Executor> getGroupMembers(Group group);
+    Set<Executor> getGroupMembers(Group group);
 
     /**
      * Return all {@link Actor} members of specified {@link Group} and all her subgroups. {@link Actor} members searching recursive and all actors
@@ -76,7 +76,7 @@ public interface ExecutorCache {
      *            {@link Group}, which actor members will be returned.
      * @return All {@link Actor} members of specified {@link Group} and all her subgroups.
      */
-    public Set<Actor> getGroupActorsAll(Group group);
+    Set<Actor> getGroupActorsAll(Group group);
 
     /**
      * Return all {@link Group}, which contains specified {@link Executor} as first level member. May return null, if cache is not valid.
@@ -85,7 +85,7 @@ public interface ExecutorCache {
      *            {@link Executor}, which parents will be returned.
      * @return All {@link Group}, which contains specified {@link Executor} as first level member.
      */
-    public Set<Group> getExecutorParents(Executor executor);
+    Set<Group> getExecutorParents(Executor executor);
 
     /**
      * Return all {@link Group}, which contains specified {@link Executor} as member (direct or recursive by subgroups). May return null, if cache is
@@ -95,11 +95,11 @@ public interface ExecutorCache {
      *            {@link Executor}, which parents will be returned.
      * @return All {@link Group}, which contains specified {@link Executor} as member.
      */
-    public Set<Group> getExecutorParentsAll(Executor executor);
+    Set<Group> getExecutorParentsAll(Executor executor);
 
     /**
      * Return all {@link Executor} of specified class according to {@link BatchPresentation}. May return null, if executor list for specified class
-     * and presentation wasn't set yet (With {@link #addAllExecutor(Class, BatchPresentation, List)}). May return null, if cache is not valid.
+     * and presentation wasn't set yet (with addAllExecutor()). May return null, if cache is not valid.
      * 
      * @param <T>
      *            Type of returned objects. Must be {@link Executor} or it subclass.
@@ -109,7 +109,7 @@ public interface ExecutorCache {
      *            {@link BatchPresentation} to sort/filter result.
      * @return All {@link Executor} of specified class according to {@link BatchPresentation}.
      */
-    public <T extends Executor> VersionedCacheData<List<T>> getAllExecutor(Class<T> clazz, BatchPresentation batch);
+    <T extends Executor> VersionedCacheData<List<T>> getAllExecutor(Class<T> clazz, BatchPresentation batch);
 
     /**
      * Set {@link Executor} list for specified class and {@link BatchPresentation}.
@@ -124,5 +124,5 @@ public interface ExecutorCache {
      *            Executor list for specified class and presentation. Will be returned on next {@link #getAllExecutor(Class, BatchPresentation)} call
      *            with specified class and presentation.
      */
-    public <T extends Executor> void addAllExecutor(VersionedCacheData<List<T>> oldCached, Class<?> clazz, BatchPresentation batch, List<T> executors);
+    <T extends Executor> void addAllExecutor(VersionedCacheData<List<T>> oldCached, Class<?> clazz, BatchPresentation batch, List<T> executors);
 }

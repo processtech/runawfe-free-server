@@ -2,9 +2,11 @@ package ru.runa.wfe.commons.cache.states;
 
 import javax.transaction.Transaction;
 import lombok.NonNull;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.CacheFactory;
+import ru.runa.wfe.commons.cache.sm.CacheFactoryProxy;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationCallback;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 
@@ -12,7 +14,7 @@ import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
  * Interface for every state of cache lifetime state machine.
  */
 public abstract class CacheState<CacheImpl extends CacheImplementation> {
-
+    protected final Log log = LogFactory.getLog(getClass());
     protected final CacheStateMachine<CacheImpl> owner;
 
     public CacheState(@NonNull CacheStateMachine<CacheImpl> owner) {
@@ -23,7 +25,7 @@ public abstract class CacheState<CacheImpl extends CacheImplementation> {
         return owner;
     }
 
-    protected final CacheFactory<CacheImpl> getCacheFactory() {
+    protected final CacheFactoryProxy<CacheImpl> getCacheFactory() {
         return owner.getCacheFactory();
     }
 
@@ -96,7 +98,7 @@ public abstract class CacheState<CacheImpl extends CacheImplementation> {
      *            Transaction, which will be completed.
      * @return Returns next state. Next state may be null if no state change is required.
      */
-    public abstract StateCommandResult<CacheImpl> beforeTransactionComplete(Transaction transaction);
+    public abstract StateCommandResult<CacheImpl> onBeforeTransactionComplete(Transaction transaction);
 
     /**
      * Notifies cache about transaction completion. This method MUST return new state. if new state not created then we have a rise condition:
@@ -106,7 +108,7 @@ public abstract class CacheState<CacheImpl extends CacheImplementation> {
      *            Completed transaction (committed or rollbacked).
      * @return Returns next state and all dirty transaction reset flag. Flag equals true, if no dirty transaction left and false otherwise.
      */
-    public abstract StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(Transaction transaction);
+    public abstract StateCommandResultWithData<CacheImpl, Boolean> onAfterTransactionComplete(Transaction transaction);
 
     /**
      * Commits (accept) initialized cache.
@@ -115,20 +117,27 @@ public abstract class CacheState<CacheImpl extends CacheImplementation> {
      *            Initialized cache to commit (accept).
      * @return Returns next state. Next state may be null if no state change is required.
      */
-    public abstract StateCommandResult<CacheImpl> commitCache(CacheImpl cache);
+    public StateCommandResult<CacheImpl> commitCache(CacheImpl cache) {
+        log.error("commitCache must not be called on " + this);
+        return StateCommandResult.createNoStateSwitch();
+    }
 
     /**
      * Discard this state. All lazy work must not be done - this state and caches from it will not be used.
      */
-    public abstract void discard();
+    public void discard() {
+    }
 
     /**
      * Accept this state. Called then state is accepted by state machine. Delayed initialization may be started.
      */
-    public abstract void accept();
+    public void accept() {
+    }
 
     /**
      * Called to drop cache instance. It must be changed to empty.
      */
-    public abstract StateCommandResult<CacheImpl> dropCache();
+    public StateCommandResult<CacheImpl> dropCache() {
+        return StateCommandResult.create(getStateFactory().createEmptyState(null));
+    }
 }

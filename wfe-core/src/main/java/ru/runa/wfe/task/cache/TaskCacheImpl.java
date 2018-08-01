@@ -54,15 +54,10 @@ class TaskCacheImpl extends BaseCacheImpl implements ManageableTaskCache {
         }
         ConcurrentHashMap<TaskCacheImpl.BatchPresentationFieldEquals, List<WfTask>> lists = actorToTasksCache.get(actorId);
         if (lists == null) {
-            lists = new ConcurrentHashMap<TaskCacheImpl.BatchPresentationFieldEquals, List<WfTask>>();
+            lists = new ConcurrentHashMap<>();
             actorToTasksCache.put(actorId, lists);
         }
         lists.put(new BatchPresentationFieldEquals(batchPresentation), tasks);
-    }
-
-    public void clearActorTasks(Long actorId) {
-        actorToTasksCache.remove(actorId);
-        commitCache();
     }
 
     /**

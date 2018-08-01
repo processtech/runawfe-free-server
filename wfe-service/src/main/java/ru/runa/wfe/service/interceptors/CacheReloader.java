@@ -13,7 +13,7 @@ public class CacheReloader {
             return ic.proceed();
         } finally {
             CachingLogic.enableChangesTracking();
-            CachingLogic.resetAllCaches();
+            CachingLogic.dropAllCaches();
         }
     }
 }

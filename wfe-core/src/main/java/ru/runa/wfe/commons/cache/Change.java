@@ -6,5 +6,5 @@ package ru.runa.wfe.commons.cache;
  * @author dofs
  */
 public enum Change {
-    REFRESH, CREATE, UPDATE, DELETE
+    CREATE, UPDATE, DELETE
 }

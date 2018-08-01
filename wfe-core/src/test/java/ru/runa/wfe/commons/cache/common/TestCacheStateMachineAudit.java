@@ -28,7 +28,7 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
     private volatile InitializationErrorAudit<CacheImpl> _initializationErrorAudit =
             new TestInitializationErrorAudit<>();
 
-    private volatile StageSwitchAudit<CacheImpl> _uninitializeAudit = new TestStageSwitchAudit<>();
+    private volatile StageSwitchAudit<CacheImpl> _dropCacheAudit = new TestStageSwitchAudit<>();
 
     private volatile BeforeTransactionCompleteAudit<CacheImpl> _beforeTransactionCompleteAudit =
             new TestBeforeTransactionCompleteAudit<>();
@@ -59,8 +59,8 @@ public class TestCacheStateMachineAudit<CacheImpl extends CacheImplementation> i
     }
 
     @Override
-    public StageSwitchAudit<CacheImpl> auditUninitialize() {
-        return _uninitializeAudit;
+    public StageSwitchAudit<CacheImpl> auditDropCache() {
+        return _dropCacheAudit;
     }
 
     @Override

@@ -7,21 +7,19 @@ import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 /**
  * Internal interface for hiding differences between {@link StaticCacheFactory}, {@link LazyInitializedCacheFactory} and so on.
  */
-public interface CacheFactory<CacheImpl extends CacheImplementation> {
+public interface CacheFactoryProxy<CacheImpl extends CacheImplementation> {
     /**
      * Create cache instance. All delayed initialization must not be started (return proxy cache object). This method called exclusive for reading
      * transactions and not exclusive for writing transactions.
      */
-    public CacheImpl createCache();
+    CacheImpl createCache();
 
     /**
      * Check if delayed (lazy) cache initialization is required.
      *
-     * @param context
-     *            Lazy initialization context.
      * @return Returns true, if delayed cache initialization required and false otherwise.
      */
-    public boolean hasDelayedInitialization();
+    boolean hasDelayedInitialization();
 
     /**
      * Start delayed (lazy) cache initialization.
@@ -29,5 +27,5 @@ public interface CacheFactory<CacheImpl extends CacheImplementation> {
      * @param context
      *            Lazy initialization context.
      */
-    public void startDelayedInitialization(CacheInitializationContext<CacheImpl> context);
+    void startDelayedInitialization(CacheInitializationContext<CacheImpl> context);
 }

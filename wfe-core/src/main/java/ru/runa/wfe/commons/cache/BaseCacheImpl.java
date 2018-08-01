@@ -98,23 +98,6 @@ public abstract class BaseCacheImpl implements CacheImplementation {
      *            Value type.
      * @param cacheName
      *            Cache name.
-     * @return Cache to store cached values.
-     */
-    protected <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
-        Cache<K, V> result = new CacheStatisticProxy<>(new EhCacheSupport<>(cacheName), cacheName);
-        caches.add(result);
-        return result;
-    }
-
-    /**
-     * Create cache to store cached values.
-     * 
-     * @param <K>
-     *            Key type.
-     * @param <V>
-     *            Value type.
-     * @param cacheName
-     *            Cache name.
      * @param infiniteLifeTime
      *            Flag equals true, if element lifetime must be infinite; false to use ehcache settings.
      * @return Cache to store cached values.
@@ -123,5 +106,20 @@ public abstract class BaseCacheImpl implements CacheImplementation {
         Cache<K, V> result = new CacheStatisticProxy<>(new EhCacheSupport<>(cacheName, infiniteLifeTime), cacheName);
         caches.add(result);
         return result;
+    }
+
+    /**
+     * Create cache to store cached values.
+     *
+     * @param <K>
+     *            Key type.
+     * @param <V>
+     *            Value type.
+     * @param cacheName
+     *            Cache name.
+     * @return Cache to store cached values.
+     */
+    protected <K extends Serializable, V extends Serializable> Cache<K, V> createCache(String cacheName) {
+        return createCache(cacheName, false);
     }
 }

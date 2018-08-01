@@ -22,9 +22,6 @@ import java.util.Map;
 
 /**
  * @author Konstantinov Aleksey
- *
- * @param <K>
- * @param <V>
  */
 public interface Cache<K extends Serializable, V extends Serializable> {
 
@@ -36,13 +33,15 @@ public interface Cache<K extends Serializable, V extends Serializable> {
 
     /**
      * Try to get element from cache.
+     *
      * @param key Key to load cached object.
      * @return Cached element or null, if not found.
      */
     V get(K key);
 
     /**
-     * Check, if element is present into cache.
+     * Check if element is present into cache.
+     *
      * @param key Key to check cached object.
      * @return true, if object with specified key cached and false otherwise.
      */
@@ -50,6 +49,7 @@ public interface Cache<K extends Serializable, V extends Serializable> {
 
     /**
      * Puts value to cache.
+     *
      * @param key Cached object key.
      * @param value Cached object.
      */
@@ -57,12 +57,14 @@ public interface Cache<K extends Serializable, V extends Serializable> {
 
     /**
      * Add all elements from collection to cache.
+     *
      * @param collection Collection of objects to add.
      */
     void putAll(Map<K, V> collection);
 
     /**
      * Removes cached object with specified key.
+     *
      * @param key Cached object key.
      * @return true, if element removed from cache and false if it was not found in the cache.
      */

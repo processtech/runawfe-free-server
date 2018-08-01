@@ -54,5 +54,5 @@ public interface CacheStateMachineAudit<CacheImpl extends CacheImplementation> {
      *
      * @return Return audit for Uninitialize operation.
      */
-    StageSwitchAudit<CacheImpl> auditUninitialize();
+    StageSwitchAudit<CacheImpl> auditDropCache();
 }

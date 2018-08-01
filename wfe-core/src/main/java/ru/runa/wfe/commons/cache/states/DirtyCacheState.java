@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.cache.states;
 
 import javax.transaction.Transaction;
-import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
@@ -9,7 +8,6 @@ import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 /**
  * Cache lifetime state machine. Current state is dirty cache (at least one transaction changing cache persistent object).
  */
-@CommonsLog
 public class DirtyCacheState<CacheImpl extends CacheImplementation> extends CacheState<CacheImpl> {
 
     /**
@@ -68,12 +66,12 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> extends Cach
     }
 
     @Override
-    public StateCommandResult<CacheImpl> beforeTransactionComplete(Transaction transaction) {
+    public StateCommandResult<CacheImpl> onBeforeTransactionComplete(Transaction transaction) {
         return StateCommandResult.createNoStateSwitch();
     }
 
     @Override
-    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(Transaction transaction) {
+    public StateCommandResultWithData<CacheImpl, Boolean> onAfterTransactionComplete(Transaction transaction) {
         DirtyTransactions<CacheImpl> dirtyTransactionAfterRemove = dirtyTransactions.removeDirtyTransactionAndClone(transaction);
         CacheImpl currentCache = cache;
         if (dirtyTransactionAfterRemove.isLocked()) {
@@ -92,20 +90,6 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> extends Cach
             return StateCommandResultWithData.create(getStateFactory().createEmptyState(null), true);
         }
         return StateCommandResultWithData.create(getStateFactory().createInitializedState(completedCache), true);
-    }
-
-    @Override
-    public StateCommandResult<CacheImpl> commitCache(CacheImpl cache) {
-        log.error("commitCache must not be called on " + this);
-        return StateCommandResult.createNoStateSwitch();
-    }
-
-    @Override
-    public void discard() {
-    }
-
-    @Override
-    public void accept() {
     }
 
     @Override

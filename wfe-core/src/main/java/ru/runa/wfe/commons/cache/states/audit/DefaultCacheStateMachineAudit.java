@@ -23,7 +23,7 @@ public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation
 
     private final InitializationErrorAudit<CacheImpl> auditInitializationError = new DefaultInitializationErrorAudit();
 
-    private final StageSwitchAudit<CacheImpl> auditUninitialize = new DefaultStageSwitchAudit();
+    private final StageSwitchAudit<CacheImpl> auditDropCache = new DefaultStageSwitchAudit();
 
     private final BeforeTransactionCompleteAudit<CacheImpl> auditBeforeTransactionCommit = new DefaultBeforeTransactionCompleteAudit();
 
@@ -53,8 +53,8 @@ public class DefaultCacheStateMachineAudit<CacheImpl extends CacheImplementation
     }
 
     @Override
-    public StageSwitchAudit<CacheImpl> auditUninitialize() {
-        return auditUninitialize;
+    public StageSwitchAudit<CacheImpl> auditDropCache() {
+        return auditDropCache;
     }
 
     @Override

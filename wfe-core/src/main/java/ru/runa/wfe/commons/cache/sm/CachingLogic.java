@@ -187,7 +187,7 @@ public class CachingLogic {
             return;
         }
         for (BaseCacheCtrl<?> listener : toNotify) {
-            listener.beforeTransactionComplete(transaction);
+            listener.onBeforeTransactionComplete(transaction);
         }
     }
 
@@ -204,7 +204,7 @@ public class CachingLogic {
             return;
         }
         for (BaseCacheCtrl<?> listener : toNotify) {
-            listener.onTransactionCompleted(transaction);
+            listener.onAfterTransactionComplete(transaction);
         }
     }
 
@@ -235,10 +235,10 @@ public class CachingLogic {
         return transaction != null ? transaction : WrongAccessTransaction.getInstance();
     }
 
-    public static void resetAllCaches() {
+    public static void dropAllCaches() {
         for (Set<BaseCacheCtrl<?>> listeners : objectTypeToListenersRegistered.values()) {
             for (BaseCacheCtrl<?> listener : listeners) {
-                listener.uninitialize(CachingLogic.class, Change.REFRESH);
+                listener.dropCache();
             }
         }
     }

@@ -37,7 +37,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     /**
      * Factory, used to create cache instances.
      */
-    private final CacheFactory<CacheImpl> cacheFactory;
+    private final CacheFactoryProxy<CacheImpl> cacheFactory;
 
     /**
      * Factory to create states.
@@ -60,7 +60,8 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     private final CacheStateMachineAudit<CacheImpl> audit;
 
     public CacheStateMachine(
-            CacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor, CacheStateMachineAudit<CacheImpl> audit
+            CacheFactoryProxy<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
+            CacheStateMachineAudit<CacheImpl> audit
     ) {
         this.cacheFactory = cacheFactory;
         stateFactory.setOwner(this);
@@ -70,11 +71,11 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
         this.audit = audit;
     }
 
-    public CacheStateMachine(CacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor) {
+    public CacheStateMachine(CacheFactoryProxy<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor) {
         this(cacheFactory, stateFactory, monitor, new DefaultCacheStateMachineAudit<>());
     }
 
-    public CacheFactory<CacheImpl> getCacheFactory() {
+    public CacheFactoryProxy<CacheImpl> getCacheFactory() {
         return cacheFactory;
     }
 
@@ -212,11 +213,11 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      * @param transaction
      *            Transaction, which will be completed.
      */
-    public void beforeTransactionComplete(Transaction transaction) {
+    public void onBeforeTransactionComplete(Transaction transaction) {
         BeforeTransactionCompleteAudit<CacheImpl> commandAudit = audit.auditBeforeTransactionComplete();
         while (true) {
             CacheState<CacheImpl> currentState = state.get();
-            StateCommandResult<CacheImpl> result = currentState.beforeTransactionComplete(transaction);
+            StateCommandResult<CacheImpl> result = currentState.onBeforeTransactionComplete(transaction);
             if (applyCommandResult(currentState, result, commandAudit)) {
                 return;
             }
@@ -229,16 +230,16 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      * @param transaction
      *            Completed transaction.
      */
-    public void onTransactionCompleted(Transaction transaction) {
+    public void onAfterTransactionComplete(Transaction transaction) {
         CompleteTransactionAudit<CacheImpl> commandAudit = audit.auditCompleteTransaction();
         while (true) {
             CacheState<CacheImpl> currentState = state.get();
             commandAudit.beforeCompleteTransaction(transaction);
-            StateCommandResultWithData<CacheImpl, Boolean> result = currentState.completeTransaction(transaction);
+            StateCommandResultWithData<CacheImpl, Boolean> result = currentState.onAfterTransactionComplete(transaction);
             commandAudit.afterCompleteTransaction(transaction);
             if (result.getNextState() == null) {
                 commandAudit.nextStageFatalError();
-                log.error("completeTransaction must lead to state switch. Incorrect behaviour on state " + currentState.getClass().getName());
+                log.error("onAfterTransactionComplete must lead to state switch. Incorrect behaviour on state " + currentState.getClass().getName());
             }
             if (applyCommandResult(currentState, result, commandAudit)) {
                 if (result.getData()) {
@@ -280,10 +281,10 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     }
 
     /**
-     * Drops cache and moving to empty state.
+     * Drops cache and moves to empty state.
      */
     public void dropCache() {
-        StageSwitchAudit<CacheImpl> commandAudit = audit.auditUninitialize();
+        StageSwitchAudit<CacheImpl> commandAudit = audit.auditDropCache();
         CacheState<CacheImpl> currentState = state.get();
         while (!applyCommandResult(currentState, currentState.dropCache(), commandAudit)) {
             currentState = state.get();
@@ -341,7 +342,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
         DefaultCacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
         boolean isIsolated = SystemProperties.useIsolatedCacheStateMachine();
         CacheStateFactory<CacheImpl> stateFactory = isIsolated ? new IsolatedCacheStateFactory<>() : new DefaultCacheStateFactory<>();
-        LazyCacheFactoryImpl<CacheImpl> cacheFactory = new LazyCacheFactoryImpl<>(factory, transactionalExecutor);
+        LazyCacheFactoryProxy<CacheImpl> cacheFactory = new LazyCacheFactoryProxy<>(factory, transactionalExecutor);
         return new CacheStateMachine<>(cacheFactory, stateFactory, monitor);
     }
 
@@ -359,7 +360,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     ) {
         boolean isIsolated = SystemProperties.useIsolatedCacheStateMachine();
         CacheStateFactory<CacheImpl> stateFactory = isIsolated ? new IsolatedCacheStateFactory<>() : new DefaultCacheStateFactory<>();
-        StaticCacheFactoryImpl<CacheImpl> cacheFactory = new StaticCacheFactoryImpl<>(factory);
+        StaticCacheFactoryProxy<CacheImpl> cacheFactory = new StaticCacheFactoryProxy<>(factory);
         return new CacheStateMachine<>(cacheFactory, stateFactory, monitor);
     }
 
@@ -377,7 +378,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     ) {
         DefaultCacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
         CacheStateFactory<CacheImpl> stateFactory = new NonRuntimeCacheStateFactory<>();
-        NonRuntimeCacheFactoryImpl<CacheImpl> cacheFactory = new NonRuntimeCacheFactoryImpl<>(factory, transactionalExecutor);
+        NonRuntimeCacheFactoryProxy<CacheImpl> cacheFactory = new NonRuntimeCacheFactoryProxy<>(factory, transactionalExecutor);
         return new CacheStateMachine<>(cacheFactory, stateFactory, monitor);
     }
 
@@ -399,7 +400,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
             LazyInitializedCacheFactory<CacheImpl> factory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
             CacheTransactionalExecutor transactionalExecutor, CacheStateMachineAudit<CacheImpl> audit
     ) {
-        LazyCacheFactoryImpl<CacheImpl> cacheFactory = new LazyCacheFactoryImpl<>(factory, transactionalExecutor);
+        LazyCacheFactoryProxy<CacheImpl> cacheFactory = new LazyCacheFactoryProxy<>(factory, transactionalExecutor);
         return new CacheStateMachine<>(cacheFactory, stateFactory, monitor, audit);
     }
 
@@ -409,7 +410,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      * @param <CacheImpl>
      *            Cache implementation type.
      */
-    final static class NonRuntimeCacheFactoryImpl<CacheImpl extends CacheImplementation> implements CacheFactory<CacheImpl> {
+    final static class NonRuntimeCacheFactoryProxy<CacheImpl extends CacheImplementation> implements CacheFactoryProxy<CacheImpl> {
         /**
          * Delegated (adopted) factory.
          */
@@ -420,8 +421,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
          */
         private final CacheTransactionalExecutor transactionalExecutor;
 
-        public NonRuntimeCacheFactoryImpl(NonRuntimeCacheFactory<CacheImpl> factory, CacheTransactionalExecutor transactionalExecutor) {
-            super();
+        public NonRuntimeCacheFactoryProxy(NonRuntimeCacheFactory<CacheImpl> factory, CacheTransactionalExecutor transactionalExecutor) {
             this.factory = factory;
             this.transactionalExecutor = transactionalExecutor;
         }
@@ -433,7 +433,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
 
         @Override
         public CacheImpl createCache() {
-            return factory.createProxy();
+            return factory.createStub();
         }
 
         @Override
@@ -479,7 +479,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      * @param <CacheImpl>
      *            Cache implementation type.
      */
-    final static class LazyCacheFactoryImpl<CacheImpl extends CacheImplementation> implements CacheFactory<CacheImpl> {
+    final static class LazyCacheFactoryProxy<CacheImpl extends CacheImplementation> implements CacheFactoryProxy<CacheImpl> {
         /**
          * Delegated (adopted) factory.
          */
@@ -490,7 +490,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
          */
         private final CacheTransactionalExecutor transactionalExecutor;
 
-        public LazyCacheFactoryImpl(LazyInitializedCacheFactory<CacheImpl> factory, CacheTransactionalExecutor transactionalExecutor) {
+        public LazyCacheFactoryProxy(LazyInitializedCacheFactory<CacheImpl> factory, CacheTransactionalExecutor transactionalExecutor) {
             super();
             this.factory = factory;
             this.transactionalExecutor = transactionalExecutor;
@@ -503,7 +503,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
 
         @Override
         public CacheImpl createCache() {
-            return factory.createProxy();
+            return factory.createStub();
         }
 
         @Override
@@ -549,14 +549,10 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      * @param <CacheImpl>
      *            Cache implementation type.
      */
-    final static class StaticCacheFactoryImpl<CacheImpl extends CacheImplementation> implements CacheFactory<CacheImpl> {
-        /**
-         * Delegated (adopted) factory.
-         */
+    final static class StaticCacheFactoryProxy<CacheImpl extends CacheImplementation> implements CacheFactoryProxy<CacheImpl> {
         private final StaticCacheFactory<CacheImpl> factory;
 
-        public StaticCacheFactoryImpl(StaticCacheFactory<CacheImpl> factory) {
-            super();
+        public StaticCacheFactoryProxy(StaticCacheFactory<CacheImpl> factory) {
             this.factory = factory;
         }
 
@@ -567,14 +563,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
 
         @Override
         public CacheImpl createCache() {
-            if (log.isDebugEnabled()) {
-                log.debug("Creating cache from " + factory);
-            }
-            CacheImpl cache = factory.buildCache();
-            if (log.isDebugEnabled()) {
-                log.debug("Created cache from " + factory + ": " + cache);
-            }
-            return cache;
+            return factory.buildCache();
         }
 
         @Override

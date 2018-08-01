@@ -36,7 +36,7 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
     /**
      * Local storage. Used if ehcache is unavailable or cache is not committed.
      */
-    private final ConcurrentHashMap<K, V> localStorage = new ConcurrentHashMap<K, V>();
+    private final ConcurrentHashMap<K, V> localStorage = new ConcurrentHashMap<>();
 
     /**
      * Ehcache {@linkplain Cache} name, used to store cached values.
@@ -62,25 +62,12 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
      *            Flag equals true, if element lifetime must be infinite; false to use ehcache settings.
      */
     public EhCacheSupport(String ehcacheName, boolean infiniteLifeTime) {
-        super();
         this.ehcacheName = ehcacheName;
         this.infiniteLifeTime = infiniteLifeTime;
     }
 
     /**
-     * Creates caching component.
-     * 
-     * @param ehcacheName
-     *            Ehcache {@linkplain Cache} name, used to store cached values.
-     */
-    public EhCacheSupport(String ehcacheName) {
-        super();
-        this.ehcacheName = ehcacheName;
-        this.infiniteLifeTime = false;
-    }
-
-    /**
-     * Commit cached elements. If ehcache {@linkplain Cache} is found, when it clears and all currently cached values put into {@linkplain Cache}.
+     * Commit cached elements. If ehcache {@linkplain Cache} is found, when it clears and all locally-cached values put into {@linkplain Cache}.
      */
     @Override
     public void commitCache() {
@@ -115,23 +102,11 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
     @Override
     @SuppressWarnings("unchecked")
     public V get(K key) {
-        return getImpl(key);
-    }
-
-    /**
-     * Try to get element from cache.
-     * 
-     * @param key
-     *            Key to load cached object.
-     * @return Cached element or null, if not found.
-     */
-    private V getImpl(K key) {
-        Cache cache = ehcache;
-        if (cache == null) {
+        if (ehcache == null) {
             return localStorage.get(key);
         }
-        Element cached = cache.get(key);
-        return cached == null ? null : (V) cached.getValue();
+        Element e = ehcache.get(key);
+        return e == null ? null : (V) e.getValue();
     }
 
     /**
@@ -143,11 +118,9 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
      */
     @Override
     public boolean contains(K key) {
-        Cache cache = ehcache;
-        if (cache == null) {
-            return localStorage.contains(key);
-        }
-        return cache.isKeyInCache(key);
+        return ehcache == null
+                ? localStorage.containsKey(key)
+                : ehcache.isKeyInCache(key);
     }
 
     /**
@@ -160,12 +133,11 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
      */
     @Override
     public void put(K key, V value) {
-        Cache cache = ehcache;
-        if (cache == null) {
+        if (ehcache == null) {
             localStorage.put(key, value);
-            return;
+        } else {
+            ehcache.put(createElement(key, value));
         }
-        cache.put(createElement(key, value));
     }
 
     /**
@@ -176,13 +148,12 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
      */
     @Override
     public void putAll(Map<K, V> collection) {
-        Cache cache = ehcache;
-        if (cache == null) {
+        if (ehcache == null) {
             localStorage.putAll(collection);
             return;
         }
-        for (Map.Entry<K, V> newValue : collection.entrySet()) {
-            cache.put(createElement(newValue.getKey(), newValue.getValue()));
+        for (Map.Entry<K, V> kv : collection.entrySet()) {
+            ehcache.put(createElement(kv.getKey(), kv.getValue()));
         }
     }
 
@@ -195,11 +166,9 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
      */
     @Override
     public boolean remove(K key) {
-        Cache cache = ehcache;
-        if (cache == null) {
-            return localStorage.remove(key) != null;
-        }
-        return cache.remove(key);
+        return ehcache == null
+                ? localStorage.remove(key) != null
+                : ehcache.remove(key);
     }
 
     /**
@@ -207,12 +176,11 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
      */
     @Override
     public void clear() {
-        Cache cache = ehcache;
-        if (cache == null) {
+        if (ehcache == null) {
             localStorage.clear();
             return;
         }
-        cache.removeAll();
+        ehcache.removeAll();
     }
 
     /**
@@ -221,11 +189,9 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
     @Override
     @SuppressWarnings("unchecked")
     public Iterable<K> keySet() {
-        Cache cache = ehcache;
-        if (cache == null) {
-            return localStorage.keySet();
-        }
-        return cache.getKeys();
+        return ehcache == null
+                ? localStorage.keySet()
+                : ehcache.getKeys();
     }
 
     /**

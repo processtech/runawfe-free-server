@@ -76,7 +76,7 @@ class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> i
     private static class NonRuntimeSubstitutionCacheFactory implements NonRuntimeCacheFactory<ManageableSubstitutionCache> {
 
         @Override
-        public ManageableSubstitutionCache createProxy() {
+        public ManageableSubstitutionCache createStub() {
             return new SubstitutionCacheImpl(false, true, null);
         }
 

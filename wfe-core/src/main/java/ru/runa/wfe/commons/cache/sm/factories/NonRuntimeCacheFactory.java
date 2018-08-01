@@ -15,7 +15,7 @@ public interface NonRuntimeCacheFactory<CacheImpl extends CacheImplementation> {
      *
      * @return Return proxy for cache.
      */
-    CacheImpl createProxy();
+    CacheImpl createStub();
 
     /**
      * Creates fully initialized cache instance.

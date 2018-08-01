@@ -11,11 +11,11 @@ import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
  */
 public interface LazyInitializedCacheFactory<CacheImpl extends CacheImplementation> {
     /**
-     * Creates cache proxy. All heavy initialization must not be done.
+     * Creates cache stub. All heavy initialization must not be done.
      *
-     * @return Return proxy for cache.
+     * @return Return stub for cache.
      */
-    CacheImpl createProxy();
+    CacheImpl createStub();
 
     /**
      * Creates fully initialized cache instance.

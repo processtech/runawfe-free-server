@@ -11,7 +11,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 
-class ExecutorCacheProxy implements ManageableExecutorCache {
+class ExecutorCacheStub implements ManageableExecutorCache {
 
     @Override
     public Actor getActor(Long code) {

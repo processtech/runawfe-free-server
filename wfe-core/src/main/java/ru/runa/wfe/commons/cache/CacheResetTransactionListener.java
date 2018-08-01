@@ -31,6 +31,6 @@ public class CacheResetTransactionListener implements ITransactionListener {
 
     @Override
     public void onTransactionComplete(UserTransaction transaction) {
-        CachingLogic.resetAllCaches();
+        CachingLogic.dropAllCaches();
     }
 }

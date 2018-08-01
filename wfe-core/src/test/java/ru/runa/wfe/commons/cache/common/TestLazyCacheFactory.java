@@ -11,7 +11,7 @@ public final class TestLazyCacheFactory implements LazyInitializedCacheFactory<T
     /**
      * Data, loaded to cache on buildCache method.
      */
-    public final ConcurrentMap<Long, Long> initialCachedData = new ConcurrentHashMap<Long, Long>();
+    public final ConcurrentMap<Long, Long> initialCachedData = new ConcurrentHashMap<>();
 
     private TestLazyCacheFactoryCallback callback;
 
@@ -23,11 +23,11 @@ public final class TestLazyCacheFactory implements LazyInitializedCacheFactory<T
     }
 
     @Override
-    public TestCacheIface createProxy() {
+    public TestCacheIface createStub() {
         if (callback != null) {
             callback.beforeProxyCreation();
         }
-        return new TestLazyCacheProxy();
+        return new TestLazyCacheStub();
     }
 
     @Override

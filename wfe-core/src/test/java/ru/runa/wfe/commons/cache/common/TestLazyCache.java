@@ -10,7 +10,7 @@ import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
 
 public final class TestLazyCache implements TestCacheIface {
 
-    private final ConcurrentMap<Long, Long> cachedData = new ConcurrentHashMap<Long, Long>();
+    private final ConcurrentMap<Long, Long> cachedData = new ConcurrentHashMap<>();
     private static final AtomicInteger version = new AtomicInteger(0);
     private int cacheVersion;
 

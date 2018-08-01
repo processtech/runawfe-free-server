@@ -25,7 +25,6 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
@@ -87,32 +86,32 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
         }
     }
 
-    public final void beforeTransactionComplete(Transaction transaction) {
+    public final void onBeforeTransactionComplete(Transaction transaction) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug(getCacheStateDescription(stateMachine, transaction) + " Preparing transaction " + transaction + " completition.");
             }
-            stateMachine.beforeTransactionComplete(transaction);
+            stateMachine.onBeforeTransactionComplete(transaction);
         } catch (Exception e) {
-            log.error("beforeTransactionComplete(transaction) call failed on " + getClass().getName(), e);
+            log.error("onBeforeTransactionComplete(transaction) call failed on " + getClass().getName(), e);
         }
     }
 
-    public final void onTransactionCompleted(Transaction transaction) {
+    public final void onAfterTransactionComplete(Transaction transaction) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug(getCacheStateDescription(stateMachine, transaction) + " Transaction " + transaction + " is completed.");
             }
-            stateMachine.onTransactionCompleted(transaction);
+            stateMachine.onAfterTransactionComplete(transaction);
         } catch (Exception e) {
             log.error("onTransactionCompleted(transaction) call failed on " + getClass().getName(), e);
         }
     }
 
-    public final void uninitialize(Object object, Change change) {
+    public final void dropCache() {
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Cache is uninitialized due to " + change + " of " + object);
+                log.debug("Dropping cache.");
             }
             stateMachine.dropCache();
         } catch (Exception e) {
