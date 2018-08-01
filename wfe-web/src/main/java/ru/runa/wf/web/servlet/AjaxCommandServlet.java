@@ -27,8 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import ru.runa.common.web.Commons;
@@ -38,9 +37,9 @@ import ru.runa.wfe.commons.web.AjaxCommand;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.user.User;
 
+@CommonsLog
 public class AjaxCommandServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(AjaxCommandServlet.class);
     private static final String COMMAND_ELEMENT = "command";
     private static final String NAME_ATTR = "name";
     private static final String CLASS_ATTR = "class";
@@ -77,7 +76,7 @@ public class AjaxCommandServlet extends HttpServlet {
         });
     }
 
-    protected void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         log.debug("Got ajax request: " + request.getQueryString());
         try {
             String command = request.getParameter("command");
@@ -103,12 +102,12 @@ public class AjaxCommandServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         doRequest(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         doRequest(request, response);
     }
 }

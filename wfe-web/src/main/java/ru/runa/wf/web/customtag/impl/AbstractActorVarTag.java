@@ -18,10 +18,7 @@
 package ru.runa.wf.web.customtag.impl;
 
 import javax.servlet.jsp.PageContext;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wf.web.customtag.VarTag;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
@@ -33,11 +30,11 @@ import ru.runa.wfe.var.IVariableProvider;
  * Created on 09.05.2005
  * 
  */
+@CommonsLog
 public abstract class AbstractActorVarTag implements VarTag {
-    private static final Log log = LogFactory.getLog(AbstractActorVarTag.class);
 
     @Override
-    final public String getHtml(User user, String varName, Object var, PageContext pageContext, IVariableProvider variableProvider) throws Exception {
+    final public String getHtml(User user, String varName, Object var, PageContext pageContext, IVariableProvider variableProvider) {
         if (var == null) {
             log.warn("Vartag variable is not set: " + varName);
             return "<p class='error'>null</p>";
@@ -47,5 +44,4 @@ public abstract class AbstractActorVarTag implements VarTag {
     }
 
     public abstract String actorToString(Actor actor);
-
 }

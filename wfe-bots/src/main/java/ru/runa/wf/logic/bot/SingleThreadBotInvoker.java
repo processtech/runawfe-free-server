@@ -17,12 +17,10 @@
  */
 package ru.runa.wf.logic.bot;
 
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
@@ -35,10 +33,8 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-
+@CommonsLog
 public class SingleThreadBotInvoker implements BotInvoker {
-    private final Log log = LogFactory.getLog(SingleThreadBotInvoker.class);
     private List<WorkflowBotExecutor> botExecutors;
     private long configurationVersion = -1;
     private BotStation botStation;

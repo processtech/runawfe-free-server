@@ -18,12 +18,8 @@
 package ru.runa.wfe.commons.cache;
 
 import java.io.InputStream;
-
+import lombok.extern.apachecommons.CommonsLog;
 import net.sf.ehcache.CacheManager;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 
 /**
@@ -31,8 +27,8 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
  * 
  * @author Konstantinov Aleksey
  */
+@CommonsLog
 public final class EhcacheHelper {
-    private static final Log log = LogFactory.getLog(EhcacheHelper.class);
 
     /**
      * {@linkplain CacheManager} to be used in WFE caches.

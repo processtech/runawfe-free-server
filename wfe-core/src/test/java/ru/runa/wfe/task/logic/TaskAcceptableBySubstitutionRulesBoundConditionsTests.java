@@ -1,16 +1,10 @@
 package ru.runa.wfe.task.logic;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -18,7 +12,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
@@ -28,13 +21,15 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.dao.IExecutorDAO;
 
-import com.google.common.collect.Maps;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(TaskAcceptableBySubstitutionRulesBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;
@@ -102,7 +97,7 @@ public class TaskAcceptableBySubstitutionRulesBoundConditionsTests extends Abstr
         Task task = mock(Task.class);
         Actor assignedActor = mock(Actor.class);
         Actor substitutorActor = mock(Actor.class);
-        TreeMap<Substitution, Set<Long>> mapOfSubstitionRule = new TreeMap<Substitution, Set<Long>>();
+        TreeMap<Substitution, Set<Long>> mapOfSubstitionRule = new TreeMap<>();
         Map<Long, Actor> actors = Maps.newHashMap();
 
         @Override

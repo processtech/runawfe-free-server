@@ -2,8 +2,7 @@ package ru.runa.wfe.commons;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * This class holds current transaction listeners from EJB call and should be
@@ -12,8 +11,8 @@ import org.apache.commons.logging.LogFactory;
  * @author dofs
  * @since 4.2.0
  */
+@CommonsLog
 public class TransactionListeners {
-    private static final Log log = LogFactory.getLog(TransactionListeners.class);
 
     private static ThreadLocal<List<ITransactionListener>> listeners = new ThreadLocal<List<ITransactionListener>>() {
         @Override

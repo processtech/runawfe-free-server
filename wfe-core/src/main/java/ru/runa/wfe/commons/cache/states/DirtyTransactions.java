@@ -3,23 +3,15 @@ package ru.runa.wfe.commons.cache.states;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.transaction.Transaction;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 
 /**
  * Tracking transactions, which change some objects, affecting cache.
  */
+@CommonsLog
 public class DirtyTransactions<CacheImpl extends CacheImplementation> {
-
-    /**
-     * Logging support.
-     */
-    private static final Log log = LogFactory.getLog(DirtyTransactions.class);
 
     /**
      * Flag, equals true, if exists at least one dirty transaction; false if no dirty transaction.

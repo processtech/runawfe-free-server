@@ -20,20 +20,14 @@ package ru.runa.wfe.commons.cache;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Statistic counters for cache usages.
  * @author Konstantinov Aleksey
  */
+@CommonsLog
 public class CacheStatistic {
-
-    /**
-     * Logging support.
-     */
-    private static Log log = LogFactory.getLog(CacheStatistic.class);
 
     /**
      * Registered statistic counters. 

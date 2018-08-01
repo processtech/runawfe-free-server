@@ -1,22 +1,18 @@
 package ru.runa.wf.logic.bot;
 
-import java.util.List;
-import java.util.Queue;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ru.runa.wfe.bot.Bot;
-import ru.runa.wfe.bot.BotTask;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Queues;
+import java.util.List;
+import java.util.Queue;
+import lombok.extern.apachecommons.CommonsLog;
+import ru.runa.wfe.bot.Bot;
+import ru.runa.wfe.bot.BotTask;
 
 /**
  * Bot task executor for sequential execution of all bot tasks.
  */
+@CommonsLog
 public class WorkflowSequentialBotTaskExecutor implements Runnable, BotExecutionStatus {
-    private static final Log log = LogFactory.getLog(WorkflowSequentialBotTaskExecutor.class);
     /**
      * Bot with sequential tasks execution strategy.
      */

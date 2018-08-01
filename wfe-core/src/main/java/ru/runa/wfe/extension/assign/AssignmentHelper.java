@@ -1,10 +1,7 @@
 package ru.runa.wfe.extension.assign;
 
 import java.util.Collection;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -16,8 +13,8 @@ import ru.runa.wfe.user.ExecutorParticipatesInProcessesException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 
+@CommonsLog
 public class AssignmentHelper {
-    private static final Log log = LogFactory.getLog(AssignmentHelper.class);
 
     public static void reassignTask(ExecutionContext executionContext, Task task, Executor newExecutor, boolean reassignSwimlane) {
         Executor oldExecutor = task.getExecutor();

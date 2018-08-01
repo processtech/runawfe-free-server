@@ -17,18 +17,14 @@
  */
 package ru.runa.wfe.ss.cache;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Maps;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
@@ -49,8 +45,8 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 /**
  * Cache implementation for substitutions.
  */
+@CommonsLog
 public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
-    private static final Log log = LogFactory.getLog(SubstitutionCacheImpl.class);
 
     /**
      * EHCache name.
@@ -110,13 +106,13 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
     @Override
     public TreeMap<Substitution, Set<Long>> getSubstitutors(Actor actor, boolean loadIfRequired) {
         if (actor.isActive()) {
-            return new TreeMap<Substitution, Set<Long>>();
+            return new TreeMap<>();
         }
         TreeMap<Substitution, HashSet<Long>> result = actorToSubstitutorsCache.get(actor.getId());
         if (result != null) {
-            return new TreeMap<Substitution, Set<Long>>(result);
+            return new TreeMap<>(result);
         }
-        return new TreeMap<Substitution, Set<Long>>();
+        return new TreeMap<>();
     }
 
     @Override
@@ -130,7 +126,7 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
         if (result != null) {
             return result;
         }
-        return new HashSet<Long>();
+        return new HashSet<>();
     }
 
     private static Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors(
@@ -156,7 +152,7 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
                     }
                     TreeMap<Substitution, HashSet<Long>> subDescr = result.get(actorId);
                     if (subDescr == null) {
-                        subDescr = new TreeMap<Substitution, HashSet<Long>>();
+                        subDescr = new TreeMap<>();
                         result.put(actorId, subDescr);
                     }
                     if (substitution instanceof TerminatorSubstitution) {
@@ -164,7 +160,7 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
                         continue;
                     }
                     List<? extends Executor> executors = SwimlaneInitializerHelper.evaluate(substitution.getOrgFunction(), null);
-                    HashSet<Long> substitutors = new HashSet<Long>();
+                    HashSet<Long> substitutors = new HashSet<>();
                     for (Executor sub : executors) {
                         if (sub instanceof Actor) {
                             substitutors.add(sub.getId());
@@ -187,7 +183,7 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
 
     private static Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors,
             CacheInitializationProcessContext initializationContext) {
-        Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
+        Map<Long, HashSet<Long>> result = new HashMap<>();
         final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         for (Map.Entry<Long, TreeMap<Substitution, HashSet<Long>>> entry1 : mapActorToSubstitutors.entrySet()) {
             final Long substitutedId = entry1.getKey();
@@ -214,6 +210,7 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
                     }
                 }
             } catch (ExecutorDoesNotExistException e) {
+                // Do nothing.
             }
         }
         return result;

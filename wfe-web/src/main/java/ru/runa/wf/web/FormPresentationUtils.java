@@ -18,20 +18,20 @@
 
 package ru.runa.wf.web;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.jsp.PageContext;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
@@ -43,24 +43,18 @@ import ru.runa.wf.web.form.DefinitionFileForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.var.IVariableProvider;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * 
  * Created on 21.02.2007
  * 
  */
+@CommonsLog
 public class FormPresentationUtils {
-    private static final Log log = LogFactory.getLog(FormPresentationUtils.class);
-
     private static final String PROTOCOL_SEPARATOR = "//";
     /**
      * This map contains Tag name -> Href attribute name
      */
-    private static final Map<String, String> TAG_NAME_ATTRIBUTE_MAP = new HashMap<String, String>();
+    private static final Map<String, String> TAG_NAME_ATTRIBUTE_MAP = new HashMap<>();
     static {
         TAG_NAME_ATTRIBUTE_MAP.put("a", "href");
         TAG_NAME_ATTRIBUTE_MAP.put("img", "src");
@@ -168,11 +162,7 @@ public class FormPresentationUtils {
     }
 
     private static boolean isHrefRelative(String href) {
-        if (href.contains(PROTOCOL_SEPARATOR) || href.startsWith("/")) {
-            return false;
-        } else {
-            return true;
-        }
+        return !href.contains(PROTOCOL_SEPARATOR) && !href.startsWith("/");
     }
 
     public static String adjustForm(PageContext pageContext, Long definitionId, String formHtml, IVariableProvider variableProvider,
@@ -252,7 +242,7 @@ public class FormPresentationUtils {
             String errorText = getErrorText(pageContext, errors, inputName);
             if ("file".equalsIgnoreCase(node.getAttribute(TYPE_ATTR)) && WebResources.isAjaxFileInputEnabled()) {
                 try {
-                    node = (Element) ((Element) ((Element) node.getParentNode()).getParentNode()).getParentNode();
+                    node = (Element) node.getParentNode().getParentNode().getParentNode();
                 } catch (Exception e) {
                     log.error("Unexpected file input format", e);
                 }

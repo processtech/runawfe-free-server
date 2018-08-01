@@ -1,12 +1,15 @@
 package ru.runa.wfe.script.botstation;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlMixed;
@@ -16,11 +19,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.w3c.dom.Node;
-
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.script.AdminScriptConstants;
@@ -28,15 +28,9 @@ import ru.runa.wfe.script.common.ScriptExecutionContext;
 import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.ScriptValidation;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 @XmlType(name = "botConfigurationType", namespace = AdminScriptConstants.NAMESPACE)
+@CommonsLog
 public class BotConfiguration {
-
-    public static final Log LOG = LogFactory.getLog(BotConfiguration.class);
 
     @XmlAttribute(name = AdminScriptConstants.NAME_ATTRIBUTE_NAME, required = true)
     public String name;
@@ -75,7 +69,7 @@ public class BotConfiguration {
         }
         task.setSequentialExecution(sequentialExecution);
         byte[] conf = getConfiguration(context);
-        LOG.info("adding bot configuration element: " + name + " with conf: " + new String(conf, Charsets.UTF_8));
+        log.info("adding bot configuration element: " + name + " with conf: " + new String(conf, Charsets.UTF_8));
         task.setConfiguration(conf);
         return task;
     }

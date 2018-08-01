@@ -1,8 +1,6 @@
 package ru.runa.wfe.graph.view;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
@@ -15,8 +13,8 @@ import ru.runa.wfe.user.User;
 /**
  * Operation to set starting process readable flag.
  */
+@CommonsLog
 public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
-    private static final Log log = LogFactory.getLog(ProcessDefinitionInfoVisitor.class);
 
     /**
      * Current subject.
@@ -31,13 +29,6 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
 
     /**
      * Create instance of operation to set subprocess definition readable flag.
-     * 
-     * @param subject
-     *            Current subject.
-     * @param jbpmContext
-     *            {@link JbpmContext} to get jbpm data.
-     * @param loader
-     *            Process definition loader.
      */
     public ProcessDefinitionInfoVisitor(User user, ProcessDefinition definition, IProcessDefinitionLoader loader) {
         this.user = user;

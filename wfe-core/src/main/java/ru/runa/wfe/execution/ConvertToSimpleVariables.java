@@ -1,13 +1,9 @@
 package ru.runa.wfe.execution;
 
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.google.common.collect.Lists;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.var.UserType;
@@ -38,11 +34,8 @@ import ru.runa.wfe.var.format.VariableFormatVisitor;
 /**
  * Operation for converting variable to simple variables, which may be stored to database without additional transformations.
  */
+@CommonsLog
 public class ConvertToSimpleVariables implements VariableFormatVisitor<List<ConvertToSimpleVariablesResult>, ConvertToSimpleVariablesContext> {
-    /**
-     * Logging support.
-     */
-    private static Log log = LogFactory.getLog(ConvertToSimpleVariables.class);
 
     @Override
     public List<ConvertToSimpleVariablesResult> onDate(DateFormat dateFormat, ConvertToSimpleVariablesContext context) {

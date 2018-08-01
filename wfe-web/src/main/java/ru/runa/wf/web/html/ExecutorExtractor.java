@@ -19,8 +19,7 @@ package ru.runa.wf.web.html;
 
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.common.web.html.TDBuilder.Env;
 import ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor;
 import ru.runa.wfe.security.SecuredObject;
@@ -31,9 +30,9 @@ import ru.runa.wfe.user.Actor;
  * Creates {@link SecuredObject} to check permissions on {@link Actor}, executed
  * action.
  */
+@CommonsLog
 public class ExecutorExtractor implements SecuredObjectExtractor {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(ExecutorExtractor.class);
     private final Map<Long, SecuredObject> cache = new WeakHashMap<>();
 
     @Override

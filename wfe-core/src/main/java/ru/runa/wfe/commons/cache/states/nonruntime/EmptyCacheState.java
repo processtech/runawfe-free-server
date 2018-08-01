@@ -1,11 +1,10 @@
 package ru.runa.wfe.commons.cache.states.nonruntime;
 
 import javax.transaction.Transaction;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.CacheStateMachineContext;
+import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.DirtyTransactions;
 import ru.runa.wfe.commons.cache.states.StateCommandResult;
@@ -15,19 +14,16 @@ import ru.runa.wfe.commons.cache.states.StateCommandResultWithData;
 /**
  * Cache lifetime state machine for non runtime caches. Current state is empty cache (initialization required).
  */
-public class EmptyCacheState<CacheImpl extends CacheImplementation> implements CacheState<CacheImpl> {
-
-    /**
-     * Logging support.
-     */
-    private static Log log = LogFactory.getLog(EmptyCacheState.class);
+@CommonsLog
+public class EmptyCacheState<CacheImpl extends CacheImplementation> extends CacheState<CacheImpl> {
 
     /**
      * Current cache implementation.
      */
     private final CacheImpl cache;
 
-    public EmptyCacheState(CacheImpl cache) {
+    public EmptyCacheState(CacheStateMachine<CacheImpl> owner, CacheImpl cache) {
+        super(owner);
         this.cache = cache;
     }
 
@@ -47,54 +43,50 @@ public class EmptyCacheState<CacheImpl extends CacheImplementation> implements C
     }
 
     @Override
-    public StateCommandResultWithCache<CacheImpl> getCache(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
-        return initiateCacheCreation(context);
+    public StateCommandResultWithCache<CacheImpl> getCache(Transaction transaction) {
+        return initiateCacheCreation();
     }
 
     @Override
-    public StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
-        return initiateCacheCreation(context);
+    public StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(Transaction transaction) {
+        return initiateCacheCreation();
     }
 
     /**
      * Create cache and start delayed initialization if required.
      *
-     * @param context
-     *            Cache state machine context with common used data.
      * @return Return next state for state machine.
      */
-    private StateCommandResultWithCache<CacheImpl> initiateCacheCreation(CacheStateMachineContext<CacheImpl> context) {
-        if (context.getCacheFactory().hasDelayedInitialization()) {
-            CacheImpl cache = this.cache != null ? this.cache : context.getCacheFactory().createCache();
-            CacheState<CacheImpl> initializingState = context.getStateFactory().createInitializingState(cache);
+    private StateCommandResultWithCache<CacheImpl> initiateCacheCreation() {
+        if (getCacheFactory().hasDelayedInitialization()) {
+            CacheImpl cache = this.cache != null ? this.cache : getCacheFactory().createCache();
+            CacheState<CacheImpl> initializingState = getStateFactory().createInitializingState(cache);
             return StateCommandResultWithCache.create(initializingState, cache);
         }
-        CacheImpl cache = context.getCacheFactory().createCache();
+        CacheImpl cache = getCacheFactory().createCache();
         cache.commitCache();
-        return StateCommandResultWithCache.create(context.getStateFactory().createInitializedState(cache), cache);
+        return StateCommandResultWithCache.create(getStateFactory().createInitializedState(cache), cache);
     }
 
     @Override
-    public StateCommandResult<CacheImpl> onChange(
-            CacheStateMachineContext<CacheImpl> context, Transaction transaction, ChangedObjectParameter changedObject
-    ) {
+    public StateCommandResult<CacheImpl> onChange(Transaction transaction, ChangedObjectParameter changedObject) {
         DirtyTransactions<CacheImpl> dirtyTransaction = DirtyTransactions.createOneDirtyTransaction(transaction, cache);
-        return StateCommandResult.create(context.getStateFactory().createDirtyState(cache, dirtyTransaction));
+        return StateCommandResult.create(getStateFactory().createDirtyState(cache, dirtyTransaction));
     }
 
     @Override
-    public StateCommandResult<CacheImpl> beforeTransactionComplete(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
+    public StateCommandResult<CacheImpl> beforeTransactionComplete(Transaction transaction) {
         return StateCommandResult.createNoStateSwitch();
     }
 
     @Override
-    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
+    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(Transaction transaction) {
         log.error("completeTransaction must not be called on " + this);
-        return StateCommandResultWithData.create(context.getStateFactory().createEmptyState(cache), true);
+        return StateCommandResultWithData.create(getStateFactory().createEmptyState(cache), true);
     }
 
     @Override
-    public StateCommandResult<CacheImpl> commitCache(CacheStateMachineContext<CacheImpl> context, CacheImpl cache) {
+    public StateCommandResult<CacheImpl> commitCache(CacheImpl cache) {
         log.error("commitCache must not be called on " + this);
         return StateCommandResult.createNoStateSwitch();
     }
@@ -104,11 +96,11 @@ public class EmptyCacheState<CacheImpl extends CacheImplementation> implements C
     }
 
     @Override
-    public void accept(CacheStateMachineContext<CacheImpl> context) {
+    public void accept() {
     }
 
     @Override
-    public StateCommandResult<CacheImpl> dropCache(CacheStateMachineContext<CacheImpl> context) {
-        return StateCommandResult.create(context.getStateFactory().createEmptyState(null));
+    public StateCommandResult<CacheImpl> dropCache() {
+        return StateCommandResult.create(getStateFactory().createEmptyState(null));
     }
 }

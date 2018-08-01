@@ -1,13 +1,10 @@
 package ru.runa.wfe.definition.par;
 
+import com.google.common.base.Throwables;
 import java.util.List;
-
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
-import com.google.common.base.Throwables;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
@@ -19,6 +16,7 @@ import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 
+@CommonsLog
 public class GraphXmlParser implements ProcessArchiveParser {
     private static final String NODE_ELEMENT = "node";
     private static final String TRANSITION_ELEMENT = "transition";
@@ -59,7 +57,7 @@ public class GraphXmlParser implements ProcessArchiveParser {
                     transitionSource = (Node) graphElement;
                 } else {
                     if (!(graphElement instanceof SwimlaneDefinition)) {
-                        LogFactory.getLog(getClass()).warn("Ignored graph element " + graphElement + " in " + processDefinition);
+                        log.warn("Ignored graph element " + graphElement + " in " + processDefinition);
                     }
                     continue;
                 }

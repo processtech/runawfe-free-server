@@ -21,8 +21,7 @@ import com.google.common.base.Objects;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
@@ -30,8 +29,8 @@ import ru.runa.wfe.presentation.filter.FilterCriteria;
 /**
  * Description for field, available via {@link ClassPresentation}. Contains almost all aspects of field behavior.
  */
+@CommonsLog
 public class FieldDescriptor {
-    private static final Log log = LogFactory.getLog(FieldDescriptor.class);
 
     /**
      * Struts property, which will be used to get field display name.<br/>
@@ -227,7 +226,7 @@ public class FieldDescriptor {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof FieldDescriptor)) {
+        if (!(obj instanceof FieldDescriptor)) {
             return false;
         }
         if (obj == this) {

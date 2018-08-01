@@ -1,15 +1,9 @@
 package ru.runa.wfe.task.logic;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -18,7 +12,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
-
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.IProcessLogDAO;
@@ -29,13 +22,15 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.IExecutorDAO;
 
-import com.google.common.collect.Lists;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class ActorInInactiveEscalationGroupBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(ActorInInactiveEscalationGroupBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;

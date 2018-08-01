@@ -11,25 +11,25 @@ import ru.runa.wfe.commons.cache.states.DirtyTransactions;
  * @param <CacheImpl>
  *            Cache implementation type.
  */
-public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> implements CacheStateFactory<CacheImpl> {
+public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> extends CacheStateFactory<CacheImpl> {
 
     @Override
     public CacheState<CacheImpl> createEmptyState(CacheImpl cache) {
-        return new EmptyCacheState<>(cache);
+        return new EmptyCacheState<>(getOwner(), cache);
     }
 
     @Override
     public CacheState<CacheImpl> createInitializingState(CacheImpl cache) {
-        return new CacheInitializingState<>(cache);
+        return new CacheInitializingState<>(getOwner(), cache);
     }
 
     @Override
     public CacheState<CacheImpl> createInitializedState(CacheImpl cache) {
-        return new CompletedCacheState<>(cache);
+        return new CompletedCacheState<>(getOwner(), cache);
     }
 
     @Override
     public CacheState<CacheImpl> createDirtyState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions) {
-        return new DirtyCacheState<>(cache, dirtyTransactions);
+        return new DirtyCacheState<>(getOwner(), cache, dirtyTransactions);
     }
 }

@@ -6,8 +6,7 @@ import javax.ejb.EJBContext;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import javax.transaction.UserTransaction;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import ru.runa.wfe.commons.ITransactionListener;
@@ -25,8 +24,8 @@ import ru.runa.wfe.user.User;
  * if the BMT is rolled back, the JMS provider will not be aware of the transaction’s failure. However, all is not lost, because the JMS provider can
  * still rely on message acknowledgment to determine whether the message was delivered successfully.
  */
+@CommonsLog
 public class EjbTransactionSupport {
-    private static final Log log = LogFactory.getLog(EjbTransactionSupport.class);
     @Resource
     private EJBContext ejbContext;
 

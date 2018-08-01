@@ -1,21 +1,14 @@
 package ru.runa.wfe.task.logic;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.Sets;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.task.Task;
@@ -23,13 +16,15 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.dao.IExecutorDAO;
 
-import com.google.common.collect.Sets;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(CheckSubstitutionRulesBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;
@@ -56,7 +51,7 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1), new Long(2), new Long(3), new Long(4));
+                return Sets.newHashSet(1L, 2L, 3L, 4L);
             }
 
         } }, { "applies with one of ExecutorDoesNotExistException testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
@@ -79,7 +74,7 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1), new Long(2), new Long(3), new Long(4));
+                return Sets.newHashSet(1L, 2L, 3L, 4L);
             }
 
         } }, { "applies testcase", TaskListBuilder.SUBSTITUTION_APPLIES, new TestCaseDataSet() {
@@ -102,7 +97,7 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1));
+                return Sets.newHashSet(1L);
             }
         } }, { "can substitute testcase", TaskListBuilder.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
 
@@ -128,7 +123,7 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1));
+                return Sets.newHashSet(1L);
             }
 
         } }, { "applies and can substitute testcase", TaskListBuilder.SUBSTITUTION_APPLIES | TaskListBuilder.CAN_I_SUBSTITUTE, new TestCaseDataSet() {
@@ -156,7 +151,7 @@ public class CheckSubstitutionRulesBoundConditionsTests extends AbstractTestNGSp
 
             @Override
             public Set<Long> getIds() {
-                return Sets.newHashSet(new Long(1));
+                return Sets.newHashSet(1L);
             }
         } } };
     }

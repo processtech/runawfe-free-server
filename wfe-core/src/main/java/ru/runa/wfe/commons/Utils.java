@@ -1,5 +1,11 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -7,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -23,10 +28,7 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.error.ProcessError;
@@ -43,16 +45,9 @@ import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
+@CommonsLog
 public class Utils {
     public static final String CATEGORY_DELIMITER = "/";
-    private static Log log = LogFactory.getLog(Utils.class);
     private static volatile InitialContext initialContext;
     private static TransactionManager transactionManager;
     private static ConnectionFactory connectionFactory;
@@ -144,7 +139,7 @@ public class Utils {
             connection = connectionFactory.createConnection();
             session = connection.createSession(true, Session.SESSION_TRANSACTED);
             sender = session.createProducer(bpmMessageQueue);
-            HashMap<String, Object> map = new HashMap<String, Object>();
+            HashMap<String, Object> map = new HashMap<>();
             for (VariableMapping variableMapping : data) {
                 if (!variableMapping.isPropertySelector()) {
                     map.put(variableMapping.getMappedName(), variableProvider.getValue(variableMapping.getName()));
@@ -211,7 +206,7 @@ public class Utils {
             selectors
                     .add(BaseMessageNode.ERROR_EVENT_PROCESS_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + String.valueOf(variableProvider.getProcessId()));
             selectors.add(
-                    BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + ((Node) messageNode.getParentElement()).getNodeId());
+                    BaseMessageNode.ERROR_EVENT_NODE_ID + MESSAGE_SELECTOR_VALUE_DELIMITER + messageNode.getParentElement().getNodeId());
         } else {
             for (VariableMapping mapping : messageNode.getVariableMappings()) {
                 if (mapping.isPropertySelector()) {
@@ -299,7 +294,7 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static String toString(ObjectMessage message, boolean html) {
         try {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             buffer.append(message.getJMSMessageID());
             buffer.append(html ? "<br>" : "\n");
             if (message.getJMSExpiration() != 0) {
@@ -307,7 +302,7 @@ public class Utils {
                 buffer.append(html ? "<br>" : "\n");
             }
             Enumeration<String> propertyNames = message.getPropertyNames();
-            Map<String, String> properties = new HashMap<String, String>();
+            Map<String, String> properties = new HashMap<>();
             while (propertyNames.hasMoreElements()) {
                 String propertyName = propertyNames.nextElement();
                 String propertyValue = message.getStringProperty(propertyName);
@@ -316,7 +311,7 @@ public class Utils {
             buffer.append(properties);
             buffer.append(html ? "<br>" : "\n");
             if (message.getObject() instanceof Map) {
-                buffer.append(TypeConversionUtil.toStringMap((Map<? extends Object, ? extends Object>) message.getObject()));
+                buffer.append(TypeConversionUtil.toStringMap((Map<?, ?>) message.getObject()));
             } else if (message.getObject() != null) {
                 buffer.append(message.getObject());
             }
@@ -334,7 +329,7 @@ public class Utils {
                 if (status != Status.STATUS_NO_TRANSACTION && status != Status.STATUS_ROLLEDBACK) {
                     transaction.rollback();
                 } else {
-                    LogFactory.getLog(Utils.class).warn("Unable to rollback, status: " + status);
+                    log.warn("Unable to rollback, status: " + status);
                 }
             }
         } catch (Exception e) {
@@ -389,7 +384,7 @@ public class Utils {
         new TransactionalExecutor(transaction) {
 
             @Override
-            protected void doExecuteInTransaction() throws Exception {
+            protected void doExecuteInTransaction() {
                 Token token = ApplicationContextFactory.getTokenDAO().getNotNull(tokenId);
                 boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
                 if (stateChanged) {

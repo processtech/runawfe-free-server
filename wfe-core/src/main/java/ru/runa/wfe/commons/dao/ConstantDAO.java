@@ -19,8 +19,6 @@ package ru.runa.wfe.commons.dao;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.SQLQuery;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -31,7 +29,6 @@ import ru.runa.wfe.commons.TypeConversionUtil;
  */
 @Component
 public class ConstantDAO extends GenericDAO<Constant> {
-    private static final Log log = LogFactory.getLog(ConstantDAO.class);
     private static final String DATABASE_VERSION_VARIABLE_NAME = "ru.runa.database_version";
 
     public Integer getDatabaseVersion() throws Exception {

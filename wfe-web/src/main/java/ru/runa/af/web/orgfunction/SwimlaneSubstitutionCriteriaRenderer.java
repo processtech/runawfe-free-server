@@ -19,9 +19,7 @@ package ru.runa.af.web.orgfunction;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.extension.orgfunction.ParamRenderer;
 import ru.runa.wfe.lang.SwimlaneDefinition;
@@ -30,6 +28,7 @@ import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
+@CommonsLog
 public class SwimlaneSubstitutionCriteriaRenderer implements ParamRenderer {
 
     @Override
@@ -39,7 +38,7 @@ public class SwimlaneSubstitutionCriteriaRenderer implements ParamRenderer {
 
     @Override
     public List<String[]> loadJSEditorData(User user) {
-        List<String[]> result = new ArrayList<String[]>();
+        List<String[]> result = new ArrayList<>();
         DefinitionService definitionService = Delegates.getDefinitionService();
         List<WfDefinition> definitions = definitionService.getProcessDefinitions(user, BatchPresentationFactory.DEFINITIONS.createDefault(), false);
         for (WfDefinition definition : definitions) {
@@ -50,7 +49,7 @@ public class SwimlaneSubstitutionCriteriaRenderer implements ParamRenderer {
                     result.add(new String[] { swimlaneName, swimlaneName });
                 }
             } catch (Exception e) {
-                LogFactory.getLog(getClass()).debug(e);
+                log.debug(e);
             }
         }
         return result;

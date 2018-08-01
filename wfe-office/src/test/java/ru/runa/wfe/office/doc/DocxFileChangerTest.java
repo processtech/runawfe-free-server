@@ -1,16 +1,17 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
-
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.user.Actor;
@@ -24,10 +25,6 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.MapFormat;
 import ru.runa.wfe.var.format.StringFormat;
 import ru.runa.wfe.var.format.TimeFormat;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
 
 public class DocxFileChangerTest extends Assert {
     private static final String[] prefixes = { "lo_", "ms_" };

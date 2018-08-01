@@ -43,8 +43,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -70,9 +69,9 @@ import ru.runa.wfe.user.Actor;
 @Entity
 @Table(name = "BPM_TOKEN")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@CommonsLog
 public class Token implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(Token.class);
     private Long id;
     private Long version;
     private String name;

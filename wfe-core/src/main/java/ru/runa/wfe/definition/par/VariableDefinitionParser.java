@@ -5,7 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +23,7 @@ import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.VariableFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
+@CommonsLog
 public class VariableDefinitionParser implements ProcessArchiveParser {
     private static final String FORMAT = "format";
     private static final String SWIMLANE = "swimlane";
@@ -140,8 +141,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                         || processDefinition.getDeployment().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
                     throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue + "'", e);
                 } else {
-                    LogFactory.getLog(getClass()).error(
-                            "Unable to format default value '" + stringDefaultValue + "' in " + processDefinition + ":" + variableDefinition, e);
+                    log.error("Unable to format default value '" + stringDefaultValue + "' in " + processDefinition + ":" + variableDefinition, e);
                 }
             }
         }

@@ -1,14 +1,8 @@
 package ru.runa.wfe.task.logic;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -16,7 +10,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
-
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -27,11 +20,14 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
+@CommonsLog
 public class GetAcceptableTaskBoundConditionsTests extends AbstractTestNGSpringContextTests {
-
-    private static final Log log = LogFactory.getLog(GetAcceptableTaskBoundConditionsTests.class);
 
     @Autowired
     ITaskListBuilderTestProvider taskListBuilder;

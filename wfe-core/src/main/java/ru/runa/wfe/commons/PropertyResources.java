@@ -10,19 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.dao.SettingDAO;
 
+@CommonsLog
 public class PropertyResources {
-    private static final Log log = LogFactory.getLog(PropertyResources.class);
     private final String fileName;
     private final Properties properties;
     private final boolean useDatabase;
     private static boolean databaseAvailable = false;
 
-    private static Map<String, String> propertiesCache = Maps.newHashMap();
+    private static final Map<String, String> propertiesCache = Maps.newHashMap();
 
     private SettingDAO settingDAO = null;
 
@@ -167,5 +166,4 @@ public class PropertyResources {
         }
         return defaultValue;
     }
-
 }

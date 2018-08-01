@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarInterval;
@@ -21,6 +21,7 @@ import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 
+@CommonsLog
 public class ExpressionEvaluator {
     private static final Pattern VARIABLE_REGEXP = Pattern.compile("\\$\\{(.*?[^\\\\])\\}");
     private static final Map<String, TemplateModel> staticModels = Maps.newHashMap();
@@ -35,7 +36,7 @@ public class ExpressionEvaluator {
                     String simpleClassName = li != -1 ? className.substring(li + 1) : className;
                     staticModels.put(simpleClassName, wrapper.getStaticModels().get(className));
                 } catch (Exception e) {
-                    LogFactory.getLog(ExpressionEvaluator.class).error("Unable to register statics from " + className, e);
+                    log.error("Unable to register statics from " + className, e);
                 }
             }
         } finally {
@@ -102,7 +103,7 @@ public class ExpressionEvaluator {
         return expression;
     }
 
-    public static String substitute(String value, Map<String, ? extends Object> variables) {
+    public static String substitute(String value, Map<String, ?> variables) {
         Preconditions.checkNotNull(value, "invalid string to substitute");
         Matcher matcher = VARIABLE_REGEXP.matcher(value);
         StringBuffer buffer = new StringBuffer();

@@ -28,8 +28,7 @@ import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
@@ -68,8 +67,8 @@ import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 
+@CommonsLog
 public class ExecutionContext {
-    private static Log log = LogFactory.getLog(ExecutionContext.class);
     private final ProcessDefinition processDefinition;
     private final Token token;
     private final Map<String, Object> transientVariables = Maps.newHashMap();

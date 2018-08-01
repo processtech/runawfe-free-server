@@ -21,8 +21,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -76,8 +75,8 @@ import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
  *
  * @author Dofs
  */
+@CommonsLog
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
-    protected static final Log log = LogFactory.getLog(InitializerLogic.class);
     private static final List<Class<? extends DBPatch>> dbPatches;
     @Autowired
     private DbTransactionalInitializer dbTransactionalInitializer;

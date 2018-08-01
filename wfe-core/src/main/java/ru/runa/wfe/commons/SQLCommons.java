@@ -23,14 +23,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Contains helper methods for java.sql package.
  *
  */
+@CommonsLog
 public final class SQLCommons {
     public static final String ANY_SYMBOLS = "*";
     public static final String ANY_SYMBOL = "?";
@@ -38,7 +37,6 @@ public final class SQLCommons {
     private static final String QUOTED_ANY_SYMBOL = Pattern.quote(ANY_SYMBOL);
     private static final String DB_ANY_SYMBOLS = Matcher.quoteReplacement("%");
     private static final String DB_ANY_SYMBOL = Matcher.quoteReplacement("_");
-    private static final Log log = LogFactory.getLog(SQLCommons.class);
 
     public static StringEqualsExpression getStringEqualsExpression(String value) {
         boolean likeExpression = false;

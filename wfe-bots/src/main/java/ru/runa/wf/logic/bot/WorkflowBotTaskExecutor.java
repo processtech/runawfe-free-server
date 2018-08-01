@@ -23,8 +23,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.bot.Bot;
@@ -57,8 +56,8 @@ import ru.runa.wfe.var.ParamBasedVariableProvider;
  * @author Dofs
  * @since 4.0
  */
+@CommonsLog
 public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
-    private static final Log log = LogFactory.getLog(WorkflowBotTaskExecutor.class);
 
     private final WorkflowBotExecutor botExecutor;
     private final WfTask task;
@@ -68,7 +67,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
      * Next wait is 2*wait, but no more FAILED_EXECUTION_MAX_DELAY_SECONDS
      */
     private int failedDelaySeconds = BotStationResources.getFailedExecutionInitialDelay();
-    private final AtomicReference<Thread> executionThread = new AtomicReference<Thread>(null);
+    private final AtomicReference<Thread> executionThread = new AtomicReference<>(null);
     private boolean threadInterrupting = false;
 
     public WorkflowBotTaskExecutor(WorkflowBotExecutor botExecutor, WfTask task) {

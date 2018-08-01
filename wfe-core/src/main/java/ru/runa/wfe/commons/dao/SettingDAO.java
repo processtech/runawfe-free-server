@@ -18,8 +18,6 @@
 package ru.runa.wfe.commons.dao;
 
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 // TODO rm700
 @Transactional
 public class SettingDAO extends GenericDAO<Setting> {
-    private static final Log log = LogFactory.getLog(SettingDAO.class);
 
     private Setting get(String fileName, String name) {
         QSetting s = QSetting.setting;

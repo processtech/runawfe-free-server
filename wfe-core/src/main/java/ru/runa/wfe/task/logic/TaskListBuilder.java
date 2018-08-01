@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import ru.runa.wfe.audit.ProcessLog;
@@ -58,7 +57,6 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDAO;
 
@@ -68,11 +66,10 @@ import ru.runa.wfe.var.dao.VariableDAO;
  * @author Dofs
  * @since 4.0
  */
+@CommonsLog
 public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBuilder {
     protected static final int CAN_I_SUBSTITUTE = 1;
     protected static final int SUBSTITUTION_APPLIES = 0x10;
-
-    private static final Log log = LogFactory.getLog(TaskListBuilder.class);
 
     private final TaskCache taskCache;
     @Autowired
@@ -99,8 +96,6 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
     private VariableDAO variableDAO;
     @Autowired
     private PermissionDAO permissionDAO;
-    @Autowired
-    private ExecutorLogic executorLogic;
 
     public TaskListBuilder(TaskCache taskCache) {
         this.taskCache = taskCache;

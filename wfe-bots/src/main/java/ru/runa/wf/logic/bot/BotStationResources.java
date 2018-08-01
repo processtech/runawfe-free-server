@@ -18,10 +18,7 @@
 package ru.runa.wf.logic.bot;
 
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.bot.invoker.BotInvoker;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
@@ -33,8 +30,8 @@ import ru.runa.wfe.commons.SystemProperties;
  * @author dofs
  * @since 4.0
  */
+@CommonsLog
 public class BotStationResources {
-    private static final Log log = LogFactory.getLog(BotStationResources.class);
     private static final String RESOURCES_FILE_NAME = "botstation.properties";
     private static PropertyResources RESOURCES;
 

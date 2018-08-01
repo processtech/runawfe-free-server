@@ -9,14 +9,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.var.IVariableProvider;
 
+@CommonsLog
 public class EmailConfig implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(EmailConfig.class);
     public static final String COMMON_THROW_ERROR_ON_FAILURE = "throwErrorOnFailure";
     public static final String COMMON_BASE_PROPERTY_FILE_NAME = "basePropertiesFileName";
     public static final String CONNECTION_MAIL_TRANSPORT = "mail.transport.protocol";

@@ -1,12 +1,11 @@
 package ru.runa.wfe.var.dao;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.UserType;
@@ -35,17 +34,11 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
 import ru.runa.wfe.var.format.VariableFormatVisitor;
 import ru.runa.wfe.var.legacy.ComplexVariable;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 /**
  * Load variable value depends of variable type.
  */
+@CommonsLog
 public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVariableOfTypeContext> {
-    /**
-     * Logging support.
-     */
-    private static Log log = LogFactory.getLog(LoadVariableOfType.class);
 
     @Override
     public Object onDate(DateFormat dateFormat, LoadVariableOfTypeContext context) {
@@ -229,8 +222,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         if (variable == null) {
             return variableDefinition.getDefaultValue();
         }
-        Object value = variable.getValue();
-        return value;
+        return variable.getValue();
     }
 
     /**

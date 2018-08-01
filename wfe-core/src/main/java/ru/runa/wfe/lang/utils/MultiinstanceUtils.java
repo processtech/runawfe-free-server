@@ -1,12 +1,11 @@
 package ru.runa.wfe.lang.utils;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -23,11 +22,8 @@ import ru.runa.wfe.user.Group;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-
+@CommonsLog
 public class MultiinstanceUtils {
-    private static final Log log = LogFactory.getLog(MultiinstanceUtils.class);
     // back compatibility with processes before version 4.1.1
     private static final String USAGE_MULTIINSTANCE_VARS = "multiinstance-vars";
 
@@ -214,7 +210,7 @@ public class MultiinstanceUtils {
         } else {
             relationPairs = ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsRight(relation, executors);
         }
-        Set<Actor> actors = new HashSet<Actor>();
+        Set<Actor> actors = new HashSet<>();
         for (RelationPair pair : relationPairs) {
             Executor executor = pair.getRight();
             if (executor instanceof Actor) {

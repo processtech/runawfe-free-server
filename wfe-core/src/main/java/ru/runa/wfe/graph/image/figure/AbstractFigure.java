@@ -30,10 +30,8 @@ import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.util.AngleInfo;
@@ -52,7 +50,7 @@ public abstract class AbstractFigure {
     protected String swimlaneName;
     protected boolean useEdgingOnly;
 
-    protected Map<String, TransitionFigure> transitions = new HashMap<String, TransitionFigure>();
+    protected Map<String, TransitionFigure> transitions = new HashMap<>();
     protected RenderHits renderHits;
 
     public void initFigure(Node node, boolean useEdgingOnly) {
@@ -223,7 +221,6 @@ public abstract class AbstractFigure {
 
         Line line1 = createBorderLine(angle);
         Line line2 = LineUtils.createLine(new Point((int) cx, (int) cy), angle.getAngle());
-        Point intersectionPoint = LineUtils.getIntersectionPoint(line1, line2);
-        return intersectionPoint;
+        return LineUtils.getIntersectionPoint(line1, line2);
     }
 }

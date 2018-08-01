@@ -17,10 +17,12 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -33,15 +35,11 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.transaction.UserTransaction;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ReceiveMessageLog;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionalExecutor;
@@ -60,24 +58,18 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-
 @MessageDriven(activationConfig = { @ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/bpmMessages"),
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
         @ActivationConfigProperty(propertyName = "useDLQ", propertyValue = "false") })
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
 @SuppressWarnings("unchecked")
+@CommonsLog
 public class ReceiveMessageBean implements MessageListener {
-    private static Log log = LogFactory.getLog(ReceiveMessageBean.class);
     @Autowired
     private TokenDAO tokenDAO;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
-    private ProcessLogDAO processLogDAO;
     @Resource
     private MessageDrivenContext context;
 

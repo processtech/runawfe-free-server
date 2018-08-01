@@ -25,7 +25,7 @@ public abstract class FormComponent implements TemplateMethodModelEx, Serializab
     public static final String TARGET_PROCESS_PREFIX = "TargetProcess";
     private static final long serialVersionUID = 1L;
     private static final String RICH_COMBO_VALUE_PREFIX = "value@";
-    protected Log log = LogFactory.getLog(getClass());
+    protected final Log log = LogFactory.getLog(getClass());
     protected User user;
     protected IVariableProvider variableProvider;
     protected WebHelper webHelper;

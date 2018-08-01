@@ -22,8 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -31,8 +30,8 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.extension.orgfunction.ParamRenderer;
 import ru.runa.wfe.service.delegate.Delegates;
 
+@CommonsLog
 public class SubstitutionCriteriaDefinitions {
-    private static final Log log = LogFactory.getLog(SubstitutionCriteriaDefinitions.class);
     private static List<FunctionDef> definitions = new ArrayList<>();
 
     static {

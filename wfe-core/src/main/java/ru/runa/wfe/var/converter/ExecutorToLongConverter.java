@@ -1,8 +1,6 @@
 package ru.runa.wfe.var.converter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.user.Executor;
@@ -10,9 +8,9 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.var.Converter;
 import ru.runa.wfe.var.Variable;
 
+@CommonsLog
 public class ExecutorToLongConverter implements Converter {
     private static final long serialVersionUID = 1L;
-    private static Log log = LogFactory.getLog(ExecutorToLongConverter.class);
 
     @Override
     public boolean supports(Object value) {

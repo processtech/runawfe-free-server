@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -23,8 +24,8 @@ import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 
+@CommonsLog
 public class ValidatorManager {
-    private static final Log log = LogFactory.getLog(ValidatorManager.class);
     private static final Map<String, String> validatorRegistrations = new HashMap<>();
     private static final Properties validatorProperties = ClassLoaderUtil.getLocalizedProperties("validators", ValidatorManager.class, null);
     private static final ValidatorManager instance = new ValidatorManager();

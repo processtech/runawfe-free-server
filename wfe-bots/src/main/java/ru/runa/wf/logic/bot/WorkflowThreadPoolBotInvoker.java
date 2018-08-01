@@ -17,6 +17,8 @@
  */
 package ru.runa.wf.logic.bot;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +30,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotStation;
@@ -44,11 +43,8 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
+@CommonsLog
 public class WorkflowThreadPoolBotInvoker implements BotInvoker, Runnable {
-    private final Log log = LogFactory.getLog(WorkflowThreadPoolBotInvoker.class);
 
     private static final long STUCK_TIMEOUT_SECONDS = BotStationResources.getStuckTimeoutInMinutes() * 60;
 

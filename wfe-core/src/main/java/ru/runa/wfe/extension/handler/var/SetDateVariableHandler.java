@@ -1,17 +1,17 @@
 package ru.runa.wfe.extension.handler.var;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
@@ -22,9 +22,6 @@ import ru.runa.wfe.extension.handler.CommonHandler;
 import ru.runa.wfe.extension.handler.var.SetDateVariableHandler.CalendarConfig.CalendarOperation;
 import ru.runa.wfe.var.DelegableVariableProvider;
 import ru.runa.wfe.var.IVariableProvider;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
 
 public class SetDateVariableHandler extends CommonHandler {
     protected CalendarConfig config;
@@ -74,7 +71,7 @@ public class SetDateVariableHandler extends CommonHandler {
     public static class CalendarConfig {
         protected static final Log log = LogFactory.getLog(CalendarConfig.class);
         protected String baseVariableName;
-        protected final List<CalendarOperation> operations = new ArrayList<CalendarOperation>();
+        protected final List<CalendarOperation> operations = new ArrayList<>();
         protected String outVariableName;
 
         public CalendarConfig(String xml) {

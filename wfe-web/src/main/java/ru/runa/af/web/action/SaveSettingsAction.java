@@ -1,16 +1,12 @@
 package ru.runa.af.web.action;
 
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -25,10 +21,10 @@ import ru.runa.wfe.service.delegate.Delegates;
  * @struts:action path="/save_settings" name="settingsFileForm" validate="false" input =
  *                "/WEB-INF/wf/edit_settings.jsp"
  */
+@CommonsLog
 public class SaveSettingsAction extends ActionBase {
 
     public static final String SAVE_SETTINGS_ACTION_PATH = "/save_settings";
-    private static final Log log = LogFactory.getLog(SaveSettingsAction.class);
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {

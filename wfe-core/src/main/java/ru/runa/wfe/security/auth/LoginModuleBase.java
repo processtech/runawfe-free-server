@@ -81,9 +81,7 @@ public abstract class LoginModuleBase implements LoginModule {
             return false;
         }
         user = SubjectPrincipalsHelper.createUser(actor);
-        if (!subject.getPrincipals().contains(user)) {
-            subject.getPrincipals().add(user);
-        }
+        subject.getPrincipals().add(user);
         commitSucceeded = true;
         return true;
 

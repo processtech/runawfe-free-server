@@ -26,8 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.transaction.Synchronization;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -40,10 +41,9 @@ import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 public class CachingLogic {
 
     /**
-     * Flag to enable/disable changes tracking. It may be set to false in case of mass update for performance reason. Stores disable call count. To
-     * enable changes tracking enables must be called the same times.
+     * Flag to enable/disable changes tracking. Stores disableChangesTracking() call count. Used during mass update for performance reason.
      */
-    private static AtomicInteger enabled = new AtomicInteger(0);
+    private static AtomicInteger disabledCounter = new AtomicInteger(0);
 
     /**
      * Map from {@link Transaction} to change listeners, which must be notified on transaction complete. Then transaction change some objects,
@@ -108,17 +108,33 @@ public class CachingLogic {
     }
 
     /**
-     * Enables/disables changes tracking. It may be set to false in case of mass update for performance reason.
+     * Disables changes tracking. Used with mass update for performance reason.
      *
-     * @param e
-     *            Flag, equals true, to enable changes tracking and false otherwise.
+     * @see #enableChangesTracking()
      */
-    public static void setEnabled(boolean e) {
-        if (e) {
-            enabled.decrementAndGet();
-        } else {
-            enabled.incrementAndGet();
+    public static void disableChangesTracking() {
+        disabledCounter.incrementAndGet();
+    }
+
+    /**
+     * Re-enables changes tracking.
+     */
+    public static void enableChangesTracking() {
+        int i = disabledCounter.decrementAndGet();
+        Preconditions.checkState(i >= 0);
+    }
+
+    /**
+     * Check current thread transaction type.
+     *
+     * @return If transaction change some objects, return true; return false otherwise.
+     */
+    private static boolean isWriteTransaction() {
+        Transaction transaction = Utils.getTransaction();
+        if (transaction == null) {
+            return false;
         }
+        return dirtyTransactions.containsKey(transaction);
     }
 
     /**
@@ -136,42 +152,10 @@ public class CachingLogic {
      *            Property names (same order as in currentState).
      */
     public static void onChange(Object entity, Change change, Object[] currentState, Object[] previousState, String[] propertyNames) {
-        if (enabled.get() > 0) {
+        if (disabledCounter.get() > 0) {
             return;
         }
-        onWriteTransaction(getChangeListeners(entity.getClass()), entity, change, currentState, previousState, propertyNames);
-    }
-
-    /**
-     * Check current thread transaction type.
-     *
-     * @return If transaction change some objects, return true; return false otherwise.
-     */
-    private static boolean isWriteTransaction() {
-        Transaction transaction = Utils.getTransaction();
-        if (transaction == null) {
-            return false;
-        }
-        return dirtyTransactions.containsKey(transaction);
-    }
-
-    /**
-     * Notifies given listeners.
-     *
-     * @param notifyThis
-     *            Listeners to notify. May be null.
-     * @param changed
-     *            Changed object.
-     * @param currentState
-     *            Current state of object properties.
-     * @param previousState
-     *            Previous state of object properties.
-     * @param propertyNames
-     *            Property names (same order as in currentState).
-     */
-    private static void onWriteTransaction(Set<BaseCacheCtrl<?>> notifyThis, Object changed, Change change, Object[] currentState,
-            Object[] previousState, String[] propertyNames) {
-        Preconditions.checkNotNull(changed);
+        Preconditions.checkNotNull(entity);
         Transaction transaction = Utils.getTransaction();
         if (transaction == null) {
             return;
@@ -182,10 +166,11 @@ public class CachingLogic {
             dirtyTransactions.put(transaction, toNotify);
             DirtyTransactionSynchronization.register(transaction);
         }
-        if (notifyThis != null) {
-            toNotify.addAll(notifyThis);
-            for (BaseCacheCtrl<?> listener : notifyThis) {
-                listener.onChange(transaction, new ChangedObjectParameter(changed, change, currentState, previousState, propertyNames));
+        Set<BaseCacheCtrl<?>> listeners = getChangeListeners(entity.getClass());
+        if (listeners != null) {
+            toNotify.addAll(listeners);
+            for (BaseCacheCtrl<?> listener : listeners) {
+                listener.onChange(transaction, new ChangedObjectParameter(entity, change, currentState, previousState, propertyNames));
             }
         }
     }
@@ -196,7 +181,7 @@ public class CachingLogic {
      * @param transaction
      *            Transaction, which would be completed.
      */
-    public static void beforeTransactionComplete(Transaction transaction) {
+    private static void onBeforeTransactionComplete(Transaction transaction) {
         Set<BaseCacheCtrl<?>> toNotify = dirtyTransactions.get(transaction);
         if (toNotify == null) {
             return;
@@ -213,7 +198,7 @@ public class CachingLogic {
      * @param transaction
      *            Transaction, which completed.
      */
-    public static void onTransactionComplete(Transaction transaction) {
+    private static void onAfterTransactionComplete(Transaction transaction) {
         Set<BaseCacheCtrl<?>> toNotify = dirtyTransactions.remove(transaction);
         if (toNotify == null) {
             return;
@@ -261,23 +246,19 @@ public class CachingLogic {
     /**
      * Callback object to receive dirty transaction commit/rollback events.
      */
-    static class DirtyTransactionSynchronization implements Synchronization {
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    private static class DirtyTransactionSynchronization implements Synchronization {
 
         private final Transaction transaction;
 
-        DirtyTransactionSynchronization(Transaction transaction) {
-            super();
-            this.transaction = transaction;
-        }
-
         @Override
         public void beforeCompletion() {
-            CachingLogic.beforeTransactionComplete(transaction);
+            CachingLogic.onBeforeTransactionComplete(transaction);
         }
 
         @Override
         public void afterCompletion(int status) {
-            CachingLogic.onTransactionComplete(transaction);
+            CachingLogic.onAfterTransactionComplete(transaction);
         }
 
         public static void register(Transaction transaction) {
@@ -289,9 +270,8 @@ public class CachingLogic {
         }
     }
 
+    @CommonsLog
     static class WrongAccessTransaction implements Transaction {
-
-        private static final Log log = LogFactory.getLog(WrongAccessTransaction.class);
 
         private final static Transaction instance = new WrongAccessTransaction();
 

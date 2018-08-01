@@ -21,7 +21,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Form;
@@ -60,6 +60,7 @@ import ru.runa.wfe.user.Profile;
 import ru.runa.wfe.user.User;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "tableViewSetupForm")
+@CommonsLog
 public class TableViewSetupFormTag extends AbstractReturningTag implements BatchedTag {
     private static final long serialVersionUID = 6534068425896008626L;
     private static boolean groupBySubprocessEnabled = ru.runa.common.WebResources.isGroupBySubprocessEnabled();
@@ -249,7 +250,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 }
             }
         } catch (Exception e) {
-            LogFactory.getLog(getClass()).warn("Unable to buildBatchTable", e);
+            log.warn("Unable to buildBatchTable", e);
             table.addElement(e.toString());
         }
         return table;

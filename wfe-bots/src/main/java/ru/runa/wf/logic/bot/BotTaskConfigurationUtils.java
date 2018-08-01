@@ -1,13 +1,14 @@
 package ru.runa.wf.logic.bot;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
@@ -18,13 +19,8 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
+@CommonsLog
 public class BotTaskConfigurationUtils {
-    private static final Log log = LogFactory.getLog(BotTaskConfigurationUtils.class);
     private static final String TASK_PARAM = "task";
     private static final String BOT_TASK_NAME_PARAM = "botTaskName";
     private static final String ID_PARAM = "id";

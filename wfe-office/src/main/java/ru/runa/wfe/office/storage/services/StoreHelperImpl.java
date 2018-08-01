@@ -1,13 +1,11 @@
 package ru.runa.wfe.office.storage.services;
 
+import com.google.common.collect.Maps;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.office.storage.BlockedFileException;
 import ru.runa.wfe.office.storage.StoreHelper;
@@ -22,11 +20,8 @@ import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 
-import com.google.common.collect.Maps;
-
+@CommonsLog
 public class StoreHelperImpl implements StoreHelper {
-
-    private static final Log log = LogFactory.getLog(StoreHelperImpl.class);
 
     private Map<QueryType, Method> invocationMap = Maps.newHashMap();
 

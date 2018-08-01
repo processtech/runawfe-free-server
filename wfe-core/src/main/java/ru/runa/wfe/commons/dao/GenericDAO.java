@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
  */
 @SuppressWarnings("unchecked")
 public abstract class GenericDAO<T> extends CommonDAO implements IGenericDAO<T> {
-    protected static final Log log = LogFactory.getLog(GenericDAO.class);
+    protected final Log log = LogFactory.getLog(getClass());
     private final Class<T> entityClass;
 
     /**

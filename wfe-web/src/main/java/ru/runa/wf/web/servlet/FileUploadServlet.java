@@ -1,27 +1,24 @@
 package ru.runa.wf.web.servlet;
 
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.util.Map;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.json.simple.JSONObject;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wfe.InternalApplicationException;
 
-import com.google.common.base.Charsets;
-
+@CommonsLog
 public class FileUploadServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 1. Upload File Using Java Servlet API
         // files.addAll(MultipartRequestHandler.uploadByJavaServletAPI(request));
 
@@ -60,11 +57,11 @@ public class FileUploadServlet extends HttpServlet {
             Map<String, UploadedFile> map = FormSubmissionUtils.getUserInputFiles(request, id);
             UploadedFile file = map.get(inputId);
             if (file == null) {
-                LogFactory.getLog(getClass()).error("No session file found by '" + inputId + "', all files = " + map);
+                log.error("No session file found by '" + inputId + "', all files = " + map);
                 return;
             }
             if (file.getContent() == null && file.getFileVariable() == null) {
-                LogFactory.getLog(getClass()).error("No file content exists for '" + inputId + "'");
+                log.error("No file content exists for '" + inputId + "'");
                 return;
             }
             response.setContentType(file.getMimeType());

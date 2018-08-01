@@ -1,23 +1,19 @@
 package ru.runa.common.web.action;
 
 import java.io.OutputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.var.file.IFileVariable;
 
+@CommonsLog
 public class GetSessionFileAction extends Action {
-    private static final Log log = LogFactory.getLog(GetSessionFileAction.class);
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {

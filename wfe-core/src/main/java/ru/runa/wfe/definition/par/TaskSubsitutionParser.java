@@ -1,11 +1,9 @@
 package ru.runa.wfe.definition.par;
 
 import java.util.List;
-
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.InteractionNode;
@@ -14,6 +12,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 /**
  * used only for processes created before v4.1.0
  */
+@CommonsLog
 public class TaskSubsitutionParser implements ProcessArchiveParser {
 
     @Override
@@ -34,7 +33,7 @@ public class TaskSubsitutionParser implements ProcessArchiveParser {
             String nodeId = element.attributeValue("name");
             InteractionNode interactionNode = (InteractionNode) processDefinition.getNode(nodeId);
             if (interactionNode == null) {
-                LogFactory.getLog(getClass()).warn("No node found by id '" + nodeId + "' in " + processDefinition);
+                log.warn("No node found by id '" + nodeId + "' in " + processDefinition);
                 continue;
             }
             interactionNode.getFirstTaskNotNull().setIgnoreSubsitutionRules(true);

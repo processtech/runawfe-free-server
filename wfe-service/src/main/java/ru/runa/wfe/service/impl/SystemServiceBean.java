@@ -31,8 +31,7 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import lombok.NonNull;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.audit.logic.AuditLogic;
@@ -60,8 +59,8 @@ import ru.runa.wfe.user.User;
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "SystemAPI", serviceName = "SystemWebService")
 @SOAPBinding
+@CommonsLog
 public class SystemServiceBean implements SystemServiceLocal, SystemServiceRemote {
-    private static final Log log = LogFactory.getLog(SystemServiceBean.class);
     @Autowired
     private AuditLogic auditLogic;
     @Autowired

@@ -1,7 +1,6 @@
 package ru.runa.wfe.commons.cache;
 
 import com.google.common.base.Objects;
-import org.hibernate.type.Type;
 import ru.runa.wfe.InternalApplicationException;
 
 /**

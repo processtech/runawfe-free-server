@@ -1,5 +1,7 @@
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -11,14 +13,10 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.commons.ITransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
@@ -32,9 +30,6 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
-
 /**
  * @since 4.3.0
  * @author Alex Chernyshev
@@ -44,14 +39,12 @@ import com.google.common.base.Throwables;
         @ActivationConfigProperty(propertyName = "useDLQ", propertyValue = "false") })
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
+@CommonsLog
 public class NodeAsyncExecutionBean implements MessageListener {
-    private static final Log log = LogFactory.getLog(NodeAsyncExecutionBean.class);
     @Autowired
     private TokenDAO tokenDAO;
     @Autowired
     private IProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
-    private ProcessLogDAO processLogDAO;
     @Resource
     private MessageDrivenContext context;
 
@@ -81,7 +74,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
             new TransactionalExecutor(context.getUserTransaction()) {
 
                 @Override
-                protected void doExecuteInTransaction() throws Exception {
+                protected void doExecuteInTransaction() {
                     Token token = tokenDAO.getNotNull(tokenId);
                     if (token.getProcess().hasEnded()) {
                         log.debug("Ignored execution in ended " + token.getProcess());

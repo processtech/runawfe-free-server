@@ -39,8 +39,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
@@ -60,8 +59,8 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
  * @since 4.0.4
  */
 @SuppressWarnings("unchecked")
+@CommonsLog
 public class LdapLogic {
-    private static final Log log = LogFactory.getLog(LdapLogic.class);
     private static final String OBJECT_CLASS_USER_FILTER = MessageFormat.format(LdapProperties.getSynchronizationObjectClassFilter(),
             LdapProperties.getSynchronizationUserObjectClass());
     private static final String OBJECT_CLASS_GROUP_FILTER = MessageFormat.format(LdapProperties.getSynchronizationObjectClassFilter(),

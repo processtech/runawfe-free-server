@@ -9,10 +9,10 @@ public class CacheReloader {
     @AroundInvoke
     public Object process(InvocationContext ic) throws Exception {
         try {
-            CachingLogic.setEnabled(false);
+            CachingLogic.disableChangesTracking();
             return ic.proceed();
         } finally {
-            CachingLogic.setEnabled(true);
+            CachingLogic.enableChangesTracking();
             CachingLogic.resetAllCaches();
         }
     }

@@ -1,15 +1,14 @@
 package ru.runa.wfe.task;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.PostConstruct;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
@@ -22,12 +21,8 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
-
+@CommonsLog
 public class EmailTaskNotifier implements ITaskNotifier {
-    private static final Log log = LogFactory.getLog(EmailTaskNotifier.class);
     private boolean enabled = true;
     private boolean onlyIfTaskActorEmailDefined = false;
     private String configPath;

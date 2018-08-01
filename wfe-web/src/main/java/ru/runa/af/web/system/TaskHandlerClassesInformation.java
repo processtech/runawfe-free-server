@@ -17,6 +17,7 @@
  */
 package ru.runa.af.web.system;
 
+import com.google.common.io.Closer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,11 +28,8 @@ import java.util.TreeSet;
 import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wf.logic.bot.BotStationResources;
 import ru.runa.wfe.commons.AppServer;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -39,16 +37,14 @@ import ru.runa.wfe.commons.IOCommons;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.extension.TaskHandler;
 
-import com.google.common.io.Closer;
-
 /**
  * User: stan79
  * 
  * @since 3.0
  */
+@CommonsLog
 public class TaskHandlerClassesInformation {
-    private static final Log log = LogFactory.getLog(TaskHandlerClassesInformation.class);
-    private static final SortedSet<String> taskHandlerImplementationClasses = new TreeSet<String>();
+    private static final SortedSet<String> taskHandlerImplementationClasses = new TreeSet<>();
 
     static {
         init();

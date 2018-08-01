@@ -1,20 +1,16 @@
 package ru.runa.wf.web.customtag;
 
+import com.google.common.base.Charsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wf.web.TaskFormBuilder;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.var.IVariableProvider;
 
-import com.google.common.base.Charsets;
-
+@CommonsLog
 public class HtmlFormBuilder extends TaskFormBuilder {
-    private static final Log log = LogFactory.getLog(HtmlFormBuilder.class);
 
     private static final Pattern CUSTOM_TAG_PATTERN = Pattern.compile(
             "<customtag\\s+var\\s*=\\s*\"([^\"]+)\"\\s+delegation\\s*=\\s*\"([^\"]+)\"\\s*/>", Pattern.MULTILINE);
@@ -31,7 +27,7 @@ public class HtmlFormBuilder extends TaskFormBuilder {
             String replacement;
             try {
                 className = BackCompatibilityClassNames.getClassName(className);
-                VarTag customTag = (VarTag) ApplicationContextFactory.createAutowiredBean(className);
+                VarTag customTag = ApplicationContextFactory.createAutowiredBean(className);
                 replacement = customTag.getHtml(user, varName, variableProvider.getValue(varName), pageContext, variableProvider);
             } catch (Exception e) {
                 log.warn("Exception processing vartags", e);

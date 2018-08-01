@@ -1,21 +1,17 @@
 package ru.runa.wfe.commons.logic;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
+@CommonsLog
 public class LocalizationParser {
-    private static final Log log = LogFactory.getLog(LocalizationParser.class);
 
     @SuppressWarnings("unchecked")
     public static List<Localization> parseLocalizations(InputStream stream) {

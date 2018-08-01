@@ -1,11 +1,10 @@
 package ru.runa.wfe.var.dao;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
@@ -28,11 +27,8 @@ import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
-
+@CommonsLog
 public class BaseProcessVariableLoader {
-    private static Log log = LogFactory.getLog(BaseProcessVariableLoader.class);
     private final VariableLoader variableLoader;
     private final Process process;
     private final ProcessDefinition processDefinition;

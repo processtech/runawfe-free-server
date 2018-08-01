@@ -18,17 +18,16 @@
 package ru.runa.wfe.presentation.filter;
 
 import java.util.Calendar;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.bc.BusinessDuration;
 import ru.runa.wfe.commons.bc.BusinessDurationParser;
 import ru.runa.wfe.presentation.filter.dialect.DurationDialectFactory;
 import ru.runa.wfe.presentation.filter.dialect.IDurationDialect;
 import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
+@CommonsLog
 public class TaskDurationFilterCriteria extends FilterCriteria {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(TaskDurationFilterCriteria.class);
 
     private transient BusinessDuration durationStart;
     private transient BusinessDuration durationEnd;

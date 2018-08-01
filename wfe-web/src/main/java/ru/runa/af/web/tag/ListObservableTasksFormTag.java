@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.ecs.html.B;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
@@ -27,11 +27,12 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listObservableTasksForm")
+@CommonsLog
 public class ListObservableTasksFormTag extends ListTasksFormTag {
     private static final long serialVersionUID = 1L;
     private Long executorId;
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setExecutorId(Long executorId) {
         this.executorId = executorId;
         if (executorId != null) {
@@ -106,7 +107,7 @@ public class ListObservableTasksFormTag extends ListTasksFormTag {
             b.setTitle(title.toString());
             tdFormElement.addElement(b);
         } catch (Exception e) {
-            LogFactory.getLog(getClass()).error("Unable to build header", e);
+            log.error("Unable to build header", e);
         }
         super.fillFormElement(tdFormElement);
     }

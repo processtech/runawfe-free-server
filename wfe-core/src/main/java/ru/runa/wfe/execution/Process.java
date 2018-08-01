@@ -39,8 +39,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
@@ -75,9 +74,9 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@CommonsLog
 public class Process extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(Process.class);
 
     private Long id;
     private Long parentId;

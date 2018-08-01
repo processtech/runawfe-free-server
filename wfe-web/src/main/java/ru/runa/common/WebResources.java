@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.PropertyResources;
 import ru.runa.wfe.commons.SystemProperties;
@@ -31,6 +31,7 @@ import ru.runa.wfe.commons.SystemProperties;
  * Created on 30.09.2004
  * 
  */
+@CommonsLog
 public class WebResources {
     private static final PropertyResources RESOURCES = new PropertyResources("web.properties");
 
@@ -141,7 +142,7 @@ public class WebResources {
                 return getter.invoke(clazz, (Object[]) null).toString();
             }
         } catch (Exception e) {
-            LogFactory.getLog(WebResources.class).error("Unable to get additional links", e);
+            log.error("Unable to get additional links", e);
         }
         return "";
     }

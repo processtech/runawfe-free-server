@@ -26,9 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -61,12 +60,12 @@ import ru.runa.wfe.user.User;
  * @author Dofs
  * @since 4.0
  */
+@CommonsLog
 public class WorkflowBotExecutor {
-    private static final Log log = LogFactory.getLog(WorkflowBotExecutor.class);
     private final User user;
     private Bot bot;
     private final Map<String, BotTask> botTasks = Maps.newHashMap();
-    private final Set<WorkflowBotTaskExecutor> botTaskExecutors = new HashSet<WorkflowBotTaskExecutor>();
+    private final Set<WorkflowBotTaskExecutor> botTaskExecutors = new HashSet<>();
 
     public WorkflowBotExecutor(User user, Bot bot, List<BotTask> tasks) {
         this.user = user;
@@ -119,7 +118,7 @@ public class WorkflowBotExecutor {
     }
 
     public Set<WfTask> getNewTasks() {
-        Set<WfTask> result = new HashSet<WfTask>();
+        Set<WfTask> result = new HashSet<>();
         for (Iterator<WorkflowBotTaskExecutor> botIterator = botTaskExecutors.iterator(); botIterator.hasNext();) {
             WorkflowBotTaskExecutor taskExecutor = botIterator.next();
             if (taskExecutor.getExecutionStatus() == WorkflowBotTaskExecutionStatus.COMPLETED) {
@@ -254,7 +253,7 @@ public class WorkflowBotExecutor {
         new TransactionalExecutor() {
 
             @Override
-            protected void doExecuteInTransaction() throws Exception {
+            protected void doExecuteInTransaction() {
                 Utils.sendBpmnErrorMessage(bot.getBoundProcessId(), embeddedSubprocessNodeId, new Throwable("Transactional bot " + bot.getUsername()
                         + " timeout expired"));
             }

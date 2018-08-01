@@ -1,11 +1,10 @@
 package ru.runa.wfe.commons.cache.states.nonruntime;
 
 import javax.transaction.Transaction;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.CacheStateMachineContext;
+import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.DirtyTransactions;
 import ru.runa.wfe.commons.cache.states.StateCommandResult;
@@ -15,12 +14,8 @@ import ru.runa.wfe.commons.cache.states.StateCommandResultWithData;
 /**
  * Cache lifetime state machine. Current state is dirty cache (at least one transaction changing cache persistent object).
  */
-public class DirtyCacheState<CacheImpl extends CacheImplementation> implements CacheState<CacheImpl> {
-
-    /**
-     * Logging support.
-     */
-    private static Log log = LogFactory.getLog(DirtyCacheState.class);
+@CommonsLog
+public class DirtyCacheState<CacheImpl extends CacheImplementation> extends CacheState<CacheImpl> {
 
     /**
      * Transactions, which change cache persistent objects.
@@ -32,7 +27,8 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
      */
     private final CacheImpl cache;
 
-    public DirtyCacheState(CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions) {
+    public DirtyCacheState(CacheStateMachine<CacheImpl> owner, CacheImpl cache, DirtyTransactions<CacheImpl> dirtyTransactions) {
+        super(owner);
         this.dirtyTransactions = dirtyTransactions;
         this.cache = cache;
     }
@@ -53,47 +49,45 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
     }
 
     @Override
-    public StateCommandResultWithCache<CacheImpl> getCache(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
+    public StateCommandResultWithCache<CacheImpl> getCache(Transaction transaction) {
         CacheImpl currentCache = cache;
         if (currentCache == null) {
-            currentCache = context.getCacheFactory().createCache();
+            currentCache = getCacheFactory().createCache();
         }
         return StateCommandResultWithCache.createNoStateSwitch(currentCache);
     }
 
     @Override
-    public StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
+    public StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(Transaction transaction) {
         return StateCommandResultWithCache.createNoStateSwitch(cache);
     }
 
     @Override
-    public StateCommandResult<CacheImpl> onChange(
-            CacheStateMachineContext<CacheImpl> context, Transaction transaction, ChangedObjectParameter changedObject
-    ) {
+    public StateCommandResult<CacheImpl> onChange(Transaction transaction, ChangedObjectParameter changedObject) {
         if (cache != null) {
             cache.onChange(changedObject);
         }
         DirtyTransactions<CacheImpl> newDirtyTransactions = dirtyTransactions.addDirtyTransactionAndClone(transaction, cache);
-        return StateCommandResult.create(context.getStateFactory().createDirtyState(cache, newDirtyTransactions));
+        return StateCommandResult.create(getStateFactory().createDirtyState(cache, newDirtyTransactions));
     }
 
     @Override
-    public StateCommandResult<CacheImpl> beforeTransactionComplete(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
+    public StateCommandResult<CacheImpl> beforeTransactionComplete(Transaction transaction) {
         return StateCommandResult.createNoStateSwitch();
     }
 
     @Override
-    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
+    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(Transaction transaction) {
         DirtyTransactions<CacheImpl> dirtyTransactionAfterRemove = dirtyTransactions.removeDirtyTransactionAndClone(transaction);
         if (dirtyTransactionAfterRemove.isLocked()) {
-            CacheState<CacheImpl> nextDirtyState = context.getStateFactory().createDirtyState(cache, dirtyTransactionAfterRemove);
+            CacheState<CacheImpl> nextDirtyState = getStateFactory().createDirtyState(cache, dirtyTransactionAfterRemove);
             return StateCommandResultWithData.create(nextDirtyState, false);
         }
-        return StateCommandResultWithData.create(context.getStateFactory().createEmptyState(cache), true);
+        return StateCommandResultWithData.create(getStateFactory().createEmptyState(cache), true);
     }
 
     @Override
-    public StateCommandResult<CacheImpl> commitCache(CacheStateMachineContext<CacheImpl> context, CacheImpl cache) {
+    public StateCommandResult<CacheImpl> commitCache(CacheImpl cache) {
         log.error("commitCache must not be called on " + this);
         return StateCommandResult.createNoStateSwitch();
     }
@@ -103,12 +97,11 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
     }
 
     @Override
-    public void accept(CacheStateMachineContext<CacheImpl> context) {
+    public void accept() {
     }
 
     @Override
-    public StateCommandResult<CacheImpl> dropCache(CacheStateMachineContext<CacheImpl> context) {
-        CacheState<CacheImpl> dirtyState = context.getStateFactory().createDirtyState(null, dirtyTransactions);
-        return StateCommandResult.create(dirtyState);
+    public StateCommandResult<CacheImpl> dropCache() {
+        return StateCommandResult.create(getStateFactory().createDirtyState(null, dirtyTransactions));
     }
 }

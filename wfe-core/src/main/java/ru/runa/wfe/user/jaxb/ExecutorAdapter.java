@@ -1,16 +1,13 @@
 package ru.runa.wfe.user.jaxb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.user.Executor;
 
+@CommonsLog
 public class ExecutorAdapter extends XmlAdapter<WfExecutor, Executor> {
-    private static final Log log = LogFactory.getLog(ExecutorAdapter.class);
 
     @Override
     public WfExecutor marshal(Executor executor) {

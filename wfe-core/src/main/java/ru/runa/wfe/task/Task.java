@@ -38,6 +38,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -75,9 +76,9 @@ import ru.runa.wfe.user.Executor;
 @Entity
 @Table(name = "BPM_TASK")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@CommonsLog
 public class Task implements Assignable {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(Task.class);
 
     private Long id;
     private Long version;

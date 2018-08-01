@@ -1,9 +1,7 @@
 package ru.runa.wfe.var.converter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.file.IFileVariable;
@@ -17,9 +15,9 @@ import ru.runa.wfe.var.matcher.FileVariableMatcher;
  * @author dofs
  * @since 4.0
  */
+@CommonsLog
 public class FileVariableToByteArrayConverter extends SerializableToByteArrayConverter {
     private static final long serialVersionUID = 1L;
-    private static Log log = LogFactory.getLog(FileVariableToByteArrayConverter.class);
     private IFileVariableStorage storage;
 
     @Required

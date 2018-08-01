@@ -21,9 +21,9 @@
  */
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,21 +36,16 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.audit.SwimlaneAssignLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Objects;
 
 /**
  * is a process role for a one process.
@@ -58,9 +53,9 @@ import com.google.common.base.Objects;
 @Entity
 @Table(name = "BPM_SWIMLANE")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@CommonsLog
 public class Swimlane implements Serializable, Assignable {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(Swimlane.class);
 
     private Long id;
     private Long version;
