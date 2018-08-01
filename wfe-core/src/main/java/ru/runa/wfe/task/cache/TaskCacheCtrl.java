@@ -10,7 +10,7 @@ import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
-import ru.runa.wfe.ss.cache.SubstitutionCacheStateImpl;
+import ru.runa.wfe.ss.cache.SubstitutionCacheImpl;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
@@ -20,8 +20,20 @@ import ru.runa.wfe.var.Variable;
 class TaskCacheCtrl extends BaseCacheCtrl<ManageableTaskCache> implements TaskCache {
 
     TaskCacheCtrl() {
-        super(new TaskCacheFactory(), createListenObjectTypes());
-        CachingLogic.registerChangeListener(this);
+        super(
+                new TaskCacheFactory(),
+                new ArrayList<ListenObjectDefinition>() {{
+                    add(new ListenObjectDefinition(Task.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(Swimlane.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(Variable.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(Substitution.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
+                    add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.BECOME_DIRTY));
+                    // Must be invalidated in case of non runtime substitution cache update.
+                    add(new ListenObjectDefinition(SubstitutionCacheImpl.class, ListenObjectLogType.BECOME_DIRTY));
+                }}
+        );
     }
 
     @Override
@@ -39,20 +51,6 @@ class TaskCacheCtrl extends BaseCacheCtrl<ManageableTaskCache> implements TaskCa
         if (cache != null) {
             cache.setTasks(oldCacheData, actorId, batchPresentation, tasks);
         }
-    }
-
-    private static final List<ListenObjectDefinition> createListenObjectTypes() {
-        ArrayList<ListenObjectDefinition> result = new ArrayList<>();
-        result.add(new ListenObjectDefinition(Task.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Swimlane.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Variable.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Substitution.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.BECOME_DIRTY));
-        // Must be invalidated in case of non runtime substitution cache update.
-        result.add(new ListenObjectDefinition(SubstitutionCacheStateImpl.class, ListenObjectLogType.BECOME_DIRTY));
-        return result;
     }
 
     private static class TaskCacheFactory implements StaticCacheFactory<ManageableTaskCache> {

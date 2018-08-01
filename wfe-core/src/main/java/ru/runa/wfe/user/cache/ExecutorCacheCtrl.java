@@ -17,8 +17,13 @@ import ru.runa.wfe.user.Group;
 class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implements ExecutorCache {
 
     ExecutorCacheCtrl() {
-        super(new ExecutorCacheFactory(), createListenObjectTypes());
-        CachingLogic.registerChangeListener(this);
+        super(
+                new ExecutorCacheFactory(),
+                new ArrayList<ListenObjectDefinition>() {{
+                    add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.ALL));
+                    add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
+                }}
+        );
     }
 
     @Override
@@ -101,13 +106,6 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
             return;
         }
         cache.addAllExecutor(oldCachedData, clazz, batch, executors);
-    }
-
-    private static final List<ListenObjectDefinition> createListenObjectTypes() {
-        ArrayList<ListenObjectDefinition> result = new ArrayList<>();
-        result.add(new ListenObjectDefinition(Executor.class, ListenObjectLogType.ALL));
-        result.add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));
-        return result;
     }
 
     private static class ExecutorCacheFactory implements LazyInitializedCacheFactory<ManageableExecutorCache> {

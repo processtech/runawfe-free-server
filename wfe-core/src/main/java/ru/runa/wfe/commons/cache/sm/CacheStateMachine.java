@@ -54,18 +54,16 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      */
     private final CacheStateMachineAudit<CacheImpl> audit;
 
-    public CacheStateMachine(CacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor) {
-        CacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
-        context = new CacheStateMachineContext<>(cacheFactory, this, transactionalExecutor, monitor, stateFactory);
-        state = new AtomicReference<>(context.getStateFactory().createEmptyState(null));
-        audit = new DefaultCacheStateMachineAudit<>();
-    }
-
-    public CacheStateMachine(CacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
-            CacheTransactionalExecutor transactionalExecutor, CacheStateMachineAudit<CacheImpl> audit) {
-        context = new CacheStateMachineContext<>(cacheFactory, this, transactionalExecutor, monitor, stateFactory);
+    public CacheStateMachine(
+            CacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor, CacheStateMachineAudit<CacheImpl> audit
+    ) {
+        context = new CacheStateMachineContext<>(cacheFactory, this, monitor, stateFactory);
         state = new AtomicReference<>(context.getStateFactory().createEmptyState(null));
         this.audit = audit;
+    }
+
+    public CacheStateMachine(CacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor) {
+        this(cacheFactory, stateFactory, monitor, new DefaultCacheStateMachineAudit<>());
     }
 
     /**
@@ -383,7 +381,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
             CacheTransactionalExecutor transactionalExecutor, CacheStateMachineAudit<CacheImpl> audit
     ) {
         LazyCacheFactoryImpl<CacheImpl> cacheFactory = new LazyCacheFactoryImpl<>(factory, transactionalExecutor);
-        return new CacheStateMachine<>(cacheFactory, stateFactory, monitor, transactionalExecutor, audit);
+        return new CacheStateMachine<>(cacheFactory, stateFactory, monitor, audit);
     }
 
     /**

@@ -48,9 +48,7 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
     }
 
     @Override
-    public StateCommandResultWithCache<CacheImpl> getCache(
-            CacheStateMachineContext<CacheImpl> context, Transaction transaction
-    ) {
+    public StateCommandResultWithCache<CacheImpl> getCache(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
         CacheImpl currentCache = cache;
         if (currentCache == null) {
             currentCache = context.getCacheFactory().createCache();
@@ -59,15 +57,14 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
     }
 
     @Override
-    public StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(
-            CacheStateMachineContext<CacheImpl> context, Transaction transaction
-    ) {
+    public StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
         return StateCommandResultWithCache.createNoStateSwitch(cache);
     }
 
     @Override
-    public StateCommandResult<CacheImpl> onChange(CacheStateMachineContext<CacheImpl> context,
-            Transaction transaction, ChangedObjectParameter changedObject) {
+    public StateCommandResult<CacheImpl> onChange(
+            CacheStateMachineContext<CacheImpl> context, Transaction transaction, ChangedObjectParameter changedObject
+    ) {
         CacheImpl currentCache = cache;
         if (currentCache != null && !currentCache.onChange(changedObject)) {
             currentCache = null;
@@ -77,14 +74,12 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
     }
 
     @Override
-    public StateCommandResult<CacheImpl> beforeTransactionComplete(
-            CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
+    public StateCommandResult<CacheImpl> beforeTransactionComplete(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
         return StateCommandResult.createNoStateSwitch();
     }
 
     @Override
-    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(
-            CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
+    public StateCommandResultWithData<CacheImpl, Boolean> completeTransaction(CacheStateMachineContext<CacheImpl> context, Transaction transaction) {
         DirtyTransactions<CacheImpl> dirtyTransactionAfterRemove = dirtyTransactions.removeDirtyTransactionAndClone(transaction);
         CacheImpl currentCache = cache;
         if (dirtyTransactionAfterRemove.isLocked()) {
@@ -106,8 +101,7 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> implements C
     }
 
     @Override
-    public StateCommandResult<CacheImpl> commitCache(CacheStateMachineContext<CacheImpl> context,
-            CacheImpl cache) {
+    public StateCommandResult<CacheImpl> commitCache(CacheStateMachineContext<CacheImpl> context, CacheImpl cache) {
         log.error("commitCache must not be called on " + this);
         return StateCommandResult.createNoStateSwitch();
     }

@@ -21,6 +21,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javax.transaction.Transaction;
+import lombok.AllArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -31,13 +32,12 @@ import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 
 /**
- * Base implementation of cache control objects.
+ * Base class for components receiving events on objects change and transaction complete. Components, receiving events must register self in
+ * {@link CachingLogic}. All methods must be thread safe and may be called in many threads.
  *
- * @author Konstantinov Aleksey
- * @param <CacheImpl>
- *            Controlled cache implementation.
+ * @param <CacheImpl> Controlled cache implementation.
  */
-public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> implements ChangeListener {
+public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
     /**
      * Logging support.
      */
@@ -54,61 +54,72 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> imple
     private final List<ListenObjectDefinition> listenObjects;
 
     protected BaseCacheCtrl(LazyInitializedCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        super();
         this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
         this.listenObjects = listenObjects;
+        CachingLogic.registerChangeListener(this);
     }
 
     protected BaseCacheCtrl(StaticCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        super();
         this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
         this.listenObjects = listenObjects;
+        CachingLogic.registerChangeListener(this);
     }
 
-    public BaseCacheCtrl(NonRuntimeCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        super();
+    protected BaseCacheCtrl(NonRuntimeCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
         this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
         this.listenObjects = listenObjects;
+        CachingLogic.registerChangeListener(this);
     }
 
-    @Override
-    public void onChange(Transaction transaction, ChangedObjectParameter changedObject) {
-        if (log.isDebugEnabled()) {
-            for (ListenObjectDefinition def : listenObjects) {
-                if (def.listenClass.isAssignableFrom(changedObject.object.getClass())) {
-                    def.logType.logChange(stateMachine, transaction, changedObject, log);
-                    break;
+    public final void onChange(Transaction transaction, ChangedObjectParameter changedObject) {
+        try {
+            if (log.isDebugEnabled()) {
+                for (ListenObjectDefinition def : listenObjects) {
+                    if (def.listenClass.isAssignableFrom(changedObject.object.getClass())) {
+                        def.logType.logChange(stateMachine, transaction, changedObject, log);
+                        break;
+                    }
                 }
             }
+            stateMachine.onChange(transaction, changedObject);
+        } catch (Exception e) {
+            log.error("onChange(transaction, changedObject) call failed on " + getClass().getName(), e);
         }
-        stateMachine.onChange(transaction, changedObject);
     }
 
-    @Override
-    public void beforeTransactionComplete(Transaction transaction) {
-        if (log.isDebugEnabled()) {
-            log.debug(getCacheStateDescription(stateMachine, transaction) + " Preparing transaction " + transaction + " completition.");
+    public final void beforeTransactionComplete(Transaction transaction) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug(getCacheStateDescription(stateMachine, transaction) + " Preparing transaction " + transaction + " completition.");
+            }
+            stateMachine.beforeTransactionComplete(transaction);
+        } catch (Exception e) {
+            log.error("beforeTransactionComplete(transaction) call failed on " + getClass().getName(), e);
         }
-        stateMachine.beforeTransactionComplete(transaction);
     }
 
-    @Override
-    public void onTransactionCompleted(Transaction transaction) {
-        if (log.isDebugEnabled()) {
-            log.debug(getCacheStateDescription(stateMachine, transaction) + " Transaction " + transaction + " is completed.");
+    public final void onTransactionCompleted(Transaction transaction) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug(getCacheStateDescription(stateMachine, transaction) + " Transaction " + transaction + " is completed.");
+            }
+            stateMachine.onTransactionCompleted(transaction);
+        } catch (Exception e) {
+            log.error("onTransactionCompleted(transaction) call failed on " + getClass().getName(), e);
         }
-        stateMachine.onTransactionCompleted(transaction);
     }
 
-    @Override
-    public void uninitialize(Object object, Change change) {
-        if (log.isDebugEnabled()) {
-            log.debug("Cache is uninitialized due to " + change + " of " + object);
+    public final void uninitialize(Object object, Change change) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache is uninitialized due to " + change + " of " + object);
+            }
+            stateMachine.dropCache();
+        } catch (Exception e) {
+            log.error("uninitialize() call failed on " + getClass().getName(), e);
         }
-        stateMachine.dropCache();
     }
 
-    @Override
     public final List<Class<?>> getListenObjectTypes() {
         return Lists.transform(listenObjects, new Function<ListenObjectDefinition, Class<?>>() {
             @Override
@@ -125,11 +136,12 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> imple
      *            Current transaction.
      * @return Return string description for current cache state.
      */
-    public static String getCacheStateDescription(CacheStateMachine<?> stateMachine, Transaction transaction) {
+    private static String getCacheStateDescription(CacheStateMachine<?> stateMachine, Transaction transaction) {
         Object cacheImpl = stateMachine.getCacheQuick(transaction);
         return cacheImpl == null ? "(cache is empty)" : "(cache is " + cacheImpl + ")";
     }
 
+    @AllArgsConstructor
     protected static class ListenObjectDefinition {
         /**
          * Class, which change may lead to cache invalidation.
@@ -140,12 +152,6 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> imple
          * Change event logging strategy.
          */
         private final ListenObjectLogType logType;
-
-        public ListenObjectDefinition(Class<?> listenClass, ListenObjectLogType logType) {
-            super();
-            this.listenClass = listenClass;
-            this.logType = logType;
-        }
     }
 
     protected enum ListenObjectLogType {

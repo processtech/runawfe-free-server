@@ -24,20 +24,16 @@ public class CacheStateMachineContext<CacheImpl extends CacheImplementation> {
     private final Object monitor;
 
     /**
-     * Transactional executor for background work (lazy caches initialization).
-     */
-    private final CacheTransactionalExecutor transactionalExecutor;
-
-    /**
      * Factory to create states.
      */
     private final CacheStateFactory<CacheImpl> stateFactory;
 
-    public CacheStateMachineContext(CacheFactory<CacheImpl> cacheFactory, CacheInitializationCallback<CacheImpl> callback,
-            CacheTransactionalExecutor transactionalExecutor, Object monitor, CacheStateFactory<CacheImpl> stateFactory) {
+    public CacheStateMachineContext(
+            CacheFactory<CacheImpl> cacheFactory, CacheInitializationCallback<CacheImpl> callback, Object monitor,
+            CacheStateFactory<CacheImpl> stateFactory
+    ) {
         this.cacheFactory = cacheFactory;
         this.callback = callback;
-        this.transactionalExecutor = transactionalExecutor;
         this.monitor = monitor;
         this.stateFactory = stateFactory;
     }
@@ -61,13 +57,6 @@ public class CacheStateMachineContext<CacheImpl extends CacheImplementation> {
      */
     public Object getMonitor() {
         return monitor;
-    }
-
-    /**
-     * Transactional executor for background work.
-     */
-    public CacheTransactionalExecutor getTransactionalExecutor() {
-        return transactionalExecutor;
     }
 
     /**

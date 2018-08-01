@@ -35,7 +35,7 @@ import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 
 /**
- * Main class for RunaWFE caching. Register {@link ChangeListener} there to receive events on objects change and transaction complete.
+ * Main class for RunaWFE caching. Register {@link BaseCacheCtrl} there to receive events on objects change and transaction complete.
  */
 public class CachingLogic {
 
@@ -49,18 +49,18 @@ public class CachingLogic {
      * Map from {@link Transaction} to change listeners, which must be notified on transaction complete. Then transaction change some objects,
      * affected listeners stored there.
      */
-    private static ConcurrentMap<Transaction, Set<ChangeListener>> dirtyTransactions = Maps.newConcurrentMap();
+    private static ConcurrentMap<Transaction, Set<BaseCacheCtrl<?>>> dirtyTransactions = Maps.newConcurrentMap();
 
     /**
      * Map from object type to listeners, which must be notifies about object change. This is base structure - only registered classes is present.
      */
-    private static ConcurrentMap<Class<?>, Set<ChangeListener>> objectTypeToListenersRegistered = Maps.newConcurrentMap();
+    private static ConcurrentMap<Class<?>, Set<BaseCacheCtrl<?>>> objectTypeToListenersRegistered = Maps.newConcurrentMap();
 
     /**
      * Map from object type to listeners, which must be notifies about object change. All types is present in this map. If no key is present, when
      * listeners must be computed using class hierarchy for notify about subclass changes.
      */
-    private static ConcurrentMap<Class<?>, Set<ChangeListener>> objectTypeToListenersAll = Maps.newConcurrentMap();
+    private static ConcurrentMap<Class<?>, Set<BaseCacheCtrl<?>>> objectTypeToListenersAll = Maps.newConcurrentMap();
 
     /**
      * Register listener. Listener will be notified on events, according to implemented interfaces.
@@ -68,15 +68,14 @@ public class CachingLogic {
      * @param listener
      *            Listener, which must receive events.
      */
-    public static synchronized void registerChangeListener(ChangeListener listener) {
-        ChangeListenerGuard guarded = new ChangeListenerGuard(listener);
+    public static synchronized void registerChangeListener(BaseCacheCtrl<?> listener) {
         for (Class<?> clazz : listener.getListenObjectTypes()) {
-            Set<ChangeListener> listeners = objectTypeToListenersRegistered.get(clazz);
+            Set<BaseCacheCtrl<?>> listeners = objectTypeToListenersRegistered.get(clazz);
             if (listeners == null) {
                 listeners = Sets.newConcurrentHashSet();
                 objectTypeToListenersRegistered.put(clazz, listeners);
             }
-            listeners.add(guarded);
+            listeners.add(listener);
         }
         objectTypeToListenersAll.clear();
     }
@@ -88,8 +87,8 @@ public class CachingLogic {
      *            Changed class.
      * @return Return change listeners for specified class.
      */
-    private static Set<ChangeListener> getChangeListeners(Class<?> clazz) {
-        Set<ChangeListener> result = objectTypeToListenersAll.get(clazz);
+    private static Set<BaseCacheCtrl<?>> getChangeListeners(Class<?> clazz) {
+        Set<BaseCacheCtrl<?>> result = objectTypeToListenersAll.get(clazz);
         if (result != null) {
             return result;
         }
@@ -97,7 +96,7 @@ public class CachingLogic {
             result = Sets.newLinkedHashSet();
             Class<?> superclass = clazz;
             do {
-                Set<ChangeListener> registered = objectTypeToListenersRegistered.get(superclass);
+                Set<BaseCacheCtrl<?>> registered = objectTypeToListenersRegistered.get(superclass);
                 if (registered != null) {
                     result.addAll(registered);
                 }
@@ -170,14 +169,14 @@ public class CachingLogic {
      * @param propertyNames
      *            Property names (same order as in currentState).
      */
-    private static void onWriteTransaction(Set<ChangeListener> notifyThis, Object changed, Change change, Object[] currentState,
+    private static void onWriteTransaction(Set<BaseCacheCtrl<?>> notifyThis, Object changed, Change change, Object[] currentState,
             Object[] previousState, String[] propertyNames) {
         Preconditions.checkNotNull(changed);
         Transaction transaction = Utils.getTransaction();
         if (transaction == null) {
             return;
         }
-        Set<ChangeListener> toNotify = dirtyTransactions.get(transaction);
+        Set<BaseCacheCtrl<?>> toNotify = dirtyTransactions.get(transaction);
         if (toNotify == null) {
             toNotify = Sets.newConcurrentHashSet();
             dirtyTransactions.put(transaction, toNotify);
@@ -185,7 +184,7 @@ public class CachingLogic {
         }
         if (notifyThis != null) {
             toNotify.addAll(notifyThis);
-            for (ChangeListener listener : notifyThis) {
+            for (BaseCacheCtrl<?> listener : notifyThis) {
                 listener.onChange(transaction, new ChangedObjectParameter(changed, change, currentState, previousState, propertyNames));
             }
         }
@@ -198,11 +197,11 @@ public class CachingLogic {
      *            Transaction, which would be completed.
      */
     public static void beforeTransactionComplete(Transaction transaction) {
-        Set<ChangeListener> toNotify = dirtyTransactions.get(transaction);
+        Set<BaseCacheCtrl<?>> toNotify = dirtyTransactions.get(transaction);
         if (toNotify == null) {
             return;
         }
-        for (ChangeListener listener : toNotify) {
+        for (BaseCacheCtrl<?> listener : toNotify) {
             listener.beforeTransactionComplete(transaction);
         }
     }
@@ -215,11 +214,11 @@ public class CachingLogic {
      *            Transaction, which completed.
      */
     public static void onTransactionComplete(Transaction transaction) {
-        Set<ChangeListener> toNotify = dirtyTransactions.remove(transaction);
+        Set<BaseCacheCtrl<?>> toNotify = dirtyTransactions.remove(transaction);
         if (toNotify == null) {
             return;
         }
-        for (ChangeListener listener : toNotify) {
+        for (BaseCacheCtrl<?> listener : toNotify) {
             listener.onTransactionCompleted(transaction);
         }
     }
@@ -252,12 +251,10 @@ public class CachingLogic {
     }
 
     public static void resetAllCaches() {
-        Set<ChangeListener> allListeners = Sets.newHashSet();
-        for (Set<ChangeListener> listeners : objectTypeToListenersRegistered.values()) {
-            allListeners.addAll(listeners);
-        }
-        for (ChangeListener listener : allListeners) {
-            listener.uninitialize(CachingLogic.class, Change.REFRESH);
+        for (Set<BaseCacheCtrl<?>> listeners : objectTypeToListenersRegistered.values()) {
+            for (BaseCacheCtrl<?> listener : listeners) {
+                listener.uninitialize(CachingLogic.class, Change.REFRESH);
+            }
         }
     }
 

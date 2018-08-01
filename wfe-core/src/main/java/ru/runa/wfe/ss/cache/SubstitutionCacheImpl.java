@@ -1,18 +1,18 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.ss.cache;
@@ -27,14 +27,16 @@ import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.collect.Maps;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.cache.BaseCacheImpl;
 import ru.runa.wfe.commons.cache.Cache;
 import ru.runa.wfe.commons.cache.CacheImplementation;
-import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContextStub;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
-import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
 import ru.runa.wfe.ss.dao.SubstitutionDAO;
@@ -44,29 +46,62 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
-import com.google.common.collect.Maps;
-
-class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
+/**
+ * Cache implementation for substitutions.
+ */
+public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitutionCache {
     private static final Log log = LogFactory.getLog(SubstitutionCacheImpl.class);
-    public static final String substitutorsName = "ru.runa.wfe.ss.cache.substitutors";
-    public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
-    private final Cache<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutorsCache;
-    private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
-    private final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-    private final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
 
-    public SubstitutionCacheImpl() {
+    /**
+     * EHCache name.
+     */
+    public static final String substitutorsName = "ru.runa.wfe.ss.cache.substitutors";
+
+    /**
+     * EHCache name.
+     */
+    public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
+
+    /**
+     * Maps from actor id to it substitution rules and actors, which may substitute key actor by rule.
+     */
+    private final Cache<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutorsCache;
+
+    /**
+     * Map from actor id to all actors, which may be substituted by key actor. Only inactive substituted actors added as substituted (no need to check
+     * if it active).
+     */
+    private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
+
+    /**
+     * Flag, equals true, if cache is not runtime and it state may different from database state and false otherwise.
+     */
+    private final boolean isNonRuntime;
+
+    /**
+     * Creates cache implementation for substitutions.
+     *
+     * @param fullInitialization
+     *            Flag, equals true, if cache must be fully initialized and false, if cache must be empty (no initialization).
+     * @param isNonRuntime
+     *            Flag, equals true, if cache is not runtime and it state may different from database state and false otherwise.
+     * @param initializationContext
+     *            Cache initialization context.
+     */
+    public SubstitutionCacheImpl(boolean fullInitialization, boolean isNonRuntime, CacheInitializationProcessContext initializationContext) {
+        if (initializationContext == null) {
+            initializationContext = new CacheInitializationProcessContextStub();
+        }
+        this.isNonRuntime = isNonRuntime;
         actorToSubstitutorsCache = createCache(substitutorsName, true);
         actorToSubstitutedCache = createCache(substitutedName, true);
-        Map<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutors = getMapActorToSubstitutors();
-        Map<Long, HashSet<Long>> actorToSubstituted = getMapActorToSubstituted(actorToSubstitutors);
-        for (Actor actor : executorDAO.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged())) {
-            if (actorToSubstituted.get(actor.getId()) == null) {
-                actorToSubstituted.put(actor.getId(), new HashSet<Long>());
-            }
-            if (actorToSubstitutors.get(actor.getId()) == null) {
-                actorToSubstitutors.put(actor.getId(), new TreeMap<Substitution, HashSet<Long>>());
-            }
+        if (!fullInitialization) {
+            return;
+        }
+        Map<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutors = getMapActorToSubstitutors(initializationContext);
+        Map<Long, HashSet<Long>> actorToSubstituted = getMapActorToSubstituted(actorToSubstitutors, initializationContext);
+        if (!initializationContext.isInitializationStillRequired()) {
+            return;
         }
         actorToSubstitutorsCache.putAll(actorToSubstitutors);
         actorToSubstitutedCache.putAll(actorToSubstituted);
@@ -81,12 +116,7 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
         if (result != null) {
             return new TreeMap<Substitution, Set<Long>>(result);
         }
-        if (!loadIfRequired) {
-            return null;
-        }
-        Map<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutors = getMapActorToSubstitutors();
-        result = actorToSubstitutors.get(actor.getId());
-        return result != null ? new TreeMap<Substitution, Set<Long>>(result) : new TreeMap<Substitution, Set<Long>>();
+        return new TreeMap<Substitution, Set<Long>>();
     }
 
     @Override
@@ -100,30 +130,19 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
         if (result != null) {
             return result;
         }
-        Map<Long, HashSet<Long>> actToSubstituted = getMapActorToSubstituted(actorToSubstitutorsCache);
-        result = actToSubstituted.get(actor.getId());
-        return result != null ? result : new HashSet<Long>();
+        return new HashSet<Long>();
     }
 
-    public void onActorStatusChange(Actor actor, Change change) {
-        log.debug("onActorStatusChange: " + actor);
-        TreeMap<Substitution, HashSet<Long>> substitutions = actorToSubstitutorsCache.get(actor.getId());
-        if (substitutions == null) {
-            return;
-        }
-        for (HashSet<Long> substitutors : substitutions.values()) {
-            if (substitutors != null) {
-                for (Long substitutor : substitutors) {
-                    actorToSubstitutedCache.remove(substitutor);
-                }
-            }
-        }
-    }
-
-    private Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors() {
+    private static Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors(
+            CacheInitializationProcessContext initializationContext) {
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
+        final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         try {
+            final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
             for (Substitution substitution : substitutionDAO.getAll()) {
+                if (!initializationContext.isInitializationStillRequired()) {
+                    return result;
+                }
                 try {
                     Long actorId;
                     try {
@@ -166,37 +185,16 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
         return result;
     }
 
-    private Map<Long, HashSet<Long>> getMapActorToSubstituted(Cache<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors) {
+    private static Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors,
+            CacheInitializationProcessContext initializationContext) {
         Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
-        for (Long substituted : mapActorToSubstitutors.keySet()) {
-            try {
-                Actor substitutedActor = executorDAO.getActor(substituted);
-                if (substitutedActor.isActive()) {
-                    continue;
-                }
-                for (HashSet<Long> substitutors : mapActorToSubstitutors.get(substituted).values()) {
-                    if (substitutors == null) {
-                        continue;
-                    }
-                    for (Long substitutor : substitutors) {
-                        HashSet<Long> set = result.get(substitutor);
-                        if (set == null) {
-                            set = new HashSet<Long>();
-                            result.put(substitutor, set);
-                        }
-                        set.add(substitutedActor.getId());
-                    }
-                }
-            } catch (ExecutorDoesNotExistException e) {
-            }
-        }
-        return result;
-    }
-
-    private Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors) {
-        Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
+        final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
         for (Map.Entry<Long, TreeMap<Substitution, HashSet<Long>>> entry1 : mapActorToSubstitutors.entrySet()) {
             final Long substitutedId = entry1.getKey();
+            // TODO why is it here?
+            if (!initializationContext.isInitializationStillRequired()) {
+                return result;
+            }
             try {
                 Actor substitutedActor = executorDAO.getActor(substitutedId);
                 if (substitutedActor.isActive()) {
@@ -228,6 +226,6 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
 
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        return false;
+        return isNonRuntime;
     }
 }

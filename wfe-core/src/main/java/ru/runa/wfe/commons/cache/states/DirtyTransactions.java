@@ -33,7 +33,7 @@ public class DirtyTransactions<CacheImpl extends CacheImplementation> {
 
     private DirtyTransactions(Transaction transaction, CacheImpl cache) {
         this.hasDirty = new AtomicBoolean(true);
-        Map<Transaction, CacheImpl> result = new HashMap<Transaction, CacheImpl>();
+        Map<Transaction, CacheImpl> result = new HashMap<>();
         result.put(transaction, cache);
         this.dirtyTransactions = result;
     }
@@ -88,9 +88,10 @@ public class DirtyTransactions<CacheImpl extends CacheImplementation> {
      *            Cache instance for transaction.
      * @return Return tracking object with one dirty transaction.
      */
-    public static <CacheImpl extends CacheImplementation> DirtyTransactions<CacheImpl> createOneDirtyTransaction(Transaction transaction,
-            CacheImpl cache) {
-        return new DirtyTransactions<CacheImpl>(transaction, cache);
+    public static <CacheImpl extends CacheImplementation> DirtyTransactions<CacheImpl> createOneDirtyTransaction(
+            Transaction transaction, CacheImpl cache
+    ) {
+        return new DirtyTransactions<>(transaction, cache);
     }
 
     /**
@@ -107,9 +108,9 @@ public class DirtyTransactions<CacheImpl extends CacheImplementation> {
         if (dirtyTransactions.containsKey(transaction) && dirtyTransactions.get(transaction) == null && cache == null) {
             return this;
         }
-        Map<Transaction, CacheImpl> newDirtySet = new HashMap<Transaction, CacheImpl>(dirtyTransactions);
+        Map<Transaction, CacheImpl> newDirtySet = new HashMap<>(dirtyTransactions);
         newDirtySet.put(transaction, cache);
-        return new DirtyTransactions<CacheImpl>(newDirtySet);
+        return new DirtyTransactions<>(newDirtySet);
     }
 
     /**
@@ -120,11 +121,11 @@ public class DirtyTransactions<CacheImpl extends CacheImplementation> {
      * @return Return tracking object.
      */
     public DirtyTransactions<CacheImpl> removeDirtyTransactionAndClone(Transaction transaction) {
-        Map<Transaction, CacheImpl> newDirtySet = new HashMap<Transaction, CacheImpl>(dirtyTransactions);
+        Map<Transaction, CacheImpl> newDirtySet = new HashMap<>(dirtyTransactions);
         if (!newDirtySet.containsKey(transaction)) {
             log.error("completed transaction is not in dirty state. It's seems to be an error");
         }
         newDirtySet.remove(transaction);
-        return new DirtyTransactions<CacheImpl>(newDirtySet);
+        return new DirtyTransactions<>(newDirtySet);
     }
 }

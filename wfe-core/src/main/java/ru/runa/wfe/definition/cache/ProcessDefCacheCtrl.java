@@ -1,7 +1,6 @@
 package ru.runa.wfe.definition.cache;
 
 import java.util.ArrayList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
@@ -17,8 +16,12 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache
     private DeploymentDAO deploymentDAO;
 
     public ProcessDefCacheCtrl() {
-        super(new ProcessDefinitionCacheFactory(), createListenObjectTypes());
-        CachingLogic.registerChangeListener(this);
+        super(
+                new ProcessDefinitionCacheFactory(),
+                new ArrayList<ListenObjectDefinition>() {{
+                    add(new ListenObjectDefinition(Deployment.class, ListenObjectLogType.ALL));
+                }}
+        );
     }
 
     @Override
@@ -31,12 +34,6 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache
     public ProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
         ManageableProcessDefinitionCache cache = CachingLogic.getCacheImpl(stateMachine);
         return cache.getLatestDefinition(deploymentDAO, definitionName);
-    }
-
-    private static final List<ListenObjectDefinition> createListenObjectTypes() {
-        ArrayList<ListenObjectDefinition> result = new ArrayList<>();
-        result.add(new ListenObjectDefinition(Deployment.class, ListenObjectLogType.ALL));
-        return result;
     }
 
     private static class ProcessDefinitionCacheFactory implements StaticCacheFactory<ManageableProcessDefinitionCache> {

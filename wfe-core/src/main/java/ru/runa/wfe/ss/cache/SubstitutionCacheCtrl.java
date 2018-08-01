@@ -22,7 +22,6 @@ class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> i
 
     public SubstitutionCacheCtrl() {
         super(new NonRuntimeSubstitutionCacheFactory(), createListenObjectTypes());
-        CachingLogic.registerChangeListener(this);
     }
 
     /**
@@ -30,7 +29,6 @@ class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> i
      */
     public SubstitutionCacheCtrl(@SuppressWarnings("unused") boolean fakeBooleanUseStaticCache) {
         super(new SubstitutionCacheFactory(), createListenObjectTypes());
-        CachingLogic.registerChangeListener(this);
     }
 
     @Override
@@ -68,7 +66,7 @@ class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> i
 
         @Override
         public ManageableSubstitutionCache buildCache() {
-            return new SubstitutionCacheStateImpl(true, false, null);
+            return new SubstitutionCacheImpl(true, false, null);
         }
     }
 
@@ -79,12 +77,12 @@ class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> i
 
         @Override
         public ManageableSubstitutionCache createProxy() {
-            return new SubstitutionCacheStateImpl(false, true, null);
+            return new SubstitutionCacheImpl(false, true, null);
         }
 
         @Override
         public ManageableSubstitutionCache buildCache(CacheInitializationContext<ManageableSubstitutionCache> context) {
-            return new SubstitutionCacheStateImpl(true, true, context);
+            return new SubstitutionCacheImpl(true, true, context);
         }
     }
 }
