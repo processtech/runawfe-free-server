@@ -54,13 +54,13 @@ public class DocxFileChanger {
                                 new ColumnExpansionOperation());
                         if (operation != null && operation.isValid()) {
                             tableExpansionOperation.addOperation(columnIndex, operation);
-                            String text0 = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, 0);
-                            DocxUtils.setCellText(cell, text0);
                         } else {
                             operation = new ColumnSetValueOperation();
                             operation.setContainerValue(cell.getText());
                             tableExpansionOperation.addOperation(columnIndex, operation);
                         }
+                        String text0 = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, 0);
+                        DocxUtils.setCellText(cell, text0);
                     }
                     if (tableExpansionOperation.getRows() == 0) {
                         for (XWPFTableCell cell : cells) {
