@@ -82,7 +82,7 @@ class CacheInitializingState<CacheImpl extends CacheImplementation> extends Cach
 
     @Override
     public void accept() {
-        getCacheFactory().startDelayedInitialization(new CacheInitializationContextImpl<>(this, getInitializationCallback()));
+        getCacheFactory().createCacheDelayed(new CacheInitializationContextImpl<>(this, getStateMachine()));
     }
 
     public boolean isInitializationStillRequired() {

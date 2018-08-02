@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.execution.Swimlane;
@@ -53,10 +54,14 @@ class TaskCacheCtrl extends BaseCacheCtrl<ManageableTaskCache> implements TaskCa
         }
     }
 
-    private static class TaskCacheFactory implements StaticCacheFactory<ManageableTaskCache> {
+    private static class TaskCacheFactory extends StaticCacheFactory<ManageableTaskCache> {
+
+        TaskCacheFactory() {
+            super(false, null);
+        }
 
         @Override
-        public ManageableTaskCache buildCache() {
+        protected ManageableTaskCache createCacheImpl(CacheInitializationProcessContext context) {
             return new TaskCacheImpl();
         }
     }

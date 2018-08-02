@@ -6,7 +6,6 @@ import ru.runa.wfe.commons.ManualResetEvent;
 import ru.runa.wfe.commons.cache.common.TestCacheIface;
 import ru.runa.wfe.commons.cache.common.TestCacheStateMachineAudit;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheCtrl;
-import ru.runa.wfe.commons.cache.common.TestLazyCacheFactory;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
 import ru.runa.wfe.commons.cache.states.CacheState;
 
@@ -16,7 +15,7 @@ public class DirtyLazyCacheTest {
     public void simpleGetCacheTest() {
         final ManualResetEvent initializationCompleteEvent = new ManualResetEvent();
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), false);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(factoryCallback, false);
         ctrl.getAudit().set_commitCacheAudit(new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
             @Override
             protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {

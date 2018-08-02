@@ -7,7 +7,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.LazyCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
@@ -37,7 +37,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     /**
      * Factory, used to create cache instances.
      */
-    private final CacheFactoryProxy<CacheImpl> cacheFactory;
+    private final SMCacheFactory<CacheImpl> cacheFactory;
 
     /**
      * Factory to create states.
@@ -59,10 +59,8 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      */
     private final CacheStateMachineAudit<CacheImpl> audit;
 
-    public CacheStateMachine(
-            CacheFactoryProxy<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
-            CacheStateMachineAudit<CacheImpl> audit
-    ) {
+    public CacheStateMachine(SMCacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
+            CacheStateMachineAudit<CacheImpl> audit) {
         this.cacheFactory = cacheFactory;
         stateFactory.setOwner(this);
         this.stateFactory = stateFactory;
@@ -71,11 +69,11 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
         this.audit = audit;
     }
 
-    public CacheStateMachine(CacheFactoryProxy<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor) {
+    public CacheStateMachine(SMCacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor) {
         this(cacheFactory, stateFactory, monitor, new DefaultCacheStateMachineAudit<>());
     }
 
-    public CacheFactoryProxy<CacheImpl> getCacheFactory() {
+    public SMCacheFactory<CacheImpl> getCacheFactory() {
         return cacheFactory;
     }
 
@@ -328,7 +326,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     }
 
     /**
-     * Creates default implementation of cache state machine for cache, initialized via {@link LazyInitializedCacheFactory}.
+     * Creates default implementation of cache state machine for cache, initialized via {@link LazyCacheFactory}.
      *
      * @param factory
      *            Factory to create cache instances.
@@ -337,13 +335,12 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      * @return Returns cache state machine for cache control.
      */
     public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl> createStateMachine(
-            LazyInitializedCacheFactory<CacheImpl> factory, Object monitor
+            LazyCacheFactory<CacheImpl> factory, Object monitor
     ) {
-        DefaultCacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
-        boolean isIsolated = SystemProperties.useIsolatedCacheStateMachine();
-        CacheStateFactory<CacheImpl> stateFactory = isIsolated ? new IsolatedCacheStateFactory<>() : new DefaultCacheStateFactory<>();
-        LazyCacheFactoryProxy<CacheImpl> cacheFactory = new LazyCacheFactoryProxy<>(factory, transactionalExecutor);
-        return new CacheStateMachine<>(cacheFactory, stateFactory, monitor);
+        CacheStateFactory<CacheImpl> stateFactory = SystemProperties.useIsolatedCacheStateMachine()
+                ? new IsolatedCacheStateFactory<>()
+                : new DefaultCacheStateFactory<>();
+        return new CacheStateMachine<>(factory, stateFactory, monitor);
     }
 
     /**
@@ -358,10 +355,10 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl> createStateMachine(
             StaticCacheFactory<CacheImpl> factory, Object monitor
     ) {
-        boolean isIsolated = SystemProperties.useIsolatedCacheStateMachine();
-        CacheStateFactory<CacheImpl> stateFactory = isIsolated ? new IsolatedCacheStateFactory<>() : new DefaultCacheStateFactory<>();
-        StaticCacheFactoryProxy<CacheImpl> cacheFactory = new StaticCacheFactoryProxy<>(factory);
-        return new CacheStateMachine<>(cacheFactory, stateFactory, monitor);
+        CacheStateFactory<CacheImpl> stateFactory = SystemProperties.useIsolatedCacheStateMachine()
+                ? new IsolatedCacheStateFactory<>()
+                : new DefaultCacheStateFactory<>();
+        return new CacheStateMachine<>(factory, stateFactory, monitor);
     }
 
     /**
@@ -376,198 +373,17 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
     public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl> createStateMachine(
             NonRuntimeCacheFactory<CacheImpl> factory, Object monitor
     ) {
-        DefaultCacheTransactionalExecutor transactionalExecutor = new DefaultCacheTransactionalExecutor();
         CacheStateFactory<CacheImpl> stateFactory = new NonRuntimeCacheStateFactory<>();
-        NonRuntimeCacheFactoryProxy<CacheImpl> cacheFactory = new NonRuntimeCacheFactoryProxy<>(factory, transactionalExecutor);
-        return new CacheStateMachine<>(cacheFactory, stateFactory, monitor);
+        return new CacheStateMachine<>(factory, stateFactory, monitor);
     }
 
     /**
-     * Creates implementation of cache state machine for cache, initialized via {@link LazyInitializedCacheFactory}. Used for tests and receives all
-     * parameters.
-     *
-     * @param factory
-     *            Factory to create cache instances.
-     * @param monitor
-     *            Monitor, used for exclusive access.
-     * @param transactionalExecutor
-     *            Implementation for executing cache initialization in transaction.
-     * @param audit
-     *            Audit interface implementation for audit state machine actions.
-     * @return Returns cache state machine for cache control.
+     * For unit-tests.
      */
     public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl> createStateMachine(
-            LazyInitializedCacheFactory<CacheImpl> factory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
-            CacheTransactionalExecutor transactionalExecutor, CacheStateMachineAudit<CacheImpl> audit
+            LazyCacheFactory<CacheImpl> factory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
+            CacheStateMachineAudit<CacheImpl> audit
     ) {
-        LazyCacheFactoryProxy<CacheImpl> cacheFactory = new LazyCacheFactoryProxy<>(factory, transactionalExecutor);
-        return new CacheStateMachine<>(cacheFactory, stateFactory, monitor, audit);
-    }
-
-    /**
-     * Factory for adopt {@link NonRuntimeCacheFactory} implementation for state machine.
-     *
-     * @param <CacheImpl>
-     *            Cache implementation type.
-     */
-    final static class NonRuntimeCacheFactoryProxy<CacheImpl extends CacheImplementation> implements CacheFactoryProxy<CacheImpl> {
-        /**
-         * Delegated (adopted) factory.
-         */
-        private final NonRuntimeCacheFactory<CacheImpl> factory;
-
-        /**
-         * Instance of {@link CacheTransactionalExecutor} for executing initialization in transaction.
-         */
-        private final CacheTransactionalExecutor transactionalExecutor;
-
-        public NonRuntimeCacheFactoryProxy(NonRuntimeCacheFactory<CacheImpl> factory, CacheTransactionalExecutor transactionalExecutor) {
-            this.factory = factory;
-            this.transactionalExecutor = transactionalExecutor;
-        }
-
-        @Override
-        public boolean hasDelayedInitialization() {
-            return true;
-        }
-
-        @Override
-        public CacheImpl createCache() {
-            return factory.createStub();
-        }
-
-        @Override
-        public void startDelayedInitialization(final CacheInitializationContext<CacheImpl> context) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        final AtomicReference<CacheImpl> cache = new AtomicReference<>();
-                        if (!context.isInitializationStillRequired()) {
-                            return;
-                        }
-                        transactionalExecutor.executeInTransaction(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                if (!context.isInitializationStillRequired()) {
-                                    return;
-                                }
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Creating cache from " + factory);
-                                }
-                                cache.set(factory.buildCache(context));
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Created cache from " + factory + ": " + cache.get());
-                                }
-                                context.onComplete(cache.get());
-                            }
-                        });
-                    } catch (Throwable e) {
-                        context.onError(e);
-                    }
-                }
-            });
-            thread.setDaemon(true);
-            thread.start();
-        }
-    }
-
-    /**
-     * Factory for adopt {@link LazyInitializedCacheFactory} implementation for state machine.
-     *
-     * @param <CacheImpl>
-     *            Cache implementation type.
-     */
-    final static class LazyCacheFactoryProxy<CacheImpl extends CacheImplementation> implements CacheFactoryProxy<CacheImpl> {
-        /**
-         * Delegated (adopted) factory.
-         */
-        private final LazyInitializedCacheFactory<CacheImpl> factory;
-
-        /**
-         * Instance of {@link CacheTransactionalExecutor} for executing initialization in transaction.
-         */
-        private final CacheTransactionalExecutor transactionalExecutor;
-
-        public LazyCacheFactoryProxy(LazyInitializedCacheFactory<CacheImpl> factory, CacheTransactionalExecutor transactionalExecutor) {
-            super();
-            this.factory = factory;
-            this.transactionalExecutor = transactionalExecutor;
-        }
-
-        @Override
-        public boolean hasDelayedInitialization() {
-            return true;
-        }
-
-        @Override
-        public CacheImpl createCache() {
-            return factory.createStub();
-        }
-
-        @Override
-        public void startDelayedInitialization(final CacheInitializationContext<CacheImpl> context) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        final AtomicReference<CacheImpl> cache = new AtomicReference<>();
-                        if (!context.isInitializationStillRequired()) {
-                            return;
-                        }
-                        transactionalExecutor.executeInTransaction(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                if (!context.isInitializationStillRequired()) {
-                                    return;
-                                }
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Creating cache from " + factory);
-                                }
-                                cache.set(factory.buildCache(context));
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Created cache from " + factory + ": " + cache.get());
-                                }
-                                context.onComplete(cache.get());
-                            }
-                        });
-                    } catch (Throwable e) {
-                        context.onError(e);
-                    }
-                }
-            });
-            thread.setDaemon(true);
-            thread.start();
-        }
-    }
-
-    /**
-     * Factory for adopt {@link StaticCacheFactory} implementation for state machine.
-     *
-     * @param <CacheImpl>
-     *            Cache implementation type.
-     */
-    final static class StaticCacheFactoryProxy<CacheImpl extends CacheImplementation> implements CacheFactoryProxy<CacheImpl> {
-        private final StaticCacheFactory<CacheImpl> factory;
-
-        public StaticCacheFactoryProxy(StaticCacheFactory<CacheImpl> factory) {
-            this.factory = factory;
-        }
-
-        @Override
-        public boolean hasDelayedInitialization() {
-            return false;
-        }
-
-        @Override
-        public CacheImpl createCache() {
-            return factory.buildCache();
-        }
-
-        @Override
-        public void startDelayedInitialization(final CacheInitializationContext<CacheImpl> context) {
-        }
+        return new CacheStateMachine<>(factory, stateFactory, monitor, audit);
     }
 }

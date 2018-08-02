@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.transaction.Transaction;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
-import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.LazyCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
 import ru.runa.wfe.commons.cache.states.DefaultCacheStateFactory;
@@ -13,16 +13,16 @@ import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
 
 public final class TestLazyCacheCtrl {
     private final CacheStateMachine<TestCacheIface> stateMachine;
-    private final LazyInitializedCacheFactory<TestCacheIface> factory;
+    private final LazyCacheFactory<TestCacheIface> factory;
     private final TestCacheStateMachineAudit<TestCacheIface> audit;
     private final ThreadLocal<TestTransaction> transactions = new ThreadLocal<>();
 
-    public TestLazyCacheCtrl(LazyInitializedCacheFactory<TestCacheIface> factory, boolean isolated) {
-        this.factory = factory;
+    public TestLazyCacheCtrl(TestLazyCacheFactoryCallback factoryCallback, boolean isolated) {
+        factory = new TestLazyCacheFactory(factoryCallback);
         audit = new TestCacheStateMachineAudit<>();
         CacheStateFactory<TestCacheIface> stateFactory = isolated ? new IsolatedCacheStateFactory<>() : new DefaultCacheStateFactory<>();
         stateMachine =
-                CacheStateMachine.createStateMachine(factory, stateFactory, TestLazyCacheCtrl.class, new TestCacheTransactionalExecutor(), audit);
+                CacheStateMachine.createStateMachine(factory, stateFactory, TestLazyCacheCtrl.class, audit);
     }
 
     public TestCacheIface getCacheWithChoise(boolean isWriteTransaction, boolean getCacheIfNotLocked) {
@@ -94,7 +94,7 @@ public final class TestLazyCacheCtrl {
         }
     }
 
-    public LazyInitializedCacheFactory<TestCacheIface> getFactory() {
+    public LazyCacheFactory<TestCacheIface> getFactory() {
         return factory;
     }
 

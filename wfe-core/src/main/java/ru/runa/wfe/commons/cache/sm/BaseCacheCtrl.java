@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.sm.factories.LazyCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 
@@ -52,7 +52,7 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
      */
     private final List<ListenObjectDefinition> listenObjects;
 
-    protected BaseCacheCtrl(LazyInitializedCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
+    protected BaseCacheCtrl(LazyCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
         this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
         this.listenObjects = listenObjects;
         CachingLogic.registerChangeListener(this);

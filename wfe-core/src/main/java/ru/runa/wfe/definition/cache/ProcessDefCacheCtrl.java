@@ -3,6 +3,7 @@ package ru.runa.wfe.definition.cache;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -36,10 +37,14 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache
         return cache.getLatestDefinition(deploymentDAO, definitionName);
     }
 
-    private static class ProcessDefinitionCacheFactory implements StaticCacheFactory<ManageableProcessDefinitionCache> {
+    private static class ProcessDefinitionCacheFactory extends StaticCacheFactory<ManageableProcessDefinitionCache> {
+
+        ProcessDefinitionCacheFactory() {
+            super(false, null);
+        }
 
         @Override
-        public ManageableProcessDefinitionCache buildCache() {
+        protected ManageableProcessDefinitionCache createCacheImpl(CacheInitializationProcessContext context) {
             return new ProcessDefCacheImpl();
         }
     }

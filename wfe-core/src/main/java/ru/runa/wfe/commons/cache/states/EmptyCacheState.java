@@ -46,7 +46,7 @@ public class EmptyCacheState<CacheImpl extends CacheImplementation> extends Cach
      */
     private StateCommandResultWithCache<CacheImpl> initiateCacheCreation() {
         CacheImpl cache = getCacheFactory().createCache();
-        if (getCacheFactory().hasDelayedInitialization()) {
+        if (getCacheFactory().hasDelayedInitialization) {
             return StateCommandResultWithCache.create(getStateFactory().createInitializingState(cache), cache);
         }
         cache.commitCache();

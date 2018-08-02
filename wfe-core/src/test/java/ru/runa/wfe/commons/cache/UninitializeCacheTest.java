@@ -9,7 +9,6 @@ import ru.runa.wfe.commons.cache.common.TestCacheIface;
 import ru.runa.wfe.commons.cache.common.TestCacheStateMachineAudit;
 import ru.runa.wfe.commons.cache.common.TestCacheStateMachineAudit.TestOnChangeAudit;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheCtrl;
-import ru.runa.wfe.commons.cache.common.TestLazyCacheFactory;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
 import ru.runa.wfe.commons.cache.states.CacheState;
 
@@ -18,7 +17,7 @@ public class UninitializeCacheTest {
     @Test()
     public void uninitializeEmptyStateTest() {
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), false);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(factoryCallback, false);
         Assert.assertNull(ctrl.getCurrentCacheInstance());
         ctrl.onChanged(new ChangedObjectParameter(1, Change.DELETE, null, null, null));
         Assert.assertNull(ctrl.getCurrentCacheInstance());
@@ -31,7 +30,7 @@ public class UninitializeCacheTest {
         final ManualResetEvent thread1ReleaseBlockEvent = new ManualResetEvent();
         final ManualResetEvent thread2ReleaseBlockEvent = new ManualResetEvent();
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), false);
+        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(factoryCallback, false);
         ctrl.getAudit().set_commitCacheAudit(new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
             @Override
             protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {

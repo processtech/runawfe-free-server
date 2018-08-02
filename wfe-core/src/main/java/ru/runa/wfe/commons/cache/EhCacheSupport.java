@@ -20,11 +20,9 @@ package ru.runa.wfe.commons.cache;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import lombok.val;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
 
 /**
  * Cache component, which support ehcache or local cache storage.
@@ -71,7 +69,7 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
      */
     @Override
     public void commitCache() {
-        CacheManager manager = EhcacheHelper.getCacheManager();
+        val manager = EhcacheHelper.getCacheManager();
         if (manager == null) {
             return;
         }
@@ -79,7 +77,7 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
         if (ehcache == null) {
             return;
         }
-        CacheConfiguration cacheConfiguration = ehcache.getCacheConfiguration();
+        val cacheConfiguration = ehcache.getCacheConfiguration();
         if (infiniteLifeTime && (!cacheConfiguration.isEternal() || cacheConfiguration.getMaxElementsInMemory() < 100000)) {
             cacheConfiguration.setEternal(true);
             cacheConfiguration.setTimeToIdleSeconds(0);

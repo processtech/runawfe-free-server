@@ -1,5 +1,6 @@
 package ru.runa.wfe.commons.cache.isolated;
 
+import lombok.val;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import ru.runa.wfe.commons.ManualResetEvent;
@@ -9,7 +10,6 @@ import ru.runa.wfe.commons.cache.common.TestCacheIface;
 import ru.runa.wfe.commons.cache.common.TestCacheStateMachineAudit;
 import ru.runa.wfe.commons.cache.common.TestLazyCache;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheCtrl;
-import ru.runa.wfe.commons.cache.common.TestLazyCacheFactory;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheStub;
 import ru.runa.wfe.commons.cache.common.TestTransaction;
@@ -22,9 +22,8 @@ public class DirtyLazyCacheTest {
 
     @Test()
     public void simpleGetCacheTest() {
-        final ManualResetEvent initializationCompleteEvent = new ManualResetEvent();
-        TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        val initializationCompleteEvent = new ManualResetEvent();
+        val ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactoryCallback(), true);
         ctrl.getAudit().set_commitCacheAudit(new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
             @Override
             protected void _stageSwitched(CacheState<TestCacheIface> from, CacheState<TestCacheIface> to) {

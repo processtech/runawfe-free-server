@@ -19,6 +19,7 @@ package ru.runa.wfe.commons.cache;
 
 import java.io.InputStream;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import net.sf.ehcache.CacheManager;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 
@@ -53,12 +54,12 @@ public final class EhcacheHelper {
     private static CacheManager createManager() {
         try {
             InputStream configuration = ClassLoaderUtil.getAsStreamNotNull("hibernate.cache.xml", EhcacheHelper.class);
-            CacheManager ehcacheManager = new CacheManager(configuration);
+            val cm = new CacheManager(configuration);
             log.info("EHCache manager loaded and will be used in WFE caches.");
-            for (String cacheName : ehcacheManager.getCacheNames()) {
+            for (String cacheName : cm.getCacheNames()) {
                 log.debug("Found ehcache for WFE caching: " + cacheName);
             }
-            return ehcacheManager;
+            return cm;
         } catch (Throwable e) {
             log.error("Failed to create EHCache manager for WFE caching. Local caching will be used.", e);
         }

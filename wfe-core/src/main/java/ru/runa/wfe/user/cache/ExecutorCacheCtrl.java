@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Set;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
-import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.factories.LazyInitializedCacheFactory;
+import ru.runa.wfe.commons.cache.sm.DefaultCacheTransactionalExecutor;
+import ru.runa.wfe.commons.cache.sm.factories.LazyCacheFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -108,15 +109,19 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         cache.addAllExecutor(oldCachedData, clazz, batch, executors);
     }
 
-    private static class ExecutorCacheFactory implements LazyInitializedCacheFactory<ManageableExecutorCache> {
+    private static class ExecutorCacheFactory extends LazyCacheFactory<ManageableExecutorCache> {
+
+        ExecutorCacheFactory() {
+            super(true, new DefaultCacheTransactionalExecutor());
+        }
 
         @Override
-        public ManageableExecutorCache createStub() {
+        protected ManageableExecutorCache createCacheStubImpl() {
             return new ExecutorCacheStub();
         }
 
         @Override
-        public ManageableExecutorCache buildCache(CacheInitializationContext<ManageableExecutorCache> context) {
+        protected ManageableExecutorCache createCacheImpl(CacheInitializationProcessContext context) {
             return new ExecutorCacheImpl(context);
         }
     }

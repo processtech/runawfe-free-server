@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
-import ru.runa.wfe.commons.cache.sm.CacheInitializationContext;
+import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
+import ru.runa.wfe.commons.cache.sm.DefaultCacheTransactionalExecutor;
 import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.ss.Substitution;
@@ -49,7 +50,7 @@ class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> i
         return cache.getSubstituted(actor);
     }
 
-    private static final List<ListenObjectDefinition> createListenObjectTypes() {
+    private static List<ListenObjectDefinition> createListenObjectTypes() {
         ArrayList<ListenObjectDefinition> result = new ArrayList<>();
         result.add(new ListenObjectDefinition(Substitution.class, ListenObjectLogType.BECOME_DIRTY));
         result.add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
@@ -62,10 +63,14 @@ class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> i
      * Static factory. It creates on the fly by demand and it state is always equals to database state. May leads to high delay if many executors and
      * substitutions is used. It's recommend to use {@link NonRuntimeSubstitutionCacheFactory}.
      */
-    private static class SubstitutionCacheFactory implements StaticCacheFactory<ManageableSubstitutionCache> {
+    private static class SubstitutionCacheFactory extends StaticCacheFactory<ManageableSubstitutionCache> {
+
+        SubstitutionCacheFactory() {
+            super(false, null);
+        }
 
         @Override
-        public ManageableSubstitutionCache buildCache() {
+        protected ManageableSubstitutionCache createCacheImpl(CacheInitializationProcessContext context) {
             return new SubstitutionCacheImpl(true, false, null);
         }
     }
@@ -73,15 +78,19 @@ class SubstitutionCacheCtrl extends BaseCacheCtrl<ManageableSubstitutionCache> i
     /**
      * Non runtime factory. It creates on background and cache state may differs from database state for some time.
      */
-    private static class NonRuntimeSubstitutionCacheFactory implements NonRuntimeCacheFactory<ManageableSubstitutionCache> {
+    private static class NonRuntimeSubstitutionCacheFactory extends NonRuntimeCacheFactory<ManageableSubstitutionCache> {
+
+        NonRuntimeSubstitutionCacheFactory() {
+            super(true, new DefaultCacheTransactionalExecutor());
+        }
 
         @Override
-        public ManageableSubstitutionCache createStub() {
+        protected ManageableSubstitutionCache createCacheStubImpl() {
             return new SubstitutionCacheImpl(false, true, null);
         }
 
         @Override
-        public ManageableSubstitutionCache buildCache(CacheInitializationContext<ManageableSubstitutionCache> context) {
+        protected ManageableSubstitutionCache createCacheImpl(CacheInitializationProcessContext context) {
             return new SubstitutionCacheImpl(true, true, context);
         }
     }

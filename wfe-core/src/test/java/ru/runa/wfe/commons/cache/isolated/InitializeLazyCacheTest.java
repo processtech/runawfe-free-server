@@ -2,6 +2,7 @@ package ru.runa.wfe.commons.cache.isolated;
 
 import java.util.concurrent.Semaphore;
 import javax.transaction.Transaction;
+import lombok.val;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -14,7 +15,6 @@ import ru.runa.wfe.commons.cache.common.TestCacheIface;
 import ru.runa.wfe.commons.cache.common.TestCacheStateMachineAudit;
 import ru.runa.wfe.commons.cache.common.TestLazyCache;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheCtrl;
-import ru.runa.wfe.commons.cache.common.TestLazyCacheFactory;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheFactoryCallback;
 import ru.runa.wfe.commons.cache.common.TestLazyCacheStub;
 import ru.runa.wfe.commons.cache.common.TestTransaction;
@@ -48,7 +48,7 @@ public class InitializeLazyCacheTest {
                 createCacheEvt.tryWaitEvent();
             }
         };
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
         GetCacheAudit<TestCacheIface> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
             @Override
@@ -128,7 +128,7 @@ public class InitializeLazyCacheTest {
                 createCacheEvt.tryWaitEvent();
             }
         };
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
         GetCacheAudit<TestCacheIface> _getCacheAudit = new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
             @Override
@@ -227,7 +227,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
         GetCacheAudit<TestCacheIface> readThreadGetCacheAudit =
                 new TestCacheStateMachineAudit.TestGetCacheAudit<TestCacheIface>() {
 
@@ -301,7 +301,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
 
         CommitCacheAudit<TestCacheIface> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
@@ -347,7 +347,7 @@ public class InitializeLazyCacheTest {
         final ManualResetEvent commitedEvt = new ManualResetEvent();
 
         TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        val ctrl = new TestLazyCacheCtrl(factoryCallback, true);
 
         CommitCacheAudit<TestCacheIface> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {
@@ -403,10 +403,8 @@ public class InitializeLazyCacheTest {
      */
     @Test(dataProvider = "getCacheMethodType")
     public void cacheProxyCreatedOnDirty(final boolean getCacheIfNoLocked) {
-        final ManualResetEvent commitedEvt = new ManualResetEvent();
-
-        TestLazyCacheFactoryCallback factoryCallback = new TestLazyCacheFactoryCallback();
-        final TestLazyCacheCtrl ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactory(factoryCallback), true);
+        val commitedEvt = new ManualResetEvent();
+        val ctrl = new TestLazyCacheCtrl(new TestLazyCacheFactoryCallback(), true);
 
         CommitCacheAudit<TestCacheIface> _commitCacheAudit =
                 new TestCacheStateMachineAudit.TestCommitCacheAudit<TestCacheIface>() {

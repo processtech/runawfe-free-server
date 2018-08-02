@@ -6,8 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.CacheFactoryProxy;
-import ru.runa.wfe.commons.cache.sm.CacheInitializationCallback;
+import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.commons.cache.sm.CacheStateMachine;
 
 /**
@@ -21,11 +20,11 @@ public abstract class CacheState<CacheImpl extends CacheImplementation> {
         this.owner = owner;
     }
 
-    protected final CacheInitializationCallback<CacheImpl> getInitializationCallback() {
+    protected final CacheStateMachine<CacheImpl> getStateMachine() {
         return owner;
     }
 
-    protected final CacheFactoryProxy<CacheImpl> getCacheFactory() {
+    protected final SMCacheFactory<CacheImpl> getCacheFactory() {
         return owner.getCacheFactory();
     }
 
