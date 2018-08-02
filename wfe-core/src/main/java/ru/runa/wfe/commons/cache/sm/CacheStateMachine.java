@@ -105,7 +105,7 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      * @param transaction
      *            Transaction, requested cache.
      * @param isWriteTransaction
-     *            Flag, equals true, if transaction is changing some cache related objects (not for this cache, but others) and false otherwise.
+     *            True if transaction is changing some cache related objects (not for this cache, but others) and false otherwise.
      * @return Returns cache.
      */
     public CacheImpl getCache(Transaction transaction, boolean isWriteTransaction) {

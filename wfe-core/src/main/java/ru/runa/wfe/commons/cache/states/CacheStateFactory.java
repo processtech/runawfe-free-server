@@ -30,7 +30,9 @@ public abstract class CacheStateFactory<CacheImpl extends CacheImplementation> {
      * Creates empty cache state. No cache initialized or initializing. No dirty transactions exists.
      *
      * @param cache
-     *            Cache, which may be returned until initialization.
+     *            Cache which may be returned until initialization complete.
+     *            Non-null for NonRuntime caches.
+     *            Null for other caches: static caches perform instant initialization; lazy caches will return stub.
      * @return Return cache state machine state.
      */
     public abstract CacheState<CacheImpl> createEmptyState(CacheImpl cache);
@@ -51,7 +53,7 @@ public abstract class CacheStateFactory<CacheImpl extends CacheImplementation> {
      *            Initialized, fully operational cache instance.
      * @return Return cache state machine state.
      */
-    public abstract CacheState<CacheImpl> createInitializedState(CacheImpl cache);
+    public abstract CacheState<CacheImpl> createCompletedState(CacheImpl cache);
 
     /**
      * Creates dirty cache state. All dirty transactions is passed to state via {@link DirtyTransactions} parameter.

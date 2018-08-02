@@ -6,7 +6,8 @@ import ru.runa.wfe.commons.cache.states.CacheStateFactory;
 import ru.runa.wfe.commons.cache.states.DirtyTransactions;
 
 /**
- * Cache state factory for non runtime caches. Cache content may differs from database state for some time.
+ * Cache state factory for non runtime caches. Cache contents may differ from database state for some time.
+ * See comments at {@link CacheStateFactory#createEmptyState(CacheImplementation)}.
  *
  * @param <CacheImpl>
  *            Cache implementation type.
@@ -24,7 +25,7 @@ public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> 
     }
 
     @Override
-    public CacheState<CacheImpl> createInitializedState(CacheImpl cache) {
+    public CacheState<CacheImpl> createCompletedState(CacheImpl cache) {
         return new CompletedCacheState<>(getOwner(), cache);
     }
 

@@ -38,7 +38,9 @@ public abstract class CacheState<CacheImpl extends CacheImplementation> {
      *
      * @return Return true, if dirty transaction exists and false otherwise.
      */
-    public abstract boolean isDirtyTransactionExists();
+    public boolean isDirtyTransactionExists() {
+        return false;
+    }
 
     /**
      * Check if transaction is dirty for cache.
@@ -47,7 +49,9 @@ public abstract class CacheState<CacheImpl extends CacheImplementation> {
      *            Transaction to check.
      * @return Return true, if transaction is dirty and false otherwise.
      */
-    public abstract boolean isDirtyTransaction(Transaction transaction);
+    public boolean isDirtyTransaction(Transaction transaction) {
+        return false;
+    }
 
     /**
      * Fast attempt to get cache. State may return cache only if it already created. No building is allowed.

@@ -50,7 +50,7 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> extends Cach
     public StateCommandResultWithCache<CacheImpl> getCache(Transaction transaction) {
         CacheImpl currentCache = cache;
         if (currentCache == null) {
-            currentCache = getCacheFactory().createCache();
+            currentCache = getCacheFactory().createCacheOrStub();
         }
         return StateCommandResultWithCache.createNoStateSwitch(currentCache);
     }

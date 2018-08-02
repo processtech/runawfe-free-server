@@ -15,16 +15,6 @@ public class EmptyCacheState<CacheImpl extends CacheImplementation> extends Cach
     }
 
     @Override
-    public boolean isDirtyTransactionExists() {
-        return false;
-    }
-
-    @Override
-    public boolean isDirtyTransaction(Transaction transaction) {
-        return false;
-    }
-
-    @Override
     public CacheImpl getCacheQuickNoBuild(Transaction transaction) {
         return null;
     }
@@ -45,12 +35,12 @@ public class EmptyCacheState<CacheImpl extends CacheImplementation> extends Cach
      * @return Return next state for state machine.
      */
     private StateCommandResultWithCache<CacheImpl> initiateCacheCreation() {
-        CacheImpl cache = getCacheFactory().createCache();
+        CacheImpl cache = getCacheFactory().createCacheOrStub();
         if (getCacheFactory().hasDelayedInitialization) {
             return StateCommandResultWithCache.create(getStateFactory().createInitializingState(cache), cache);
         }
         cache.commitCache();
-        return StateCommandResultWithCache.create(getStateFactory().createInitializedState(cache), cache);
+        return StateCommandResultWithCache.create(getStateFactory().createCompletedState(cache), cache);
     }
 
     @Override

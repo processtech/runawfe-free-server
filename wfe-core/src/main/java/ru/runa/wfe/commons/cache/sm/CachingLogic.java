@@ -209,7 +209,7 @@ public class CachingLogic {
     }
 
     /**
-     * Get or create cache. Cache (or proxy) will be returned in all case.
+     * Get or create cache. Cache (or stub) will be returned in all case.
      *
      * @param stateMachine
      *            Cache lifetime state machine.
@@ -220,7 +220,7 @@ public class CachingLogic {
     }
 
     /**
-     * Get or create cache. If changing transaction is exists, when returns null.
+     * Get or create cache. If changing transaction is exists, then returns null.
      *
      * @param stateMachine
      *            Cache lifetime state machine.
@@ -271,7 +271,7 @@ public class CachingLogic {
     }
 
     @CommonsLog
-    static class WrongAccessTransaction implements Transaction {
+    private static class WrongAccessTransaction implements Transaction {
 
         private final static Transaction instance = new WrongAccessTransaction();
 

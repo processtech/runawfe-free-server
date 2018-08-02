@@ -15,7 +15,7 @@ public class DefaultCacheStateFactory<CacheImpl extends CacheImplementation> ext
     }
 
     @Override
-    public CacheState<CacheImpl> createInitializedState(CacheImpl cache) {
+    public CacheState<CacheImpl> createCompletedState(CacheImpl cache) {
         return new CompletedCacheState<>(getOwner(), cache);
     }
 

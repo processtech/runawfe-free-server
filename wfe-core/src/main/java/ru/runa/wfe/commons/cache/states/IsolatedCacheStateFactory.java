@@ -15,7 +15,7 @@ public class IsolatedCacheStateFactory<CacheImpl extends CacheImplementation> ex
     }
 
     @Override
-    public CacheState<CacheImpl> createInitializedState(CacheImpl cache) {
+    public CacheState<CacheImpl> createCompletedState(CacheImpl cache) {
         return new IsolatedCompletedCacheState<>(getOwner(), cache);
     }
 

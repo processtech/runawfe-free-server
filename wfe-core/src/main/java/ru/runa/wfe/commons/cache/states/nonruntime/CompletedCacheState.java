@@ -26,16 +26,6 @@ public class CompletedCacheState<CacheImpl extends CacheImplementation> extends 
     }
 
     @Override
-    public boolean isDirtyTransactionExists() {
-        return false;
-    }
-
-    @Override
-    public boolean isDirtyTransaction(Transaction transaction) {
-        return false;
-    }
-
-    @Override
     public CacheImpl getCacheQuickNoBuild(Transaction transaction) {
         return cache;
     }

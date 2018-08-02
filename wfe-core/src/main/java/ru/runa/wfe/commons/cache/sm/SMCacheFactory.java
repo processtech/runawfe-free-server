@@ -21,7 +21,7 @@ public abstract class SMCacheFactory<CacheImpl extends CacheImplementation> {
         this.transactionalExecutor = transactionalExecutor;
     }
 
-    public final CacheImpl createCache() {
+    public final CacheImpl createCacheOrStub() {
         return hasDelayedInitialization ? createCacheStubImpl() : createCacheImpl(null);
     }
 

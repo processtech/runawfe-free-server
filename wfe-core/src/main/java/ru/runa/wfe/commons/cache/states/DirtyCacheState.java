@@ -45,7 +45,7 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> extends Cach
     public StateCommandResultWithCache<CacheImpl> getCache(Transaction transaction) {
         CacheImpl currentCache = cache;
         if (currentCache == null) {
-            currentCache = getCacheFactory().createCache();
+            currentCache = getCacheFactory().createCacheOrStub();
         }
         return StateCommandResultWithCache.createNoStateSwitch(currentCache);
     }
@@ -89,7 +89,7 @@ public class DirtyCacheState<CacheImpl extends CacheImplementation> extends Cach
             log.error("unlock on cache must always return new cache instance or null. Do not use any sort of flags to unlock cache");
             return StateCommandResultWithData.create(getStateFactory().createEmptyState(null), true);
         }
-        return StateCommandResultWithData.create(getStateFactory().createInitializedState(completedCache), true);
+        return StateCommandResultWithData.create(getStateFactory().createCompletedState(completedCache), true);
     }
 
     @Override

@@ -88,6 +88,7 @@ class EhCacheSupport<K extends Serializable, V extends Serializable> implements 
         for (Map.Entry<K, V> cachedValue : localStorage.entrySet()) {
             ehcache.put(createElement(cachedValue.getKey(), cachedValue.getValue()));
         }
+        // TODO Should I clean localStorage here?
     }
 
     /**

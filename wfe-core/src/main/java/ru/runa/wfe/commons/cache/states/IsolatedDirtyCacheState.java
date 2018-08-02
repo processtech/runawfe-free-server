@@ -46,7 +46,7 @@ public class IsolatedDirtyCacheState<CacheImpl extends CacheImplementation> exte
         CacheImpl currentCache = dirtyTransactions.getCache(transaction, cache);
         CacheState<CacheImpl> nextState = null;
         if (currentCache == null) {
-            currentCache = getCacheFactory().createCache();
+            currentCache = getCacheFactory().createCacheOrStub();
             DirtyTransactions<CacheImpl> newDirty = dirtyTransactions;
             CacheImpl readCache = cache;
             if (dirtyTransactions.isDirtyTransaction(transaction)) {
