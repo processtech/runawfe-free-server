@@ -8,7 +8,7 @@ import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.DefaultCacheTransactionalExecutor;
-import ru.runa.wfe.commons.cache.sm.factories.LazyCacheFactory;
+import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -109,10 +109,10 @@ class ExecutorCacheCtrl extends BaseCacheCtrl<ManageableExecutorCache> implement
         cache.addAllExecutor(oldCachedData, clazz, batch, executors);
     }
 
-    private static class ExecutorCacheFactory extends LazyCacheFactory<ManageableExecutorCache> {
+    private static class ExecutorCacheFactory extends SMCacheFactory<ManageableExecutorCache> {
 
         ExecutorCacheFactory() {
-            super(true, new DefaultCacheTransactionalExecutor());
+            super(Type.LAZY, new DefaultCacheTransactionalExecutor());
         }
 
         @Override

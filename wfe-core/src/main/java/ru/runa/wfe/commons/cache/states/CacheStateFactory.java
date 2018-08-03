@@ -28,10 +28,11 @@ public abstract class CacheStateFactory<CacheImpl extends CacheImplementation> {
 
     /**
      * Creates empty cache state. No cache initialized or initializing. No dirty transactions exists.
+     * @see ru.runa.wfe.commons.cache.sm.SMCacheFactory.Type
      *
      * @param cache
      *            Cache which may be returned until initialization complete.
-     *            Non-null for NonRuntime caches.
+     *            Non-null for staleable caches (stale cache instance or stub).
      *            Null for other caches: static caches perform instant initialization; lazy caches will return stub.
      * @return Return cache state machine state.
      */

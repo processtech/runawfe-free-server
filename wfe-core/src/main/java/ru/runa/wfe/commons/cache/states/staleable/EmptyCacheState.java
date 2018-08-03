@@ -1,6 +1,5 @@
-package ru.runa.wfe.commons.cache.states.nonruntime;
+package ru.runa.wfe.commons.cache.states.staleable;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.transaction.Transaction;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
@@ -12,38 +11,48 @@ import ru.runa.wfe.commons.cache.states.StateCommandResultWithCache;
 import ru.runa.wfe.commons.cache.states.StateCommandResultWithData;
 
 /**
- * Cache lifetime state machine. Current state is initializing cache (lazy initialization is in progress).
+ * Cache lifetime state machine for non runtime caches. Current state is empty cache (initialization required).
  */
-class CacheInitializingState<CacheImpl extends CacheImplementation> extends CacheState<CacheImpl> {
+public class EmptyCacheState<CacheImpl extends CacheImplementation> extends CacheState<CacheImpl> {
 
     /**
-     * Cache (proxy object prior to lazy initialization complete).
+     * Current cache implementation.
      */
     private final CacheImpl cache;
 
-    /**
-     * Initialization required flag. True, if initialization is required and false if initialization may be stopped.
-     */
-    private final AtomicBoolean initializationRequired = new AtomicBoolean(true);
-
-    public CacheInitializingState(CacheStateMachine<CacheImpl> owner, CacheImpl cache) {
+    public EmptyCacheState(CacheStateMachine<CacheImpl> owner, CacheImpl cache) {
         super(owner);
         this.cache = cache;
     }
 
     @Override
     public CacheImpl getCacheQuickNoBuild(Transaction transaction) {
-        return cache;
+        return null;
     }
 
     @Override
     public StateCommandResultWithCache<CacheImpl> getCache(Transaction transaction) {
-        return StateCommandResultWithCache.createNoStateSwitch(cache);
+        return initiateCacheCreation();
     }
 
     @Override
     public StateCommandResultWithCache<CacheImpl> getCacheIfNotLocked(Transaction transaction) {
-        return StateCommandResultWithCache.createNoStateSwitch(cache);
+        return initiateCacheCreation();
+    }
+
+    /**
+     * Create cache and start delayed initialization if required.
+     *
+     * @return Return next state for state machine.
+     */
+    private StateCommandResultWithCache<CacheImpl> initiateCacheCreation() {
+        if (getCacheFactory().isLazy()) {
+            CacheImpl cache = this.cache != null ? this.cache : getCacheFactory().createCacheOrStub();
+            return StateCommandResultWithCache.create(getStateFactory().createInitializingState(cache), cache);
+        }
+        CacheImpl cache = getCacheFactory().createCacheOrStub();
+        cache.commitCache();
+        return StateCommandResultWithCache.create(getStateFactory().createCompletedState(cache), cache);
     }
 
     @Override
@@ -54,7 +63,6 @@ class CacheInitializingState<CacheImpl extends CacheImplementation> extends Cach
 
     @Override
     public StateCommandResult<CacheImpl> onBeforeTransactionComplete(Transaction transaction) {
-        log.error("onBeforeTransactionComplete must not be called on " + this);
         return StateCommandResult.createNoStateSwitch();
     }
 
@@ -62,25 +70,5 @@ class CacheInitializingState<CacheImpl extends CacheImplementation> extends Cach
     public StateCommandResultWithData<CacheImpl, Boolean> onAfterTransactionComplete(Transaction transaction) {
         log.error("onAfterTransactionComplete must not be called on " + this);
         return StateCommandResultWithData.create(getStateFactory().createEmptyState(cache), true);
-    }
-
-    @Override
-    public StateCommandResult<CacheImpl> commitCache(CacheImpl commitingCache) {
-        commitingCache.commitCache();
-        return StateCommandResult.create(getStateFactory().createCompletedState(commitingCache));
-    }
-
-    @Override
-    public void discard() {
-        initializationRequired.set(false);
-    }
-
-    @Override
-    public void accept() {
-        getCacheFactory().createCacheDelayed(new CacheInitializationContextImpl<>(this, getStateMachine()));
-    }
-
-    public boolean isInitializationStillRequired() {
-        return initializationRequired.get();
     }
 }

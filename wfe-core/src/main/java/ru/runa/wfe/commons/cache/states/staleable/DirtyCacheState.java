@@ -1,4 +1,4 @@
-package ru.runa.wfe.commons.cache.states.nonruntime;
+package ru.runa.wfe.commons.cache.states.staleable;
 
 import javax.transaction.Transaction;
 import ru.runa.wfe.commons.cache.CacheImplementation;

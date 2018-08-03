@@ -26,9 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.factories.LazyCacheFactory;
-import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
-import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 
 /**
  * Base class for components receiving events on objects change and transaction complete. Components, receiving events must register self in
@@ -37,9 +34,6 @@ import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
  * @param <CacheImpl> Controlled cache implementation.
  */
 public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
-    /**
-     * Logging support.
-     */
     protected final Log log = LogFactory.getLog(this.getClass());
 
     /**
@@ -52,20 +46,8 @@ public abstract class BaseCacheCtrl<CacheImpl extends CacheImplementation> {
      */
     private final List<ListenObjectDefinition> listenObjects;
 
-    protected BaseCacheCtrl(LazyCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
-        this.listenObjects = listenObjects;
-        CachingLogic.registerChangeListener(this);
-    }
-
-    protected BaseCacheCtrl(StaticCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
-        this.listenObjects = listenObjects;
-        CachingLogic.registerChangeListener(this);
-    }
-
-    protected BaseCacheCtrl(NonRuntimeCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
-        this.stateMachine = CacheStateMachine.createStateMachine(factory, CachingLogic.class);
+    protected BaseCacheCtrl(SMCacheFactory<CacheImpl> factory, List<ListenObjectDefinition> listenObjects) {
+        this.stateMachine = new CacheStateMachine<>(factory, CachingLogic.class);
         this.listenObjects = listenObjects;
         CachingLogic.registerChangeListener(this);
     }

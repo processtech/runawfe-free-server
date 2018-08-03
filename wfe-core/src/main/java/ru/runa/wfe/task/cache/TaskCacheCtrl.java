@@ -6,7 +6,7 @@ import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
@@ -54,10 +54,10 @@ class TaskCacheCtrl extends BaseCacheCtrl<ManageableTaskCache> implements TaskCa
         }
     }
 
-    private static class TaskCacheFactory extends StaticCacheFactory<ManageableTaskCache> {
+    private static class TaskCacheFactory extends SMCacheFactory<ManageableTaskCache> {
 
         TaskCacheFactory() {
-            super(false, null);
+            super(Type.EAGER, null);
         }
 
         @Override

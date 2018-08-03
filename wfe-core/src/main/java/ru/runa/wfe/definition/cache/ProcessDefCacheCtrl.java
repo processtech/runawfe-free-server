@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContext;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
-import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
+import ru.runa.wfe.commons.cache.sm.SMCacheFactory;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
@@ -37,10 +37,10 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache
         return cache.getLatestDefinition(deploymentDAO, definitionName);
     }
 
-    private static class ProcessDefinitionCacheFactory extends StaticCacheFactory<ManageableProcessDefinitionCache> {
+    private static class ProcessDefinitionCacheFactory extends SMCacheFactory<ManageableProcessDefinitionCache> {
 
         ProcessDefinitionCacheFactory() {
-            super(false, null);
+            super(Type.EAGER, null);
         }
 
         @Override

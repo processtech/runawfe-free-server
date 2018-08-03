@@ -3,17 +3,11 @@ package ru.runa.wfe.commons.cache.sm;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.transaction.Transaction;
 import lombok.extern.apachecommons.CommonsLog;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
-import ru.runa.wfe.commons.cache.sm.factories.LazyCacheFactory;
-import ru.runa.wfe.commons.cache.sm.factories.NonRuntimeCacheFactory;
-import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.commons.cache.states.CacheState;
 import ru.runa.wfe.commons.cache.states.CacheStateFactory;
-import ru.runa.wfe.commons.cache.states.DefaultCacheStateFactory;
-import ru.runa.wfe.commons.cache.states.IsolatedCacheStateFactory;
 import ru.runa.wfe.commons.cache.states.StateCommandResult;
 import ru.runa.wfe.commons.cache.states.StateCommandResultWithCache;
 import ru.runa.wfe.commons.cache.states.StateCommandResultWithData;
@@ -26,7 +20,6 @@ import ru.runa.wfe.commons.cache.states.audit.GetCacheAudit;
 import ru.runa.wfe.commons.cache.states.audit.InitializationErrorAudit;
 import ru.runa.wfe.commons.cache.states.audit.OnChangeAudit;
 import ru.runa.wfe.commons.cache.states.audit.StageSwitchAudit;
-import ru.runa.wfe.commons.cache.states.nonruntime.NonRuntimeCacheStateFactory;
 
 /**
  * State machine for managing cache lifetime.
@@ -59,18 +52,25 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
      */
     private final CacheStateMachineAudit<CacheImpl> audit;
 
-    public CacheStateMachine(SMCacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
-            CacheStateMachineAudit<CacheImpl> audit) {
+    /**
+     * @param cacheFactory
+     *            Factory to create cache instances.
+     * @param monitor
+     *            Monitor, used for exclusive access.
+     * @param audit
+     *            Used for unit-tests; other code should use another constructor overload.
+     */
+    public CacheStateMachine(SMCacheFactory<CacheImpl> cacheFactory, Object monitor, CacheStateMachineAudit<CacheImpl> audit) {
         this.cacheFactory = cacheFactory;
+        this.stateFactory = cacheFactory.stateFactory;
         stateFactory.setOwner(this);
-        this.stateFactory = stateFactory;
         this.monitor = monitor;
         state = new AtomicReference<>(stateFactory.createEmptyState(null));
         this.audit = audit;
     }
 
-    public CacheStateMachine(SMCacheFactory<CacheImpl> cacheFactory, CacheStateFactory<CacheImpl> stateFactory, Object monitor) {
-        this(cacheFactory, stateFactory, monitor, new DefaultCacheStateMachineAudit<>());
+    public CacheStateMachine(SMCacheFactory<CacheImpl> cacheFactory, Object monitor) {
+        this(cacheFactory, monitor, new DefaultCacheStateMachineAudit<>());
     }
 
     public SMCacheFactory<CacheImpl> getCacheFactory() {
@@ -323,67 +323,5 @@ public class CacheStateMachine<CacheImpl extends CacheImplementation> implements
         commandAudit.stageSwitchFailed(currentState, nextState);
         nextState.discard();
         return false;
-    }
-
-    /**
-     * Creates default implementation of cache state machine for cache, initialized via {@link LazyCacheFactory}.
-     *
-     * @param factory
-     *            Factory to create cache instances.
-     * @param monitor
-     *            Monitor, used for exclusive access.
-     * @return Returns cache state machine for cache control.
-     */
-    public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl> createStateMachine(
-            LazyCacheFactory<CacheImpl> factory, Object monitor
-    ) {
-        CacheStateFactory<CacheImpl> stateFactory = SystemProperties.useIsolatedCacheStateMachine()
-                ? new IsolatedCacheStateFactory<>()
-                : new DefaultCacheStateFactory<>();
-        return new CacheStateMachine<>(factory, stateFactory, monitor);
-    }
-
-    /**
-     * Creates default implementation of cache state machine for cache, initialized via {@link StaticCacheFactory}.
-     *
-     * @param factory
-     *            Factory to create cache instances.
-     * @param monitor
-     *            Monitor, used for exclusive access.
-     * @return Returns cache state machine for cache control.
-     */
-    public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl> createStateMachine(
-            StaticCacheFactory<CacheImpl> factory, Object monitor
-    ) {
-        CacheStateFactory<CacheImpl> stateFactory = SystemProperties.useIsolatedCacheStateMachine()
-                ? new IsolatedCacheStateFactory<>()
-                : new DefaultCacheStateFactory<>();
-        return new CacheStateMachine<>(factory, stateFactory, monitor);
-    }
-
-    /**
-     * Creates default implementation of cache state machine for cache, initialized via {@link NonRuntimeCacheFactory}.
-     *
-     * @param factory
-     *            Factory to create cache instances.
-     * @param monitor
-     *            Monitor, used for exclusive access.
-     * @return Returns cache state machine for cache control.
-     */
-    public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl> createStateMachine(
-            NonRuntimeCacheFactory<CacheImpl> factory, Object monitor
-    ) {
-        CacheStateFactory<CacheImpl> stateFactory = new NonRuntimeCacheStateFactory<>();
-        return new CacheStateMachine<>(factory, stateFactory, monitor);
-    }
-
-    /**
-     * For unit-tests.
-     */
-    public static <CacheImpl extends CacheImplementation> CacheStateMachine<CacheImpl> createStateMachine(
-            LazyCacheFactory<CacheImpl> factory, CacheStateFactory<CacheImpl> stateFactory, Object monitor,
-            CacheStateMachineAudit<CacheImpl> audit
-    ) {
-        return new CacheStateMachine<>(factory, stateFactory, monitor, audit);
     }
 }

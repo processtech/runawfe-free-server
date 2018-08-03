@@ -72,23 +72,23 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
     /**
      * Flag, equals true, if cache is not runtime and it state may different from database state and false otherwise.
      */
-    private final boolean isNonRuntime;
+    private final boolean isStaleable;
 
     /**
      * Creates cache implementation for substitutions.
      *
      * @param fullInitialization
      *            Flag, equals true, if cache must be fully initialized and false, if cache must be empty (no initialization).
-     * @param isNonRuntime
+     * @param isStaleable
      *            Flag, equals true, if cache is not runtime and it state may different from database state and false otherwise.
      * @param initializationContext
      *            Cache initialization context.
      */
-    public SubstitutionCacheImpl(boolean fullInitialization, boolean isNonRuntime, CacheInitializationProcessContext initializationContext) {
+    public SubstitutionCacheImpl(boolean fullInitialization, boolean isStaleable, CacheInitializationProcessContext initializationContext) {
         if (initializationContext == null) {
             initializationContext = new CacheInitializationProcessContextStub();
         }
-        this.isNonRuntime = isNonRuntime;
+        this.isStaleable = isStaleable;
         actorToSubstitutorsCache = createCache(substitutorsName, true);
         actorToSubstitutedCache = createCache(substitutedName, true);
         if (!fullInitialization) {
@@ -223,6 +223,6 @@ public class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSu
 
     @Override
     public boolean onChange(ChangedObjectParameter changedObject) {
-        return isNonRuntime;
+        return isStaleable;
     }
 }

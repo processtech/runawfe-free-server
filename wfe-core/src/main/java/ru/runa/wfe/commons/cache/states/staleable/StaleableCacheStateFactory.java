@@ -1,4 +1,4 @@
-package ru.runa.wfe.commons.cache.states.nonruntime;
+package ru.runa.wfe.commons.cache.states.staleable;
 
 import ru.runa.wfe.commons.cache.CacheImplementation;
 import ru.runa.wfe.commons.cache.states.CacheState;
@@ -12,7 +12,7 @@ import ru.runa.wfe.commons.cache.states.DirtyTransactions;
  * @param <CacheImpl>
  *            Cache implementation type.
  */
-public class NonRuntimeCacheStateFactory<CacheImpl extends CacheImplementation> extends CacheStateFactory<CacheImpl> {
+public class StaleableCacheStateFactory<CacheImpl extends CacheImplementation> extends CacheStateFactory<CacheImpl> {
 
     @Override
     public CacheState<CacheImpl> createEmptyState(CacheImpl cache) {
