@@ -40,21 +40,23 @@ public abstract class EnvBaseImpl implements Env {
     }
 
     @Override
-    public boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionId) {
+    public boolean hasProcessDefinitionPermission(Permission permission, Long deploymentVersionId) {
         try {
-            Boolean result = processDefPermissionCache.get(processDefinitionId);
+            Boolean result = processDefPermissionCache.get(deploymentVersionId);
             if (result != null) {
                 return result;
             }
-            WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getUser(), processDefinitionId);
+            WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(getUser(), deploymentVersionId);
             result = Delegates.getAuthorizationService().isAllowed(getUser(), permission, definition);
-            processDefPermissionCache.put(processDefinitionId, result);
+            processDefPermissionCache.put(deploymentVersionId, result);
             return result;
         } catch (AuthorizationException e) {
-            processDefPermissionCache.put(processDefinitionId, false);
+            processDefPermissionCache.put(deploymentVersionId, false);
             return false;
         }
     }
 
+    // TODO This probably can be optimized: it stores deploymentVersionId as key, but should store deploymentId,
+    //      since permissions check applies to Deployment, not to DeploymentVersion.
     private final Map<Long, Boolean> processDefPermissionCache = new HashMap<>();
 }

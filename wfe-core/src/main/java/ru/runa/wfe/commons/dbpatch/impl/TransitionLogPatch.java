@@ -55,7 +55,7 @@ public class TransitionLogPatch extends DBPatch {
             Process process = processDAO.get(((Number) scrollableResults.get(0)).longValue());
             Deployment deployment = process.getDeployment();
             try {
-                ProcessDefinition definition = processDefinitionLoader.getDefinition(deployment.getId());
+                ProcessDefinition definition = processDefinitionLoader.getDefinition(process);
                 try {
                     Node node = definition.getNodeNotNull((String) scrollableResults.get(1));
                     Transition transition = node.getLeavingTransitionNotNull((String) scrollableResults.get(2));

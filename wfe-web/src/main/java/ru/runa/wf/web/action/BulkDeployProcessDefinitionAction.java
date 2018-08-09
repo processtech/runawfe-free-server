@@ -49,7 +49,7 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
             for (WfDefinition definition : existingDefinitions) {
                 existingDefinitionsMap.put(definition.getName(), definition);
             }
-            List<String> successKeys = new ArrayList<String>();
+            List<String> successKeys = new ArrayList<>();
             List<String> categories = CategoriesSelectUtils.extract(request);
             for (Map.Entry<String, UploadedFile> entry : uploadedParFiles.entrySet()) {
                 UploadedFile uploadedFile = entry.getValue();

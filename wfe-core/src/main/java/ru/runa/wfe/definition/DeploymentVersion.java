@@ -1,8 +1,10 @@
 package ru.runa.wfe.definition;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import lombok.val;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Actor;
@@ -127,19 +130,21 @@ public class DeploymentVersion implements Serializable {
         this.subprocessBindingDate = subprocessBindingDate;
     }
 
-    @Transient
-    public DeploymentVersion getCopy() {
-        DeploymentVersion o = new DeploymentVersion();
-        o.id = id;
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("id", id).add("version", version).toString();
+    }
 
-        o.category = category;
+    @Transient
+    public DeploymentVersion createCopyWithDeployment() {
+        val o = new DeploymentVersion();
+        o.id = id;
+        o.deployment = deployment.createCopy();
+        o.version = version;
         o.content = content;
         o.createDate = createDate;
-        o.description = description;
-        o.language = language;
-        o.name = name;
+        // TODO What about createActor, updateDate, updateActor?
         o.subprocessBindingDate = subprocessBindingDate;
-        o.version = version;
-        return o;
+//        return o;
     }
 }

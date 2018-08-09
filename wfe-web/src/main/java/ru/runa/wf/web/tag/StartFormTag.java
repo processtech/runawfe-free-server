@@ -40,7 +40,7 @@ public class StartFormTag extends WFFormTag {
         return definitionId;
     }
 
-    @Attribute(required = true, rtexprvalue = true)
+    @Attribute(required = true)
     public void setDefinitionId(Long definitionId) {
         this.definitionId = definitionId;
     }

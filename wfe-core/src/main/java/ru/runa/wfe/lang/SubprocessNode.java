@@ -2,24 +2,23 @@ package ru.runa.wfe.lang;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.SubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.dto.Variables;
@@ -103,13 +102,13 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     protected ProcessDefinition getSubProcessDefinition() {
-        Long version = getProcessDefinition().getDeployment().getVersion();
+        long version = getProcessDefinition().getDeploymentVersion().getVersion();
         if (version < 0) {
-            Deployment deployment = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
-            return processDefinitionLoader.getDefinition(deployment.getId());
+            DeploymentWithVersion dwv = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
+            return processDefinitionLoader.getDefinition(dwv.deploymentVersion.getId());
         }
-        if (getProcessDefinition().getDeployment().getSubprocessBindingDate() != null) {
-            Date beforeDate = getProcessDefinition().getDeployment().getSubprocessBindingDate();
+        Date beforeDate = getProcessDefinition().getDeploymentVersion().getSubprocessBindingDate();
+        if (beforeDate != null) {
             Long deploymentId = ApplicationContextFactory.getDeploymentDAO().findDeploymentIdLatestVersionBeforeDate(subProcessName, beforeDate);
             if (deploymentId == null) {
                 throw new InternalApplicationException("No definition " + subProcessName + " found before " + CalendarUtil.formatDateTime(beforeDate));
@@ -124,13 +123,13 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         if (isEmbedded()) {
             throw new InternalApplicationException("it's not intended for execution");
         }
-        Map<String, Object> map = Maps.newHashMap();
+        val map = new HashMap<String, Object>();
         map.put(Variables.CURRENT_PROCESS_ID_WRAPPED, executionContext.getProcess().getId());
         map.put(Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED, executionContext.getProcessDefinition().getName());
         map.put(Variables.CURRENT_NODE_NAME_WRAPPED, executionContext.getNode().getName());
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
-        IVariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
-        Map<String, Object> variables = Maps.newHashMap();
+        val variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
+        val variables = new HashMap<String, Object>();
         boolean baseProcessIdMode = isInBaseProcessIdMode();
         ProcessDefinition subProcessDefinition = getSubProcessDefinition();
         for (VariableMapping variableMapping : variableMappings) {
@@ -196,8 +195,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
 
     protected ExecutionContext getParentExecutionContext(ExecutionContext subExecutionContext) {
         NodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
-        Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
-        ProcessDefinition superDefinition = processDefinitionLoader.getDefinition(superDefinitionId);
+        ProcessDefinition superDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
         return new ExecutionContext(superDefinition, parentNodeProcess.getParentToken());
     }
 

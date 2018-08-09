@@ -29,6 +29,7 @@ import javax.transaction.xa.XAResource;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheImplementation;
@@ -231,7 +232,7 @@ public class CachingLogic {
     }
 
     private static Transaction getTransactionToGetCache() {
-        Transaction transaction = Utils.getTransaction();
+        val transaction = Utils.getTransaction();
         return transaction != null ? transaction : WrongAccessTransaction.getInstance();
     }
 

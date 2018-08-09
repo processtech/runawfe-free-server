@@ -24,14 +24,14 @@ import ru.runa.wfe.InternalApplicationException;
  */
 public class DefinitionDoesNotExistException extends InternalApplicationException {
     private static final long serialVersionUID = 1L;
-    private final String name;
+    private final String quotedName;
 
     public DefinitionDoesNotExistException(String name) {
-        super("Definition " + name + " does not exist");
-        this.name = name;
+        super("Definition \"" + name + "\" does not exist");
+        this.quotedName = "\"" + name + "\"";
     }
 
-    public String getName() {
-        return name;
+    public String getQuotedName() {
+        return quotedName;
     }
 }

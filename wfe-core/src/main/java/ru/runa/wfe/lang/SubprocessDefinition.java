@@ -1,16 +1,15 @@
 package ru.runa.wfe.lang;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.bpmn2.EndToken;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
-
-import com.google.common.collect.Lists;
 
 public class SubprocessDefinition extends ProcessDefinition {
     private static final long serialVersionUID = 1L;
@@ -20,7 +19,7 @@ public class SubprocessDefinition extends ProcessDefinition {
     }
 
     public SubprocessDefinition(ProcessDefinition parentProcessDefinition) {
-        super(parentProcessDefinition.getDeployment().getCopy(), parentProcessDefinition.getDeploymentVersion().getCopy());
+        super(parentProcessDefinition.getDeploymentVersion().createCopyWithDeployment());
         this.parentProcessDefinition = parentProcessDefinition;
     }
 
@@ -67,7 +66,7 @@ public class SubprocessDefinition extends ProcessDefinition {
     }
 
     public List<EmbeddedSubprocessEndNode> getEndNodes() {
-        List<EmbeddedSubprocessEndNode> list = Lists.newArrayList();
+        val list = new ArrayList<EmbeddedSubprocessEndNode>();
         for (Node node : nodes) {
             if (node instanceof EmbeddedSubprocessEndNode) {
                 list.add((EmbeddedSubprocessEndNode) node);

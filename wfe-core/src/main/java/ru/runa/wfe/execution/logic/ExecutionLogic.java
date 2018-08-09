@@ -22,8 +22,10 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
@@ -190,19 +192,22 @@ public class ExecutionLogic extends WFCommonLogic {
     }
 
     public Long startProcess(User user, String definitionName, Map<String, Object> variables) {
-        return startProcess(user, getLatestDefinition(definitionName).getId(), variables);
+        return startProcessImpl(user, getLatestDefinition(definitionName), variables);
     }
 
-    public Long startProcess(User user, Long definitionId, Map<String, Object> variables) {
+    public Long startProcess(User user, Long deploymentVersionId, Map<String, Object> variables) {
+        return startProcessImpl(user, getDefinition(deploymentVersionId), variables);
+    }
+
+    private Long startProcessImpl(User user, ProcessDefinition processDefinition, Map<String, Object> variables) {
         if (variables == null) {
             variables = Maps.newHashMap();
         }
-        ProcessDefinition processDefinition = getDefinition(definitionId);
         if (SystemProperties.isCheckProcessStartPermissions()) {
             permissionDAO.checkAllowed(user, Permission.START, processDefinition.getDeployment());
         }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
-        Map<String, Object> extraVariablesMap = Maps.newHashMap();
+        val extraVariablesMap = new HashMap<String, Object>();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
         IVariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(processDefinition));
         validateVariables(user, null, variableProvider, processDefinition, processDefinition.getStartStateNotNull().getNodeId(), variables);

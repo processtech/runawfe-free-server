@@ -24,7 +24,7 @@ import java.util.Map;
  * Proxy class for {@linkplain Cache} implementations to save cache usage statistic.
  * @author Konstantinov Aleksey
  */
-class CacheStatisticProxy<K extends Serializable, V extends Serializable> implements Cache<K, V> {
+class CacheStatisticProxy<K extends Serializable, V extends Serializable> extends Cache<K, V> {
 
     /**
      * {@linkplain Cache} implementation to delegate calls. 

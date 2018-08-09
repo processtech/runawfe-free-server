@@ -18,23 +18,17 @@
 
 package ru.runa.wfe.task.dto;
 
+import com.google.common.base.Objects;
 import java.util.List;
-
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Objects;
 
 /**
  * {@link WfTask} factory.
@@ -49,13 +43,8 @@ public class WfTaskFactory implements IWfTaskFactory {
     private ExecutorDAO executorDAO;
 
     /**
-     * 
-     * @param task
-     * @param targetActor
-     * @param acquiredBySubstitution
      * @param variableNamesToInclude
      *            can be <code>null</code>
-     * @return
      */
     @Override
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude) {
@@ -63,33 +52,26 @@ public class WfTaskFactory implements IWfTaskFactory {
     }
 
     /**
-     * 
-     * @param task
-     * @param targetActor
-     * @param acquiredBySubstitution
      * @param variableNamesToInclude
      *            can be <code>null</code>
-     * @param firstOpen
-     * @return
      */
     @Override
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude, boolean firstOpen) {
-        Process process = task.getProcess();
-        Deployment deployment = process.getDeployment();
+        val process = task.getProcess();
         boolean escalated = false;
         if (task.getExecutor() instanceof EscalationGroup) {
-            EscalationGroup escalationGroup = (EscalationGroup) task.getExecutor();
-            Executor originalExecutor = escalationGroup.getOriginalExecutor();
+            val escalationGroup = (EscalationGroup) task.getExecutor();
+            val originalExecutor = escalationGroup.getOriginalExecutor();
             if (originalExecutor instanceof Group) {
                 escalated = !executorDAO.isExecutorInGroup(targetActor, (Group) originalExecutor);
             } else {
                 escalated = !Objects.equal(originalExecutor, targetActor);
             }
         }
-        WfTask wfTask = new WfTask(task, targetActor, escalated, acquiredBySubstitution, firstOpen);
+        val wfTask = new WfTask(task, targetActor, escalated, acquiredBySubstitution, firstOpen);
         if (variableNamesToInclude != null && !variableNamesToInclude.isEmpty()) {
-            ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(deployment.getId());
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+            val processDefinition = processDefinitionLoader.getDefinition(process);
+            val executionContext = new ExecutionContext(processDefinition, process);
             for (String variableName : variableNamesToInclude) {
                 wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
             }

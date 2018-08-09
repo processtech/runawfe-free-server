@@ -69,6 +69,7 @@ import ru.runa.wfe.var.logic.VariableLogic;
 @WebService(name = "ExecutionAPI", serviceName = "ExecutionWebService")
 @SOAPBinding
 public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionServiceRemote, ExecutionServiceRemoteWS {
+
     @Autowired
     private DefinitionLogic definitionLogic;
     @Autowired
@@ -85,9 +86,9 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public Long startProcessById(@NonNull User user, @NonNull Long definitionId, Map<String, Object> variables) {
+    public Long startProcessById(@NonNull User user, @NonNull Long deploymentVersionId, Map<String, Object> variables) {
         FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
-        return executionLogic.startProcess(user, definitionId, variables);
+        return executionLogic.startProcess(user, deploymentVersionId, variables);
     }
 
     @Override

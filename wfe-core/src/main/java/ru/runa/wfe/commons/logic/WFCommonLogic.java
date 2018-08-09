@@ -29,6 +29,7 @@ import ru.runa.wfe.audit.dao.ProcessLogDAO;
 import ru.runa.wfe.audit.dao.SystemLogDAO;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
+import ru.runa.wfe.definition.dao.DeploymentVersionDAO;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
@@ -70,6 +71,8 @@ public class WFCommonLogic extends CommonLogic {
     @Autowired
     protected DeploymentDAO deploymentDAO;
     @Autowired
+    protected DeploymentVersionDAO deploymentVersionDAO;
+    @Autowired
     protected NodeProcessDAO nodeProcessDAO;
     @Autowired
     protected TaskDAO taskDAO;
@@ -86,8 +89,8 @@ public class WFCommonLogic extends CommonLogic {
     @Autowired
     protected SystemLogDAO systemLogDAO;
 
-    public ProcessDefinition getDefinition(Long processDefinitionId) {
-        return processDefinitionLoader.getDefinition(processDefinitionId);
+    public ProcessDefinition getDefinition(long deploymentVersionId) {
+        return processDefinitionLoader.getDefinition(deploymentVersionId);
     }
 
     public ProcessDefinition getDefinition(Process process) {
@@ -100,6 +103,10 @@ public class WFCommonLogic extends CommonLogic {
 
     protected ProcessDefinition getLatestDefinition(String definitionName) {
         return processDefinitionLoader.getLatestDefinition(definitionName);
+    }
+
+    protected ProcessDefinition getLatestDefinition(long deploymentId) {
+        return processDefinitionLoader.getLatestDefinition(deploymentId);
     }
 
     protected void validateVariables(User user, ExecutionContext executionContext, IVariableProvider variableProvider,

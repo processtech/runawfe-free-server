@@ -21,7 +21,6 @@
  */
 package ru.runa.wfe.definition.par;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
@@ -33,42 +32,45 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import lombok.NonNull;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
 public class ProcessArchive {
-    public static final List<String> UNSECURED_FILE_NAMES = Lists.newArrayList();
-    static {
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.START_IMAGE_FILE_NAME);
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.BOTS_XML_FILE);
-    }
+    public static final List<String> UNSECURED_FILE_NAMES = new ArrayList<String>() {{
+        add(IFileDataProvider.START_IMAGE_FILE_NAME);
+        add(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
+        add(IFileDataProvider.BOTS_XML_FILE);
+    }};
 
-    static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<>();
-    static {
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new FileArchiveParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new ProcessDefinitionParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new VariableDefinitionParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new InteractionsParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new TaskSubsitutionParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new GraphXmlParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new CommentsParser()));
-    }
+    private static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<ProcessArchiveParser>() {{
+        add(ApplicationContextFactory.autowireBean(new FileArchiveParser()));
+        add(ApplicationContextFactory.autowireBean(new ProcessDefinitionParser()));
+        add(ApplicationContextFactory.autowireBean(new VariableDefinitionParser()));
+        add(ApplicationContextFactory.autowireBean(new InteractionsParser()));
+        add(ApplicationContextFactory.autowireBean(new TaskSubsitutionParser()));
+        add(ApplicationContextFactory.autowireBean(new GraphXmlParser()));
+        add(ApplicationContextFactory.autowireBean(new CommentsParser()));
+    }};
 
-    private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)."
-            + IFileDataProvider.PROCESSDEFINITION_XML_FILE_NAME);
+    private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(
+            IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)." + IFileDataProvider.PROCESSDEFINITION_XML_FILE_NAME
+    );
 
     private final Deployment deployment;
+    private final DeploymentVersion deploymentVersion;
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
-    public ProcessArchive(Deployment deployment) {
+    public ProcessArchive(@NonNull Deployment d, @NonNull DeploymentVersion dv) {
         try {
-            this.deployment = deployment;
-            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(deployment.getContent()));
+            this.deployment = d;
+            this.deploymentVersion = dv;
+            ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(dv.getContent()));
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 String entryName = zipEntry.getName();
@@ -85,7 +87,7 @@ public class ProcessArchive {
     }
 
     public ProcessDefinition parseProcessDefinition() {
-        ProcessDefinition processDefinition = new ProcessDefinition(deployment);
+        ProcessDefinition processDefinition = new ProcessDefinition(deployment, deploymentVersion);
 
         for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
             processArchiveParser.readFromArchive(this, processDefinition);

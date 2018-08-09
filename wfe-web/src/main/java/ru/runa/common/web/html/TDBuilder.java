@@ -55,7 +55,7 @@ public interface TDBuilder {
 
         boolean isAllowed(Permission permission, ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor extractor);
 
-        boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionId);
+        boolean hasProcessDefinitionPermission(Permission permission, Long deploymentVersionId);
 
     }
 

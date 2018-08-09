@@ -103,7 +103,7 @@ public class ActionExceptionHelper {
             actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_ALREADY_EXISTS.getKey(), exception.getName());
         } else if (e instanceof DefinitionDoesNotExistException) {
             DefinitionDoesNotExistException exception = (DefinitionDoesNotExistException) e;
-            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_DOES_NOT_EXIST.getKey(), exception.getName());
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_DOES_NOT_EXIST.getKey(), exception.getQuotedName());
         } else if (e instanceof DefinitionFileDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.DEFINITION_FILE_DOES_NOT_EXIST_ERROR.getKey(), e.getMessage());
         } else if (e instanceof DefinitionArchiveFormatException) {

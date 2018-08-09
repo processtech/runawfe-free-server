@@ -35,11 +35,6 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
 
     /**
      * Create instance of operation to set starting process readable flag.
-     * 
-     * @param subprocessesInstanstances
-     *            Instances of subprocesses, which must be added to graph elements.
-     * @param subject
-     *            Current subject.
      */
     public ProcessGraphInfoVisitor(User user, ProcessDefinition definition, Process process, ProcessLogs processLogs, List<NodeProcess> nodeProcesses) {
         this.user = user;

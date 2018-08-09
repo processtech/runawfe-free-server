@@ -29,7 +29,7 @@ import net.sf.ehcache.Element;
  * 
  * @author Konstantinov Aleksey
  */
-class EhCacheSupport<K extends Serializable, V extends Serializable> implements ru.runa.wfe.commons.cache.Cache<K, V> {
+class EhCacheSupport<K extends Serializable, V extends Serializable> extends ru.runa.wfe.commons.cache.Cache<K, V> {
 
     /**
      * Local storage. Used if ehcache is unavailable or cache is not committed.

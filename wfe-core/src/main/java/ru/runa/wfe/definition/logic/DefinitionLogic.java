@@ -17,7 +17,6 @@
  */
 package ru.runa.wfe.definition.logic;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -26,7 +25,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.NonNull;
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
@@ -39,6 +40,8 @@ import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.DefinitionNameMismatchException;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
@@ -63,9 +66,6 @@ import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.VariableDefinition;
 
-/**
- * Created on 15.03.2005
- */
 public class DefinitionLogic extends WFCommonLogic {
 
     public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
@@ -91,45 +91,45 @@ public class DefinitionLogic extends WFCommonLogic {
     /**
      * Adds new definition version.
      */
-    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
-        Deployment oldDeployment = deploymentDAO.getNotNull(definitionId);
-        permissionDAO.checkAllowed(user, Permission.UPDATE, oldDeployment);
+    public WfDefinition redeployProcessDefinition(User user, long deploymentVersionId, byte[] processArchiveBytes, List<String> categories) {
+        DeploymentWithVersion dwvOld = deploymentDAO.findDeployment(deploymentVersionId);
+        permissionDAO.checkAllowed(user, Permission.UPDATE, dwvOld.deployment);
         if (processArchiveBytes == null) {
             Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
-            oldDeployment.setCategories(categories);
-            return getProcessDefinition(user, definitionId);
+            dwvOld.deployment.setCategories(categories);
+            return getProcessDefinition(user, deploymentVersionId);
         }
 
-        // TODO If categories can be changed only for latest version, move this check up, above "if (processArchiveBytes == null)".
-        Deployment oldLatestDeployment = deploymentDAO.findLatestDeployment(oldDeployment.getName());
-        if (!Objects.equal(oldLatestDeployment.getId(), oldDeployment.getId())) {
-            throw new InternalApplicationException("Last deployed version of process definition '" + oldLatestDeployment.getName() + "' is '"
-                    + oldLatestDeployment.getVersion() + "'. You provided process definition id for version '"
-                    + oldDeployment.getVersion() + "'");
+        DeploymentWithVersion dwvOldLatest = deploymentDAO.findLatestDeployment(dwvOld.deployment.getId());
+        if (!Objects.equals(dwvOldLatest.deploymentVersion.getId(), dwvOld.deploymentVersion.getId())) {
+            throw new InternalApplicationException("Last deployed version of process definition '" + dwvOldLatest.deployment.getName() + "' is '" +
+                    dwvOldLatest.deploymentVersion.getVersion() + "'. You provided process definition id for version '" +
+                    dwvOld.deploymentVersion.getVersion() + "'");
         }
 
         ProcessDefinition definition = parseProcessDefinition(processArchiveBytes);
-        if (!oldDeployment.getName().equals(definition.getName())) {
-            throw new DefinitionNameMismatchException("Expected definition name " + oldDeployment.getName(), definition.getName(),
-                    oldDeployment.getName());
+        if (!Objects.equals(dwvOld.deployment.getName(), definition.getName())) {
+            throw new DefinitionNameMismatchException("Expected definition name " + dwvOld.deployment.getName(), definition.getName(),
+                    dwvOld.deployment.getName());
         }
-        Deployment deployment = definition.getDeployment();
+        Deployment d = definition.getDeployment();
+        DeploymentVersion dv = definition.getDeploymentVersion();
         if (categories != null) {
-            deployment.setCategories(categories);
+            d.setCategories(categories);
         } else {
-            deployment.setCategory(oldDeployment.getCategory());
+            d.setCategory(dwvOld.deployment.getCategory());
         }
         try {
-            checkCommentsOnDeploy(parseProcessDefinition(oldDeployment.getContent()), definition);
+            checkCommentsOnDeploy(parseProcessDefinition(dwvOld.deploymentVersion.getContent()), definition);
         } catch (InvalidDefinitionException e) {
-            log.warn(oldDeployment + ": " + e);
+            log.warn(dwvOld + ": " + e);
         }
-
-        deployment.setCreateDate(new Date());
-        deployment.setCreateActor(user.getActor());
-        deployment.setVersion(oldLatestDeployment.getVersion() + 1);
-        deploymentDAO.create(deployment);
-        log.debug("Process definition " + oldDeployment + " was successfully redeployed");
+        dv.setCreateDate(new Date());
+        dv.setCreateActor(user.getActor());
+        dv.setVersion(dwvOldLatest.deploymentVersion.getVersion() + 1);
+        deploymentDAO.create(d);
+        deploymentVersionDAO.create(dv);
+        log.debug("Process definition " + dwvOld + " was successfully redeployed");
         return new WfDefinition(definition, true);
     }
 
@@ -196,32 +196,32 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public WfDefinition getProcessDefinitionVersion(User user, String name, Long version) {
-        Deployment deployment = deploymentDAO.findDeployment(name, version);
-        ProcessDefinition definition = getDefinition(deployment.getId());
+        DeploymentWithVersion dwv = deploymentDAO.findDeployment(name, version);
+        ProcessDefinition definition = getDefinition(dwv.deploymentVersion.getId());
         permissionDAO.checkAllowed(user, Permission.LIST, definition.getDeployment());
         return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, definition.getDeployment()));
     }
 
-    public WfDefinition getProcessDefinition(User user, Long definitionId) {
+    public WfDefinition getProcessDefinition(User user, long deploymentVersionId) {
         try {
-            ProcessDefinition definition = getDefinition(definitionId);
+            val definition = getDefinition(deploymentVersionId);
             permissionDAO.checkAllowed(user, Permission.LIST, definition.getDeployment());
             return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, definition.getDeployment()));
         } catch (Exception e) {
-            Deployment deployment = deploymentDAO.getNotNull(definitionId);
-            permissionDAO.checkAllowed(user, Permission.LIST, deployment);
-            return new WfDefinition(deployment);
+            val dwv = deploymentDAO.findDeployment(deploymentVersionId);
+            permissionDAO.checkAllowed(user, Permission.LIST, dwv.deployment);
+            return new WfDefinition(dwv);
         }
     }
 
-    public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) {
-        ProcessDefinition processDefinition = getDefinition(definitionId);
-        permissionDAO.checkAllowed(user, Permission.LIST, processDefinition.getDeployment());
-        return processDefinition;
+    public ProcessDefinition getParsedProcessDefinition(User user, long deploymentVersionId) {
+        ProcessDefinition pd = getDefinition(deploymentVersionId);
+        permissionDAO.checkAllowed(user, Permission.LIST, pd.getDeployment());
+        return pd;
     }
 
-    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
-        ProcessDefinition definition = getDefinition(definitionId);
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, long deploymentVersionId, String subprocessId) {
+        ProcessDefinition definition = getDefinition(deploymentVersionId);
         permissionDAO.checkAllowed(user, Permission.LIST, definition.getDeployment());
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
@@ -281,77 +281,70 @@ public class DefinitionLogic extends WFCommonLogic {
         systemLogDAO.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
     }
 
-    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
-        String definitionName = getDefinition(definitionId).getName();
-        List<Long> deploymentIds = deploymentDAO.findAllDeploymentVersionIds(definitionName, true);
-        return getChanges(deploymentIds);
+    public List<ProcessDefinitionChange> getChanges(long deploymentVersionId) {
+        List<Long> deploymentVersionIds = deploymentDAO.findAllDeploymentVersionIds(deploymentVersionId, true);
+        return getChanges(deploymentVersionIds);
     }
 
-    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
+    public List<ProcessDefinitionChange> getLastChanges(long deploymentVersionId, int n) {
         Preconditions.checkArgument(n > 0);
-        String definitionName = getDefinition(definitionId).getName();
-        List<Long> deploymentIds = deploymentDAO.findAllDeploymentVersionIds(definitionName, false);
-        if (n < deploymentIds.size()) {
-            deploymentIds = new ArrayList<>(deploymentIds.subList(0, n.intValue()));
+        List<Long> deploymentVersionIds = deploymentDAO.findAllDeploymentVersionIds(deploymentVersionId, false);
+        if (n < deploymentVersionIds.size()) {
+            deploymentVersionIds = new ArrayList<>(deploymentVersionIds.subList(0, n));
         }
-        Collections.reverse(deploymentIds);
-        return getChanges(deploymentIds);
+        Collections.reverse(deploymentVersionIds);
+        return getChanges(deploymentVersionIds);
     }
 
     public List<ProcessDefinitionChange> findChanges(String definitionName, Long version1, Long version2) {
-        List<Long> deploymentIds = deploymentDAO.findDeploymentVersionIds(definitionName, version1, version2);
-        return getChanges(deploymentIds);
+        List<Long> deploymentVersionIds = deploymentDAO.findDeploymentVersionIds(definitionName, version1, version2);
+        return getChanges(deploymentVersionIds);
     }
 
-    public byte[] getFile(User user, Long definitionId, String fileName) {
-        Deployment deployment = deploymentDAO.getNotNull(definitionId);
+    public byte[] getFile(User user, long deploymentVersionId, String fileName) {
+        DeploymentWithVersion dwv = deploymentDAO.findDeployment(deploymentVersionId);
         if (!ProcessArchive.UNSECURED_FILE_NAMES.contains(fileName) && !fileName.endsWith(IFileDataProvider.BOTS_XML_FILE)) {
-            permissionDAO.checkAllowed(user, Permission.LIST, deployment);
+            permissionDAO.checkAllowed(user, Permission.LIST, dwv.deployment);
         }
         if (IFileDataProvider.PAR_FILE.equals(fileName)) {
-            return deployment.getContent();
+            return dwv.deploymentVersion.getContent();
         }
-        ProcessDefinition definition = getDefinition(definitionId);
+        ProcessDefinition definition = getDefinition(deploymentVersionId);
         return definition.getFileData(fileName);
     }
 
-    public byte[] getGraph(User user, Long definitionId, String subprocessId) {
-        ProcessDefinition definition = getDefinition(definitionId);
+    public byte[] getGraph(User user, long deploymentVersionId, String subprocessId) {
+        ProcessDefinition definition = getDefinition(deploymentVersionId);
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
         return definition.getGraphImageBytesNotNull();
     }
 
-    public Interaction getStartInteraction(User user, Long definitionId) {
-        ProcessDefinition definition = getDefinition(definitionId);
+    public Interaction getStartInteraction(User user, long deploymentVersionId) {
+        ProcessDefinition definition = getDefinition(deploymentVersionId);
         Interaction interaction = definition.getInteractionNotNull(definition.getStartStateNotNull().getNodeId());
-        Map<String, Object> defaultValues = definition.getDefaultVariableValues();
-        for (Map.Entry<String, Object> entry : defaultValues.entrySet()) {
+        val defaultValues = definition.getDefaultVariableValues();
+        for (val entry : defaultValues.entrySet()) {
             interaction.getDefaultVariableValues().put(entry.getKey(), entry.getValue());
         }
         return interaction;
     }
 
-    public Interaction getTaskNodeInteraction(User user, Long definitionId, String nodeId) {
-        ProcessDefinition definition = getDefinition(definitionId);
-        return definition.getInteractionNotNull(nodeId);
-    }
-
-    public List<SwimlaneDefinition> getSwimlanes(User user, Long definitionId) {
-        ProcessDefinition definition = processDefinitionLoader.getDefinition(definitionId);
+    public List<SwimlaneDefinition> getSwimlanes(User user, long deploymentVersionId) {
+        ProcessDefinition definition = processDefinitionLoader.getDefinition(deploymentVersionId);
         permissionDAO.checkAllowed(user, Permission.LIST, definition.getDeployment());
         return definition.getSwimlanes();
     }
 
-    public List<VariableDefinition> getProcessDefinitionVariables(User user, Long definitionId) {
-        ProcessDefinition definition = getDefinition(definitionId);
+    public List<VariableDefinition> getProcessDefinitionVariables(User user, long deploymentVersionId) {
+        ProcessDefinition definition = getDefinition(deploymentVersionId);
         permissionDAO.checkAllowed(user, Permission.LIST, definition.getDeployment());
         return definition.getVariables();
     }
 
-    public VariableDefinition getProcessDefinitionVariable(User user, Long definitionId, String variableName) {
-        ProcessDefinition definition = getDefinition(definitionId);
+    public VariableDefinition getProcessDefinitionVariable(User user, long deploymentVersionId, String variableName) {
+        ProcessDefinition definition = getDefinition(deploymentVersionId);
         permissionDAO.checkAllowed(user, Permission.LIST, definition.getDeployment());
         return definition.getVariable(variableName, true);
     }
@@ -382,9 +375,11 @@ public class DefinitionLogic extends WFCommonLogic {
 
     private ProcessDefinition parseProcessDefinition(byte[] data) {
         try {
-            Deployment deployment = new Deployment();
-            deployment.setContent(data);
-            ProcessArchive archive = new ProcessArchive(deployment);
+            val d = new Deployment();
+            val dv = new DeploymentVersion();
+            dv.setDeployment(d);
+            dv.setContent(data);
+            ProcessArchive archive = new ProcessArchive(d, dv);
             return archive.parseProcessDefinition();
         } catch (DefinitionArchiveFormatException e) {
             throw e;
@@ -436,24 +431,27 @@ public class DefinitionLogic extends WFCommonLogic {
         return definitionsWithPermission;
     }
 
-    private List<ProcessDefinitionChange> getChanges(List<Long> deploymentIds) {
+    private List<ProcessDefinitionChange> getChanges(List<Long> deploymentVersionIds) {
         List<ProcessDefinitionChange> ignoredChanges = null;
-        if (!deploymentIds.isEmpty()) {
-            ProcessDefinition firstDefinition = getDefinition(deploymentIds.get(0));
-            Long firstDeploymentVersion = firstDefinition.getDeployment().getVersion();
-            Long previousDefinitionId = deploymentDAO.findDeploymentIdLatestVersionLessThan(firstDefinition.getName(), firstDeploymentVersion);
-            if (previousDefinitionId != null) {
-                ignoredChanges = getDefinition(previousDefinitionId).getChanges();
+        if (!deploymentVersionIds.isEmpty()) {
+            ProcessDefinition firstDefinition = getDefinition(deploymentVersionIds.get(0));
+            long firstDeploymentVersion = firstDefinition.getDeploymentVersion().getVersion();
+            Long previousDeploymentVersionId = deploymentDAO.findDeploymentVersionIdLatestVersionLessThan(
+                    firstDefinition.getDeployment().getId(),
+                    firstDeploymentVersion
+            );
+            if (previousDeploymentVersionId != null) {
+                ignoredChanges = getDefinition(previousDeploymentVersionId).getChanges();
             }
         }
-        List<ProcessDefinitionChange> result = new ArrayList<>();
-        for (Number deploymentId : deploymentIds) {
-            ProcessDefinition processDefinition = getDefinition(deploymentId.longValue());
+        val result = new ArrayList<ProcessDefinitionChange>();
+        for (val deploymentVersionId : deploymentVersionIds) {
+            ProcessDefinition processDefinition = getDefinition(deploymentVersionId);
             for (ProcessDefinitionChange change : processDefinition.getChanges()) {
                 if (ignoredChanges != null && ignoredChanges.contains(change) || result.contains(change)) {
                     continue;
                 }
-                result.add(new ProcessDefinitionChange(processDefinition.getDeployment().getVersion(), change));
+                result.add(new ProcessDefinitionChange(processDefinition.getDeploymentVersion().getVersion(), change));
             }
         }
         return result;

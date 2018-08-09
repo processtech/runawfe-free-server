@@ -53,7 +53,12 @@ public class WfTask implements Serializable {
     private String swimlaneName;
     private Executor owner;
     private Actor targetActor;
+
+    /**
+     * In fact, this is deploymentVersionId. But I cannot change structure which is part of the API.
+     */
     private Long definitionId;
+
     private String definitionName;
     private Long processId;
     private String processHierarchyIds;
@@ -83,8 +88,8 @@ public class WfTask implements Serializable {
         this.processId = task.getProcess().getId();
         this.processHierarchyIds = task.getProcess().getHierarchyIds();
         this.tokenId = task.getToken().getId();
-        this.definitionId = task.getProcess().getDeployment().getId();
-        this.definitionName = task.getProcess().getDeployment().getName();
+        this.definitionId = task.getProcess().getDeploymentVersion().getId();
+        this.definitionName = task.getProcess().getDeploymentVersion().getDeployment().getName();
         this.swimlaneName = task.getSwimlane() != null ? task.getSwimlane().getName() : "";
         this.creationDate = task.getCreateDate();
         this.deadlineDate = task.getDeadlineDate();
@@ -133,6 +138,9 @@ public class WfTask implements Serializable {
         return targetActor;
     }
 
+    /**
+     * In fact, this is deploymentVersionId. But I cannot change structure which is part of the API.
+     */
     public Long getDefinitionId() {
         return definitionId;
     }

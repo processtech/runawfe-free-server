@@ -129,7 +129,7 @@ public class Deployment extends SecuredObject {
     }
 
     @Transient
-    public Deployment getCopy() {
+    public Deployment createCopy() {
         Deployment o = new Deployment();
         o.id = id;
         o.name = name;

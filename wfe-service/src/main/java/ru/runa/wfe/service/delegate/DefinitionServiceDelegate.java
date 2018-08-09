@@ -57,9 +57,9 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchive, List<String> categories) {
+    public WfDefinition redeployProcessDefinition(User user, Long deploymentVersionId, byte[] processArchive, List<String> categories) {
         try {
-            return getDefinitionService().redeployProcessDefinition(user, definitionId, processArchive, categories);
+            return getDefinitionService().redeployProcessDefinition(user, deploymentVersionId, processArchive, categories);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -129,27 +129,27 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition getProcessDefinition(User user, Long definitionId) {
+    public WfDefinition getProcessDefinition(User user, Long deploymentVersionId) {
         try {
-            return getDefinitionService().getProcessDefinition(user, definitionId);
+            return getDefinitionService().getProcessDefinition(user, deploymentVersionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public ProcessDefinition getParsedProcessDefinition(User user, Long definitionId) throws DefinitionDoesNotExistException {
+    public ProcessDefinition getParsedProcessDefinition(User user, Long deploymentVersionId) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getParsedProcessDefinition(user, definitionId);
+            return getDefinitionService().getParsedProcessDefinition(user, deploymentVersionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfNode getNode(User user, Long definitionId, String nodeId) throws DefinitionDoesNotExistException {
+    public WfNode getNode(User user, Long deploymentVersionId, String nodeId) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getNode(user, definitionId, nodeId);
+            return getDefinitionService().getNode(user, deploymentVersionId, nodeId);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -165,36 +165,36 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public Interaction getStartInteraction(User user, Long definitionId) {
+    public Interaction getStartInteraction(User user, Long deploymentVersionId) {
         try {
-            return getDefinitionService().getStartInteraction(user, definitionId);
+            return getDefinitionService().getStartInteraction(user, deploymentVersionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public Interaction getTaskNodeInteraction(User user, Long definitionId, String nodeId) {
+    public Interaction getTaskNodeInteraction(User user, Long deploymentVersionId, String nodeId) {
         try {
-            return getDefinitionService().getTaskNodeInteraction(user, definitionId, nodeId);
+            return getDefinitionService().getTaskNodeInteraction(user, deploymentVersionId, nodeId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public byte[] getProcessDefinitionFile(User user, Long definitionId, String fileName) {
+    public byte[] getProcessDefinitionFile(User user, Long deploymentVersionId, String fileName) {
         try {
-            return getDefinitionService().getProcessDefinitionFile(user, definitionId, fileName);
+            return getDefinitionService().getProcessDefinitionFile(user, deploymentVersionId, fileName);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public byte[] getProcessDefinitionGraph(User user, Long definitionId, String subprocessId) throws DefinitionDoesNotExistException {
+    public byte[] getProcessDefinitionGraph(User user, Long deploymentVersionId, String subprocessId) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getProcessDefinitionGraph(user, definitionId, subprocessId);
+            return getDefinitionService().getProcessDefinitionGraph(user, deploymentVersionId, subprocessId);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -210,45 +210,45 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<UserType> getUserTypes(User user, Long definitionId) {
+    public List<UserType> getUserTypes(User user, Long deploymentVersionId) {
         try {
-            return getDefinitionService().getUserTypes(user, definitionId);
+            return getDefinitionService().getUserTypes(user, deploymentVersionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public UserType getUserType(User user, Long definitionId, String name) throws DefinitionDoesNotExistException {
+    public UserType getUserType(User user, Long deploymentVersionId, String name) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getUserType(user, definitionId, name);
+            return getDefinitionService().getUserType(user, deploymentVersionId, name);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<VariableDefinition> getVariableDefinitions(User user, Long definitionId) {
+    public List<VariableDefinition> getVariableDefinitions(User user, Long deploymentVersionId) {
         try {
-            return getDefinitionService().getVariableDefinitions(user, definitionId);
+            return getDefinitionService().getVariableDefinitions(user, deploymentVersionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public VariableDefinition getVariableDefinition(User user, Long definitionId, String variableName) throws DefinitionDoesNotExistException {
+    public VariableDefinition getVariableDefinition(User user, Long deploymentVersionId, String variableName) throws DefinitionDoesNotExistException {
         try {
-            return getDefinitionService().getVariableDefinition(user, definitionId, variableName);
+            return getDefinitionService().getVariableDefinition(user, deploymentVersionId, variableName);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long definitionId, String subprocessId) {
+    public List<NodeGraphElement> getProcessDefinitionGraphElements(User user, Long deploymentVersionId, String subprocessId) {
         try {
-            return getDefinitionService().getProcessDefinitionGraphElements(user, definitionId, subprocessId);
+            return getDefinitionService().getProcessDefinitionGraphElements(user, deploymentVersionId, subprocessId);
         } catch (Exception e) {
             throw handleException(e);
         }
@@ -264,18 +264,18 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public List<ProcessDefinitionChange> getChanges(Long definitionId) {
+    public List<ProcessDefinitionChange> getChanges(Long deploymentVersionId) {
         try {
-            return getDefinitionService().getChanges(definitionId);
+            return getDefinitionService().getChanges(deploymentVersionId);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public List<ProcessDefinitionChange> getLastChanges(Long definitionId, Long n) {
+    public List<ProcessDefinitionChange> getLastChanges(Long deploymentVersionId, Long n) {
         try {
-            return getDefinitionService().getLastChanges(definitionId, n);
+            return getDefinitionService().getLastChanges(deploymentVersionId, n);
         } catch (Exception e) {
             throw handleException(e);
         }

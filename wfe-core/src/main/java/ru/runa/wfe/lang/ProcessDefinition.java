@@ -28,6 +28,7 @@ import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.NonNull;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
@@ -67,14 +68,14 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     protected ProcessDefinition() {
     }
 
-    public ProcessDefinition(Deployment deployment, DeploymentVersion deploymentVersion) {
-        this.deployment = deployment;
-        this.deploymentVersion = deploymentVersion;
+    public ProcessDefinition(@NonNull Deployment d, @NonNull DeploymentVersion dv) {
+        this.deployment = d;
+        this.deploymentVersion = dv;
         processDefinition = this;
     }
 
     public Long getId() {
-        return deployment.getId();
+//        return deployment.getId();  // TODO Or deploymentVersion.getId()? Check usages.
     }
 
     @Override
@@ -283,7 +284,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     }
 
     public Map<String, Object> getDefaultVariableValues() {
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         for (VariableDefinition variableDefinition : variables) {
             if (variableDefinition.getDefaultValue() != null) {
                 result.put(variableDefinition.getName(), variableDefinition.getDefaultValue());

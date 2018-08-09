@@ -103,7 +103,7 @@ public class Token implements Serializable {
         setNodeType(startNode.getNodeType());
         setAbleToReactivateParent(true);
         setName(startNode.getNodeId());
-        setChildren(new HashSet<Token>());
+        setChildren(new HashSet<>());
         log.info("Created " + this);
     }
 
@@ -117,7 +117,7 @@ public class Token implements Serializable {
         setNodeId(parent.getNodeId());
         setNodeType(parent.getNodeType());
         setAbleToReactivateParent(true);
-        setChildren(new HashSet<Token>());
+        setChildren(new HashSet<>());
         setParent(parent);
         parent.addChild(this);
         log.info("Created " + this);
@@ -307,8 +307,7 @@ public class Token implements Serializable {
                 throw new InternalApplicationException("Unexpected token node " + nodeId + " of type " + nodeType + " on subprocess end");
             }
             NodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
-            Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
-            ProcessDefinition superDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(superDefinitionId);
+            ProcessDefinition superDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(parentNodeProcess.getProcess());
             getNodeNotNull(superDefinition).leave(subExecutionContext, null);
         }
     }
@@ -340,11 +339,11 @@ public class Token implements Serializable {
             log.info("Cancelling " + node + " with " + this);
             ((BoundaryEvent) node).cancelBoundaryEvent(this);
         } else if (node == null) {
-            log.warn("Node " + node + " is null");
+            log.warn("Node is null");
         }
         if (recursive) {
             for (Token child : getChildren()) {
-                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, recursive);
+                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
             }
         }
     }
