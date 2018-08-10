@@ -14,7 +14,7 @@ public class CreateSignalTable extends DBPatch {
         columns.add(new BigintColumnDef("ID", false).setPrimaryKey());
         columns.add(new BigintColumnDef("VERSION", false));
         columns.add(new DateColumnDef("CREATE_DATE", false));
-        columns.add(new DateColumnDef("DELETE_DATE", true));
+        columns.add(new DateColumnDef("EXPIRY_DATE", true));
         columns.add(new ColumnDef("MESSAGE_SELECTORS_MAP", dialect.getTypeName(Types.BLOB), false));
         columns.add(new ColumnDef("MESSAGE_DATA_MAP", dialect.getTypeName(Types.BLOB), false));
         columns.add(new VarcharColumnDef("MESSAGE_SELECTORS", 1024, true));

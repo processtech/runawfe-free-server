@@ -62,8 +62,8 @@ public class Signal implements Serializable {
     private Long version;
     @Column(name = "CREATE_DATE", nullable = false)
     private Date createDate;
-    @Column(name = "DELETE_DATE")
-    private Date deleteDate;
+    @Column(name = "EXPIRY_DATE")
+    private Date expiryDate;
     @Lob
     @Column(length = 16777216, name = "MESSAGE_SELECTORS_MAP", nullable = false)
     private byte[] messageSelectorsMap;
@@ -82,7 +82,7 @@ public class Signal implements Serializable {
     public Signal(ObjectMessage message) throws JMSException {
         this.createDate = new Date();
         if (message.getJMSExpiration() != 0) {
-            this.deleteDate = new Date(message.getJMSExpiration());
+            this.expiryDate = new Date(message.getJMSExpiration());
         }
         // TODO testing
         this.messageSelectorsMap = (byte[]) new SerializableToByteArrayConverter().convert(null, null, getMessageSelectorsMap(message));
