@@ -98,6 +98,7 @@ public class OracleStoreService extends JdbcStoreService {
 
     @Override
     protected String driverClassName() {
+        System.getProperties().setProperty("oracle.jdbc.J2EE13Compliant", "true");
         return "oracle.jdbc.driver.OracleDriver";
     }
 
