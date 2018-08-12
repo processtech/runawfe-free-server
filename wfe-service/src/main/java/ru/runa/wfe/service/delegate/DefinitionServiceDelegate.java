@@ -66,18 +66,18 @@ public class DefinitionServiceDelegate extends EJB3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchive) {
+    public WfDefinition updateProcessDefinition(User user, Long deploymentVersionId, byte[] processArchive) {
         try {
-            return getDefinitionService().updateProcessDefinition(user, definitionId, processArchive);
+            return getDefinitionService().updateProcessDefinition(user, deploymentVersionId, processArchive);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) throws DefinitionDoesNotExistException {
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long deploymentVersionId, Date date) throws DefinitionDoesNotExistException {
         try {
-            getDefinitionService().setProcessDefinitionSubprocessBindingDate(user, definitionId, date);
+            getDefinitionService().setProcessDefinitionSubprocessBindingDate(user, deploymentVersionId, date);
         } catch (Exception e) {
             throw handleException(e);
         }

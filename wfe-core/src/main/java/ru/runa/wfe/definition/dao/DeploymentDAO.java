@@ -23,9 +23,11 @@ package ru.runa.wfe.definition.dao;
 
 import com.google.common.base.Preconditions;
 import com.querydsl.core.Tuple;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.NonNull;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
@@ -140,8 +142,12 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     public List<Long> findDeploymentVersionIds(String name, Long from, Long to) {
         QDeployment d = QDeployment.deployment;
         QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
-        return queryFactory.select(dv.id).from(dv).innerJoin(dv.deployment, d)
-                .where(d.name.eq(name).and(dv.version.between(from, to))).orderBy(dv.version.asc()).fetch();
+        return queryFactory.select(dv.id)
+                .from(dv)
+                .innerJoin(dv.deployment, d)
+                .where(d.name.eq(name).and(dv.version.between(from, to)))
+                .orderBy(dv.version.asc())
+                .fetch();
     }
 
     public Long findDeploymentVersionIdLatestVersionLessThan(long deploymentId, long version) {
@@ -153,9 +159,13 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
                 .fetchFirst();
     }
 
-    public Long findDeploymentIdLatestVersionBeforeDate(String name, Date date) {
+    public Long findDeploymentVersionIdLatestVersionBeforeDate(String name, Date date) {
         QDeployment d = QDeployment.deployment;
-        return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.createDate.lt(date))).orderBy(d.version.desc()).fetchFirst();
+        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        return queryFactory.select(dv.id)
+                .from(dv)
+                .innerJoin(dv.deployment, d)
+                .where(d.name.eq(name).and(dv.createDate.lt(date))).orderBy(dv.version.desc()).fetchFirst();
     }
 
     /**
@@ -164,9 +174,21 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
      * @deprecated use findAllDeploymentVersionIds
      */
     @Deprecated
-    public List<Deployment> findAllDeploymentVersions(String name) {
+    public List<DeploymentWithVersion> findAllDeploymentVersions(String name) {
         QDeployment d = QDeployment.deployment;
-        return queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetch();
-    }
+        QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
+        List<Tuple> tt = queryFactory.select(d, dv)
+                .from(dv)
+                .innerJoin(dv.deployment, d)
+                .where(d.name.eq(name))
+                .orderBy(dv.version.desc())
+                .fetch();
 
+        // TODO After migrating to Spring5, use stream() with lambdas.
+        val result = new ArrayList<DeploymentWithVersion>(tt.size());
+        for (Tuple t : tt) {
+            result.add(new DeploymentWithVersion(t.get(d), t.get(dv)));
+        }
+        return result;
+    }
 }

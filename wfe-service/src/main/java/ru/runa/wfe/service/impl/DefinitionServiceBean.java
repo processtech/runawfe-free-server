@@ -81,15 +81,21 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition updateProcessDefinition(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "processArchive") @NonNull byte[] processArchive) {
-        return definitionLogic.updateProcessDefinition(user, definitionId, processArchive);
+    public WfDefinition updateProcessDefinition(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "processArchive") @NonNull byte[] processArchive
+    ) {
+        return definitionLogic.updateProcessDefinition(user, deploymentVersionId, processArchive);
     }
 
     @Override
-    public void setProcessDefinitionSubprocessBindingDate(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "date") Date date) throws DefinitionDoesNotExistException {
-        definitionLogic.setProcessDefinitionSubprocessBindingDate(user, definitionId, date);
+    public void setProcessDefinitionSubprocessBindingDate(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "date") Date date
+    ) throws DefinitionDoesNotExistException {
+        definitionLogic.setProcessDefinitionSubprocessBindingDate(user, deploymentVersionId, date);
     }
 
     @Override

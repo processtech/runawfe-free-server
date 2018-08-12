@@ -25,12 +25,14 @@ import ru.runa.wfe.var.dto.Variables;
 
 public class SubprocessNode extends VariableContainerNode implements Synchronizable, BoundaryEventContainer {
     private static final long serialVersionUID = 1L;
+
     protected boolean async;
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
     private String subProcessName;
     private boolean embedded;
     private boolean transactional;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
+
     @Autowired
     private transient IProcessDefinitionLoader processDefinitionLoader;
     @Autowired
@@ -109,11 +111,11 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         }
         Date beforeDate = getProcessDefinition().getDeploymentVersion().getSubprocessBindingDate();
         if (beforeDate != null) {
-            Long deploymentId = ApplicationContextFactory.getDeploymentDAO().findDeploymentIdLatestVersionBeforeDate(subProcessName, beforeDate);
-            if (deploymentId == null) {
-                throw new InternalApplicationException("No definition " + subProcessName + " found before " + CalendarUtil.formatDateTime(beforeDate));
+            Long deploymentVersionId = ApplicationContextFactory.getDeploymentDAO().findDeploymentVersionIdLatestVersionBeforeDate(subProcessName, beforeDate);
+            if (deploymentVersionId == null) {
+                throw new InternalApplicationException("No definition \"" + subProcessName + "\" found before " + CalendarUtil.formatDateTime(beforeDate));
             }
-            return processDefinitionLoader.getDefinition(deploymentId);
+            return processDefinitionLoader.getDefinition(deploymentVersionId);
         }
         return processDefinitionLoader.getLatestDefinition(subProcessName);
     }

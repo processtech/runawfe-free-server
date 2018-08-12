@@ -113,7 +113,7 @@ public class ActionExceptionHelper {
                     ((InvalidDefinitionException) e).getDefinitionName(), e.getMessage());
         } else if (e instanceof DefinitionNameMismatchException) {
             DefinitionNameMismatchException exception = (DefinitionNameMismatchException) e;
-            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getDeployedProcessDefinitionName(),
+            actionMessage = new ActionMessage(MessagesException.ERROR_DEFINITION_NAME_MISMATCH.getKey(), exception.getExpectedProcessDefinitionName(),
                     exception.getGivenProcessDefinitionName());
         } else if (e instanceof TaskDoesNotExistException) {
             actionMessage = new ActionMessage(MessagesException.ERROR_TASK_DOES_NOT_EXIST.getKey());

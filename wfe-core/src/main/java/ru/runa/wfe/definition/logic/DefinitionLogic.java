@@ -109,8 +109,7 @@ public class DefinitionLogic extends WFCommonLogic {
 
         ProcessDefinition definition = parseProcessDefinition(processArchiveBytes);
         if (!Objects.equals(dwvOld.deployment.getName(), definition.getName())) {
-            throw new DefinitionNameMismatchException("Expected definition name " + dwvOld.deployment.getName(), definition.getName(),
-                    dwvOld.deployment.getName());
+            throw new DefinitionNameMismatchException(dwvOld.deployment.getName(), definition.getName());
         }
         Deployment d = definition.getDeployment();
         DeploymentVersion dv = definition.getDeploymentVersion();
@@ -136,22 +135,21 @@ public class DefinitionLogic extends WFCommonLogic {
     /**
      * Updates process definition (same version).
      */
-    public WfDefinition updateProcessDefinition(User user, Long definitionId, @NonNull byte[] processArchiveBytes) {
-        Deployment deployment = deploymentDAO.getNotNull(definitionId);
-        permissionDAO.checkAllowed(user, Permission.UPDATE, deployment);
-        ProcessDefinition definition = parseProcessDefinition(processArchiveBytes);
-        if (!deployment.getName().equals(definition.getName())) {
-            throw new DefinitionNameMismatchException("Expected definition name " + deployment.getName(), definition.getName(),
-                    deployment.getName());
+    public WfDefinition updateProcessDefinition(User user, Long deploymentVersionId, @NonNull byte[] processArchiveBytes) {
+        val dwv = deploymentDAO.findDeployment(deploymentVersionId);
+        permissionDAO.checkAllowed(user, Permission.UPDATE, dwv.deployment);
+        val definition = parseProcessDefinition(processArchiveBytes);
+        if (!Objects.equals(dwv.deployment.getName(), definition.getName())) {
+            throw new DefinitionNameMismatchException(dwv.deployment.getName(), definition.getName());
         }
-        checkCommentsOnDeploy(parseProcessDefinition(deployment.getContent()), definition);
-        deployment.setContent(definition.getDeployment().getContent());
-        deployment.setUpdateDate(new Date());
-        deployment.setUpdateActor(user.getActor());
-        deploymentDAO.update(deployment);
-        addUpdatedDefinitionInProcessLog(user, deployment);
-        log.debug("Process definition " + deployment + " was successfully updated");
-        return new WfDefinition(deployment);
+        checkCommentsOnDeploy(parseProcessDefinition(dwv.deploymentVersion.getContent()), definition);
+        dwv.deploymentVersion.setContent(definition.getDeploymentVersion().getContent());
+        dwv.deploymentVersion.setUpdateDate(new Date());
+        dwv.deploymentVersion.setUpdateActor(user.getActor());
+        deploymentVersionDAO.update(dwv.deploymentVersion);
+        addUpdatedDefinitionInProcessLog(user, dwv);
+        log.debug("Process definition " + dwv + " was successfully updated");
+        return new WfDefinition(dwv);
     }
 
     private void checkCommentsOnDeploy(ProcessDefinition oldDefinition, ProcessDefinition definition) {
@@ -169,20 +167,20 @@ public class DefinitionLogic extends WFCommonLogic {
         }
     }
 
-    public void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) {
-        Deployment deployment = deploymentDAO.getNotNull(definitionId);
-        permissionDAO.checkAllowed(user, Permission.UPDATE, deployment);
-        Date oldDate = deployment.getSubprocessBindingDate();
-        deployment.setSubprocessBindingDate(date);
-        deploymentDAO.update(deployment);
+    public void setProcessDefinitionSubprocessBindingDate(User user, Long deploymentVersionId, Date date) {
+        DeploymentWithVersion dwv = deploymentDAO.findDeployment(deploymentVersionId);
+        permissionDAO.checkAllowed(user, Permission.UPDATE, dwv.deployment);
+        Date oldDate = dwv.deploymentVersion.getSubprocessBindingDate();
+        dwv.deploymentVersion.setSubprocessBindingDate(date);
+        deploymentVersionDAO.update(dwv.deploymentVersion);
         log.info("ProcessDefinition subprocessBindingDate changed: " + CalendarUtil.formatDateTime(oldDate) + " -> "
                 + CalendarUtil.formatDateTime(date));
     }
 
-    private void addUpdatedDefinitionInProcessLog(User user, Deployment deployment) {
+    private void addUpdatedDefinitionInProcessLog(User user, DeploymentWithVersion dwv) {
         ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(deployment.getName());
-        filter.setDefinitionVersion(deployment.getVersion());
+        filter.setDefinitionName(dwv.deployment.getName());
+        filter.setDefinitionVersion(dwv.deploymentVersion.getVersion());
         List<Process> processes = processDAO.getProcesses(filter);
         for (Process process : processes) {
             processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);
@@ -231,8 +229,8 @@ public class DefinitionLogic extends WFCommonLogic {
     }
 
     public List<WfDefinition> getProcessDefinitionHistory(User user, String name) {
-        List<Deployment> deploymentVersions = deploymentDAO.findAllDeploymentVersions(name);
-        final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(deploymentVersions.size());
+        List<DeploymentWithVersion> dwvs = deploymentDAO.findAllDeploymentVersions(name);
+        final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(dwvs.size());
         isPermissionAllowed(user, deploymentVersions, Permission.LIST, new CheckMassPermissionCallback() {
             @Override
             public void onPermissionGranted(SecuredObject securedObject) {

@@ -78,13 +78,11 @@ public interface DefinitionService {
      * 
      * @param user
      *            authorized user
-     * @param definitionId
-     *            process definition id
      * @param archive
      *            process definition archive (ZIP format)
      * @return redeployed definition
      */
-    WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] archive) throws DefinitionDoesNotExistException,
+    WfDefinition updateProcessDefinition(User user, Long deploymentVersionId, byte[] archive) throws DefinitionDoesNotExistException,
             DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
@@ -92,12 +90,10 @@ public interface DefinitionService {
      * 
      * @param user
      *            authorized user
-     * @param definitionId
-     *            process definition id
      * @param date
      *            can be <code>null</code>
      */
-    void setProcessDefinitionSubprocessBindingDate(User user, Long definitionId, Date date) throws DefinitionDoesNotExistException;
+    void setProcessDefinitionSubprocessBindingDate(User user, Long deploymentVersionId, Date date) throws DefinitionDoesNotExistException;
 
     /**
      * Gets only last version from process definition by name.
