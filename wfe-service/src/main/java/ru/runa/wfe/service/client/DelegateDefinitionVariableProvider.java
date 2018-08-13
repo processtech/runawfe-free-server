@@ -32,7 +32,7 @@ public class DelegateDefinitionVariableProvider extends AbstractVariableProvider
     }
 
     @Override
-    public Long getProcessDefinitionId() {
+    public Long getDeploymentVersionId() {
         return definitionId;
     }
 

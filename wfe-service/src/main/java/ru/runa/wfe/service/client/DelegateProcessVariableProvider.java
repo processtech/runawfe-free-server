@@ -45,7 +45,7 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public Long getProcessDefinitionId() {
+    public Long getDeploymentVersionId() {
         if (processDefinitionId == null) {
             WfProcess process = executionService.getProcess(user, processId);
             processDefinitionId = process.getDefinitionId();
@@ -64,7 +64,7 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
     @Override
     public ProcessDefinition getProcessDefinition() {
         if (processDefinition == null) {
-            processDefinition = definitionService.getParsedProcessDefinition(user, getProcessDefinitionId());
+            processDefinition = definitionService.getParsedProcessDefinition(user, getDeploymentVersionId());
         }
         return processDefinition;
     }
@@ -76,7 +76,7 @@ public class DelegateProcessVariableProvider extends AbstractVariableProvider {
 
     @Override
     public UserType getUserType(String name) {
-        return definitionService.getUserType(user, getProcessDefinitionId(), name);
+        return definitionService.getUserType(user, getDeploymentVersionId(), name);
     }
 
     @Override

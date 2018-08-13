@@ -318,7 +318,7 @@ public interface ExecutionService {
      * 
      * @return upgraded processes count
      */
-    int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion);
+    int upgradeProcessesToDefinitionVersion(User user, Long deploymentVersionId, Long newVersion);
 
     /**
      * Get all active jobs (recursively) by process id.

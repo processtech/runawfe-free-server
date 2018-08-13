@@ -33,6 +33,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
@@ -74,10 +75,20 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         processDefinition = this;
     }
 
-    public Long getId() {
-//        return deployment.getId();  // TODO Or deploymentVersion.getId()? Check usages.
+    public ProcessDefinition(DeploymentWithVersion dwv) {
+        this(dwv.deployment, dwv.deploymentVersion);
     }
 
+    /**
+     * @return deploymentVersion.id
+     */
+    public Long getId() {
+        return deploymentVersion.getId();
+    }
+
+    /**
+     * @return deployment.name
+     */
     @Override
     public String getName() {
         return deployment.getName();

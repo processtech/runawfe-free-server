@@ -42,7 +42,8 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WFCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
-import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.DeploymentVersion;
+import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -257,7 +258,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) {
         Process process = processDAO.getNotNull(processId);
-        ProcessDefinition definition = getDefinition(process.getDeployment().getId());
+        ProcessDefinition definition = getDefinition(process.getDeploymentVersion().getId());
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
@@ -275,7 +276,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) {
         Process process = processDAO.getNotNull(processId);
-        ProcessDefinition definition = getDefinition(process.getDeployment().getId());
+        ProcessDefinition definition = getDefinition(process.getDeploymentVersion().getId());
         List<NodeProcess> nodeProcesses = nodeProcessDAO.getNodeProcesses(process, null, nodeId, null);
         ProcessLogs processLogs = null;
         if (DrawProperties.isLogsInGraphEnabled()) {
@@ -323,43 +324,47 @@ public class ExecutionLogic extends WFCommonLogic {
         }
     }
 
-    public int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion) {
+    public int upgradeProcessesToDefinitionVersion(User user, Long deploymentVersionId, long newVersion) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
-                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
+                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' " +
+                    "to 'true' in system.properties or wfe.custom.system.properties"
+            );
         }
-        Deployment deployment = deploymentDAO.getNotNull(definitionId);
-        Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newVersion);
+        DeploymentWithVersion dwv = deploymentDAO.findDeployment(deploymentVersionId);
+        DeploymentWithVersion nextDWV = deploymentDAO.findDeployment(dwv.deployment.getName(), newVersion);
         ProcessFilter filter = new ProcessFilter();
-        filter.setDefinitionName(deployment.getName());
-        filter.setDefinitionVersion(deployment.getVersion());
+        filter.setDefinitionName(dwv.deployment.getName());
+        filter.setDefinitionVersion(dwv.deploymentVersion.getVersion());
         filter.setFinished(false);
         List<Process> processes = processDAO.getProcesses(filter);
         for (Process process : processes) {
-            process.setDeployment(nextDeployment);
+            process.setDeploymentVersion(nextDWV.deploymentVersion);
             processDAO.update(process);
-            processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
-                    newVersion), process, null);
+            processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION,
+                    dwv.deploymentVersion.getVersion(), newVersion), process, null);
         }
         return processes.size();
     }
 
-    public boolean upgradeProcessToDefinitionVersion(User user, Long processId, Long version) {
+    public boolean upgradeProcessToDefinitionVersion(User user, long processId, Long version) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
-                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' to 'true' in system.properties or wfe.custom.system.properties");
+                    "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' " +
+                    "to 'true' in system.properties or wfe.custom.system.properties"
+            );
         }
         Process process = processDAO.getNotNull(processId);
         // TODO checkPermissionAllowed(user, process, ProcessPermission.UPDATE);
-        Deployment deployment = process.getDeployment();
-        long newDeploymentVersion = version != null ? version : deployment.getVersion() + 1;
-        if (newDeploymentVersion == deployment.getVersion()) {
+        DeploymentVersion dv = process.getDeploymentVersion();
+        long newDeploymentVersion = version != null ? version : dv.getVersion() + 1;
+        if (newDeploymentVersion == dv.getVersion()) {
             return false;
         }
-        Deployment nextDeployment = deploymentDAO.findDeployment(deployment.getName(), newDeploymentVersion);
-        process.setDeployment(nextDeployment);
+        DeploymentWithVersion nextDWV = deploymentDAO.findDeployment(dv.getDeployment().getName(), newDeploymentVersion);
+        process.setDeploymentVersion(nextDWV.deploymentVersion);
         processDAO.update(process);
-        processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, deployment.getVersion(),
+        processLogDAO.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_PROCESS_TO_VERSION, dv.getVersion(),
                 newDeploymentVersion), process, null);
         return true;
     }

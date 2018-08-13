@@ -239,9 +239,9 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public int upgradeProcessesToDefinitionVersion(User user, Long definitionId, Long newVersion) {
+    public int upgradeProcessesToDefinitionVersion(User user, Long deploymentVersionId, Long newVersion) {
         try {
-            return getExecutionService().upgradeProcessesToDefinitionVersion(user, definitionId, newVersion);
+            return getExecutionService().upgradeProcessesToDefinitionVersion(user, deploymentVersionId, newVersion);
         } catch (Exception e) {
             throw handleException(e);
         }

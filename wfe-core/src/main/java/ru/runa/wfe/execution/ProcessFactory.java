@@ -123,7 +123,7 @@ public class ProcessFactory {
     private ExecutionContext createProcessInternal(ProcessDefinition processDefinition, Map<String, Object> variables, Actor actor,
             Process parentProcess, Map<String, Object> transientVariables) {
         Preconditions.checkNotNull(processDefinition, "can't create a process when processDefinition is null");
-        Process process = new Process(processDefinition.getDeployment());
+        Process process = new Process(processDefinition.getDeploymentVersion());
         Token rootToken = new Token(processDefinition, process);
         process.setRootToken(rootToken);
         processDAO.create(process);

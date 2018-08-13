@@ -31,9 +31,9 @@ public class ProcessDAO extends GenericDAO<Process> {
     /**
      * fetches all processes for the given process definition from the database. The returned list of processs is sorted start date, youngest first.
      */
-    public List<Process> findAllProcesses(Long definitionId) {
+    public List<Process> findAllProcesses(Long deploymentId) {
         QProcess p = QProcess.process;
-        return queryFactory.selectFrom(p).where(p.deployment.id.eq(definitionId)).orderBy(p.startDate.desc()).fetch();
+        return queryFactory.selectFrom(p).where(p.deploymentVersion.deployment.id.eq(deploymentId)).orderBy(p.startDate.desc()).fetch();
     }
 
     public List<Process> find(List<Long> ids) {
@@ -57,10 +57,10 @@ public class ProcessDAO extends GenericDAO<Process> {
         QProcess p = QProcess.process;
         JPQLQuery<Process> q = queryFactory.selectFrom(p).where();
         if (filter.getDefinitionName() != null) {
-            q.where(p.deployment.name.eq(filter.getDefinitionName()));
+            q.where(p.deploymentVersion.deployment.name.eq(filter.getDefinitionName()));
         }
         if (filter.getDefinitionVersion() != null) {
-            q.where(p.deployment.version.eq(filter.getDefinitionVersion()));
+            q.where(p.deploymentVersion.version.eq(filter.getDefinitionVersion()));
         }
         if (filter.getId() != null) {
             q.where(p.id.eq(filter.getId()));

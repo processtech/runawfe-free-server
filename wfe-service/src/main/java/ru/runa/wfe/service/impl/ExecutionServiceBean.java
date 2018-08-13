@@ -295,9 +295,12 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public int upgradeProcessesToDefinitionVersion(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "version") @NonNull Long newVersion) {
-        return executionLogic.upgradeProcessesToDefinitionVersion(user, definitionId, newVersion);
+    public int upgradeProcessesToDefinitionVersion(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "version") @NonNull Long newVersion
+    ) {
+        return executionLogic.upgradeProcessesToDefinitionVersion(user, deploymentVersionId, newVersion);
     }
 
     @Override

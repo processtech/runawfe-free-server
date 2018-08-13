@@ -47,6 +47,7 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
+import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFilter;
@@ -77,15 +78,17 @@ public class DefinitionLogic extends WFCommonLogic {
         } catch (DefinitionDoesNotExistException e) {
             // Expected.
         }
-        Deployment deployment = definition.getDeployment();
-        deployment.setCategories(categories);
-        deployment.setCreateDate(new Date());
-        deployment.setCreateActor(user.getActor());
-        deployment.setVersion(1L);
-        deploymentDAO.create(deployment);
-        permissionDAO.setPermissions(user.getActor(), Collections.singletonList(Permission.ALL), deployment);
+        Deployment d = definition.getDeployment();
+        DeploymentVersion dv = definition.getDeploymentVersion();
+        d.setCategories(categories);
+        dv.setCreateDate(new Date());
+        dv.setCreateActor(user.getActor());
+        dv.setVersion(1L);
+        deploymentDAO.create(d);
+        deploymentVersionDAO.create(dv);
+        permissionDAO.setPermissions(user.getActor(), Collections.singletonList(Permission.ALL), d);
         log.debug("Deployed process definition " + definition);
-        return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, deployment));
+        return new WfDefinition(definition, permissionDAO.isAllowed(user, Permission.START, d));
     }
 
     /**
@@ -230,30 +233,31 @@ public class DefinitionLogic extends WFCommonLogic {
 
     public List<WfDefinition> getProcessDefinitionHistory(User user, String name) {
         List<DeploymentWithVersion> dwvs = deploymentDAO.findAllDeploymentVersions(name);
-        final List<WfDefinition> result = Lists.newArrayListWithExpectedSize(dwvs.size());
-        isPermissionAllowed(user, deploymentVersions, Permission.LIST, new CheckMassPermissionCallback() {
-            @Override
-            public void onPermissionGranted(SecuredObject securedObject) {
-                result.add(new WfDefinition((Deployment) securedObject));
-            }
-        });
+        if (dwvs.isEmpty() || !permissionDAO.isAllowed(user, Permission.LIST, dwvs.get(0).deployment)) {
+            return Collections.emptyList();
+        }
+        val result = new ArrayList<WfDefinition>(dwvs.size());
+        for (val dwv : dwvs) {
+            result.add(new WfDefinition(dwv));
+        }
         return result;
     }
 
     public void undeployProcessDefinition(User user, String definitionName, Long version) {
         Preconditions.checkNotNull(definitionName, "definitionName must be specified.");
+
+        // TODO Can be optimized to single SQL statement.
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(definitionName);
         filter.setDefinitionVersion(version);
         List<Process> processes = processDAO.getProcesses(filter);
         for (Process process : processes) {
-            if (nodeProcessDAO.findBySubProcessId(process.getId()) != null) {
-                throw new ParentProcessExistsException(
-                        definitionName,
-                        nodeProcessDAO.findBySubProcessId(process.getId()).getProcess().getDeployment().getName()
-                );
+            NodeProcess parent = nodeProcessDAO.findBySubProcessId(process.getId());
+            if (parent != null) {
+                throw new ParentProcessExistsException(definitionName, parent.getProcess().getDeploymentVersion().getDeployment().getName());
             }
         }
+
         if (version == null) {
             Deployment latestDeployment = deploymentDAO.findLatestDeployment(definitionName);
             permissionDAO.checkAllowed(user, Permission.ALL, latestDeployment);
@@ -264,7 +268,7 @@ public class DefinitionLogic extends WFCommonLogic {
             }
             log.info("Process definition " + latestDeployment + " successfully undeployed");
         } else {
-            Deployment deployment = deploymentDAO.findDeployment(definitionName, version);
+            DeploymentWithVersion dwv = deploymentDAO.findDeployment(definitionName, version);
             removeDeployment(user, deployment);
             log.info("Process definition " + deployment + " successfully undeployed");
         }
@@ -275,6 +279,7 @@ public class DefinitionLogic extends WFCommonLogic {
         for (Process process : processes) {
             deleteProcess(user, process);
         }
+        deploymentVersionDAO.deleteAll(deployment);  // TODO Wrong, this is about deleting SINGLE version!!!
         deploymentDAO.delete(deployment);
         systemLogDAO.create(new ProcessDefinitionDeleteLog(user.getActor().getId(), deployment.getName(), deployment.getVersion()));
     }

@@ -136,15 +136,14 @@ public class DeploymentVersion implements Serializable {
     }
 
     @Transient
-    public DeploymentVersion createCopyWithDeployment() {
+    public DeploymentWithVersion createCopyWithDeployment() {
         val o = new DeploymentVersion();
         o.id = id;
         o.deployment = deployment.createCopy();
         o.version = version;
         o.content = content;
         o.createDate = createDate;
-        // TODO What about createActor, updateDate, updateActor?
         o.subprocessBindingDate = subprocessBindingDate;
-//        return o;
+        return new DeploymentWithVersion(o.deployment, o);
     }
 }

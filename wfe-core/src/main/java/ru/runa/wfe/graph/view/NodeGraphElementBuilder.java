@@ -1,19 +1,15 @@
 package ru.runa.wfe.graph.view;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
-
-import com.google.common.collect.Lists;
 
 public class NodeGraphElementBuilder {
 
     /**
      * Convert nodes to graph elements.
      *
-     * @param definitionNodes
-     *            Nodes to convert
      * @return List of graph elements for nodes.
      */
     public static List<NodeGraphElement> createElements(ProcessDefinition definition) {
@@ -27,8 +23,6 @@ public class NodeGraphElementBuilder {
     /**
      * Convert nodes to graph elements.
      *
-     * @param definitionNodes
-     *            Nodes to convert
      * @return List of graph elements for nodes.
      */
     public static NodeGraphElement createElement(Node node) {
