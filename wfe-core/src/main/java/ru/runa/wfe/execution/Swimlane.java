@@ -21,9 +21,9 @@
  */
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -35,22 +35,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.persistence.Version;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.audit.SwimlaneAssignLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Objects;
 
 /**
  * is a process role for a one process.
@@ -58,16 +53,12 @@ import com.google.common.base.Objects;
 @Entity
 @Table(name = "BPM_SWIMLANE")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Swimlane implements Serializable, Assignable {
+public class Swimlane extends BaseSwimlane<Process> implements Serializable, Assignable {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Swimlane.class);
 
     private Long id;
-    private Long version;
-    private String name;
-    private Executor executor;
     private Process process;
-    private Date createDate;
 
     public Swimlane() {
     }
@@ -89,38 +80,6 @@ public class Swimlane implements Serializable, Assignable {
         this.id = id;
     }
 
-    @Version
-    @Column(name = "VERSION")
-    protected Long getVersion() {
-        return version;
-    }
-
-    protected void setVersion(Long version) {
-        this.version = version;
-    }
-
-    @Override
-    @Column(name = "NAME", length = 1024)
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "EXECUTOR_ID")
-    @ForeignKey(name = "FK_SWIMLANE_EXECUTOR")
-    public Executor getExecutor() {
-        return executor;
-    }
-
-    public void setExecutor(Executor executor) {
-        this.executor = executor;
-    }
-
     @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_SWIMLANE_PROCESS")
@@ -131,15 +90,6 @@ public class Swimlane implements Serializable, Assignable {
 
     public void setProcess(Process process) {
         this.process = process;
-    }
-
-    @Column(name = "CREATE_DATE", nullable = false)
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
     }
 
     @Transient
@@ -162,10 +112,4 @@ public class Swimlane implements Serializable, Assignable {
             }
         }
     }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("name", name).add("value", executor).toString();
-    }
-
 }

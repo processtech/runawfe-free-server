@@ -1,9 +1,9 @@
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -13,10 +13,8 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -34,8 +32,6 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.logic.TaskLogic;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "TaskServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)

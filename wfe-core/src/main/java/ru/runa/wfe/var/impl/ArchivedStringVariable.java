@@ -19,33 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package ru.runa.wfe.extension;
+package ru.runa.wfe.var.impl;
 
-import java.io.Serializable;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+import ru.runa.wfe.var.ArchivedVariable;
 
-import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.user.Executor;
+@Entity
+@DiscriminatorValue(value = "S")
+public class ArchivedStringVariable extends ArchivedVariable<String> {
 
-/**
- * common superclass for {@link ru.runa.wfe.task.Task}s and {@link ru.runa.wfe.execution.Swimlane}s used by the
- * {@link ru.runa.wfe.extension.AssignmentHandler} interface.
- */
-public interface Assignable extends Serializable {
+    @Transient
+    @Override
+    public String getStorableValue() {
+        return getStringValue();
+    }
 
-    String getName();
-
-    String getSwimlaneName();
-
-    /**
-     * sets the responsible for this assignable object. Use this method to assign the task into a user's personal task list.
-     * 
-     * @param cascadeUpdate
-     *            for task: update swimlane; for swimlane: update tasks
-     */
-    void assignExecutor(ExecutionContext executionContext, Executor executor, boolean cascadeUpdate);
-
-    /**
-     * @return currently assigned executor
-     */
-    Executor getExecutor();
+    @Override
+    protected void setStorableValue(String object) {
+    }
 }

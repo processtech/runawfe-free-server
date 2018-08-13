@@ -21,11 +21,13 @@
  */
 package ru.runa.wfe.audit;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -47,18 +49,13 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.execution.Process;
 
 /**
  * Base class for logging process unit of work.
@@ -72,7 +69,7 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 @DiscriminatorValue(value = "0")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class ProcessLog implements IAttributes, Serializable, Comparable<ProcessLog> {
+public abstract class ProcessLog extends BaseProcessLog<Process> implements IAttributes, Serializable, Comparable<ProcessLog> {
     private static final long serialVersionUID = 1L;
 
     public static int getAttributeMaxLength() {

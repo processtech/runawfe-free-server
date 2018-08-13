@@ -1,7 +1,7 @@
 package ru.runa.wfe.execution;
 
+import com.google.common.base.Objects;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,28 +12,21 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-
 import ru.runa.wfe.lang.Node;
-
-import com.google.common.base.Objects;
 
 @Entity
 @Table(name = "BPM_SUBPROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class NodeProcess {
+public class NodeProcess extends BaseNodeProcess<Process> {
+
     private Long id;
     private Process process;
     private Token parentToken;
-    private String nodeId;
     private Process subProcess;
-    // TODO why = 0 for subprocess?
-    private Integer index;
-    private Date createDate;
 
     protected NodeProcess() {
     }
@@ -47,6 +40,7 @@ public class NodeProcess {
         this.createDate = new Date();
     }
 
+    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_SUBPROCESS", allocationSize = 1)
@@ -55,10 +49,12 @@ public class NodeProcess {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
+    @Override
     @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_PROCESS_ID", nullable = false)
     @ForeignKey(name = "FK_SUBPROCESS_PARENT_PROCESS")
@@ -67,6 +63,7 @@ public class NodeProcess {
         return process;
     }
 
+    @Override
     public void setProcess(Process process) {
         this.process = process;
     }
@@ -82,6 +79,7 @@ public class NodeProcess {
         this.parentToken = parentToken;
     }
 
+    @Override
     @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
     @ForeignKey(name = "FK_SUBPROCESS_PROCESS")
@@ -90,35 +88,9 @@ public class NodeProcess {
         return subProcess;
     }
 
+    @Override
     public void setSubProcess(Process subProcess) {
         this.subProcess = subProcess;
-    }
-
-    @Column(name = "PARENT_NODE_ID", length = 1024)
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-    @Column(name = "SUBPROCESS_INDEX")
-    public Integer getIndex() {
-        return index;
-    }
-
-    public void setIndex(Integer index) {
-        this.index = index;
-    }
-
-    @Column(name = "CREATE_DATE", nullable = false)
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
     }
 
     @Override
@@ -134,10 +106,4 @@ public class NodeProcess {
         }
         return super.equals(obj);
     }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("nodeId", nodeId).add("process", process).add("subProcess", subProcess).toString();
-    }
-
 }

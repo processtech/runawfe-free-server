@@ -21,9 +21,7 @@
  */
 package ru.runa.wfe.var;
 
-import com.google.common.base.Objects;
 import java.util.Arrays;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -45,7 +43,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import org.hibernate.annotations.Type;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
@@ -67,23 +64,16 @@ import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public abstract class Variable<T> {
-
-    public static int getMaxStringSize() {
-        return SystemProperties.getStringVariableValueLength();
-    }
+public abstract class Variable<T> extends BaseVariable<Process, T> {
 
     protected Long id;
-    private Long version;
     private String name;
     private Process process;
-    private Converter converter;
-    private String stringValue;
-    private Date createDate;
 
     public Variable() {
     }
 
+    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_VARIABLE", allocationSize = 1)
@@ -92,37 +82,21 @@ public abstract class Variable<T> {
         return id;
     }
 
+    @Override
     protected void setId(Long id) {
         this.id = id;
     }
 
-    @Column(name = "VERSION")
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
+    @Override
     @Column(name = "NAME", length = 1024)
     @Index(name = "IX_VARIABLE_NAME")
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Column(name = "CONVERTER")
-    @Type(type = "ru.runa.wfe.commons.hibernate.ConverterEnumType")
-    public Converter getConverter() {
-        return converter;
-    }
-
-    public void setConverter(Converter converter) {
-        this.converter = converter;
     }
 
     @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
@@ -133,38 +107,10 @@ public abstract class Variable<T> {
         return process;
     }
 
+    @Override
     public void setProcess(Process process) {
         this.process = process;
     }
-
-    @Column(name = "CREATE_DATE", nullable = false)
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    @Column(name = "STRINGVALUE", length = 1024)
-    public String getStringValue() {
-        return stringValue;
-    }
-
-    public void setStringValue(String stringValue) {
-        this.stringValue = stringValue;
-    }
-
-    /**
-     * Get the value of the variable.
-     */
-    @Transient
-    public abstract T getStorableValue();
-
-    /**
-     * Set new variable value
-     */
-    protected abstract void setStorableValue(T object);
 
     private VariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition) {
         if (oldValue == null) {
@@ -229,10 +175,4 @@ public abstract class Variable<T> {
         string = Utils.getCuttedString(string, getMaxStringSize());
         return string;
     }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();
-    }
-
 }

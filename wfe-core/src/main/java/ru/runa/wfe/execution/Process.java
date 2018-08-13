@@ -37,8 +37,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -61,8 +59,6 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Synchronizable;
-import ru.runa.wfe.security.SecuredObjectBase;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
@@ -75,17 +71,12 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Process extends SecuredObjectBase {
+public class Process extends BaseProcess {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Process.class);
 
     private Long id;
-    private Long parentId;
-    private Long version;
-    private Date startDate;
-    private Date endDate;
     private Token rootToken;
-    private String hierarchyIds;
     private Deployment deployment;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
@@ -97,12 +88,6 @@ public class Process extends SecuredObjectBase {
         setStartDate(new Date());
     }
 
-    @Transient
-    @Override
-    public SecuredObjectType getSecuredObjectType() {
-        return SecuredObjectType.PROCESS;
-    }
-
     @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -112,56 +97,12 @@ public class Process extends SecuredObjectBase {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
-    @Column(name = "PARENT_ID")
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
-    @Version
-    @Column(name = "VERSION")
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    @Column(name = "TREE_PATH", length = 1024)
-    public String getHierarchyIds() {
-        return hierarchyIds;
-    }
-
-    public void setHierarchyIds(String hierarchyIds) {
-        this.hierarchyIds = hierarchyIds;
-    }
-
-    @Column(name = "START_DATE")
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    @Column(name = "END_DATE")
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
+    @Override
     @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "DEFINITION_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_DEFINITION")
@@ -170,6 +111,7 @@ public class Process extends SecuredObjectBase {
         return deployment;
     }
 
+    @Override
     public void setDeployment(Deployment deployment) {
         this.deployment = deployment;
     }
@@ -186,6 +128,7 @@ public class Process extends SecuredObjectBase {
         this.rootToken = rootToken;
     }
 
+    @Override
     @Column(name = "EXECUTION_STATUS", nullable = false)
     @Enumerated(EnumType.STRING)
     public ExecutionStatus getExecutionStatus() {
@@ -328,16 +271,8 @@ public class Process extends SecuredObjectBase {
         }
     }
 
-    /**
-     * Tells if this process is still active or not.
-     */
-    public boolean hasEnded() {
-        return executionStatus == ExecutionStatus.ENDED;
-    }
-
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("status", executionStatus).toString();
     }
-
 }

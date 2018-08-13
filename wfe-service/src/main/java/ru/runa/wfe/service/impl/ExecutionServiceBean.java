@@ -17,9 +17,9 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Map;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -29,10 +29,8 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.SystemProperties;
@@ -64,8 +62,6 @@ import ru.runa.wfe.var.dto.WfVariableHistoryState;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.IFileVariable;
 import ru.runa.wfe.var.logic.VariableLogic;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "ExecutionServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)

@@ -64,7 +64,7 @@ public class VariableDAO extends GenericDAO<Variable> {
             return result;
         }
         for (Process process : processes) {
-            result.put(process, Maps.<String, Variable<?>> newHashMap());
+            result.put(process, Maps.newHashMap());
         }
         QVariable v = QVariable.variable;
         List<Variable<?>> list = queryFactory.selectFrom(v).where(v.process.in(processes)).fetch();
