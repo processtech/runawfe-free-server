@@ -39,7 +39,7 @@ public class AjaxSwimlaneCurrentExecutor extends JsonAjaxCommand {
         if (swimlaneName == null || swimlaneName.isEmpty()) {
             throw new InternalApplicationException("swimlaneName cannot be empty");
         }
-        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getSwimlanes(user, processId);
+        List<WfSwimlane> swimlanes = Delegates.getExecutionService().getProcessSwimlanes(user, processId);
         WfSwimlane targetSwimlane = null;
         for (WfSwimlane swimlane : swimlanes) {
             if (swimlaneName.equals(swimlane.getDefinition().getName())) {

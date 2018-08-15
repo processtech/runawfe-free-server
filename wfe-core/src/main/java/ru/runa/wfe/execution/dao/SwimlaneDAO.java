@@ -25,6 +25,11 @@ public class SwimlaneDAO extends GenericDAO<Swimlane> {
     public Swimlane findByProcessAndName(Process process, String name) {
         return findFirstOrNull("from Swimlane where process=? and name=?", process, name);
     }
+    
+    public List<Swimlane> findByName (String name){
+        return getHibernateTemplate().find("from Swimlane where name=?", name);
+    }
+
 
     public Swimlane findOrCreate(Process process, SwimlaneDefinition swimlaneDefinition) {
         Swimlane swimlane = findByProcessAndName(process, swimlaneDefinition.getName());
