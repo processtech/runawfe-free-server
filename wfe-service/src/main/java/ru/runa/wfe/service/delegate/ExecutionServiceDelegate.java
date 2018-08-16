@@ -276,11 +276,6 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
     
     @Override
-    public void reassignSwimlanesFromRole(User user, String namePattern) throws ProcessDoesNotExistException {
-            getExecutionService().reassignSwimlanesFromRole(user, namePattern);
-    }
-    
-    @Override
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) throws ProcessDoesNotExistException {
         try {
             getExecutionService().assignSwimlane(user, processId, swimlaneName, executor);

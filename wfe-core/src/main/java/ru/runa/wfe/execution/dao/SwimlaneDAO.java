@@ -4,6 +4,7 @@ import java.util.List;
 
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.extension.AssignmentHandler;
@@ -26,8 +27,9 @@ public class SwimlaneDAO extends GenericDAO<Swimlane> {
         return findFirstOrNull("from Swimlane where process=? and name=?", process, name);
     }
     
-    public List<Swimlane> findByName (String name){
-        return getHibernateTemplate().find("from Swimlane where name=?", name);
+    public List<Swimlane> findNotEndedByNameLike (String name){
+        List<Long> listIds = getHibernateTemplate().find("id from Process where executionStatus not like ?", ExecutionStatus.ENDED);
+        return getHibernateTemplate().find("from Swimlane where name like ? and id in ?", name, listIds);
     }
 
 

@@ -184,18 +184,6 @@ public interface ExecutionService {
     public boolean reassignSwimlane(User user, Long id) throws ProcessDoesNotExistException;
     
     /**
-     * Reassigns swimlanes with specific role.
-     *
-     * @param user
-     *            authorized user
-     * @param namePattern
-     *            role name
-     * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
-     */
-    public void reassignSwimlanesFromRole(User user, String namePattern) throws ProcessDoesNotExistException;
-    
-    /**
      * Assigns role by name to specified executor.
      *
      * @param user

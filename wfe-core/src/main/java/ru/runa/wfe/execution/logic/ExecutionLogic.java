@@ -388,45 +388,34 @@ public class ExecutionLogic extends WFCommonLogic {
         return result;
     }
     
-    public List<WfSwimlane> getSwimlanes(User user, String namePattern) throws ProcessDoesNotExistException {
-        List<Swimlane> list = swimlaneDAO.findByName(namePattern);
+    public List<WfSwimlane> getSwimlanes(User user, String namePattern) {
+        List<Swimlane> list = swimlaneDAO.findNotEndedByNameLike(namePattern);
         List<WfSwimlane> listSwimlanes = Lists.newArrayList();
         for (Swimlane swimlane : list) {
-            reassignSwimlane(user, swimlane.getId());
             ProcessDefinition processDefinition = getDefinition(swimlane.getProcess());
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlane.getName());
             Executor assignedExecutor = swimlane.getExecutor();
             if (assignedExecutor == null) {
                 assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
             } 
-            listSwimlanes.add(new WfSwimlane(swimlaneDefinition, assignedExecutor));
+            listSwimlanes.add(new WfSwimlane(swimlane.getId(), swimlaneDefinition, assignedExecutor));
         }
         return listSwimlanes;
     }
     
-    public boolean reassignSwimlane(User user, Long id) throws ProcessDoesNotExistException {
+    public boolean reassignSwimlane(User user, Long id) {
         Swimlane swimlane = swimlaneDAO.get(id);
         Process process = swimlane.getProcess();
-        ProcessDefinition processDefinition = null;
+        ProcessDefinition processDefinition = getDefinition(process);
+        Delegation delegation = processDefinition.getSwimlaneNotNull(swimlane.getName()).getDelegation();
         try {
-            if (process.getExecutionStatus() != ExecutionStatus.ENDED) {
-                processDefinition = getDefinition(process);
-                Delegation delegation = processDefinition.getSwimlaneNotNull(swimlane.getName()).getDelegation();
-                AssignmentHandler handler = delegation.getInstance();
-                handler.assign(new ExecutionContext(processDefinition, swimlane.getProcess()), swimlane);
-                log.info(swimlane + " reassigned");
-            }
+            AssignmentHandler handler = delegation.getInstance();
+            handler.assign(new ExecutionContext(processDefinition, process), swimlane);
+            log.info(swimlane + " reassigned");
             return true;
         } catch (Exception th) {
             log.warn("Unable to reassign swimlane. Cause: " + th);
             return false;
-        }
-    }
-    
-    public void reassignSwimlanesFromRole (User user, String namePattern) {
-        List<Swimlane> list = swimlaneDAO.findByName(namePattern);
-        for (Swimlane swimlane : list) {
-            reassignSwimlane(user, swimlane.getId());
         }
     }
 
