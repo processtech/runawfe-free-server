@@ -30,9 +30,9 @@ public class SqlServerStoreService extends JdbcStoreService {
             put(TextFormat.class, "nvarchar(4000)");
             put(FormattedTextFormat.class, "nvarchar(4000)");
             put(LongFormat.class, "int");
-            put(DoubleFormat.class, "real"); // The ISO synonym for real is float(24).
+            put(DoubleFormat.class, "numeric(38,19)");
             put(BooleanFormat.class, "nvarchar(5)");
-            put(BigDecimalFormat.class, "decimal");
+            put(BigDecimalFormat.class, "decimal(38,19)");
             put(DateTimeFormat.class, "datetime2");
             put(DateFormat.class, "date");
             put(TimeFormat.class, "time");
