@@ -34,7 +34,7 @@ import ru.runa.wfe.var.Variable;
  */
 @Entity
 @DiscriminatorValue(value = "D")
-public class VariableDeleteLog extends VariableLog {
+public class VariableDeleteLog extends VariableLog implements IVariableDeleteLog {
     private static final long serialVersionUID = 1L;
 
     public VariableDeleteLog() {
@@ -42,16 +42,5 @@ public class VariableDeleteLog extends VariableLog {
 
     public VariableDeleteLog(Variable<?> variable) {
         super(variable);
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        return new Object[] { getVariableName() };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onVariableDeleteLog(this);
     }
 }

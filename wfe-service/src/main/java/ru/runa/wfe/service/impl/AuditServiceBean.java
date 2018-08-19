@@ -17,8 +17,8 @@
  */
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -27,10 +27,8 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
@@ -45,8 +43,6 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Preconditions;
 
 @Stateless(name = "AuditServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)

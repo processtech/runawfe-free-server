@@ -33,7 +33,7 @@ import ru.runa.wfe.lang.Node;
  */
 @Entity
 @DiscriminatorValue(value = "N")
-public class NodeEnterLog extends NodeLog {
+public class NodeEnterLog extends NodeLog implements INodeEnterLog {
     private static final long serialVersionUID = 1L;
 
     public NodeEnterLog() {
@@ -42,10 +42,5 @@ public class NodeEnterLog extends NodeLog {
     public NodeEnterLog(Node node) {
         super(node);
         setSeverity(Severity.INFO);
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onNodeEnterLog(this);
     }
 }

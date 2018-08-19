@@ -76,7 +76,7 @@ public class AuditLogic extends CommonLogic {
         Preconditions.checkNotNull(logId, "logId");
         ProcessLog processLog = processLogDAO.getNotNull(logId);
         permissionDAO.checkAllowed(user, Permission.LIST, SecuredObjectType.PROCESS, processLog.getProcessId());
-        return processLog.getBytesObject();
+        return processLog.getBytes();
     }
 
     /**

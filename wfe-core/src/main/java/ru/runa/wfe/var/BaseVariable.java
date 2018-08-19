@@ -21,12 +21,15 @@ public abstract class BaseVariable<P extends BaseProcess, T> {
     private String stringValue;
     private Date createDate;
 
+    @Transient
     public abstract Long getId();
     protected abstract void setId(Long id);
 
+    @Transient
     public abstract String getName();
     public abstract void setName(String name);
 
+    @Transient
     public abstract P getProcess();
     public abstract void setProcess(P process);
 

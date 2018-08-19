@@ -23,9 +23,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
-import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 import ru.runa.wfe.user.Actor;
 
 /**
@@ -35,7 +32,7 @@ import ru.runa.wfe.user.Actor;
  */
 @Entity
 @DiscriminatorValue(value = "U")
-public class ProcessActivateLog extends ProcessLog {
+public class ProcessActivateLog extends ProcessLog implements IProcessActivateLog {
     private static final long serialVersionUID = 1L;
 
     public ProcessActivateLog() {
@@ -44,21 +41,5 @@ public class ProcessActivateLog extends ProcessLog {
     public ProcessActivateLog(Actor actor) {
         addAttribute(ATTR_ACTOR_NAME, actor != null ? actor.getName() : "system");
         setSeverity(Severity.DEBUG);
-    }
-
-    @Transient
-    public String getActorName() {
-        return getAttributeNotNull(ATTR_ACTOR_NAME);
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        return new Object[] { new ExecutorNameValue(getActorName()) };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onProcessActivateLog(this);
     }
 }

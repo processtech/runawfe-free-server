@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
  */
 @Entity
 @DiscriminatorValue(value = "5")
-public class TaskEscalationLog extends TaskLog {
+public class TaskEscalationLog extends TaskLog implements ITaskEscalationLog {
     private static final long serialVersionUID = 1L;
 
     public TaskEscalationLog() {
@@ -35,16 +35,5 @@ public class TaskEscalationLog extends TaskLog {
         }
         addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
         setSeverity(Severity.INFO);
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        return new Object[] { getTaskName(), new ExecutorIdsValue(getAttributeNotNull(ATTR_MESSAGE)) };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskEscalationLog(this);
     }
 }

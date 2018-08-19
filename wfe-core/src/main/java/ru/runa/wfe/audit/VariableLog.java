@@ -23,15 +23,10 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
-import ru.runa.wfe.var.converter.FileVariableToByteArrayConverter;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
-import ru.runa.wfe.var.converter.StringToByteArrayConverter;
 import ru.runa.wfe.var.file.IFileVariable;
 
 /**
@@ -41,7 +36,7 @@ import ru.runa.wfe.var.file.IFileVariable;
  */
 @Entity
 @DiscriminatorValue(value = "0")
-public abstract class VariableLog extends ProcessLog {
+public abstract class VariableLog extends ProcessLog implements IVariableLog {
     private static final long serialVersionUID = 1L;
 
     public VariableLog() {
@@ -51,18 +46,9 @@ public abstract class VariableLog extends ProcessLog {
         setVariableName(variable.getName());
     }
 
-    @Transient
-    public String getVariableName() {
-        return getAttributeNotNull(ATTR_VARIABLE_NAME);
-    }
-
+    @Override
     public void setVariableName(String variableName) {
         addAttribute(ATTR_VARIABLE_NAME, variableName);
-    }
-
-    @Transient
-    public String getVariableNewValueAttribute() {
-        return getAttribute(ATTR_NEW_VALUE);
     }
 
     protected void setVariableNewValue(Variable<?> variable, Object newValue, VariableDefinition variableDefinition) {
@@ -75,43 +61,5 @@ public abstract class VariableLog extends ProcessLog {
         } else if (newValue instanceof Executor) {
             setBytes((byte[]) new SerializableToByteArrayConverter().convert(null, variable, newValue));
         }
-    }
-
-    @Transient
-    public boolean isFileValue() {
-        return "true".equals(getAttribute(ATTR_IS_FILE_VALUE));
-    }
-
-    @Transient
-    public Object getVariableNewValue() {
-        byte[] bytes = getBytes();
-        if (bytes != null) {
-            if (isFileValue()) {
-                return new FileVariableToByteArrayConverter().revert(bytes);
-            }
-            try {
-                return new SerializableToByteArrayConverter().revert(bytes);
-            } catch (Exception e) {
-                return new StringToByteArrayConverter().revert(bytes);
-            }
-        }
-        return getVariableNewValueAttribute();
-    }
-
-    @Transient
-    public VariableLog getContentCopy() {
-        VariableLog copyLog;
-        if (this instanceof VariableCreateLog) {
-            copyLog = new VariableCreateLog();
-        } else if (this instanceof VariableUpdateLog) {
-            copyLog = new VariableUpdateLog();
-        } else if (this instanceof VariableDeleteLog) {
-            copyLog = new VariableDeleteLog();
-        } else {
-            throw new InternalApplicationException("Unexpected " + this);
-        }
-        copyLog.setBytes(getBytes());
-        copyLog.setContent(getContent());
-        return copyLog;
     }
 }

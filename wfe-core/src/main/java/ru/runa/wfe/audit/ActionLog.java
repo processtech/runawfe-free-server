@@ -23,8 +23,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
 import ru.runa.wfe.lang.GraphElement;
 
 /**
@@ -34,7 +32,7 @@ import ru.runa.wfe.lang.GraphElement;
  */
 @Entity
 @DiscriminatorValue(value = "A")
-public class ActionLog extends ProcessLog {
+public class ActionLog extends ProcessLog implements IActionLog {
     private static final long serialVersionUID = 1L;
 
     public ActionLog() {
@@ -43,16 +41,5 @@ public class ActionLog extends ProcessLog {
     public ActionLog(GraphElement action) {
         setNodeId(action.getNodeId());
         addAttributeWithTruncation(ATTR_ACTION, action.toString());
-    }
-
-    @Transient
-    @Override
-    public Object[] getPatternArguments() {
-        return new Object[] { getAttributeNotNull(ATTR_ACTION) };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onActionLog(this);
     }
 }

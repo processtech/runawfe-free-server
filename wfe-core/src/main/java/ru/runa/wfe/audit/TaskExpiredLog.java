@@ -2,8 +2,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
@@ -14,7 +12,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "9")
-public class TaskExpiredLog extends TaskEndLog {
+public class TaskExpiredLog extends TaskEndLog implements ITaskExpiredLog {
     private static final long serialVersionUID = 1L;
 
     public TaskExpiredLog() {
@@ -22,16 +20,5 @@ public class TaskExpiredLog extends TaskEndLog {
 
     public TaskExpiredLog(Task task, TaskCompletionInfo completionInfo) {
         super(task, completionInfo);
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        return new Object[] { getTaskName() };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskExpiredLog(this);
     }
 }

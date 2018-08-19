@@ -30,6 +30,7 @@ public abstract class BaseProcess extends SecuredObjectBase {
         return SecuredObjectType.PROCESS;
     }
 
+    @Transient
     public abstract Long getId();
     public abstract void setId(Long id);
 
@@ -81,9 +82,9 @@ public abstract class BaseProcess extends SecuredObjectBase {
 
     @Transient
     public abstract Deployment getDeployment();
-
     public abstract void setDeployment(Deployment deployment);
 
+    @Transient
     public abstract ExecutionStatus getExecutionStatus();
 
     /**

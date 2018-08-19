@@ -32,9 +32,9 @@ import ru.runa.wfe.var.ArchivedVariable;
 public class ArchivedByteArrayVariable extends ArchivedVariable<byte[]> {
     private byte[] object;
 
+    @Override
     @Lob
     @Column(length = 16777216, name = "BYTES")
-    @Override
     public byte[] getStorableValue() {
         return object;
     }

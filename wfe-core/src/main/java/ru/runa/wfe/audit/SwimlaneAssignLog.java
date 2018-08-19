@@ -2,9 +2,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
-import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.user.Executor;
 
@@ -15,7 +12,7 @@ import ru.runa.wfe.user.Executor;
  */
 @Entity
 @DiscriminatorValue(value = "4")
-public class SwimlaneAssignLog extends ProcessLog {
+public class SwimlaneAssignLog extends ProcessLog implements ISwimlaneAssignLog {
     private static final long serialVersionUID = 1L;
 
     public SwimlaneAssignLog() {
@@ -30,16 +27,5 @@ public class SwimlaneAssignLog extends ProcessLog {
             addAttribute(ATTR_NEW_VALUE, newExecutor.getName());
         }
         setSeverity(Severity.INFO);
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        return new Object[] { getAttributeNotNull(ATTR_MESSAGE), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)) };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onSwimlaneAssignLog(this);
     }
 }

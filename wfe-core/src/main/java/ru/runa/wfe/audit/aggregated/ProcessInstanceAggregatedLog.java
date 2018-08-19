@@ -1,9 +1,9 @@
 package ru.runa.wfe.audit.aggregated;
 
+import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,18 +13,14 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
-
-import ru.runa.wfe.audit.ProcessCancelLog;
-import ru.runa.wfe.audit.ProcessEndLog;
-import ru.runa.wfe.audit.ProcessStartLog;
+import ru.runa.wfe.audit.IProcessCancelLog;
+import ru.runa.wfe.audit.IProcessEndLog;
+import ru.runa.wfe.audit.IProcessStartLog;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
-
-import com.google.common.collect.Maps;
 
 /**
  * Log information about process instance.
@@ -72,19 +68,19 @@ public class ProcessInstanceAggregatedLog {
         super();
     }
 
-    public ProcessInstanceAggregatedLog(ProcessStartLog processStartLog, Process process, Token token) {
+    public ProcessInstanceAggregatedLog(IProcessStartLog processStartLog, Process process, Token token) {
         processInstanceId = processStartLog.getProcessId();
         actorName = processStartLog.getActorName();
         createDate = processStartLog.getCreateDate();
         endReason = EndReason.PROCESSING;
     }
 
-    public void update(ProcessEndLog processEndLog) {
+    public void update(IProcessEndLog processEndLog) {
         endDate = processEndLog.getCreateDate();
         endReason = EndReason.COMPLETED;
     }
 
-    public void update(ProcessCancelLog processCancelLog) {
+    public void update(IProcessCancelLog processCancelLog) {
         endDate = processCancelLog.getCreateDate();
         cancelActorName = processCancelLog.getActorName();
         endReason = EndReason.CANCELLED;

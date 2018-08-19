@@ -23,8 +23,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
 import ru.runa.wfe.task.Task;
 
 /**
@@ -34,7 +32,7 @@ import ru.runa.wfe.task.Task;
  */
 @Entity
 @DiscriminatorValue(value = "0")
-public abstract class TaskLog extends ProcessLog {
+public abstract class TaskLog extends ProcessLog implements ITaskLog {
     private static final long serialVersionUID = 1L;
 
     public TaskLog() {
@@ -48,28 +46,4 @@ public abstract class TaskLog extends ProcessLog {
             addAttribute(ATTR_INDEX, task.getIndex().toString());
         }
     }
-
-    @Transient
-    public Long getTaskId() {
-        String taskIdString = getAttribute(ATTR_TASK_ID);
-        if (taskIdString != null) {
-            return Long.parseLong(taskIdString);
-        }
-        return null;
-    }
-
-    @Transient
-    public String getTaskName() {
-        return getAttributeNotNull(ATTR_TASK_NAME);
-    }
-
-    @Transient
-    public Integer getTaskIndex() {
-        String taskIndexString = getAttribute(ATTR_INDEX);
-        if (taskIndexString != null) {
-            return Integer.valueOf(taskIndexString);
-        }
-        return null;
-    }
-
 }

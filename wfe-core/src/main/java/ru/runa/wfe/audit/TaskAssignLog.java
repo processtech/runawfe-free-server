@@ -36,7 +36,7 @@ import ru.runa.wfe.user.Executor;
  */
 @Entity
 @DiscriminatorValue(value = "2")
-public class TaskAssignLog extends TaskLog {
+public class TaskAssignLog extends TaskLog implements ITaskAssignLog {
     private static final long serialVersionUID = 1L;
 
     public TaskAssignLog() {
@@ -51,26 +51,5 @@ public class TaskAssignLog extends TaskLog {
             addAttribute(ATTR_NEW_VALUE, newExecutor.getName());
         }
         setSeverity(Severity.INFO);
-    }
-
-    @Transient
-    public String getOldExecutorName() {
-        return getAttribute(ATTR_OLD_VALUE);
-    }
-
-    @Transient
-    public String getNewExecutorName() {
-        return getAttribute(ATTR_NEW_VALUE);
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        return new Object[] { getTaskName(), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)) };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskAssignLog(this);
     }
 }

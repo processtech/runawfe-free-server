@@ -7,6 +7,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.user.Executor;
@@ -19,9 +20,11 @@ public abstract class BaseSwimlane<P extends BaseProcess> {
     protected Executor executor;
     protected Date createDate;
 
+    @Transient
     public abstract Long getId();
     protected abstract void setId(Long id);
 
+    @Transient
     public abstract P getProcess();
     public abstract void setProcess(P process);
 

@@ -22,8 +22,7 @@ import com.google.common.collect.Lists;
  */
 @Entity
 @DiscriminatorValue(value = "F")
-public class TaskDelegationLog extends TaskLog {
-
+public class TaskDelegationLog extends TaskLog implements ITaskDelegationLog {
     private static final long serialVersionUID = 1L;
 
     public TaskDelegationLog() {
@@ -40,32 +39,4 @@ public class TaskDelegationLog extends TaskLog {
         addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
         setSeverity(Severity.INFO);
     }
-
-    @Transient
-    public String getExecutorIds() {
-        return getAttributeNotNull(ATTR_MESSAGE);
-    }
-
-    @Transient
-    public String getActorName() {
-        return getAttribute(ATTR_ACTOR_NAME);
-    }
-
-    @Transient
-    public Long getActorId() {
-        String actorIdString = getAttribute(ATTR_ACTOR_ID);
-        return actorIdString != null ? Long.parseLong(actorIdString) : null;
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        return new Object[] { getTaskName(), new ExecutorIdsValue(getExecutorIds()), new ExecutorNameValue(getActorName()) };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskDelegaionLog(this);
-    }
-
 }

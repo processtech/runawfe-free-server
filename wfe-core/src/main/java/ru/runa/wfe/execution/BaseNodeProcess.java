@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 @MappedSuperclass
 public abstract class BaseNodeProcess<P extends BaseProcess> {
@@ -12,12 +13,15 @@ public abstract class BaseNodeProcess<P extends BaseProcess> {
     protected Integer index;  // TODO why = 0 for subprocess?
     protected Date createDate;
 
+    @Transient
     public abstract Long getId();
     protected abstract void setId(Long id);
 
+    @Transient
     public abstract P getProcess();
     public abstract void setProcess(P process);
 
+    @Transient
     public abstract P getSubProcess();
     public abstract void setSubProcess(P subProcess);
 

@@ -2,7 +2,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
@@ -13,7 +12,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "S")
-public class TaskEndBySubstitutorLog extends TaskEndLog {
+public class TaskEndBySubstitutorLog extends TaskEndLog implements ITaskEndBySubstitutorLog {
     private static final long serialVersionUID = 1L;
 
     public TaskEndBySubstitutorLog() {
@@ -21,10 +20,5 @@ public class TaskEndBySubstitutorLog extends TaskEndLog {
 
     public TaskEndBySubstitutorLog(Task task, TaskCompletionInfo completionInfo) {
         super(task, completionInfo);
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskEndBySubstitutorLog(this);
     }
 }

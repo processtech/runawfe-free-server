@@ -21,14 +21,10 @@
  */
 package ru.runa.wfe.audit;
 
+import com.google.common.base.Charsets;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
-import ru.runa.wfe.audit.presentation.HtmlValue;
 import ru.runa.wfe.lang.Node;
-
-import com.google.common.base.Charsets;
 
 /**
  * Logging message nodes execution.
@@ -37,7 +33,7 @@ import com.google.common.base.Charsets;
  */
 @Entity
 @DiscriminatorValue(value = "8")
-public class ReceiveMessageLog extends NodeEnterLog {
+public class ReceiveMessageLog extends NodeEnterLog implements IReceiveMessageLog {
     private static final long serialVersionUID = 1L;
 
     public ReceiveMessageLog() {
@@ -50,17 +46,5 @@ public class ReceiveMessageLog extends NodeEnterLog {
         } else {
             setBytes(message.getBytes(Charsets.UTF_8));
         }
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        String message = getBytes() != null ? new String(getBytes(), Charsets.UTF_8) : getAttribute(ATTR_MESSAGE);
-        return new Object[] { new HtmlValue(message) };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onReceiveMessageLog(this);
     }
 }

@@ -23,9 +23,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
-import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
@@ -36,7 +33,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "3")
-public class TaskEndLog extends TaskLog {
+public class TaskEndLog extends TaskLog implements ITaskEndLog {
     private static final long serialVersionUID = 1L;
 
     public TaskEndLog() {
@@ -48,25 +45,5 @@ public class TaskEndLog extends TaskLog {
             addAttribute(ATTR_ACTOR_NAME, completionInfo.getExecutor().getName());
         }
         setSeverity(Severity.INFO);
-    }
-
-    @Transient
-    public String getActorName() {
-        String actorName = getAttribute(ATTR_ACTOR_NAME);
-        if (actorName != null) {
-            return actorName;
-        }
-        return "";
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        return new Object[] { getTaskName(), new ExecutorNameValue(getActorName()) };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskEndLog(this);
     }
 }

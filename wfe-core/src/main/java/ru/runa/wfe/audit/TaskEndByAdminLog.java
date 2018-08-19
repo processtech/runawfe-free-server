@@ -13,7 +13,7 @@ import ru.runa.wfe.task.TaskCompletionInfo;
  */
 @Entity
 @DiscriminatorValue(value = "K")
-public class TaskEndByAdminLog extends TaskEndLog {
+public class TaskEndByAdminLog extends TaskEndLog implements ITaskEndByAdminLog {
     private static final long serialVersionUID = 1L;
 
     public TaskEndByAdminLog() {
@@ -21,10 +21,5 @@ public class TaskEndByAdminLog extends TaskEndLog {
 
     public TaskEndByAdminLog(Task task, TaskCompletionInfo completionInfo) {
         super(task, completionInfo);
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onTaskEndByAdminLog(this);
     }
 }

@@ -23,9 +23,6 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
-import ru.runa.wfe.audit.presentation.FileValue;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -36,7 +33,7 @@ import ru.runa.wfe.var.VariableDefinition;
  */
 @Entity
 @DiscriminatorValue(value = "R")
-public class VariableCreateLog extends VariableLog {
+public class VariableCreateLog extends VariableLog implements IVariableCreateLog {
     private static final long serialVersionUID = 1L;
 
     public VariableCreateLog() {
@@ -45,19 +42,5 @@ public class VariableCreateLog extends VariableLog {
     public VariableCreateLog(Variable<?> variable, Object newValue, VariableDefinition variableDefinition) {
         super(variable);
         setVariableNewValue(variable, newValue, variableDefinition);
-    }
-
-    @Override
-    @Transient
-    public Object[] getPatternArguments() {
-        if (isFileValue()) {
-            return new Object[] { getVariableName(), new FileValue(getId(), getVariableNewValueAttribute()) };
-        }
-        return new Object[] { getVariableName(), getVariableNewValue() };
-    }
-
-    @Override
-    public void processBy(ProcessLogVisitor visitor) {
-        visitor.onVariableCreateLog(this);
     }
 }
