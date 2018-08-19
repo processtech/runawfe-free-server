@@ -174,6 +174,10 @@ public abstract class DBPatch {
                 + refColumnName + ")";
     }
 
+    protected final String getDDLCreatePrimaryKey(String tableName, String keyName, String columnName) {
+        return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " PRIMARY KEY (" + columnName + ")";
+    }
+
     protected final String getDDLRenameForeignKey(String keyName, String newKeyName) {
         String query;
         switch (dbType) {

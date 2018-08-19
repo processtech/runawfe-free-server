@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "ARCHIVED_LOG")
@@ -18,6 +20,7 @@ import javax.persistence.Table;
 public abstract class ArchivedProcessLog extends BaseProcessLog {
 
     private Long id;
+    private Long processId;
 
     /**
      * NOT generated, id values are preserved when moving row to archive.
@@ -34,6 +37,19 @@ public abstract class ArchivedProcessLog extends BaseProcessLog {
         this.id = id;
     }
 
+    @Override
+    @Column(name = "PROCESS_ID", nullable = false)
+    @Index(name = "IX_ARCH_LOG_PROCESS")
+    public Long getProcessId() {
+        return processId;
+    }
+
+    @Override
+    public void setProcessId(Long processId) {
+        this.processId = processId;
+    }
+
+    @Transient
     @Override
     public Long getTokenId() {
         return null;

@@ -39,6 +39,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import ru.runa.wfe.commons.CalendarUtil;
 
 /**
@@ -57,6 +58,7 @@ public abstract class ProcessLog extends BaseProcessLog implements Serializable,
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    private Long processId;
     private Long tokenId;
 
     @Override
@@ -71,6 +73,18 @@ public abstract class ProcessLog extends BaseProcessLog implements Serializable,
     @Override
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    @Column(name = "PROCESS_ID", nullable = false)
+    @Index(name = "IX_LOG_PROCESS")
+    public Long getProcessId() {
+        return processId;
+    }
+
+    @Override
+    public void setProcessId(Long processId) {
+        this.processId = processId;
     }
 
     @Override

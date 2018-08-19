@@ -14,7 +14,6 @@ import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlTransient;
-import org.hibernate.annotations.Index;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
@@ -25,25 +24,12 @@ public abstract class BaseProcessLog implements IProcessLog {
         return SystemProperties.getLogMaxAttributeValueLength();
     }
 
-    protected Long processId;
     protected Date createDate;
     protected Severity severity = Severity.DEBUG;
     @XmlTransient
     protected HashMap<String, String> attributes = Maps.newHashMap();
     protected byte[] bytes;
     protected String nodeId;
-
-    @Override
-    @Column(name = "PROCESS_ID", nullable = false)
-    @Index(name = "IX_LOG_PROCESS")
-    public Long getProcessId() {
-        return processId;
-    }
-
-    @Override
-    public void setProcessId(Long processId) {
-        this.processId = processId;
-    }
 
     @Override
     @Column(name = "CREATE_DATE", nullable = false)

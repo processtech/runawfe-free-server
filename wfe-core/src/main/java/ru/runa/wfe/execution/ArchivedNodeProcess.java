@@ -56,8 +56,8 @@ public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess> {
     @Override
     @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_ARCH_SUBPROCESS_CHILD")
-    @Index(name = "IX_ARCH_SUBPROCESS_CHILD")
+    @ForeignKey(name = "FK_ARCH_SUBPROCESS_PROCESS")
+    @Index(name = "IX_ARCH_SUBPROCESS_PROCESS")
     public ArchivedProcess getSubProcess() {
         return subProcess;
     }

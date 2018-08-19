@@ -59,6 +59,7 @@ public class Swimlane extends BaseSwimlane<Process> implements Serializable, Ass
 
     private Long id;
     private Process process;
+    private Executor executor;
 
     public Swimlane() {
     }
@@ -68,6 +69,7 @@ public class Swimlane extends BaseSwimlane<Process> implements Serializable, Ass
         this.createDate = new Date();
     }
 
+    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_SWIMLANE", allocationSize = 1)
@@ -76,10 +78,12 @@ public class Swimlane extends BaseSwimlane<Process> implements Serializable, Ass
         return id;
     }
 
+    @Override
     protected void setId(Long id) {
         this.id = id;
     }
 
+    @Override
     @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_SWIMLANE_PROCESS")
@@ -88,8 +92,22 @@ public class Swimlane extends BaseSwimlane<Process> implements Serializable, Ass
         return process;
     }
 
+    @Override
     public void setProcess(Process process) {
         this.process = process;
+    }
+
+    @Override
+    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "EXECUTOR_ID")
+    @ForeignKey(name = "FK_SWIMLANE_EXECUTOR")
+    public Executor getExecutor() {
+        return executor;
+    }
+
+    @Override
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
     }
 
     @Transient

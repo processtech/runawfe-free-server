@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import ru.runa.wfe.user.Executor;
 
 @Entity
 @Table(name = "ARCHIVED_SWIMLANE")
@@ -16,16 +17,19 @@ public class ArchivedSwimlane extends BaseSwimlane<ArchivedProcess> {
 
     private Long id;
     private ArchivedProcess process;
+    private Executor executor;
 
     /**
      * NOT generated, id values are preserved when moving row to archive.
      */
+    @Override
     @Id
     @Column(name = "ID")
     public Long getId() {
         return id;
     }
 
+    @Override
     protected void setId(Long id) {
         this.id = id;
     }
@@ -33,6 +37,7 @@ public class ArchivedSwimlane extends BaseSwimlane<ArchivedProcess> {
     /**
      * Copy-pasted from Swimlane with different FK and index names.
      */
+    @Override
     @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_ARCH_SWIMLANE_PROCESS")
@@ -41,7 +46,21 @@ public class ArchivedSwimlane extends BaseSwimlane<ArchivedProcess> {
         return process;
     }
 
+    @Override
     public void setProcess(ArchivedProcess process) {
         this.process = process;
+    }
+
+    @Override
+    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "EXECUTOR_ID")
+    @ForeignKey(name = "FK_ARCH_SWIMLANE_EXECUTOR")
+    public Executor getExecutor() {
+        return executor;
+    }
+
+    @Override
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
     }
 }
