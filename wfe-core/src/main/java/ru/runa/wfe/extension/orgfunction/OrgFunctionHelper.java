@@ -61,7 +61,7 @@ public class OrgFunctionHelper {
     // * @throws OrgFunctionException
     // */
     // public static List<? extends Executor> evaluateOrgFunction(OrgFunction
-    // function, IVariableProvider variableProvider) throws OrgFunctionException
+    // function, VariableProvider variableProvider) throws OrgFunctionException
     // {
     // Object[] parameters = getOrgFunctionParameters(function,
     // variableProvider);
@@ -96,7 +96,7 @@ public class OrgFunctionHelper {
     // }
     //
     // private static Object[] getOrgFunctionParameters(OrgFunction orgFunction,
-    // IVariableProvider variableProvider) {
+    // VariableProvider variableProvider) {
     // List<Object> params = new ArrayList<Object>();
     // if (orgFunction.getParameterNames() != null) {
     // for (String name : orgFunction.getParameterNames()) {

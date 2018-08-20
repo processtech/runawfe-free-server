@@ -35,7 +35,7 @@ public abstract class GetActorsOrgFunctionBase extends OrgFunction {
         try {
             List<Long> codes = getActorCodes(parameters);
             log.debug("Actor codes result: " + codes);
-            return executorDAO.getActorsByCodes(codes);
+            return executorDao.getActorsByCodes(codes);
         } catch (Exception e) {
             Throwables.propagateIfPossible(e, OrgFunctionException.class);
             throw new OrgFunctionException(e);

@@ -30,8 +30,8 @@ import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.ss.SubstitutionDoesNotExistException;
 import ru.runa.wfe.ss.cache.SubstitutionCache;
-import ru.runa.wfe.ss.dao.SubstitutionCriteriaDAO;
-import ru.runa.wfe.ss.dao.SubstitutionDAO;
+import ru.runa.wfe.ss.dao.SubstitutionCriteriaDao;
+import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
 
@@ -41,18 +41,18 @@ import ru.runa.wfe.user.User;
  * @author Semochkin_v
  * @author Gordienko_m
  */
-public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic {
+public class SubstitutionLogic extends CommonLogic {
     @Autowired
     private SubstitutionCache substitutionCacheCtrl;
     @Autowired
-    private SubstitutionDAO substitutionDAO;
+    private SubstitutionDao substitutionDao;
     @Autowired
-    private SubstitutionCriteriaDAO substitutionCriteriaDAO;
+    private SubstitutionCriteriaDao substitutionCriteriaDao;
 
     public void create(User user, Substitution substitution) {
-        Actor actor = executorDAO.getActor(substitution.getActorId());
+        Actor actor = executorDao.getActor(substitution.getActorId());
         checkPermissionsOnExecutor(user, actor, Permission.UPDATE);
-        List<Substitution> substitutions = substitutionDAO.getByActorId(substitution.getActorId(), false);
+        List<Substitution> substitutions = substitutionDao.getByActorId(substitution.getActorId(), false);
         if (substitution.getPosition() == null) {
             // add last
             int position = substitutions.size() == 0 ? 0 : substitutions.get(0).getPosition() + 1;
@@ -71,33 +71,33 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
                     if (existing.getPosition() >= substitution.getPosition()) {
                         log.info("Incrementing position in " + existing);
                         existing.setPosition(existing.getPosition() + 1);
-                        substitutionDAO.update(existing);
-                        substitutionDAO.flushPendingChanges();
+                        substitutionDao.update(existing);
+                        substitutionDao.flushPendingChanges();
                     }
                 }
             }
         }
         log.info("Creating " + substitution);
-        substitutionDAO.create(substitution);
-        substitutionDAO.flushPendingChanges();
+        substitutionDao.create(substitution);
+        substitutionDao.flushPendingChanges();
     }
 
-    @Override
+
     public List<Substitution> getSubstitutions(User user, Long actorId) {
-        Actor actor = executorDAO.getActor(actorId);
+        Actor actor = executorDao.getActor(actorId);
         checkPermissionsOnExecutor(user, actor, Permission.LIST);
-        return substitutionDAO.getByActorId(actorId, true);
+        return substitutionDao.getByActorId(actorId, true);
     }
 
-    @Override
+
     public Substitution getSubstitution(User user, Long id) {
-        return substitutionDAO.getNotNull(id);
+        return substitutionDao.getNotNull(id);
     }
 
     public void update(User user, Substitution substitution) {
-        Actor actor = executorDAO.getActor(substitution.getActorId());
+        Actor actor = executorDao.getActor(substitution.getActorId());
         checkPermissionsOnExecutor(user, actor, Permission.UPDATE);
-        List<Substitution> substitutions = substitutionDAO.getByActorId(substitution.getActorId(), false);
+        List<Substitution> substitutions = substitutionDao.getByActorId(substitution.getActorId(), false);
         Integer oldPosition = null;
         Substitution substitutionWithNewPosition = null;
         if (substitution.getPosition() == null) {
@@ -116,28 +116,28 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
         }
         if (Objects.equal(oldPosition, substitution.getPosition()) || substitutionWithNewPosition == null) {
             log.info("Saving " + substitution);
-            substitutionDAO.update(substitution);
+            substitutionDao.update(substitution);
         } else {
             log.info("Switching substitutions " + substitution + " <-> " + substitutionWithNewPosition);
-            substitutionDAO.delete(substitution.getId());
-            substitutionDAO.delete(substitutionWithNewPosition.getId());
-            substitutionDAO.flushPendingChanges();
+            substitutionDao.delete(substitution.getId());
+            substitutionDao.delete(substitutionWithNewPosition.getId());
+            substitutionDao.flushPendingChanges();
             substitutionWithNewPosition.setId(null);
             substitution.setId(null);
             substitutionWithNewPosition.setPosition(oldPosition);
             log.info("Creating " + substitutionWithNewPosition);
-            substitutionDAO.create(substitutionWithNewPosition);
+            substitutionDao.create(substitutionWithNewPosition);
             log.info("Creating " + substitution);
-            substitutionDAO.create(substitution);
-            substitutionDAO.flushPendingChanges();
+            substitutionDao.create(substitution);
+            substitutionDao.flushPendingChanges();
         }
     }
 
     // TODO clear code in update
     public void changePosition(User user, Substitution substitution, int newPosition) {
-        Actor actor = executorDAO.getActor(substitution.getActorId());
+        Actor actor = executorDao.getActor(substitution.getActorId());
         checkPermissionsOnExecutor(user, actor, Permission.UPDATE);
-        List<Substitution> substitutions = substitutionDAO.getByActorId(substitution.getActorId(), false);
+        List<Substitution> substitutions = substitutionDao.getByActorId(substitution.getActorId(), false);
         Integer oldPosition = substitution.getPosition();
         Substitution substitutionWithNewPosition = null;
         for (Substitution existing : substitutions) {
@@ -146,18 +146,18 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
             }
         }
         log.info("Switching substitutions " + substitution + " <-> " + substitutionWithNewPosition);
-        substitutionDAO.delete(substitution.getId());
-        substitutionDAO.delete(substitutionWithNewPosition.getId());
-        substitutionDAO.flushPendingChanges();
+        substitutionDao.delete(substitution.getId());
+        substitutionDao.delete(substitutionWithNewPosition.getId());
+        substitutionDao.flushPendingChanges();
         substitutionWithNewPosition.setId(null);
         substitution.setId(null);
         substitution.setPosition(newPosition);
         substitutionWithNewPosition.setPosition(oldPosition);
         log.info("Creating " + substitutionWithNewPosition);
-        substitutionDAO.create(substitutionWithNewPosition);
+        substitutionDao.create(substitutionWithNewPosition);
         log.info("Creating " + substitution);
-        substitutionDAO.create(substitution);
-        substitutionDAO.flushPendingChanges();
+        substitutionDao.create(substitution);
+        substitutionDao.flushPendingChanges();
     }
 
     private List<Actor> getSubstitutionActors(List<Substitution> substitutions) {
@@ -165,86 +165,86 @@ public class SubstitutionLogic extends CommonLogic implements ISubstitutionLogic
         for (Substitution substitution : substitutions) {
             actorIdSet.add(substitution.getActorId());
         }
-        return executorDAO.getActors(Lists.newArrayList(actorIdSet));
+        return executorDao.getActors(Lists.newArrayList(actorIdSet));
     }
 
     public void delete(User user, List<Long> substitutionIds) {
-        List<Substitution> substitutions = substitutionDAO.get(substitutionIds);
+        List<Substitution> substitutions = substitutionDao.get(substitutionIds);
         if (substitutions.size() != substitutionIds.size()) {
             throw new SubstitutionDoesNotExistException(substitutionIds.toString());
         }
         List<Actor> actors = getSubstitutionActors(substitutions);
         checkPermissionsOnExecutors(user, actors, Permission.UPDATE);
-        substitutionDAO.delete(substitutionIds);
+        substitutionDao.delete(substitutionIds);
         for (Actor actor : actors) {
             fixPositionsForDeletedSubstitution(actor.getId());
         }
     }
 
     private void fixPositionsForDeletedSubstitution(Long actorId) {
-        List<Substitution> actorSubstitutions = substitutionDAO.getByActorId(actorId, true);
+        List<Substitution> actorSubstitutions = substitutionDao.getByActorId(actorId, true);
         for (int i = 0; i < actorSubstitutions.size(); i++) {
             Substitution substitution = actorSubstitutions.get(i);
             if (!Objects.equal(substitution.getPosition(), i)) {
                 substitution.setPosition(i);
-                substitutionDAO.update(substitution);
+                substitutionDao.update(substitution);
             }
         }
     }
 
     public void delete(User user, Substitution substitution) {
         log.info("Deleting " + substitution);
-        Actor actor = executorDAO.getActor(substitution.getActorId());
+        Actor actor = executorDao.getActor(substitution.getActorId());
         checkPermissionsOnExecutor(user, actor, Permission.UPDATE);
-        substitutionDAO.delete(substitution);
+        substitutionDao.delete(substitution);
         fixPositionsForDeletedSubstitution(substitution.getActorId());
     }
 
-    @Override
+
     public TreeMap<Substitution, Set<Long>> getSubstitutors(Actor actor) {
         return substitutionCacheCtrl.getSubstitutors(actor, true);
     }
 
-    @Override
+
     public Set<Long> getSubstituted(Actor actor) {
         return substitutionCacheCtrl.getSubstituted(actor);
     }
 
     public void create(User user, SubstitutionCriteria criteria) {
-        substitutionCriteriaDAO.create(criteria);
+        substitutionCriteriaDao.create(criteria);
     }
 
-    @Override
+
     public SubstitutionCriteria getCriteria(User user, Long id) {
-        return substitutionCriteriaDAO.getNotNull(id);
+        return substitutionCriteriaDao.getNotNull(id);
     }
 
-    @Override
+
     public SubstitutionCriteria getCriteria(User user, String name) {
-        return substitutionCriteriaDAO.getByName(name);
+        return substitutionCriteriaDao.getByName(name);
     }
 
-    @Override
+
     public List<SubstitutionCriteria> getAllCriterias(User user) {
-        return substitutionCriteriaDAO.getAll();
+        return substitutionCriteriaDao.getAll();
     }
 
     public void update(User user, SubstitutionCriteria substitutionsCriteria) {
-        substitutionCriteriaDAO.update(substitutionsCriteria);
+        substitutionCriteriaDao.update(substitutionsCriteria);
     }
 
     public void deleteCriterias(User user, List<SubstitutionCriteria> criterias) {
         for (SubstitutionCriteria criteria : criterias) {
-            substitutionCriteriaDAO.delete(criteria);
+            substitutionCriteriaDao.delete(criteria);
         }
     }
 
     public void delete(User user, SubstitutionCriteria criteria) {
-        substitutionCriteriaDAO.delete(criteria);
+        substitutionCriteriaDao.delete(criteria);
     }
 
-    @Override
+
     public List<Substitution> getSubstitutionsByCriteria(User user, SubstitutionCriteria criteria) {
-        return substitutionCriteriaDAO.getSubstitutionsByCriteria(criteria);
+        return substitutionCriteriaDao.getSubstitutionsByCriteria(criteria);
     }
 }

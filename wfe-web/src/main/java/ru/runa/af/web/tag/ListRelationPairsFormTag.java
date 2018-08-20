@@ -28,12 +28,12 @@ import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.common.web.html.CheckboxTDBuilder;
+import ru.runa.common.web.html.CheckboxTdBuilder;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -64,7 +64,7 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
         BatchPresentation batchPresentation = getBatchPresentation();
         List<RelationPair> relationPairs = Delegates.getRelationService().getRelationPairs(getUser(), relation.getName(), batchPresentation);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder checkboxBuilder = new CheckboxTDBuilder(null, Permission.ALL) {
+        TdBuilder checkboxBuilder = new CheckboxTdBuilder(null, Permission.ALL) {
 
             @Override
             protected String getIdValue(Object object) {
@@ -76,7 +76,7 @@ public class ListRelationPairsFormTag extends BatchReturningTitledFormTag {
                 return true;
             }
         };
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { checkboxBuilder }, batchPresentation, null);
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(new TdBuilder[] { checkboxBuilder }, batchPresentation, null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(relationPairs, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, getReturnAction(), pageContext);

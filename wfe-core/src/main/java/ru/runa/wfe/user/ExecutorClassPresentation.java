@@ -19,7 +19,7 @@ package ru.runa.wfe.user;
 
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
-import ru.runa.wfe.presentation.DefaultDBSource;
+import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.security.Permission;
@@ -39,14 +39,14 @@ public class ExecutorClassPresentation extends ClassPresentation {
         super(Executor.class, "", true, new FieldDescriptor[] {
                 // display name field type DB source isSort filter mode get
                 // value/show in web getter param
-                new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Executor.class, "name"), true, 1, BatchPresentationConsts.ASC,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "name" }),
-                new FieldDescriptor(FULL_NAME, String.class.getName(), new DefaultDBSource(Executor.class, "fullName"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "fullName" }),
-                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Executor.class, "description"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "description" }),
-                new FieldDescriptor(TYPE, String.class.getName(), new DefaultDBSource(Executor.class, "class"), false, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "class" }).setShowable(false) });
+                new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(Executor.class, "name"), true, 1, BatchPresentationConsts.ASC,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "name" }),
+                new FieldDescriptor(FULL_NAME, String.class.getName(), new DefaultDbSource(Executor.class, "fullName"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "fullName" }),
+                new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(Executor.class, "description"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "description" }),
+                new FieldDescriptor(TYPE, String.class.getName(), new DefaultDbSource(Executor.class, "class"), false, FieldFilterMode.DATABASE,
+                        "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "class" }).setShowable(false) });
     }
 
     public static ClassPresentation getInstance() {

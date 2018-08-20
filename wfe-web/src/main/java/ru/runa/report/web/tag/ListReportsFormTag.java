@@ -28,16 +28,16 @@ import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PagingNavigationHelper;
-import ru.runa.common.web.html.CheckboxTDBuilder;
+import ru.runa.common.web.html.CheckboxTdBuilder;
 import ru.runa.common.web.html.EnvBaseImpl;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.report.web.action.UndeployReportAction;
-import ru.runa.report.web.html.ReportPropertiesTDBuilder;
+import ru.runa.report.web.html.ReportPropertiesTdBuilder;
 import ru.runa.wf.web.html.SecuredObjectUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.report.dto.WfReport;
@@ -61,10 +61,10 @@ public class ListReportsFormTag extends BatchReturningTitledFormTag {
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, reports.size());
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(reports);
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TDBuilder[] { new CheckboxTDBuilder("id", Permission.ALL) },
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(
+                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.ALL) },
                 batchPresentation,
-                new TDBuilder[] { new ReportPropertiesTDBuilder() });
+                new TdBuilder[] { new ReportPropertiesTdBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, reports);
         SortingHeaderBuilder headerBuilder =
                 new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(), pageContext);

@@ -24,7 +24,7 @@ import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Cancels process by id.
@@ -41,7 +41,7 @@ public class CancelProcessTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         Long processId = paramsDef.getInputParamValueNotNull("processId", variableProvider);
         Delegates.getExecutionService().cancelProcess(user, processId);
         return null;

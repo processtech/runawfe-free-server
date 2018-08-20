@@ -13,7 +13,7 @@ import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.FileFormat;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.TextFormat;
@@ -84,7 +84,7 @@ public class LegacyMultipleSelectFromListUserVariables extends LegacyAbstractLis
             VariableFormat format = FormatCommons.create(def);
             String toCompare = null;
             if (format instanceof FileFormat) {
-                IFileVariable file = (IFileVariable) whoMap.get(keyName);
+                FileVariable file = (FileVariable) whoMap.get(keyName);
                 if (file != null) {
                     toCompare = file.getName();
                 }

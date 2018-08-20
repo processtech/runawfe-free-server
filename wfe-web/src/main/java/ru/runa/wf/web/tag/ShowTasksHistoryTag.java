@@ -12,7 +12,7 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TRRowBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
@@ -45,7 +45,7 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
         ProcessLogs logs = Delegates.getAuditService().getProcessLogs(getUser(), filter);
         List<TR> rows = processLogs(logs);
         HeaderBuilder tasksHistoryHeaderBuilder = new TasksHistoryHeaderBuilder();
-        RowBuilder rowBuilder = new TRRowBuilder(rows);
+        RowBuilder rowBuilder = new TrRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         tdFormElement.addElement(tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder));
     }

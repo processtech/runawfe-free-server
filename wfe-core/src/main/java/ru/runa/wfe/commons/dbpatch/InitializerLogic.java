@@ -77,12 +77,12 @@ import ru.runa.wfe.commons.dbpatch.impl.TransitionLogPatch;
  */
 public class InitializerLogic implements ApplicationListener<ContextRefreshedEvent> {
     protected static final Log log = LogFactory.getLog(InitializerLogic.class);
-    private static final List<Class<? extends DBPatch>> dbPatches;
+    private static final List<Class<? extends DbPatch>> dbPatches;
     @Autowired
     private DbTransactionalInitializer dbTransactionalInitializer;
 
     static {
-        List<Class<? extends DBPatch>> patches = Lists.newArrayList();
+        List<Class<? extends DbPatch>> patches = Lists.newArrayList();
         patches.add(UnsupportedPatch.class);
         patches.add(UnsupportedPatch.class);
         patches.add(UnsupportedPatch.class);
@@ -189,7 +189,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
     private void applyPatches(int databaseVersion) {
         log.info("Database version: " + databaseVersion + ", code version: " + dbPatches.size());
         while (databaseVersion < dbPatches.size()) {
-            DBPatch patch = null;
+            DbPatch patch = null;
             try {
                 patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
                 databaseVersion++;
@@ -204,12 +204,12 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
 
     private void postProcessPatches(Integer databaseVersion) {
         while (databaseVersion < dbPatches.size()) {
-            DBPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
+            DbPatch patch = ApplicationContextFactory.createAutowiredBean(dbPatches.get(databaseVersion));
             databaseVersion++;
-            if (patch instanceof IDbPatchPostProcessor) {
+            if (patch instanceof DbPatchPostProcessor) {
                 log.info("Post-processing patch " + patch + " (" + databaseVersion + ")");
                 try {
-                    dbTransactionalInitializer.postExecute((IDbPatchPostProcessor) patch);
+                    dbTransactionalInitializer.postExecute((DbPatchPostProcessor) patch);
                     log.info("Patch " + patch.getClass().getName() + "(" + databaseVersion + ") is post-processed successfully.");
                 } catch (Throwable th) {
                     log.error("Can't post-process patch " + patch.getClass().getName() + "(" + databaseVersion + ").", th);

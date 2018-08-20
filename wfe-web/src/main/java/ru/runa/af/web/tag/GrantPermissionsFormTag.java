@@ -29,12 +29,12 @@ import ru.runa.common.WebResources;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.PagingNavigationHelper;
 import ru.runa.common.web.form.IdForm;
-import ru.runa.common.web.html.AllEnabledSecuredObjectCheckboxTDBuilder;
+import ru.runa.common.web.html.AllEnabledSecuredObjectCheckboxTdBuilder;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.SecuredObjectFormTag2;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -67,8 +67,8 @@ public class GrantPermissionsFormTag extends SecuredObjectFormTag2 {
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder[] prefixBuilders = new TDBuilder[] { new AllEnabledSecuredObjectCheckboxTDBuilder() };
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
+        TdBuilder[] prefixBuilders = new TdBuilder[] { new AllEnabledSecuredObjectCheckboxTdBuilder() };
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
         RowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext, WebResources.ACTION_MAPPING_UPDATE_EXECUTOR,
                 getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, getReturnAction(), pageContext);

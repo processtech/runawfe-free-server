@@ -29,8 +29,8 @@ import com.google.common.collect.Maps;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.IFileVariable;
 
 /**
  * This class is marker class for validation.
@@ -38,8 +38,8 @@ import ru.runa.wfe.var.file.IFileVariable;
 public class FileFormat extends VariableFormat implements VariableDisplaySupport {
 
     @Override
-    public Class<? extends IFileVariable> getJavaClass() {
-        return IFileVariable.class;
+    public Class<? extends FileVariable> getJavaClass() {
+        return FileVariable.class;
     }
 
     @Override
@@ -49,17 +49,17 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
 
     @Override
     public String convertToStringValue(Object object) {
-        return ((IFileVariable) object).getName();
+        return ((FileVariable) object).getName();
     }
 
     @Override
-    public IFileVariable convertFromStringValue(String string) throws Exception {
-        return (IFileVariable) convertFromJSONValue(JSONValue.parse(string.replaceAll("&quot;", "\"")));
+    public FileVariable convertFromStringValue(String string) throws Exception {
+        return (FileVariable) convertFromJSONValue(JSONValue.parse(string.replaceAll("&quot;", "\"")));
     }
 
     @Override
     protected Object convertToJSONValue(Object value) {
-        IFileVariable fileVariable = (IFileVariable) value;
+        FileVariable fileVariable = (FileVariable) value;
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("fileName", fileVariable.getName());
         jsonObject.put("contentType", fileVariable.getContentType());
@@ -82,7 +82,7 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
         if (data == null) {
             throw new InternalApplicationException("Attribute 'data' is not set in " + object);
         }
-        return new FileVariable(fileName, DatatypeConverter.parseBase64Binary(data), contentType);
+        return new FileVariableImpl(fileName, DatatypeConverter.parseBase64Binary(data), contentType);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class FileFormat extends VariableFormat implements VariableDisplaySupport
         if (object == null) {
             return "&nbsp;";
         }
-        IFileVariable value = (IFileVariable) object;
+        FileVariable value = (FileVariable) object;
         HashMap<String, Object> params = Maps.newHashMap();
         params.put(WebHelper.PARAM_ID, processId);
         params.put(WebHelper.PARAM_VARIABLE_NAME, name);

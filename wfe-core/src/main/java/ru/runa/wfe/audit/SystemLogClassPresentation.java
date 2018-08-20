@@ -20,7 +20,7 @@ package ru.runa.wfe.audit;
 import java.util.Date;
 import ru.runa.wfe.presentation.BatchPresentationConsts;
 import ru.runa.wfe.presentation.ClassPresentation;
-import ru.runa.wfe.presentation.DefaultDBSource;
+import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.SystemLogTypeFilterCriteria;
@@ -61,8 +61,8 @@ public class SystemLogClassPresentation extends ClassPresentation {
     /**
      * Data source to sort and filter by executor name.
      */
-    static class ActorDBSource extends DefaultDBSource {
-        public ActorDBSource() {
+    static class ActorDbSource extends DefaultDbSource {
+        public ActorDbSource() {
             super(Executor.class, "name");
         }
 
@@ -77,17 +77,17 @@ public class SystemLogClassPresentation extends ClassPresentation {
      */
     private SystemLogClassPresentation() {
         super(SystemLog.class, "", true, new FieldDescriptor[] {
-                new FieldDescriptor(LOG_ID, Integer.class.getName(), new DefaultDBSource(SystemLog.class, "id"), true, FieldFilterMode.DATABASE,
-                        "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.NONE, "id", true }),
-                new FieldDescriptor(TIME, Date.class.getName(), new DefaultDBSource(SystemLog.class, "createDate"), true, 1,
-                        BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
+                new FieldDescriptor(LOG_ID, Integer.class.getName(), new DefaultDbSource(SystemLog.class, "id"), true, FieldFilterMode.DATABASE,
+                        "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.NONE, "id", true }),
+                new FieldDescriptor(TIME, Date.class.getName(), new DefaultDbSource(SystemLog.class, "createDate"), true, 1,
+                        BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] {
                         Permission.NONE, "createDate", true }),
-                new FieldDescriptor(ACTOR, String.class.getName(), new ActorDBSource(), true, FieldFilterMode.DATABASE,
-                        "ru.runa.wf.web.html.SystemLogActorTDBuilder", new Object[] {}),
-                new FieldDescriptor(TYPE, SystemLogTypeFilterCriteria.class.getName(), new DefaultDBSource(SystemLog.class, "class"), true,
-                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.SystemLogTypeTDBuilder", new Object[] {}),
-                new FieldDescriptor(MESSAGE, String.class.getName(), new DefaultDBSource(SystemLog.class, "id"), false, FieldFilterMode.NONE,
-                        "ru.runa.wf.web.html.SystemLogTDBuilder", new Object[] {}) });
+                new FieldDescriptor(ACTOR, String.class.getName(), new ActorDbSource(), true, FieldFilterMode.DATABASE,
+                        "ru.runa.wf.web.html.SystemLogActorTdBuilder", new Object[] {}),
+                new FieldDescriptor(TYPE, SystemLogTypeFilterCriteria.class.getName(), new DefaultDbSource(SystemLog.class, "class"), true,
+                        FieldFilterMode.DATABASE, "ru.runa.wf.web.html.SystemLogTypeTdBuilder", new Object[] {}),
+                new FieldDescriptor(MESSAGE, String.class.getName(), new DefaultDbSource(SystemLog.class, "id"), false, FieldFilterMode.NONE,
+                        "ru.runa.wf.web.html.SystemLogTdBuilder", new Object[] {}) });
     }
 
     /**

@@ -30,18 +30,18 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdNameForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TRRowBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.Errors;
-import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.error.SystemError;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -147,7 +147,7 @@ public class ErrorDetailsAction extends ActionBase {
                                 processFiles.put(
                                         processDefinitionFileName,
                                         Delegates.getDefinitionService().getProcessDefinitionFile(user, process.getDefinitionId(),
-                                                IFileDataProvider.PAR_FILE));
+                                                FileDataProvider.PAR_FILE));
                                 fileIncluded = true;
                             } catch (Exception e) {
                                 fileIncluded = false;
@@ -223,7 +223,7 @@ public class ErrorDetailsAction extends ActionBase {
     }
 
     private void addLogFile(JSONArray files, Map<String, byte[]> supportFiles, String fileName) throws IOException {
-        File file = new File(IOCommons.getLogDirPath(), fileName);
+        File file = new File(IoCommons.getLogDirPath(), fileName);
         if (!file.exists()) {
             log.error("No log file found at " + file.getAbsolutePath());
             return;
@@ -337,7 +337,7 @@ public class ErrorDetailsAction extends ActionBase {
         }
         HeaderBuilder tasksHistoryHeaderBuilder = new ru.runa.wf.web.html.HistoryHeaderBuilder(maxLevel, getResources(request).getMessage(
                 MessagesOther.LABEL_HISTORY_DATE.getKey()), getResources(request).getMessage(MessagesOther.LABEL_HISTORY_EVENT.getKey()));
-        RowBuilder rowBuilder = new TRRowBuilder(rows);
+        RowBuilder rowBuilder = new TrRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         return tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder).toString();
     }

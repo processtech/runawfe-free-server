@@ -46,7 +46,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskDoesNotExistException;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
 
 import com.google.common.base.Objects;
@@ -131,7 +131,7 @@ public class WorkflowBotTaskExecutor implements Runnable, BotExecutionStatus {
         User user = botExecutor.getUser();
         Bot bot = botExecutor.getBot();
         BotTask botTask = null;
-        IVariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
+        VariableProvider variableProvider = new DelegateTaskVariableProvider(user, task);
         TaskHandler taskHandler = null;
         try {
             String botTaskName = BotTaskConfigurationUtils.getBotTaskName(user, task);

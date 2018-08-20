@@ -23,12 +23,12 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 /**
  * Adjusts object_type and permission values for rm660, see https://rm.processtech.ru/attachments/download/1210.
  */
-public class RefactorPermissionsStep3 extends DBPatch {
+public class RefactorPermissionsStep3 extends DbPatch {
 
     @Override
     public void executeDML(Session session) {

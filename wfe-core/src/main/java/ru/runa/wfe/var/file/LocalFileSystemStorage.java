@@ -11,7 +11,7 @@ import ru.runa.wfe.var.Variable;
 
 import com.google.common.io.Files;
 
-public class LocalFileSystemStorage implements IFileVariableStorage {
+public class LocalFileSystemStorage implements FileVariableStorage {
 
     static File storageDir;
 
@@ -44,13 +44,13 @@ public class LocalFileSystemStorage implements IFileVariableStorage {
 
     @Override
     public Object save(ExecutionContext executionContext, Variable<?> variable, Object object) {
-        if (object instanceof IFileVariable) {
-            IFileVariable fileVariable = (IFileVariable) object;
+        if (object instanceof FileVariable) {
+            FileVariable fileVariable = (FileVariable) object;
             object = save(variable, fileVariable, null);
         } else {
-            List<IFileVariable> list = (List<IFileVariable>) object;
+            List<FileVariable> list = (List<FileVariable>) object;
             for (int i = 0; i < list.size(); i++) {
-                IFileVariable fileVariable = list.get(i);
+                FileVariable fileVariable = list.get(i);
                 fileVariable = save(variable, fileVariable, i);
                 list.set(i, fileVariable);
             }
@@ -58,7 +58,7 @@ public class LocalFileSystemStorage implements IFileVariableStorage {
         return object;
     }
 
-    private IFileVariable save(Variable<?> variable, IFileVariable fileVariable, Integer index) {
+    private FileVariable save(Variable<?> variable, FileVariable fileVariable, Integer index) {
         if (SystemProperties.isLocalFileStorageEnabled() && fileVariable != null
                 && fileVariable.getData().length > SystemProperties.getLocalFileStorageFileLimit()) {
             try {

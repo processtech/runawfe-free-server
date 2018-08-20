@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.user.dao.ExecutorDao;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -17,7 +17,7 @@ public class BotSwimlaneInitializer extends SwimlaneInitializer {
     private String botName;
 
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
     public static boolean isValid(String initializer) {
         return initializer != null && initializer.startsWith(BEGIN);
@@ -34,8 +34,8 @@ public class BotSwimlaneInitializer extends SwimlaneInitializer {
     }
 
     @Override
-    public List<? extends Executor> evaluate(IVariableProvider variableProvider) {
-        return Lists.newArrayList(executorDAO.getExecutor(botName));
+    public List<? extends Executor> evaluate(VariableProvider variableProvider) {
+        return Lists.newArrayList(executorDao.getExecutor(botName));
     }
 
     @Override

@@ -103,7 +103,7 @@ public class XmlUtils {
             }
             reader.setValidation(dtdValidation || (xsdValidation && xsdResourceName == null));
             reader.setErrorHandler(SimpleErrorHandler.getInstance());
-            return reader.read(new BOMSkippingReader(new InputStreamReader(in, Charsets.UTF_8)));
+            return reader.read(new BomSkippingReader(new InputStreamReader(in, Charsets.UTF_8)));
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }

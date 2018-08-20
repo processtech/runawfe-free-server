@@ -10,7 +10,7 @@ import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 
-public class TaskServiceDelegate extends EJB3Delegate implements TaskService {
+public class TaskServiceDelegate extends Ejb3Delegate implements TaskService {
 
     public TaskServiceDelegate() {
         super(TaskService.class);

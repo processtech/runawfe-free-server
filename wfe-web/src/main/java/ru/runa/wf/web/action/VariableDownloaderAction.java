@@ -30,7 +30,7 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.form.VariableForm;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 
 /**
  * Created on 27.09.2005
@@ -44,7 +44,7 @@ public class VariableDownloaderAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         try {
-            IFileVariable fileVariable = getVariable(actionForm, request);
+            FileVariable fileVariable = getVariable(actionForm, request);
             response.setContentType(fileVariable.getContentType());
             // http://forum.java.sun.com/thread.jspa?forumID=45&threadID=233446
             response.setHeader("Pragma", "public");
@@ -61,10 +61,10 @@ public class VariableDownloaderAction extends ActionBase {
         return null;
     }
 
-    private IFileVariable getVariable(ActionForm actionForm, HttpServletRequest request) {
+    private FileVariable getVariable(ActionForm actionForm, HttpServletRequest request) {
         VariableForm form = (VariableForm) actionForm;
         if (form.getLogId() != null) {
-            return (IFileVariable) Delegates.getAuditService().getProcessLogValue(getLoggedUser(request), form.getLogId());
+            return (FileVariable) Delegates.getAuditService().getProcessLogValue(getLoggedUser(request), form.getLogId());
         } else {
             return Delegates.getExecutionService().getFileVariableValue(getLoggedUser(request), form.getId(), form.getVariableName());
         }

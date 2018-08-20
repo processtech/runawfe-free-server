@@ -15,7 +15,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 
 import com.google.common.base.Strings;
@@ -89,7 +89,7 @@ public class ExecutorFormat extends VariableFormat implements VariableDisplaySup
             if (!Strings.isNullOrEmpty(tooltipTemplate)) {
                 Map<String, Object> map = Maps.newHashMap();
                 map.put("object", object);
-                IVariableProvider variableProvider = new MapVariableProvider(map);
+                VariableProvider variableProvider = new MapVariableProvider(map);
                 String title = ExpressionEvaluator.process(user, tooltipTemplate, variableProvider, webHelper);
                 html += " title=\"" + title + "\"";
             }

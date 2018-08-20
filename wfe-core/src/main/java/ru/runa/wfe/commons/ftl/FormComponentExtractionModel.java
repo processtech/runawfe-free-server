@@ -5,7 +5,7 @@ import java.util.List;
 
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.collect.Maps;
 
@@ -20,11 +20,11 @@ public class FormComponentExtractionModel extends SimpleHash {
     private static final NoOpModel NO_OP_MODEL = new NoOpModel();
     private final HashMap<String, FormComponentSubmissionHandler> submissionHandlers = Maps.newHashMap();
     private final HashMap<String, FormComponentSubmissionPostProcessor> submissionPostProcessors = Maps.newHashMap();
-    private final IVariableProvider variableProvider;
+    private final VariableProvider variableProvider;
     private final User user;
     private final WebHelper webHelper;
 
-    public FormComponentExtractionModel(IVariableProvider variableProvider, User user, WebHelper webHelper) {
+    public FormComponentExtractionModel(VariableProvider variableProvider, User user, WebHelper webHelper) {
         this.variableProvider = variableProvider;
         this.user = user;
         this.webHelper = webHelper;

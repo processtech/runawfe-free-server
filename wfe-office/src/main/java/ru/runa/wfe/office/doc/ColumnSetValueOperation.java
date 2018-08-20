@@ -1,6 +1,6 @@
 package ru.runa.wfe.office.doc;
 
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * @author Alekseev Vitaly
@@ -9,7 +9,7 @@ import ru.runa.wfe.var.IVariableProvider;
 public class ColumnSetValueOperation extends ColumnExpansionOperation {
 
     @Override
-    public String getStringValue(DocxConfig config, IVariableProvider variableProvider, Object key) {
+    public String getStringValue(DocxConfig config, VariableProvider variableProvider, Object key) {
         final Object value = getContainerValue();
         if (value == null) {
             return "";

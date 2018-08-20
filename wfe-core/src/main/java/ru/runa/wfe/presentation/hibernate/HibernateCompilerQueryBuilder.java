@@ -43,7 +43,7 @@ public class HibernateCompilerQueryBuilder {
     /**
      * Component to build HQL query for {@link BatchPresentation}.
      */
-    private final HibernateCompilerHQLBuider hqlBuilder;
+    private final HibernateCompilerHqlBuider hqlBuilder;
 
     /**
      * {@link Session}, used to create a {@link Query}.
@@ -59,7 +59,7 @@ public class HibernateCompilerQueryBuilder {
      *            Parameters, used to build query.
      */
     public HibernateCompilerQueryBuilder(BatchPresentation batchPresentation, CompilerParameters parameters) {
-        hqlBuilder = new HibernateCompilerHQLBuider(batchPresentation, parameters);
+        hqlBuilder = new HibernateCompilerHqlBuider(batchPresentation, parameters);
         this.parameters = parameters;
         this.batchPresentation = batchPresentation;
     }

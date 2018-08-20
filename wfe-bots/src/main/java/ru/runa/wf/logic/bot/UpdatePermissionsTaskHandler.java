@@ -36,7 +36,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Sets permissions to current process.
@@ -53,7 +53,7 @@ public class UpdatePermissionsTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         boolean allowed = true;
         if (settings.isConditionExists()) {
             String conditionVar = variableProvider.getValue(String.class, settings.getConditionVarName());

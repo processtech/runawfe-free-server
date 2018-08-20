@@ -10,8 +10,8 @@ import ru.runa.wf.web.servlet.UploadedFile;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.service.client.FileVariableProxy;
-import ru.runa.wfe.user.IExecutorLoader;
-import ru.runa.wfe.var.file.FileVariable;
+import ru.runa.wfe.user.ExecutorLoader;
+import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.DateFormat;
@@ -43,14 +43,14 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
     /**
      * Component for loading executors.
      */
-    private final IExecutorLoader executorLoader;
+    private final ExecutorLoader executorLoader;
 
     /**
      * Errors would be stored there. Map from field name to error description.
      */
     private final Map<String, String> errors;
 
-    public HttpComponentToVariableValue(IExecutorLoader executorLoader, Map<String, String> errors) {
+    public HttpComponentToVariableValue(ExecutorLoader executorLoader, Map<String, String> errors) {
         this.executorLoader = executorLoader;
         this.errors = errors;
     }
@@ -119,7 +119,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
                     contentType = "application/octet-stream";
                 }
                 try {
-                    return new FileVariable(formFile.getFileName(), formFile.getFileData(), contentType);
+                    return new FileVariableImpl(formFile.getFileName(), formFile.getFileData(), contentType);
                 } catch (Exception e) {
                     throw Throwables.propagate(e);
                 }
@@ -133,7 +133,7 @@ public class HttpComponentToVariableValue implements VariableFormatVisitor<Objec
             if (uploadedFile.getContent() == null) {
                 throw new InternalApplicationException("No content submitted for " + uploadedFile);
             }
-            return new FileVariable(uploadedFile.getName(), uploadedFile.getContent(), uploadedFile.getMimeType());
+            return new FileVariableImpl(uploadedFile.getName(), uploadedFile.getContent(), uploadedFile.getMimeType());
         }
         return null;
     }

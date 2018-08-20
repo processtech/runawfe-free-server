@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 public class TableExpansionOperation extends Operation {
     private final XWPFTableRow templateRow;
@@ -58,7 +58,7 @@ public class TableExpansionOperation extends Operation {
         }
     }
 
-    public String getStringValue(DocxConfig config, IVariableProvider variableProvider, int columnIndex, int rowIndex) {
+    public String getStringValue(DocxConfig config, VariableProvider variableProvider, int columnIndex, int rowIndex) {
         ColumnExpansionOperation operation = operations.get(columnIndex);
         if (operation != null) {
             Object key;

@@ -32,7 +32,7 @@ import org.apache.ecs.html.Table;
 
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Throwables;
 
@@ -122,7 +122,7 @@ public abstract class AbstractAutoCompletionComboBoxVarTag extends AbstractActor
     }
 
     @Override
-    public String getHtml(User user, String varName, Object varValue, PageContext pageContext, IVariableProvider variableProvider) throws Exception {
+    public String getHtml(User user, String varName, Object varValue, PageContext pageContext, VariableProvider variableProvider) throws Exception {
         StringBuffer htmlContent = new StringBuffer();
         List<Actor> actors = getActors(user, varName);
         Actor defaultActor = user.getActor();

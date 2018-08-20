@@ -12,7 +12,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 public class EmailConfig implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -111,12 +111,12 @@ public class EmailConfig implements Serializable {
         }
     }
 
-    public void applySubstitutions(IVariableProvider variableProvider) {
+    public void applySubstitutions(VariableProvider variableProvider) {
         applySubstitutions(variableProvider, connectionProperties);
         applySubstitutions(variableProvider, headerProperties);
     }
 
-    private void applySubstitutions(IVariableProvider variableProvider, Map<String, String> map) {
+    private void applySubstitutions(VariableProvider variableProvider, Map<String, String> map) {
         for (Map.Entry<String, String> entry : new HashMap<String, String>(map).entrySet()) {
             String substitutedValue = ExpressionEvaluator.process(null, entry.getValue(), variableProvider, null);
             if (!Objects.equal(substitutedValue, entry.getValue())) {

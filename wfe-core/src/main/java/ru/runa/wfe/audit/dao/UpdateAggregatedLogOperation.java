@@ -37,7 +37,7 @@ import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog.EndReason;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 
@@ -47,9 +47,10 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     private final HibernateQueryFactory queryFactory;
     private final Process process;
     private final Token token;
-    private final IProcessDefinitionLoader processDefinitionLoader;
+    private final ProcessDefinitionLoader processDefinitionLoader;
 
-    public UpdateAggregatedLogOperation(SessionFactory sessionFactory, HibernateQueryFactory queryFactory, IProcessDefinitionLoader processDefinitionLoader,
+    public UpdateAggregatedLogOperation(SessionFactory sessionFactory, HibernateQueryFactory queryFactory,
+            ProcessDefinitionLoader processDefinitionLoader,
             Process process, Token token) {
         this.sessionFactory = sessionFactory;
         this.queryFactory = queryFactory;

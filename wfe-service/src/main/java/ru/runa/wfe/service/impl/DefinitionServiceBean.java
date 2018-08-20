@@ -45,7 +45,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.DefinitionServiceLocal;
 import ru.runa.wfe.service.decl.DefinitionServiceRemote;
-import ru.runa.wfe.service.decl.DefinitionServiceRemoteWS;
+import ru.runa.wfe.service.decl.DefinitionWebServiceRemote;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
@@ -60,7 +60,7 @@ import ru.runa.wfe.var.VariableDefinition;
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
 @WebService(name = "DefinitionAPI", serviceName = "DefinitionWebService")
 @SOAPBinding
-public class DefinitionServiceBean implements DefinitionServiceLocal, DefinitionServiceRemote, DefinitionServiceRemoteWS {
+public class DefinitionServiceBean implements DefinitionServiceLocal, DefinitionServiceRemote, DefinitionWebServiceRemote {
     @Autowired
     private DefinitionLogic definitionLogic;
 

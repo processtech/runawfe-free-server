@@ -24,11 +24,11 @@ import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.script.AdminScript;
 import ru.runa.wfe.script.QAdminScript;
-import ru.runa.wfe.script.dao.AdminScriptDAO;
+import ru.runa.wfe.script.dao.AdminScriptDao;
 
 public class AdminScriptLogic extends CommonLogic {
     @Autowired
-    private AdminScriptDAO scriptDAO;
+    private AdminScriptDao scriptDAO;
     @Autowired
     private HibernateQueryFactory queryFactory;
 

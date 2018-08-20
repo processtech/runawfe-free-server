@@ -9,7 +9,7 @@ import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Objects;
 
@@ -21,7 +21,7 @@ public class TargetProcessSetDateVariableHandler extends SetDateVariableHandler 
     }
 
     @Override
-    protected Map<String, Object> executeAction(IVariableProvider variableProvider) throws Exception {
+    protected Map<String, Object> executeAction(VariableProvider variableProvider) throws Exception {
         Long processId = variableProvider.getValueNotNull(Long.class, ((TargetProcessSetDateVariableConfig) config).processIdVariableName);
         Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
         ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
@@ -47,7 +47,7 @@ public class TargetProcessSetDateVariableHandler extends SetDateVariableHandler 
         }
 
         @Override
-        public void applySubstitutions(IVariableProvider variableProvider) {
+        public void applySubstitutions(VariableProvider variableProvider) {
             super.applySubstitutions(variableProvider);
             {
                 String substitutedValue = (String) ExpressionEvaluator.evaluateVariableNotNull(variableProvider, baseVariableName);
