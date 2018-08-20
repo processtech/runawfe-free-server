@@ -292,10 +292,10 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     
     @Override
     @WebResult(name = "result")
-    public List<WfSwimlane> getSwimlanes(@WebParam(name = "user") User user, @WebParam(name = "namePattern") String namePattern) {
+    public List<WfSwimlane> getActiveProcessSwimlanes(@WebParam(name = "user") User user, @WebParam(name = "namePattern") String namePattern) {
         Preconditions.checkArgument(user != null, "user");
         Preconditions.checkArgument(namePattern != null, "namePattern");
-        return executionLogic.getSwimlanes(user, namePattern);
+        return executionLogic.getActiveProcessSwimlanes(user, namePattern);
     }
     
     @Override

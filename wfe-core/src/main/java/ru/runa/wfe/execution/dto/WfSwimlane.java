@@ -17,15 +17,14 @@
  */
 package ru.runa.wfe.execution.dto;
 
-import java.io.Serializable;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import ru.runa.wfe.lang.SwimlaneDefinition;
-import ru.runa.wfe.user.Executor;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.user.Executor;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WfSwimlane implements Serializable {
@@ -41,12 +40,14 @@ public class WfSwimlane implements Serializable {
     public WfSwimlane() {
     }
 
-    public WfSwimlane(Long id, SwimlaneDefinition definition, Executor assignedExecutor) {
-        this.id = id;
+    public WfSwimlane(SwimlaneDefinition definition, Swimlane swimlane, Executor assignedExecutor) {
+        Preconditions.checkNotNull(swimlane);
         Preconditions.checkNotNull(definition);
+        this.id = swimlane.getId();
         this.definition = definition;
         this.executor = assignedExecutor;
     }
+    
     public WfSwimlane(SwimlaneDefinition definition, Executor assignedExecutor) {
         Preconditions.checkNotNull(definition);
         this.definition = definition;

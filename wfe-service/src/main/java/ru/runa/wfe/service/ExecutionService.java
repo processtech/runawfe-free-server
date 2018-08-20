@@ -169,7 +169,7 @@ public interface ExecutionService {
      * @return not <code>null</code>
      * @throws ProcessDoesNotExistException
      */
-    public List<WfSwimlane> getSwimlanes(User user, String namePattern) throws ProcessDoesNotExistException;
+    public List<WfSwimlane> getActiveProcessSwimlanes(User user, String namePattern) throws ProcessDoesNotExistException;
     
     /**
      * Reassigns initialized process role.

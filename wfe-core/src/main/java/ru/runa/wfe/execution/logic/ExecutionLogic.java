@@ -82,7 +82,7 @@ import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
-
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -383,22 +383,22 @@ public class ExecutionLogic extends WFCommonLogic {
                     assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
                 }
             }
-            result.add(new WfSwimlane(swimlaneDefinition, assignedExecutor));
+            result.add(new WfSwimlane(swimlaneDefinition, swimlane, assignedExecutor));
         }
         return result;
     }
     
-    public List<WfSwimlane> getSwimlanes(User user, String namePattern) {
-        List<Swimlane> list = swimlaneDAO.findNotEndedByNameLike(namePattern);
+    public List<WfSwimlane> getActiveProcessSwimlanes(User user, String namePattern) {
+        List<Swimlane> list = swimlaneDAO.findByNamePatternInActiveProcesses(namePattern);
         List<WfSwimlane> listSwimlanes = Lists.newArrayList();
         for (Swimlane swimlane : list) {
             ProcessDefinition processDefinition = getDefinition(swimlane.getProcess());
             SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlane.getName());
             Executor assignedExecutor = swimlane.getExecutor();
-            if (assignedExecutor == null) {
+            if (assignedExecutor == null || !permissionDAO.isAllowed(user, ExecutorPermission.READ, assignedExecutor)) {
                 assignedExecutor = Actor.UNAUTHORIZED_ACTOR;
-            } 
-            listSwimlanes.add(new WfSwimlane(swimlane.getId(), swimlaneDefinition, assignedExecutor));
+            }
+            listSwimlanes.add(new WfSwimlane(swimlaneDefinition, swimlane, assignedExecutor));
         }
         return listSwimlanes;
     }
@@ -408,13 +408,12 @@ public class ExecutionLogic extends WFCommonLogic {
         Process process = swimlane.getProcess();
         ProcessDefinition processDefinition = getDefinition(process);
         Delegation delegation = processDefinition.getSwimlaneNotNull(swimlane.getName()).getDelegation();
+        Executor oldExecutor = swimlane.getExecutor();
         try {
             AssignmentHandler handler = delegation.getInstance();
             handler.assign(new ExecutionContext(processDefinition, process), swimlane);
-            log.info(swimlane + " reassigned");
-            return true;
-        } catch (Exception th) {
-            log.warn("Unable to reassign swimlane. Cause: " + th);
+            return !Objects.equal(oldExecutor, swimlane.getExecutor()); 
+        } catch (Exception e) {
             return false;
         }
     }

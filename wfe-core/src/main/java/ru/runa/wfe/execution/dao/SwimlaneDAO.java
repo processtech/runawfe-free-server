@@ -1,7 +1,8 @@
 package ru.runa.wfe.execution.dao;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
@@ -27,9 +28,9 @@ public class SwimlaneDAO extends GenericDAO<Swimlane> {
         return findFirstOrNull("from Swimlane where process=? and name=?", process, name);
     }
     
-    public List<Swimlane> findNotEndedByNameLike (String name){
+    public List<Swimlane> findByNamePatternInActiveProcesses (String name){
         List<Long> listIds = getHibernateTemplate().find("id from Process where executionStatus not like ?", ExecutionStatus.ENDED);
-        return getHibernateTemplate().find("from Swimlane where name like ? and id in ?", name, listIds);
+        return getHibernateTemplate().find("from Swimlane s join {} p on s.process_id = p.id where name like ?", listIds, "%" + name + "%");
     }
 
 
