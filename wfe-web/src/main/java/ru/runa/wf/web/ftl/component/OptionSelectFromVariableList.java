@@ -6,7 +6,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionPostProcessor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.ISelectable;
+import ru.runa.wfe.var.SelectableOption;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -28,8 +28,8 @@ public class OptionSelectFromVariableList extends FormComponent implements FormC
         for (Object option : list) {
             String optionValue;
             String optionLabel;
-            if (option instanceof ISelectable) {
-                ISelectable selectable = (ISelectable) option;
+            if (option instanceof SelectableOption) {
+                SelectableOption selectable = (SelectableOption) option;
                 optionValue = selectable.getValue();
                 optionLabel = selectable.getLabel();
             } else if (option instanceof Executor) {
@@ -55,8 +55,8 @@ public class OptionSelectFromVariableList extends FormComponent implements FormC
         if (source instanceof String) {
             String value = (String) source;
             List<?> list = getParameterVariableValue(List.class, 1, null);
-            if (TypeConversionUtil.getListFirstValueOrNull(list) instanceof ISelectable) {
-                for (ISelectable option : (List<ISelectable>) list) {
+            if (TypeConversionUtil.getListFirstValueOrNull(list) instanceof SelectableOption) {
+                for (SelectableOption option : (List<SelectableOption>) list) {
                     if (Objects.equal(value, option.getValue())) {
                         return option;
                     }

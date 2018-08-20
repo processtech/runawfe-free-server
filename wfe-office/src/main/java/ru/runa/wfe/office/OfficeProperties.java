@@ -13,4 +13,8 @@ public class OfficeProperties {
         return RESOURCES.getStringProperty("docx.placeholder.end", "}");
     }
 
+    public static String getDocxPlaceholderVMerge() {
+        return RESOURCES.getStringProperty("docx.placeholder.vmerge", "-||-");
+    }
+
 }

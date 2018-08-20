@@ -4,9 +4,9 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
 import ru.runa.wfe.audit.Severity;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class TaskCreateLogSeverityChangedPatch extends DBPatch {
+public class TaskCreateLogSeverityChangedPatch extends DbPatch {
 
     @Override
     public void executeDML(Session session) throws Exception {

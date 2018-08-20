@@ -24,7 +24,7 @@ import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.ViewLogForm;
-import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -46,7 +46,7 @@ public class ViewLogsAction extends ActionBase {
         try {
             Delegates.getAuthorizationService().checkAllowed(Commons.getUser(request.getSession()), Permission.ALL, SecuredSingleton.LOGS);
 
-            String logDirPath = IOCommons.getLogDirPath();
+            String logDirPath = IoCommons.getLogDirPath();
             request.setAttribute("logDirPath", logDirPath);
             ViewLogForm form = (ViewLogForm) actionForm;
             if (form.getFileName() != null) {

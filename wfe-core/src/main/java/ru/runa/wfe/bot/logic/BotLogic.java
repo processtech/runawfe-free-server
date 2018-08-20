@@ -31,9 +31,9 @@ import ru.runa.wfe.bot.BotStationDoesNotExistException;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.bot.BotTaskAlreadyExistsException;
 import ru.runa.wfe.bot.BotTaskDoesNotExistException;
-import ru.runa.wfe.bot.dao.BotDAO;
-import ru.runa.wfe.bot.dao.BotStationDAO;
-import ru.runa.wfe.bot.dao.BotTaskDAO;
+import ru.runa.wfe.bot.dao.BotDao;
+import ru.runa.wfe.bot.dao.BotStationDao;
+import ru.runa.wfe.bot.dao.BotTaskDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.security.Permission;
@@ -44,22 +44,22 @@ import ru.runa.wfe.user.User;
 
 public class BotLogic extends CommonLogic {
     @Autowired
-    private BotStationDAO botStationDAO;
+    private BotStationDao botStationDao;
     @Autowired
-    private BotDAO botDAO;
+    private BotDao botDao;
     @Autowired
-    private BotTaskDAO botTaskDAO;
+    private BotTaskDao botTaskDao;
 
     public List<BotStation> getBotStations() {
-        return botStationDAO.getAll();
+        return botStationDao.getAll();
     }
 
     public BotStation createBotStation(User user, BotStation botStation) throws BotStationAlreadyExistsException {
         checkPermission(user);
-        if (botStationDAO.get(botStation.getName()) != null) {
+        if (botStationDao.get(botStation.getName()) != null) {
             throw new BotStationAlreadyExistsException(botStation.getName());
         }
-        return botStationDAO.create(botStation);
+        return botStationDao.create(botStation);
     }
 
     public void updateBotStation(User user, BotStation botStation) throws BotStationAlreadyExistsException {
@@ -68,19 +68,19 @@ public class BotLogic extends CommonLogic {
         if (botStationToCheck != null && !Objects.equal(botStationToCheck.getId(), botStation.getId())) {
             throw new BotStationAlreadyExistsException(botStation.getName());
         }
-        botStationDAO.update(botStation);
+        botStationDao.update(botStation);
     }
 
     public BotStation getBotStationNotNull(Long id) throws BotStationDoesNotExistException {
-        return botStationDAO.getNotNull(id);
+        return botStationDao.getNotNull(id);
     }
 
     public BotStation getBotStation(String name) {
-        return botStationDAO.get(name);
+        return botStationDao.get(name);
     }
 
     public BotStation getBotStationNotNull(String name) throws BotStationDoesNotExistException {
-        return botStationDAO.getNotNull(name);
+        return botStationDao.getNotNull(name);
     }
 
     public void removeBotStation(User user, Long id) throws BotStationDoesNotExistException {
@@ -89,7 +89,7 @@ public class BotLogic extends CommonLogic {
         for (Bot bot : bots) {
             removeBot(user, bot.getId());
         }
-        botStationDAO.delete(id);
+        botStationDao.delete(id);
     }
 
     public Bot createBot(User user, Bot bot) throws BotAlreadyExistsException {
@@ -98,36 +98,36 @@ public class BotLogic extends CommonLogic {
         if (getBot(user, bot.getBotStation().getId(), bot.getUsername()) != null) {
             throw new BotAlreadyExistsException(bot.getUsername());
         }
-        if (executorDAO.isExecutorExist(bot.getUsername()) && executorDAO.isExecutorExist(SystemProperties.getBotsGroupName())) {
-            Actor botActor = executorDAO.getActor(bot.getUsername());
-            Group botsGroup = executorDAO.getGroup(SystemProperties.getBotsGroupName());
-            executorDAO.addExecutorToGroup(botActor, botsGroup);
+        if (executorDao.isExecutorExist(bot.getUsername()) && executorDao.isExecutorExist(SystemProperties.getBotsGroupName())) {
+            Actor botActor = executorDao.getActor(bot.getUsername());
+            Group botsGroup = executorDao.getGroup(SystemProperties.getBotsGroupName());
+            executorDao.addExecutorToGroup(botActor, botsGroup);
         }
-        bot = botDAO.create(bot);
+        bot = botDao.create(bot);
         incrementBotStationVersion(bot);
         return bot;
     }
 
     public List<Bot> getBots(User user, Long botStationId) {
         checkPermission(user);
-        return botDAO.getAll(botStationId);
+        return botDao.getAll(botStationId);
     }
 
     public Bot getBotNotNull(User user, Long id) {
         checkPermission(user);
-        return botDAO.getNotNull(id);
+        return botDao.getNotNull(id);
     }
 
     public Bot getBot(User user, Long botStationId, String name) {
         checkPermission(user);
         BotStation botStation = getBotStationNotNull(botStationId);
-        return botDAO.get(botStation, name);
+        return botDao.get(botStation, name);
     }
 
     public Bot getBotNotNull(User user, Long botStationId, String name) {
         checkPermission(user);
         BotStation botStation = getBotStationNotNull(botStationId);
-        return botDAO.getNotNull(botStation, name);
+        return botDao.getNotNull(botStation, name);
     }
 
     public void updateBot(User user, Bot bot, boolean incrementBotStationVersion) throws BotAlreadyExistsException {
@@ -137,7 +137,7 @@ public class BotLogic extends CommonLogic {
         if (botToCheck != null && !Objects.equal(botToCheck.getId(), bot.getId())) {
             throw new BotAlreadyExistsException(bot.getUsername());
         }
-        bot = botDAO.update(bot);
+        bot = botDao.update(bot);
         if (incrementBotStationVersion) {
             incrementBotStationVersion(bot);
         }
@@ -150,12 +150,12 @@ public class BotLogic extends CommonLogic {
             removeBotTask(user, botTask.getId());
         }
         Bot bot = getBotNotNull(user, id);
-        if (executorDAO.isExecutorExist(bot.getUsername()) && executorDAO.isExecutorExist(SystemProperties.getBotsGroupName())) {
-            Actor botActor = executorDAO.getActor(bot.getUsername());
-            Group botsGroup = executorDAO.getGroup(SystemProperties.getBotsGroupName());
-            executorDAO.removeExecutorFromGroup(botActor, botsGroup);
+        if (executorDao.isExecutorExist(bot.getUsername()) && executorDao.isExecutorExist(SystemProperties.getBotsGroupName())) {
+            Actor botActor = executorDao.getActor(bot.getUsername());
+            Group botsGroup = executorDao.getGroup(SystemProperties.getBotsGroupName());
+            executorDao.removeExecutorFromGroup(botActor, botsGroup);
         }
-        botDAO.delete(id);
+        botDao.delete(id);
     }
 
     public BotTask createBotTask(User user, BotTask botTask) throws BotTaskAlreadyExistsException {
@@ -164,7 +164,7 @@ public class BotLogic extends CommonLogic {
         if (getBotTask(user, botTask.getBot().getId(), botTask.getName()) != null) {
             throw new BotTaskAlreadyExistsException(botTask.getName());
         }
-        botTask = botTaskDAO.create(botTask);
+        botTask = botTaskDao.create(botTask);
         incrementBotStationVersion(botTask);
         return botTask;
     }
@@ -172,24 +172,24 @@ public class BotLogic extends CommonLogic {
     public List<BotTask> getBotTasks(User user, Long id) {
         checkPermission(user);
         Bot bot = getBotNotNull(user, id);
-        return botTaskDAO.getAll(bot);
+        return botTaskDao.getAll(bot);
     }
 
     public BotTask getBotTaskNotNull(User user, Long id) {
         checkPermission(user);
-        return botTaskDAO.getNotNull(id);
+        return botTaskDao.getNotNull(id);
     }
 
     public BotTask getBotTask(User user, Long botId, String name) {
         checkPermission(user);
         Bot bot = getBotNotNull(user, botId);
-        return botTaskDAO.get(bot, name);
+        return botTaskDao.get(bot, name);
     }
 
     public BotTask getBotTaskNotNull(User user, Long botId, String name) {
         checkPermission(user);
         Bot bot = getBotNotNull(user, botId);
-        return botTaskDAO.getNotNull(bot, name);
+        return botTaskDao.getNotNull(bot, name);
     }
 
     public void updateBotTask(User user, BotTask botTask) throws BotTaskAlreadyExistsException {
@@ -203,21 +203,21 @@ public class BotLogic extends CommonLogic {
             BotTask botTaskFromDB = getBotTaskNotNull(user, botTask.getId());
             botTask.setConfiguration(botTaskFromDB.getConfiguration());
         }
-        botTask = botTaskDAO.update(botTask);
+        botTask = botTaskDao.update(botTask);
         incrementBotStationVersion(botTask);
     }
 
     public void removeBotTask(User user, Long id) throws BotTaskDoesNotExistException {
         checkPermission(user);
         BotTask botTask = getBotTaskNotNull(user, id);
-        botTaskDAO.delete(id);
+        botTaskDao.delete(id);
         incrementBotStationVersion(botTask);
     }
 
     private void checkPermission(User user) {
         // Bot can read botstation. UPD: Since rm660 there's only ALL permission on BOTSTATIONS.
-        if (!botDAO.isBot(user)) {
-            permissionDAO.checkAllowed(user, Permission.ALL, SecuredSingleton.BOTSTATIONS);
+        if (!botDao.isBot(user)) {
+            permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.BOTSTATIONS);
         }
     }
 
@@ -233,7 +233,7 @@ public class BotLogic extends CommonLogic {
             throw new InternalApplicationException("Unexpected entity class " + entity);
         }
         botStation.setVersion(botStation.getVersion() + 1);
-        botStationDAO.update(botStation);
+        botStationDao.update(botStation);
     }
 
 }

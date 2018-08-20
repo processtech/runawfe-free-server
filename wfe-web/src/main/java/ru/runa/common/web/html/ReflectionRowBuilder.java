@@ -67,25 +67,25 @@ public class ReflectionRowBuilder implements RowBuilder {
     protected final PageContext pageContext;
     protected ItemUrlStrategy itemUrlStrategy;
     protected final int additionalEmptyCells;
-    protected final TDBuilder[] builders;
+    protected final TdBuilder[] builders;
     protected final EnvImpl env;
     private final String basePartOfUrlToObject;
     private CssClassStrategy cssClassStrategy;
 
     public ReflectionRowBuilder(List<?> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
-            String returnAction, String idPropertyName, TDBuilder[] builders) {
+            String returnAction, String idPropertyName, TdBuilder[] builders) {
         this(items, batchPresentation, pageContext, actionUrl, returnAction, builders);
         itemUrlStrategy = new DefaultItemUrlStrategy(idPropertyName, pageContext);
     }
 
     public ReflectionRowBuilder(List<?> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
-            String returnAction, ItemUrlStrategy itemUrlStrategy, TDBuilder[] builders) {
+            String returnAction, ItemUrlStrategy itemUrlStrategy, TdBuilder[] builders) {
         this(items, batchPresentation, pageContext, actionUrl, returnAction, builders);
         this.itemUrlStrategy = itemUrlStrategy;
     }
 
     protected ReflectionRowBuilder(List<?> items, BatchPresentation batchPresentation, PageContext pageContext, String actionUrl,
-            String returnAction, TDBuilder[] builders) {
+            String returnAction, TdBuilder[] builders) {
         this.items = items;
         this.batchPresentation = batchPresentation;
         this.pageContext = pageContext;
@@ -180,9 +180,9 @@ public class ReflectionRowBuilder implements RowBuilder {
             createEmptyCells(tr, currentState.getGroupIndex() + additionalEmptyCells);
         }
 
-        List<Object> listGroupTDBuilders = new ArrayList<>();
+        List<Object> listGroupTdBuilders = new ArrayList<>();
         for (FieldDescriptor fieldDescriptor : Arrays.asList(batchPresentation.getGrouppedFields())) {
-            listGroupTDBuilders.add(fieldDescriptor.getTDBuilder());
+            listGroupTdBuilders.add(fieldDescriptor.getTdBuilder());
         }
 
         for (int i = 0; i < builders.length; i++) {
@@ -212,7 +212,7 @@ public class ReflectionRowBuilder implements RowBuilder {
                 }
             }
 
-            if (listGroupTDBuilders.contains(builders[i])) {
+            if (listGroupTdBuilders.contains(builders[i])) {
                 if (td.elements().hasMoreElements()) {
                     ConcreteElement concreteElement = (ConcreteElement) td.elements().nextElement();
                     if (concreteElement instanceof A) {
@@ -221,7 +221,7 @@ public class ReflectionRowBuilder implements RowBuilder {
                             String href = a.getAttribute("href");
                             FieldDescriptor fieldDescriptorForBuilder = null;
                             for (FieldDescriptor fieldDescriptor : Arrays.asList(batchPresentation.getGrouppedFields())) {
-                                if (builders[i].equals(fieldDescriptor.getTDBuilder())) {
+                                if (builders[i].equals(fieldDescriptor.getTdBuilder())) {
                                     fieldDescriptorForBuilder = fieldDescriptor;
                                 }
                             }

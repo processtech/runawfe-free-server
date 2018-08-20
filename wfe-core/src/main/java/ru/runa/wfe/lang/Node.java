@@ -33,7 +33,7 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
@@ -253,7 +253,7 @@ public abstract class Node extends GraphElement {
             }
         }
         Token token = executionContext.getToken();
-        for (IProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
+        for (ProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
             listener.onNodeLeave(executionContext, this, transition);
         }
         // fire the leave-node event for this node

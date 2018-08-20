@@ -20,7 +20,7 @@ package ru.runa.wfe.service.delegate;
 import ru.runa.wfe.service.AuthenticationService;
 import ru.runa.wfe.user.User;
 
-public class AuthenticationServiceDelegate extends EJB3Delegate implements AuthenticationService {
+public class AuthenticationServiceDelegate extends Ejb3Delegate implements AuthenticationService {
 
     public AuthenticationServiceDelegate() {
         super(AuthenticationService.class);

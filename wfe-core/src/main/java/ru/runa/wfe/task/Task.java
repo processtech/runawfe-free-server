@@ -65,7 +65,7 @@ import ru.runa.wfe.lang.ActionEvent;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.TaskDefinition;
-import ru.runa.wfe.task.logic.ITaskNotifier;
+import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -280,7 +280,7 @@ public class Task implements Assignable {
             InteractionNode node = (InteractionNode) executionContext.getProcessDefinition().getNodeNotNull(nodeId);
             ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
             node.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_ASSIGN);
-            for (ITaskNotifier notifier : ApplicationContextFactory.getTaskNotifiers()) {
+            for (TaskNotifier notifier : ApplicationContextFactory.getTaskNotifiers()) {
                 notifier.onTaskAssigned(executionContext.getProcessDefinition(), executionContext.getVariableProvider(), this, previousExecutor);
             }
         }

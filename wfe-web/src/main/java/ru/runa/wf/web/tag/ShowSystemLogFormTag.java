@@ -29,7 +29,7 @@ import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.audit.SystemLog;
@@ -55,7 +55,7 @@ public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, instanceCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
 
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
 
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 0, 0, getReturnAction(), pageContext);
         RowBuilder rowBuilder = new ReflectionRowBuilder(instances, batchPresentation, pageContext, null, getReturnAction(), "id", builders);

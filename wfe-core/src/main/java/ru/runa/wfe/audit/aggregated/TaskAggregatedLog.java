@@ -27,7 +27,7 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.IndexColumn;
 import ru.runa.wfe.audit.ITaskAssignLog;
 import ru.runa.wfe.audit.ITaskCreateLog;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.InteractionNode;
@@ -101,7 +101,7 @@ public class TaskAggregatedLog {
         super();
     }
 
-    public TaskAggregatedLog(ITaskCreateLog taskCreateLog, IProcessDefinitionLoader processDefinitionLoader, Process process, Token token) {
+    public TaskAggregatedLog(ITaskCreateLog taskCreateLog, ProcessDefinitionLoader processDefinitionLoader, Process process, Token token) {
         taskId = taskCreateLog.getTaskId();
         processId = taskCreateLog.getProcessId();
         createDate = taskCreateLog.getCreateDate();
@@ -371,7 +371,7 @@ public class TaskAggregatedLog {
             }
         }
 
-        private EndReason(int dbValue) {
+        EndReason(int dbValue) {
             this.dbValue = dbValue;
         }
 

@@ -13,14 +13,14 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 
 public class ExcelDataStore {
-    private static Map<Class<? extends IExcelConstraints>, Class<? extends ExcelStorable<?, ?>>> mappings = Maps.newHashMap();
+    private static Map<Class<? extends ExcelConstraints>, Class<? extends ExcelStorable<?, ?>>> mappings = Maps.newHashMap();
     static {
         mappings.put(CellConstraints.class, CellExcelStorable.class);
         mappings.put(RowConstraints.class, ListRowExcelStorable.class);
         mappings.put(ColumnConstraints.class, ListColumnExcelStorable.class);
     }
 
-    public <C extends IExcelConstraints> ExcelStorable<C, ?> create(C constraints) {
+    public <C extends ExcelConstraints> ExcelStorable<C, ?> create(C constraints) {
         try {
             ExcelStorable<C, ?> storable = (ExcelStorable<C, ?>) mappings.get(constraints.getClass()).newInstance();
             storable.setConstraints(constraints);

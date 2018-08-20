@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.bc.BusinessDuration;
 import ru.runa.wfe.commons.bc.BusinessDurationParser;
 import ru.runa.wfe.presentation.filter.dialect.DurationDialectFactory;
-import ru.runa.wfe.presentation.filter.dialect.IDurationDialect;
+import ru.runa.wfe.presentation.filter.dialect.DurationDialect;
 import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 public class TaskDurationFilterCriteria extends FilterCriteria {
@@ -80,7 +80,7 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
     @Override
     public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
         initTimes();
-        final IDurationDialect durationDialect = DurationDialectFactory.createDialect();
+        final DurationDialect durationDialect = DurationDialectFactory.createDialect();
         final String placeholderStart = makePlaceHolderName(aliasedFieldName + "Start");
         final String placeholderEnd = makePlaceHolderName(aliasedFieldName + "End");
         final String wrappedPlaceholderStart = durationDialect.wrapParameter(placeholderStart);

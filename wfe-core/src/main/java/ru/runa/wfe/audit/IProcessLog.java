@@ -3,7 +3,7 @@ package ru.runa.wfe.audit;
 import java.util.Date;
 import javax.persistence.Transient;
 
-public interface IProcessLog extends IAttributes {
+public interface IProcessLog extends Attributes {
 
     @Transient
     Long getId();

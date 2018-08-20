@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import ru.runa.wfe.var.format.VariableFormat;
 
-public abstract class ExcelStorable<C extends IExcelConstraints, Data> {
+public abstract class ExcelStorable<C extends ExcelConstraints, Data> {
     protected C constraints;
     protected Data data;
     protected VariableFormat format;

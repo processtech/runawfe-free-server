@@ -33,11 +33,11 @@ import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
-import ru.runa.wfe.ss.dao.SubstitutionDAO;
+import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -47,13 +47,13 @@ class AltSubstitutionCacheImpl extends BaseCacheImpl implements SubstitutionCach
     public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
     private final Cache<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutorsCache;
     private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
-    private final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-    private final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
+    private final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+    private final SubstitutionDao substitutionDao = ApplicationContextFactory.getSubstitutionDAO();
 
     public AltSubstitutionCacheImpl() {
         actorToSubstitutorsCache = createCache(substitutorsName, true);
         actorToSubstitutedCache = createCache(substitutedName, true);
-        for (Actor actor : executorDAO.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged())) {
+        for (Actor actor : executorDao.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged())) {
             if (!actor.isActive()) {
                 loadCacheFor(actor.getId());
             }
@@ -74,7 +74,7 @@ class AltSubstitutionCacheImpl extends BaseCacheImpl implements SubstitutionCach
                 if (executor instanceof Actor) {
                     substitutors.add(executor.getId());
                 } else {
-                    for (Actor groupActor : executorDAO.getGroupActors((Group) executor)) {
+                    for (Actor groupActor : executorDao.getGroupActors((Group) executor)) {
                         substitutors.add(groupActor.getId());
                     }
                 }
@@ -95,7 +95,7 @@ class AltSubstitutionCacheImpl extends BaseCacheImpl implements SubstitutionCach
 
     private void loadCacheFor(Long actorId) {
         TreeMap<Substitution, HashSet<Long>> result = Maps.newTreeMap();
-        for (Substitution substitution : substitutionDAO.getByActorId(actorId, true)) {
+        for (Substitution substitution : substitutionDao.getByActorId(actorId, true)) {
             HashSet<Long> substitutors = loadCacheFor(actorId, substitution);
             result.put(substitution, substitutors);
         }

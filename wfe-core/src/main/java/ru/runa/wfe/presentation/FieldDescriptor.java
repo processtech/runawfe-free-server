@@ -92,7 +92,7 @@ public class FieldDescriptor {
      * Components, to access field values from HQL/SQL. If more then one components supplied, then first component must describe access to base class
      * and other components must describe access to inherited objects.
      */
-    public final DBSource[] dbSources;
+    public final DbSource[] dbSources;
 
     /**
      * Ordinal field index in {@link BatchPresentation}. All fields in {@link ClassPresentation} has -1, but {@link BatchPresentation} creates fields
@@ -121,9 +121,9 @@ public class FieldDescriptor {
      * @param fieldState
      *            Field display and HQL/SQL affecting state.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, FieldFilterMode filterMode,
+    public FieldDescriptor(String displayName, String fieldType, DbSource dbSource, boolean sortable, FieldFilterMode filterMode,
             FieldState fieldState) {
-        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, null, null,
+        this(displayName, fieldType, new DbSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, null, null,
                 -1, fieldState);
     }
 
@@ -145,9 +145,9 @@ public class FieldDescriptor {
      * @param tdBuilderParams
      *            Parameters, passed to tdBuilder constructor.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
+    public FieldDescriptor(String displayName, String fieldType, DbSource dbSource, boolean sortable, FieldFilterMode filterMode, String tdBuilder,
             Object[] tdBuilderParams) {
-        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder,
+        this(displayName, fieldType, new DbSource[] { dbSource }, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder,
                 tdBuilderParams, -1, null);
     }
 
@@ -173,13 +173,13 @@ public class FieldDescriptor {
      * @param tdBuilderParams
      *            Parameters, passed to tdBuilder constructor.
      */
-    public FieldDescriptor(String displayName, String fieldType, DBSource dbSource, boolean sortable, int defaultSortOrder, boolean defaultSortMode,
+    public FieldDescriptor(String displayName, String fieldType, DbSource dbSource, boolean sortable, int defaultSortOrder, boolean defaultSortMode,
             FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams) {
-        this(displayName, fieldType, new DBSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
+        this(displayName, fieldType, new DbSource[] { dbSource }, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder,
                 tdBuilderParams, -1, null);
     }
 
-    public FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
+    public FieldDescriptor(String displayName, String fieldType, DbSource[] dbSources, boolean sortable, FieldFilterMode filterMode,
             String tdBuilder, Object[] tdBuilderParams) {
         this(displayName, fieldType, dbSources, sortable, notUsedSortOrder, BatchPresentationConsts.ASC, filterMode, tdBuilder, tdBuilderParams, -1,
                 null);
@@ -207,7 +207,7 @@ public class FieldDescriptor {
      * @param fieldState
      *            Field display and HQL/SQL affecting state.
      */
-    private FieldDescriptor(String displayName, String fieldType, DBSource[] dbSources, boolean sortable, int defaultSortOrder,
+    private FieldDescriptor(String displayName, String fieldType, DbSource[] dbSources, boolean sortable, int defaultSortOrder,
             boolean defaultSortMode, FieldFilterMode filterMode, String tdBuilder, Object[] tdBuilderParams, int fieldIdx, FieldState fieldState) {
         this.displayName = displayName;
         this.fieldType = fieldType;
@@ -272,18 +272,18 @@ public class FieldDescriptor {
                 fieldType, dbSources, sortable, defaultSortOrder, defaultSortMode, filterMode, tdBuilder, tdBuilderParams, fieldIdx, fieldState);
     }
 
-    private Object loadedTDBuilder;
+    private Object loadedTdBuilder;
 
     /**
      * Returns preferred object to display this field value in web interface.
      *
-     * @return TDBuilder instance.
+     * @return TdBuilder instance.
      */
-    public Object getTDBuilder() {
-        if (loadedTDBuilder == null) {
-            loadedTDBuilder = loadTDBuilder();
+    public Object getTdBuilder() {
+        if (loadedTdBuilder == null) {
+            loadedTdBuilder = loadTdBuilder();
         }
-        return loadedTDBuilder;
+        return loadedTdBuilder;
     }
 
     public boolean isVisible() {
@@ -307,9 +307,9 @@ public class FieldDescriptor {
     /**
      * Loads preferred object to display this field value in web interface.
      *
-     * @return TDBuilder instance.
+     * @return TdBuilder instance.
      */
-    private Object loadTDBuilder() {
+    private Object loadTdBuilder() {
         Object builder = null;
         if (displayName.startsWith(ClassPresentation.removable_prefix)) {
             Object[] params = new Object[tdBuilderParams.length + 1];

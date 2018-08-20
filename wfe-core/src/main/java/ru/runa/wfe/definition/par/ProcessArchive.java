@@ -34,7 +34,7 @@ import java.util.zip.ZipInputStream;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
@@ -46,9 +46,9 @@ public class ProcessArchive {
     private final Deployment deployment;
     public static final List<String> UNSECURED_FILE_NAMES = Lists.newArrayList();
     static {
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.START_IMAGE_FILE_NAME);
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
-        UNSECURED_FILE_NAMES.add(IFileDataProvider.BOTS_XML_FILE);
+        UNSECURED_FILE_NAMES.add(FileDataProvider.START_IMAGE_FILE_NAME);
+        UNSECURED_FILE_NAMES.add(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
+        UNSECURED_FILE_NAMES.add(FileDataProvider.BOTS_XML_FILE);
     }
 
     static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<ProcessArchiveParser>();
@@ -61,8 +61,8 @@ public class ProcessArchive {
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new GraphXmlParser()));
         processArchiveParsers.add(ApplicationContextFactory.autowireBean(new CommentsParser()));
     }
-    private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)."
-            + IFileDataProvider.PROCESSDEFINITION_XML_FILE_NAME);
+    private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)."
+            + FileDataProvider.PROCESSDEFINITION_XML_FILE_NAME);
 
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
@@ -95,7 +95,7 @@ public class ProcessArchive {
             if (matcher.matches()) {
                 int subprocessIndex = Integer.parseInt(matcher.group(1));
                 SubprocessDefinition subprocessDefinition = new SubprocessDefinition(processDefinition);
-                subprocessDefinition.setNodeId(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + subprocessIndex);
+                subprocessDefinition.setNodeId(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX + subprocessIndex);
                 for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
                     if (processArchiveParser.isApplicableToEmbeddedSubprocess()) {
                         processArchiveParser.readFromArchive(this, subprocessDefinition);

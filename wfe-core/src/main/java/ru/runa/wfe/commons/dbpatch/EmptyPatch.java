@@ -7,6 +7,6 @@ package ru.runa.wfe.commons.dbpatch;
  * @author Dofs
  * 
  */
-public class EmptyPatch extends DBPatch {
+public class EmptyPatch extends DbPatch {
 
 }

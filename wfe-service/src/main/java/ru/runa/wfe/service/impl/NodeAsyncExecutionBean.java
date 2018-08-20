@@ -1,5 +1,7 @@
 package ru.runa.wfe.service.impl;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Throwables;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -11,29 +13,24 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
-import ru.runa.wfe.commons.ITransactionListener;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
 
 /**
  * @since 4.3.0
@@ -47,11 +44,11 @@ import com.google.common.base.Throwables;
 public class NodeAsyncExecutionBean implements MessageListener {
     private static final Log log = LogFactory.getLog(NodeAsyncExecutionBean.class);
     @Autowired
-    private TokenDAO tokenDAO;
+    private TokenDao tokenDao;
     @Autowired
-    private IProcessDefinitionLoader processDefinitionLoader;
+    private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDao;
     @Resource
     private MessageDrivenContext context;
 
@@ -82,7 +79,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
 
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
-                    Token token = tokenDAO.getNotNull(tokenId);
+                    Token token = tokenDao.getNotNull(tokenId);
                     if (token.getProcess().hasEnded()) {
                         log.debug("Ignored execution in ended " + token.getProcess());
                         return;
@@ -101,7 +98,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
                     }
                 }
             }.executeInTransaction(true);
-            for (ITransactionListener listener : TransactionListeners.get()) {
+            for (TransactionListener listener : TransactionListeners.get()) {
                 try {
                     listener.onTransactionComplete(context.getUserTransaction());
                 } catch (Throwable th) {

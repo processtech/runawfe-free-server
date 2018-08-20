@@ -60,7 +60,7 @@ public class KerberosLoginModule extends LoginModuleBase {
             if (actorName == null) {
                 throw new LoginException("No client name was provided.");
             }
-            return executorDAO.getActorCaseInsensitive(actorName);
+            return executorDao.getActorCaseInsensitive(actorName);
         }
         return null;
     }

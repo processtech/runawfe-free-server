@@ -17,16 +17,16 @@ import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.auth.UserHolder;
-import ru.runa.wfe.task.logic.ITaskNotifier;
+import ru.runa.wfe.task.logic.TaskNotifier;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 
-public class EmailTaskNotifier implements ITaskNotifier {
+public class EmailTaskNotifier implements TaskNotifier {
     private static final Log log = LogFactory.getLog(EmailTaskNotifier.class);
     private boolean enabled = true;
     private boolean onlyIfTaskActorEmailDefined = false;
@@ -80,7 +80,7 @@ public class EmailTaskNotifier implements ITaskNotifier {
     }
 
     @Override
-    public void onTaskAssigned(ProcessDefinition processDefinition, IVariableProvider variableProvider, Task task, Executor previousExecutor) {
+    public void onTaskAssigned(ProcessDefinition processDefinition, VariableProvider variableProvider, Task task, Executor previousExecutor) {
         if (!enabled || configBytes == null) {
             return;
         }
@@ -110,7 +110,7 @@ public class EmailTaskNotifier implements ITaskNotifier {
             map.put("interaction", interaction);
             map.put("task", task);
             map.put("emails", emails);
-            IVariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, variableProvider);
+            VariableProvider emailVariableProvider = new MapDelegableVariableProvider(map, variableProvider);
             EmailUtils.prepareMessage(UserHolder.get(), config, interaction, emailVariableProvider);
             EmailUtils.sendMessageRequest(config);
         } catch (Exception e) {

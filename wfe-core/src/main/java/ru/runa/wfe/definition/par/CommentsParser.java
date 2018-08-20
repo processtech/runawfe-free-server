@@ -9,7 +9,7 @@ import org.dom4j.Element;
 
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.lang.ProcessDefinition;
 
@@ -26,7 +26,7 @@ public class CommentsParser implements ProcessArchiveParser {
 
     @Override
     public void readFromArchive(ProcessArchive processArchive, ProcessDefinition processDefinition) {
-        byte[] definitionXml = processDefinition.getFileData(IFileDataProvider.COMMENTS_XML_FILE_NAME);
+        byte[] definitionXml = processDefinition.getFileData(FileDataProvider.COMMENTS_XML_FILE_NAME);
         if (definitionXml != null) {
             processDefinition.setChanges(parse(definitionXml));
         }

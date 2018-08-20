@@ -7,7 +7,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.FormComponent;
 import ru.runa.wfe.commons.ftl.FormComponentSubmissionHandler;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.var.ISelectable;
+import ru.runa.wfe.var.SelectableOption;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.FormatCommons;
@@ -40,8 +40,8 @@ public abstract class AbstractCheckboxSelectFromVariableList extends FormCompone
             Object option = list.get(i);
             String value = String.valueOf(i);
             String label;
-            if (option instanceof ISelectable) {
-                label = ((ISelectable) option).getLabel();
+            if (option instanceof SelectableOption) {
+                label = ((SelectableOption) option).getLabel();
             } else {
                 WfVariable variable = ViewUtil.createListComponentVariable(listVariable, i, componentFormat, option);
                 label = ViewUtil.getOutput(user, webHelper, variableProvider.getProcessId(), variable);

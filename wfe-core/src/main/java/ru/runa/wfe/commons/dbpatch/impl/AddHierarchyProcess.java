@@ -7,9 +7,9 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class AddHierarchyProcess extends DBPatch {
+public class AddHierarchyProcess extends DbPatch {
     private static final String DELIM = "/";
 
     @Override

@@ -17,7 +17,7 @@ import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 
 public class ExpiredTasksNotifier {
     protected final Log log = LogFactory.getLog(getClass());
@@ -31,7 +31,7 @@ public class ExpiredTasksNotifier {
     private EmailUtils.ProcessNameFilter includeProcessNameFilter;
     private EmailUtils.ProcessNameFilter excludeProcessNameFilter;
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDao;
     @Autowired
     private long scheduledTimerTaskPeriod;
 
@@ -80,7 +80,7 @@ public class ExpiredTasksNotifier {
             return;
         }
         Date curDate = Calendar.getInstance().getTime();
-        List<Task> tasks = taskDAO.getAllExpiredTasks(curDate);
+        List<Task> tasks = taskDao.getAllExpiredTasks(curDate);
         for (Task task : tasks) {
             if ((task.getDeadlineDate().getTime() + scheduledTimerTaskPeriod) < curDate.getTime()) {
                 continue;

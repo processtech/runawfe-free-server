@@ -8,9 +8,9 @@ import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.office.shared.FilesSupplierConfig;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.IFileVariable;
 
 import com.google.common.net.MediaType;
 
@@ -33,11 +33,11 @@ public class ExcelBindings extends FilesSupplierConfig {
         }
     }
 
-    public boolean isInputFileXLSX(IVariableProvider variableProvider, boolean defaultValue) {
+    public boolean isInputFileXLSX(VariableProvider variableProvider, boolean defaultValue) {
         if (inputFileVariableName != null) {
             Object value = variableProvider.getValue(inputFileVariableName);
-            if (value instanceof IFileVariable) {
-                IFileVariable fileVariable = (IFileVariable) value;
+            if (value instanceof FileVariable) {
+                FileVariable fileVariable = (FileVariable) value;
                 return isFileNameBelongsToXLSX(fileVariable.getName(), defaultValue);
             }
             throw new InternalApplicationException("Variable '" + inputFileVariableName + "' should contains a file");
@@ -59,9 +59,9 @@ public class ExcelBindings extends FilesSupplierConfig {
     }
 
     public static class FileVariableOutputStream extends ByteArrayOutputStream {
-        private final FileVariable fileVariable;
+        private final FileVariableImpl fileVariable;
 
-        public FileVariableOutputStream(FileVariable fileVariable) {
+        public FileVariableOutputStream(FileVariableImpl fileVariable) {
             this.fileVariable = fileVariable;
         }
 

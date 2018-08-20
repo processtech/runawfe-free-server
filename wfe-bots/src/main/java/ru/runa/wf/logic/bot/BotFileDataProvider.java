@@ -1,8 +1,8 @@
 package ru.runa.wf.logic.bot;
 
-import ru.runa.wfe.definition.par.FileDataProvider;
+import ru.runa.wfe.definition.par.FileDataProviderImpl;
 
-public class BotFileDataProvider extends FileDataProvider {
+public class BotFileDataProvider extends FileDataProviderImpl {
 	byte[] embeddedFile;
 		
 	public BotFileDataProvider(byte[] embeddedFile) {

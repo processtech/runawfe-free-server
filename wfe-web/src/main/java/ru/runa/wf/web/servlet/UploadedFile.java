@@ -2,7 +2,7 @@ package ru.runa.wf.web.servlet;
 
 import java.io.Serializable;
 
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 
 import com.google.common.base.Objects;
 
@@ -21,12 +21,12 @@ public class UploadedFile implements Serializable {
     private String size;
     private String mimeType;
     private byte[] content;
-    private IFileVariable fileVariable;
+    private FileVariable fileVariable;
 
     public UploadedFile() {
     }
 
-    public UploadedFile(IFileVariable fileVariable) {
+    public UploadedFile(FileVariable fileVariable) {
         this.name = fileVariable.getName();
         this.mimeType = fileVariable.getContentType();
         this.fileVariable = fileVariable;
@@ -65,7 +65,7 @@ public class UploadedFile implements Serializable {
         }
     }
 
-    public IFileVariable getFileVariable() {
+    public FileVariable getFileVariable() {
         return fileVariable;
     }
 

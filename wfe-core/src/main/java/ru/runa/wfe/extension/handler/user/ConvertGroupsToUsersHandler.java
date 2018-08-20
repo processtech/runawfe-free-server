@@ -10,13 +10,13 @@ import ru.runa.wfe.extension.handler.HandlerData;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 import com.google.common.collect.Lists;
 
 public class ConvertGroupsToUsersHandler extends CommonParamBasedHandler {
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {
@@ -32,7 +32,7 @@ public class ConvertGroupsToUsersHandler extends CommonParamBasedHandler {
         if (executor instanceof Actor) {
             result.add((Actor) executor);
         } else if (executor instanceof Group) {
-            Set<Executor> children = executorDAO.getGroupChildren((Group) executor);
+            Set<Executor> children = executorDao.getGroupChildren((Group) executor);
             for (Executor child : children) {
                 toActors(result, child);
             }

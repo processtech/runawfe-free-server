@@ -31,7 +31,7 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Required;
 
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.SQLCommons;
+import ru.runa.wfe.commons.SqlCommons;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.user.User;
 
@@ -100,7 +100,7 @@ public class SqlAjaxCommand extends JsonAjaxCommand {
             log.debug("Returning " + array);
             return array;
         } finally {
-            SQLCommons.releaseResources(connection, statement, resultSet);
+            SqlCommons.releaseResources(connection, statement, resultSet);
         }
     }
 

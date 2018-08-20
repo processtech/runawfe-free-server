@@ -5,9 +5,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 
 public class UnusedTemporaryGroupsCleaner {
@@ -15,13 +15,13 @@ public class UnusedTemporaryGroupsCleaner {
     @Autowired
     private ExecutorLogic executorLogic;
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
     @Autowired
-    private ProcessDAO processDAO;
+    private ProcessDao processDao;
 
     @Transactional
     public void execute() {
-        List<TemporaryGroup> groups = executorDAO.getUnusedTemporaryGroups();
+        List<TemporaryGroup> groups = executorDao.getUnusedTemporaryGroups();
         log.debug("Removing " + groups.size() + " groups");
         for (TemporaryGroup group : groups) {
             executorLogic.remove(group);

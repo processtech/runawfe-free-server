@@ -3,12 +3,12 @@ package ru.runa.wfe.commons.dbpatch.impl;
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 /**
  * "Not null" constraints, indexes and foreign keys are copy-pasted from current BPM_* tables.
  */
-public class CreateArchiveTables extends DBPatch {
+public class CreateArchiveTables extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

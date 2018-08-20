@@ -21,8 +21,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.DBSource;
-import ru.runa.wfe.presentation.DBSource.AccessType;
+import ru.runa.wfe.presentation.DbSource;
+import ru.runa.wfe.presentation.DbSource.AccessType;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldState;
 
@@ -39,7 +39,7 @@ class HibernateCompilerInheritanceOrderBuilder {
     /**
      * Component to build HQL query for {@link BatchPresentation}.
      */
-    private final HibernateCompilerHQLBuider hqlBuilder;
+    private final HibernateCompilerHqlBuider hqlBuilder;
 
     /**
      * Translator, used to translate HQL query to SQL.
@@ -56,7 +56,7 @@ class HibernateCompilerInheritanceOrderBuilder {
      * @param queryTranslator
      *            Translator, used to translate HQL query to SQL.
      */
-    HibernateCompilerInheritanceOrderBuilder(BatchPresentation batchPresentation, HibernateCompilerHQLBuider hqlBuilder,
+    HibernateCompilerInheritanceOrderBuilder(BatchPresentation batchPresentation, HibernateCompilerHqlBuider hqlBuilder,
             HibernateCompilerTranslator queryTranslator) {
         this.batchPresentation = batchPresentation;
         this.hqlBuilder = hqlBuilder;
@@ -186,7 +186,7 @@ class HibernateCompilerInheritanceOrderBuilder {
      */
     private List<String> buildOrderToField(FieldDescriptor field, boolean sortingMode) {
         List<String> result = new LinkedList<>();
-        for (DBSource dbSource : field.dbSources) {
+        for (DbSource dbSource : field.dbSources) {
             String alias = hqlBuilder.getAliasMapping().getAlias(field);
             if (dbSource.getValueDBPath(AccessType.ORDER, null) == null) {
                 continue;

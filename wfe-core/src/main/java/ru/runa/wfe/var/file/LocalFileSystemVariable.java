@@ -15,7 +15,7 @@ import com.google.common.io.Files;
  * @author dofs
  * @since 4.0
  */
-public class LocalFileSystemVariable implements IFileVariable {
+public class LocalFileSystemVariable implements FileVariable {
     private static final long serialVersionUID = 1L;
     private String name;
     private String contentType;
@@ -24,7 +24,7 @@ public class LocalFileSystemVariable implements IFileVariable {
     public LocalFileSystemVariable() {
     }
 
-    public LocalFileSystemVariable(Variable<?> variable, String variableName, IFileVariable fileVariable) {
+    public LocalFileSystemVariable(Variable<?> variable, String variableName, FileVariable fileVariable) {
         name = fileVariable.getName();
         contentType = fileVariable.getContentType();
         long version = variable.getVersion() != null ? variable.getVersion() + 1 : 0;

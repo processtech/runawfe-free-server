@@ -33,7 +33,7 @@ import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 public class CancelOldProcesses extends TaskHandlerBase {
 
@@ -43,7 +43,7 @@ public class CancelOldProcesses extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         ExecutionService executionService = Delegates.getExecutionService();
         Date lastDate = new Date();
         long timeout = variableProvider.getValueNotNull(long.class, "timeout");

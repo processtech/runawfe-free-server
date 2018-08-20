@@ -1,6 +1,6 @@
 package ru.runa.wfe.office.doc;
 
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Objects;
 
@@ -50,7 +50,7 @@ public class ReplaceOperation extends Operation {
         this.value = value;
     }
     
-    public void execute(DocxConfig config, IVariableProvider variableProvider) {
+    public void execute(DocxConfig config, VariableProvider variableProvider) {
     }
 
     @Override
