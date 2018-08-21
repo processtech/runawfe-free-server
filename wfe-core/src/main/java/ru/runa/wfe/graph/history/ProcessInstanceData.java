@@ -1,20 +1,19 @@
 package ru.runa.wfe.graph.history;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.BaseToken;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SubprocessDefinition;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import ru.runa.wfe.lang.SubprocessNode;
 
 public class ProcessInstanceData {
     /**
@@ -36,10 +35,10 @@ public class ProcessInstanceData {
     /**
      * Process instance tokens.
      */
-    private final HashMap<Long, Token> processTokens = Maps.newHashMap();
+    private final HashMap<Long, BaseToken> processTokens = Maps.newHashMap();
 
-    public ProcessInstanceData(Process processInstance, ProcessDefinition processDefinition) {
-        addToken(processInstance.getRootToken());
+    public ProcessInstanceData(BaseProcess instance, ProcessDefinition processDefinition) {
+        addToken(instance.getRootToken());
         this.processDefinition = processDefinition;
         for (Node node : processDefinition.getNodes(true)) {
             this.processDefinitionNodes.put(node.getNodeId(), node);
@@ -52,7 +51,7 @@ public class ProcessInstanceData {
         }
     }
 
-    private void addToken(Token token) {
+    private void addToken(BaseToken token) {
         processTokens.put(token.getId(), token);
         Set<Token> childrens = token.getChildren();
         if (childrens == null) {
@@ -100,7 +99,7 @@ public class ProcessInstanceData {
         return subProcesses.contains(subProcessName) ? subProcessName : null;
     }
 
-    public Token getToken(long tokenId) {
+    public BaseToken getToken(long tokenId) {
         return processTokens.get(tokenId);
     }
 }

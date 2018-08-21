@@ -41,6 +41,7 @@ import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.execution.BaseProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.NodeProcess;
@@ -262,7 +263,7 @@ public class ExecutionLogic extends WfCommonLogic {
             processLogs = new ProcessLogs(process.getId());
             ProcessLogFilter filter = new ProcessLogFilter(processId);
             filter.setSeverities(DrawProperties.getLogsInGraphSeverities());
-            processLogs.addLogs(processLogDao.getAll(filter), false);
+            processLogs.addLogs(processLogDao2.getAll(filter), false);
         }
         ProcessGraphInfoVisitor visitor = new ProcessGraphInfoVisitor(user, definition, process, processLogs, nodeProcesses);
         return getDefinitionGraphElements(user, definition, visitor);
@@ -278,7 +279,7 @@ public class ExecutionLogic extends WfCommonLogic {
             ProcessLogFilter filter = new ProcessLogFilter(processId);
             filter.setSeverities(DrawProperties.getLogsInGraphSeverities());
             filter.setNodeId(nodeId);
-            processLogs.addLogs(processLogDao.getAll(filter), false);
+            processLogs.addLogs(processLogDao2.getAll(filter), false);
         }
         ProcessGraphInfoVisitor visitor = new ProcessGraphInfoVisitor(user, definition, process, processLogs, nodeProcesses);
         Node node = definition.getNode(nodeId);
@@ -293,7 +294,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public byte[] getProcessHistoryDiagram(User user, Long processId, Long taskId, String subprocessId) throws ProcessDoesNotExistException {
         try {
-            Process process = processDao.getNotNull(processId);
+            BaseProcess process = processDao2.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.LIST, process);
             ProcessDefinition processDefinition = getDefinition(process);
             List<? extends IProcessLog> logs = processLogDao2.getAll(process);
@@ -307,7 +308,7 @@ public class ExecutionLogic extends WfCommonLogic {
     public List<NodeGraphElement> getProcessHistoryDiagramElements(User user, Long processId, Long taskId, String subprocessId)
             throws ProcessDoesNotExistException {
         try {
-            Process process = processDao.getNotNull(processId);
+            BaseProcess process = processDao2.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.LIST, process);
             ProcessDefinition processDefinition = getDefinition(process);
             List<? extends IProcessLog> logs = processLogDao2.getAll(process);

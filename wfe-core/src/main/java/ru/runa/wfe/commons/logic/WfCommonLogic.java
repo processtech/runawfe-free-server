@@ -18,7 +18,6 @@
 package ru.runa.wfe.commons.logic;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessDeleteLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.commons.SystemProperties;
@@ -78,8 +76,6 @@ public class WfCommonLogic extends CommonLogic {
     protected TaskDao taskDao;
     @Autowired
     protected VariableDao variableDao;
-    @Autowired
-    protected ProcessLogDao processLogDao;
     @Autowired
     protected ProcessLogDao2 processLogDao2;
     @Autowired
@@ -197,7 +193,7 @@ public class WfCommonLogic extends CommonLogic {
             log.debug("deleting sub process " + subProcess.getId());
             deleteProcess(user, subProcess);
         }
-        processLogDao.deleteAll(process.getId());
+        processLogDao2.deleteAll(process);
         jobDao.deleteByProcess(process);
         variableDao.deleteAll(process);
         processDao.delete(process);

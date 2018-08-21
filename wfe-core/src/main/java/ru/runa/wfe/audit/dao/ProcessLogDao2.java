@@ -86,6 +86,14 @@ public class ProcessLogDao2 extends GenericDao2<IProcessLog, ProcessLog, Process
         }
     }
 
+    public boolean isNodeEntered(@NonNull BaseProcess process, String nodeId) {
+        if (process.isArchive()) {
+            return dao2.isNodeEntered((ArchivedProcess) process, nodeId);
+        } else {
+            return dao1.isNodeEntered((Process) process, nodeId);
+        }
+    }
+
     public void addLog(ProcessLog processLog, Process process, Token token) {
         processLog.setProcessId(process.getId());
         if (token == null) {
@@ -96,8 +104,15 @@ public class ProcessLogDao2 extends GenericDao2<IProcessLog, ProcessLog, Process
             processLog.setNodeId(token.getNodeId());
         }
         processLog.setCreateDate(new Date());
-        dao1.create(processLog);
+        create(processLog);
         registerInCustomizationDao(processLog, process, token);
+    }
+
+    /**
+     * Deletes all process logs.
+     */
+    public void deleteAll(Process process) {
+        dao1.deleteAll(process);
     }
 
     private void registerInCustomizationDao(ProcessLog processLog, Process process, Token token) {

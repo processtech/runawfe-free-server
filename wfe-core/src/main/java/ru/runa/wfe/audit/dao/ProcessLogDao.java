@@ -30,12 +30,12 @@ public class ProcessLogDao extends BaseProcessLogDao<ProcessLog> {
         return type.currentRootClass;
     }
 
-    public List<ProcessLog> getAll(@NonNull Long processId) {
+    List<ProcessLog> getAll(@NonNull Long processId) {
         QProcessLog pl = QProcessLog.processLog;
         return queryFactory.selectFrom(pl).where(pl.processId.eq(processId)).orderBy(pl.id.asc()).fetch();
     }
 
-    public List<ProcessLog> get(Process process, ProcessDefinition definition) {
+    List<ProcessLog> get(Process process, ProcessDefinition definition) {
         long processId = process.getId();
 
         QTransitionLog tl = QTransitionLog.transitionLog;
@@ -100,13 +100,14 @@ public class ProcessLogDao extends BaseProcessLogDao<ProcessLog> {
     /**
      * Deletes all process logs.
      */
-    public void deleteAll(Long processId) {
+    void deleteAll(Process process) {
+        long processId = process.getId();
         log.debug("deleting logs for process " + processId);
         QProcessLog pl = QProcessLog.processLog;
         queryFactory.delete(pl).where(pl.processId.eq(processId)).execute();
     }
 
-    public boolean isNodeEntered(Process process, String nodeId) {
+    boolean isNodeEntered(Process process, String nodeId) {
         QNodeEnterLog nel = QNodeEnterLog.nodeEnterLog;
         return queryFactory.select(nel.id).from(nel).where(nel.processId.eq(process.getId()).and(nel.nodeId.eq(nodeId))).fetchFirst() != null;
     }

@@ -1,17 +1,16 @@
 package ru.runa.wfe.commons.dbpatch.impl;
 
+import com.google.common.collect.Maps;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.audit.TransitionLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
 import ru.runa.wfe.definition.Deployment;
@@ -23,8 +22,6 @@ import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.Transition;
 
-import com.google.common.collect.Maps;
-
 public class TransitionLogPatch extends DbPatch {
 
     @Autowired
@@ -32,7 +29,7 @@ public class TransitionLogPatch extends DbPatch {
     @Autowired
     private ProcessDao processDao;
     @Autowired
-    private ProcessLogDao processLogDao;
+    private ProcessLogDao2 processLogDao2;
 
     @Override
     public void executeDML(Session session) {
@@ -63,7 +60,7 @@ public class TransitionLogPatch extends DbPatch {
                     transitionLog.setProcessId(process.getId());
                     transitionLog.setTokenId(process.getRootToken().getId());
                     transitionLog.setCreateDate(new Date());
-                    processLogDao.create(transitionLog);
+                    processLogDao2.create(transitionLog);
                     success++;
                 } catch (Exception e) {
                     log.warn(e);

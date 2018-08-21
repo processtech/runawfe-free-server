@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.hibernate.Converters;
@@ -83,8 +83,8 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(NodeProcessDao.class);
     }
 
-    public static ProcessLogDao getProcessLogDao() {
-        return getContext().getBean(ProcessLogDao.class);
+    public static ProcessLogDao2 getProcessLogDao() {
+        return getContext().getBean(ProcessLogDao2.class);
     }
 
     public static Converters getConverters() {

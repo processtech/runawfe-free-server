@@ -8,7 +8,7 @@ import ru.runa.wfe.audit.NodeEnterLog;
 import ru.runa.wfe.audit.NodeLog;
 import ru.runa.wfe.audit.TaskLog;
 import ru.runa.wfe.audit.TransitionLog;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.BaseProcess;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -56,7 +56,7 @@ public class GraphHistoryBuilderData {
      * 
      * @param executors
      *            Executors, defined in system.
-     * @param processDefinition
+     * @param definition
      *            Process definition.
      * @param fullProcessLogs
      *            All logs for process instance.
@@ -64,9 +64,9 @@ public class GraphHistoryBuilderData {
      *            Subprocess name, if history for embedded subprocess is
      *            required.
      */
-    public GraphHistoryBuilderData(List<Executor> executors, Process processInstance, ProcessDefinition processDefinition,
+    public GraphHistoryBuilderData(List<Executor> executors, BaseProcess process, ProcessDefinition definition,
             List<? extends IProcessLog> fullProcessLogs, String subProcessId) {
-        processInstanceData = new ProcessInstanceData(processInstance, processDefinition);
+        processInstanceData = new ProcessInstanceData(process, definition);
         transitions = new TransitionLogData(fullProcessLogs);
         for (Executor executor : executors) {
             this.executors.put(executor.getName(), executor);

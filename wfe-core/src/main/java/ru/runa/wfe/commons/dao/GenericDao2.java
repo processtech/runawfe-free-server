@@ -31,4 +31,8 @@ public abstract class GenericDao2<T, T1 extends T, D1 extends GenericDao<T1>, T2
             throw new NullPointerException("No entity found");
         }
     }
+
+    public T1 create(T1 entity) {
+        return dao1.create(entity);
+    }
 }
