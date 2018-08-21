@@ -9,6 +9,10 @@ import ru.runa.wfe.execution.BaseToken;
 
 public abstract class BaseNodeProcessDao<P extends BaseProcess, T extends BaseToken<P, T>, NP extends BaseNodeProcess<P, T>> extends GenericDao<NP> {
 
+    BaseNodeProcessDao(Class<NP> entityClass) {
+        super(entityClass);
+    }
+
     public abstract List<NP> getNodeProcesses(P process, T parentToken, String nodeId, Boolean finished);
 
     // TODO Optimizable: getNodeProcesses() can return Ps, not NPs; but where else is it used?

@@ -10,13 +10,17 @@ import ru.runa.wfe.commons.dao.GenericDao;
 
 public abstract class BaseProcessLogDao<T extends BaseProcessLog> extends GenericDao<T> {
 
+    BaseProcessLogDao(Class<T> entityClass) {
+        super(entityClass);
+    }
+
     protected abstract Class<? extends BaseProcessLog> typeToClass(IProcessLog.Type type);
 
     /**
      * Public because used in migration.
      */
     @SuppressWarnings("unchecked")
-    public List<IProcessLog> getAll(final ProcessLogFilter filter) {
+    public List<BaseProcessLog> getAll(final ProcessLogFilter filter) {
         boolean filterBySeverity = filter.getSeverities().size() != 0 && filter.getSeverities().size() != Severity.values().length;
         String hql = "from " + typeToClass(filter.getType()).getName() + " where processId = :processId";
         if (filter.getIdFrom() != null) {

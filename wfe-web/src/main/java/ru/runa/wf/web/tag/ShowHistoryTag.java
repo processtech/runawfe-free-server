@@ -37,13 +37,12 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.HistoryHeaderBuilder;
-import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.Severity;
@@ -84,7 +83,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
             if (filter.getSeverities().contains(severity)) {
                 filterHtml.append(" checked=\"true\"");
             }
-            filterHtml.append("> " + severity.name() + "\n");
+            filterHtml.append("> ").append(severity.name()).append("\n");
         }
         filterHtml.append("<button type=\"submit\">").append(MessagesProcesses.BUTTON_FORM.message(pageContext)).append("</button>\n");
         filterHtml.append("</td></tr></table>\n");
@@ -96,7 +95,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         TD mergedEventDateTD = null;
         String mergedEventDateString = null;
         int mergedRowsCount = 0;
-        for (IProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             String description;
             try {
                 String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);

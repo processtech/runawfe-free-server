@@ -2,7 +2,7 @@ package ru.runa.wfe.graph.view;
 
 import com.google.common.base.Objects;
 import java.util.List;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.NodeProcess;
@@ -49,7 +49,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
     public void visit(NodeGraphElement element) {
         super.visit(element);
         if (processLogs != null) {
-            List<IProcessLog> logs = processLogs.getLogs(element.getNodeId());
+            List<BaseProcessLog> logs = processLogs.getLogs(element.getNodeId());
             if (logs.size() > 0) {
                 element.setData(logs);
             }

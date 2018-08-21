@@ -11,6 +11,7 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.ArchivedProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -36,7 +37,7 @@ public class ProcessLogDao2 extends GenericDao2<IProcessLog, ProcessLog, Process
         this.customizationDao = customizationDao;
     }
 
-    public List<? extends IProcessLog> getAll(@NonNull BaseProcess process) {
+    public List<? extends BaseProcessLog> getAll(@NonNull BaseProcess process) {
         if (process.isArchive()) {
             return dao2.getAll(process.getId());
         } else {
@@ -51,19 +52,19 @@ public class ProcessLogDao2 extends GenericDao2<IProcessLog, ProcessLog, Process
         return getAll(processDao2.getNotNull(processId));
     }
 
-    public List<IProcessLog> getAll(final ProcessLogFilter filter) {
+    public List<BaseProcessLog> getAll(final ProcessLogFilter filter) {
         val process = filter.getProcessId() != null
                 ? processDao2.get(filter.getProcessId())
                 : null;
         if (process == null) {
             val current = dao1.getAll(filter);
             val archived = dao2.getAll(filter);
-            val result = new ArrayList<IProcessLog>(current.size() + archived.size());
+            val result = new ArrayList<BaseProcessLog>(current.size() + archived.size());
             result.addAll(current);
             result.addAll(archived);
-            result.sort(new Comparator<IProcessLog>() {
+            result.sort(new Comparator<BaseProcessLog>() {
                 @Override
-                public int compare(IProcessLog o1, IProcessLog o2) {
+                public int compare(BaseProcessLog o1, BaseProcessLog o2) {
                     return Long.compare(o1.getId(), o2.getId());
                 }
             });
@@ -78,7 +79,7 @@ public class ProcessLogDao2 extends GenericDao2<IProcessLog, ProcessLog, Process
         }
     }
 
-    public List<? extends IProcessLog> get(@NonNull BaseProcess process, ProcessDefinition definition) {
+    public List<? extends BaseProcessLog> get(@NonNull BaseProcess process, ProcessDefinition definition) {
         if (process.isArchive()) {
             return dao2.get((ArchivedProcess) process, definition);
         } else {

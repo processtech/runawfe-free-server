@@ -11,6 +11,10 @@ import ru.runa.wfe.execution.Token;
 @Component
 public class NodeProcessDao extends BaseNodeProcessDao<Process, Token, NodeProcess> {
 
+    public NodeProcessDao() {
+        super(NodeProcess.class);
+    }
+
     public NodeProcess findBySubProcessId(Long subProcessId) {
         QNodeProcess np = QNodeProcess.nodeProcess;
         return queryFactory.selectFrom(np).where(np.subProcess.id.eq(subProcessId)).fetchFirst();

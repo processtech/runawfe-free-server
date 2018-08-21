@@ -15,6 +15,10 @@ import ru.runa.wfe.lang.SubprocessDefinition;
 @Component
 public class ArchivedProcessLogDao extends BaseProcessLogDao<ArchivedProcessLog> {
 
+    public ArchivedProcessLogDao() {
+        super(ArchivedProcessLog.class);
+    }
+
     @Override
     protected Class<? extends BaseProcessLog> typeToClass(IProcessLog.Type type) {
         return type.archivedRootClass;

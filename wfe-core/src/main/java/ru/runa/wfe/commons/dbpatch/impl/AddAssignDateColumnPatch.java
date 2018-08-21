@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ITaskAssignLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
@@ -34,8 +35,8 @@ public class AddAssignDateColumnPatch extends DbPatch {
             ProcessLogFilter filter = new ProcessLogFilter(((Number) row[1]).longValue());
             filter.setType(IProcessLog.Type.TASK_ASSIGN);
             filter.setNodeId((String) row[2]);
-            List<IProcessLog> logs = processLogDao.getAll(filter);
-            for (IProcessLog processLog : logs) {
+            List<BaseProcessLog> logs = processLogDao.getAll(filter);
+            for (BaseProcessLog processLog : logs) {
                 ITaskAssignLog taskAssignLog = (TaskAssignLog) processLog;
                 if (Objects.equal(taskId, taskAssignLog.getTaskId())) {
                     updateQuery.setParameter("assignDate", taskAssignLog.getCreateDate());

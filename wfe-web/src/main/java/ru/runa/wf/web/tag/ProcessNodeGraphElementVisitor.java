@@ -29,8 +29,8 @@ import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IActionLog;
-import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -89,7 +89,7 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
         if (element.getData() != null) {
             Table table = new Table();
             table.setClass(Resources.CLASS_LIST_TABLE);
-            for (IProcessLog log : element.getData()) {
+            for (BaseProcessLog log : element.getData()) {
                 String description;
                 try {
                     String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);

@@ -19,7 +19,7 @@ import ru.runa.wfe.lang.NodeType;
 public class ProcessLogs implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final List<IProcessLog> logs = Lists.newArrayList();
+    private final List<BaseProcessLog> logs = Lists.newArrayList();
     @XmlTransient
     private final HashMap<Long, Long> subprocessToProcessIds = Maps.newHashMap();
 
@@ -30,10 +30,10 @@ public class ProcessLogs implements Serializable {
         subprocessToProcessIds.put(processId, null);
     }
 
-    public void addLogs(List<? extends IProcessLog> processLogs, boolean withSubprocesses) {
+    public void addLogs(List<? extends BaseProcessLog> processLogs, boolean withSubprocesses) {
         logs.addAll(processLogs);
         if (withSubprocesses) {
-            for (IProcessLog log : processLogs) {
+            for (BaseProcessLog log : processLogs) {
                 if (log instanceof ISubprocessStartLog) {
                     Long subprocessId = ((ISubprocessStartLog) log).getSubprocessId();
                     subprocessToProcessIds.put(subprocessId, log.getProcessId());
@@ -93,7 +93,7 @@ public class ProcessLogs implements Serializable {
         return result;
     }
 
-    public List<IProcessLog> getLogs() {
+    public List<BaseProcessLog> getLogs() {
         return logs;
     }
 
@@ -125,9 +125,9 @@ public class ProcessLogs implements Serializable {
         return list;
     }
 
-    public List<IProcessLog> getLogs(String nodeId) {
-        List<IProcessLog> list = Lists.newArrayList();
-        for (IProcessLog log : logs) {
+    public List<BaseProcessLog> getLogs(String nodeId) {
+        List<BaseProcessLog> list = Lists.newArrayList();
+        for (BaseProcessLog log : logs) {
             if (Objects.equal(log.getNodeId(), nodeId)) {
                 list.add(log);
             }

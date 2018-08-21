@@ -20,6 +20,10 @@ import ru.runa.wfe.lang.SubprocessDefinition;
 @Component
 public class ProcessLogDao extends BaseProcessLogDao<ProcessLog> {
 
+    public ProcessLogDao() {
+        super(ProcessLog.class);
+    }
+
     @Override
     protected Class<? extends BaseProcessLog> typeToClass(IProcessLog.Type type) {
         return type.currentRootClass;

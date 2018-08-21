@@ -16,7 +16,7 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IProcessStartLog;
 import ru.runa.wfe.audit.ITaskCreateLog;
 import ru.runa.wfe.audit.ITaskEndLog;
@@ -50,7 +50,7 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
     public List<TR> processLogs(ProcessLogs logs) {
         List<TR> result = Lists.newArrayList();
         Map<ITaskCreateLog, ITaskEndLog> taskLogs = logs.getTaskLogs();
-        for (IProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             if (log instanceof IProcessStartLog) {
                 ITaskCreateLog createLog = null;
                 for (ITaskCreateLog key : taskLogs.keySet()) {

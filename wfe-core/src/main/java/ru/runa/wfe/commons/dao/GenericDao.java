@@ -21,9 +21,6 @@ public abstract class GenericDao<T> extends CommonDao implements GenericDaoApi<T
     protected static final Log log = LogFactory.getLog(GenericDao.class);
     private final Class<T> entityClass;
 
-    /**
-     * Constructor
-     */
     public GenericDao() {
         // Spring can create proxy between GenericDAO and its subclass; so search deeper for GenericDAO superclass.
         Class c = getClass();
@@ -34,6 +31,14 @@ public abstract class GenericDao<T> extends CommonDao implements GenericDaoApi<T
         Type t = c.getGenericSuperclass();
         ParameterizedType pt = (ParameterizedType) t;
         entityClass = (Class<T>) pt.getActualTypeArguments()[0];
+    }
+
+    /**
+     * Default constructor fails to determine entityClass if subclasses by generic:
+     * in this case, getActualTypeArguments() returns TypeVariableImpl instead of Class.
+     */
+    public GenericDao(Class<T> entityClass) {
+        this.entityClass = entityClass;
     }
 
     public T get(Long id) {

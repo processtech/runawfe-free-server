@@ -20,6 +20,7 @@ package ru.runa.wfe.audit.logic;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
@@ -57,7 +58,7 @@ public class AuditLogic extends CommonLogic {
         BaseProcess process = processDao.getNotNull(filter.getProcessId());
         permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
-        List<IProcessLog> logs = processLogDao2.getAll(filter);
+        List<BaseProcessLog> logs = processLogDao2.getAll(filter);
         result.addLogs(logs, filter.isIncludeSubprocessLogs());
         if (filter.isIncludeSubprocessLogs()) {
             for (BaseProcess subprocess : nodeProcessDao2.getSubprocessesRecursive(process)) {

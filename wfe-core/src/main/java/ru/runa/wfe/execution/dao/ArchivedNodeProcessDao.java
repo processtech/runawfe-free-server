@@ -11,6 +11,10 @@ import ru.runa.wfe.execution.QArchivedNodeProcess;
 @Component
 public class ArchivedNodeProcessDao extends BaseNodeProcessDao<ArchivedProcess, ArchivedToken, ArchivedNodeProcess> {
 
+    public ArchivedNodeProcessDao() {
+        super(ArchivedNodeProcess.class);
+    }
+
     @Override
     public List<ArchivedNodeProcess> getNodeProcesses(ArchivedProcess process, ArchivedToken parentToken, String nodeId, Boolean finished) {
         QArchivedNodeProcess np = QArchivedNodeProcess.archivedNodeProcess;

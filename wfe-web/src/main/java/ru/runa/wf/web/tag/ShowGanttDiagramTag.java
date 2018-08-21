@@ -14,7 +14,7 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.MessagesOther;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IProcessStartLog;
 import ru.runa.wfe.audit.ISubprocessStartLog;
 import ru.runa.wfe.audit.ITaskCreateLog;
@@ -47,7 +47,7 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         List<String> barList = new ArrayList<>();
         barList.add(getBar(process.getId(), process.getName(), new Date(), new Date(), "process", null, true, "0", null));
         TaskService taskService = Delegates.getTaskService();
-        for (IProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             if (log instanceof IProcessStartLog) {
                 ITaskCreateLog createLog = null;
                 for (ITaskCreateLog key : taskLogs.keySet()) {

@@ -4,6 +4,14 @@ import java.util.Date;
 import javax.persistence.Transient;
 import lombok.AllArgsConstructor;
 
+/**
+ * Introduces so default method implementations of subinterfaces (like IActionLog) may refer to superinterface methods.
+ * <p>
+ * Subinterfaces (like IActionLog) must be used by archive-transparent code
+ * (i.e. when you need to handle both ActionLog and ArchivedActionLog,* use IActionLog).
+ * <p>
+ * BaseProcessLog should be used everywhere instead of IProcessLog, except generic code which is also archive-transparent.
+ */
 public interface IProcessLog extends Attributes, Comparable<IProcessLog> {
 
     // TODO Consider using this to reduce class hiearchy.

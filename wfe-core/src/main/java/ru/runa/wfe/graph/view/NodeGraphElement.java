@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 
@@ -40,7 +40,7 @@ public class NodeGraphElement implements Serializable {
     /**
      * Process logs concerning this node, can be <code>null</code> if not entered yet.
      */
-    private List<IProcessLog> data;
+    private List<? extends BaseProcessLog> data;
     private String label;
 
     /**
@@ -81,14 +81,14 @@ public class NodeGraphElement implements Serializable {
     /**
      * Some additional data, assigned to graph element.
      */
-    public List<IProcessLog> getData() {
+    public List<? extends BaseProcessLog> getData() {
         return data;
     }
 
     /**
      * Some additional data, assigned to graph element.
      */
-    public void setData(List<IProcessLog> data) {
+    public void setData(List<? extends BaseProcessLog> data) {
         this.data = data;
     }
 

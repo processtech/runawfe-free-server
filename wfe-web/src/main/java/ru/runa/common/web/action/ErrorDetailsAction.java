@@ -36,7 +36,7 @@ import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.html.TrRowBuilder;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -295,7 +295,7 @@ public class ErrorDetailsAction extends ActionBase {
         TD mergedEventDateTD = null;
         String mergedEventDateString = null;
         int mergedRowsCount = 0;
-        for (IProcessLog log : logs.getLogs()) {
+        for (BaseProcessLog log : logs.getLogs()) {
             String description;
             try {
                 Object[] arguments = log.getPatternArguments();
