@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ITransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
@@ -31,7 +32,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     /**
      * Logs, belongs to this node.
      */
-    private final List<IProcessLog> nodeLogs = Lists.newArrayList();
+    private final List<BaseProcessLog> nodeLogs = Lists.newArrayList();
     /**
      * Process instance data.
      */
@@ -95,7 +96,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     }
 
     @Override
-    public HistoryGraphNode acceptLog(IProcessLog log) {
+    public HistoryGraphNode acceptLog(BaseProcessLog log) {
         nodeLogs.add(log);
         if (!(log instanceof ITransitionLog)) {
             return null;

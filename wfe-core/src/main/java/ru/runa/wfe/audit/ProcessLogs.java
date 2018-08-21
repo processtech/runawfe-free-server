@@ -82,7 +82,7 @@ public class ProcessLogs implements Serializable {
         return level;
     }
 
-    public List<Long> getSubprocessIds(IProcessLog processLog) {
+    public List<Long> getSubprocessIds(BaseProcessLog processLog) {
         List<Long> result = Lists.newArrayList();
         Long processId = processLog.getProcessId();
         while (subprocessToProcessIds.get(processId) != null) {
@@ -140,7 +140,7 @@ public class ProcessLogs implements Serializable {
         Map<Long, ITaskCreateLog> tmpByTaskId = Maps.newHashMap();
         Map<ITaskCreateLog, ITaskEndLog> result = Maps.newHashMap();
         boolean compatibilityMode = false;
-        for (IProcessLog log : logs) {
+        for (BaseProcessLog log : logs) {
             if (log instanceof ITaskCreateLog) {
                 ITaskCreateLog taskCreateLog = (ITaskCreateLog) log;
                 String key = log.getProcessId() + taskCreateLog.getTaskName();

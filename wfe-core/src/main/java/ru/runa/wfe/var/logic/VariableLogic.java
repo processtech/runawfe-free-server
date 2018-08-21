@@ -32,6 +32,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.INodeLeaveLog;
 import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ITaskCreateLog;
@@ -154,7 +155,7 @@ public class VariableLogic extends WfCommonLogic {
         }
         filter.setTokenId(tokenId);
         ProcessLogs tokenLogs = auditLogic.getProcessLogs(user, filter);
-        for (IProcessLog log : tokenLogs.getLogs()) {
+        for (BaseProcessLog log : tokenLogs.getLogs()) {
             if (log instanceof ITaskCreateLog && Objects.equal(((ITaskCreateLog) log).getTaskId(), taskId)) {
                 taskCreateDate = log.getCreateDate();
             }

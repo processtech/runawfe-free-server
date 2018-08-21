@@ -14,7 +14,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao2;
@@ -93,7 +93,7 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         protected EscalationGroup group = mock(EscalationGroup.class);
         protected Executor originalExecutor = mock(Executor.class);
         protected Set<Actor> groupActors = Sets.newHashSet();
-        protected List<IProcessLog> pLogs = Lists.newArrayList();
+        protected List<BaseProcessLog> pLogs = Lists.newArrayList();
         protected Throwable getAllLogsException = null;
 
         public ActorInInactiveEscalationGroupTestCaseDataSet() {
@@ -119,7 +119,7 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
             if (getAllLogsException != null) {
                 when(processLogDao.getAll(group.getProcessId())).thenThrow(getAllLogsException);
             } else {
-                Mockito.<List<? extends IProcessLog>>when(processLogDao.getAll(group.getProcessId())).thenReturn(pLogs);
+                Mockito.<List<? extends BaseProcessLog>>when(processLogDao.getAll(group.getProcessId())).thenReturn(pLogs);
             }
         }
 

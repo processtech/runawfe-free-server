@@ -21,7 +21,6 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
@@ -73,7 +72,7 @@ public class AuditLogic extends CommonLogic {
 
     public Object getProcessLogValue(User user, Long logId) {
         Preconditions.checkNotNull(logId, "logId");
-        IProcessLog processLog = processLogDao2.getNotNull(logId);
+        BaseProcessLog processLog = processLogDao2.getNotNull(logId);
         permissionDao.checkAllowed(user, Permission.LIST, SecuredObjectType.PROCESS, processLog.getProcessId());
         return processLog.getBytes();
     }

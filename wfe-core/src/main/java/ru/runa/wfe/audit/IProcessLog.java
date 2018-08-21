@@ -10,7 +10,13 @@ import lombok.AllArgsConstructor;
  * Subinterfaces (like IActionLog) must be used by archive-transparent code
  * (i.e. when you need to handle both ActionLog and ArchivedActionLog,* use IActionLog).
  * <p>
- * BaseProcessLog should be used everywhere instead of IProcessLog, except generic code which is also archive-transparent.
+ * As for BaseProcessLog vs IProcessLog usage:
+ * <ul>
+ * <li>NodeGraphElement must use class BaseProcessLog because otherwise JAX-WS won't handle it (Apache CXF would fail on startup).
+ * <li>But generic archive-transparent code must use IProcessLog, same as cases where archive-transparent subinterface instances
+ *     are assigned to parameter / variable.
+ * </ul>
+ * So there's an inevitable mess of class and interface usages.
  */
 public interface IProcessLog extends Attributes, Comparable<IProcessLog> {
 

@@ -17,7 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ITaskEscalationLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
@@ -490,7 +490,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
             return false;
         }
 
-        List<? extends IProcessLog> pLogs;
+        List<? extends BaseProcessLog> pLogs;
         try {
             pLogs = processLogDao2.getAll(pid);
         } catch (DataAccessException e) {
@@ -498,7 +498,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
             return false;
         }
 
-        for (IProcessLog pLog : pLogs) {
+        for (BaseProcessLog pLog : pLogs) {
             if (!(pLog instanceof ITaskEscalationLog) || !Objects.equal(pLog.getNodeId(), nid)) {
                 continue;
             }

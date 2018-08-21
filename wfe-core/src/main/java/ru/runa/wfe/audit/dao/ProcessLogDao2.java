@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.ArchivedProcessLog;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.dao.GenericDao2;
@@ -25,7 +24,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 
 @Component
 @CommonsLog
-public class ProcessLogDao2 extends GenericDao2<IProcessLog, ProcessLog, ProcessLogDao, ArchivedProcessLog, ArchivedProcessLogDao> {
+public class ProcessLogDao2 extends GenericDao2<BaseProcessLog, ProcessLog, ProcessLogDao, ArchivedProcessLog, ArchivedProcessLogDao> {
 
     private ProcessDao2 processDao2;
     private ProcessLogAwareDao customizationDao;
@@ -48,7 +47,7 @@ public class ProcessLogDao2 extends GenericDao2<IProcessLog, ProcessLog, Process
     /**
      * Called with TemporaryGroup.processId; other contexts have BaseProcess instance available.
      */
-    public List<? extends IProcessLog> getAll(@NonNull Long processId) {
+    public List<? extends BaseProcessLog> getAll(@NonNull Long processId) {
         return getAll(processDao2.getNotNull(processId));
     }
 

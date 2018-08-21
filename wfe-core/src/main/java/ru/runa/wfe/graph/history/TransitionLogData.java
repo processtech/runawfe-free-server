@@ -5,8 +5,8 @@ import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.INodeLog;
-import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ITransitionLog;
 
 /**
@@ -26,9 +26,9 @@ public class TransitionLogData {
      */
     private final List<ITransitionLog> transitionLogs = Lists.newArrayList();
 
-    public TransitionLogData(List<? extends IProcessLog> processLogs) {
+    public TransitionLogData(List<? extends BaseProcessLog> processLogs) {
         super();
-        for (IProcessLog log : processLogs) {
+        for (BaseProcessLog log : processLogs) {
             if (!(log instanceof ITransitionLog)) {
                 continue;
             }

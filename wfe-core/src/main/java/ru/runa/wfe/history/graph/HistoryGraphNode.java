@@ -2,7 +2,7 @@ package ru.runa.wfe.history.graph;
 
 import java.util.List;
 import java.util.Map;
-
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.lang.Node;
 
@@ -77,7 +77,7 @@ public interface HistoryGraphNode {
      *            Log instance to accept.
      * @return Returns node, created for transition or null, if no node created.
      */
-    HistoryGraphNode acceptLog(IProcessLog log);
+    HistoryGraphNode acceptLog(BaseProcessLog log);
 
     /**
      * Check if node can accept leaving transition. For example generic node may

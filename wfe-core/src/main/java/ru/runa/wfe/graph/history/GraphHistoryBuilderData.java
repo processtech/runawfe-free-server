@@ -3,9 +3,9 @@ package ru.runa.wfe.graph.history;
 import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.INodeEnterLog;
 import ru.runa.wfe.audit.INodeLog;
-import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ITaskLog;
 import ru.runa.wfe.audit.ITransitionLog;
 import ru.runa.wfe.execution.BaseProcess;
@@ -35,7 +35,7 @@ public class GraphHistoryBuilderData {
     /**
      * All process logs to build history. (Without embedded subprocess or embedded subprocess only).
      */
-    private final List<IProcessLog> processLogs;
+    private final List<BaseProcessLog> processLogs;
     /**
      * All instances of {@link INodeLog} to build history.
      */
@@ -64,7 +64,7 @@ public class GraphHistoryBuilderData {
      *            required.
      */
     public GraphHistoryBuilderData(List<Executor> executors, BaseProcess process, ProcessDefinition definition,
-            List<? extends IProcessLog> fullProcessLogs, String subProcessId) {
+            List<? extends BaseProcessLog> fullProcessLogs, String subProcessId) {
         processInstanceData = new ProcessInstanceData(process, definition);
         transitions = new TransitionLogData(fullProcessLogs);
         for (Executor executor : executors) {
@@ -84,10 +84,10 @@ public class GraphHistoryBuilderData {
      *            required.
      * @return Returns logs to build history.
      */
-    private List<IProcessLog> prepareLogs(List<? extends IProcessLog> fullProcessLogs, String subProcessId) {
+    private List<BaseProcessLog> prepareLogs(List<? extends BaseProcessLog> fullProcessLogs, String subProcessId) {
         final boolean isForEmbeddedSubprocess = subProcessId != null && !"null".equals(subProcessId);
-        List<IProcessLog> processLogForProcessing = embeddedLogsParser.getProcessLogs(subProcessId);
-        for (IProcessLog processLog : processLogForProcessing) {
+        List<BaseProcessLog> processLogForProcessing = embeddedLogsParser.getProcessLogs(subProcessId);
+        for (BaseProcessLog processLog : processLogForProcessing) {
             if (processLog instanceof INodeLog) {
                 if (isForEmbeddedSubprocess &&
                         processLog instanceof INodeEnterLog &&
@@ -132,7 +132,7 @@ public class GraphHistoryBuilderData {
      * 
      * @return Returns process logs to build history.
      */
-    public List<IProcessLog> getProcessLogs() {
+    public List<BaseProcessLog> getProcessLogs() {
         return processLogs;
     }
 

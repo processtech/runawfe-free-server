@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessActivateLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
@@ -297,7 +297,7 @@ public class ExecutionLogic extends WfCommonLogic {
             BaseProcess process = processDao2.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.LIST, process);
             ProcessDefinition processDefinition = getDefinition(process);
-            List<? extends IProcessLog> logs = processLogDao2.getAll(process);
+            List<? extends BaseProcessLog> logs = processLogDao2.getAll(process);
             List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
             return new GraphHistoryBuilder(executors, process, processDefinition, logs, subprocessId).createDiagram();
         } catch (Exception e) {
@@ -311,7 +311,7 @@ public class ExecutionLogic extends WfCommonLogic {
             BaseProcess process = processDao2.getNotNull(processId);
             permissionDao.checkAllowed(user, Permission.LIST, process);
             ProcessDefinition processDefinition = getDefinition(process);
-            List<? extends IProcessLog> logs = processLogDao2.getAll(process);
+            List<? extends BaseProcessLog> logs = processLogDao2.getAll(process);
             List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
             return new GraphHistoryBuilder(executors, process, processDefinition, logs, subprocessId).getElements();
         } catch (Exception e) {
