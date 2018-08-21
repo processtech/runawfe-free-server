@@ -26,10 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessDeleteLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.BaseProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
@@ -78,6 +80,8 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected ProcessLogDao processLogDao;
     @Autowired
+    protected ProcessLogDao2 processLogDao2;
+    @Autowired
     protected JobDao jobDao;
     @Autowired
     protected SwimlaneDao swimlaneDao;
@@ -90,7 +94,7 @@ public class WfCommonLogic extends CommonLogic {
         return processDefinitionLoader.getDefinition(processDefinitionId);
     }
 
-    public ProcessDefinition getDefinition(Process process) {
+    public ProcessDefinition getDefinition(BaseProcess process) {
         return processDefinitionLoader.getDefinition(process);
     }
 
@@ -206,8 +210,6 @@ public class WfCommonLogic extends CommonLogic {
      * 
      * @param user
      *            Current user.
-     * @param id
-     *            Identity of process definition, which presentation elements must be loaded.
      * @param visitor
      *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.
      * @return List of graph presentation elements.

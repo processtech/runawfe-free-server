@@ -23,7 +23,7 @@ import com.google.common.collect.Maps;
 public class ProcessLogs implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final List<ProcessLog> logs = Lists.newArrayList();
+    private final List<IProcessLog> logs = Lists.newArrayList();
     @XmlTransient
     private final HashMap<Long, Long> subprocessToProcessIds = Maps.newHashMap();
 
@@ -34,10 +34,10 @@ public class ProcessLogs implements Serializable {
         subprocessToProcessIds.put(processId, null);
     }
 
-    public void addLogs(List<ProcessLog> processLogs, boolean withSubprocesses) {
+    public void addLogs(List<IProcessLog> processLogs, boolean withSubprocesses) {
         logs.addAll(processLogs);
         if (withSubprocesses) {
-            for (ProcessLog log : processLogs) {
+            for (IProcessLog log : processLogs) {
                 if (log instanceof SubprocessStartLog) {
                     Long subprocessId = ((SubprocessStartLog) log).getSubprocessId();
                     subprocessToProcessIds.put(subprocessId, log.getProcessId());
@@ -97,12 +97,12 @@ public class ProcessLogs implements Serializable {
         return result;
     }
 
-    public List<ProcessLog> getLogs() {
+    public List<IProcessLog> getLogs() {
         return logs;
     }
 
-    public <T extends ProcessLog> T getFirstOrNull(Class<T> logClass) {
-        for (ProcessLog log : logs) {
+    public <T extends IProcessLog> T getFirstOrNull(Class<T> logClass) {
+        for (IProcessLog log : logs) {
             if (logClass.isAssignableFrom(log.getClass())) {
                 return (T) log;
             }
@@ -110,8 +110,8 @@ public class ProcessLogs implements Serializable {
         return null;
     }
 
-    public <T extends ProcessLog> T getLastOrNull(Class<T> logClass) {
-        for (ProcessLog log : Lists.reverse(logs)) {
+    public <T extends IProcessLog> T getLastOrNull(Class<T> logClass) {
+        for (IProcessLog log : Lists.reverse(logs)) {
             if (logClass.isAssignableFrom(log.getClass())) {
                 return (T) log;
             }
@@ -119,9 +119,9 @@ public class ProcessLogs implements Serializable {
         return null;
     }
 
-    public <T extends ProcessLog> List<T> getLogs(Class<T> logClass) {
+    public <T extends IProcessLog> List<T> getLogs(Class<T> logClass) {
         List<T> list = Lists.newArrayList();
-        for (ProcessLog log : logs) {
+        for (IProcessLog log : logs) {
             if (logClass.isAssignableFrom(log.getClass())) {
                 list.add((T) log);
             }
@@ -129,9 +129,9 @@ public class ProcessLogs implements Serializable {
         return list;
     }
 
-    public List<ProcessLog> getLogs(String nodeId) {
-        List<ProcessLog> list = Lists.newArrayList();
-        for (ProcessLog log : logs) {
+    public List<IProcessLog> getLogs(String nodeId) {
+        List<IProcessLog> list = Lists.newArrayList();
+        for (IProcessLog log : logs) {
             if (Objects.equal(log.getNodeId(), nodeId)) {
                 list.add(log);
             }
@@ -144,7 +144,7 @@ public class ProcessLogs implements Serializable {
         Map<Long, TaskCreateLog> tmpByTaskId = Maps.newHashMap();
         Map<TaskCreateLog, TaskEndLog> result = Maps.newHashMap();
         boolean compatibilityMode = false;
-        for (ProcessLog log : logs) {
+        for (IProcessLog log : logs) {
             if (log instanceof TaskCreateLog) {
                 TaskCreateLog taskCreateLog = (TaskCreateLog) log;
                 String key = log.getProcessId() + taskCreateLog.getTaskName();
