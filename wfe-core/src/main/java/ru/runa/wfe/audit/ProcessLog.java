@@ -35,6 +35,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import org.hibernate.annotations.Cache;
@@ -54,12 +55,18 @@ import ru.runa.wfe.commons.CalendarUtil;
 @DiscriminatorValue(value = "0")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class ProcessLog extends BaseProcessLog implements Serializable, Comparable<ProcessLog> {
+public abstract class ProcessLog extends BaseProcessLog implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
     private Long processId;
     private Long tokenId;
+
+    @Override
+    @Transient
+    public boolean isArchive() {
+        return false;
+    }
 
     @Override
     @Id
@@ -96,15 +103,6 @@ public abstract class ProcessLog extends BaseProcessLog implements Serializable,
     @Override
     public void setTokenId(Long tokenId) {
         this.tokenId = tokenId;
-    }
-
-    @Override
-    public int compareTo(ProcessLog o) {
-        int dateCompare = createDate.compareTo(o.createDate);
-        if (dateCompare != 0) {
-            return dateCompare;
-        }
-        return id.compareTo(o.id);
     }
 
     @Override

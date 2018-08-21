@@ -5,6 +5,12 @@ import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 
 public interface IProcessCancelLog extends IProcessLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.PROCESS_CANCEL;
+    }
+
     @Transient
     default String getActorName() {
         return getAttribute(ATTR_ACTOR_NAME);

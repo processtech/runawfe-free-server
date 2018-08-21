@@ -5,6 +5,12 @@ import ru.runa.wfe.lang.NodeType;
 
 public interface INodeLog extends IProcessLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.NODE;
+    }
+
     @Transient
     default String getNodeName() {
         return getAttributeNotNull(ATTR_NODE_NAME);
@@ -16,6 +22,7 @@ public interface INodeLog extends IProcessLog {
     }
 
     @Override
+    @Transient
     default Object[] getPatternArguments() {
         return new Object[] { getNodeName() };
     }

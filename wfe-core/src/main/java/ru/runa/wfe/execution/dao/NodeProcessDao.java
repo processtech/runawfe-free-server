@@ -13,9 +13,9 @@ import ru.runa.wfe.execution.Token;
 @Component
 public class NodeProcessDao extends GenericDao<NodeProcess> {
 
-    public NodeProcess findBySubProcessId(Long processId) {
+    public NodeProcess findBySubProcessId(Long subProcessId) {
         QNodeProcess np = QNodeProcess.nodeProcess;
-        return queryFactory.selectFrom(np).where(np.subProcess.id.eq(processId)).fetchFirst();
+        return queryFactory.selectFrom(np).where(np.subProcess.id.eq(subProcessId)).fetchFirst();
     }
 
     public List<NodeProcess> getNodeProcesses(final Process process, final Token parentToken, final String nodeId, final Boolean finished) {

@@ -25,6 +25,9 @@ public abstract class BaseProcess extends SecuredObjectBase {
     private String hierarchyIds;
 
     @Transient
+    public abstract boolean isArchive();
+
+    @Transient
     @Override
     public SecuredObjectType getSecuredObjectType() {
         return SecuredObjectType.PROCESS;

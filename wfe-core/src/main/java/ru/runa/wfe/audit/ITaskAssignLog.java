@@ -5,6 +5,12 @@ import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 
 public interface ITaskAssignLog extends ITaskLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_ASSIGN;
+    }
+
     @Transient
     default String getOldExecutorName() {
         return getAttribute(ATTR_OLD_VALUE);

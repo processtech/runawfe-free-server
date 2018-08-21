@@ -2,8 +2,55 @@ package ru.runa.wfe.audit;
 
 import java.util.Date;
 import javax.persistence.Transient;
+import lombok.AllArgsConstructor;
 
-public interface IProcessLog extends Attributes {
+public interface IProcessLog extends Attributes, Comparable<IProcessLog> {
+
+    // TODO Consider using this to reduce class hiearchy.
+    @AllArgsConstructor
+    enum Type {
+        ALL(ProcessLog.class, ArchivedProcessLog.class),
+        ACTION(ActionLog.class, ArchivedActionLog.class),
+        ADMIN_ACTION(AdminActionLog.class, ArchivedAdminActionLog.class),
+        CREATE_TIMER(CreateTimerLog.class, ArchivedCreateTimerLog.class),
+        NODE(NodeLog.class, ArchivedNodeLog.class),
+        NODE_ENTER(NodeEnterLog.class, ArchivedNodeEnterLog.class),
+        NODE_LEAVE(NodeLeaveLog.class, ArchivedNodeLeaveLog.class),
+        PROCESS_ACTIVATE(ProcessActivateLog.class, ArchivedProcessActivateLog.class),
+        PROCESS_CANCEL(ProcessCancelLog.class, ArchivedProcessCancelLog.class),
+        PROCESS_END(ProcessEndLog.class, ArchivedProcessEndLog.class),
+        PROCESS_START(ProcessStartLog.class, ArchivedProcessStartLog.class),
+        PROCESS_SUSPEND(ProcessSuspendLog.class, ArchivedProcessSuspendLog.class),
+        RECEIVED_MESSAGE(ReceiveMessageLog.class, ArchivedReceiveMessageLog.class),
+        SEND_MESSAGE(SendMessageLog.class, ArchivedSendMessageLog.class),
+        SUBPROCESS_END(SubprocessEndLog.class, ArchivedSubprocessEndLog.class),
+        SUBPROCESS_START(SubprocessStartLog.class, ArchivedSubprocessStartLog.class),
+        SWIMLANE_ASSIGN(SwimlaneAssignLog.class, ArchivedSwimlaneAssignLog.class),
+        TASK(TaskLog.class, ArchivedTaskLog.class),
+        TASK_ASSIGN(TaskAssignLog.class, ArchivedTaskAssignLog.class),
+        TASK_CREATE(TaskCreateLog.class, ArchivedTaskCreateLog.class),
+        TASK_DELEGATION(TaskDelegationLog.class, ArchivedTaskDelegationLog.class),
+        TASK_END(TaskEndLog.class, ArchivedTaskEndLog.class),
+        TASK_CANCELLED(TaskCancelledLog.class, ArchivedTaskCancelledLog.class),
+        TASK_END_BY_ADMIN(TaskEndByAdminLog.class, ArchivedTaskEndByAdminLog.class),
+        TASK_END_BY_SUBSTITUTOR(TaskEndBySubstitutorLog.class, ArchivedTaskEndBySubstitutorLog.class),
+        TASK_EXPIRED(TaskExpiredLog.class, ArchivedTaskExpiredLog.class),
+        TASK_REMOVED_ON_PROCESS_END(TaskRemovedOnProcessEndLog.class, ArchivedTaskRemovedOnProcessEndLog.class),
+        TASK_ESCALATION(TaskEscalationLog.class, ArchivedTaskEscalationLog.class),
+        TRANSITION(TransitionLog.class, ArchivedTransitionLog.class),
+        VARIABLE(VariableLog.class, ArchivedVariableLog.class),
+        VARIABLE_CREATE(VariableCreateLog.class, ArchivedVariableCreateLog.class),
+        VARIABLE_DELETE(VariableDeleteLog.class, ArchivedVariableDeleteLog.class),
+        VARIABLE_UPDATE(VariableUpdateLog.class, ArchivedVariableUpdateLog.class);
+
+        public final Class<? extends ProcessLog> currentRootClass;
+        public final Class<? extends ArchivedProcessLog> archivedRootClass;
+    }
+
+    @Transient
+    Type getType();
+    @Transient
+    boolean isArchive();
 
     @Transient
     Long getId();

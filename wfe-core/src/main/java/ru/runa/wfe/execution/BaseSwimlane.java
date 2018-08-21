@@ -16,6 +16,9 @@ public abstract class BaseSwimlane<P extends BaseProcess> {
     protected Date createDate;
 
     @Transient
+    public abstract boolean isArchive();
+
+    @Transient
     public abstract Long getId();
     protected abstract void setId(Long id);
 

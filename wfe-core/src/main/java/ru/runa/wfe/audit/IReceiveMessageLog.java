@@ -8,6 +8,12 @@ public interface IReceiveMessageLog extends INodeEnterLog {
 
     @Override
     @Transient
+    default Type getType() {
+        return Type.RECEIVED_MESSAGE;
+    }
+
+    @Override
+    @Transient
     default Object[] getPatternArguments() {
         String message = getBytes() != null ? new String(getBytes(), Charsets.UTF_8) : getAttribute(ATTR_MESSAGE);
         return new Object[] { new HtmlValue(message) };

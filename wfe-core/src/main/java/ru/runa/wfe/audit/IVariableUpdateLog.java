@@ -7,6 +7,12 @@ public interface IVariableUpdateLog extends IVariableLog {
 
     @Override
     @Transient
+    default Type getType() {
+        return Type.VARIABLE_UPDATE;
+    }
+
+    @Override
+    @Transient
     default Object[] getPatternArguments() {
         if (isFileValue()) {
             return new Object[] { getVariableName(), new FileValue(getId(), getVariableNewValueAttribute()) };

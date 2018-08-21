@@ -17,7 +17,7 @@ import org.apache.commons.logging.LogFactory;
  *            entity class
  */
 @SuppressWarnings("unchecked")
-public abstract class GenericDao<T> extends CommonDao {
+public abstract class GenericDao<T> extends CommonDao implements GenericDaoApi<T> {
     protected static final Log log = LogFactory.getLog(GenericDao.class);
     private final Class<T> entityClass;
 

@@ -18,10 +18,6 @@ import com.google.common.collect.Sets;
 
 public class ProcessInstanceData {
     /**
-     * Process instance.
-     */
-    private final Process processInstance;
-    /**
      * Process definition.
      */
     private final ProcessDefinition processDefinition;
@@ -43,7 +39,6 @@ public class ProcessInstanceData {
     private final HashMap<Long, Token> processTokens = Maps.newHashMap();
 
     public ProcessInstanceData(Process processInstance, ProcessDefinition processDefinition) {
-        this.processInstance = processInstance;
         addToken(processInstance.getRootToken());
         this.processDefinition = processDefinition;
         for (Node node : processDefinition.getNodes(true)) {

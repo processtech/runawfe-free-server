@@ -22,6 +22,12 @@ public abstract class ArchivedProcessLog extends BaseProcessLog {
     private Long id;
     private Long processId;
 
+    @Override
+    @Transient
+    public boolean isArchive() {
+        return true;
+    }
+
     /**
      * NOT generated, id values are preserved when moving row to archive.
      */

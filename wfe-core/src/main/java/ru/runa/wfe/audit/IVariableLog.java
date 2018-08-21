@@ -8,6 +8,12 @@ import ru.runa.wfe.var.converter.StringToByteArrayConverter;
 
 public interface IVariableLog extends IProcessLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.VARIABLE;
+    }
+
     @Transient
     default String getVariableName() {
         return getAttributeNotNull(ATTR_VARIABLE_NAME);

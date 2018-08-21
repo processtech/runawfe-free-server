@@ -14,6 +14,9 @@ public abstract class BaseNodeProcess<P extends BaseProcess> {
     protected Date createDate;
 
     @Transient
+    public abstract boolean isArchive();
+
+    @Transient
     public abstract Long getId();
     protected abstract void setId(Long id);
 

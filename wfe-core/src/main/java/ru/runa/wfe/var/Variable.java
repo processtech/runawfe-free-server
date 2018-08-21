@@ -74,6 +74,12 @@ public abstract class Variable<T> extends BaseVariable<Process, T> {
     }
 
     @Override
+    @Transient
+    public boolean isArchive() {
+        return false;
+    }
+
+    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_VARIABLE", allocationSize = 1)

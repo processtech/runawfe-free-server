@@ -7,6 +7,12 @@ import ru.runa.wfe.lang.Transition;
 
 public interface ITransitionLog extends IProcessLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TRANSITION;
+    }
+
     @Transient
     default String getFromNodeId() {
         return getAttributeNotNull(ATTR_NODE_ID_FROM);

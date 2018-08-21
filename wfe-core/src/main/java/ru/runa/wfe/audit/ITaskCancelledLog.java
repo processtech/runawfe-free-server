@@ -4,6 +4,12 @@ import javax.persistence.Transient;
 
 public interface ITaskCancelledLog extends ITaskEndLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_CANCELLED;
+    }
+
     @Transient
     default String getHandlerInfo() {
         String handlerInfo = getAttribute(ATTR_INFO);

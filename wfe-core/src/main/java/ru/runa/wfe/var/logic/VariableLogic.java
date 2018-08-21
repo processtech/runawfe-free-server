@@ -32,12 +32,14 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.ITaskCreateLog;
+import ru.runa.wfe.audit.ITaskEndLog;
+import ru.runa.wfe.audit.IVariableLog;
 import ru.runa.wfe.audit.NodeLeaveLog;
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.TaskCreateLog;
-import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
@@ -59,12 +61,12 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
@@ -153,14 +155,14 @@ public class VariableLogic extends WfCommonLogic {
         }
         filter.setTokenId(tokenId);
         ProcessLogs tokenLogs = auditLogic.getProcessLogs(user, filter);
-        for (ProcessLog log : tokenLogs.getLogs()) {
-            if (log instanceof TaskCreateLog && Objects.equal(((TaskCreateLog) log).getTaskId(), taskId)) {
+        for (IProcessLog log : tokenLogs.getLogs()) {
+            if (log instanceof ITaskCreateLog && Objects.equal(((ITaskCreateLog) log).getTaskId(), taskId)) {
                 taskCreateDate = log.getCreateDate();
             }
-            if (log instanceof VariableLog && taskCreateDate != null && taskCompletePressedDate == null) {
+            if (log instanceof IVariableLog && taskCreateDate != null && taskCompletePressedDate == null) {
                 taskCompletePressedDate = log.getCreateDate();
             }
-            if (log instanceof TaskEndLog && Objects.equal(((TaskEndLog) log).getTaskId(), taskId)) {
+            if (log instanceof ITaskEndLog && Objects.equal(((ITaskEndLog) log).getTaskId(), taskId)) {
                 taskEndDate = log.getCreateDate();
                 break;
             }
@@ -370,12 +372,12 @@ public class VariableLogic extends WfCommonLogic {
     private Map<String, Object> loadVariablesForProcessFromLogs(User user, Process process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
         ProcessLogFilter localFilter = new ProcessLogFilter(filter);
-        localFilter.setRootClassName(VariableLog.class.getName());
+        localFilter.setType(IProcessLog.Type.VARIABLE);
         localFilter.setProcessId(process.getId());
-        HashMap<String, Object> processVariables = Maps.<String, Object> newHashMap();
+        HashMap<String, Object> processVariables = Maps.newHashMap();
         for (VariableLog variableLog : auditLogic.getProcessLogs(user, localFilter).getLogs(VariableLog.class)) {
             String variableName = variableLog.getVariableName();
-            if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty(((VariableCreateLog) variableLog).getVariableNewValue())) {
+            if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty((variableLog).getVariableNewValue())) {
                 simpleVariablesChanged.add(variableName);
             }
             if (variableLog instanceof VariableDeleteLog) {

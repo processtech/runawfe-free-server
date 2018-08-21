@@ -5,6 +5,12 @@ import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 
 public interface IProcessStartLog extends IProcessLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.PROCESS_START;
+    }
+
     @Transient
     default String getActorName() {
         return getAttributeNotNull(ATTR_ACTOR_NAME);

@@ -7,6 +7,12 @@ public interface ISwimlaneAssignLog extends IProcessLog {
 
     @Override
     @Transient
+    default Type getType() {
+        return Type.SWIMLANE_ASSIGN;
+    }
+
+    @Override
+    @Transient
     default Object[] getPatternArguments() {
         return new Object[] { getAttributeNotNull(ATTR_MESSAGE), new ExecutorNameValue(getAttribute(ATTR_NEW_VALUE)) };
     }

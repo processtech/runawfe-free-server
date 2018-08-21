@@ -6,6 +6,12 @@ public interface IProcessEndLog extends IProcessLog {
 
     @Override
     @Transient
+    default Type getType() {
+        return Type.PROCESS_END;
+    }
+
+    @Override
+    @Transient
     default Object[] getPatternArguments() {
         return new Object[] {};
     }

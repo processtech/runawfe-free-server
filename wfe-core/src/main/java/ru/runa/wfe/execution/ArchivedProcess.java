@@ -21,6 +21,12 @@ public class ArchivedProcess extends BaseProcess {
     private Long id;
     private Deployment deployment;
 
+    @Override
+    @Transient
+    public boolean isArchive() {
+        return true;
+    }
+
     /**
      * NOT generated, id values are preserved when moving row to archive.
      */

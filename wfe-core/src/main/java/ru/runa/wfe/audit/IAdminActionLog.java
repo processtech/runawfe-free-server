@@ -13,11 +13,18 @@ public interface IAdminActionLog extends IProcessLog {
 
     @Override
     @Transient
+    default Type getType() {
+        return Type.ADMIN_ACTION;
+    }
+
+    @Override
+    @Transient
     default String getPatternName() {
         return getClass().getSimpleName() + "." + getAttributeNotNull(ATTR_ACTION);
     }
 
     @Override
+    @Transient
     default Object[] getPatternArguments() {
         List<Object> arguments = Lists.newArrayList(new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)));
         for (int i = 0; i < 10; i++) {

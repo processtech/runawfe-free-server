@@ -13,20 +13,23 @@ public class CreateArchiveTables extends DbPatch {
     @Override
     protected List<String> getDDLQueriesBefore() {
         return Arrays.asList(
-                // Process: all fields except EXECUTION_STATUS and ROOT_TOKEN_ID.
+                // Process: all fields except EXECUTION_STATUS.
                 "create table archived_process as " +
-                        "select id, parent_id, tree_path, start_date, end_date, version, definition_id " +
+                        "select id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id " +
                         "from bpm_process " +
                         "where 0=1",
                 getDDLModifyColumnNullability("archived_process", "id", dialect.getTypeName(Types.BIGINT), false),
                 getDDLModifyColumnNullability("archived_process", "definition_id", dialect.getTypeName(Types.BIGINT), false),
+                getDDLModifyColumnNullability("archived_process", "root_token_id", dialect.getTypeName(Types.BIGINT), false),
                 getDDLCreatePrimaryKey("archived_process", "pk_archived_process", "id"),
                 getDDLCreateIndex     ("archived_process", "ix_arch_process_definition", "definition_id"),
                 getDDLCreateForeignKey("archived_process", "fk_arch_process_definition", "definition_id", "bpm_process_definition", "id"),
+                getDDLCreateIndex     ("archived_process", "ix_arch_process_root_token", "root_token_id"),
+                // FK to archived_token is created below after table archived_token creation.
 
-                // NodeProcess: all fields except PARENT_TOKEN_ID.
+                // NodeProcess: all fields.
                 "create table archived_subprocess as " +
-                        "select id, parent_node_id, create_date, subprocess_index, process_id, parent_process_id " +
+                        "select * " +
                         "from bpm_subprocess " +
                         "where 0=1",
                 getDDLModifyColumnNullability("archived_subprocess", "id", dialect.getTypeName(Types.BIGINT), false),
@@ -38,6 +41,7 @@ public class CreateArchiveTables extends DbPatch {
                 getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_process", "process_id", "archived_process", "id"),
                 getDDLCreateIndex     ("archived_subprocess", "ix_arch_subprocess_parent", "parent_process_id"),
                 getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_parent", "parent_process_id", "archived_process", "id"),
+                // FK to archived_token is created below after table archived_token creation.
 
                 // Swimlane: all fields.
                 "create table archived_swimlane as " +
@@ -66,9 +70,9 @@ public class CreateArchiveTables extends DbPatch {
                 getDDLCreateForeignKey("archived_variable", "fk_arch_variable_process", "process_id", "archived_process", "id"),
                 getDDLCreateUniqueKey ("archived_variable", "uk_arch_variable_process", "process_id", "name"),
 
-                // ProcessLog: all fields except TOKEN_ID.
+                // ProcessLog: all fields.
                 "create table archived_log as " +
-                        "select discriminator, id, severity, node_id, create_date, process_id, bytes, content " +
+                        "select * " +
                         "from bpm_log " +
                         "where 0=1",
                 getDDLModifyColumnNullability("archived_log", "discriminator", dialect.getTypeName(Types.CHAR, 1, 1, 1), false),
@@ -77,7 +81,24 @@ public class CreateArchiveTables extends DbPatch {
                 getDDLModifyColumnNullability("archived_log", "create_date", dialect.getTypeName(Types.DATE), false),
                 getDDLModifyColumnNullability("archived_log", "process_id", dialect.getTypeName(Types.BIGINT), false),
                 getDDLCreatePrimaryKey("archived_log", "pk_archived_log", "id"),
-                getDDLCreateIndex("archived_log", "ix_arch_log_process", "process_id")
+                getDDLCreateIndex("archived_log", "ix_arch_log_process", "process_id"),
+
+                // Token: all fields except EXECUTION_STATUS:
+                "create table archived_token as " +
+                        "select id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, " +
+                        "       reactivate_parent, node_type, version, name, process_id, parent_id " +
+                        "from bpm_token " +
+                        "where 0=1",
+                getDDLCreateIndex     ("archived_token", "ix_arch_message_selector", "message_selector"),
+                getDDLCreateIndex     ("archived_token", "ix_arch_token_parent", "parent_id"),
+                getDDLCreateForeignKey("archived_token", "fk_arch_token_parent", "parent_id", "archived_token", "id"),
+                getDDLCreateIndex     ("archived_token", "ix_arch_token_process", "process_id"),
+                getDDLCreateForeignKey("archived_token", "fk_arch_token_process", "process_id", "archived_process", "id"),
+
+                // Postponed FKs to archived_token:
+                getDDLCreateForeignKey("archived_process", "fk_arch_process_root_token", "root_token_id", "archived_token", "id"),
+                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_token", "parent_token_id", "archived_token", "id")
+
         );
     }
 }

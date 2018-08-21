@@ -6,6 +6,12 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 
 public interface ISubprocessStartLog extends INodeEnterLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.SUBPROCESS_START;
+    }
+
     @Transient
     default Long getSubprocessId() {
         return TypeConversionUtil.convertTo(Long.class, getAttributeNotNull(ATTR_PROCESS_ID));

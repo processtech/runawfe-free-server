@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "0")
-public abstract class ArchivedNodeLog extends ProcessLog implements INodeLog {
+public abstract class ArchivedNodeLog extends ArchivedProcessLog implements INodeLog {
 }

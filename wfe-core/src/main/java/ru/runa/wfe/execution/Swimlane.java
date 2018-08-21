@@ -70,6 +70,12 @@ public class Swimlane extends BaseSwimlane<Process> implements Serializable, Ass
     }
 
     @Override
+    @Transient
+    public boolean isArchive() {
+        return false;
+    }
+
+    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_SWIMLANE", allocationSize = 1)

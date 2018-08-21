@@ -4,6 +4,12 @@ import javax.persistence.Transient;
 
 public interface ITaskLog extends IProcessLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK;
+    }
+
     @Transient
     default Long getTaskId() {
         String taskIdString = getAttribute(ATTR_TASK_ID);

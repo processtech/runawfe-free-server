@@ -70,24 +70,15 @@ import ru.runa.wfe.user.Actor;
 @Entity
 @Table(name = "BPM_TOKEN")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Token implements Serializable {
+public class Token extends BaseToken<Process, Token> implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Token.class);
+
     private Long id;
-    private Long version;
-    private String name;
-    private Date startDate;
-    private Date endDate;
     private Process process;
     private Token parent;
     private Set<Token> children;
-    private boolean ableToReactivateParent;
-    private String nodeId;
-    private NodeType nodeType;
-    private String transitionId;
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
-    private Date errorDate;
-    private String errorMessage;
     private String messageSelector;
 
     public Token() {
@@ -104,8 +95,14 @@ public class Token implements Serializable {
         setNodeType(startNode.getNodeType());
         setAbleToReactivateParent(true);
         setName(startNode.getNodeId());
-        setChildren(new HashSet<Token>());
+        setChildren(new HashSet<>());
         log.info("Created " + this);
+    }
+
+    @Override
+    @Transient
+    public boolean isArchive() {
+        return false;
     }
 
     /**
@@ -118,12 +115,13 @@ public class Token implements Serializable {
         setNodeId(parent.getNodeId());
         setNodeType(parent.getNodeType());
         setAbleToReactivateParent(true);
-        setChildren(new HashSet<Token>());
+        setChildren(new HashSet<>());
         setParent(parent);
         parent.addChild(this);
         log.info("Created " + this);
     }
 
+    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_TOKEN", allocationSize = 1)
@@ -132,75 +130,12 @@ public class Token implements Serializable {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
-    @Version
-    @Column(name = "VERSION")
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    @Column(name = "NAME", length = 1024)
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Column(name = "NODE_ID", length = 1024)
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-    @Column(name = "NODE_TYPE", length = 1024)
-    @Enumerated(EnumType.STRING)
-    public NodeType getNodeType() {
-        return nodeType;
-    }
-
-    public void setNodeType(NodeType nodeType) {
-        this.nodeType = nodeType;
-    }
-
-    @Column(name = "TRANSITION_ID", length = 1024)
-    public String getTransitionId() {
-        return transitionId;
-    }
-
-    public void setTransitionId(String transitionId) {
-        this.transitionId = transitionId;
-    }
-
-    @Column(name = "START_DATE")
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    @Column(name = "END_DATE")
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
+    @Override
     @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_TOKEN_PROCESS")
@@ -209,10 +144,12 @@ public class Token implements Serializable {
         return process;
     }
 
+    @Override
     public void setProcess(Process process) {
         this.process = process;
     }
 
+    @Override
     @ManyToOne(targetEntity = Token.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
     @ForeignKey(name = "FK_TOKEN_PARENT")
@@ -221,6 +158,7 @@ public class Token implements Serializable {
         return parent;
     }
 
+    @Override
     public void setParent(Token parent) {
         this.parent = parent;
     }
@@ -236,15 +174,7 @@ public class Token implements Serializable {
         this.children = children;
     }
 
-    @Column(name = "REACTIVATE_PARENT")
-    public boolean isAbleToReactivateParent() {
-        return ableToReactivateParent;
-    }
-
-    public void setAbleToReactivateParent(boolean ableToReactivateParent) {
-        this.ableToReactivateParent = ableToReactivateParent;
-    }
-
+    @Override
     @Column(name = "EXECUTION_STATUS", nullable = false)
     @Enumerated(EnumType.STRING)
     public ExecutionStatus getExecutionStatus() {
@@ -253,24 +183,6 @@ public class Token implements Serializable {
 
     public void setExecutionStatus(ExecutionStatus executionStatus) {
         this.executionStatus = executionStatus;
-    }
-
-    @Column(name = "ERROR_DATE")
-    public Date getErrorDate() {
-        return errorDate;
-    }
-
-    public void setErrorDate(Date errorDate) {
-        this.errorDate = errorDate;
-    }
-
-    @Column(name = "ERROR_MESSAGE", length = 1024)
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 
     @Column(name = "MESSAGE_SELECTOR", length = 1024)

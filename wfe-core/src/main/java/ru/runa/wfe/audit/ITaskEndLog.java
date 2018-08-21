@@ -5,6 +5,12 @@ import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 
 public interface ITaskEndLog extends ITaskLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_END;
+    }
+
     @Transient
     default String getActorName() {
         String actorName = getAttribute(ATTR_ACTOR_NAME);

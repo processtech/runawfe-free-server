@@ -37,6 +37,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -86,6 +87,12 @@ public class Process extends BaseProcess {
     public Process(Deployment deployment) {
         setDeployment(deployment);
         setStartDate(new Date());
+    }
+
+    @Override
+    @Transient
+    public boolean isArchive() {
+        return false;
     }
 
     @Override

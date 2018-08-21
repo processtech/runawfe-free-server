@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -17,6 +18,12 @@ public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess> {
     private Long id;
     private ArchivedProcess process;
     private ArchivedProcess subProcess;
+
+    @Override
+    @Transient
+    public boolean isArchive() {
+        return true;
+    }
 
     /**
      * NOT generated, id values are preserved when moving row to archive.

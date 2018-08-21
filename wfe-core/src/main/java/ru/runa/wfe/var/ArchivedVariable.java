@@ -12,6 +12,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
@@ -27,6 +28,12 @@ public abstract class ArchivedVariable<T> extends BaseVariable<ArchivedProcess, 
     protected Long id;
     private String name;
     private ArchivedProcess process;
+
+    @Override
+    @Transient
+    public boolean isArchive() {
+        return true;
+    }
 
     /**
      * NOT generated, id values are preserved when moving row to archive.

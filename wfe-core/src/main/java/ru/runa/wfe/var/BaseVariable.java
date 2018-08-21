@@ -22,6 +22,9 @@ public abstract class BaseVariable<P extends BaseProcess, T> {
     private Date createDate;
 
     @Transient
+    public abstract boolean isArchive();
+
+    @Transient
     public abstract Long getId();
     protected abstract void setId(Long id);
 

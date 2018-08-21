@@ -119,6 +119,15 @@ public abstract class BaseProcessLog implements IProcessLog {
     }
 
     @Override
+    public int compareTo(IProcessLog o) {
+        int dateCompare = createDate.compareTo(o.getCreateDate());
+        if (dateCompare != 0) {
+            return dateCompare;
+        }
+        return getId().compareTo(o.getId());
+    }
+
+    @Override
     public final String toString(String pattern, Object... arguments) {
         return MessageFormat.format(pattern, arguments);
     }

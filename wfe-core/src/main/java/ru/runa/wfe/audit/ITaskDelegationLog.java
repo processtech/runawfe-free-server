@@ -6,6 +6,12 @@ import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 
 public interface ITaskDelegationLog extends ITaskLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_DELEGATION;
+    }
+
     @Transient
     default String getExecutorIds() {
         return getAttributeNotNull(ATTR_MESSAGE);

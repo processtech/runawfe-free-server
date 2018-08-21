@@ -6,6 +6,12 @@ import ru.runa.wfe.commons.CalendarUtil;
 
 public interface ITaskCreateLog extends ITaskLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_CREATE;
+    }
+
     @Transient
     default String getDeadlineDateString() {
         return getAttribute(ATTR_DUE_DATE);

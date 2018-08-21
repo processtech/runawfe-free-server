@@ -5,6 +5,12 @@ import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 
 public interface IProcessSuspendLog extends IProcessLog {
 
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.PROCESS_SUSPEND;
+    }
+
     @Transient
     default String getActorName() {
         return getAttributeNotNull(ATTR_ACTOR_NAME);

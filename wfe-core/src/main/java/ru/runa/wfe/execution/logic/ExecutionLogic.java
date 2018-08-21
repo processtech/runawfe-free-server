@@ -77,9 +77,9 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Process execution logic.
@@ -241,7 +241,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
             }
             ProcessLogs processLogs = new ProcessLogs(processId);
-            processLogs.addLogs(processLogDao.get(processId, processDefinition), false);
+            processLogs.addLogs(processLogDao2.get(processId, processDefinition), false);
             GraphImageBuilder builder = new GraphImageBuilder(processDefinition);
             builder.setHighlightedToken(highlightedToken);
             return builder.createDiagram(process, processLogs);
