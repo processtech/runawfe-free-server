@@ -12,8 +12,11 @@ public abstract class BaseProcessLogDao<T extends BaseProcessLog> extends Generi
 
     protected abstract Class<? extends BaseProcessLog> typeToClass(IProcessLog.Type type);
 
+    /**
+     * Public because used in migration.
+     */
     @SuppressWarnings("unchecked")
-    List<IProcessLog> getAll(final ProcessLogFilter filter) {
+    public List<IProcessLog> getAll(final ProcessLogFilter filter) {
         boolean filterBySeverity = filter.getSeverities().size() != 0 && filter.getSeverities().size() != Severity.values().length;
         String hql = "from " + typeToClass(filter.getType()).getName() + " where processId = :processId";
         if (filter.getIdFrom() != null) {

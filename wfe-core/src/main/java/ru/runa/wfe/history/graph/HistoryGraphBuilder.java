@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.TransitionLog;
+import ru.runa.wfe.audit.ITransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 
 /**
@@ -40,7 +40,7 @@ public final class HistoryGraphBuilder {
             if (childNodeModel != null) {
                 List<HistoryGraphNode> nodes = currentWorkNodes.get(childNodeModel.getNodeId());
                 if (nodes == null) {
-                    nodes = new ArrayList<HistoryGraphNode>();
+                    nodes = new ArrayList<>();
                     currentWorkNodes.put(childNodeModel.getNodeId(), nodes);
                 }
                 if (!nodes.contains(childNodeModel)) {
@@ -66,8 +66,8 @@ public final class HistoryGraphBuilder {
     private static HistoryGraphNode getLogNodeModel(IProcessLog log, Map<String, List<HistoryGraphNode>> currentWorkNodes,
             ProcessInstanceData definitionModel) {
         String nodeId = log.getNodeId();
-        if (log instanceof TransitionLog) {
-            nodeId = ((TransitionLog) log).getFromNodeId();
+        if (log instanceof ITransitionLog) {
+            nodeId = ((ITransitionLog) log).getFromNodeId();
         }
         List<HistoryGraphNode> nodes = currentWorkNodes.get(nodeId);
         if (nodes == null) {

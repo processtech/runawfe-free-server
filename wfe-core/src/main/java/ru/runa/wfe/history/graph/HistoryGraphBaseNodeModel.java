@@ -8,7 +8,7 @@ import java.util.Map;
 import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.TransitionLog;
+import ru.runa.wfe.audit.ITransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;
 
@@ -97,14 +97,14 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     @Override
     public HistoryGraphNode acceptLog(IProcessLog log) {
         nodeLogs.add(log);
-        if (!(log instanceof TransitionLog)) {
+        if (!(log instanceof ITransitionLog)) {
             return null;
         }
         if (!mayAcceptNewTransition()) {
             String message = "Unexpected leaving transition number " + (transitions.size() + 1) + " for node with id " + getNode().getNodeId();
             throw new InternalApplicationException(message);
         }
-        return addTransition((TransitionLog) log);
+        return addTransition((ITransitionLog) log);
     }
 
     @Override
@@ -132,10 +132,10 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      * Add leaving transition from current node.
      * 
      * @param log
-     *            {@link TransitionLog} for transition creation.
+     *            {@link ITransitionLog} for transition creation.
      * @return Return's created graph history node (transition to).
      */
-    private HistoryGraphNode addTransition(TransitionLog log) {
+    private HistoryGraphNode addTransition(ITransitionLog log) {
         HistoryGraphNode newNode = nodeFactory.createNodeModel(log, definitionModel.getNode(log.getToNodeId()), definitionModel, nodeFactory);
         HistoryGraphTransitionModel transitionModel = new HistoryGraphTransitionModel(this, newNode, log);
         transitions.add(transitionModel);
@@ -155,7 +155,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      *            New transition order.
      */
     public void reorderTransitions(List<Integer> newOrder) {
-        List<HistoryGraphTransitionModel> current = new ArrayList<HistoryGraphTransitionModel>(getTransitions());
+        List<HistoryGraphTransitionModel> current = new ArrayList<>(getTransitions());
         for (int i = 0; i < newOrder.size(); ++i) {
             transitions.set(i, current.get(newOrder.get(i)));
         }

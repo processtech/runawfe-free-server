@@ -5,9 +5,9 @@ import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import ru.runa.wfe.audit.INodeLog;
 import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.NodeLog;
-import ru.runa.wfe.audit.TransitionLog;
+import ru.runa.wfe.audit.ITransitionLog;
 
 /**
  * Passed transitions data.
@@ -16,23 +16,23 @@ public class TransitionLogData {
     /**
      * Map from 'FROM' node name to transitions, passed from node.
      */
-    private final HashMap<String, ArrayList<TransitionLog>> fromNodeToTransition = Maps.newHashMap();
+    private final HashMap<String, ArrayList<ITransitionLog>> fromNodeToTransition = Maps.newHashMap();
     /**
      * Map from 'TO' node name to transitions, passed to node.
      */
-    private final HashMap<String, ArrayList<TransitionLog>> toNodeToTransition = Maps.newHashMap();
+    private final HashMap<String, ArrayList<ITransitionLog>> toNodeToTransition = Maps.newHashMap();
     /**
      * All transition logs.
      */
-    private final List<TransitionLog> transitionLogs = Lists.newArrayList();
+    private final List<ITransitionLog> transitionLogs = Lists.newArrayList();
 
     public TransitionLogData(List<? extends IProcessLog> processLogs) {
         super();
         for (IProcessLog log : processLogs) {
-            if (!(log instanceof TransitionLog)) {
+            if (!(log instanceof ITransitionLog)) {
                 continue;
             }
-            TransitionLog transitionLog = (TransitionLog) log;
+            ITransitionLog transitionLog = (ITransitionLog) log;
             getTransitionLogs().add(transitionLog);
             addToArrayMap(fromNodeToTransition, transitionLog.getFromNodeId(), transitionLog);
             addToArrayMap(toNodeToTransition, transitionLog.getToNodeId(), transitionLog);
@@ -49,29 +49,29 @@ public class TransitionLogData {
      * @param transitionLog
      *            Transition log to add to the map.
      */
-    private void addToArrayMap(HashMap<String, ArrayList<TransitionLog>> nodeToTransition, String nodeId, TransitionLog transitionLog) {
-        ArrayList<TransitionLog> logs = nodeToTransition.get(nodeId);
+    private void addToArrayMap(HashMap<String, ArrayList<ITransitionLog>> nodeToTransition, String nodeId, ITransitionLog transitionLog) {
+        ArrayList<ITransitionLog> logs = nodeToTransition.get(nodeId);
         if (logs == null) {
-            logs = new ArrayList<TransitionLog>();
+            logs = new ArrayList<>();
             nodeToTransition.put(nodeId, logs);
         }
         logs.add(transitionLog);
     }
 
-    public List<TransitionLog> getTransitionLogs() {
+    public List<ITransitionLog> getTransitionLogs() {
         return transitionLogs;
     }
 
-    public ArrayList<TransitionLog> getTransitionLogsFromNode(String nodeId) {
+    public ArrayList<ITransitionLog> getTransitionLogsFromNode(String nodeId) {
         return fromNodeToTransition.get(nodeId);
     }
 
-    public TransitionLog findNextTransitionLog(NodeLog log, String nodeId) {
-        ArrayList<TransitionLog> transitionLogs = fromNodeToTransition.get(nodeId);
+    public ITransitionLog findNextTransitionLog(INodeLog log, String nodeId) {
+        ArrayList<ITransitionLog> transitionLogs = fromNodeToTransition.get(nodeId);
         if (transitionLogs == null) {
             return null;
         }
-        for (TransitionLog tempLog : transitionLogs) {
+        for (ITransitionLog tempLog : transitionLogs) {
             if (tempLog.getId() > log.getId()) {
                 return tempLog;
             }

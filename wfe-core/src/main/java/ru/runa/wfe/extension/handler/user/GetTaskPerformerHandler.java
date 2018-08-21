@@ -2,9 +2,9 @@ package ru.runa.wfe.extension.handler.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.ITaskEndLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
@@ -25,7 +25,7 @@ public class GetTaskPerformerHandler extends CommonParamBasedHandler {
         filter.setNodeId(nodeId);
         ProcessLogs processLogs = new ProcessLogs();
         processLogs.addLogs(processLogDao2.getAll(filter), false);
-        TaskEndLog taskEndLog = processLogs.getLastOrNull(TaskEndLog.class);
+        ITaskEndLog taskEndLog = processLogs.getLastOrNull(ITaskEndLog.class);
         if (taskEndLog == null) {
             throw new InternalApplicationException("No task end log found for node " + nodeId);
         }

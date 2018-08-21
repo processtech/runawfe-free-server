@@ -1,23 +1,19 @@
 package ru.runa.wfe.audit;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
-
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
 import ru.runa.wfe.lang.NodeType;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProcessLogs implements Serializable {
@@ -38,8 +34,8 @@ public class ProcessLogs implements Serializable {
         logs.addAll(processLogs);
         if (withSubprocesses) {
             for (IProcessLog log : processLogs) {
-                if (log instanceof SubprocessStartLog) {
-                    Long subprocessId = ((SubprocessStartLog) log).getSubprocessId();
+                if (log instanceof ISubprocessStartLog) {
+                    Long subprocessId = ((ISubprocessStartLog) log).getSubprocessId();
                     subprocessToProcessIds.put(subprocessId, log.getProcessId());
                 }
             }
@@ -139,21 +135,21 @@ public class ProcessLogs implements Serializable {
         return list;
     }
 
-    public Map<TaskCreateLog, TaskEndLog> getTaskLogs() {
-        Map<String, TaskCreateLog> tmpByTaskName = Maps.newHashMap();
-        Map<Long, TaskCreateLog> tmpByTaskId = Maps.newHashMap();
-        Map<TaskCreateLog, TaskEndLog> result = Maps.newHashMap();
+    public Map<ITaskCreateLog, ITaskEndLog> getTaskLogs() {
+        Map<String, ITaskCreateLog> tmpByTaskName = Maps.newHashMap();
+        Map<Long, ITaskCreateLog> tmpByTaskId = Maps.newHashMap();
+        Map<ITaskCreateLog, ITaskEndLog> result = Maps.newHashMap();
         boolean compatibilityMode = false;
         for (IProcessLog log : logs) {
-            if (log instanceof TaskCreateLog) {
-                TaskCreateLog taskCreateLog = (TaskCreateLog) log;
+            if (log instanceof ITaskCreateLog) {
+                ITaskCreateLog taskCreateLog = (ITaskCreateLog) log;
                 String key = log.getProcessId() + taskCreateLog.getTaskName();
                 tmpByTaskName.put(key, taskCreateLog);
                 tmpByTaskId.put(taskCreateLog.getTaskId(), taskCreateLog);
             }
-            if (log instanceof TaskEndLog) {
-                TaskEndLog taskEndLog = (TaskEndLog) log;
-                TaskCreateLog taskCreateLog;
+            if (log instanceof ITaskEndLog) {
+                ITaskEndLog taskEndLog = (ITaskEndLog) log;
+                ITaskCreateLog taskCreateLog;
                 if (taskEndLog.getTaskId() != null && tmpByTaskId.containsKey(taskEndLog.getTaskId())) {
                     taskCreateLog = tmpByTaskId.remove(taskEndLog.getTaskId());
                     tmpByTaskName.remove(log.getProcessId() + taskCreateLog.getTaskName());
@@ -168,10 +164,10 @@ public class ProcessLogs implements Serializable {
                 }
                 result.put(taskCreateLog, taskEndLog);
             }
-            if (log instanceof NodeLeaveLog) {
-                NodeLeaveLog nodeLeaveLog = (NodeLeaveLog) log;
+            if (log instanceof INodeLeaveLog) {
+                INodeLeaveLog nodeLeaveLog = (INodeLeaveLog) log;
                 if (NodeType.START_EVENT == nodeLeaveLog.getNodeType()) {
-                    ProcessStartLog processStartLog = getFirstOrNull(ProcessStartLog.class);
+                    IProcessStartLog processStartLog = getFirstOrNull(IProcessStartLog.class);
                     if (processStartLog == null) {
                         continue;
                     }
@@ -195,7 +191,7 @@ public class ProcessLogs implements Serializable {
             }
         }
         // unfinished tasks
-        for (TaskCreateLog taskCreateLog : compatibilityMode ? tmpByTaskName.values() : tmpByTaskId.values()) {
+        for (ITaskCreateLog taskCreateLog : compatibilityMode ? tmpByTaskName.values() : tmpByTaskId.values()) {
             result.put(taskCreateLog, null);
         }
         return result;

@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.TaskEscalationLog;
+import ru.runa.wfe.audit.ITaskEscalationLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.commons.SystemProperties;
@@ -499,7 +499,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         }
 
         for (IProcessLog pLog : pLogs) {
-            if (!(pLog instanceof TaskEscalationLog) || !Objects.equal(pLog.getNodeId(), nid)) {
+            if (!(pLog instanceof ITaskEscalationLog) || !Objects.equal(pLog.getNodeId(), nid)) {
                 continue;
             }
             log.debug(String.format("isActorInInactiveEscalationGroup: escalation log was found pid: %s nid: %s", pid, nid));

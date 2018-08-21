@@ -21,14 +21,10 @@
  */
 package ru.runa.wfe.audit;
 
+import com.google.common.base.Charsets;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-
-import ru.runa.wfe.audit.presentation.HtmlValue;
 import ru.runa.wfe.lang.Node;
-
-import com.google.common.base.Charsets;
 
 /**
  * Logging message nodes execution.

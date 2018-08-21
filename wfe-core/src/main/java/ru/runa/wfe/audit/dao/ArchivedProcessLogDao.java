@@ -25,7 +25,6 @@ public class ArchivedProcessLogDao extends BaseProcessLogDao<ArchivedProcessLog>
         return queryFactory.selectFrom(pl).where(pl.processId.eq(processId)).orderBy(pl.id.asc()).fetch();
     }
 
-    // TODO Do we need to copy-paste old processing from ProcessLogDao.get(process, definition) too?
     List<ArchivedProcessLog> get(ArchivedProcess process, ProcessDefinition definition) {
         QArchivedProcessLog pl = QArchivedProcessLog.archivedProcessLog;
         return queryFactory.selectFrom(pl)

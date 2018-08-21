@@ -23,10 +23,10 @@ import com.google.common.collect.Maps;
 import java.awt.Color;
 import java.util.Date;
 import java.util.Map;
+import ru.runa.wfe.audit.ITaskCreateLog;
+import ru.runa.wfe.audit.ITaskEndLog;
+import ru.runa.wfe.audit.ITransitionLog;
 import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.TaskCreateLog;
-import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
@@ -102,7 +102,7 @@ public class GraphImageBuilder {
                 }
             }
         }
-        for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
+        for (ITransitionLog transitionLog : logs.getLogs(ITransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(processDefinition);
             if (transition != null) {
                 RenderHits renderHits = new RenderHits(DrawProperties.getHighlightColor(), true);
@@ -152,7 +152,7 @@ public class GraphImageBuilder {
     }
 
     private void fillTasks(ProcessLogs logs) {
-        for (Map.Entry<TaskCreateLog, TaskEndLog> entry : logs.getTaskLogs().entrySet()) {
+        for (Map.Entry<ITaskCreateLog, ITaskEndLog> entry : logs.getTaskLogs().entrySet()) {
             boolean activeTask = entry.getValue() == null;
             Date deadlineDate = entry.getKey().getDeadlineDate();
             Date endDate = activeTask ? new Date() : entry.getValue().getCreateDate();

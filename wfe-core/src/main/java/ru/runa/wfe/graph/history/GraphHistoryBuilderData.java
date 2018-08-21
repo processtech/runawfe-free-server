@@ -3,11 +3,11 @@ package ru.runa.wfe.graph.history;
 import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
+import ru.runa.wfe.audit.INodeEnterLog;
+import ru.runa.wfe.audit.INodeLog;
 import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.NodeEnterLog;
-import ru.runa.wfe.audit.NodeLog;
-import ru.runa.wfe.audit.TaskLog;
-import ru.runa.wfe.audit.TransitionLog;
+import ru.runa.wfe.audit.ITaskLog;
+import ru.runa.wfe.audit.ITransitionLog;
 import ru.runa.wfe.execution.BaseProcess;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -33,18 +33,17 @@ public class GraphHistoryBuilderData {
      */
     private final TransitionLogData transitions;
     /**
-     * All process logs to build history. (Without embedded subprocess or
-     * embedded subprocess only).
+     * All process logs to build history. (Without embedded subprocess or embedded subprocess only).
      */
     private final List<IProcessLog> processLogs;
     /**
-     * All instances of {@link NodeLog} to build history.
+     * All instances of {@link INodeLog} to build history.
      */
-    private final List<NodeLog> nodeLogs = Lists.newArrayList();
+    private final List<INodeLog> nodeLogs = Lists.newArrayList();
     /**
-     * All instances of {@link TaskLog} to build history.
+     * All instances of {@link ITaskLog} to build history.
      */
-    private final List<TaskLog> taskLogs = Lists.newArrayList();
+    private final List<ITaskLog> taskLogs = Lists.newArrayList();
     /**
      * Component to parse logs into main process and subprocesses logs.
      */
@@ -89,13 +88,16 @@ public class GraphHistoryBuilderData {
         final boolean isForEmbeddedSubprocess = subProcessId != null && !"null".equals(subProcessId);
         List<IProcessLog> processLogForProcessing = embeddedLogsParser.getProcessLogs(subProcessId);
         for (IProcessLog processLog : processLogForProcessing) {
-            if (processLog instanceof NodeLog) {
-                if (isForEmbeddedSubprocess && processLog instanceof NodeEnterLog && NodeType.START_EVENT == ((NodeLog) processLog).getNodeType()) {
+            if (processLog instanceof INodeLog) {
+                if (isForEmbeddedSubprocess &&
+                        processLog instanceof INodeEnterLog &&
+                        NodeType.START_EVENT == ((INodeLog) processLog).getNodeType()
+                ) {
                     continue;
                 }
-                nodeLogs.add((NodeLog) processLog);
-            } else if (processLog instanceof TaskLog) {
-                taskLogs.add((TaskLog) processLog);
+                nodeLogs.add((INodeLog) processLog);
+            } else if (processLog instanceof ITaskLog) {
+                taskLogs.add((ITaskLog) processLog);
             }
         }
         return processLogForProcessing;
@@ -135,20 +137,20 @@ public class GraphHistoryBuilderData {
     }
 
     /**
-     * Get all {@link NodeLog} instances to build history.
+     * Get all {@link INodeLog} instances to build history.
      * 
-     * @return Returns all {@link NodeLog} instances.
+     * @return Returns all {@link INodeLog} instances.
      */
-    public List<NodeLog> getNodeLogs() {
+    public List<INodeLog> getNodeLogs() {
         return nodeLogs;
     }
 
     /**
-     * Get all {@link TaskLog} instances to build history.
+     * Get all {@link ITaskLog} instances to build history.
      * 
-     * @return Returns all {@link TaskLog} instances.
+     * @return Returns all {@link ITaskLog} instances.
      */
-    public List<TaskLog> getTaskLogs() {
+    public List<ITaskLog> getTaskLogs() {
         return taskLogs;
     }
 
@@ -173,7 +175,7 @@ public class GraphHistoryBuilderData {
      *            Node id, from which transition must be moved.
      * @return Returns transition log or null, if not found.
      */
-    public TransitionLog findNextTransitionLog(NodeLog log, String nodeId) {
+    public ITransitionLog findNextTransitionLog(INodeLog log, String nodeId) {
         return transitions.findNextTransitionLog(log, nodeId);
     }
 

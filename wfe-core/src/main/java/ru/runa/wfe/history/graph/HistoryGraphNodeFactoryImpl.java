@@ -2,8 +2,7 @@ package ru.runa.wfe.history.graph;
 
 import java.util.List;
 import java.util.Map;
-
-import ru.runa.wfe.audit.TransitionLog;
+import ru.runa.wfe.audit.ITransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;
 
@@ -25,7 +24,7 @@ public class HistoryGraphNodeFactoryImpl implements HistoryGraphNodeFactory {
     }
 
     @Override
-    public HistoryGraphNode createNodeModel(TransitionLog log, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    public HistoryGraphNode createNodeModel(ITransitionLog log, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         switch (node.getNodeType()) {
         case FORK:
             return new HistoryGraphForkNodeModel(log, node, definitionModel, nodeFactory);

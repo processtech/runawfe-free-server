@@ -10,12 +10,12 @@ import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ITaskAssignLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.TaskAssignLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao2;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 public class AddAssignDateColumnPatch extends DbPatch {
     @Autowired
-    private ProcessLogDao2 processLogDao2;
+    private ProcessLogDao processLogDao;
 
     @Override
     protected List<String> getDDLQueriesBefore() {
@@ -25,7 +25,7 @@ public class AddAssignDateColumnPatch extends DbPatch {
     }
 
     @Override
-    public void executeDML(Session session) throws Exception {
+    public void executeDML(Session session) {
         List<Object[]> rows = session.createSQLQuery("SELECT ID, PROCESS_ID, NODE_ID FROM BPM_TASK").list();
         log.info("Found " + rows.size() + " tasks");
         SQLQuery updateQuery = session.createSQLQuery("UPDATE BPM_TASK SET ASSIGN_DATE=:assignDate WHERE ID=:taskId");
@@ -34,7 +34,7 @@ public class AddAssignDateColumnPatch extends DbPatch {
             ProcessLogFilter filter = new ProcessLogFilter(((Number) row[1]).longValue());
             filter.setType(IProcessLog.Type.TASK_ASSIGN);
             filter.setNodeId((String) row[2]);
-            List<IProcessLog> logs = processLogDao2.getAll(filter);
+            List<IProcessLog> logs = processLogDao.getAll(filter);
             for (IProcessLog processLog : logs) {
                 ITaskAssignLog taskAssignLog = (TaskAssignLog) processLog;
                 if (Objects.equal(taskId, taskAssignLog.getTaskId())) {
@@ -46,5 +46,4 @@ public class AddAssignDateColumnPatch extends DbPatch {
             }
         }
     }
-
 }

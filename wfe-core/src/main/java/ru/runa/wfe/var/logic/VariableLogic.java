@@ -32,22 +32,21 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.INodeLeaveLog;
 import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ITaskCreateLog;
 import ru.runa.wfe.audit.ITaskEndLog;
 import ru.runa.wfe.audit.IVariableLog;
-import ru.runa.wfe.audit.NodeLeaveLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
-import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.execution.BaseProcess;
 import ru.runa.wfe.execution.ConvertToSimpleVariables;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesContext;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesResult;
@@ -135,7 +134,7 @@ public class VariableLogic extends WfCommonLogic {
         filter.setProcessId(processId);
         ProcessLogs processLogs = auditLogic.getProcessLogs(user, filter);
         if (taskId == null || Objects.equal(taskId, 0L)) { // Start process form.
-            NodeLeaveLog leaveLog = processLogs.getFirstOrNull(NodeLeaveLog.class);
+            INodeLeaveLog leaveLog = processLogs.getFirstOrNull(INodeLeaveLog.class);
             if (leaveLog == null) {
                 throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
             }
@@ -147,7 +146,7 @@ public class VariableLogic extends WfCommonLogic {
         Date taskCompletePressedDate = null;
         Date taskEndDate = null;
         Long tokenId = null;
-        for (TaskCreateLog createLog : processLogs.getLogs(TaskCreateLog.class)) {
+        for (ITaskCreateLog createLog : processLogs.getLogs(ITaskCreateLog.class)) {
             if (Objects.equal(createLog.getTaskId(), taskId)) {
                 tokenId = createLog.getTokenId();
                 break;
@@ -369,13 +368,13 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from simple process variable name to it last known value.
      */
-    private Map<String, Object> loadVariablesForProcessFromLogs(User user, Process process, ProcessLogFilter filter,
+    private Map<String, Object> loadVariablesForProcessFromLogs(User user, BaseProcess process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
         ProcessLogFilter localFilter = new ProcessLogFilter(filter);
         localFilter.setType(IProcessLog.Type.VARIABLE);
         localFilter.setProcessId(process.getId());
         HashMap<String, Object> processVariables = Maps.newHashMap();
-        for (VariableLog variableLog : auditLogic.getProcessLogs(user, localFilter).getLogs(VariableLog.class)) {
+        for (IVariableLog variableLog : auditLogic.getProcessLogs(user, localFilter).getLogs(IVariableLog.class)) {
             String variableName = variableLog.getVariableName();
             if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty((variableLog).getVariableNewValue())) {
                 simpleVariablesChanged.add(variableName);
