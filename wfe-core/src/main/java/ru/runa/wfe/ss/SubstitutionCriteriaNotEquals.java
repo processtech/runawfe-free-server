@@ -50,7 +50,7 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
         Executor executor;
         if (variableName.startsWith(SWIMLANE_PREFIX)) {
             String swimlaneName = variableName.substring(SWIMLANE_PREFIX.length());
-            Swimlane swimlane = ApplicationContextFactory.getSwimlaneDAO().findByProcessAndName(executionContext.getProcess(), swimlaneName);
+            Swimlane swimlane = ApplicationContextFactory.getSwimlaneDao().findByProcessAndName(executionContext.getProcess(), swimlaneName);
             if (swimlane == null) {
                 return true;
             }
@@ -64,7 +64,7 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
         }
         Set<Executor> confActors = new HashSet<Executor>();
         if (executor instanceof Group) {
-            confActors.addAll(ApplicationContextFactory.getExecutorDAO().getGroupActors((Group) executor));
+            confActors.addAll(ApplicationContextFactory.getExecutorDao().getGroupActors((Group) executor));
         } else {
             confActors.add(executor);
         }

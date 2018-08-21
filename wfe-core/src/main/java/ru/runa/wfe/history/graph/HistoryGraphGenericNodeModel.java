@@ -1,6 +1,6 @@
 package ru.runa.wfe.history.graph;
 
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;
 
@@ -10,11 +10,11 @@ import ru.runa.wfe.lang.Node;
  */
 public class HistoryGraphGenericNodeModel extends HistoryGraphBaseNodeModel {
 
-    public HistoryGraphGenericNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    public HistoryGraphGenericNodeModel(IProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         super(processLog, node, definitionModel, nodeFactory);
     }
 
-    public HistoryGraphGenericNodeModel(ProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    public HistoryGraphGenericNodeModel(IProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         super(processLog, definitionModel, nodeFactory);
     }
 

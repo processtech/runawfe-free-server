@@ -191,7 +191,7 @@ public class EmailUtils {
                 emails.add(actor.getEmail().trim());
             }
         } else if (executor instanceof Group) {
-            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
             Collection<Actor> actors = executorDao.getGroupActors((Group) executor);
             for (Actor actor : actors) {
                 if (actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {

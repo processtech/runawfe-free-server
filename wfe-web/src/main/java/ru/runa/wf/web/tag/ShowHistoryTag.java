@@ -42,6 +42,7 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.HistoryHeaderBuilder;
+import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
@@ -95,7 +96,7 @@ public class ShowHistoryTag extends ProcessBaseFormTag {
         TD mergedEventDateTD = null;
         String mergedEventDateString = null;
         int mergedRowsCount = 0;
-        for (ProcessLog log : logs.getLogs()) {
+        for (IProcessLog log : logs.getLogs()) {
             String description;
             try {
                 String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);

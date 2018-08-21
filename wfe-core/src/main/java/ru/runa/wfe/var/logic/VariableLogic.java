@@ -218,7 +218,7 @@ public class VariableLogic extends WfCommonLogic {
         permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessDefinition processDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-        processLogDao.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
+        processLogDao2.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
         executionContext.setVariableValues(variables);
     }
 

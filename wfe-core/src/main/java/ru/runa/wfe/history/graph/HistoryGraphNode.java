@@ -3,7 +3,7 @@ package ru.runa.wfe.history.graph;
 import java.util.List;
 import java.util.Map;
 
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.lang.Node;
 
 /**
@@ -15,49 +15,49 @@ public interface HistoryGraphNode {
      * 
      * @return Returns node leaving transitions.
      */
-    public List<HistoryGraphTransitionModel> getTransitions();
+    List<HistoryGraphTransitionModel> getTransitions();
 
     /**
      * Node incoming transitions.
      * 
      * @return Returns node incoming transitions.
      */
-    public List<HistoryGraphTransitionModel> getIncomingTransitions();
+    List<HistoryGraphTransitionModel> getIncomingTransitions();
 
     /**
      * Get node model from process definition.
      * 
      * @return Returns node model.
      */
-    public Node getNode();
+    Node getNode();
 
     /**
      * Node id from process definition, which correspond to this node.
      * 
      * @return Return node id.
      */
-    public String getNodeId();
+    String getNodeId();
 
     /**
      * Custom data, stored in node.
      * 
      * @return Returns all custom data, available on node.
      */
-    public Map<String, Object> getCustomData();
+    Map<String, Object> getCustomData();
 
     /**
      * Returns first instance of of log with given type.
      * 
      * @return Returns first instance of of log with given type.
      */
-    public <T extends ProcessLog> T getNodeLog(Class<T> clazz);
+    <T extends IProcessLog> T getNodeLog(IProcessLog.Type type);
 
     /**
      * Returns all instances of of log with given type.
      * 
      * @return Returns all instances of of log with given type.
      */
-    public <T extends ProcessLog> List<T> getNodeLogs(Class<T> clazz);
+    <T extends IProcessLog> List<T> getNodeLogs(IProcessLog.Type type);
 
     /**
      * Check if node may accept log instance.
@@ -67,17 +67,17 @@ public interface HistoryGraphNode {
      * @return Returns true, if it seems, what log instance belongs to this node
      *         and false otherwise.
      */
-    public boolean mayAcceptLog(String nodeId);
+    boolean mayAcceptLog(String nodeId);
 
     /**
      * Store log instance in node and creates transition to other node if
      * required.
-     * 
+     *
      * @param log
      *            Log instance to accept.
      * @return Returns node, created for transition or null, if no node created.
      */
-    public HistoryGraphNode acceptLog(ProcessLog log);
+    HistoryGraphNode acceptLog(IProcessLog log);
 
     /**
      * Check if node can accept leaving transition. For example generic node may
@@ -86,7 +86,7 @@ public interface HistoryGraphNode {
      * @return Returns true, if node may accept additional leaving transition
      *         and false otherwise.
      */
-    public boolean mayAcceptNewTransition();
+    boolean mayAcceptNewTransition();
 
     /**
      * Applies operation to node.
@@ -96,7 +96,7 @@ public interface HistoryGraphNode {
      * @param context
      *            Operation context (will be passed to operation).
      */
-    public <TContext> void processBy(HistoryGraphNodeVisitor<TContext> visitor, TContext context);
+    <TContext> void processBy(HistoryGraphNodeVisitor<TContext> visitor, TContext context);
 
     /**
      * Add incoming transition to the node.
@@ -104,5 +104,5 @@ public interface HistoryGraphNode {
      * @param transition
      *            Incoming transition model
      */
-    public void registerIncomingTransition(HistoryGraphTransitionModel transition);
+    void registerIncomingTransition(HistoryGraphTransitionModel transition);
 }

@@ -19,21 +19,18 @@ package ru.runa.wf.web.tag;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.Area;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.Resources;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.audit.ActionLog;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.graph.view.MultiSubprocessNodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -63,8 +60,6 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
     /**
      * Creates operation to create links to subprocesses and tool tips to minimized elements.
      *
-     * @param taskId
-     *            Current task identity.
      * @param pageContext
      *            Rendered page context.
      * @param td
@@ -94,7 +89,7 @@ public class ProcessNodeGraphElementVisitor extends NodeGraphElementVisitor {
         if (element.getData() != null) {
             Table table = new Table();
             table.setClass(Resources.CLASS_LIST_TABLE);
-            for (ProcessLog log : element.getData()) {
+            for (IProcessLog log : element.getData()) {
                 String description;
                 try {
                     String format = Messages.getMessage("history.log." + log.getPatternName(), pageContext);

@@ -73,7 +73,7 @@ public class PropertyResources {
         if (databaseAvailable && useDatabase) {
             if (settingDao == null) {
                 try {
-                    settingDao = ApplicationContextFactory.getSettingDAO();
+                    settingDao = ApplicationContextFactory.getSettingDao();
                 } catch (Exception e) {
                     log.error("No SettingDAO available", e);
                 }

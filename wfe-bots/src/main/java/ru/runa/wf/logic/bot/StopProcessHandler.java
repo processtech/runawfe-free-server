@@ -27,7 +27,7 @@ public class StopProcessHandler extends TaskHandlerBase implements ActionHandler
         Long processId = TypeConversionUtil.convertTo(Long.class,
                 paramsDef.getInputParamValueNotNull("processId", executionContext.getVariableProvider()));
         if (processId > 0) {
-            ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDAO().get(processId);
+            ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDao().get(processId);
             ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
             ExecutionContext targetExecutionContext = new ExecutionContext(processDefinition, process);

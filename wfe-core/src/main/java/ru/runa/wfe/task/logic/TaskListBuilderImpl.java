@@ -12,13 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import lombok.val;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
@@ -36,8 +37,8 @@ import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
-import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.BatchPresentationCompilerFactory;
+import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.RestrictionsToOwners;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDao;
@@ -58,7 +59,6 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDao;
-import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDao;
 
@@ -86,7 +86,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     @Autowired
     private TaskDao taskDao;
     @Autowired
-    private ProcessLogDao processLogDao;
+    private ProcessLogDao2 processLogDao2;
     @Autowired
     private ExecutionContextFactory executionContextFactory;
     @Autowired
@@ -99,8 +99,6 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     private VariableDao variableDao;
     @Autowired
     private PermissionDao permissionDao;
-    @Autowired
-    private ExecutorLogic executorLogic;
 
     public TaskListBuilderImpl(TaskCache taskCache) {
         this.taskCache = taskCache;
@@ -486,21 +484,21 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
                 && !hasActiveActorInGroup((Group) originalExecutor)) {
             return true;
         }
-        Long pid = group.getProcessId();
+        val pid = group.getProcessId();
         String nid = group.getNodeId();
         if (pid == null || pid <= 0 || nid == null) {
             return false;
         }
 
-        List<ProcessLog> pLogs;
+        List<? extends IProcessLog> pLogs;
         try {
-            pLogs = processLogDao.getAll(group.getProcessId());
+            pLogs = processLogDao2.getAll(pid);
         } catch (DataAccessException e) {
             log.warn(String.format("isActorInInactiveEscalationGroup: occured: %s when get logs for pid: %s", e, group.getProcessId()));
             return false;
         }
 
-        for (ProcessLog pLog : pLogs) {
+        for (IProcessLog pLog : pLogs) {
             if (!(pLog instanceof TaskEscalationLog) || !Objects.equal(pLog.getNodeId(), nid)) {
                 continue;
             }

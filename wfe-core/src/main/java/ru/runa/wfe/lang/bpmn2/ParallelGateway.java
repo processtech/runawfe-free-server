@@ -87,7 +87,7 @@ public class ParallelGateway extends Node {
             Token childToken = new Token(token, getNodeId() + "/" + leavingTransition.getNodeId());
             childTokens.put(childToken, leavingTransition);
         }
-        ApplicationContextFactory.getTokenDAO().flushPendingChanges();
+        ApplicationContextFactory.getTokenDao().flushPendingChanges();
         log.debug("Child tokens created: " + childTokens.keySet());
         for (Map.Entry<Token, Transition> entry : childTokens.entrySet()) {
             ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), entry.getKey());
@@ -197,8 +197,8 @@ public class ParallelGateway extends Node {
                     @Override
                     protected void doExecuteInTransaction() throws Exception {
                         log.debug("Executing " + this);
-                        ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
-                        TokenDao tokenDao = ApplicationContextFactory.getTokenDAO();
+                        ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
+                        TokenDao tokenDao = ApplicationContextFactory.getTokenDao();
                         List<Token> endedTokens = tokenDao.findByProcessAndNodeIdAndExecutionStatusIsEndedAndAbleToReactivateParent(process,
                                 gateway.getNodeId());
                         if (endedTokens.isEmpty()) {
@@ -260,8 +260,8 @@ public class ParallelGateway extends Node {
                     @Override
                     protected void doExecuteInTransaction() throws Exception {
                         log.debug("Executing " + this);
-                        ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
-                        TokenDao tokenDao = ApplicationContextFactory.getTokenDAO();
+                        ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
+                        TokenDao tokenDao = ApplicationContextFactory.getTokenDao();
                         List<Token> failedTokens = tokenDao.findByProcessAndNodeIdAndExecutionStatusIsFailed(process, gateway.getNodeId());
                         if (failedTokens.isEmpty()) {
                             log.warn("no failed tokens found");

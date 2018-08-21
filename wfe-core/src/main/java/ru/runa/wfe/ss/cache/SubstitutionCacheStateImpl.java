@@ -136,9 +136,9 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
     private static Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors(
             CacheInitializationProcessContext initializationContext) {
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
-        final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+        final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
         try {
-            final SubstitutionDao substitutionDao = ApplicationContextFactory.getSubstitutionDAO();
+            final SubstitutionDao substitutionDao = ApplicationContextFactory.getSubstitutionDao();
             for (Substitution substitution : substitutionDao.getAll()) {
                 if (!initializationContext.isInitializationStillRequired()) {
                     return result;
@@ -188,7 +188,7 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
     private static Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors,
             CacheInitializationProcessContext initializationContext) {
         Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
-        final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+        final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
         for (Map.Entry<Long, TreeMap<Substitution, HashSet<Long>>> entry1 : mapActorToSubstitutors.entrySet()) {
             final Long substitutedId = entry1.getKey();
             // TODO why is it here?

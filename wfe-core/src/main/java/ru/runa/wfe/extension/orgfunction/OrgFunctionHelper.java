@@ -77,7 +77,7 @@ public class OrgFunctionHelper {
     // if (function.getRelationName() == null) {
     // return executors;
     // }
-    // ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
+    // ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDao();
     // Set<Executor> relationExecutorsSet = new HashSet<Executor>();
     // for (Executor executor : executors) {
     // relationExecutorsSet.add(executor);
@@ -85,9 +85,9 @@ public class OrgFunctionHelper {
     // }
     // Set<Executor> resultSet = Sets.newHashSet();
     // Relation relation =
-    // ApplicationContextFactory.getRelationDAO().getNotNull(function.getRelationName());
+    // ApplicationContextFactory.getRelationDao().getNotNull(function.getRelationName());
     // List<RelationPair> pairs =
-    // ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsRight(relation,
+    // ApplicationContextFactory.getRelationPairDao().getExecutorsRelationPairsRight(relation,
     // relationExecutorsSet);
     // for (RelationPair pair : pairs) {
     // resultSet.add(pair.getLeft());

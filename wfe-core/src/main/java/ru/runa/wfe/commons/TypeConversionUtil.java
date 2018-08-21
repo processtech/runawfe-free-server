@@ -185,7 +185,7 @@ public class TypeConversionUtil {
                 return (T) date;
             }
             if (Executor.class.isAssignableFrom(classConvertTo)) {
-                return (T) convertToExecutor(object, ApplicationContextFactory.getExecutorDAO());
+                return (T) convertToExecutor(object, ApplicationContextFactory.getExecutorDao());
             }
             if (postConvertor != null) {
                 T result = postConvertor.convertTo(object, classConvertTo);

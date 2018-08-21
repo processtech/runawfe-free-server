@@ -19,7 +19,7 @@ public abstract class AbstractVariableProvider implements VariableProvider {
     protected final Log log = LogFactory.getLog(getClass());
 
     protected ExecutorLoader getExecutorLoader() {
-        return ApplicationContextFactory.getExecutorDAO();
+        return ApplicationContextFactory.getExecutorDao();
     }
 
     @Override

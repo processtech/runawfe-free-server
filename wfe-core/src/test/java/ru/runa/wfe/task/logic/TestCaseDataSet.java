@@ -1,7 +1,7 @@
 package ru.runa.wfe.task.logic;
 
 import java.util.Set;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionContextFactory;
@@ -55,7 +55,7 @@ public abstract class TestCaseDataSet implements ITestCaseDataSet {
     }
 
     @Override
-    public void mockRules(ProcessLogDao logDAO) {
+    public void mockRules(ProcessLogDao2 logDAO) {
 
     }
 

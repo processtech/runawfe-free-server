@@ -52,8 +52,8 @@ class SubstitutionCacheImpl extends BaseCacheImpl implements ManageableSubstitut
     public static final String substitutedName = "ru.runa.wfe.ss.cache.substituted";
     private final Cache<Long, TreeMap<Substitution, HashSet<Long>>> actorToSubstitutorsCache;
     private final Cache<Long, HashSet<Long>> actorToSubstitutedCache;
-    private final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
-    private final SubstitutionDao substitutionDao = ApplicationContextFactory.getSubstitutionDAO();
+    private final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
+    private final SubstitutionDao substitutionDao = ApplicationContextFactory.getSubstitutionDao();
 
     public SubstitutionCacheImpl() {
         actorToSubstitutorsCache = createCache(substitutorsName, true);

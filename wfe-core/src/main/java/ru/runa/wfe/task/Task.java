@@ -326,7 +326,7 @@ public class Task implements Assignable {
     }
 
     public void delete() {
-        ApplicationContextFactory.getTaskDAO().delete(this);
+        ApplicationContextFactory.getTaskDao().delete(this);
         AssignmentHelper.removeTemporaryGroupOnTaskEnd(getExecutor());
     }
 

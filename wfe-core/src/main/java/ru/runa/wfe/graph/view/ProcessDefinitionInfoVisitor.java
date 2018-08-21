@@ -83,7 +83,7 @@ public class ProcessDefinitionInfoVisitor extends NodeGraphElementVisitor {
      * @return true, if current actor can read process definition and false otherwise.
      */
     private boolean hasReadPermission(ProcessDefinition processDefinition) {
-        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDAO();
+        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDao();
         return permissionDao.isAllowed(user, Permission.LIST, processDefinition.getDeployment());
     }
 }

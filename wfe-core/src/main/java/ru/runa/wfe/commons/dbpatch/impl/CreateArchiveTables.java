@@ -98,7 +98,6 @@ public class CreateArchiveTables extends DbPatch {
                 // Postponed FKs to archived_token:
                 getDDLCreateForeignKey("archived_process", "fk_arch_process_root_token", "root_token_id", "archived_token", "id"),
                 getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_token", "parent_token_id", "archived_token", "id")
-
         );
     }
 }

@@ -34,7 +34,7 @@ public class ProcessLogs implements Serializable {
         subprocessToProcessIds.put(processId, null);
     }
 
-    public void addLogs(List<IProcessLog> processLogs, boolean withSubprocesses) {
+    public void addLogs(List<? extends IProcessLog> processLogs, boolean withSubprocesses) {
         logs.addAll(processLogs);
         if (withSubprocesses) {
             for (IProcessLog log : processLogs) {
@@ -86,7 +86,7 @@ public class ProcessLogs implements Serializable {
         return level;
     }
 
-    public List<Long> getSubprocessIds(ProcessLog processLog) {
+    public List<Long> getSubprocessIds(IProcessLog processLog) {
         List<Long> result = Lists.newArrayList();
         Long processId = processLog.getProcessId();
         while (subprocessToProcessIds.get(processId) != null) {

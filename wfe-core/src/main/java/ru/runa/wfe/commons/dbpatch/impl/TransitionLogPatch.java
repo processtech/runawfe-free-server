@@ -35,7 +35,7 @@ public class TransitionLogPatch extends DbPatch {
     private ProcessLogDao processLogDao;
 
     @Override
-    public void executeDML(Session session) throws Exception {
+    public void executeDML(Session session) {
         String q;
         // JBPM_PASSTRANS
         q = "DELETE FROM JBPM_PASSTRANS WHERE TRANSITION_ID IS NULL OR NODE_ID IS NULL OR PROCESS_ID IS NULL";

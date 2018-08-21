@@ -183,7 +183,7 @@ public class Process extends BaseProcess<Token> {
 
         // make sure all the timers for this process are canceled
         // after the process end updates are posted to the database
-        JobDao jobDao = ApplicationContextFactory.getJobDAO();
+        JobDao jobDao = ApplicationContextFactory.getJobDao();
         jobDao.deleteByProcess(this);
         if (canceller != null) {
             executionContext.addLog(new ProcessCancelLog(canceller));
@@ -191,9 +191,9 @@ public class Process extends BaseProcess<Token> {
             executionContext.addLog(new ProcessEndLog());
         }
         // flush just created tasks
-        ApplicationContextFactory.getTaskDAO().flushPendingChanges();
+        ApplicationContextFactory.getTaskDao().flushPendingChanges();
         boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
-        for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(this)) {
+        for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(this)) {
             BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
             if (taskNode.isAsync()) {
                 switch (taskNode.getCompletionMode()) {
@@ -212,13 +212,13 @@ public class Process extends BaseProcess<Token> {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
             endSubprocessAndTasksOnMainProcessEndRecursively(executionContext, canceller);
         }
-        for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDAO().findByProcess(this)) {
+        for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDao().findByProcess(this)) {
             if (swimlane.getExecutor() instanceof TemporaryGroup) {
                 swimlane.setExecutor(null);
             }
         }
         for (Process subProcess : executionContext.getSubprocessesRecursively()) {
-            for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDAO().findByProcess(subProcess)) {
+            for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDao().findByProcess(subProcess)) {
                 if (swimlane.getExecutor() instanceof TemporaryGroup) {
                     swimlane.setExecutor(null);
                 }
@@ -233,10 +233,10 @@ public class Process extends BaseProcess<Token> {
             }
         }
         if (SystemProperties.deleteTemporaryGroupsOnProcessEnd()) {
-            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
             List<TemporaryGroup> groups = executorDao.getTemporaryGroups(id);
             for (TemporaryGroup temporaryGroup : groups) {
-                if (ApplicationContextFactory.getProcessDAO().getDependentProcessIds(temporaryGroup).isEmpty()) {
+                if (ApplicationContextFactory.getProcessDao().getDependentProcessIds(temporaryGroup).isEmpty()) {
                     log.debug("Cleaning " + temporaryGroup);
                     executorDao.remove(temporaryGroup);
                 } else {
@@ -256,7 +256,7 @@ public class Process extends BaseProcess<Token> {
 
                 endSubprocessAndTasksOnMainProcessEndRecursively(subExecutionContext, canceller);
 
-                for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(subProcess)) {
+                for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(subProcess)) {
                     BaseTaskNode taskNode = (BaseTaskNode) subProcessDefinition.getNodeNotNull(task.getNodeId());
                     if (taskNode.isAsync()) {
                         switch (taskNode.getCompletionMode()) {
@@ -270,7 +270,7 @@ public class Process extends BaseProcess<Token> {
                 }
 
                 if (!subProcess.hasEnded()) {
-                    NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDAO().findBySubProcessId(subProcess.getId());
+                    NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDao().findBySubProcessId(subProcess.getId());
                     SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
                     if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
                         subProcess.end(subExecutionContext, canceller);

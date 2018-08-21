@@ -1,6 +1,6 @@
 package ru.runa.wfe.task.logic;
 
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContextFactory;
 import ru.runa.wfe.presentation.hibernate.BatchPresentationCompilerFactory;
@@ -25,7 +25,7 @@ public class TaskLogicMockFactory {
     private final ExecutionContextFactory exeContextFactory = mock(ExecutionContextFactory.class);
     private final BatchPresentationCompilerFactory<?> batchCompilerFactory = mock(BatchPresentationCompilerFactory.class);
     @SuppressWarnings("unchecked")
-    private final ProcessLogDao logDAO = mock(ProcessLogDao.class);
+    private final ProcessLogDao2 logDAO = mock(ProcessLogDao2.class);
 
     public static final TaskLogicMockFactory getFactory() {
         return singleton;
@@ -88,7 +88,7 @@ public class TaskLogicMockFactory {
         return batchCompilerFactory;
     }
 
-    public ProcessLogDao createMockProcessLogDAO() {
+    public ProcessLogDao2 createMockProcessLogDAO() {
         return logDAO;
     }
 }

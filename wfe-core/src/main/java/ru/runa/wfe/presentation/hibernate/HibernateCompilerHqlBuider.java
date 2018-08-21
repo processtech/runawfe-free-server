@@ -336,8 +336,8 @@ public class HibernateCompilerHqlBuider {
             Assert.isTrue(Objects.equals(subst, PermissionSubstitutions.getForCheck(pp.types[i], pp.permission)));
         }
 
-        ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
-        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDAO();
+        ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
+        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDao();
         HibernateQueryFactory queryFactory = HibernateQueryFactory.getInstance();
 
         // Need to check privileged & list permissions only once.

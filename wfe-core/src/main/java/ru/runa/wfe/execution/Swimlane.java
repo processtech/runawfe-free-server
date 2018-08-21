@@ -131,7 +131,7 @@ public class Swimlane extends BaseSwimlane<Process> implements Serializable, Ass
         }
         if (cascadeUpdate) {
             // change actor for already assigned tasks
-            for (Task task : ApplicationContextFactory.getTaskDAO().findByProcessAndSwimlane(process, this)) {
+            for (Task task : ApplicationContextFactory.getTaskDao().findByProcessAndSwimlane(process, this)) {
                 task.assignExecutor(executionContext, executor, false);
             }
         }

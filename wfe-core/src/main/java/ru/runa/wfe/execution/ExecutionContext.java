@@ -36,7 +36,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.ProcessLogDao2;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
@@ -45,7 +45,6 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.job.Job;
@@ -87,13 +86,11 @@ public class ExecutionContext {
     @Autowired
     private VariableCreator variableCreator;
     @Autowired
-    private ProcessDao processDao;
-    @Autowired
     private TokenDao tokenDao;
     @Autowired
     private NodeProcessDao nodeProcessDao;
     @Autowired
-    private ProcessLogDao processLogDao;
+    private ProcessLogDao2 processLogDao2;
     @Autowired
     private VariableDao variableDao;
     @Autowired
@@ -259,7 +256,7 @@ public class ExecutionContext {
     }
 
     public void addLog(ProcessLog processLog) {
-        processLogDao.addLog(processLog, getProcess(), token);
+        processLogDao2.addLog(processLog, getProcess(), token);
     }
 
     public void activateTokenIfHasPreviousError() {
@@ -401,7 +398,7 @@ public class ExecutionContext {
             updateRelatedObjectsDueToDateVariableChange(variableDefinition.getName());
         }
         if (resultingVariableLog != null) {
-            processLogDao.addLog(resultingVariableLog, token.getProcess(), token);
+            processLogDao2.addLog(resultingVariableLog, token.getProcess(), token);
         }
         return resultingVariableLog;
     }

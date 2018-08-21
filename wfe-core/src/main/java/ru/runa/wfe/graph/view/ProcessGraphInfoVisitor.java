@@ -69,7 +69,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
     @Override
     protected void onSubprocessNode(SubprocessNodeGraphElement element) {
         if (element.isEmbedded()) {
-            boolean b = ApplicationContextFactory.getProcessLogDAO().isNodeEntered(process, element.getNodeId());
+            boolean b = ApplicationContextFactory.getProcessLogDao().isNodeEntered(process, element.getNodeId());
             element.setSubprocessAccessible(b);
             element.setSubprocessId(process.getId());
             SubprocessDefinition subprocessDefinition = definition.getEmbeddedSubprocessByNameNotNull(element.getSubprocessName());
@@ -100,7 +100,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
      * @return true, if current actor can read process definition and false otherwise.
      */
     private boolean hasReadPermission(Process process) {
-        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDAO();
+        PermissionDao permissionDao = ApplicationContextFactory.getPermissionDao();
         return permissionDao.isAllowed(user, Permission.LIST, process);
     }
 

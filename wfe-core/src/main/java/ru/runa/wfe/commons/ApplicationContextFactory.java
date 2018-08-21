@@ -55,35 +55,35 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return context;
     }
 
-    public static JobDao getJobDAO() {
+    public static JobDao getJobDao() {
         return getContext().getBean(JobDao.class);
     }
 
-    public static TaskDao getTaskDAO() {
+    public static TaskDao getTaskDao() {
         return getContext().getBean(TaskDao.class);
     }
 
-    public static SwimlaneDao getSwimlaneDAO() {
+    public static SwimlaneDao getSwimlaneDao() {
         return getContext().getBean(SwimlaneDao.class);
     }
 
-    public static TokenDao getTokenDAO() {
+    public static TokenDao getTokenDao() {
         return getContext().getBean(TokenDao.class);
     }
 
-    public static SettingDao getSettingDAO() {
+    public static SettingDao getSettingDao() {
         return getContext().getBean(SettingDao.class);
     }
 
-    public static ProcessDao getProcessDAO() {
+    public static ProcessDao getProcessDao() {
         return getContext().getBean(ProcessDao.class);
     }
 
-    public static NodeProcessDao getNodeProcessDAO() {
+    public static NodeProcessDao getNodeProcessDao() {
         return getContext().getBean(NodeProcessDao.class);
     }
 
-    public static ProcessLogDao getProcessLogDAO() {
+    public static ProcessLogDao getProcessLogDao() {
         return getContext().getBean(ProcessLogDao.class);
     }
 
@@ -148,31 +148,31 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return dbType;
     }
 
-    public static ExecutorDao getExecutorDAO() {
+    public static ExecutorDao getExecutorDao() {
         return getContext().getBean(ExecutorDao.class);
     }
 
-    public static DeploymentDao getDeploymentDAO() {
+    public static DeploymentDao getDeploymentDao() {
         return getContext().getBean(DeploymentDao.class);
     }
 
-    public static PermissionDao getPermissionDAO() {
+    public static PermissionDao getPermissionDao() {
         return getContext().getBean(PermissionDao.class);
     }
 
-    public static RelationDao getRelationDAO() {
+    public static RelationDao getRelationDao() {
         return getContext().getBean(RelationDao.class);
     }
 
-    public static RelationPairDao getRelationPairDAO() {
+    public static RelationPairDao getRelationPairDao() {
         return getContext().getBean(RelationPairDao.class);
     }
 
-    public static SubstitutionDao getSubstitutionDAO() {
+    public static SubstitutionDao getSubstitutionDao() {
         return getContext().getBean(SubstitutionDao.class);
     }
 
-    public static ReportDao getReportDAO() {
+    public static ReportDao getReportDao() {
         return getContext().getBean(ReportDao.class);
     }
 

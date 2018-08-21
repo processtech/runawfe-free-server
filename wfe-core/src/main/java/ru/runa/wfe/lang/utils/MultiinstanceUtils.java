@@ -93,11 +93,11 @@ public class MultiinstanceUtils {
     private static void setDiscriminatorValueByGroup(Parameters parameters, ExecutionContext executionContext, VariableMapping mapping) {
         Group group;
         if (mapping.isText()) {
-            group = ApplicationContextFactory.getExecutorDAO().getGroup(parameters.discriminatorVariableName);
+            group = ApplicationContextFactory.getExecutorDao().getGroup(parameters.discriminatorVariableName);
         } else {
             group = executionContext.getVariableProvider().getValueNotNull(Group.class, parameters.discriminatorVariableName);
         }
-        parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
+        parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDao().getGroupActors(group));
     }
 
     private static void setDiscriminatorValueByRelation(Parameters parameters, ExecutionContext executionContext, VariableMapping mapping) {
@@ -177,7 +177,7 @@ public class MultiinstanceUtils {
         } else if ("group".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null) {
             Object miVar = ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(), parameters.discriminatorVariableName);
             Group group = TypeConversionUtil.convertTo(Group.class, miVar);
-            parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDAO().getGroupActors(group));
+            parameters.discriminatorValue = Lists.newArrayList(ApplicationContextFactory.getExecutorDao().getGroupActors(group));
         } else if ("relation".equals(miDiscriminatorType) && parameters.discriminatorVariableName != null && miRelationDiscriminatorTypeParam != null) {
             String relationName = (String) ExpressionEvaluator.evaluateVariableNotNull(executionContext.getVariableProvider(),
                     parameters.discriminatorVariableName);
@@ -207,12 +207,12 @@ public class MultiinstanceUtils {
 
     private static List<Actor> getActorsByRelation(String relationName, Executor paramExecutor, boolean inversed) {
         List<Executor> executors = Lists.newArrayList(paramExecutor);
-        Relation relation = ApplicationContextFactory.getRelationDAO().getNotNull(relationName);
+        Relation relation = ApplicationContextFactory.getRelationDao().getNotNull(relationName);
         List<RelationPair> relationPairs;
         if (inversed) {
-            relationPairs = ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsLeft(relation, executors);
+            relationPairs = ApplicationContextFactory.getRelationPairDao().getExecutorsRelationPairsLeft(relation, executors);
         } else {
-            relationPairs = ApplicationContextFactory.getRelationPairDAO().getExecutorsRelationPairsRight(relation, executors);
+            relationPairs = ApplicationContextFactory.getRelationPairDao().getExecutorsRelationPairsRight(relation, executors);
         }
         Set<Actor> actors = new HashSet<Actor>();
         for (RelationPair pair : relationPairs) {
@@ -220,7 +220,7 @@ public class MultiinstanceUtils {
             if (executor instanceof Actor) {
                 actors.add((Actor) executor);
             } else if (executor instanceof Group) {
-                actors.addAll(ApplicationContextFactory.getExecutorDAO().getGroupActors((Group) executor));
+                actors.addAll(ApplicationContextFactory.getExecutorDao().getGroupActors((Group) executor));
             }
         }
         return Lists.newArrayList(actors);

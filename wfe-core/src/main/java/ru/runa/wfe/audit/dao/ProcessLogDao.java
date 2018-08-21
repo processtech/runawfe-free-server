@@ -2,9 +2,8 @@ package ru.runa.wfe.audit.dao;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import java.util.Date;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.IProcessLog;
@@ -15,7 +14,6 @@ import ru.runa.wfe.audit.QNodeEnterLog;
 import ru.runa.wfe.audit.QProcessLog;
 import ru.runa.wfe.audit.QTransitionLog;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
@@ -23,27 +21,23 @@ import ru.runa.wfe.lang.SubprocessDefinition;
  * DAO for {@link ProcessLog}.
  * 
  * @author dofs
- * @since 4.0
  */
 @Component
 public class ProcessLogDao extends BaseProcessLogDao<ProcessLog> {
-
-    @Autowired
-    private ProcessLogAwareDao customizationDao;
 
     @Override
     protected Class<? extends BaseProcessLog> typeToClass(IProcessLog.Type type) {
         return type.currentRootClass;
     }
 
-    @SuppressWarnings("unchecked")
-    public List<ProcessLog> getAll(Long processId) {
+    public List<ProcessLog> getAll(@NonNull Long processId) {
         QProcessLog pl = QProcessLog.processLog;
         return queryFactory.selectFrom(pl).where(pl.processId.eq(processId)).orderBy(pl.id.asc()).fetch();
     }
 
-    @SuppressWarnings("unchecked")
-    public List<ProcessLog> get(Long processId, ProcessDefinition definition) {
+    public List<ProcessLog> get(Process process, ProcessDefinition definition) {
+        long processId = process.getId();
+
         QTransitionLog tl = QTransitionLog.transitionLog;
         boolean haveOldLogs = queryFactory.select(tl.id).from(tl).where(tl.processId.eq(processId).and(tl.nodeId.isNull())).fetchFirst() != null;
 
@@ -116,27 +110,4 @@ public class ProcessLogDao extends BaseProcessLogDao<ProcessLog> {
         QNodeEnterLog nel = QNodeEnterLog.nodeEnterLog;
         return queryFactory.select(nel.id).from(nel).where(nel.processId.eq(process.getId()).and(nel.nodeId.eq(nodeId))).fetchFirst() != null;
     }
-
-    public void addLog(ProcessLog processLog, Process process, Token token) {
-        processLog.setProcessId(process.getId());
-        if (token == null) {
-            token = process.getRootToken();
-        }
-        processLog.setTokenId(token.getId());
-        if (processLog.getNodeId() == null) {
-            processLog.setNodeId(token.getNodeId());
-        }
-        processLog.setCreateDate(new Date());
-        this.create(processLog);
-        registerInCustomizationDao(processLog, process, token);
-    }
-
-    private void registerInCustomizationDao(ProcessLog processLog, Process process, Token token) {
-        try {
-            customizationDao.addLog(processLog, process, token);
-        } catch (Throwable e) {
-            log.warn("Custom log handler throws exception", e);
-        }
-    }
-
 }

@@ -55,7 +55,7 @@ public class WaitNode extends Node {
                 executionContext.getNode().leave(executionContext, transition);
             } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
                 log.debug("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
-                ApplicationContextFactory.getJobDAO().deleteByToken(timerJob.getToken());
+                ApplicationContextFactory.getJobDao().deleteByToken(timerJob.getToken());
             } else if (timerJob.getRepeatDurationString() != null) {
                 // restart timer
                 BusinessDuration repeatDuration = BusinessDurationParser.parse(timerJob.getRepeatDurationString());
@@ -69,7 +69,7 @@ public class WaitNode extends Node {
                 }
             } else {
                 log.debug("Deleting " + timerJob + " after execution");
-                ApplicationContextFactory.getJobDAO().deleteByToken(timerJob.getToken());
+                ApplicationContextFactory.getJobDao().deleteByToken(timerJob.getToken());
             }
             Errors.removeProcessError(processError);
         } catch (Throwable th) {

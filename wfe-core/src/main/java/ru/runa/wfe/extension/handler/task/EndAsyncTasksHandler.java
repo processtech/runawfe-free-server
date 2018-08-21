@@ -19,7 +19,7 @@ public class EndAsyncTasksHandler extends ParamBasedHandlerActionHandler {
             throw new IllegalArgumentException("This handler can end only async tasks");
         }
         List<Task> tasks = Lists.newArrayList();
-        for (Task task : ApplicationContextFactory.getTaskDAO().findByProcessAndNodeId(context.getProcess(), nodeId)) {
+        for (Task task : ApplicationContextFactory.getTaskDao().findByProcessAndNodeId(context.getProcess(), nodeId)) {
             tasks.add(task);
         }
         log.info("Cancelling tasks by '" + nodeId + "': " + tasks);

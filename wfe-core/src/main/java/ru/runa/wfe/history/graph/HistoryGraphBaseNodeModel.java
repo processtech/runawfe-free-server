@@ -1,17 +1,16 @@
 package ru.runa.wfe.history.graph;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Base model for history graph node.
@@ -32,7 +31,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     /**
      * Logs, belongs to this node.
      */
-    private final List<ProcessLog> nodeLogs = Lists.newArrayList();
+    private final List<IProcessLog> nodeLogs = Lists.newArrayList();
     /**
      * Process instance data.
      */
@@ -56,7 +55,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      * @param nodeFactory
      *            Factory to create nodes.
      */
-    protected HistoryGraphBaseNodeModel(ProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    protected HistoryGraphBaseNodeModel(IProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         try {
             this.definitionModel = definitionModel;
             this.nodeFactory = nodeFactory;
@@ -79,7 +78,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      * @param nodeFactory
      *            Factory to create nodes.
      */
-    protected HistoryGraphBaseNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    protected HistoryGraphBaseNodeModel(IProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         try {
             this.definitionModel = definitionModel;
             this.nodeFactory = nodeFactory;
@@ -96,7 +95,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     }
 
     @Override
-    public HistoryGraphNode acceptLog(ProcessLog log) {
+    public HistoryGraphNode acceptLog(IProcessLog log) {
         nodeLogs.add(log);
         if (!(log instanceof TransitionLog)) {
             return null;
@@ -109,9 +108,9 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     }
 
     @Override
-    public <T extends ProcessLog> T getNodeLog(Class<T> clazz) {
-        for (ProcessLog log : nodeLogs) {
-            if (log.getClass().equals(clazz)) {
+    public <T extends IProcessLog> T getNodeLog(IProcessLog.Type type) {
+        for (IProcessLog log : nodeLogs) {
+            if (log.getType() == type) {
                 return (T) log;
             }
         }
@@ -119,10 +118,10 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     }
 
     @Override
-    public <T extends ProcessLog> List<T> getNodeLogs(Class<T> clazz) {
-        List<T> result = new ArrayList<T>();
-        for (ProcessLog log : nodeLogs) {
-            if (log.getClass().equals(clazz)) {
+    public <T extends IProcessLog> List<T> getNodeLogs(IProcessLog.Type type) {
+        val result = new ArrayList<T>();
+        for (IProcessLog log : nodeLogs) {
+            if (log.getType() == type) {
                 result.add((T) log);
             }
         }

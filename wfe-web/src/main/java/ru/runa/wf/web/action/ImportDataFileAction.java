@@ -143,7 +143,7 @@ public class ImportDataFileAction extends ActionBase {
                         BatchPresentationFactory.EXECUTORS.createNonPaged());
                 List<Long> ids = new ArrayList<Long>();
                 for (Executor executor : executors) {
-                    if (ApplicationContextFactory.getPermissionDAO().isPrivilegedExecutor(executor)) {
+                    if (ApplicationContextFactory.getPermissionDao().isPrivilegedExecutor(executor)) {
                         continue;
                     }
                     if (SystemExecutors.PROCESS_STARTER_NAME.equals(executor.getName())) {

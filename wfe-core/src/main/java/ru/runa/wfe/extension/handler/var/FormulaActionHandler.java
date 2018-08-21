@@ -762,7 +762,7 @@ public class FormulaActionHandler extends ActionHandlerBase {
                 error("param2 cannot is not executor: " + e);
                 return null;
             }
-            return ApplicationContextFactory.getExecutorDAO().isExecutorInGroup(executor, group);
+            return ApplicationContextFactory.getExecutorDao().isExecutorInGroup(executor, group);
         }
         Function<? extends Object> function = FormulaActionHandlerOperations.getFunction(s);
         if (function != null) {
