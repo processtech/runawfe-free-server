@@ -388,7 +388,7 @@ public class ExecutionLogic extends WFCommonLogic {
         return result;
     }
     
-    public List<WfSwimlane> getActiveProcessSwimlanes(User user, String namePattern) {
+    public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern) {
         List<Swimlane> list = swimlaneDAO.findByNamePatternInActiveProcesses(namePattern);
         List<WfSwimlane> listSwimlanes = Lists.newArrayList();
         for (Swimlane swimlane : list) {
@@ -412,10 +412,11 @@ public class ExecutionLogic extends WFCommonLogic {
         try {
             AssignmentHandler handler = delegation.getInstance();
             handler.assign(new ExecutionContext(processDefinition, process), swimlane);
-            return !Objects.equal(oldExecutor, swimlane.getExecutor()); 
+            log.info(swimlane + " reassigned");
         } catch (Exception e) {
-            return false;
+            log.error("Unable to reassign swimlane. Cause: " + e);
         }
+        return !Objects.equal(oldExecutor, swimlane.getExecutor());
     }
 
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) {

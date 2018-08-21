@@ -29,8 +29,7 @@ public class SwimlaneDAO extends GenericDAO<Swimlane> {
     }
     
     public List<Swimlane> findByNamePatternInActiveProcesses (String name){
-        List<Long> listIds = getHibernateTemplate().find("id from Process where executionStatus not like ?", ExecutionStatus.ENDED);
-        return getHibernateTemplate().find("from Swimlane s join {} p on s.process_id = p.id where name like ?", listIds, "%" + name + "%");
+        return getHibernateTemplate().find("from Swimlane s join Process p on s.process_id = p.id where s.name like ? and p.executionStatus not like ?", "%" + name + "%", ExecutionStatus.ENDED);
     }
 
 

@@ -257,22 +257,13 @@ public class ExecutionServiceDelegate extends EJB3Delegate implements ExecutionS
     }
 
     @Override
-    public List<WfSwimlane> getActiveProcessSwimlanes(User user, String namePattern) throws ProcessDoesNotExistException {
-        try {
-            return getExecutionService().getActiveProcessSwimlanes(user, namePattern);
-        } catch (Exception e) {
-            throw handleException(e);
-        }
+    public List<WfSwimlane> getActiveProcessesSwimlanes(User user, String namePattern) {
+        return getExecutionService().getActiveProcessesSwimlanes(user, namePattern);
     }
     
     @Override
-    public boolean reassignSwimlane(User user, Long id) throws ProcessDoesNotExistException {
-        try {
-            getExecutionService().reassignSwimlane(user, id);
-            return Boolean.TRUE;
-        } catch (Exception e) {
-            throw handleException(e);
-        }
+    public boolean reassignSwimlane(User user, Long id) {
+        return getExecutionService().reassignSwimlane(user, id);
     }
     
     @Override

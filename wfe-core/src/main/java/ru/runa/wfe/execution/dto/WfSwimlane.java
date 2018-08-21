@@ -48,12 +48,6 @@ public class WfSwimlane implements Serializable {
         this.executor = assignedExecutor;
     }
     
-    public WfSwimlane(SwimlaneDefinition definition, Executor assignedExecutor) {
-        Preconditions.checkNotNull(definition);
-        this.definition = definition;
-        this.executor = assignedExecutor;
-    }
-
     public SwimlaneDefinition getDefinition() {
         return definition;
     }
