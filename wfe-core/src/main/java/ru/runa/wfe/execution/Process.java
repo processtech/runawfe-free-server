@@ -72,7 +72,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Process extends BaseProcess {
+public class Process extends BaseProcess<Token> {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Process.class);
 
@@ -123,6 +123,7 @@ public class Process extends BaseProcess {
         this.deployment = deployment;
     }
 
+    @Override
     @ManyToOne(targetEntity = Token.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
     @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
     @ForeignKey(name = "FK_PROCESS_ROOT_TOKEN")
@@ -131,6 +132,7 @@ public class Process extends BaseProcess {
         return rootToken;
     }
 
+    @Override
     public void setRootToken(Token rootToken) {
         this.rootToken = rootToken;
     }

@@ -1,8 +1,8 @@
 package ru.runa.wfe.graph.view;
 
+import com.google.common.base.Objects;
 import java.util.List;
-
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.IProcessLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.NodeProcess;
@@ -12,8 +12,6 @@ import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Objects;
 
 /**
  * Operation to add identities of started subprocesses to graph elements.
@@ -35,11 +33,9 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
 
     /**
      * Create instance of operation to set starting process readable flag.
-     * 
-     * @param subprocessesInstanstances
-     *            Instances of subprocesses, which must be added to graph elements.
-     * @param subject
-     *            Current subject.
+     *
+     * @param nodeProcesses
+     *            Subprocesses which must be added to graph elements.
      */
     public ProcessGraphInfoVisitor(User user, ProcessDefinition definition, Process process, ProcessLogs processLogs, List<NodeProcess> nodeProcesses) {
         this.user = user;
@@ -53,7 +49,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
     public void visit(NodeGraphElement element) {
         super.visit(element);
         if (processLogs != null) {
-            List<ProcessLog> logs = processLogs.getLogs(element.getNodeId());
+            List<IProcessLog> logs = processLogs.getLogs(element.getNodeId());
             if (logs.size() > 0) {
                 element.setData(logs);
             }

@@ -7,7 +7,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 @MappedSuperclass
-public abstract class BaseNodeProcess<P extends BaseProcess> {
+public abstract class BaseNodeProcess<P extends BaseProcess, T extends BaseToken<P, T>> {
 
     protected String nodeId;
     protected Integer index;  // TODO why = 0 for subprocess?
@@ -23,6 +23,10 @@ public abstract class BaseNodeProcess<P extends BaseProcess> {
     @Transient
     public abstract P getProcess();
     public abstract void setProcess(P process);
+
+    @Transient
+    public abstract T getParentToken();
+    public abstract void setParentToken(T parentToken);
 
     @Transient
     public abstract P getSubProcess();

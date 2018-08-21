@@ -22,7 +22,7 @@ import ru.runa.wfe.lang.Node;
 @Entity
 @Table(name = "BPM_SUBPROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class NodeProcess extends BaseNodeProcess<Process> {
+public class NodeProcess extends BaseNodeProcess<Process, Token> {
 
     private Long id;
     private Process process;
@@ -75,6 +75,7 @@ public class NodeProcess extends BaseNodeProcess<Process> {
         this.process = process;
     }
 
+    @Override
     @ManyToOne(targetEntity = Token.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_TOKEN_ID")
     @ForeignKey(name = "FK_SUBPROCESS_TOKEN")
@@ -82,6 +83,7 @@ public class NodeProcess extends BaseNodeProcess<Process> {
         return parentToken;
     }
 
+    @Override
     public void setParentToken(Token parentToken) {
         this.parentToken = parentToken;
     }

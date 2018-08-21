@@ -24,12 +24,24 @@ public abstract class BaseProcessLog implements IProcessLog {
         return SystemProperties.getLogMaxAttributeValueLength();
     }
 
+    protected Long tokenId;
     protected Date createDate;
     protected Severity severity = Severity.DEBUG;
     @XmlTransient
     protected HashMap<String, String> attributes = Maps.newHashMap();
     protected byte[] bytes;
     protected String nodeId;
+
+    @Override
+    @Column(name = "TOKEN_ID")
+    public Long getTokenId() {
+        return tokenId;
+    }
+
+    @Override
+    public void setTokenId(Long tokenId) {
+        this.tokenId = tokenId;
+    }
 
     @Override
     @Column(name = "CREATE_DATE", nullable = false)

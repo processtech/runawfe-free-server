@@ -60,7 +60,6 @@ public abstract class ProcessLog extends BaseProcessLog implements Serializable 
 
     private Long id;
     private Long processId;
-    private Long tokenId;
 
     @Override
     @Transient
@@ -92,17 +91,6 @@ public abstract class ProcessLog extends BaseProcessLog implements Serializable 
     @Override
     public void setProcessId(Long processId) {
         this.processId = processId;
-    }
-
-    @Override
-    @Column(name = "TOKEN_ID")
-    public Long getTokenId() {
-        return tokenId;
-    }
-
-    @Override
-    public void setTokenId(Long tokenId) {
-        this.tokenId = tokenId;
     }
 
     @Override

@@ -13,10 +13,11 @@ import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "ARCHIVED_SUBPROCESS")
-public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess> {
+public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess, ArchivedToken> {
 
     private Long id;
     private ArchivedProcess process;
+    private ArchivedToken parentToken;
     private ArchivedProcess subProcess;
 
     @Override
@@ -55,6 +56,19 @@ public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess> {
     @Override
     public void setProcess(ArchivedProcess process) {
         this.process = process;
+    }
+
+    @Override
+    @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_TOKEN_ID")
+    @ForeignKey(name = "FK_ARCH_SUBPROCESS_TOKEN")
+    public ArchivedToken getParentToken() {
+        return parentToken;
+    }
+
+    @Override
+    public void setParentToken(ArchivedToken parentToken) {
+        this.parentToken = parentToken;
     }
 
     /**

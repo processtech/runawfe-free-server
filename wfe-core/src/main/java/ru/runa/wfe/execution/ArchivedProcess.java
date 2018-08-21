@@ -15,10 +15,11 @@ import ru.runa.wfe.definition.Deployment;
 
 @Entity
 @Table(name = "ARCHIVED_PROCESS")
-public class ArchivedProcess extends BaseProcess {
+public class ArchivedProcess extends BaseProcess<ArchivedToken> {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    private ArchivedToken rootToken;
     private Deployment deployment;
 
     @Override
@@ -57,6 +58,20 @@ public class ArchivedProcess extends BaseProcess {
     @Override
     public void setDeployment(Deployment deployment) {
         this.deployment = deployment;
+    }
+
+    @Override
+    @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
+    @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
+    @ForeignKey(name = "FK_ARCH_PROCESS_ROOT_TOKEN")
+    @Index(name = "IX_ARCH_PROCESS_ROOT_TOKEN")
+    public ArchivedToken getRootToken() {
+        return rootToken;
+    }
+
+    @Override
+    public void setRootToken(ArchivedToken rootToken) {
+        this.rootToken = rootToken;
     }
 
     @Transient
