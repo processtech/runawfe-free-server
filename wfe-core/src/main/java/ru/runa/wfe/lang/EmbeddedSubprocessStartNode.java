@@ -2,7 +2,7 @@ package ru.runa.wfe.lang;
 
 import java.util.List;
 
-import ru.runa.wfe.audit.NodeEnterLog;
+import ru.runa.wfe.audit.CurrentNodeEnterLog;
 import ru.runa.wfe.execution.ExecutionContext;
 
 import com.google.common.base.Preconditions;
@@ -38,7 +38,7 @@ public class EmbeddedSubprocessStartNode extends StartNode implements BoundaryEv
     public void enter(ExecutionContext executionContext) {
         Preconditions.checkNotNull(subprocessNode, "subprocessNode");
         executionContext.getToken().setNodeId(subprocessNode.getNodeId());
-        executionContext.addLog(new NodeEnterLog(subprocessNode));
+        executionContext.addLog(new CurrentNodeEnterLog(subprocessNode));
         super.enter(executionContext);
     }
 

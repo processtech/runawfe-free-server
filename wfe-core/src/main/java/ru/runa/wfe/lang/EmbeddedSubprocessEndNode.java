@@ -2,7 +2,7 @@ package ru.runa.wfe.lang;
 
 import java.util.List;
 
-import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.CurrentNodeLeaveLog;
 import ru.runa.wfe.execution.ExecutionContext;
 
 /**
@@ -46,7 +46,7 @@ public class EmbeddedSubprocessEndNode extends Node implements BoundaryEventCont
     protected void addLeaveLog(ExecutionContext executionContext) {
         super.addLeaveLog(executionContext);
         executionContext.getToken().setNodeId(subprocessNode.getNodeId());
-        executionContext.addLog(new NodeLeaveLog(subprocessNode));
+        executionContext.addLog(new CurrentNodeLeaveLog(subprocessNode));
         executionContext.getToken().setNodeId(getNodeId());
     }
 

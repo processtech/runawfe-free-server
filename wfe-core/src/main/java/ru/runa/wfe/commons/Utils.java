@@ -33,7 +33,7 @@ import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.bpmn2.MessageEventType;
@@ -252,7 +252,7 @@ public class Utils {
         return selectors;
     }
 
-    public static void sendNodeAsyncExecutionMessage(Token token, boolean retry) {
+    public static void sendNodeAsyncExecutionMessage(CurrentToken token, boolean retry) {
         Connection connection = null;
         Session session = null;
         MessageProducer sender = null;
@@ -390,7 +390,7 @@ public class Utils {
 
             @Override
             protected void doExecuteInTransaction() throws Exception {
-                Token token = ApplicationContextFactory.getTokenDao().getNotNull(tokenId);
+                CurrentToken token = ApplicationContextFactory.getTokenDao().getNotNull(tokenId);
                 boolean stateChanged = token.fail(Throwables.getRootCause(throwable));
                 if (stateChanged) {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);

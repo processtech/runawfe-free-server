@@ -17,9 +17,9 @@ import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessStartLog;
-import ru.runa.wfe.audit.ITaskCreateLog;
-import ru.runa.wfe.audit.ITaskEndLog;
+import ru.runa.wfe.audit.ProcessStartLog;
+import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -49,31 +49,31 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
 
     public List<TR> processLogs(ProcessLogs logs) {
         List<TR> result = Lists.newArrayList();
-        Map<ITaskCreateLog, ITaskEndLog> taskLogs = logs.getTaskLogs();
+        Map<TaskCreateLog, TaskEndLog> taskLogs = logs.getTaskLogs();
         for (BaseProcessLog log : logs.getLogs()) {
-            if (log instanceof IProcessStartLog) {
-                ITaskCreateLog createLog = null;
-                for (ITaskCreateLog key : taskLogs.keySet()) {
+            if (log instanceof ProcessStartLog) {
+                TaskCreateLog createLog = null;
+                for (TaskCreateLog key : taskLogs.keySet()) {
                     if (Objects.equal(key.getId(), log.getId())) {
                         createLog = key;
                         break;
                     }
                 }
                 if (createLog != null) {
-                    ITaskEndLog endLog = taskLogs.get(createLog);
+                    TaskEndLog endLog = taskLogs.get(createLog);
                     result.add(populateTaskRow(createLog, endLog));
                 }
             }
-            if (log instanceof ITaskCreateLog) {
-                ITaskCreateLog createLog = (ITaskCreateLog) log;
-                ITaskEndLog endLog = taskLogs.get(createLog);
+            if (log instanceof TaskCreateLog) {
+                TaskCreateLog createLog = (TaskCreateLog) log;
+                TaskEndLog endLog = taskLogs.get(createLog);
                 result.add(populateTaskRow(createLog, endLog));
             }
         }
         return result;
     }
 
-    private TR populateTaskRow(ITaskCreateLog createLog, ITaskEndLog endLog) {
+    private TR populateTaskRow(TaskCreateLog createLog, TaskEndLog endLog) {
         Calendar taskCreateDate = CalendarUtil.dateToCalendar(createLog.getCreateDate());
         Calendar taskEndDate = null;
         String taskEndDateString = "";

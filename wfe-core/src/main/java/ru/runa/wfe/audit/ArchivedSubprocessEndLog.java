@@ -6,7 +6,7 @@ import javax.persistence.Transient;
 
 @Entity
 @DiscriminatorValue(value = "Z")
-public class ArchivedSubprocessEndLog extends ArchivedNodeLeaveLog implements ISubprocessEndLog {
+public class ArchivedSubprocessEndLog extends ArchivedNodeLeaveLog implements SubprocessEndLog {
 
     @Override
     @Transient

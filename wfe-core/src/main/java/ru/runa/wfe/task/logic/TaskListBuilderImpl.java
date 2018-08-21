@@ -18,20 +18,20 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.ITaskEscalationLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao2;
+import ru.runa.wfe.audit.TaskEscalationLog;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionContextFactory;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.dao.NodeProcessDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
@@ -86,15 +86,15 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     @Autowired
     private TaskDao taskDao;
     @Autowired
-    private ProcessLogDao2 processLogDao2;
+    private ProcessLogDao processLogDao;
     @Autowired
     private ExecutionContextFactory executionContextFactory;
     @Autowired
     private BatchPresentationCompilerFactory<?> batchPresentationCompilerFactory;
     @Autowired
-    private ProcessDao processDao;
+    private CurrentProcessDao currentProcessDao;
     @Autowired
-    private NodeProcessDao nodeProcessDao;
+    private CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
     private VariableDao variableDao;
     @Autowired
@@ -117,7 +117,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         tasksState.addAll(loadAdministrativeTasks(actor));
 
         List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(getTasksProcesses(tasksState), variableNames);
+        Map<CurrentProcess, Map<String, Variable<?>>> variables = variableDao.getVariables(getTasksProcesses(tasksState), variableNames);
         HashSet<Long> openedTasks = new HashSet<>(taskDao.getOpenedTasks(actor.getId(), getTasksIds(tasksState)));
 
         List<WfTask> result = new ArrayList<>();
@@ -125,7 +125,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
             WfTask wfTask = wfTaskFactory.create(state.getTask(), state.getActor(), state.isAcquiredBySubstitution(), null,
                     !openedTasks.contains(state.getTask().getId()));
             if (!Utils.isNullOrEmpty(variableNames)) {
-                Process process = state.getTask().getProcess();
+                CurrentProcess process = state.getTask().getProcess();
                 ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
                 ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                 for (String variableName : variableNames) {
@@ -144,7 +144,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         Preconditions.checkArgument(batchPresentation.getType() == ClassPresentationType.TASK_OBSERVABLE);
         List<TaskInListState> tasksState = loadObservableTasks(actor, batchPresentation);
         List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(getTasksProcesses(tasksState), variableNames);
+        Map<CurrentProcess, Map<String, Variable<?>>> variables = variableDao.getVariables(getTasksProcesses(tasksState), variableNames);
         HashSet<Long> openedTasks = new HashSet<>();
         for (List<Long> partitionedTasksIds : Lists.partition(getTasksIds(tasksState), SystemProperties.getDatabaseParametersCount())) {
             openedTasks.addAll(taskDao.getOpenedTasks(actor.getId(), partitionedTasksIds));
@@ -155,7 +155,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
             WfTask wfTask = wfTaskFactory.create(state.getTask(), state.getActor(), state.isAcquiredBySubstitution(), null,
                     !openedTasks.contains(state.getTask().getId()));
             if (!Utils.isNullOrEmpty(variableNames)) {
-                Process process = state.getTask().getProcess();
+                CurrentProcess process = state.getTask().getProcess();
                 ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
                 ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                 for (String variableName : variableNames) {
@@ -226,10 +226,10 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
      *            User tasks list.
      * @return set of processes, which tasks is in user tasks list.
      */
-    private HashSet<Process> getTasksProcesses(List<TaskInListState> tasksState) {
-        return new HashSet<>(Lists.transform(tasksState, new Function<TaskInListState, Process>() {
+    private HashSet<CurrentProcess> getTasksProcesses(List<TaskInListState> tasksState) {
+        return new HashSet<>(Lists.transform(tasksState, new Function<TaskInListState, CurrentProcess>() {
             @Override
-            public Process apply(TaskInListState input) {
+            public CurrentProcess apply(TaskInListState input) {
                 return input.getTask().getProcess();
             }
         }));
@@ -381,7 +381,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     }
 
     private void includeAdministrativeTasks(List<TaskInListState> result, Actor actor, Long processId) {
-        Process process = processDao.get(processId);
+        CurrentProcess process = currentProcessDao.get(processId);
         if (process == null || process.hasEnded()) {
             return;
         }
@@ -391,8 +391,8 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
                 result.add(wfTask);
             }
         }
-        List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
-        for (Process subprocess : subprocesses) {
+        List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(process);
+        for (CurrentProcess subprocess : subprocesses) {
             for (Task task : taskDao.findByProcess(subprocess)) {
                 TaskInListState wfTask = new TaskInListState(task, actor, true);
                 if (!result.contains(wfTask)) {
@@ -492,14 +492,14 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
 
         List<? extends BaseProcessLog> pLogs;
         try {
-            pLogs = processLogDao2.getAll(pid);
+            pLogs = processLogDao.getAll(pid);
         } catch (DataAccessException e) {
             log.warn(String.format("isActorInInactiveEscalationGroup: occured: %s when get logs for pid: %s", e, group.getProcessId()));
             return false;
         }
 
         for (BaseProcessLog pLog : pLogs) {
-            if (!(pLog instanceof ITaskEscalationLog) || !Objects.equal(pLog.getNodeId(), nid)) {
+            if (!(pLog instanceof TaskEscalationLog) || !Objects.equal(pLog.getNodeId(), nid)) {
                 continue;
             }
             log.debug(String.format("isActorInInactiveEscalationGroup: escalation log was found pid: %s nid: %s", pid, nid));

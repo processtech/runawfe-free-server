@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
-import ru.runa.wfe.audit.CreateTimerLog;
+import ru.runa.wfe.audit.CurrentCreateTimerLog;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.job.TimerJob;
@@ -56,7 +56,7 @@ public class CreateTimerAction extends Action {
         timerJob.setOutTransitionName(transitionName);
         jobDao.create(timerJob);
         log.debug("Created " + timerJob + " for duration '" + dueDate + "'");
-        executionContext.addLog(new CreateTimerLog(timerJob.getDueDate()));
+        executionContext.addLog(new CurrentCreateTimerLog(timerJob.getDueDate()));
     }
 
     public String getDueDate() {

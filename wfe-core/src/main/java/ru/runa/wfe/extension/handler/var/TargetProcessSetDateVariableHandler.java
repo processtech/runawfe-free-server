@@ -6,8 +6,8 @@ import org.dom4j.Element;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.VariableProvider;
 
@@ -23,7 +23,7 @@ public class TargetProcessSetDateVariableHandler extends SetDateVariableHandler 
     @Override
     protected Map<String, Object> executeAction(VariableProvider variableProvider) throws Exception {
         Long processId = variableProvider.getValueNotNull(Long.class, ((TargetProcessSetDateVariableConfig) config).processIdVariableName);
-        Process process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
+        CurrentProcess process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
         ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
         ExecutionContext context = new ExecutionContext(processDefinition, process);
         Map<String, Object> map = super.executeAction(context.getVariableProvider());

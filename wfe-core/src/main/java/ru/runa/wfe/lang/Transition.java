@@ -25,7 +25,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-import ru.runa.wfe.audit.TransitionLog;
+import ru.runa.wfe.audit.CurrentTransitionLog;
 import ru.runa.wfe.execution.ExecutionContext;
 
 public class Transition extends GraphElement {
@@ -100,7 +100,7 @@ public class Transition extends GraphElement {
     public void take(ExecutionContext executionContext) {
         // update the runtime context information
         executionContext.getToken().setTransitionId(getNodeId());
-        executionContext.addLog(new TransitionLog(this));
+        executionContext.addLog(new CurrentTransitionLog(this));
         // fire the transition event (if any)
         fireEvent(executionContext, ActionEvent.TRANSITION);
         // pass the token to the destinationNode node

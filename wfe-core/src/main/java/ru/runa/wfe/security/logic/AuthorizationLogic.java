@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import lombok.val;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,8 +144,8 @@ public class AuthorizationLogic extends CommonLogic {
     public void exportDataFile(User user, Document script) {
         permissionDao.checkAllowed(user, Permission.ALL, SecuredSingleton.DATAFILE);
         Element parentElement = script.getRootElement();
-        QPermissionMapping pm = QPermissionMapping.permissionMapping;
-        QExecutor e = QExecutor.executor;
+        val pm = QPermissionMapping.permissionMapping;
+        val e = QExecutor.executor;
 
         // Export permissions of all singletons.
         {
@@ -172,7 +173,7 @@ public class AuthorizationLogic extends CommonLogic {
 
         // Export DEFINITION permissions.
         {
-            QDeployment d = QDeployment.deployment;
+            val d = QDeployment.deployment;
             exportDataFileImpl(parentElement, queryFactory.select(pm.permission, e.name, pm.objectType, d.name)
                     .from(pm, e, d)
                     .where(pm.objectType.eq(DEFINITION).and(pm.objectId.eq(d.id)).and(pm.executor.eq(e)))
@@ -239,7 +240,7 @@ public class AuthorizationLogic extends CommonLogic {
         Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDao.checkAllowed(user, Permission.LIST, executor);
 
-        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        val pm = QPermissionMapping.permissionMapping;
 
         for (Map.Entry<SecuredObjectType, Set<String>> kv : objectNames.entrySet()) {
             SecuredObjectType type = kv.getKey();
@@ -322,7 +323,7 @@ public class AuthorizationLogic extends CommonLogic {
         Executor executor = executorDao.getExecutor(executorName);  // [QSL] Only id is needed, or maybe even join would be enough.
         permissionDao.checkAllowed(user, Permission.LIST, executor);
 
-        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        val pm = QPermissionMapping.permissionMapping;
 
         for (Map.Entry<SecuredObjectType, Set<String>> kv : objectNames.entrySet()) {
             SecuredObjectType type = kv.getKey();

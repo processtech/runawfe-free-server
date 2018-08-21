@@ -8,16 +8,16 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.SubprocessEndLog;
+import ru.runa.wfe.audit.CurrentSubprocessEndLog;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.execution.CurrentNodeProcess;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.NodeProcess;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
-import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils.Parameters;
 import ru.runa.wfe.var.SelectableOption;
@@ -38,7 +38,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     @Autowired
     private transient ProcessFactory processFactory;
     @Autowired
-    private transient NodeProcessDao nodeProcessDao;
+    private transient CurrentNodeProcessDao currentNodeProcessDao;
 
     private String discriminatorCondition;
 
@@ -52,7 +52,7 @@ public class MultiSubprocessNode extends SubprocessNode {
         log.debug("Executing " + this + " with " + executionContext);
         Parameters parameters = MultiinstanceUtils.parse(executionContext, this);
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
-        List<Process> subProcesses = Lists.newArrayList();
+        List<CurrentProcess> subProcesses = Lists.newArrayList();
         ProcessDefinition subProcessDefinition = getSubProcessDefinition();
         List<Integer> ignoredIndexes = Lists.newArrayList();
         if (!Utils.isNullOrEmpty(discriminatorCondition)) {
@@ -115,10 +115,10 @@ public class MultiSubprocessNode extends SubprocessNode {
                     }
                 }
             }
-            Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, index);
+            CurrentProcess subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, index);
             subProcesses.add(subProcess);
         }
-        for (Process subprocess : subProcesses) {
+        for (CurrentProcess subprocess : subProcesses) {
             ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocess);
             processFactory.startSubprocess(executionContext, subExecutionContext);
         }
@@ -140,7 +140,7 @@ public class MultiSubprocessNode extends SubprocessNode {
             return;
         }
         ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
-        NodeProcess nodeProcess = subExecutionContext.getParentNodeProcess();
+        CurrentNodeProcess nodeProcess = subExecutionContext.getParentNodeProcess();
         if (nodeProcess.getIndex() == null) {
             // pre AddSubProcessIndexColumn mode
             leaveBackCompatiblePre410(executionContext, transition);
@@ -172,7 +172,7 @@ public class MultiSubprocessNode extends SubprocessNode {
                     executionContext.setVariableValue(processVariableName, value);
                 }
             }
-            executionContext.addLog(new SubprocessEndLog(this, executionContext.getToken(), nodeProcess.getSubProcess()));
+            executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getToken(), nodeProcess.getSubProcess()));
             if (executionContext.getNotEndedSubprocesses().size() == 0) {
                 log.debug("Leaving multisubprocess state");
                 super.leave(executionContext, transition);
@@ -183,7 +183,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     private void leaveBackCompatiblePre410(ExecutionContext executionContext, Transition transition) {
         if (executionContext.getNotEndedSubprocesses().size() == 0) {
             log.debug("Leaving multisubprocess state [in backcompatibility mode] due to 0 active subprocesses");
-            List<Process> subprocesses = nodeProcessDao.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
+            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
                     executionContext.getToken(), null);
             if (!subprocesses.isEmpty()) {
                 ProcessDefinition subProcessDefinition = getSubProcessDefinition();
@@ -196,7 +196,7 @@ public class MultiSubprocessNode extends SubprocessNode {
                         Object value;
                         if (variable == null || variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
                             value = new ArrayList<Object>();
-                            for (Process subprocess : subprocesses) {
+                            for (CurrentProcess subprocess : subprocesses) {
                                 ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocess);
                                 ((List<Object>) value).add(subExecutionContext.getVariableValue(subprocessVariableName));
                             }
@@ -213,8 +213,8 @@ public class MultiSubprocessNode extends SubprocessNode {
                     }
                 }
             }
-            for (Process subProcess : subprocesses) {
-                executionContext.addLog(new SubprocessEndLog(this, executionContext.getToken(), subProcess));
+            for (CurrentProcess subProcess : subprocesses) {
+                executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getToken(), subProcess));
             }
             super.leave(executionContext, transition);
         }

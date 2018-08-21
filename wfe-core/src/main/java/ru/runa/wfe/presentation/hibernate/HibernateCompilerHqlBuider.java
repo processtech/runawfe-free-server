@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.val;
 import org.hibernate.Hibernate;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -346,7 +347,7 @@ public class HibernateCompilerHqlBuider {
         if (permissionDao.hasPrivilegedExecutor(executorIds)) {
             return result;
         }
-        QPermissionMapping pm = QPermissionMapping.permissionMapping;
+        val pm = QPermissionMapping.permissionMapping;
         if (!subst.listPermissions.isEmpty() && queryFactory.select(pm.id).from(pm)
                 .where(pm.executor.id.in(executorIds)
                         .and(pm.objectType.eq(listType))

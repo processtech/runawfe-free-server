@@ -15,9 +15,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.TaskEscalationLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao2;
+import ru.runa.wfe.audit.CurrentProcessLog;
+import ru.runa.wfe.audit.CurrentTaskEscalationLog;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
@@ -115,7 +115,7 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         }
 
         @Override
-        public void mockRules(ProcessLogDao2 processLogDao) {
+        public void mockRules(ProcessLogDao processLogDao) {
             if (getAllLogsException != null) {
                 when(processLogDao.getAll(group.getProcessId())).thenThrow(getAllLogsException);
             } else {
@@ -166,11 +166,11 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         }
 
         public void addProcessLog() {
-            pLogs.add(mock(ProcessLog.class));
+            pLogs.add(mock(CurrentProcessLog.class));
         }
 
         public void addTaskEscalationLog(String taskName, String nid, Throwable exc, Long... ids) {
-            TaskEscalationLog mockLog = mock(TaskEscalationLog.class);
+            CurrentTaskEscalationLog mockLog = mock(CurrentTaskEscalationLog.class);
             when(mockLog.getNodeId()).thenReturn(nid);
             if (exc != null) {
                 when(mockLog.getPatternArguments()).thenThrow(exc);

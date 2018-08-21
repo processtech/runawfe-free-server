@@ -11,7 +11,7 @@ import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.ForeignKey;
 
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.task.Task;
 
 import com.google.common.base.Objects;
@@ -64,7 +64,7 @@ public class EscalationGroup extends TemporaryGroup {
         this.nodeId = nodeId;
     }
 
-    public static EscalationGroup create(Process process, Task task, Executor originalExecutor, int escalationLevel) {
+    public static EscalationGroup create(CurrentProcess process, Task task, Executor originalExecutor, int escalationLevel) {
         String identifier = GROUP_PREFIX + process.getId() + "_" + task.getId();
         EscalationGroup escalationGroup = new EscalationGroup();
         escalationGroup.setCreateDate(new Date());

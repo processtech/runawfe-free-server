@@ -1,24 +1,23 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskCompletionInfo;
+import javax.persistence.Transient;
 
-/**
- * Logging task completion by timer.
- * 
- * @author Dofs
- */
-@Entity
-@DiscriminatorValue(value = "9")
-public class TaskExpiredLog extends TaskEndLog implements ITaskExpiredLog {
-    private static final long serialVersionUID = 1L;
+public interface TaskExpiredLog extends TaskEndLog {
 
-    public TaskExpiredLog() {
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_EXPIRED;
     }
 
-    public TaskExpiredLog(Task task, TaskCompletionInfo completionInfo) {
-        super(task, completionInfo);
+    @Override
+    @Transient
+    default Object[] getPatternArguments() {
+        return new Object[] { getTaskName() };
+    }
+
+    @Override
+    default void processBy(ProcessLogVisitor visitor) {
+        visitor.onTaskExpiredLog(this);
     }
 }

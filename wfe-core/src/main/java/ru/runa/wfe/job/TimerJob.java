@@ -5,8 +5,8 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.bpmn2.TimerNode;
 import ru.runa.wfe.lang.jpdl.WaitNode;
 
@@ -23,7 +23,7 @@ public class TimerJob extends Job {
     public TimerJob() {
     }
 
-    public TimerJob(Token token) {
+    public TimerJob(CurrentToken token) {
         super(token);
     }
 

@@ -18,6 +18,7 @@
 package ru.runa.wfe.bot.dao;
 
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.bot.Bot;
 import ru.runa.wfe.bot.BotDoesNotExistException;
@@ -48,7 +49,7 @@ public class BotDao extends GenericDao<Bot> {
      * @return loaded {@linkplain Bot} or <code>null</code> if no bot found
      */
     public Bot get(BotStation botStation, String username) {
-        QBot b = QBot.bot;
+        val b = QBot.bot;
         return queryFactory.selectFrom(b).where(b.botStation.eq(botStation).and(b.username.eq(username))).fetchFirst();
     }
 
@@ -59,12 +60,12 @@ public class BotDao extends GenericDao<Bot> {
      * @return loaded {@linkplain Bot} or <code>null</code> if no bot found
      */
     public Bot get(String username) {
-        QBot b = QBot.bot;
+        val b = QBot.bot;
         return queryFactory.selectFrom(b).where(b.username.eq(username)).fetchFirst();
     }
 
     public boolean isBot(User u) {
-        QBot b = QBot.bot;
+        val b = QBot.bot;
         // TODO Should be select(Expressions.constant(1)), but: https://github.com/querydsl/querydsl/issues/455
         //      May be this is fixed in Hibernate 5? If yes, search for all ".fetchFirst() != null" and replace.
         return queryFactory.select(b.id).from(b).where(b.username.eq(u.getName())).fetchFirst() != null;
@@ -85,7 +86,7 @@ public class BotDao extends GenericDao<Bot> {
      * Load all {@linkplain Bot}s defined for {@linkplain BotStation}.
      */
     public List<Bot> getAll(Long botStationId) {
-        QBot b = QBot.bot;
+        val b = QBot.bot;
         return queryFactory.selectFrom(b).where(b.botStation.id.eq(botStationId)).fetch();
     }
 }

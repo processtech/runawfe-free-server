@@ -15,10 +15,11 @@ import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -39,18 +40,18 @@ public class ParallelGateway extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getToken();
         token.end(executionContext.getProcessDefinition(), null, null, false);
         log.debug("Executing " + this + " with " + token);
         StateInfo stateInfo = findStateInfo(executionContext.getProcess().getRootToken(), true);
         switch (stateInfo.state) {
         case LEAVING: {
             log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
-            for (Token tokenToPop : stateInfo.tokensToPop) {
+            for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
                 tokenToPop.setAbleToReactivateParent(false);
             }
             if (getArrivingTransitions().size() > 1 && token.getParent() != null) {
-                Token parentToken = token.getParent();
+                CurrentToken parentToken = token.getParent();
                 leave(new ExecutionContext(executionContext.getProcessDefinition(), parentToken));
             } else {
                 leave(executionContext);
@@ -80,27 +81,27 @@ public class ParallelGateway extends Node {
     @Override
     public void leave(ExecutionContext executionContext, Transition transition) {
         log.debug("Leaving " + this + " with " + executionContext.toString());
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getToken();
         checkCyclicExecution(token);
-        Map<Token, Transition> childTokens = Maps.newHashMap();
+        Map<CurrentToken, Transition> childTokens = Maps.newHashMap();
         for (Transition leavingTransition : getLeavingTransitions()) {
-            Token childToken = new Token(token, getNodeId() + "/" + leavingTransition.getNodeId());
+            CurrentToken childToken = new CurrentToken(token, getNodeId() + "/" + leavingTransition.getNodeId());
             childTokens.put(childToken, leavingTransition);
         }
         ApplicationContextFactory.getTokenDao().flushPendingChanges();
         log.debug("Child tokens created: " + childTokens.keySet());
-        for (Map.Entry<Token, Transition> entry : childTokens.entrySet()) {
+        for (Map.Entry<CurrentToken, Transition> entry : childTokens.entrySet()) {
             ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), entry.getKey());
             super.leave(childExecutionContext, entry.getValue());
         }
     }
 
-    protected StateInfo findStateInfo(Token rootToken, boolean ignoreFailedTokens) {
+    protected StateInfo findStateInfo(CurrentToken rootToken, boolean ignoreFailedTokens) {
         StateInfo stateInfo = new StateInfo();
         fillTokensInfo(rootToken, stateInfo);
         for (Transition transition : getArrivingTransitions()) {
             boolean transitionIsPassedByToken = false;
-            for (Token token : stateInfo.arrivedTokens) {
+            for (CurrentToken token : stateInfo.arrivedTokens) {
                 if (ignoreFailedTokens && token.getExecutionStatus() == ExecutionStatus.FAILED) {
                     continue;
                 }
@@ -129,7 +130,7 @@ public class ParallelGateway extends Node {
         return stateInfo;
     }
 
-    private void fillTokensInfo(Token token, StateInfo stateInfo) {
+    private void fillTokensInfo(CurrentToken token, StateInfo stateInfo) {
         if (token.isAbleToReactivateParent()) {
             if (token.getExecutionStatus() != ExecutionStatus.ACTIVE && Objects.equal(token.getNodeId(), getNodeId())) {
                 stateInfo.arrivedTokens.add(token);
@@ -137,7 +138,7 @@ public class ParallelGateway extends Node {
                 stateInfo.activeTokenNodeIds.add(token.getNodeId());
             }
         }
-        for (Token childToken : token.getChildren()) {
+        for (CurrentToken childToken : token.getChildren()) {
             fillTokensInfo(childToken, stateInfo);
         }
     }
@@ -159,7 +160,7 @@ public class ParallelGateway extends Node {
         return false;
     }
 
-    private void checkCyclicExecution(Token token) {
+    private void checkCyclicExecution(CurrentToken token) {
         if (token.getDepth() > SystemProperties.getTokenMaximumDepth()) {
             throw new RuntimeException("Cyclic fork execution does not allowed");
         }
@@ -173,9 +174,9 @@ public class ParallelGateway extends Node {
 
     private static class StateInfo {
         private State state = State.WAITING;
-        private Set<Token> arrivedTokens = Sets.newHashSet();
+        private Set<CurrentToken> arrivedTokens = Sets.newHashSet();
         private Set<String> activeTokenNodeIds = Sets.newHashSet();
-        private List<Token> tokensToPop = Lists.newArrayList();
+        private List<CurrentToken> tokensToPop = Lists.newArrayList();
         private List<Transition> notPassedTransitions = Lists.newArrayList();
         private Transition unreachableTransition;
     }
@@ -197,9 +198,9 @@ public class ParallelGateway extends Node {
                     @Override
                     protected void doExecuteInTransaction() throws Exception {
                         log.debug("Executing " + this);
-                        ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
-                        TokenDao tokenDao = ApplicationContextFactory.getTokenDao();
-                        List<Token> endedTokens = tokenDao.findByProcessAndNodeIdAndExecutionStatusIsEndedAndAbleToReactivateParent(process,
+                        CurrentProcess process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
+                        CurrentTokenDao currentTokenDao = ApplicationContextFactory.getTokenDao();
+                        List<CurrentToken> endedTokens = currentTokenDao.findByProcessAndNodeIdAndExecutionStatusIsEndedAndAbleToReactivateParent(process,
                                 gateway.getNodeId());
                         if (endedTokens.isEmpty()) {
                             log.debug("no ended tokens found");
@@ -209,10 +210,10 @@ public class ParallelGateway extends Node {
                         switch (stateInfo.state) {
                         case LEAVING: {
                             log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
-                            for (Token tokenToPop : stateInfo.tokensToPop) {
+                            for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
                                 tokenToPop.setAbleToReactivateParent(false);
                             }
-                            Token parentToken = stateInfo.tokensToPop.get(0).getParent();
+                            CurrentToken parentToken = stateInfo.tokensToPop.get(0).getParent();
                             gateway.leave(new ExecutionContext(gateway.getProcessDefinition(), parentToken));
                             break;
                         }
@@ -260,9 +261,9 @@ public class ParallelGateway extends Node {
                     @Override
                     protected void doExecuteInTransaction() throws Exception {
                         log.debug("Executing " + this);
-                        ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
-                        TokenDao tokenDao = ApplicationContextFactory.getTokenDao();
-                        List<Token> failedTokens = tokenDao.findByProcessAndNodeIdAndExecutionStatusIsFailed(process, gateway.getNodeId());
+                        CurrentProcess process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
+                        CurrentTokenDao currentTokenDao = ApplicationContextFactory.getTokenDao();
+                        List<CurrentToken> failedTokens = currentTokenDao.findByProcessAndNodeIdAndExecutionStatusIsFailed(process, gateway.getNodeId());
                         if (failedTokens.isEmpty()) {
                             log.warn("no failed tokens found");
                             return;
@@ -271,11 +272,11 @@ public class ParallelGateway extends Node {
                         switch (stateInfo.state) {
                         case LEAVING: {
                             log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
-                            for (Token tokenToPop : stateInfo.tokensToPop) {
+                            for (CurrentToken tokenToPop : stateInfo.tokensToPop) {
                                 tokenToPop.setAbleToReactivateParent(false);
                                 tokenToPop.setExecutionStatus(ExecutionStatus.ENDED);
                             }
-                            Token parentToken = stateInfo.tokensToPop.get(0).getParent();
+                            CurrentToken parentToken = stateInfo.tokensToPop.get(0).getParent();
                             gateway.leave(new ExecutionContext(gateway.getProcessDefinition(), parentToken));
                             break;
                         }

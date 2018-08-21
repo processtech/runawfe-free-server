@@ -33,10 +33,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.VariableDeleteLog;
-import ru.runa.wfe.audit.VariableLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao2;
+import ru.runa.wfe.audit.CurrentProcessLog;
+import ru.runa.wfe.audit.CurrentVariableLog;
+import ru.runa.wfe.audit.CurrentVariableDeleteLog;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
@@ -44,9 +44,9 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
@@ -72,7 +72,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 public class ExecutionContext {
     private static Log log = LogFactory.getLog(ExecutionContext.class);
     private final ProcessDefinition processDefinition;
-    private final Token token;
+    private final CurrentToken token;
     private final Map<String, Object> transientVariables = Maps.newHashMap();
 
     private final VariableLoader variableLoader;
@@ -86,11 +86,11 @@ public class ExecutionContext {
     @Autowired
     private VariableCreator variableCreator;
     @Autowired
-    private TokenDao tokenDao;
+    private CurrentTokenDao currentTokenDao;
     @Autowired
-    private NodeProcessDao nodeProcessDao;
+    private CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
-    private ProcessLogDao2 processLogDao2;
+    private ProcessLogDao processLogDao;
     @Autowired
     private VariableDao variableDao;
     @Autowired
@@ -100,8 +100,8 @@ public class ExecutionContext {
     @Autowired
     private SwimlaneDao swimlaneDao;
 
-    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
-            Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
+    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, CurrentToken token,
+            Map<CurrentProcess, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
@@ -114,20 +114,20 @@ public class ExecutionContext {
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
+    public ExecutionContext(ProcessDefinition processDefinition, CurrentToken token, Map<CurrentProcess, Map<String, Variable<?>>> loadedVariables) {
         this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Token token) {
+    public ExecutionContext(ProcessDefinition processDefinition, CurrentToken token) {
         this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables,
+    public ExecutionContext(ProcessDefinition processDefinition, CurrentProcess process, Map<CurrentProcess, Map<String, Variable<?>>> loadedVariables,
             boolean disableVariableDaoLoading) {
         this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process) {
+    public ExecutionContext(ProcessDefinition processDefinition, CurrentProcess process) {
         this(processDefinition, process.getRootToken());
     }
 
@@ -157,13 +157,13 @@ public class ExecutionContext {
         return processDefinition;
     }
 
-    public Process getProcess() {
-        Process process = getToken().getProcess();
+    public CurrentProcess getProcess() {
+        CurrentProcess process = getToken().getProcess();
         Preconditions.checkNotNull(process, "process");
         return process;
     }
 
-    public Token getToken() {
+    public CurrentToken getToken() {
         return token;
     }
 
@@ -175,24 +175,24 @@ public class ExecutionContext {
         return tasks.isEmpty() ? null : tasks.get(0);
     }
 
-    public NodeProcess getParentNodeProcess() {
-        return nodeProcessDao.findBySubProcessId(getProcess().getId());
+    public CurrentNodeProcess getParentNodeProcess() {
+        return currentNodeProcessDao.findBySubProcessId(getProcess().getId());
     }
 
-    public List<Process> getTokenSubprocesses() {
-        return nodeProcessDao.getSubprocesses(getToken());
+    public List<CurrentProcess> getTokenSubprocesses() {
+        return currentNodeProcessDao.getSubprocesses(getToken());
     }
 
-    public List<Process> getSubprocesses() {
-        return nodeProcessDao.getSubprocesses(getProcess());
+    public List<CurrentProcess> getSubprocesses() {
+        return currentNodeProcessDao.getSubprocesses(getProcess());
     }
 
-    public List<Process> getNotEndedSubprocesses() {
-        return nodeProcessDao.getSubprocesses(getProcess(), getToken().getNodeId(), getToken(), false);
+    public List<CurrentProcess> getNotEndedSubprocesses() {
+        return currentNodeProcessDao.getSubprocesses(getProcess(), getToken().getNodeId(), getToken(), false);
     }
 
-    public List<Process> getSubprocessesRecursively() {
-        return nodeProcessDao.getSubprocessesRecursive(getProcess());
+    public List<CurrentProcess> getSubprocessesRecursively() {
+        return currentNodeProcessDao.getSubprocessesRecursive(getProcess());
     }
 
     /**
@@ -255,8 +255,8 @@ public class ExecutionContext {
         return new ExecutionVariableProvider(this);
     }
 
-    public void addLog(ProcessLog processLog) {
-        processLogDao2.addLog(processLog, getProcess(), token);
+    public void addLog(CurrentProcessLog processLog) {
+        processLogDao.addLog(processLog, getProcess(), token);
     }
 
     public void activateTokenIfHasPreviousError() {
@@ -264,7 +264,7 @@ public class ExecutionContext {
             getToken().setExecutionStatus(ExecutionStatus.ACTIVE);
             getToken().setErrorDate(null);
             getToken().setErrorMessage(null);
-            List<Token> failedTokens = tokenDao.findByProcessAndExecutionStatus(getProcess(), ExecutionStatus.FAILED);
+            List<CurrentToken> failedTokens = currentTokenDao.findByProcessAndExecutionStatus(getProcess(), ExecutionStatus.FAILED);
             if (failedTokens.isEmpty()) {
                 getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
             }
@@ -336,8 +336,8 @@ public class ExecutionContext {
         return value;
     }
 
-    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value) {
-        VariableLog resultingVariableLog = null;
+    private CurrentVariableLog setSimpleVariableValue(ProcessDefinition processDefinition, CurrentToken token, VariableDefinition variableDefinition, Object value) {
+        CurrentVariableLog resultingVariableLog = null;
         Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
         if (variable != null && !variable.supports(value)) {
@@ -346,7 +346,7 @@ public class ExecutionContext {
                     + " variable value is " + value + converterStr);
             variableDao.delete(variable);
             variableDao.flushPendingChanges();
-            resultingVariableLog = new VariableDeleteLog(variable);
+            resultingVariableLog = new CurrentVariableDeleteLog(variable);
             variable = null;
         }
         final BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
@@ -354,13 +354,13 @@ public class ExecutionContext {
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
-                Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
+                CurrentToken parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
                 ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
                 log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
                         + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
-                VariableLog parentVariableLog = setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
+                CurrentVariableLog parentVariableLog = setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
                 if (parentVariableLog != null) {
-                    VariableLog markingVariableLog = parentVariableLog.getContentCopy();
+                    CurrentVariableLog markingVariableLog = parentVariableLog.getContentCopy();
                     markingVariableLog.setVariableName(variableDefinition.getName());
                     resultingVariableLog = markingVariableLog;
                 }
@@ -387,7 +387,7 @@ public class ExecutionContext {
             VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
                     token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
-                Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
+                CurrentToken parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
                 ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
                 log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
                         + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
@@ -398,7 +398,7 @@ public class ExecutionContext {
             updateRelatedObjectsDueToDateVariableChange(variableDefinition.getName());
         }
         if (resultingVariableLog != null) {
-            processLogDao2.addLog(resultingVariableLog, token.getProcess(), token);
+            processLogDao.addLog(resultingVariableLog, token.getProcess(), token);
         }
         return resultingVariableLog;
     }

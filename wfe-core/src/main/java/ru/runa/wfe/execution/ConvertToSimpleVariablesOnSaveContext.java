@@ -27,7 +27,7 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
     /**
      * Process instance for saving variables to.
      */
-    private final Process process;
+    private final CurrentProcess process;
     /**
      * DAO instance for work with variables.
      */
@@ -47,7 +47,7 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
      * @param variableDao
      *            DAO instance for work with variables.
      */
-    public ConvertToSimpleVariablesOnSaveContext(VariableDefinition variableDefinition, Object value, Process process,
+    public ConvertToSimpleVariablesOnSaveContext(VariableDefinition variableDefinition, Object value, CurrentProcess process,
             BaseProcessVariableLoader baseProcessVariableLoader, VariableDao variableDao) {
         super();
         this.variableDefinition = variableDefinition;

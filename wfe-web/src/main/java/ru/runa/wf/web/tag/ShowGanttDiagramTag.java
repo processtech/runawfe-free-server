@@ -15,10 +15,10 @@ import ru.runa.common.web.MessagesOther;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessStartLog;
-import ru.runa.wfe.audit.ISubprocessStartLog;
-import ru.runa.wfe.audit.ITaskCreateLog;
-import ru.runa.wfe.audit.ITaskEndLog;
+import ru.runa.wfe.audit.ProcessStartLog;
+import ru.runa.wfe.audit.SubprocessStartLog;
+import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -43,28 +43,28 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         ProcessLogFilter filter = new ProcessLogFilter(process.getId());
         filter.setIncludeSubprocessLogs(true);
         ProcessLogs logs = Delegates.getAuditService().getProcessLogs(getUser(), filter);
-        Map<ITaskCreateLog, ITaskEndLog> taskLogs = logs.getTaskLogs();
+        Map<TaskCreateLog, TaskEndLog> taskLogs = logs.getTaskLogs();
         List<String> barList = new ArrayList<>();
         barList.add(getBar(process.getId(), process.getName(), new Date(), new Date(), "process", null, true, "0", null));
         TaskService taskService = Delegates.getTaskService();
         for (BaseProcessLog log : logs.getLogs()) {
-            if (log instanceof IProcessStartLog) {
-                ITaskCreateLog createLog = null;
-                for (ITaskCreateLog key : taskLogs.keySet()) {
+            if (log instanceof ProcessStartLog) {
+                TaskCreateLog createLog = null;
+                for (TaskCreateLog key : taskLogs.keySet()) {
                     if (Objects.equal(key.getId(), log.getId()) && Objects.equal(key.getProcessId(), log.getProcessId())) {
                         createLog = key;
                         break;
                     }
                 }
                 if (createLog != null) {
-                    ITaskEndLog endLog = taskLogs.get(createLog);
+                    TaskEndLog endLog = taskLogs.get(createLog);
                     barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), endLog.getCreateDate(), "task1",
                             endLog.getActorName(), false, createLog.getProcessId(), null));
                 }
             }
-            if (log instanceof ITaskCreateLog) {
-                ITaskCreateLog createLog = (ITaskCreateLog) log;
-                ITaskEndLog endLog = taskLogs.get(createLog);
+            if (log instanceof TaskCreateLog) {
+                TaskCreateLog createLog = (TaskCreateLog) log;
+                TaskEndLog endLog = taskLogs.get(createLog);
                 Date end = (endLog != null) ? endLog.getCreateDate() : new Date();
                 String executorName = MessagesOther.LABEL_RESOURCE_NOT_ASSIGNED.message(pageContext);
                 if (endLog != null) {
@@ -78,8 +78,8 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
                 barList.add(getBar(createLog.getId(), createLog.getTaskName(), createLog.getCreateDate(), end, "task2", executorName, false,
                         createLog.getProcessId(), null));
             }
-            if (log instanceof ISubprocessStartLog) {
-                WfProcess subProcess = executionService.getProcess(getUser(), ((ISubprocessStartLog) log).getSubprocessId());
+            if (log instanceof SubprocessStartLog) {
+                WfProcess subProcess = executionService.getProcess(getUser(), ((SubprocessStartLog) log).getSubprocessId());
                 barList.add(getBar(subProcess.getId(), subProcess.getName(), null, null, "subprocess", null, true, process.getId(), null));
             }
         }

@@ -1,25 +1,46 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import ru.runa.wfe.user.Actor;
+import com.google.common.collect.Lists;
+import java.util.List;
+import javax.persistence.Transient;
+import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 
-@Entity
-@DiscriminatorValue(value = "E")
-public class AdminActionLog extends ProcessLog implements IAdminActionLog {
-    private static final long serialVersionUID = 1L;
+public interface AdminActionLog extends ProcessLog {
+    String ACTION_UPDATE_VARIABLES = "update_variables";
+    String ACTION_UPGRADE_PROCESS_TO_NEXT_VERSION = "upgrade_to_next_version";
+    String ACTION_UPGRADE_CURRENT_PROCESS_VERSION = "upgrade_current_process_version";
+    String ACTION_UPGRADE_PROCESS_TO_VERSION = "upgrade_to_version";
 
-    public AdminActionLog() {
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.ADMIN_ACTION;
     }
 
-    public AdminActionLog(Actor actor, String actionName, Object... data) {
-        addAttribute(ATTR_ACTOR_NAME, actor.getName());
-        addAttribute(ATTR_ACTION, actionName);
-        if (data != null) {
-            for (int i = 0; i < data.length; i++) {
-                addAttribute(ATTR_PARAM + i, String.valueOf(data[i]));
+    @Override
+    @Transient
+    default String getPatternName() {
+        return getClass().getSimpleName() + "." + getAttributeNotNull(ATTR_ACTION);
+    }
+
+    @Override
+    @Transient
+    default Object[] getPatternArguments() {
+        List<Object> arguments = Lists.newArrayList(new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)));
+        for (int i = 0; i < 10; i++) {
+            String param = getAttribute(ATTR_PARAM + i);
+            if (param != null) {
+                arguments.add(param);
+            } else {
+                break;
             }
         }
-        setSeverity(Severity.INFO);
+        //noinspection ToArrayCallWithZeroLengthArrayArgument
+        return arguments.toArray(new Object[arguments.size()]);
+    }
+
+    @Override
+    default void processBy(ProcessLogVisitor visitor) {
+        visitor.onAdminActionLog(this);
     }
 }

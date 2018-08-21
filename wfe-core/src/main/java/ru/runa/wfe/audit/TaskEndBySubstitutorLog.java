@@ -1,24 +1,17 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskCompletionInfo;
+import javax.persistence.Transient;
 
-/**
- * Logging task completion by substitution rules.
- * 
- * @author Dofs
- */
-@Entity
-@DiscriminatorValue(value = "S")
-public class TaskEndBySubstitutorLog extends TaskEndLog implements ITaskEndBySubstitutorLog {
-    private static final long serialVersionUID = 1L;
+public interface TaskEndBySubstitutorLog extends TaskEndLog {
 
-    public TaskEndBySubstitutorLog() {
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_END_BY_SUBSTITUTOR;
     }
 
-    public TaskEndBySubstitutorLog(Task task, TaskCompletionInfo completionInfo) {
-        super(task, completionInfo);
+    @Override
+    default void processBy(ProcessLogVisitor visitor) {
+        visitor.onTaskEndBySubstitutorLog(this);
     }
 }

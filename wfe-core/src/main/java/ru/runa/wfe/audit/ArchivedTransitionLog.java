@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "T")
-public class ArchivedTransitionLog extends ArchivedProcessLog implements ITransitionLog {
+public class ArchivedTransitionLog extends ArchivedProcessLog implements TransitionLog {
 }

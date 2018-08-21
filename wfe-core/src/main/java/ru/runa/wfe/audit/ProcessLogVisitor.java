@@ -2,61 +2,61 @@ package ru.runa.wfe.audit;
 
 public interface ProcessLogVisitor {
 
-    void onProcessStartLog(IProcessStartLog processStartLog);
+    void onProcessStartLog(ProcessStartLog processStartLog);
 
-    void onProcessActivateLog(IProcessActivateLog processActivateLog);
+    void onProcessActivateLog(ProcessActivateLog processActivateLog);
 
-    void onProcessSuspendLog(IProcessSuspendLog processSuspendLog);
+    void onProcessSuspendLog(ProcessSuspendLog processSuspendLog);
 
-    void onProcessEndLog(IProcessEndLog processEndLog);
+    void onProcessEndLog(ProcessEndLog processEndLog);
 
-    void onProcessCancelLog(IProcessCancelLog processCancelLog);
+    void onProcessCancelLog(ProcessCancelLog processCancelLog);
 
-    void onNodeEnterLog(INodeEnterLog nodeEnterLog);
+    void onNodeEnterLog(NodeEnterLog nodeEnterLog);
 
-    void onNodeLeaveLog(INodeLeaveLog nodeLeaveLog);
+    void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog);
 
-    void onReceiveMessageLog(IReceiveMessageLog receiveMessageLog);
+    void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog);
 
-    void onSendMessageLog(ISendMessageLog sendMessageLog);
+    void onSendMessageLog(SendMessageLog sendMessageLog);
 
-    void onSubprocessStartLog(ISubprocessStartLog subprocessStartLog);
+    void onSubprocessStartLog(SubprocessStartLog subprocessStartLog);
 
-    void onSubprocessEndLog(ISubprocessEndLog subprocessEndLog);
+    void onSubprocessEndLog(SubprocessEndLog subprocessEndLog);
 
-    void onActionLog(IActionLog actionLog);
+    void onActionLog(ActionLog actionLog);
 
-    void onCreateTimerLog(ICreateTimerLog createTimerLog);
+    void onCreateTimerLog(CreateTimerLog createTimerLog);
 
-    void onTaskCreateLog(ITaskCreateLog taskCreateLog);
+    void onTaskCreateLog(TaskCreateLog taskCreateLog);
 
-    void onTaskAssignLog(ITaskAssignLog taskAssignLog);
+    void onTaskAssignLog(TaskAssignLog taskAssignLog);
 
-    void onTaskEndLog(ITaskEndLog taskEndLog);
+    void onTaskEndLog(TaskEndLog taskEndLog);
 
-    void onTaskEscalationLog(ITaskEscalationLog taskEscalationLog);
+    void onTaskEscalationLog(TaskEscalationLog taskEscalationLog);
 
-    void onTaskDelegaionLog(ITaskDelegationLog taskDelegationLog);
+    void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog);
 
-    void onTaskRemovedOnProcessEndLog(ITaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog);
+    void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog);
 
-    void onTaskExpiredLog(ITaskExpiredLog taskExpiredLog);
+    void onTaskExpiredLog(TaskExpiredLog taskExpiredLog);
 
-    void onTaskEndBySubstitutorLog(ITaskEndBySubstitutorLog taskEndBySubstitutorLog);
+    void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog);
 
-    void onTaskEndByAdminLog(ITaskEndByAdminLog taskEndByAdminLog);
+    void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog);
 
-    void onTaskCancelledLog(ITaskCancelledLog taskCancelledLog);
+    void onTaskCancelledLog(TaskCancelledLog taskCancelledLog);
 
-    void onSwimlaneAssignLog(ISwimlaneAssignLog swimlaneAssignLog);
+    void onSwimlaneAssignLog(SwimlaneAssignLog swimlaneAssignLog);
 
-    void onTransitionLog(ITransitionLog transitionLog);
+    void onTransitionLog(TransitionLog transitionLog);
 
-    void onVariableCreateLog(IVariableCreateLog variableCreateLog);
+    void onVariableCreateLog(VariableCreateLog variableCreateLog);
 
-    void onVariableDeleteLog(IVariableDeleteLog variableDeleteLog);
+    void onVariableDeleteLog(VariableDeleteLog variableDeleteLog);
 
-    void onVariableUpdateLog(IVariableUpdateLog variableUpdateLog);
+    void onVariableUpdateLog(VariableUpdateLog variableUpdateLog);
 
-    void onAdminActionLog(IAdminActionLog adminActionLog);
+    void onAdminActionLog(AdminActionLog adminActionLog);
 }

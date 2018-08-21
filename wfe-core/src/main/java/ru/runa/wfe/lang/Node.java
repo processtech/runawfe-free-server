@@ -27,12 +27,12 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.List;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.NodeEnterLog;
-import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.CurrentNodeEnterLog;
+import ru.runa.wfe.audit.CurrentNodeLeaveLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
@@ -176,17 +176,17 @@ public abstract class Node extends GraphElement {
      */
     public void enter(ExecutionContext executionContext) {
         log.debug("Entering " + this + " with " + executionContext);
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getToken();
         // update the runtime context information
         token.setNodeId(getNodeId());
         token.setNodeType(getNodeType());
         // fire the leave-node event for this node
         fireEvent(executionContext, ActionEvent.NODE_ENTER);
-        executionContext.addLog(new NodeEnterLog(this));
+        executionContext.addLog(new CurrentNodeEnterLog(this));
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessEndNode)) {
             for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
                 Node boundaryNode = (Node) boundaryEvent;
-                Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
+                CurrentToken eventToken = new CurrentToken(executionContext.getToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
                 ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
@@ -243,16 +243,16 @@ public abstract class Node extends GraphElement {
             endBoundaryEventTokens(executionContext);
         }
         if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
-            Token parentToken = executionContext.getToken().getParent();
+            CurrentToken parentToken = executionContext.getToken().getParent();
             ((Node) getParentElement()).onBoundaryEvent(executionContext.getProcessDefinition(), parentToken, (BoundaryEvent) this);
-            for (Token token : parentToken.getActiveChildren()) {
+            for (CurrentToken token : parentToken.getActiveChildren()) {
                 if (Objects.equal(token, executionContext.getToken())) {
                     continue;
                 }
                 token.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true);
             }
         }
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getToken();
         for (ProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
             listener.onNodeLeave(executionContext, this, transition);
         }
@@ -269,7 +269,7 @@ public abstract class Node extends GraphElement {
     }
 
     protected void addLeaveLog(ExecutionContext executionContext) {
-        executionContext.addLog(new NodeLeaveLog(this));
+        executionContext.addLog(new CurrentNodeLeaveLog(this));
     }
 
     @Override
@@ -295,7 +295,7 @@ public abstract class Node extends GraphElement {
     public void endBoundaryEventTokens(ExecutionContext executionContext) {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
-            for (Token token : executionContext.getToken().getActiveChildren()) {
+            for (CurrentToken token : executionContext.getToken().getActiveChildren()) {
                 Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
                 if (boundaryEvents.contains(node)) {
                     token.end(executionContext.getProcessDefinition(), null, null, false);
@@ -308,7 +308,7 @@ public abstract class Node extends GraphElement {
         return true;
     }
 
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
+    protected void onBoundaryEvent(ProcessDefinition processDefinition, CurrentToken token, BoundaryEvent boundaryEvent) {
         token.end(processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
     }
 }

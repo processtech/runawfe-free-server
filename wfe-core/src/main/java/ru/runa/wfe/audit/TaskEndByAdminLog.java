@@ -1,25 +1,17 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.Transient;
 
-import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskCompletionInfo;
+public interface TaskEndByAdminLog extends TaskEndLog {
 
-/**
- * Logging task completion by administrative rules.
- *
- * @author Dofs
- */
-@Entity
-@DiscriminatorValue(value = "K")
-public class TaskEndByAdminLog extends TaskEndLog implements ITaskEndByAdminLog {
-    private static final long serialVersionUID = 1L;
-
-    public TaskEndByAdminLog() {
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_END_BY_ADMIN;
     }
 
-    public TaskEndByAdminLog(Task task, TaskCompletionInfo completionInfo) {
-        super(task, completionInfo);
+    @Override
+    default void processBy(ProcessLogVisitor visitor) {
+        visitor.onTaskEndByAdminLog(this);
     }
 }

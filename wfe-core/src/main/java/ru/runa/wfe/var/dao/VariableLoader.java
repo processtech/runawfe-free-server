@@ -3,7 +3,7 @@ package ru.runa.wfe.var.dao;
 import java.util.List;
 import java.util.Map;
 
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
@@ -23,7 +23,7 @@ public interface VariableLoader {
      *            Variable name.
      * @return Variable or null, if no variable found.
      */
-    Variable<?> get(Process process, String name);
+    Variable<?> get(CurrentProcess process, String name);
 
     /**
      * Find all variables in all processes, which name is like namePattern and value is equals to stringValue.
@@ -43,7 +43,7 @@ public interface VariableLoader {
      *            Process, which variables must be loaded.
      * @return all process variables.
      */
-    Map<String, Object> getAll(Process process);
+    Map<String, Object> getAll(CurrentProcess process);
 
     /**
      * Load variable.
@@ -56,7 +56,7 @@ public interface VariableLoader {
      *            Loading variable name.
      * @return Loaded variable or null if no such variable defined.
      */
-    WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName);
+    WfVariable getVariable(ProcessDefinition processDefinition, CurrentProcess process, String variableName);
 
     /**
      * Load variable value.
@@ -69,6 +69,6 @@ public interface VariableLoader {
      *            Loading variable name.
      * @return Loaded variable value or null.
      */
-    Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition);
+    Object getVariableValue(ProcessDefinition processDefinition, CurrentProcess process, VariableDefinition variableDefinition);
 
 }

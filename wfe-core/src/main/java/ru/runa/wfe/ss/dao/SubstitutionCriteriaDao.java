@@ -2,6 +2,7 @@ package ru.runa.wfe.ss.dao;
 
 import java.util.Date;
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.ss.QSubstitution;
@@ -25,12 +26,12 @@ public class SubstitutionCriteriaDao extends GenericDao<SubstitutionCriteria> {
     }
 
     public SubstitutionCriteria getByName(String name) {
-        QSubstitutionCriteria sc = QSubstitutionCriteria.substitutionCriteria;
+        val sc = QSubstitutionCriteria.substitutionCriteria;
         return queryFactory.selectFrom(sc).where(sc.name.eq(name)).fetchFirst();
     }
 
     public List<Substitution> getSubstitutionsByCriteria(SubstitutionCriteria criteria) {
-        QSubstitution s = QSubstitution.substitution;
+        val s = QSubstitution.substitution;
         return queryFactory.selectFrom(s).where(s.criteria.eq(criteria)).fetch();
     }
 }

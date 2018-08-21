@@ -8,17 +8,17 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.SubprocessEndLog;
+import ru.runa.wfe.audit.CurrentSubprocessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.NodeProcess;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentNodeProcess;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ProcessFactory;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
 import ru.runa.wfe.var.VariableProvider;
@@ -156,7 +156,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                 }
             }
         }
-        Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0);
+        CurrentProcess subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0);
         processFactory.startSubprocess(executionContext, new ExecutionContext(subProcessDefinition, subProcess));
         if (async) {
             log.debug("continue execution in async " + this);
@@ -171,7 +171,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             return;
         }
         if (getClass() == SubprocessNode.class) {
-            Process subProcess = subExecutionContext.getProcess();
+            CurrentProcess subProcess = subExecutionContext.getProcess();
             ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
             for (VariableMapping variableMapping : variableMappings) {
                 // if this variable access is writable
@@ -187,7 +187,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                     }
                 }
             }
-            executionContext.addLog(new SubprocessEndLog(this, executionContext.getToken(), subProcess));
+            executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getToken(), subProcess));
             super.leave(executionContext, transition);
         } else {
             super.leave(subExecutionContext, transition);
@@ -195,7 +195,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     protected ExecutionContext getParentExecutionContext(ExecutionContext subExecutionContext) {
-        NodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
+        CurrentNodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
         Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
         ProcessDefinition superDefinition = processDefinitionLoader.getDefinition(superDefinitionId);
         return new ExecutionContext(superDefinition, parentNodeProcess.getParentToken());
@@ -207,11 +207,11 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     @Override
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
+    protected void onBoundaryEvent(ProcessDefinition processDefinition, CurrentToken token, BoundaryEvent boundaryEvent) {
         super.onBoundaryEvent(processDefinition, token, boundaryEvent);
         if (async) {
-            List<Process> processes = new ExecutionContext(processDefinition, token).getTokenSubprocesses();
-            for (Process process : processes) {
+            List<CurrentProcess> processes = new ExecutionContext(processDefinition, token).getTokenSubprocesses();
+            for (CurrentProcess process : processes) {
                 if (process.hasEnded()) {
                     continue;
                 }

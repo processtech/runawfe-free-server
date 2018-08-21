@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "Y")
-public class ArchivedProcessCancelLog extends ArchivedProcessLog implements IProcessCancelLog {
+public class ArchivedProcessCancelLog extends ArchivedProcessLog implements ProcessCancelLog {
 }

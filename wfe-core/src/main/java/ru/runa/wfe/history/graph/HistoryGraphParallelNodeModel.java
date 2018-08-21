@@ -1,6 +1,6 @@
 package ru.runa.wfe.history.graph;
 
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;
 
@@ -8,11 +8,11 @@ import ru.runa.wfe.lang.Node;
  * History graph node for parallel gateway.
  */
 public class HistoryGraphParallelNodeModel extends HistoryGraphBaseNodeModel {
-    public HistoryGraphParallelNodeModel(IProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    public HistoryGraphParallelNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         super(processLog, node, definitionModel, nodeFactory);
     }
 
-    public HistoryGraphParallelNodeModel(IProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    public HistoryGraphParallelNodeModel(ProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         super(processLog, definitionModel, nodeFactory);
     }
 

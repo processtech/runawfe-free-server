@@ -17,7 +17,7 @@ import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "ARCHIVED_TOKEN")
-public class ArchivedToken extends BaseToken<ArchivedProcess, ArchivedToken> {
+public class ArchivedToken extends Token<ArchivedProcess, ArchivedToken> {
 
     private Long id;
     private ArchivedProcess process;

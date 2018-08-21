@@ -1,12 +1,12 @@
 package ru.runa.wfe.audit.dao;
 
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.CurrentProcess;
 
 public class DoNothingProcessLogAwareDao implements ProcessLogAwareDao {
 
     @Override
-    public void addLog(BaseProcessLog processLog, Process process, Token token) {
+    public void addLog(BaseProcessLog processLog, CurrentProcess process, CurrentToken token) {
     }
 }

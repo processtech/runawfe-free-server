@@ -1,6 +1,6 @@
 package ru.runa.wfe.execution.async;
 
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 
 /**
  *
@@ -8,6 +8,6 @@ import ru.runa.wfe.execution.Token;
  */
 public interface NodeAsyncExecutor {
 
-    void execute(Token token, boolean retry);
+    void execute(CurrentToken token, boolean retry);
 
 }

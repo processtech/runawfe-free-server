@@ -2,7 +2,7 @@ package ru.runa.wfe.task;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.CurrentTaskCreateLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.Language;
@@ -33,7 +33,7 @@ public class TaskFactory {
         task.setIndex(index);
         taskDao.create(task);
         taskDao.flushPendingChanges();
-        executionContext.addLog(new TaskCreateLog(task));
+        executionContext.addLog(new CurrentTaskCreateLog(task));
         taskDefinition.fireEvent(executionContext, ActionEvent.TASK_CREATE);
         task.setSwimlane(swimlane);
         task.assignExecutor(executionContext, executor != null ? executor : swimlane.getExecutor(), false);

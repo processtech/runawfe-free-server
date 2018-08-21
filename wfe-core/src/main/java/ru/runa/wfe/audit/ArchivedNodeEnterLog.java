@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "N")
-public class ArchivedNodeEnterLog extends ArchivedNodeLog implements INodeEnterLog {
+public class ArchivedNodeEnterLog extends ArchivedNodeLog implements NodeEnterLog {
 }

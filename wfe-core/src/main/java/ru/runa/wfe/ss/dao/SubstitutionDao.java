@@ -20,6 +20,7 @@ package ru.runa.wfe.ss.dao;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.ss.QSubstitution;
@@ -60,7 +61,7 @@ public class SubstitutionDao extends GenericDao<Substitution> {
         if (ids.isEmpty()) {
             return Lists.newArrayList();
         }
-        QSubstitution s = QSubstitution.substitution;
+        val s = QSubstitution.substitution;
         return queryFactory.selectFrom(s).where(s.id.in(ids)).fetch();
     }
 
@@ -74,7 +75,7 @@ public class SubstitutionDao extends GenericDao<Substitution> {
      * @return {@linkplain Substitution}'s for {@linkplain Actor}.
      */
     public List<Substitution> getByActorId(Long actorId, boolean orderByPositionAscending) {
-        QSubstitution s = QSubstitution.substitution;
+        val s = QSubstitution.substitution;
         return queryFactory.selectFrom(s)
                 .where(s.actorId.eq(actorId)).orderBy(orderByPositionAscending ? s.position.asc() : s.position.desc())
                 .fetch();

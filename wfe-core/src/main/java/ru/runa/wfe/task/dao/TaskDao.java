@@ -24,12 +24,13 @@ package ru.runa.wfe.task.dao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.task.QTask;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskDoesNotExistException;
@@ -47,32 +48,32 @@ public class TaskDao extends GenericDao<Task> {
     }
 
     public List<Task> findByExecutor(Executor executor) {
-        QTask t = QTask.task;
+        val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.executor.eq(executor)).fetch();
     }
 
-    public List<Task> findByProcess(Process process) {
-        QTask t = QTask.task;
+    public List<Task> findByProcess(CurrentProcess process) {
+        val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.process.eq(process)).fetch();
     }
 
-    public List<Task> findByProcessAndSwimlane(Process process, Swimlane swimlane) {
-        QTask t = QTask.task;
+    public List<Task> findByProcessAndSwimlane(CurrentProcess process, Swimlane swimlane) {
+        val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.swimlane.eq(swimlane))).fetch();
     }
 
-    public List<Task> findByProcessAndNodeId(Process process, String nodeId) {
-        QTask t = QTask.task;
+    public List<Task> findByProcessAndNodeId(CurrentProcess process, String nodeId) {
+        val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.nodeId.eq(nodeId))).fetch();
     }
 
-    public List<Task> findByProcessAndDeadlineExpressionContaining(Process process, String expression) {
-        QTask t = QTask.task;
+    public List<Task> findByProcessAndDeadlineExpressionContaining(CurrentProcess process, String expression) {
+        val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.deadlineDateExpression.like("%" + expression + "%"))).fetch();
     }
 
-    public List<Task> findByToken(Token token) {
-        QTask t = QTask.task;
+    public List<Task> findByToken(CurrentToken token) {
+        val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.token.eq(token)).fetch();
     }
 
@@ -80,7 +81,7 @@ public class TaskDao extends GenericDao<Task> {
      * @return active tasks but not assigned.
      */
     public List<Task> findUnassignedTasksInActiveProcesses() {
-        QTask t = QTask.task;
+        val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.executor.isNull().and(t.token.executionStatus.ne(ExecutionStatus.SUSPENDED))).fetch();
     }
 
@@ -101,13 +102,13 @@ public class TaskDao extends GenericDao<Task> {
      * @return return all expired tasks
      */
     public List<Task> getAllExpiredTasks(Date curDate) {
-        QTask t = QTask.task;
+        val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.deadlineDate.lt(curDate)).fetch();
     }
 
-    public void deleteAll(Process process) {
+    public void deleteAll(CurrentProcess process) {
         log.debug("deleting tasks for process " + process.getId());
-        QTask t = QTask.task;
+        val t = QTask.task;
         queryFactory.delete(t).where(t.process.eq(process)).execute();
     }
 }

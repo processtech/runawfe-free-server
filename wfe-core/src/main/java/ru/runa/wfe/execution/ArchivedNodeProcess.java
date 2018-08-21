@@ -13,7 +13,7 @@ import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "ARCHIVED_SUBPROCESS")
-public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess, ArchivedToken> {
+public class ArchivedNodeProcess extends NodeProcess<ArchivedProcess, ArchivedToken> {
 
     private Long id;
     private ArchivedProcess process;
@@ -42,7 +42,7 @@ public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess, Archiv
     }
 
     /**
-     * Copy-pasted from NodeProcess with different FK and index names.
+     * Copy-pasted from CurrentNodeProcess with different FK and index names.
      */
     @Override
     @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
@@ -72,7 +72,7 @@ public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess, Archiv
     }
 
     /**
-     * Copy-pasted from NodeProcess with different FK and index names.
+     * Copy-pasted from CurrentNodeProcess with different FK and index names.
      */
     @Override
     @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
@@ -88,5 +88,5 @@ public class ArchivedNodeProcess extends BaseNodeProcess<ArchivedProcess, Archiv
         this.subProcess = subProcess;
     }
 
-    // TODO Do we need equals() and hashCode() like in NodeProcess class?
+    // TODO Do we need equals() and hashCode() like in CurrentNodeProcess class?
 }

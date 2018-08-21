@@ -2,6 +2,7 @@ package ru.runa.wfe.execution.dao;
 
 import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.execution.ArchivedNodeProcess;
 import ru.runa.wfe.execution.ArchivedProcess;
@@ -17,7 +18,7 @@ public class ArchivedNodeProcessDao extends BaseNodeProcessDao<ArchivedProcess, 
 
     @Override
     public List<ArchivedNodeProcess> getNodeProcesses(ArchivedProcess process, ArchivedToken parentToken, String nodeId, Boolean finished) {
-        QArchivedNodeProcess np = QArchivedNodeProcess.archivedNodeProcess;
+        val np = QArchivedNodeProcess.archivedNodeProcess;
         JPQLQuery<ArchivedNodeProcess> q = queryFactory.selectFrom(np).orderBy(np.id.asc());
         if (process != null) {
             q.where(np.process.eq(process));

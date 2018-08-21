@@ -15,17 +15,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.audit.dao.ProcessLogDao2;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
 import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.hibernate.Converters;
 import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
-import ru.runa.wfe.execution.dao.NodeProcessDao;
-import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
@@ -67,24 +67,24 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(SwimlaneDao.class);
     }
 
-    public static TokenDao getTokenDao() {
-        return getContext().getBean(TokenDao.class);
+    public static CurrentTokenDao getTokenDao() {
+        return getContext().getBean(CurrentTokenDao.class);
     }
 
     public static SettingDao getSettingDao() {
         return getContext().getBean(SettingDao.class);
     }
 
-    public static ProcessDao getProcessDao() {
-        return getContext().getBean(ProcessDao.class);
+    public static CurrentProcessDao getProcessDao() {
+        return getContext().getBean(CurrentProcessDao.class);
     }
 
-    public static NodeProcessDao getNodeProcessDao() {
-        return getContext().getBean(NodeProcessDao.class);
+    public static CurrentNodeProcessDao getNodeProcessDao() {
+        return getContext().getBean(CurrentNodeProcessDao.class);
     }
 
-    public static ProcessLogDao2 getProcessLogDao() {
-        return getContext().getBean(ProcessLogDao2.class);
+    public static ProcessLogDao getProcessLogDao() {
+        return getContext().getBean(ProcessLogDao.class);
     }
 
     public static Converters getConverters() {

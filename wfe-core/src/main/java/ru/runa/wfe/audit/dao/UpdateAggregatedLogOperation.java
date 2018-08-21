@@ -1,36 +1,37 @@
 package ru.runa.wfe.audit.dao;
 
+import lombok.val;
 import org.hibernate.SessionFactory;
-import ru.runa.wfe.audit.IActionLog;
-import ru.runa.wfe.audit.IAdminActionLog;
-import ru.runa.wfe.audit.ICreateTimerLog;
-import ru.runa.wfe.audit.INodeEnterLog;
-import ru.runa.wfe.audit.INodeLeaveLog;
-import ru.runa.wfe.audit.IProcessActivateLog;
-import ru.runa.wfe.audit.IProcessCancelLog;
-import ru.runa.wfe.audit.IProcessEndLog;
-import ru.runa.wfe.audit.IProcessStartLog;
-import ru.runa.wfe.audit.IProcessSuspendLog;
-import ru.runa.wfe.audit.IReceiveMessageLog;
-import ru.runa.wfe.audit.ISendMessageLog;
-import ru.runa.wfe.audit.ISubprocessEndLog;
-import ru.runa.wfe.audit.ISubprocessStartLog;
-import ru.runa.wfe.audit.ISwimlaneAssignLog;
-import ru.runa.wfe.audit.ITaskAssignLog;
-import ru.runa.wfe.audit.ITaskCancelledLog;
-import ru.runa.wfe.audit.ITaskCreateLog;
-import ru.runa.wfe.audit.ITaskDelegationLog;
-import ru.runa.wfe.audit.ITaskEndByAdminLog;
-import ru.runa.wfe.audit.ITaskEndBySubstitutorLog;
-import ru.runa.wfe.audit.ITaskEndLog;
-import ru.runa.wfe.audit.ITaskEscalationLog;
-import ru.runa.wfe.audit.ITaskExpiredLog;
-import ru.runa.wfe.audit.ITaskRemovedOnProcessEndLog;
-import ru.runa.wfe.audit.ITransitionLog;
-import ru.runa.wfe.audit.IVariableCreateLog;
-import ru.runa.wfe.audit.IVariableDeleteLog;
-import ru.runa.wfe.audit.IVariableUpdateLog;
+import ru.runa.wfe.audit.ActionLog;
+import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.CreateTimerLog;
+import ru.runa.wfe.audit.NodeEnterLog;
+import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.ProcessActivateLog;
+import ru.runa.wfe.audit.ProcessCancelLog;
+import ru.runa.wfe.audit.ProcessEndLog;
 import ru.runa.wfe.audit.ProcessLogVisitor;
+import ru.runa.wfe.audit.ProcessStartLog;
+import ru.runa.wfe.audit.ProcessSuspendLog;
+import ru.runa.wfe.audit.ReceiveMessageLog;
+import ru.runa.wfe.audit.SendMessageLog;
+import ru.runa.wfe.audit.SubprocessEndLog;
+import ru.runa.wfe.audit.SubprocessStartLog;
+import ru.runa.wfe.audit.SwimlaneAssignLog;
+import ru.runa.wfe.audit.TaskAssignLog;
+import ru.runa.wfe.audit.TaskCancelledLog;
+import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskDelegationLog;
+import ru.runa.wfe.audit.TaskEndByAdminLog;
+import ru.runa.wfe.audit.TaskEndBySubstitutorLog;
+import ru.runa.wfe.audit.TaskEndLog;
+import ru.runa.wfe.audit.TaskEscalationLog;
+import ru.runa.wfe.audit.TaskExpiredLog;
+import ru.runa.wfe.audit.TaskRemovedOnProcessEndLog;
+import ru.runa.wfe.audit.TransitionLog;
+import ru.runa.wfe.audit.VariableCreateLog;
+import ru.runa.wfe.audit.VariableDeleteLog;
+import ru.runa.wfe.audit.VariableUpdateLog;
 import ru.runa.wfe.audit.aggregated.ProcessInstanceAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QProcessInstanceAggregatedLog;
 import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
@@ -38,20 +39,20 @@ import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog.EndReason;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 
 public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
     private final SessionFactory sessionFactory;
     private final HibernateQueryFactory queryFactory;
-    private final Process process;
-    private final Token token;
+    private final CurrentProcess process;
+    private final CurrentToken token;
     private final ProcessDefinitionLoader processDefinitionLoader;
 
     public UpdateAggregatedLogOperation(SessionFactory sessionFactory, HibernateQueryFactory queryFactory,
             ProcessDefinitionLoader processDefinitionLoader,
-            Process process, Token token) {
+            CurrentProcess process, CurrentToken token) {
         this.sessionFactory = sessionFactory;
         this.queryFactory = queryFactory;
         this.processDefinitionLoader = processDefinitionLoader;
@@ -60,7 +61,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onProcessStartLog(IProcessStartLog processStartLog) {
+    public void onProcessStartLog(ProcessStartLog processStartLog) {
         if (getProcessInstanceLog(processStartLog.getProcessId()) != null) {
             return;
         }
@@ -68,15 +69,15 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onProcessActivateLog(IProcessActivateLog processActivateLog) {
+    public void onProcessActivateLog(ProcessActivateLog processActivateLog) {
     }
 
     @Override
-    public void onProcessSuspendLog(IProcessSuspendLog processSuspendLog) {
+    public void onProcessSuspendLog(ProcessSuspendLog processSuspendLog) {
     }
 
     @Override
-    public void onProcessEndLog(IProcessEndLog processEndLog) {
+    public void onProcessEndLog(ProcessEndLog processEndLog) {
         ProcessInstanceAggregatedLog logEntry = getProcessInstanceLog(processEndLog.getProcessId());
         if (logEntry == null) {
             return;
@@ -86,7 +87,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onProcessCancelLog(IProcessCancelLog processCancelLog) {
+    public void onProcessCancelLog(ProcessCancelLog processCancelLog) {
         ProcessInstanceAggregatedLog logEntry = getProcessInstanceLog(processCancelLog.getProcessId());
         if (logEntry == null) {
             return;
@@ -96,39 +97,39 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onNodeEnterLog(INodeEnterLog nodeEnterLog) {
+    public void onNodeEnterLog(NodeEnterLog nodeEnterLog) {
     }
 
     @Override
-    public void onNodeLeaveLog(INodeLeaveLog nodeLeaveLog) {
+    public void onNodeLeaveLog(NodeLeaveLog nodeLeaveLog) {
     }
 
     @Override
-    public void onReceiveMessageLog(IReceiveMessageLog receiveMessageLog) {
+    public void onReceiveMessageLog(ReceiveMessageLog receiveMessageLog) {
     }
 
     @Override
-    public void onSendMessageLog(ISendMessageLog sendMessageLog) {
+    public void onSendMessageLog(SendMessageLog sendMessageLog) {
     }
 
     @Override
-    public void onSubprocessStartLog(ISubprocessStartLog subprocessStartLog) {
+    public void onSubprocessStartLog(SubprocessStartLog subprocessStartLog) {
     }
 
     @Override
-    public void onSubprocessEndLog(ISubprocessEndLog subprocessEndLog) {
+    public void onSubprocessEndLog(SubprocessEndLog subprocessEndLog) {
     }
 
     @Override
-    public void onActionLog(IActionLog actionLog) {
+    public void onActionLog(ActionLog actionLog) {
     }
 
     @Override
-    public void onCreateTimerLog(ICreateTimerLog createTimerLog) {
+    public void onCreateTimerLog(CreateTimerLog createTimerLog) {
     }
 
     @Override
-    public void onTaskCreateLog(ITaskCreateLog taskCreateLog) {
+    public void onTaskCreateLog(TaskCreateLog taskCreateLog) {
         if (getTaskLog(taskCreateLog.getTaskId()) != null) {
             return;
         }
@@ -136,7 +137,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onTaskAssignLog(ITaskAssignLog taskAssignLog) {
+    public void onTaskAssignLog(TaskAssignLog taskAssignLog) {
         TaskAggregatedLog logEntry = getTaskLog(taskAssignLog.getTaskId());
         if (logEntry == null) {
             return;
@@ -146,78 +147,78 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     @Override
-    public void onTaskEndLog(ITaskEndLog taskEndLog) {
+    public void onTaskEndLog(TaskEndLog taskEndLog) {
         onTaskEnd(taskEndLog, EndReason.COMPLETED);
     }
 
     @Override
-    public void onTaskEscalationLog(ITaskEscalationLog taskEscalationLog) {
+    public void onTaskEscalationLog(TaskEscalationLog taskEscalationLog) {
     }
 
     @Override
-    public void onTaskDelegaionLog(ITaskDelegationLog taskDelegationLog) {
+    public void onTaskDelegaionLog(TaskDelegationLog taskDelegationLog) {
     }
 
     @Override
-    public void onTaskRemovedOnProcessEndLog(ITaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog) {
+    public void onTaskRemovedOnProcessEndLog(TaskRemovedOnProcessEndLog taskRemovedOnProcessEndLog) {
         onTaskEnd(taskRemovedOnProcessEndLog, EndReason.PROCESS_END);
     }
 
     @Override
-    public void onTaskExpiredLog(ITaskExpiredLog taskExpiredLog) {
+    public void onTaskExpiredLog(TaskExpiredLog taskExpiredLog) {
         onTaskEnd(taskExpiredLog, EndReason.TIMEOUT);
     }
 
     @Override
-    public void onTaskEndBySubstitutorLog(ITaskEndBySubstitutorLog taskEndBySubstitutorLog) {
+    public void onTaskEndBySubstitutorLog(TaskEndBySubstitutorLog taskEndBySubstitutorLog) {
         onTaskEnd(taskEndBySubstitutorLog, EndReason.SUBSTITUTOR_END);
     }
 
     @Override
-    public void onTaskEndByAdminLog(ITaskEndByAdminLog taskEndByAdminLog) {
+    public void onTaskEndByAdminLog(TaskEndByAdminLog taskEndByAdminLog) {
         onTaskEnd(taskEndByAdminLog, EndReason.ADMIN_END);
     }
 
     @Override
-    public void onTaskCancelledLog(ITaskCancelledLog taskCancelledLog) {
+    public void onTaskCancelledLog(TaskCancelledLog taskCancelledLog) {
         onTaskEnd(taskCancelledLog, EndReason.CANCELLED);
     }
 
     @Override
-    public void onSwimlaneAssignLog(ISwimlaneAssignLog swimlaneAssignLog) {
+    public void onSwimlaneAssignLog(SwimlaneAssignLog swimlaneAssignLog) {
     }
 
     @Override
-    public void onTransitionLog(ITransitionLog transitionLog) {
+    public void onTransitionLog(TransitionLog transitionLog) {
     }
 
     @Override
-    public void onVariableCreateLog(IVariableCreateLog variableCreateLog) {
+    public void onVariableCreateLog(VariableCreateLog variableCreateLog) {
     }
 
     @Override
-    public void onVariableDeleteLog(IVariableDeleteLog variableDeleteLog) {
+    public void onVariableDeleteLog(VariableDeleteLog variableDeleteLog) {
     }
 
     @Override
-    public void onVariableUpdateLog(IVariableUpdateLog variableUpdateLog) {
+    public void onVariableUpdateLog(VariableUpdateLog variableUpdateLog) {
     }
 
     @Override
-    public void onAdminActionLog(IAdminActionLog adminActionLog) {
+    public void onAdminActionLog(AdminActionLog adminActionLog) {
     }
 
     private ProcessInstanceAggregatedLog getProcessInstanceLog(long processId) {
-        QProcessInstanceAggregatedLog l = QProcessInstanceAggregatedLog.processInstanceAggregatedLog;
+        val l = QProcessInstanceAggregatedLog.processInstanceAggregatedLog;
         return queryFactory.selectFrom(l).where(l.processInstanceId.eq(processId)).fetchFirst();
     }
 
     private TaskAggregatedLog getTaskLog(long taskId) {
-        QTaskAggregatedLog l = QTaskAggregatedLog.taskAggregatedLog;
+        val l = QTaskAggregatedLog.taskAggregatedLog;
         return queryFactory.selectFrom(l).where(l.taskId.eq(taskId)).fetchFirst();
     }
 
-    private void onTaskEnd(ITaskEndLog taskEndLog, EndReason endReason) {
+    private void onTaskEnd(TaskEndLog taskEndLog, EndReason endReason) {
         TaskAggregatedLog logEntry = getTaskLog(taskEndLog.getTaskId());
         if (logEntry == null) {
             return;

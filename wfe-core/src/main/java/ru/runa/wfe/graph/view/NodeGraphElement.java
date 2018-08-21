@@ -40,7 +40,8 @@ public class NodeGraphElement implements Serializable {
     /**
      * Process logs concerning this node, can be <code>null</code> if not entered yet.
      *
-     * ATTENTION!!! Must be list of BaseProcessLog, not IProcessLog, or it won't be handled by JAX-WS (Apache CXF would fail on startup).
+     * ATTENTION!!! Must be list of *class* BaseProcessLog, not *interface* ProcessLog,
+     * or it won't be handled by JAX-WS (Apache CXF would fail on startup).
      */
     private List<? extends BaseProcessLog> data;
     private String label;

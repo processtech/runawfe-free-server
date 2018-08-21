@@ -25,17 +25,17 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.ProcessDeleteLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao2;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
@@ -71,19 +71,19 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected DeploymentDao deploymentDao;
     @Autowired
-    protected NodeProcessDao nodeProcessDao;
+    protected CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
     protected TaskDao taskDao;
     @Autowired
     protected VariableDao variableDao;
     @Autowired
-    protected ProcessLogDao2 processLogDao2;
+    protected ProcessLogDao processLogDao;
     @Autowired
     protected JobDao jobDao;
     @Autowired
     protected SwimlaneDao swimlaneDao;
     @Autowired
-    protected TokenDao tokenDao;
+    protected CurrentTokenDao currentTokenDao;
     @Autowired
     protected SystemLogDao systemLogDao;
 
@@ -184,19 +184,19 @@ public class WfCommonLogic extends CommonLogic {
         }
     }
 
-    protected void deleteProcess(User user, Process process) {
+    protected void deleteProcess(User user, CurrentProcess process) {
         log.debug("deleting process " + process);
         permissionDao.deleteAllPermissions(process);
-        List<Process> subProcesses = nodeProcessDao.getSubprocesses(process);
-        nodeProcessDao.deleteByProcess(process);
-        for (Process subProcess : subProcesses) {
+        List<CurrentProcess> subProcesses = currentNodeProcessDao.getSubprocesses(process);
+        currentNodeProcessDao.deleteByProcess(process);
+        for (CurrentProcess subProcess : subProcesses) {
             log.debug("deleting sub process " + subProcess.getId());
             deleteProcess(user, subProcess);
         }
-        processLogDao2.deleteAll(process);
+        processLogDao.deleteAll(process);
         jobDao.deleteByProcess(process);
         variableDao.deleteAll(process);
-        processDao.delete(process);
+        currentProcessDao.delete(process);
         taskDao.deleteAll(process);
         swimlaneDao.deleteAll(process);
         systemLogDao.create(new ProcessDeleteLog(user.getActor().getId(), process.getDeployment().getName(), process.getId()));

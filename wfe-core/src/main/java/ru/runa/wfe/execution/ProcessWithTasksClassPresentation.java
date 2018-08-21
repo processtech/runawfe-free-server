@@ -124,18 +124,18 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
     }
 
     private ProcessWithTasksClassPresentation() {
-        super(Process.class, "", true, new FieldDescriptor[] {
-                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(Process.class, "id"), true, FieldFilterMode.DATABASE,
+        super(CurrentProcess.class, "", true, new FieldDescriptor[] {
+                new FieldDescriptor(PROCESS_ID, Integer.class.getName(), new DefaultDbSource(CurrentProcess.class, "id"), true, FieldFilterMode.DATABASE,
                         "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.READ, "id" }),
-                new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(Process.class, "deployment.name"), true,
+                new FieldDescriptor(DEFINITION_NAME, String.class.getName(), new DefaultDbSource(CurrentProcess.class, "deployment.name"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.READ, "name" }),
-                new FieldDescriptor(PROCESS_START_DATE, Date.class.getName(), new DefaultDbSource(Process.class, "startDate"), true, 1,
+                new FieldDescriptor(PROCESS_START_DATE, Date.class.getName(), new DefaultDbSource(CurrentProcess.class, "startDate"), true, 1,
                         BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessStartDateTDBuilder", new Object[] {}),
-                new FieldDescriptor(PROCESS_END_DATE, Date.class.getName(), new DefaultDbSource(Process.class, "endDate"), true,
+                new FieldDescriptor(PROCESS_END_DATE, Date.class.getName(), new DefaultDbSource(CurrentProcess.class, "endDate"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessEndDateTDBuilder", new Object[] {}),
-                new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(Process.class, "deployment.version"), true,
+                new FieldDescriptor(DEFINITION_VERSION, Integer.class.getName(), new DefaultDbSource(CurrentProcess.class, "deployment.version"), true,
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.READ, "version" }),
-                new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDbSource(Process.class, "executionStatus"), true,
+                new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDbSource(CurrentProcess.class, "executionStatus"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTDBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_EXECUTOR, UserOrGroupFilterCriteria.class.getName(), new ChildDbSource("executor.name"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { Permission.READ,
@@ -159,7 +159,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new ChildDbSource("deadlineDate"), false,
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(), new SubProcessDbSource(
-                        Process.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}),
+                        CurrentProcess.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}),
                 new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.ProcessVariableTDBuilder", new Object[] {}) });
     }

@@ -9,15 +9,15 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.runa.wfe.audit.TransitionLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao2;
+import ru.runa.wfe.audit.CurrentTransitionLog;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.Transition;
@@ -27,9 +27,9 @@ public class TransitionLogPatch extends DbPatch {
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ProcessDao processDao;
+    private CurrentProcessDao currentProcessDao;
     @Autowired
-    private ProcessLogDao2 processLogDao2;
+    private ProcessLogDao processLogDao;
 
     @Override
     public void executeDML(Session session) {
@@ -49,18 +49,18 @@ public class TransitionLogPatch extends DbPatch {
         int success = 0;
         Map<Deployment, Date> failedDeployments = Maps.newHashMap();
         while (scrollableResults.next()) {
-            Process process = processDao.get(((Number) scrollableResults.get(0)).longValue());
+            CurrentProcess process = currentProcessDao.get(((Number) scrollableResults.get(0)).longValue());
             Deployment deployment = process.getDeployment();
             try {
                 ProcessDefinition definition = processDefinitionLoader.getDefinition(deployment.getId());
                 try {
                     Node node = definition.getNodeNotNull((String) scrollableResults.get(1));
                     Transition transition = node.getLeavingTransitionNotNull((String) scrollableResults.get(2));
-                    TransitionLog transitionLog = new TransitionLog(transition);
+                    CurrentTransitionLog transitionLog = new CurrentTransitionLog(transition);
                     transitionLog.setProcessId(process.getId());
                     transitionLog.setTokenId(process.getRootToken().getId());
                     transitionLog.setCreateDate(new Date());
-                    processLogDao2.create(transitionLog);
+                    processLogDao.create(transitionLog);
                     success++;
                 } catch (Exception e) {
                     log.warn(e);

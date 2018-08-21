@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
@@ -74,7 +74,7 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     }
 
     @Override
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
+    protected void onBoundaryEvent(ProcessDefinition processDefinition, CurrentToken token, BoundaryEvent boundaryEvent) {
         if (async) {
             endTokenTasks(new ExecutionContext(processDefinition, token), boundaryEvent.getTaskCompletionInfoIfInterrupting());
         } else {

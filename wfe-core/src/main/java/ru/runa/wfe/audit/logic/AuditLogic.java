@@ -24,11 +24,11 @@ import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao2;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
 import ru.runa.wfe.execution.BaseProcess;
-import ru.runa.wfe.execution.dao.NodeProcessDao2;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
 import ru.runa.wfe.security.Permission;
@@ -44,9 +44,9 @@ import ru.runa.wfe.user.User;
  */
 public class AuditLogic extends CommonLogic {
     @Autowired
-    private ProcessLogDao2 processLogDao2;
+    private ProcessLogDao processLogDao;
     @Autowired
-    private NodeProcessDao2 nodeProcessDao2;
+    private NodeProcessDao nodeProcessDao;
 
     public void login(User user) {
         permissionDao.checkAllowed(user, Permission.LOGIN, SecuredSingleton.EXECUTORS);
@@ -54,16 +54,16 @@ public class AuditLogic extends CommonLogic {
 
     public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter) {
         Preconditions.checkNotNull(filter.getProcessId(), "filter.processId");
-        BaseProcess process = processDao.getNotNull(filter.getProcessId());
+        BaseProcess process = currentProcessDao.getNotNull(filter.getProcessId());
         permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
-        List<BaseProcessLog> logs = processLogDao2.getAll(filter);
+        List<BaseProcessLog> logs = processLogDao.getAll(filter);
         result.addLogs(logs, filter.isIncludeSubprocessLogs());
         if (filter.isIncludeSubprocessLogs()) {
-            for (BaseProcess subprocess : nodeProcessDao2.getSubprocessesRecursive(process)) {
+            for (BaseProcess subprocess : nodeProcessDao.getSubprocessesRecursive(process)) {
                 ProcessLogFilter subprocessFilter = new ProcessLogFilter(subprocess.getId());
                 subprocessFilter.setSeverities(filter.getSeverities());
-                logs = processLogDao2.getAll(subprocessFilter);
+                logs = processLogDao.getAll(subprocessFilter);
                 result.addLogs(logs, filter.isIncludeSubprocessLogs());
             }
         }
@@ -72,7 +72,7 @@ public class AuditLogic extends CommonLogic {
 
     public Object getProcessLogValue(User user, Long logId) {
         Preconditions.checkNotNull(logId, "logId");
-        BaseProcessLog processLog = processLogDao2.getNotNull(logId);
+        BaseProcessLog processLog = processLogDao.getNotNull(logId);
         permissionDao.checkAllowed(user, Permission.LIST, SecuredObjectType.PROCESS, processLog.getProcessId());
         return processLog.getBytes();
     }

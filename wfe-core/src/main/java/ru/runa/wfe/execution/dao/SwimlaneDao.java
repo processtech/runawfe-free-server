@@ -1,10 +1,11 @@
 package ru.runa.wfe.execution.dao;
 
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.QSwimlane;
 import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.extension.AssignmentHandler;
@@ -20,17 +21,17 @@ import ru.runa.wfe.lang.SwimlaneDefinition;
 @Component
 public class SwimlaneDao extends GenericDao<Swimlane> {
 
-    public List<Swimlane> findByProcess(Process process) {
-        QSwimlane s = QSwimlane.swimlane;
+    public List<Swimlane> findByProcess(CurrentProcess process) {
+        val s = QSwimlane.swimlane;
         return queryFactory.selectFrom(s).where(s.process.eq(process)).fetch();
     }
 
-    public Swimlane findByProcessAndName(Process process, String name) {
-        QSwimlane s = QSwimlane.swimlane;
+    public Swimlane findByProcessAndName(CurrentProcess process, String name) {
+        val s = QSwimlane.swimlane;
         return queryFactory.selectFrom(s).where(s.process.eq(process).and(s.name.eq(name))).fetchFirst();
     }
 
-    public Swimlane findOrCreate(Process process, SwimlaneDefinition swimlaneDefinition) {
+    public Swimlane findOrCreate(CurrentProcess process, SwimlaneDefinition swimlaneDefinition) {
         Swimlane swimlane = findByProcessAndName(process, swimlaneDefinition.getName());
         if (swimlane == null) {
             swimlane = new Swimlane(swimlaneDefinition.getName());
@@ -55,9 +56,9 @@ public class SwimlaneDao extends GenericDao<Swimlane> {
         return swimlane;
     }
 
-    public void deleteAll(Process process) {
+    public void deleteAll(CurrentProcess process) {
         log.debug("deleting swimlanes for process " + process.getId());
-        QSwimlane s = QSwimlane.swimlane;
+        val s = QSwimlane.swimlane;
         queryFactory.delete(s).where(s.process.eq(process)).execute();
     }
 }

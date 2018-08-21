@@ -1,27 +1,35 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.Node;
+import javax.persistence.Transient;
+import ru.runa.wfe.audit.presentation.ProcessIdValue;
+import ru.runa.wfe.commons.TypeConversionUtil;
 
-/**
- * Logging sub-process creation.
- *
- * @author Dofs
- */
-@Entity
-@DiscriminatorValue(value = "B")
-public class SubprocessStartLog extends NodeEnterLog implements ISubprocessStartLog {
-    private static final long serialVersionUID = 1L;
+public interface SubprocessStartLog extends NodeEnterLog {
 
-    public SubprocessStartLog() {
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.SUBPROCESS_START;
     }
 
-    public SubprocessStartLog(Node processStateNode, Token parentToken, Process subProcess) {
-        super(processStateNode);
-        addAttribute(ATTR_PROCESS_ID, subProcess.getId().toString());
-        addAttribute(ATTR_TOKEN_ID, parentToken.getId().toString());
+    @Transient
+    default Long getSubprocessId() {
+        return TypeConversionUtil.convertTo(Long.class, getAttributeNotNull(ATTR_PROCESS_ID));
+    }
+
+    @Transient
+    default Long getParentTokenId() {
+        return TypeConversionUtil.convertTo(long.class, getAttribute(ATTR_TOKEN_ID));
+    }
+
+    @Override
+    @Transient
+    default Object[] getPatternArguments() {
+        return new Object[] { new ProcessIdValue(getSubprocessId()) };
+    }
+
+    @Override
+    default void processBy(ProcessLogVisitor visitor) {
+        visitor.onSubprocessStartLog(this);
     }
 }

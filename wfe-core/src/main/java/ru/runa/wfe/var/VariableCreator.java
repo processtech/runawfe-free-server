@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 import ru.runa.wfe.var.impl.ByteArrayVariable;
 import ru.runa.wfe.var.impl.NullVariable;
@@ -58,7 +59,7 @@ public class VariableCreator {
      *            initial value
      * @return variable
      */
-    public Variable<?> create(ru.runa.wfe.execution.Process process, VariableDefinition variableDefinition, Object value) {
+    public Variable<?> create(CurrentProcess process, VariableDefinition variableDefinition, Object value) {
         log.debug("Creating variable '" + variableDefinition.getName() + "' in " + process + " with value '" + value + "'"
                 + (value != null ? " of " + value.getClass() : ""));
         Variable<?> variable;

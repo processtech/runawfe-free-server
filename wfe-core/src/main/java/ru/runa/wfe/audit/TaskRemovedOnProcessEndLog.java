@@ -1,25 +1,29 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskCompletionInfo;
+import javax.persistence.Transient;
+import ru.runa.wfe.audit.presentation.ProcessIdValue;
 
-/**
- * Logging task cancelled automatically.
- * 
- * @author Dofs
- */
-@Entity
-@DiscriminatorValue(value = "M")
-public class TaskRemovedOnProcessEndLog extends TaskEndLog implements ITaskRemovedOnProcessEndLog {
-    private static final long serialVersionUID = 1L;
+public interface TaskRemovedOnProcessEndLog extends TaskEndLog {
 
-    public TaskRemovedOnProcessEndLog() {
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_REMOVED_ON_PROCESS_END;
     }
 
-    public TaskRemovedOnProcessEndLog(Task task, TaskCompletionInfo completionInfo) {
-        super(task, completionInfo);
-        addAttribute(ATTR_PROCESS_ID, completionInfo.getProcessId().toString());
+    @Transient
+    default Long getEndedProcessId() {
+        return Long.parseLong(getAttributeNotNull(ATTR_PROCESS_ID));
+    }
+
+    @Override
+    @Transient
+    default Object[] getPatternArguments() {
+        return new Object[] { getTaskName(), new ProcessIdValue(getEndedProcessId()) };
+    }
+
+    @Override
+    default void processBy(ProcessLogVisitor visitor) {
+        visitor.onTaskRemovedOnProcessEndLog(this);
     }
 }

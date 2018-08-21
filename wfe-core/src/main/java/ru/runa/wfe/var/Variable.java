@@ -44,14 +44,14 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.VariableCreateLog;
-import ru.runa.wfe.audit.VariableDeleteLog;
-import ru.runa.wfe.audit.VariableLog;
-import ru.runa.wfe.audit.VariableUpdateLog;
+import ru.runa.wfe.audit.CurrentVariableDeleteLog;
+import ru.runa.wfe.audit.CurrentVariableLog;
+import ru.runa.wfe.audit.CurrentVariableCreateLog;
+import ru.runa.wfe.audit.CurrentVariableUpdateLog;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 
@@ -64,11 +64,11 @@ import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public abstract class Variable<T> extends BaseVariable<Process, T> {
+public abstract class Variable<T> extends BaseVariable<CurrentProcess, T> {
 
     protected Long id;
     private String name;
-    private Process process;
+    private CurrentProcess process;
 
     public Variable() {
     }
@@ -105,26 +105,26 @@ public abstract class Variable<T> extends BaseVariable<Process, T> {
         this.name = name;
     }
 
-    @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
     @ForeignKey(name = "FK_VARIABLE_PROCESS")
     @Index(name = "IX_VARIABLE_PROCESS")
-    public Process getProcess() {
+    public CurrentProcess getProcess() {
         return process;
     }
 
     @Override
-    public void setProcess(Process process) {
+    public void setProcess(CurrentProcess process) {
         this.process = process;
     }
 
-    private VariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition) {
+    private CurrentVariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition) {
         if (oldValue == null) {
-            return new VariableCreateLog(this, newValue, variableDefinition);
+            return new CurrentVariableCreateLog(this, newValue, variableDefinition);
         } else if (newValue == null) {
-            return new VariableDeleteLog(this);
+            return new CurrentVariableDeleteLog(this);
         } else {
-            return new VariableUpdateLog(this, oldValue, newValue, variableDefinition);
+            return new CurrentVariableUpdateLog(this, oldValue, newValue, variableDefinition);
         }
     }
 
@@ -135,7 +135,7 @@ public abstract class Variable<T> extends BaseVariable<Process, T> {
         return converter != null && converter.supports(value);
     }
 
-    public VariableLog setValue(ExecutionContext executionContext, Object newValue, VariableDefinition variableDefinition) {
+    public CurrentVariableLog setValue(ExecutionContext executionContext, Object newValue, VariableDefinition variableDefinition) {
         Object newStorableValue;
         if (supports(newValue)) {
             if (converter != null && converter.supports(newValue)) {

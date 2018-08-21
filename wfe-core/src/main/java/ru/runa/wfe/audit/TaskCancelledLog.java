@@ -1,25 +1,33 @@
 package ru.runa.wfe.audit;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskCompletionInfo;
+import javax.persistence.Transient;
 
-/**
- * Logging task cancelled automatically.
- * 
- * @author Dofs
- */
-@Entity
-@DiscriminatorValue(value = "O")
-public class TaskCancelledLog extends TaskEndLog implements ITaskCancelledLog {
-    private static final long serialVersionUID = 1L;
+public interface TaskCancelledLog extends TaskEndLog {
 
-    public TaskCancelledLog() {
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.TASK_CANCELLED;
     }
 
-    public TaskCancelledLog(Task task, TaskCompletionInfo completionInfo) {
-        super(task, completionInfo);
-        addAttribute(ATTR_INFO, completionInfo.getHandlerInfo());
+    @Transient
+    default String getHandlerInfo() {
+        String handlerInfo = getAttribute(ATTR_INFO);
+        if (handlerInfo != null) {
+            return handlerInfo;
+        }
+        // for pre 4.1.0 data
+        return "";
+    }
+
+    @Override
+    @Transient
+    default Object[] getPatternArguments() {
+        return new Object[] { getTaskName(), getHandlerInfo() };
+    }
+
+    @Override
+    default void processBy(ProcessLogVisitor visitor) {
+        visitor.onTaskCancelledLog(this);
     }
 }

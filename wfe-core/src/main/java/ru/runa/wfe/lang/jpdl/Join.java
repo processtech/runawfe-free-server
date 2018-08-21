@@ -21,8 +21,8 @@
  */
 package ru.runa.wfe.lang.jpdl;
 
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 
@@ -38,13 +38,13 @@ public class Join extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getToken();
         token.end(executionContext.getProcessDefinition(), null, null, false);
         if (token.isAbleToReactivateParent()) {
             token.setAbleToReactivateParent(false);
-            Token parentToken = token.getParent();
+            CurrentToken parentToken = token.getParent();
             boolean reactivateParent = true;
-            for (Token childToken : parentToken.getActiveChildren()) {
+            for (CurrentToken childToken : parentToken.getActiveChildren()) {
                 if (childToken.isAbleToReactivateParent()) {
                     reactivateParent = false;
                     log.debug("There are exists at least 1 active token that can reactivate parent: " + childToken);

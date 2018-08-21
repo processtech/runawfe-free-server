@@ -23,8 +23,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
@@ -50,7 +50,7 @@ public class WfTaskFactory {
     }
 
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude, boolean firstOpen) {
-        Process process = task.getProcess();
+        CurrentProcess process = task.getProcess();
         Deployment deployment = process.getDeployment();
         boolean escalated = false;
         if (task.getExecutor() instanceof EscalationGroup) {

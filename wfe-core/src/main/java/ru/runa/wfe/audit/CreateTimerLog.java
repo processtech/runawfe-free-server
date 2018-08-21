@@ -1,24 +1,23 @@
 package ru.runa.wfe.audit;
 
-import java.util.Date;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import ru.runa.wfe.commons.CalendarUtil;
+import javax.persistence.Transient;
 
-/**
- * Logging timer creation.
- *
- * @author Dofs
- */
-@Entity
-@DiscriminatorValue(value = "C")
-public class CreateTimerLog extends ProcessLog implements ICreateTimerLog {
-    private static final long serialVersionUID = 1L;
+public interface CreateTimerLog extends ProcessLog {
 
-    public CreateTimerLog() {
+    @Override
+    @Transient
+    default Type getType() {
+        return Type.CREATE_TIMER;
     }
 
-    public CreateTimerLog(Date dueDate) {
-        addAttribute(ATTR_DUE_DATE, CalendarUtil.formatDateTime(dueDate));
+    @Override
+    @Transient
+    default Object[] getPatternArguments() {
+        return new Object[] { getAttributeNotNull(ATTR_DUE_DATE) };
+    }
+
+    @Override
+    default void processBy(ProcessLogVisitor visitor) {
+        visitor.onCreateTimerLog(this);
     }
 }

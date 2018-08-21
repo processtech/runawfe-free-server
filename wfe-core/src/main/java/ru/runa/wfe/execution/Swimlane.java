@@ -41,7 +41,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.audit.SwimlaneAssignLog;
+import ru.runa.wfe.audit.CurrentSwimlaneAssignLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.task.Task;
@@ -53,12 +53,12 @@ import ru.runa.wfe.user.Executor;
 @Entity
 @Table(name = "BPM_SWIMLANE")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Swimlane extends BaseSwimlane<Process> implements Serializable, Assignable {
+public class Swimlane extends BaseSwimlane<CurrentProcess> implements Serializable, Assignable {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Swimlane.class);
 
     private Long id;
-    private Process process;
+    private CurrentProcess process;
     private Executor executor;
 
     public Swimlane() {
@@ -90,16 +90,16 @@ public class Swimlane extends BaseSwimlane<Process> implements Serializable, Ass
     }
 
     @Override
-    @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID")
     @ForeignKey(name = "FK_SWIMLANE_PROCESS")
     @Index(name = "IX_SWIMLANE_PROCESS")
-    public Process getProcess() {
+    public CurrentProcess getProcess() {
         return process;
     }
 
     @Override
-    public void setProcess(Process process) {
+    public void setProcess(CurrentProcess process) {
         this.process = process;
     }
 
@@ -126,7 +126,7 @@ public class Swimlane extends BaseSwimlane<Process> implements Serializable, Ass
     public void assignExecutor(ExecutionContext executionContext, Executor executor, boolean cascadeUpdate) {
         if (!Objects.equal(getExecutor(), executor)) {
             log.debug("assigning swimlane '" + getName() + "' to '" + executor + "'");
-            executionContext.addLog(new SwimlaneAssignLog(this, executor));
+            executionContext.addLog(new CurrentSwimlaneAssignLog(this, executor));
             setExecutor(executor);
         }
         if (cascadeUpdate) {

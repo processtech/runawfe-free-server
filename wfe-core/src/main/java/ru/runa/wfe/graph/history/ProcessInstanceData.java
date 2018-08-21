@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.BaseProcess;
-import ru.runa.wfe.execution.BaseToken;
 import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -35,7 +35,7 @@ public class ProcessInstanceData {
     /**
      * Process instance tokens.
      */
-    private final HashMap<Long, BaseToken> processTokens = Maps.newHashMap();
+    private final HashMap<Long, Token> processTokens = Maps.newHashMap();
 
     public ProcessInstanceData(BaseProcess instance, ProcessDefinition processDefinition) {
         addToken(instance.getRootToken());
@@ -51,13 +51,13 @@ public class ProcessInstanceData {
         }
     }
 
-    private void addToken(BaseToken token) {
+    private void addToken(Token token) {
         processTokens.put(token.getId(), token);
-        Set<Token> childrens = token.getChildren();
+        Set<CurrentToken> childrens = token.getChildren();
         if (childrens == null) {
             return;
         }
-        for (Token child : childrens) {
+        for (CurrentToken child : childrens) {
             addToken(child);
         }
     }
@@ -99,7 +99,7 @@ public class ProcessInstanceData {
         return subProcesses.contains(subProcessName) ? subProcessName : null;
     }
 
-    public BaseToken getToken(long tokenId) {
+    public Token getToken(long tokenId) {
         return processTokens.get(tokenId);
     }
 }

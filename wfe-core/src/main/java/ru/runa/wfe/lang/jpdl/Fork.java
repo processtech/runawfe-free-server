@@ -25,8 +25,8 @@ import java.util.Map;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
@@ -46,22 +46,22 @@ public class Fork extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getToken();
         checkCyclicExecution(token);
-        Map<Token, Transition> childTokens = Maps.newHashMap();
+        Map<CurrentToken, Transition> childTokens = Maps.newHashMap();
         for (Transition leavingTransition : getLeavingTransitions()) {
-            Token childToken = new Token(token, getNodeId() + "/" + leavingTransition.getNodeId());
+            CurrentToken childToken = new CurrentToken(token, getNodeId() + "/" + leavingTransition.getNodeId());
             childTokens.put(childToken, leavingTransition);
         }
         ApplicationContextFactory.getTokenDao().flushPendingChanges();
         log.debug("Child tokens created: " + childTokens.keySet());
-        for (Map.Entry<Token, Transition> entry : childTokens.entrySet()) {
+        for (Map.Entry<CurrentToken, Transition> entry : childTokens.entrySet()) {
             ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), entry.getKey());
             leave(childExecutionContext, entry.getValue());
         }
     }
 
-    private void checkCyclicExecution(Token token) {
+    private void checkCyclicExecution(CurrentToken token) {
         if (token.getDepth() > SystemProperties.getTokenMaximumDepth()) {
             throw new RuntimeException("Cyclic fork execution does not allowed");
         }

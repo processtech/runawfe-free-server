@@ -8,8 +8,8 @@ import java.util.Map;
 import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.ITransitionLog;
+import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;
 
@@ -56,7 +56,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      * @param nodeFactory
      *            Factory to create nodes.
      */
-    protected HistoryGraphBaseNodeModel(IProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    protected HistoryGraphBaseNodeModel(ProcessLog processLog, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         try {
             this.definitionModel = definitionModel;
             this.nodeFactory = nodeFactory;
@@ -79,7 +79,7 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      * @param nodeFactory
      *            Factory to create nodes.
      */
-    protected HistoryGraphBaseNodeModel(IProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
+    protected HistoryGraphBaseNodeModel(ProcessLog processLog, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory) {
         try {
             this.definitionModel = definitionModel;
             this.nodeFactory = nodeFactory;
@@ -98,19 +98,19 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     @Override
     public HistoryGraphNode acceptLog(BaseProcessLog log) {
         nodeLogs.add(log);
-        if (!(log instanceof ITransitionLog)) {
+        if (!(log instanceof TransitionLog)) {
             return null;
         }
         if (!mayAcceptNewTransition()) {
             String message = "Unexpected leaving transition number " + (transitions.size() + 1) + " for node with id " + getNode().getNodeId();
             throw new InternalApplicationException(message);
         }
-        return addTransition((ITransitionLog) log);
+        return addTransition((TransitionLog) log);
     }
 
     @Override
-    public <T extends IProcessLog> T getNodeLog(IProcessLog.Type type) {
-        for (IProcessLog log : nodeLogs) {
+    public <T extends ProcessLog> T getNodeLog(ProcessLog.Type type) {
+        for (ProcessLog log : nodeLogs) {
             if (log.getType() == type) {
                 return (T) log;
             }
@@ -119,9 +119,9 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
     }
 
     @Override
-    public <T extends IProcessLog> List<T> getNodeLogs(IProcessLog.Type type) {
+    public <T extends ProcessLog> List<T> getNodeLogs(ProcessLog.Type type) {
         val result = new ArrayList<T>();
-        for (IProcessLog log : nodeLogs) {
+        for (ProcessLog log : nodeLogs) {
             if (log.getType() == type) {
                 result.add((T) log);
             }
@@ -133,10 +133,10 @@ public abstract class HistoryGraphBaseNodeModel implements HistoryGraphNode {
      * Add leaving transition from current node.
      * 
      * @param log
-     *            {@link ITransitionLog} for transition creation.
+     *            {@link TransitionLog} for transition creation.
      * @return Return's created graph history node (transition to).
      */
-    private HistoryGraphNode addTransition(ITransitionLog log) {
+    private HistoryGraphNode addTransition(TransitionLog log) {
         HistoryGraphNode newNode = nodeFactory.createNodeModel(log, definitionModel.getNode(log.getToNodeId()), definitionModel, nodeFactory);
         HistoryGraphTransitionModel transitionModel = new HistoryGraphTransitionModel(this, newNode, log);
         transitions.add(transitionModel);

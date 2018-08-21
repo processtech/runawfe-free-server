@@ -2,10 +2,11 @@ package ru.runa.wfe.audit.dao;
 
 import java.util.List;
 import lombok.NonNull;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.ArchivedProcessLog;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.QArchivedNodeEnterLog;
 import ru.runa.wfe.audit.QArchivedProcessLog;
 import ru.runa.wfe.execution.ArchivedProcess;
@@ -20,17 +21,17 @@ public class ArchivedProcessLogDao extends BaseProcessLogDao<ArchivedProcessLog>
     }
 
     @Override
-    protected Class<? extends BaseProcessLog> typeToClass(IProcessLog.Type type) {
+    protected Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type) {
         return type.archivedRootClass;
     }
 
     List<ArchivedProcessLog> getAll(@NonNull Long processId) {
-        QArchivedProcessLog pl = QArchivedProcessLog.archivedProcessLog;
+        val pl = QArchivedProcessLog.archivedProcessLog;
         return queryFactory.selectFrom(pl).where(pl.processId.eq(processId)).orderBy(pl.id.asc()).fetch();
     }
 
     List<ArchivedProcessLog> get(ArchivedProcess process, ProcessDefinition definition) {
-        QArchivedProcessLog pl = QArchivedProcessLog.archivedProcessLog;
+        val pl = QArchivedProcessLog.archivedProcessLog;
         return queryFactory.selectFrom(pl)
                 .where(pl.processId.eq(process.getId()))
                 .where(definition instanceof SubprocessDefinition ? pl.nodeId.like(definition.getNodeId() + ".%") : pl.nodeId.notLike("sub%"))
@@ -39,7 +40,7 @@ public class ArchivedProcessLogDao extends BaseProcessLogDao<ArchivedProcessLog>
     }
 
     boolean isNodeEntered(ArchivedProcess process, String nodeId) {
-        QArchivedNodeEnterLog nel = QArchivedNodeEnterLog.archivedNodeEnterLog;
+        val nel = QArchivedNodeEnterLog.archivedNodeEnterLog;
         return queryFactory.select(nel.id).from(nel).where(nel.processId.eq(process.getId()).and(nel.nodeId.eq(nodeId))).fetchFirst() != null;
     }
 }

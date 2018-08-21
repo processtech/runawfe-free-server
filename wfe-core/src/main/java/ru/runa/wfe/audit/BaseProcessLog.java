@@ -18,7 +18,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
 @MappedSuperclass
-public abstract class BaseProcessLog implements IProcessLog {
+public abstract class BaseProcessLog implements ProcessLog {
 
     public static int getAttributeMaxLength() {
         return SystemProperties.getLogMaxAttributeValueLength();
@@ -131,7 +131,7 @@ public abstract class BaseProcessLog implements IProcessLog {
     }
 
     @Override
-    public int compareTo(IProcessLog o) {
+    public int compareTo(ProcessLog o) {
         int dateCompare = createDate.compareTo(o.getCreateDate());
         if (dateCompare != 0) {
             return dateCompare;

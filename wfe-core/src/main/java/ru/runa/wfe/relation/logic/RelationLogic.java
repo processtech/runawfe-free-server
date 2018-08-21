@@ -18,6 +18,7 @@
 package ru.runa.wfe.relation.logic;
 
 import java.util.List;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -131,14 +132,14 @@ public class RelationLogic extends CommonLogic {
     }
 
     public List<Relation> getRelationsContainingExecutorsOnLeft(User user, List<Executor> executors) {
-        QRelation r = QRelation.relation;
-        QRelationPair rp = QRelationPair.relationPair;
+        val r = QRelation.relation;
+        val rp = QRelationPair.relationPair;
         return queryFactory.selectDistinct(r).from(r, rp).where(rp.relation.eq(r).and(rp.left.in(executors))).fetch();
     }
 
     public List<Relation> getRelationsContainingExecutorsOnRight(User user, List<Executor> executors) {
-        QRelation r = QRelation.relation;
-        QRelationPair rp = QRelationPair.relationPair;
+        val r = QRelation.relation;
+        val rp = QRelationPair.relationPair;
         return queryFactory.selectDistinct(r).from(r, rp).where(rp.relation.eq(r).and(rp.right.in(executors))).fetch();
     }
 

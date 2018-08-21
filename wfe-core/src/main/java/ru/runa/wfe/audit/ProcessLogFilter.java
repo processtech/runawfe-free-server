@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ProcessLogFilter implements Serializable {
     private static final long serialVersionUID = 1L;
-    private IProcessLog.Type type = ProcessLog.Type.ALL;
+    private ProcessLog.Type type = CurrentProcessLog.Type.ALL;
     private Long idFrom;
     private Long idTo;
     private Date createDateFrom;
@@ -38,11 +38,11 @@ public class ProcessLogFilter implements Serializable {
         this.severities = filter.severities;
     }
 
-    public IProcessLog.Type getType() {
+    public ProcessLog.Type getType() {
         return type;
     }
 
-    public void setType(IProcessLog.Type type) {
+    public void setType(ProcessLog.Type type) {
         this.type = type;
     }
 

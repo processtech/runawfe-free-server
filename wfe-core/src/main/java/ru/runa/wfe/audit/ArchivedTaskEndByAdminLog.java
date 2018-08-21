@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "K")
-public class ArchivedTaskEndByAdminLog extends ArchivedTaskEndLog implements ITaskEndByAdminLog {
+public class ArchivedTaskEndByAdminLog extends ArchivedTaskEndLog implements TaskEndByAdminLog {
 }

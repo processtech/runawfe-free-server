@@ -1,9 +1,9 @@
 package ru.runa.wfe.audit.dao;
 
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 
 public interface ProcessLogAwareDao {
-    void addLog(BaseProcessLog processLog, Process process, Token token);
+    void addLog(BaseProcessLog processLog, CurrentProcess process, CurrentToken token);
 }

@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "8")
-public class ArchivedReceiveMessageLog extends ArchivedNodeEnterLog implements IReceiveMessageLog {
+public class ArchivedReceiveMessageLog extends ArchivedNodeEnterLog implements ReceiveMessageLog {
 }

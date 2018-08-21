@@ -23,13 +23,13 @@ import com.google.common.collect.Maps;
 import java.awt.Color;
 import java.util.Date;
 import java.util.Map;
-import ru.runa.wfe.audit.ITaskCreateLog;
-import ru.runa.wfe.audit.ITaskEndLog;
-import ru.runa.wfe.audit.ITransitionLog;
+import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskEndLog;
+import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.definition.Language;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
@@ -52,7 +52,7 @@ import ru.runa.wfe.task.TaskDeadlineUtils;
  */
 public class GraphImageBuilder {
     private final ProcessDefinition processDefinition;
-    private Token highlightedToken;
+    private CurrentToken highlightedToken;
     private final Map<String, AbstractFigure> allNodeFigures = Maps.newHashMap();
     private final Map<TransitionFigure, RenderHits> transitionFigures = Maps.newHashMap();
     private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newLinkedHashMap();
@@ -63,11 +63,11 @@ public class GraphImageBuilder {
         this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && processDefinition.getDeployment().getLanguage() == Language.BPMN2;
     }
 
-    public void setHighlightedToken(Token highlightedToken) {
+    public void setHighlightedToken(CurrentToken highlightedToken) {
         this.highlightedToken = highlightedToken;
     }
 
-    public byte[] createDiagram(Process process, ProcessLogs logs) throws Exception {
+    public byte[] createDiagram(CurrentProcess process, ProcessLogs logs) throws Exception {
         AbstractFigureFactory factory;
         if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
             factory = new BpmnFigureFactory();
@@ -102,7 +102,7 @@ public class GraphImageBuilder {
                 }
             }
         }
-        for (ITransitionLog transitionLog : logs.getLogs(ITransitionLog.class)) {
+        for (TransitionLog transitionLog : logs.getLogs(TransitionLog.class)) {
             Transition transition = transitionLog.getTransitionOrNull(processDefinition);
             if (transition != null) {
                 RenderHits renderHits = new RenderHits(DrawProperties.getHighlightColor(), true);
@@ -133,8 +133,8 @@ public class GraphImageBuilder {
         return graphImage.getImageBytes();
     }
 
-    private void fillActiveSubprocesses(Token token) {
-        for (Token childToken : token.getActiveChildren()) {
+    private void fillActiveSubprocesses(CurrentToken token) {
+        for (CurrentToken childToken : token.getActiveChildren()) {
             fillActiveSubprocesses(childToken);
         }
         if (processDefinition.getNode(token.getNodeId()) != null && token.getNodeNotNull(processDefinition) instanceof SubprocessNode) {
@@ -152,13 +152,13 @@ public class GraphImageBuilder {
     }
 
     private void fillTasks(ProcessLogs logs) {
-        for (Map.Entry<ITaskCreateLog, ITaskEndLog> entry : logs.getTaskLogs().entrySet()) {
+        for (Map.Entry<TaskCreateLog, TaskEndLog> entry : logs.getTaskLogs().entrySet()) {
             boolean activeTask = entry.getValue() == null;
             Date deadlineDate = entry.getKey().getDeadlineDate();
             Date endDate = activeTask ? new Date() : entry.getValue().getCreateDate();
             AbstractFigure figure = allNodeFigures.get(entry.getKey().getNodeId());
             if (figure == null) {
-                // ru.runa.wfe.audit.TaskCreateLog.getNodeId() = null for old
+                // ru.runa.wfe.audit.CurrentTaskCreateLog.getNodeId() = null for old
                 // tasks
                 continue;
             }

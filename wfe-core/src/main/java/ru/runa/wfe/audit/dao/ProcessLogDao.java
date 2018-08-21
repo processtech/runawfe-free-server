@@ -1,60 +1,125 @@
 package ru.runa.wfe.audit.dao;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import lombok.NonNull;
+import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.ProcessLog;
-import ru.runa.wfe.audit.QNodeEnterLog;
-import ru.runa.wfe.audit.QProcessLog;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.audit.ArchivedProcessLog;
+import ru.runa.wfe.audit.CurrentProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
+import ru.runa.wfe.commons.dao.GenericDao2;
+import ru.runa.wfe.execution.ArchivedProcess;
+import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
 
-/**
- * DAO for {@link ProcessLog}.
- * 
- * @author dofs
- */
 @Component
-public class ProcessLogDao extends BaseProcessLogDao<ProcessLog> {
+@CommonsLog
+public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog, CurrentProcessLogDao, ArchivedProcessLog, ArchivedProcessLogDao> {
 
-    public ProcessLogDao() {
-        super(ProcessLog.class);
+    private ProcessDao processDao;
+    private ProcessLogAwareDao customizationDao;
+
+    @Autowired
+    protected ProcessLogDao(CurrentProcessLogDao dao1, ArchivedProcessLogDao dao2, ProcessDao processDao, ProcessLogAwareDao customizationDao) {
+        super(dao1, dao2);
+        this.processDao = processDao;
+        this.customizationDao = customizationDao;
     }
 
-    @Override
-    protected Class<? extends BaseProcessLog> typeToClass(IProcessLog.Type type) {
-        return type.currentRootClass;
+    public List<? extends BaseProcessLog> getAll(@NonNull BaseProcess process) {
+        if (process.isArchive()) {
+            return dao2.getAll(process.getId());
+        } else {
+            return dao1.getAll(process.getId());
+        }
     }
 
-    List<ProcessLog> getAll(@NonNull Long processId) {
-        QProcessLog pl = QProcessLog.processLog;
-        return queryFactory.selectFrom(pl).where(pl.processId.eq(processId)).orderBy(pl.id.asc()).fetch();
+    /**
+     * Called with TemporaryGroup.processId; other contexts have BaseProcess instance available.
+     */
+    public List<? extends BaseProcessLog> getAll(@NonNull Long processId) {
+        return getAll(processDao.getNotNull(processId));
     }
 
-    List<ProcessLog> get(Process process, ProcessDefinition definition) {
-        QProcessLog pl = QProcessLog.processLog;
-        return queryFactory.selectFrom(pl)
-                .where(pl.processId.eq(process.getId()))
-                .where(definition instanceof SubprocessDefinition ? pl.nodeId.like(definition.getNodeId() + ".%") : pl.nodeId.notLike("sub%"))
-                .orderBy(pl.id.asc())
-                .fetch();
+    public List<BaseProcessLog> getAll(final ProcessLogFilter filter) {
+        val process = filter.getProcessId() != null
+                ? processDao.get(filter.getProcessId())
+                : null;
+        if (process == null) {
+            val current = dao1.getAll(filter);
+            val archived = dao2.getAll(filter);
+            val result = new ArrayList<BaseProcessLog>(current.size() + archived.size());
+            result.addAll(current);
+            result.addAll(archived);
+            result.sort(new Comparator<BaseProcessLog>() {
+                @Override
+                public int compare(BaseProcessLog o1, BaseProcessLog o2) {
+                    return Long.compare(o1.getId(), o2.getId());
+                }
+            });
+            return result;
+        } else if (!process.isArchive()) {
+            return dao1.getAll(filter);
+        } else if (filter.getTokenId() != null) {
+            // Archive does not have TOKEN_ID field.
+            return Collections.emptyList();
+        } else {
+            return dao2.getAll(filter);
+        }
+    }
+
+    public List<? extends BaseProcessLog> get(@NonNull BaseProcess process, ProcessDefinition definition) {
+        if (process.isArchive()) {
+            return dao2.get((ArchivedProcess) process, definition);
+        } else {
+            return dao1.get((CurrentProcess) process, definition);
+        }
+    }
+
+    public boolean isNodeEntered(@NonNull BaseProcess process, String nodeId) {
+        if (process.isArchive()) {
+            return dao2.isNodeEntered((ArchivedProcess) process, nodeId);
+        } else {
+            return dao1.isNodeEntered((CurrentProcess) process, nodeId);
+        }
+    }
+
+    public void addLog(CurrentProcessLog processLog, CurrentProcess process, CurrentToken token) {
+        processLog.setProcessId(process.getId());
+        if (token == null) {
+            token = process.getRootToken();
+        }
+        processLog.setTokenId(token.getId());
+        if (processLog.getNodeId() == null) {
+            processLog.setNodeId(token.getNodeId());
+        }
+        processLog.setCreateDate(new Date());
+        create(processLog);
+        registerInCustomizationDao(processLog, process, token);
     }
 
     /**
      * Deletes all process logs.
      */
-    void deleteAll(Process process) {
-        long processId = process.getId();
-        log.debug("deleting logs for process " + processId);
-        QProcessLog pl = QProcessLog.processLog;
-        queryFactory.delete(pl).where(pl.processId.eq(processId)).execute();
+    public void deleteAll(CurrentProcess process) {
+        dao1.deleteAll(process);
     }
 
-    boolean isNodeEntered(Process process, String nodeId) {
-        QNodeEnterLog nel = QNodeEnterLog.nodeEnterLog;
-        return queryFactory.select(nel.id).from(nel).where(nel.processId.eq(process.getId()).and(nel.nodeId.eq(nodeId))).fetchFirst() != null;
+    private void registerInCustomizationDao(CurrentProcessLog processLog, CurrentProcess process, CurrentToken token) {
+        try {
+            customizationDao.addLog(processLog, process, token);
+        } catch (Throwable e) {
+            log.warn("Custom log handler throws exception", e);
+        }
     }
 }

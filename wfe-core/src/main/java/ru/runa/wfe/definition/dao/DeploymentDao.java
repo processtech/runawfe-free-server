@@ -24,6 +24,7 @@ package ru.runa.wfe.definition.dao;
 import com.google.common.base.Objects;
 import java.util.Date;
 import java.util.List;
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.dao.GenericDao;
@@ -69,7 +70,7 @@ public class DeploymentDao extends GenericDao<Deployment> {
      * queries the database for the latest version of a process definition with the given name.
      */
     public Deployment findLatestDeployment(String name) {
-        QDeployment d = QDeployment.deployment;
+        val d = QDeployment.deployment;
         Deployment deployment = queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetchFirst();
         if (deployment == null) {
             throw new DefinitionDoesNotExistException(name);
@@ -78,7 +79,7 @@ public class DeploymentDao extends GenericDao<Deployment> {
     }
 
     public Deployment findDeployment(String name, Long version) {
-        QDeployment d = QDeployment.deployment;
+        val d = QDeployment.deployment;
         Deployment deployment = queryFactory.selectFrom(d).where(d.name.eq(name).and(d.version.eq(version))).fetchFirst();
         if (deployment == null) {
             throw new DefinitionDoesNotExistException(name + " v" + version);
@@ -90,7 +91,7 @@ public class DeploymentDao extends GenericDao<Deployment> {
      * queries the database for definition names.
      */
     public List<String> findDeploymentNames() {
-        QDeployment d = QDeployment.deployment;
+        val d = QDeployment.deployment;
         return queryFactory.selectDistinct(d.name).from(d).orderBy(d.name.desc()).fetch();
     }
 
@@ -98,22 +99,22 @@ public class DeploymentDao extends GenericDao<Deployment> {
      * queries the database for all version ids of process definitions with the given name, ordered by version.
      */
     public List<Long> findAllDeploymentVersionIds(String name, boolean ascending) {
-        QDeployment d = QDeployment.deployment;
+        val d = QDeployment.deployment;
         return queryFactory.select(d.id).from(d).where(d.name.eq(name)).orderBy(ascending ? d.version.asc() : d.version.desc()).fetch();
     }
 
     public List<Long> findDeploymentVersionIds(String name, Long from, Long to) {
-        QDeployment d = QDeployment.deployment;
+        val d = QDeployment.deployment;
         return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.version.between(from, to))).orderBy(d.version.asc()).fetch();
     }
 
     public Long findDeploymentIdLatestVersionLessThan(String name, Long version) {
-        QDeployment d = QDeployment.deployment;
+        val d = QDeployment.deployment;
         return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.version.lt(version))).orderBy(d.version.desc()).fetchFirst();
     }
 
     public Long findDeploymentIdLatestVersionBeforeDate(String name, Date date) {
-        QDeployment d = QDeployment.deployment;
+        val d = QDeployment.deployment;
         return queryFactory.select(d.id).from(d).where(d.name.eq(name).and(d.createDate.lt(date))).orderBy(d.version.desc()).fetchFirst();
     }
 
@@ -124,8 +125,7 @@ public class DeploymentDao extends GenericDao<Deployment> {
      */
     @Deprecated
     public List<Deployment> findAllDeploymentVersions(String name) {
-        QDeployment d = QDeployment.deployment;
+        val d = QDeployment.deployment;
         return queryFactory.selectFrom(d).where(d.name.eq(name)).orderBy(d.version.desc()).fetch();
     }
-
 }

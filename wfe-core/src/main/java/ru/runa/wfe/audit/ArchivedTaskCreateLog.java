@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "1")
-public class ArchivedTaskCreateLog extends ArchivedTaskLog implements ITaskCreateLog {
+public class ArchivedTaskCreateLog extends ArchivedTaskLog implements TaskCreateLog {
 }

@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.CurrentAdminActionLog;
 import ru.runa.wfe.audit.ProcessDefinitionDeleteLog;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
@@ -43,7 +43,7 @@ import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
 import ru.runa.wfe.execution.ParentProcessExistsException;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -193,9 +193,9 @@ public class DefinitionLogic extends WfCommonLogic {
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(deployment.getName());
         filter.setDefinitionVersion(deployment.getVersion());
-        List<Process> processes = processDao.getProcesses(filter);
-        for (Process process : processes) {
-            processLogDao2.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);
+        List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
+        for (CurrentProcess process : processes) {
+            processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPGRADE_CURRENT_PROCESS_VERSION), process, null);
         }
     }
 
@@ -257,10 +257,10 @@ public class DefinitionLogic extends WfCommonLogic {
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(definitionName);
         filter.setDefinitionVersion(version);
-        List<Process> processes = processDao.getProcesses(filter);
-        for (Process process : processes) {
-            if (nodeProcessDao.findBySubProcessId(process.getId()) != null) {
-                throw new ParentProcessExistsException(definitionName, nodeProcessDao.findBySubProcessId(process.getId()).getProcess()
+        List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
+        for (CurrentProcess process : processes) {
+            if (currentNodeProcessDao.findBySubProcessId(process.getId()) != null) {
+                throw new ParentProcessExistsException(definitionName, currentNodeProcessDao.findBySubProcessId(process.getId()).getProcess()
                         .getDeployment().getName());
             }
         }
@@ -281,8 +281,8 @@ public class DefinitionLogic extends WfCommonLogic {
     }
 
     private void removeDeployment(User user, Deployment deployment) {
-        List<Process> processes = processDao.findAllProcesses(deployment.getId());
-        for (Process process : processes) {
+        List<CurrentProcess> processes = currentProcessDao.findAllProcesses(deployment.getId());
+        for (CurrentProcess process : processes) {
             deleteProcess(user, process);
         }
         deploymentDao.delete(deployment);

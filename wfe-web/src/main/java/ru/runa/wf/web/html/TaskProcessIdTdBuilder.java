@@ -31,7 +31,7 @@ import ru.runa.common.web.html.TdBuilder.Env.SecuredObjectExtractor;
 import ru.runa.wf.web.action.ShowGraphModeHelper;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.task.dto.WfTask;
@@ -60,7 +60,7 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
 
                 @Override
                 public SecuredObject getSecuredObject(final Object o, final Env env) {
-                    Process securedObject = new Process();
+                    CurrentProcess securedObject = new CurrentProcess();
                     securedObject.setId(((WfTask) o).getProcessId());
                     return securedObject;
                 }

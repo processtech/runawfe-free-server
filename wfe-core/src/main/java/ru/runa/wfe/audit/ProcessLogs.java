@@ -34,8 +34,8 @@ public class ProcessLogs implements Serializable {
         logs.addAll(processLogs);
         if (withSubprocesses) {
             for (BaseProcessLog log : processLogs) {
-                if (log instanceof ISubprocessStartLog) {
-                    Long subprocessId = ((ISubprocessStartLog) log).getSubprocessId();
+                if (log instanceof SubprocessStartLog) {
+                    Long subprocessId = ((SubprocessStartLog) log).getSubprocessId();
                     subprocessToProcessIds.put(subprocessId, log.getProcessId());
                 }
             }
@@ -97,8 +97,8 @@ public class ProcessLogs implements Serializable {
         return logs;
     }
 
-    public <T extends IProcessLog> T getFirstOrNull(Class<T> logClass) {
-        for (IProcessLog log : logs) {
+    public <T extends ProcessLog> T getFirstOrNull(Class<T> logClass) {
+        for (ProcessLog log : logs) {
             if (logClass.isAssignableFrom(log.getClass())) {
                 return (T) log;
             }
@@ -106,8 +106,8 @@ public class ProcessLogs implements Serializable {
         return null;
     }
 
-    public <T extends IProcessLog> T getLastOrNull(Class<T> logClass) {
-        for (IProcessLog log : Lists.reverse(logs)) {
+    public <T extends ProcessLog> T getLastOrNull(Class<T> logClass) {
+        for (ProcessLog log : Lists.reverse(logs)) {
             if (logClass.isAssignableFrom(log.getClass())) {
                 return (T) log;
             }
@@ -115,9 +115,9 @@ public class ProcessLogs implements Serializable {
         return null;
     }
 
-    public <T extends IProcessLog> List<T> getLogs(Class<T> logClass) {
+    public <T extends ProcessLog> List<T> getLogs(Class<T> logClass) {
         List<T> list = Lists.newArrayList();
-        for (IProcessLog log : logs) {
+        for (ProcessLog log : logs) {
             if (logClass.isAssignableFrom(log.getClass())) {
                 list.add((T) log);
             }
@@ -135,21 +135,21 @@ public class ProcessLogs implements Serializable {
         return list;
     }
 
-    public Map<ITaskCreateLog, ITaskEndLog> getTaskLogs() {
-        Map<String, ITaskCreateLog> tmpByTaskName = Maps.newHashMap();
-        Map<Long, ITaskCreateLog> tmpByTaskId = Maps.newHashMap();
-        Map<ITaskCreateLog, ITaskEndLog> result = Maps.newHashMap();
+    public Map<TaskCreateLog, TaskEndLog> getTaskLogs() {
+        Map<String, TaskCreateLog> tmpByTaskName = Maps.newHashMap();
+        Map<Long, TaskCreateLog> tmpByTaskId = Maps.newHashMap();
+        Map<TaskCreateLog, TaskEndLog> result = Maps.newHashMap();
         boolean compatibilityMode = false;
         for (BaseProcessLog log : logs) {
-            if (log instanceof ITaskCreateLog) {
-                ITaskCreateLog taskCreateLog = (ITaskCreateLog) log;
+            if (log instanceof TaskCreateLog) {
+                TaskCreateLog taskCreateLog = (TaskCreateLog) log;
                 String key = log.getProcessId() + taskCreateLog.getTaskName();
                 tmpByTaskName.put(key, taskCreateLog);
                 tmpByTaskId.put(taskCreateLog.getTaskId(), taskCreateLog);
             }
-            if (log instanceof ITaskEndLog) {
-                ITaskEndLog taskEndLog = (ITaskEndLog) log;
-                ITaskCreateLog taskCreateLog;
+            if (log instanceof TaskEndLog) {
+                TaskEndLog taskEndLog = (TaskEndLog) log;
+                TaskCreateLog taskCreateLog;
                 if (taskEndLog.getTaskId() != null && tmpByTaskId.containsKey(taskEndLog.getTaskId())) {
                     taskCreateLog = tmpByTaskId.remove(taskEndLog.getTaskId());
                     tmpByTaskName.remove(log.getProcessId() + taskCreateLog.getTaskName());
@@ -164,21 +164,21 @@ public class ProcessLogs implements Serializable {
                 }
                 result.put(taskCreateLog, taskEndLog);
             }
-            if (log instanceof INodeLeaveLog) {
-                INodeLeaveLog nodeLeaveLog = (INodeLeaveLog) log;
+            if (log instanceof NodeLeaveLog) {
+                NodeLeaveLog nodeLeaveLog = (NodeLeaveLog) log;
                 if (NodeType.START_EVENT == nodeLeaveLog.getNodeType()) {
-                    IProcessStartLog processStartLog = getFirstOrNull(IProcessStartLog.class);
+                    ProcessStartLog processStartLog = getFirstOrNull(ProcessStartLog.class);
                     if (processStartLog == null) {
                         continue;
                     }
-                    TaskCreateLog taskCreateLog = new TaskCreateLog();
+                    CurrentTaskCreateLog taskCreateLog = new CurrentTaskCreateLog();
                     taskCreateLog.setId(processStartLog.getId());
                     taskCreateLog.setCreateDate(nodeLeaveLog.getCreateDate());
                     taskCreateLog.setProcessId(nodeLeaveLog.getProcessId());
                     taskCreateLog.setSeverity(nodeLeaveLog.getSeverity());
                     taskCreateLog.setTokenId(nodeLeaveLog.getTokenId());
                     taskCreateLog.addAttribute(Attributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
-                    TaskEndLog taskEndLog = new TaskEndLog();
+                    CurrentTaskEndLog taskEndLog = new CurrentTaskEndLog();
                     taskEndLog.setId(processStartLog.getId());
                     taskEndLog.setCreateDate(nodeLeaveLog.getCreateDate());
                     taskEndLog.setProcessId(nodeLeaveLog.getProcessId());
@@ -191,7 +191,7 @@ public class ProcessLogs implements Serializable {
             }
         }
         // unfinished tasks
-        for (ITaskCreateLog taskCreateLog : compatibilityMode ? tmpByTaskName.values() : tmpByTaskId.values()) {
+        for (TaskCreateLog taskCreateLog : compatibilityMode ? tmpByTaskName.values() : tmpByTaskId.values()) {
             result.put(taskCreateLog, null);
         }
         return result;

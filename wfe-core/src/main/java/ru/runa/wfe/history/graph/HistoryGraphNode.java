@@ -3,7 +3,7 @@ package ru.runa.wfe.history.graph;
 import java.util.List;
 import java.util.Map;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.lang.Node;
 
 /**
@@ -50,14 +50,14 @@ public interface HistoryGraphNode {
      * 
      * @return Returns first instance of of log with given type.
      */
-    <T extends IProcessLog> T getNodeLog(IProcessLog.Type type);
+    <T extends ProcessLog> T getNodeLog(ProcessLog.Type type);
 
     /**
      * Returns all instances of of log with given type.
      * 
      * @return Returns all instances of of log with given type.
      */
-    <T extends IProcessLog> List<T> getNodeLogs(IProcessLog.Type type);
+    <T extends ProcessLog> List<T> getNodeLogs(ProcessLog.Type type);
 
     /**
      * Check if node may accept log instance.

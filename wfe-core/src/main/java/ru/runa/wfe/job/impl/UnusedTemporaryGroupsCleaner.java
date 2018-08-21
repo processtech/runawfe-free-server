@@ -5,7 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import ru.runa.wfe.execution.dao.ProcessDao;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
@@ -17,7 +17,7 @@ public class UnusedTemporaryGroupsCleaner {
     @Autowired
     private ExecutorDao executorDao;
     @Autowired
-    private ProcessDao processDao;
+    private CurrentProcessDao currentProcessDao;
 
     @Transactional
     public void execute() {

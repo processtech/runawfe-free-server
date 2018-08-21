@@ -25,11 +25,11 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.IndexColumn;
-import ru.runa.wfe.audit.ITaskAssignLog;
-import ru.runa.wfe.audit.ITaskCreateLog;
+import ru.runa.wfe.audit.TaskAssignLog;
+import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.InteractionNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.TaskDefinition;
@@ -101,7 +101,7 @@ public class TaskAggregatedLog {
         super();
     }
 
-    public TaskAggregatedLog(ITaskCreateLog taskCreateLog, ProcessDefinitionLoader processDefinitionLoader, Process process, Token token) {
+    public TaskAggregatedLog(TaskCreateLog taskCreateLog, ProcessDefinitionLoader processDefinitionLoader, CurrentProcess process, CurrentToken token) {
         taskId = taskCreateLog.getTaskId();
         processId = taskCreateLog.getProcessId();
         createDate = taskCreateLog.getCreateDate();
@@ -126,7 +126,7 @@ public class TaskAggregatedLog {
      * @param taskAssignLog
      *            Task assignment log to update information.
      */
-    public void updateAssignment(ITaskAssignLog taskAssignLog) {
+    public void updateAssignment(TaskAssignLog taskAssignLog) {
         saveAssignment(taskAssignLog.getCreateDate(), taskAssignLog.getNewExecutorName());
         if (!Strings.isNullOrEmpty(initialActorName)) {
             return;

@@ -16,11 +16,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.audit.IProcessCancelLog;
-import ru.runa.wfe.audit.IProcessEndLog;
-import ru.runa.wfe.audit.IProcessStartLog;
-import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.audit.ProcessCancelLog;
+import ru.runa.wfe.audit.ProcessEndLog;
+import ru.runa.wfe.audit.ProcessStartLog;
+import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.CurrentProcess;
 
 /**
  * Log information about process instance.
@@ -68,19 +68,19 @@ public class ProcessInstanceAggregatedLog {
         super();
     }
 
-    public ProcessInstanceAggregatedLog(IProcessStartLog processStartLog, Process process, Token token) {
+    public ProcessInstanceAggregatedLog(ProcessStartLog processStartLog, CurrentProcess process, CurrentToken token) {
         processInstanceId = processStartLog.getProcessId();
         actorName = processStartLog.getActorName();
         createDate = processStartLog.getCreateDate();
         endReason = EndReason.PROCESSING;
     }
 
-    public void update(IProcessEndLog processEndLog) {
+    public void update(ProcessEndLog processEndLog) {
         endDate = processEndLog.getCreateDate();
         endReason = EndReason.COMPLETED;
     }
 
-    public void update(IProcessCancelLog processCancelLog) {
+    public void update(ProcessCancelLog processCancelLog) {
         endDate = processCancelLog.getCreateDate();
         cancelActorName = processCancelLog.getActorName();
         endReason = EndReason.CANCELLED;

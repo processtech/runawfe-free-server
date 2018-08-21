@@ -11,19 +11,19 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.TaskDelegationLog;
+import ru.runa.wfe.audit.CurrentTaskDelegationLog;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessSuspendedException;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.BaseTaskNode;
@@ -169,7 +169,7 @@ public class TaskLogic extends WfCommonLogic {
     }
 
     private void pushToken(ExecutionContext executionContext, Task task, Transition transition) {
-        Token token = executionContext.getToken();
+        CurrentToken token = executionContext.getToken();
         if (!Objects.equal(task.getNodeId(), token.getNodeId())) {
             throw new InternalApplicationException("completion of " + task + " failed. Different node id in task and token: " + token.getNodeId());
         }
@@ -230,14 +230,14 @@ public class TaskLogic extends WfCommonLogic {
 
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
-        Process process = processDao.getNotNull(processId);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
         permissionDao.checkAllowed(user, Permission.LIST, process);
         for (Task task : taskDao.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
-            List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
-            for (Process subprocess : subprocesses) {
+            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(process);
+            for (CurrentProcess subprocess : subprocesses) {
                 permissionDao.checkAllowed(user, Permission.LIST, subprocess);
                 for (Task task : taskDao.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
@@ -289,7 +289,7 @@ public class TaskLogic extends WfCommonLogic {
         executorDao.addExecutorsToGroup(executors, delegationGroup);
         ProcessDefinition processDefinition = getDefinition(task);
         final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
-        executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
+        executionContext.addLog(new CurrentTaskDelegationLog(task, user.getActor(), executors));
         AssignmentHelper.reassignTask(executionContext, task, delegationGroup, false);
     }
 

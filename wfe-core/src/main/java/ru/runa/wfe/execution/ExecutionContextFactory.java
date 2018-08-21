@@ -5,11 +5,11 @@ import ru.runa.wfe.task.Task;
 
 public class ExecutionContextFactory {
 
-    public ExecutionContext createExecutionContext(ProcessDefinition processDefinition, Token token) {
+    public ExecutionContext createExecutionContext(ProcessDefinition processDefinition, CurrentToken token) {
         return new ExecutionContext(processDefinition, token);
     }
 
-    public ExecutionContext createExecutionContext(ProcessDefinition processDefinition, Process process) {
+    public ExecutionContext createExecutionContext(ProcessDefinition processDefinition, CurrentProcess process) {
         return new ExecutionContext(processDefinition, process);
     }
 

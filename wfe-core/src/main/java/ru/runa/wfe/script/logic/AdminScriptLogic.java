@@ -18,6 +18,7 @@
 package ru.runa.wfe.script.logic;
 
 import java.util.List;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.logic.CommonLogic;
@@ -37,7 +38,7 @@ public class AdminScriptLogic extends CommonLogic {
     }
 
     public List<String> getScriptsNames() {
-        QAdminScript as = QAdminScript.adminScript;
+        val as = QAdminScript.adminScript;
         return queryFactory.select(as.name).from(as).orderBy(as.name.asc()).fetch();
     }
 

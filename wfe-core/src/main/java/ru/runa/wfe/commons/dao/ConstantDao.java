@@ -19,6 +19,7 @@ package ru.runa.wfe.commons.dao;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import lombok.val;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SQLQuery;
@@ -55,7 +56,7 @@ public class ConstantDao extends GenericDao<Constant> {
     }
 
     public Constant get(String name) {
-        QConstant c = QConstant.constant;
+        val c = QConstant.constant;
         return queryFactory.selectFrom(c).where(c.name.eq(name)).fetchFirst();
     }
 

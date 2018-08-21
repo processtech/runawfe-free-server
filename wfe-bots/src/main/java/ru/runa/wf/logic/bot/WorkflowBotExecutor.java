@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.bot.Bot;
@@ -220,7 +220,7 @@ public class WorkflowBotExecutor {
         }
 
         ProcessLogFilter filter = new ProcessLogFilter();
-        filter.setType(IProcessLog.Type.NODE_LEAVE);
+        filter.setType(ProcessLog.Type.NODE_LEAVE);
         filter.setProcessId(bot.getBoundProcessId());
 
         WfProcess process = Delegates.getExecutionService().getProcess(user, bot.getBoundProcessId());

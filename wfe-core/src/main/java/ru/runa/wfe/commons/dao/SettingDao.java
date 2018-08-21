@@ -18,6 +18,7 @@
 package ru.runa.wfe.commons.dao;
 
 import java.util.List;
+import lombok.val;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class SettingDao extends GenericDao<Setting> {
     private static final Log log = LogFactory.getLog(SettingDao.class);
 
     private Setting get(String fileName, String name) {
-        QSetting s = QSetting.setting;
+        val s = QSetting.setting;
         return queryFactory.selectFrom(s).where(s.fileName.eq(fileName).and(s.name.eq(name))).fetchFirst();
     }
 

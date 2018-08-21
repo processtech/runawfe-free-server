@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "E")
-public class ArchivedAdminActionLog extends ArchivedProcessLog implements IAdminActionLog {
+public class ArchivedAdminActionLog extends ArchivedProcessLog implements AdminActionLog {
 }

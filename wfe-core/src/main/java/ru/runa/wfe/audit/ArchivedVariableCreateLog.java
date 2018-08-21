@@ -5,5 +5,5 @@ import javax.persistence.Entity;
 
 @Entity
 @DiscriminatorValue(value = "R")
-public class ArchivedVariableCreateLog extends ArchivedVariableLog implements IVariableCreateLog {
+public class ArchivedVariableCreateLog extends ArchivedVariableLog implements VariableCreateLog {
 }

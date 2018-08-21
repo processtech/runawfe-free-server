@@ -4,6 +4,7 @@ import java.util.Map;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.ActionHandler;
 import ru.runa.wfe.extension.handler.ParamsDef;
@@ -27,7 +28,7 @@ public class StopProcessHandler extends TaskHandlerBase implements ActionHandler
         Long processId = TypeConversionUtil.convertTo(Long.class,
                 paramsDef.getInputParamValueNotNull("processId", executionContext.getVariableProvider()));
         if (processId > 0) {
-            ru.runa.wfe.execution.Process process = ApplicationContextFactory.getProcessDao().get(processId);
+            CurrentProcess process = ApplicationContextFactory.getProcessDao().get(processId);
             ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
             ExecutionContext targetExecutionContext = new ExecutionContext(processDefinition, process);

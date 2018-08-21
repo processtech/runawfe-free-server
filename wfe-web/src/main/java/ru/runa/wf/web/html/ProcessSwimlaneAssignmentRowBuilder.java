@@ -27,7 +27,7 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.wf.web.tag.ListTasksFormTag;
-import ru.runa.wfe.audit.ITaskAssignLog;
+import ru.runa.wfe.audit.TaskAssignLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.CalendarUtil;
@@ -80,7 +80,7 @@ public class ProcessSwimlaneAssignmentRowBuilder implements RowBuilder {
         filter.setNodeId(task.getNodeId());
         ProcessLogs logs = Delegates.getAuditService().getProcessLogs(user, filter);
 
-        ITaskAssignLog taskAssignLog = logs.getLastOrNull(ITaskAssignLog.class);
+        TaskAssignLog taskAssignLog = logs.getLastOrNull(TaskAssignLog.class);
         if (taskAssignLog != null) {
             startExecutionDateString = CalendarUtil.formatDateTime(taskAssignLog.getCreateDate());
         }

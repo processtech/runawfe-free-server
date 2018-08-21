@@ -3,116 +3,66 @@ package ru.runa.wfe.execution;
 import com.google.common.base.Objects;
 import java.util.Date;
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import ru.runa.wfe.lang.Node;
 
-@Entity
-@Table(name = "BPM_SUBPROCESS")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class NodeProcess extends BaseNodeProcess<Process, Token> {
+@MappedSuperclass
+public abstract class NodeProcess<P extends BaseProcess, T extends Token<P, T>> {
 
-    private Long id;
-    private Process process;
-    private Token parentToken;
-    private Process subProcess;
+    protected String nodeId;
+    protected Integer index;  // TODO why = 0 for subprocess?
+    protected Date createDate;
 
-    protected NodeProcess() {
-    }
-
-    public NodeProcess(Node processStateNode, Token parentToken, Process subProcess, Integer index) {
-        this.process = parentToken.getProcess();
-        this.parentToken = parentToken;
-        this.nodeId = processStateNode.getNodeId();
-        this.subProcess = subProcess;
-        this.index = index;
-        this.createDate = new Date();
-    }
-
-    @Override
     @Transient
-    public boolean isArchive() {
-        return false;
+    public abstract boolean isArchive();
+
+    @Transient
+    public abstract Long getId();
+    protected abstract void setId(Long id);
+
+    @Transient
+    public abstract P getProcess();
+    public abstract void setProcess(P process);
+
+    @Transient
+    public abstract T getParentToken();
+    public abstract void setParentToken(T parentToken);
+
+    @Transient
+    public abstract P getSubProcess();
+    public abstract void setSubProcess(P subProcess);
+
+    @Column(name = "PARENT_NODE_ID", length = 1024)
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    @Column(name = "SUBPROCESS_INDEX")
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
+    @Column(name = "CREATE_DATE", nullable = false)
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     @Override
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_SUBPROCESS", allocationSize = 1)
-    @Column(name = "ID", nullable = false)
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @Override
-    @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_PARENT_PROCESS")
-    @Index(name = "IX_SUBPROCESS_PARENT_PROCESS")
-    public Process getProcess() {
-        return process;
-    }
-
-    @Override
-    public void setProcess(Process process) {
-        this.process = process;
-    }
-
-    @Override
-    @ManyToOne(targetEntity = Token.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_TOKEN_ID")
-    @ForeignKey(name = "FK_SUBPROCESS_TOKEN")
-    public Token getParentToken() {
-        return parentToken;
-    }
-
-    @Override
-    public void setParentToken(Token parentToken) {
-        this.parentToken = parentToken;
-    }
-
-    @Override
-    @ManyToOne(targetEntity = Process.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_PROCESS")
-    @Index(name = "IX_SUBPROCESS_PROCESS")
-    public Process getSubProcess() {
-        return subProcess;
-    }
-
-    @Override
-    public void setSubProcess(Process subProcess) {
-        this.subProcess = subProcess;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof NodeProcess) {
-            NodeProcess b = (NodeProcess) obj;
-            return Objects.equal(id, b.id);
-        }
-        return super.equals(obj);
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("id", getId()).add("nodeId", nodeId).add("process", getProcess()).add("subProcess", getSubProcess())
+                .toString();
     }
 }

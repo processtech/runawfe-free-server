@@ -31,17 +31,17 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.audit.AdminActionLog;
+import ru.runa.wfe.audit.CurrentAdminActionLog;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.INodeLeaveLog;
-import ru.runa.wfe.audit.IProcessLog;
-import ru.runa.wfe.audit.ITaskCreateLog;
-import ru.runa.wfe.audit.ITaskEndLog;
-import ru.runa.wfe.audit.IVariableLog;
+import ru.runa.wfe.audit.CurrentVariableDeleteLog;
+import ru.runa.wfe.audit.NodeLeaveLog;
+import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.TaskCreateLog;
+import ru.runa.wfe.audit.TaskEndLog;
+import ru.runa.wfe.audit.VariableLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
-import ru.runa.wfe.audit.VariableCreateLog;
-import ru.runa.wfe.audit.VariableDeleteLog;
+import ru.runa.wfe.audit.CurrentVariableCreateLog;
 import ru.runa.wfe.audit.logic.AuditLogic;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
@@ -52,9 +52,9 @@ import ru.runa.wfe.execution.ConvertToSimpleVariables;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesContext;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesResult;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesUnrollContext;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionVariableProvider;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -88,10 +88,10 @@ public class VariableLogic extends WfCommonLogic {
 
     public List<WfVariable> getVariables(User user, Long processId) throws ProcessDoesNotExistException {
         List<WfVariable> result = Lists.newArrayList();
-        Process process = processDao.getNotNull(processId);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         permissionDao.checkAllowed(user, Permission.LIST, process);
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(process));
+        Map<CurrentProcess, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(process));
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
@@ -104,10 +104,10 @@ public class VariableLogic extends WfCommonLogic {
 
     public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) throws ProcessDoesNotExistException {
         Map<Long, List<WfVariable>> result = Maps.newHashMap();
-        List<Process> processes = processDao.find(processIds);
+        List<CurrentProcess> processes = currentProcessDao.find(processIds);
         processes = filterSecuredObject(user, processes, Permission.LIST);
-        Map<Process, Map<String, Variable<?>>> variables = variableDao.getVariables(processes);
-        for (Process process : processes) {
+        Map<CurrentProcess, Map<String, Variable<?>>> variables = variableDao.getVariables(processes);
+        for (CurrentProcess process : processes) {
             List<WfVariable> list = Lists.newArrayList();
             ProcessDefinition processDefinition = getDefinition(process);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
@@ -135,7 +135,7 @@ public class VariableLogic extends WfCommonLogic {
         filter.setProcessId(processId);
         ProcessLogs processLogs = auditLogic.getProcessLogs(user, filter);
         if (taskId == null || Objects.equal(taskId, 0L)) { // Start process form.
-            INodeLeaveLog leaveLog = processLogs.getFirstOrNull(INodeLeaveLog.class);
+            NodeLeaveLog leaveLog = processLogs.getFirstOrNull(NodeLeaveLog.class);
             if (leaveLog == null) {
                 throw new InternalApplicationException("Task " + processId + ", " + taskId + " does not seems completed");
             }
@@ -147,7 +147,7 @@ public class VariableLogic extends WfCommonLogic {
         Date taskCompletePressedDate = null;
         Date taskEndDate = null;
         Long tokenId = null;
-        for (ITaskCreateLog createLog : processLogs.getLogs(ITaskCreateLog.class)) {
+        for (TaskCreateLog createLog : processLogs.getLogs(TaskCreateLog.class)) {
             if (Objects.equal(createLog.getTaskId(), taskId)) {
                 tokenId = createLog.getTokenId();
                 break;
@@ -156,13 +156,13 @@ public class VariableLogic extends WfCommonLogic {
         filter.setTokenId(tokenId);
         ProcessLogs tokenLogs = auditLogic.getProcessLogs(user, filter);
         for (BaseProcessLog log : tokenLogs.getLogs()) {
-            if (log instanceof ITaskCreateLog && Objects.equal(((ITaskCreateLog) log).getTaskId(), taskId)) {
+            if (log instanceof TaskCreateLog && Objects.equal(((TaskCreateLog) log).getTaskId(), taskId)) {
                 taskCreateDate = log.getCreateDate();
             }
-            if (log instanceof IVariableLog && taskCreateDate != null && taskCompletePressedDate == null) {
+            if (log instanceof VariableLog && taskCreateDate != null && taskCompletePressedDate == null) {
                 taskCompletePressedDate = log.getCreateDate();
             }
-            if (log instanceof ITaskEndLog && Objects.equal(((ITaskEndLog) log).getTaskId(), taskId)) {
+            if (log instanceof TaskEndLog && Objects.equal(((TaskEndLog) log).getTaskId(), taskId)) {
                 taskEndDate = log.getCreateDate();
                 break;
             }
@@ -183,7 +183,7 @@ public class VariableLogic extends WfCommonLogic {
     }
 
     public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
-        Process process = processDao.getNotNull(processId);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         return executionContext.getVariable(variableName, true);
@@ -194,7 +194,7 @@ public class VariableLogic extends WfCommonLogic {
         if (task.getIndex() == null) {
             return getVariable(user, processId, variableName);
         }
-        Process process = processDao.getNotNull(processId);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         MultiTaskNode node = (MultiTaskNode) processDefinition.getNodeNotNull(task.getNodeId());
         for (VariableMapping mapping : node.getVariableMappings()) {
@@ -213,19 +213,19 @@ public class VariableLogic extends WfCommonLogic {
     }
 
     public void updateVariables(User user, Long processId, Map<String, Object> variables) {
-        Process process = processDao.getNotNull(processId);
+        CurrentProcess process = currentProcessDao.getNotNull(processId);
         // TODO check ProcessPermission.UPDATE
         permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessDefinition processDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-        processLogDao2.addLog(new AdminActionLog(user.getActor(), AdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
+        processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
         executionContext.setVariableValues(variables);
     }
 
     private WfVariableHistoryState getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {
         HashSet<String> simpleVariablesChanged = Sets.<String> newHashSet();
         // Next call is for filling simpleVariablesChanged structure.
-        loadSimpleVariablesState(user, processDao.getNotNull(filter.getProcessId()), filter, simpleVariablesChanged);
+        loadSimpleVariablesState(user, currentProcessDao.getNotNull(filter.getProcessId()), filter, simpleVariablesChanged);
         Date dateFrom = filter.getCreateDateFrom();
         filter.setCreateDateFrom(null);
         WfVariableHistoryState toState = getHistoricalVariableOnDate(user, filter);
@@ -236,10 +236,10 @@ public class VariableLogic extends WfCommonLogic {
 
     private WfVariableHistoryState getHistoricalVariableOnDate(User user, ProcessLogFilter filter) {
         List<WfVariable> result = Lists.newArrayList();
-        Process process = processDao.getNotNull(filter.getProcessId());
+        CurrentProcess process = currentProcessDao.getNotNull(filter.getProcessId());
         permissionDao.checkAllowed(user, Permission.LIST, process);
         Set<String> simpleVariablesChanged = Sets.newHashSet();
-        Map<Process, Map<String, Variable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
+        Map<CurrentProcess, Map<String, Variable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
         VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
         ProcessDefinition processDefinition = getDefinition(process);
         BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, processDefinition, process);
@@ -266,11 +266,11 @@ public class VariableLogic extends WfCommonLogic {
      * @param baseProcessVariableLoader
      *            Component for loading variables with base process variable state support.
      */
-    private void removeSyncVariablesInBaseProcessMode(Map<Process, Map<String, Variable<?>>> processStateOnTime,
+    private void removeSyncVariablesInBaseProcessMode(Map<CurrentProcess, Map<String, Variable<?>>> processStateOnTime,
             BaseProcessVariableLoader baseProcessVariableLoader) {
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
-        for (Map.Entry<Process, Map<String, Variable<?>>> entry : processStateOnTime.entrySet()) {
-            final Process process = entry.getKey();
+        for (Map.Entry<CurrentProcess, Map<String, Variable<?>>> entry : processStateOnTime.entrySet()) {
+            final CurrentProcess process = entry.getKey();
             if (!baseProcessVariableLoader.getSubprocessSyncCache().isInBaseProcessIdMode(process)) {
                 continue;
             }
@@ -304,16 +304,16 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from process to process variables, loaded according to process filter.
      */
-    private Map<Process, Map<String, Variable<?>>> getProcessStateOnTime(User user, Process process, ProcessLogFilter filter,
+    private Map<CurrentProcess, Map<String, Variable<?>>> getProcessStateOnTime(User user, CurrentProcess process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
-        Map<Process, Map<String, Object>> processToVariables = loadSimpleVariablesState(user, process, filter, simpleVariablesChanged);
-        Map<Process, Map<String, Variable<?>>> result = Maps.newHashMap();
-        for (Map.Entry<Process, Map<String, Object>> entry : processToVariables.entrySet()) {
-            final Process currentProcess = entry.getKey();
+        Map<CurrentProcess, Map<String, Object>> processToVariables = loadSimpleVariablesState(user, process, filter, simpleVariablesChanged);
+        Map<CurrentProcess, Map<String, Variable<?>>> result = Maps.newHashMap();
+        for (Map.Entry<CurrentProcess, Map<String, Object>> entry : processToVariables.entrySet()) {
+            final CurrentProcess currentProcess = entry.getKey();
             Map<String, Object> processVariables = entry.getValue();
             Map<String, Variable<?>> newMap = Maps.newHashMap();
             result.put(currentProcess, newMap);
-            for (Process varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
+            for (CurrentProcess varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
                 ProcessDefinition definition = getDefinition(varProcess);
                 for (Map.Entry<String, Object> entry1 : processVariables.entrySet()) {
                     final String variableName = entry1.getKey();
@@ -347,10 +347,10 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from process to it simple variables state.
      */
-    private Map<Process, Map<String, Object>> loadSimpleVariablesState(User user, Process process, ProcessLogFilter filter,
+    private Map<CurrentProcess, Map<String, Object>> loadSimpleVariablesState(User user, CurrentProcess process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
-        Map<Process, Map<String, Object>> processToVariables = Maps.newHashMap();
-        for (Process loadingProcess = process; loadingProcess != null; loadingProcess = getBaseProcess(user, loadingProcess)) {
+        Map<CurrentProcess, Map<String, Object>> processToVariables = Maps.newHashMap();
+        for (CurrentProcess loadingProcess = process; loadingProcess != null; loadingProcess = getBaseProcess(user, loadingProcess)) {
             processToVariables.put(loadingProcess, loadVariablesForProcessFromLogs(user, loadingProcess, filter, simpleVariablesChanged));
         }
         return processToVariables;
@@ -372,15 +372,15 @@ public class VariableLogic extends WfCommonLogic {
     private Map<String, Object> loadVariablesForProcessFromLogs(User user, BaseProcess process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
         ProcessLogFilter localFilter = new ProcessLogFilter(filter);
-        localFilter.setType(IProcessLog.Type.VARIABLE);
+        localFilter.setType(ProcessLog.Type.VARIABLE);
         localFilter.setProcessId(process.getId());
         HashMap<String, Object> processVariables = Maps.newHashMap();
-        for (IVariableLog variableLog : auditLogic.getProcessLogs(user, localFilter).getLogs(IVariableLog.class)) {
+        for (VariableLog variableLog : auditLogic.getProcessLogs(user, localFilter).getLogs(VariableLog.class)) {
             String variableName = variableLog.getVariableName();
-            if (!(variableLog instanceof VariableCreateLog) || !Utils.isNullOrEmpty((variableLog).getVariableNewValue())) {
+            if (!(variableLog instanceof CurrentVariableCreateLog) || !Utils.isNullOrEmpty((variableLog).getVariableNewValue())) {
                 simpleVariablesChanged.add(variableName);
             }
-            if (variableLog instanceof VariableDeleteLog) {
+            if (variableLog instanceof CurrentVariableDeleteLog) {
                 processVariables.remove(variableName);
                 continue;
             }
@@ -389,7 +389,7 @@ public class VariableLogic extends WfCommonLogic {
         return processVariables;
     }
 
-    private Process getBaseProcess(User user, Process process) {
+    private CurrentProcess getBaseProcess(User user, CurrentProcess process) {
         if (Strings.isNullOrEmpty(SystemProperties.getBaseProcessIdVariableName())) {
             return null;
         }
@@ -398,6 +398,6 @@ public class VariableLogic extends WfCommonLogic {
         if (baseProcessId == null) {
             return null;
         }
-        return processDao.getNotNull(baseProcessId);
+        return currentProcessDao.getNotNull(baseProcessId);
     }
 }

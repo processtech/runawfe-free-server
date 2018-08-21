@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.List;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.INodeEnterLog;
-import ru.runa.wfe.audit.INodeLog;
-import ru.runa.wfe.audit.ITaskLog;
-import ru.runa.wfe.audit.ITransitionLog;
+import ru.runa.wfe.audit.NodeEnterLog;
+import ru.runa.wfe.audit.NodeLog;
+import ru.runa.wfe.audit.TaskLog;
+import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.execution.BaseProcess;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -37,13 +37,13 @@ public class GraphHistoryBuilderData {
      */
     private final List<BaseProcessLog> processLogs;
     /**
-     * All instances of {@link INodeLog} to build history.
+     * All instances of {@link NodeLog} to build history.
      */
-    private final List<INodeLog> nodeLogs = Lists.newArrayList();
+    private final List<NodeLog> nodeLogs = Lists.newArrayList();
     /**
-     * All instances of {@link ITaskLog} to build history.
+     * All instances of {@link TaskLog} to build history.
      */
-    private final List<ITaskLog> taskLogs = Lists.newArrayList();
+    private final List<TaskLog> taskLogs = Lists.newArrayList();
     /**
      * Component to parse logs into main process and subprocesses logs.
      */
@@ -88,16 +88,16 @@ public class GraphHistoryBuilderData {
         final boolean isForEmbeddedSubprocess = subProcessId != null && !"null".equals(subProcessId);
         List<BaseProcessLog> processLogForProcessing = embeddedLogsParser.getProcessLogs(subProcessId);
         for (BaseProcessLog processLog : processLogForProcessing) {
-            if (processLog instanceof INodeLog) {
+            if (processLog instanceof NodeLog) {
                 if (isForEmbeddedSubprocess &&
-                        processLog instanceof INodeEnterLog &&
-                        NodeType.START_EVENT == ((INodeLog) processLog).getNodeType()
+                        processLog instanceof NodeEnterLog &&
+                        NodeType.START_EVENT == ((NodeLog) processLog).getNodeType()
                 ) {
                     continue;
                 }
-                nodeLogs.add((INodeLog) processLog);
-            } else if (processLog instanceof ITaskLog) {
-                taskLogs.add((ITaskLog) processLog);
+                nodeLogs.add((NodeLog) processLog);
+            } else if (processLog instanceof TaskLog) {
+                taskLogs.add((TaskLog) processLog);
             }
         }
         return processLogForProcessing;
@@ -137,20 +137,20 @@ public class GraphHistoryBuilderData {
     }
 
     /**
-     * Get all {@link INodeLog} instances to build history.
+     * Get all {@link NodeLog} instances to build history.
      * 
-     * @return Returns all {@link INodeLog} instances.
+     * @return Returns all {@link NodeLog} instances.
      */
-    public List<INodeLog> getNodeLogs() {
+    public List<NodeLog> getNodeLogs() {
         return nodeLogs;
     }
 
     /**
-     * Get all {@link ITaskLog} instances to build history.
+     * Get all {@link TaskLog} instances to build history.
      * 
-     * @return Returns all {@link ITaskLog} instances.
+     * @return Returns all {@link TaskLog} instances.
      */
-    public List<ITaskLog> getTaskLogs() {
+    public List<TaskLog> getTaskLogs() {
         return taskLogs;
     }
 
@@ -175,7 +175,7 @@ public class GraphHistoryBuilderData {
      *            Node id, from which transition must be moved.
      * @return Returns transition log or null, if not found.
      */
-    public ITransitionLog findNextTransitionLog(INodeLog log, String nodeId) {
+    public TransitionLog findNextTransitionLog(NodeLog log, String nodeId) {
         return transitions.findNextTransitionLog(log, nodeId);
     }
 

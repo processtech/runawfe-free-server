@@ -28,8 +28,8 @@ import ru.runa.wfe.commons.dao.Localization;
 import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.commons.dao.SettingDao;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
+import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.ProcessDao;
-import ru.runa.wfe.execution.dao.ProcessDao2;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
@@ -55,9 +55,9 @@ public class CommonLogic {
     @Autowired
     protected LocalizationDao localizationDao;
     @Autowired
-    protected ProcessDao processDao;
+    protected CurrentProcessDao currentProcessDao;
     @Autowired
-    protected ProcessDao2 processDao2;
+    protected ProcessDao processDao;
     @Autowired
     protected SettingDao settingDao;
 

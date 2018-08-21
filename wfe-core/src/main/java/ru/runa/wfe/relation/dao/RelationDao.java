@@ -17,6 +17,7 @@
  */
 package ru.runa.wfe.relation.dao;
 
+import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.relation.QRelation;
@@ -65,13 +66,13 @@ public class RelationDao extends GenericDao<Relation> {
     }
 
     public Relation get(String name) {
-        QRelation r = QRelation.relation;
+        val r = QRelation.relation;
         return queryFactory.selectFrom(r).where(r.name.eq(name)).fetchFirst();
     }
 
     @Override
     public void delete(Long id) {
-        QRelationPair rp = QRelationPair.relationPair;
+        val rp = QRelationPair.relationPair;
         queryFactory.delete(rp).where(rp.relation.id.eq(id)).execute();
         super.delete(id);
     }

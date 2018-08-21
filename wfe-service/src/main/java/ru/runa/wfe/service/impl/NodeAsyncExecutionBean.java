@@ -23,9 +23,9 @@ import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
@@ -43,7 +43,7 @@ import ru.runa.wfe.service.interceptors.PerformanceObserver;
 public class NodeAsyncExecutionBean implements MessageListener {
     private static final Log log = LogFactory.getLog(NodeAsyncExecutionBean.class);
     @Autowired
-    private TokenDao tokenDao;
+    private CurrentTokenDao currentTokenDao;
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Resource
@@ -76,7 +76,7 @@ public class NodeAsyncExecutionBean implements MessageListener {
 
                 @Override
                 protected void doExecuteInTransaction() throws Exception {
-                    Token token = tokenDao.getNotNull(tokenId);
+                    CurrentToken token = currentTokenDao.getNotNull(tokenId);
                     if (token.getProcess().hasEnded()) {
                         log.debug("Ignored execution in ended " + token.getProcess());
                         return;

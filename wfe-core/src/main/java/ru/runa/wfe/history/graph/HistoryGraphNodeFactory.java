@@ -1,6 +1,6 @@
 package ru.runa.wfe.history.graph;
 
-import ru.runa.wfe.audit.ITransitionLog;
+import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.graph.history.ProcessInstanceData;
 import ru.runa.wfe.lang.Node;
 
@@ -9,7 +9,7 @@ import ru.runa.wfe.lang.Node;
  */
 public interface HistoryGraphNodeFactory {
     /**
-     * Creates history graph node for specified {@link ITransitionLog}. May
+     * Creates history graph node for specified {@link TransitionLog}. May
      * return existing node in case of join or parallel gateway.
      * 
      * @param log
@@ -23,5 +23,5 @@ public interface HistoryGraphNodeFactory {
      *            Factory to create history graph nodes.
      * @return Returns created (or existing) history graph node.
      */
-    HistoryGraphNode createNodeModel(ITransitionLog log, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory);
+    HistoryGraphNode createNodeModel(TransitionLog log, Node node, ProcessInstanceData definitionModel, HistoryGraphNodeFactory nodeFactory);
 }

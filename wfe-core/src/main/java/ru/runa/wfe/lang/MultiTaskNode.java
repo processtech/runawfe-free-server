@@ -30,7 +30,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.execution.Token;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
@@ -195,7 +195,7 @@ public class MultiTaskNode extends BaseTaskNode {
     }
 
     private boolean isLastTaskToComplete(Task task) {
-        Token token = task.getToken();
+        CurrentToken token = task.getToken();
         boolean lastToComplete = true;
         for (Task other : taskDao.findByToken(token)) {
             if (!other.equals(task)) {

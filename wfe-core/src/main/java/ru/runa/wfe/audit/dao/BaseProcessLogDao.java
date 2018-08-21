@@ -3,7 +3,7 @@ package ru.runa.wfe.audit.dao;
 import java.util.List;
 import org.hibernate.Query;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.IProcessLog;
+import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.commons.dao.GenericDao;
@@ -14,7 +14,7 @@ public abstract class BaseProcessLogDao<T extends BaseProcessLog> extends Generi
         super(entityClass);
     }
 
-    protected abstract Class<? extends BaseProcessLog> typeToClass(IProcessLog.Type type);
+    protected abstract Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type);
 
     /**
      * Public because used in migration.

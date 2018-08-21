@@ -1,101 +1,130 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2005, JBoss Inc., and individual contributors as indicated
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
 package ru.runa.wfe.audit;
 
-import com.google.common.base.Objects;
-import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import java.util.Date;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Index;
-import ru.runa.wfe.commons.CalendarUtil;
+import lombok.AllArgsConstructor;
 
 /**
- * Base class for logging process unit of work.
- *
- * @author Dofs
+ * Introduces so default method implementations of subinterfaces (like ActionLog) may refer to superinterface methods.
+ * <p>
+ * Subinterfaces (like ActionLog) must be used by archive-transparent code
+ * (i.e. when you need to handle both CurrentActionLog and ArchivedActionLog,* use ActionLog).
+ * <p>
+ * As for BaseProcessLog vs ProcessLog usage:
+ * <ul>
+ * <li>NodeGraphElement must use class BaseProcessLog because otherwise JAX-WS won't handle it (Apache CXF would fail on startup).
+ * <li>But generic archive-transparent code must use ProcessLog, same as cases where archive-transparent subinterface instances
+ *     are assigned to parameter / variable.
+ * </ul>
+ * So there's an inevitable mess of class and interface usages.
  */
-@Entity
-@Table(name = "BPM_LOG")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
-@DiscriminatorValue(value = "0")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@XmlAccessorType(XmlAccessType.FIELD)
-public abstract class ProcessLog extends BaseProcessLog implements Serializable {
-    private static final long serialVersionUID = 1L;
+public interface ProcessLog extends Attributes, Comparable<ProcessLog> {
 
-    private Long id;
-    private Long processId;
+    // TODO Consider using this to reduce class hiearchy.
+    @AllArgsConstructor
+    enum Type {
+        ALL(CurrentProcessLog.class, ArchivedProcessLog.class),
+        ACTION(CurrentActionLog.class, ArchivedActionLog.class),
+        ADMIN_ACTION(CurrentAdminActionLog.class, ArchivedAdminActionLog.class),
+        CREATE_TIMER(CurrentCreateTimerLog.class, ArchivedCreateTimerLog.class),
+        NODE(CurrentNodeLog.class, ArchivedNodeLog.class),
+        NODE_ENTER(CurrentNodeEnterLog.class, ArchivedNodeEnterLog.class),
+        NODE_LEAVE(CurrentNodeLeaveLog.class, ArchivedNodeLeaveLog.class),
+        PROCESS_ACTIVATE(CurrentProcessActivateLog.class, ArchivedProcessActivateLog.class),
+        PROCESS_CANCEL(CurrentProcessCancelLog.class, ArchivedProcessCancelLog.class),
+        PROCESS_END(CurrentProcessEndLog.class, ArchivedProcessEndLog.class),
+        PROCESS_START(CurrentProcessStartLog.class, ArchivedProcessStartLog.class),
+        PROCESS_SUSPEND(CurrentProcessSuspendLog.class, ArchivedProcessSuspendLog.class),
+        RECEIVED_MESSAGE(CurrentReceiveMessageLog.class, ArchivedReceiveMessageLog.class),
+        SEND_MESSAGE(CurrentSendMessageLog.class, ArchivedSendMessageLog.class),
+        SUBPROCESS_END(CurrentSubprocessEndLog.class, ArchivedSubprocessEndLog.class),
+        SUBPROCESS_START(CurrentSubprocessStartLog.class, ArchivedSubprocessStartLog.class),
+        SWIMLANE_ASSIGN(CurrentSwimlaneAssignLog.class, ArchivedSwimlaneAssignLog.class),
+        TASK(CurrentTaskLog.class, ArchivedTaskLog.class),
+        TASK_ASSIGN(CurrentTaskAssignLog.class, ArchivedTaskAssignLog.class),
+        TASK_CREATE(CurrentTaskCreateLog.class, ArchivedTaskCreateLog.class),
+        TASK_DELEGATION(CurrentTaskDelegationLog.class, ArchivedTaskDelegationLog.class),
+        TASK_END(CurrentTaskEndLog.class, ArchivedTaskEndLog.class),
+        TASK_CANCELLED(CurrentTaskCancelledLog.class, ArchivedTaskCancelledLog.class),
+        TASK_END_BY_ADMIN(CurrentTaskEndByAdminLog.class, ArchivedTaskEndByAdminLog.class),
+        TASK_END_BY_SUBSTITUTOR(CurrentTaskEndBySubstitutorLog.class, ArchivedTaskEndBySubstitutorLog.class),
+        TASK_EXPIRED(CurrentTaskExpiredLog.class, ArchivedTaskExpiredLog.class),
+        TASK_REMOVED_ON_PROCESS_END(CurrentTaskRemovedOnProcessEndLog.class, ArchivedTaskRemovedOnProcessEndLog.class),
+        TASK_ESCALATION(CurrentTaskEscalationLog.class, ArchivedTaskEscalationLog.class),
+        TRANSITION(CurrentTransitionLog.class, ArchivedTransitionLog.class),
+        VARIABLE(CurrentVariableLog.class, ArchivedVariableLog.class),
+        VARIABLE_CREATE(CurrentVariableCreateLog.class, ArchivedVariableCreateLog.class),
+        VARIABLE_DELETE(CurrentVariableDeleteLog.class, ArchivedVariableDeleteLog.class),
+        VARIABLE_UPDATE(CurrentVariableUpdateLog.class, ArchivedVariableUpdateLog.class);
 
-    @Override
+        public final Class<? extends CurrentProcessLog> currentRootClass;
+        public final Class<? extends ArchivedProcessLog> archivedRootClass;
+    }
+
     @Transient
-    public boolean isArchive() {
-        return false;
-    }
+    Type getType();
+    @Transient
+    boolean isArchive();
 
-    @Override
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_LOG", allocationSize = 1)
-    @Column(name = "ID")
-    public Long getId() {
-        return id;
-    }
+    @Transient
+    Long getId();
+    void setId(Long id);
 
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Transient
+    Long getProcessId();
+    void setProcessId(Long processId);
 
-    @Override
-    @Column(name = "PROCESS_ID", nullable = false)
-    @Index(name = "IX_LOG_PROCESS")
-    public Long getProcessId() {
-        return processId;
-    }
+    @Transient
+    Date getCreateDate();
+    void setCreateDate(Date date);
 
-    @Override
-    public void setProcessId(Long processId) {
-        this.processId = processId;
-    }
+    @Transient
+    Severity getSeverity();
+    void setSeverity(Severity severity);
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("id", id).add("nodeId", nodeId).add("tokenId", tokenId)
-                .add("date", CalendarUtil.formatDateTime(createDate)).add("attributes", attributes).toString();
-    }
+    @Transient
+    String getContent();
+    void setContent(String content);
+    @Transient
+    String getAttribute(String name);
+    @Transient
+    String getAttributeNotNull(String name);
+
+    @Transient
+    String getNodeId();
+    void setNodeId(String nodeId);
+
+    @Transient
+    Long getTokenId();
+    void setTokenId(Long tokenId);
+
+    @Transient
+    byte[] getBytes();
+    void setBytes(byte[] bytes);
+
+    /**
+     * Applies some operation to process log instance.
+     *
+     * @param visitor
+     *            Operation to apply.
+     */
+    void processBy(ProcessLogVisitor visitor);
+
+    @Transient
+    String getPatternName();
+
+    /**
+     * @return Arguments for localized pattern to format log message description.
+     */
+    @Transient
+    Object[] getPatternArguments();
+
+    /**
+     * Formats log message description.
+     *
+     * @param pattern
+     *            localized pattern
+     * @return formatted message
+     */
+    String toString(String pattern, Object... arguments);
 }
