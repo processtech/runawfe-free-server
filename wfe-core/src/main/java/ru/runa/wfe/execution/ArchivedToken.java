@@ -60,7 +60,9 @@ public class ArchivedToken extends Token<ArchivedProcess, ArchivedToken> {
     @Override
     @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
-    @ForeignKey(name = "FK_ARCH_TOKEN_PARENT")
+    @ForeignKey(name = "none")
+    // @ForeignKey(name = "FK_ARCH_TOKEN_PARENT") is not created: it would be violated during batch insert-select in ProcessArchiver.
+    // TODO They say Hibernate 5 does not support name="none", so careful when upgrading it.
     @Index(name = "IX_ARCH_TOKEN_PARENT")
     public ArchivedToken getParent() {
         return parent;

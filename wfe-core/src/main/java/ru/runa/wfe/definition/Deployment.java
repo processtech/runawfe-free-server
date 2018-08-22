@@ -164,6 +164,9 @@ public class Deployment extends SecuredObject {
         this.subprocessBindingDate = subprocessBindingDate;
     }
 
+    /**
+     * If null, use SystemProperties.getProcessDefaultEndedDaysBeforeArchiving().
+     */
     @Column(name = "ENDED_DAYS_BEFORE_ARCHIVING")
     public Integer getEndedDaysBeforeArchiving() {
         return endedDaysBeforeArchiving;

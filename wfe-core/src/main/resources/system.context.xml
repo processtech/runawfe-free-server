@@ -276,11 +276,13 @@
 	<bean id="jobExecutor" class="ru.runa.wfe.job.impl.JobExecutor" />
 	<bean id="unassignedTaskAssigner" class="ru.runa.wfe.job.impl.UnassignedTaskAssigner" />
 	<bean id="unusedTemporaryGroupsCleaner" class="ru.runa.wfe.job.impl.UnusedTemporaryGroupsCleaner" />
+	<bean id="processArchiver" class="ru.runa.wfe.job.impl.ProcessArchiver" />
 
 	<task:scheduled-tasks scheduler="baseScheduler">
 		<task:scheduled ref="jobExecutor" method="execute" fixed-delay="${timertask.period.millis.job.execution}" />
 		<task:scheduled ref="unassignedTaskAssigner" method="execute" fixed-delay="${timertask.period.millis.unassigned.tasks.execution}" />
 		<task:scheduled ref="unusedTemporaryGroupsCleaner" method="execute" fixed-delay="${timertask.period.millis.remove.temp.groups}" />
+		<task:scheduled ref="processArchiver" method="execute" fixed-delay="${timertask.period.millis.archive.processes}" />
 	</task:scheduled-tasks>
 
 	<bean id="businessCalendar" class="ru.runa.wfe.commons.bc.DefaultBusinessCalendar" />

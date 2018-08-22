@@ -1,8 +1,7 @@
 package ru.runa.wfe.job.impl;
 
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
@@ -11,8 +10,8 @@ import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.ProcessDefinition;
 
+@CommonsLog
 public class JobExecutor {
-    protected final Log log = LogFactory.getLog(getClass());
 
     @Autowired
     private JobDao jobDao;
