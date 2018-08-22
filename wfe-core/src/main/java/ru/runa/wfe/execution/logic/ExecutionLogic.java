@@ -412,11 +412,14 @@ public class ExecutionLogic extends WFCommonLogic {
         try {
             AssignmentHandler handler = delegation.getInstance();
             handler.assign(new ExecutionContext(processDefinition, process), swimlane);
-            log.info(swimlane + " reassigned");
         } catch (Exception e) {
             log.error("Unable to reassign swimlane. Cause: " + e);
         }
-        return !Objects.equal(oldExecutor, swimlane.getExecutor());
+        boolean swimlaneReassigned = !Objects.equal(oldExecutor, swimlane.getExecutor());
+        if (swimlaneReassigned) {
+            log.info(swimlane + " reassigned");
+        }
+        return swimlaneReassigned;
     }
 
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) {
