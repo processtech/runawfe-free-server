@@ -340,6 +340,10 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
+    public static int getProcessDefaultEndedDaysBeforeArchiving() {
+        return RESOURCES.getIntegerProperty("process.default.ended.days.before.archiving", 365);
+    }
+
     /**
      * @return default permissions by object type
      */
@@ -368,5 +372,4 @@ public class SystemProperties {
     public static Date getVariablesInvalidDefaultValuesAllowedBefore() {
         return RESOURCES.getDateProperty("variables.invalid.default.values.allowed.before", new Date());
     }
-
 }

@@ -56,7 +56,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddTransactionalBotSupport;
 import ru.runa.wfe.commons.dbpatch.impl.AddVariableUniqueKeyPatch;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAdminScriptTables;
 import ru.runa.wfe.commons.dbpatch.impl.CreateAggregatedLogsTables;
-import ru.runa.wfe.commons.dbpatch.impl.CreateArchiveTables;
+import ru.runa.wfe.commons.dbpatch.impl.SupportProcessArchiving;
 import ru.runa.wfe.commons.dbpatch.impl.CreateReportsTables;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandDescriptionsPatch;
 import ru.runa.wfe.commons.dbpatch.impl.ExpandVarcharPatch;
@@ -155,7 +155,7 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(AddTransactionalBotSupport.class);
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
-        patches.add(CreateArchiveTables.class);
+        patches.add(SupportProcessArchiving.class);
         dbPatches = Collections.unmodifiableList(patches);
     }
 

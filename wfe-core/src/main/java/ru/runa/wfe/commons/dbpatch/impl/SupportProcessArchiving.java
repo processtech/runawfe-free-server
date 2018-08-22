@@ -6,13 +6,18 @@ import java.util.List;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 /**
- * "Not null" constraints, indexes and foreign keys are copy-pasted from current BPM_* tables.
+ * See TNMS #5006.
+ * <p>
+ * "Not null" constraints, indexes and foreign keys for ARCHIVED_* tables are copy-pasted from current BPM_* tables.
  */
-public class CreateArchiveTables extends DbPatch {
+public class SupportProcessArchiving extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {
         return Arrays.asList(
+                // Nullable per-definition configuration; default is SystemProperties.getProcessDefaultEndedDaysBeforeArchiving():
+                getDDLCreateColumn("bpm_process_definition", new IntColumnDef("ended_days_before_archiving", true)),
+
                 // Process: all fields except EXECUTION_STATUS.
                 "create table archived_process as " +
                         "select id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id " +
@@ -89,6 +94,7 @@ public class CreateArchiveTables extends DbPatch {
                         "       reactivate_parent, node_type, version, name, process_id, parent_id " +
                         "from bpm_token " +
                         "where 0=1",
+                getDDLCreatePrimaryKey("archived_token", "pk_archived_token", "id"),
                 getDDLCreateIndex     ("archived_token", "ix_arch_message_selector", "message_selector"),
                 getDDLCreateIndex     ("archived_token", "ix_arch_token_parent", "parent_id"),
                 getDDLCreateForeignKey("archived_token", "fk_arch_token_parent", "parent_id", "archived_token", "id"),

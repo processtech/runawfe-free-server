@@ -30,7 +30,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
     private ProcessLogAwareDao customizationDao;
 
     @Autowired
-    protected ProcessLogDao(CurrentProcessLogDao dao1, ArchivedProcessLogDao dao2, ProcessDao processDao, ProcessLogAwareDao customizationDao) {
+    public ProcessLogDao(CurrentProcessLogDao dao1, ArchivedProcessLogDao dao2, ProcessDao processDao, ProcessLogAwareDao customizationDao) {
         super(dao1, dao2);
         this.processDao = processDao;
         this.customizationDao = customizationDao;

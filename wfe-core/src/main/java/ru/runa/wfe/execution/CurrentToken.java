@@ -184,12 +184,14 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
         this.executionStatus = executionStatus;
     }
 
+    @Override
     @Column(name = "MESSAGE_SELECTOR", length = 1024)
     @Index(name = "IX_MESSAGE_SELECTOR")
     public String getMessageSelector() {
         return messageSelector;
     }
 
+    @Override
     public void setMessageSelector(String messageSelector) {
         this.messageSelector = messageSelector;
     }

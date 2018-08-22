@@ -23,6 +23,7 @@ public class ArchivedToken extends Token<ArchivedProcess, ArchivedToken> {
     private ArchivedProcess process;
     private ArchivedToken parent;
     private Set<ArchivedToken> children;
+    private String messageSelector;
 
     @Override
     @Transient
@@ -87,5 +88,17 @@ public class ArchivedToken extends Token<ArchivedProcess, ArchivedToken> {
     @Transient
     public ExecutionStatus getExecutionStatus() {
         return ExecutionStatus.ENDED;
+    }
+
+    @Override
+    @Column(name = "MESSAGE_SELECTOR", length = 1024)
+    @Index(name = "IX_ARCH_MESSAGE_SELECTOR")
+    public String getMessageSelector() {
+        return messageSelector;
+    }
+
+    @Override
+    public void setMessageSelector(String messageSelector) {
+        this.messageSelector = messageSelector;
     }
 }

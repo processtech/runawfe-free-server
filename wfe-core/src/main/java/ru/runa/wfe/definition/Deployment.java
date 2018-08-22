@@ -44,6 +44,7 @@ public class Deployment extends SecuredObject {
     private Date updateDate;
     private Actor updateActor;
     private Date subprocessBindingDate;
+    private Integer endedDaysBeforeArchiving;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -161,6 +162,15 @@ public class Deployment extends SecuredObject {
 
     public void setSubprocessBindingDate(Date subprocessBindingDate) {
         this.subprocessBindingDate = subprocessBindingDate;
+    }
+
+    @Column(name = "ENDED_DAYS_BEFORE_ARCHIVING")
+    public Integer getEndedDaysBeforeArchiving() {
+        return endedDaysBeforeArchiving;
+    }
+
+    public void setEndedDaysBeforeArchiving(Integer endedDaysBeforeArchiving) {
+        this.endedDaysBeforeArchiving = endedDaysBeforeArchiving;
     }
 
     @Transient

@@ -46,6 +46,10 @@ public abstract class Token<P extends BaseProcess, T extends Token> {
     @Transient
     public abstract ExecutionStatus getExecutionStatus();
 
+    @Transient
+    public abstract String getMessageSelector();
+    public abstract void setMessageSelector(String messageSelector);
+
     @Version
     @Column(name = "VERSION")
     public Long getVersion() {
