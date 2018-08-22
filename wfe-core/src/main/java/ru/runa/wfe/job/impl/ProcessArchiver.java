@@ -51,10 +51,14 @@ public class ProcessArchiver {
     }
 
     private String generateSql() {
+        // There is NO date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
+        // And since this arithmetic is different for different SQL servers, have to switch on server type.
         DbType dbType = ApplicationContextFactory.getDBType();
-
         val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
-
+        return "select distinct p.id " +
+                "from bpm_process p " +
+                "inner join bpm_process_definition d on (d.id = p.definition_id) " +
+                "where p.execution_state = 'ENDED'"
     }
 
     /**
@@ -63,33 +67,24 @@ public class ProcessArchiver {
      *
      * @param field "p.end_date" for process, "t.end_date" for token.
      */
-    private String generateEndedTimeCheckExpression(String field) {
-
-        // There is NO date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
-        // And since this arithmetic is different for different SQL servers, have to switch on server type.
-        val dbType = ApplicationContextFactory.getDBType();
-
+    private String generateEndedTimeCheckExpression(String field, DbType dbType, int defaultEndedSecondsBeforeArchiving) {
         // COALESCE function is the same in all supported SQL servers.
-        val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
         val seconds = "coalesce(d.ended_seconds_before_archiving, " + defaultEndedSecondsBeforeArchiving + ")";
 
         switch (dbType) {
             case H2:
-                return "dateadd('second', " + seconds + ", " + field;
             case HSQL:
-                break;
             case MSSQL:
-                break;
+                return "dateadd('second', " + seconds + ", " + field + ") < ?";
             case MYSQL:
-                break;
+                return "date_add(" + field + ", interval " + seconds + " second) < ?";
             case ORACLE:
-                break;
+                return "(" + field + " + interval '" + seconds + "' second) < ?";
             case POSTGRESQL:
-                break;
+                return "(" + field + " + interval '" + seconds + " second') < ?";
             default:
                 throw new RuntimeException("Unsupported dbType = " + dbType);
         }
-
     }
 
     /**
