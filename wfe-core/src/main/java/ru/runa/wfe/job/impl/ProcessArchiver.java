@@ -1,6 +1,7 @@
 package ru.runa.wfe.job.impl;
 
 import com.google.common.collect.Lists;
+import com.querydsl.core.types.dsl.Expressions;
 import java.util.ArrayList;
 import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
@@ -8,6 +9,13 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.DbType;
+import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
+import ru.runa.wfe.definition.QDeployment;
+import ru.runa.wfe.execution.QCurrentProcess;
+import ru.runa.wfe.execution.QCurrentToken;
 
 @CommonsLog
 public class ProcessArchiver {
@@ -16,9 +24,14 @@ public class ProcessArchiver {
 
     @Autowired
     private SessionFactory sessionFactory;
+    @Autowired
+    private HibernateQueryFactory queryFactory;
 
     // First run on huge database may take long time, so prevent concurrent runs just in case.
     private boolean busy = false;
+
+    // Lazily initialized:
+    private String sqlSelectProcessIdsToArchive = null;
 
     public void execute() {
         if (busy) {
@@ -26,6 +39,10 @@ public class ProcessArchiver {
         }
         busy = true;
         try {
+            if (sqlSelectProcessIdsToArchive == null) {
+                sqlSelectProcessIdsToArchive = generateSql();
+            }
+
             //noinspection StatementWithEmptyBody
             while (step());
         } finally {
@@ -33,25 +50,84 @@ public class ProcessArchiver {
         }
     }
 
+    private String generateSql() {
+        DbType dbType = ApplicationContextFactory.getDBType();
+
+        val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
+
+    }
+
     /**
-     * First run on huge database may take a long time, so instead of single huge transaction, process in smaller transactional steps.
+     * Returned expression contains single "?" parameter for current time.
+     * I could use NOW(), but Java and SQL timezones may differ, and END_DATE values are set by Java code.
+     *
+     * @param field "p.end_date" for process, "t.end_date" for token.
+     */
+    private String generateEndedTimeCheckExpression(String field) {
+
+        // There is NO date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
+        // And since this arithmetic is different for different SQL servers, have to switch on server type.
+        val dbType = ApplicationContextFactory.getDBType();
+
+        // COALESCE function is the same in all supported SQL servers.
+        val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
+        val seconds = "coalesce(d.ended_seconds_before_archiving, " + defaultEndedSecondsBeforeArchiving + ")";
+
+        switch (dbType) {
+            case H2:
+                return "dateadd('second', " + seconds + ", " + field;
+            case HSQL:
+                break;
+            case MSSQL:
+                break;
+            case MYSQL:
+                break;
+            case ORACLE:
+                break;
+            case POSTGRESQL:
+                break;
+            default:
+                throw new RuntimeException("Unsupported dbType = " + dbType);
+        }
+
+    }
+
+    /**
+     * First run on huge database may take a long time, so instead of single huge transaction, we'll go in smaller transactional steps.
      *
      * @return False if complete.
      */
     @Transactional
     public boolean step() {
+        // There is NO date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. So, must fallback to SQL.
+        // And since in this arithmetic is different for different servers, have to switch on server type.
+        DbType dbType = ApplicationContextFactory.getDBType();
+
+        val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
+        String canArchiveExpr;
+
+        val d = QDeployment.deployment;
+        val p = QCurrentProcess.currentProcess;
+        val t = QCurrentToken.currentToken;
+
+        val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
+        val canArchiveExpr = p.endDate le(Expressions. Expressions.currentTimestamp(). d.endedDaysBeforeArchiving.coalesce(defaultEndedSecondsBeforeArchiving);
+
+        queryFactory.selectDistinct(p.id).from(p).innerJoin(p.deployment, d)
+
+
         // TODO ...
         // TODO Analyze also token.execution_status.
         // Including subprocesses.
-        val processIdsToMove = new ArrayList<Long>();
+        val processIdsToArchive = new ArrayList<Long>();
 
-        log.debug("step(): processIdsToMove.size() = " + processIdsToMove.size());
-        if (processIdsToMove.isEmpty()) {
+        log.debug("step(): processIdsToArchive.size() = " + processIdsToArchive.size());
+        if (processIdsToArchive.isEmpty()) {
             return false;
         }
 
         val session = sessionFactory.getCurrentSession();
-        for (val pids : Lists.partition(processIdsToMove, IDS_PER_INSERT)) {
+        for (val pids : Lists.partition(processIdsToArchive, IDS_PER_INSERT)) {
             val pidsCSV = "(" + StringUtils.join(pids, ",") + ")";
 
             // Create rows in referenced tables first, then in referencing tables.

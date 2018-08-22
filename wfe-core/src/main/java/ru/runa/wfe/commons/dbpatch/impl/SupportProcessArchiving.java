@@ -16,8 +16,8 @@ public class SupportProcessArchiving extends DbPatch {
     @Override
     protected List<String> getDDLQueriesBefore() {
         return Arrays.asList(
-                // Nullable per-definition configuration; default is SystemProperties.getProcessDefaultEndedDaysBeforeArchiving():
-                getDDLCreateColumn("bpm_process_definition", new IntColumnDef("ended_days_before_archiving", true)),
+                // Nullable per-definition configuration; default is SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving():
+                getDDLCreateColumn("bpm_process_definition", new IntColumnDef("ended_seconds_before_archiving", true)),
 
                 // Process: all fields except EXECUTION_STATUS.
                 "create table archived_process as " +

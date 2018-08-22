@@ -340,8 +340,8 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
-    public static int getProcessDefaultEndedDaysBeforeArchiving() {
-        return RESOURCES.getIntegerProperty("process.default.ended.days.before.archiving", 365);
+    public static int getProcessDefaultEndedSecondsBeforeArchiving() {
+        return RESOURCES.getIntegerProperty("process.default.ended.seconds.before.archiving", 365 * 86400);
     }
 
     /**
