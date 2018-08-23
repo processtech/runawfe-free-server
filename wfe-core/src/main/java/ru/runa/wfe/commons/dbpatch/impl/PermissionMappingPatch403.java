@@ -2,11 +2,11 @@ package ru.runa.wfe.commons.dbpatch.impl;
 
 import java.util.List;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
 import com.google.common.collect.Lists;
 
-public class PermissionMappingPatch403 extends DBPatch {
+public class PermissionMappingPatch403 extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesAfter() {

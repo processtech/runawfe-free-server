@@ -1,12 +1,12 @@
 package ru.runa.wfe.presentation.filter.dialect;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.DBType;
+import ru.runa.wfe.commons.DbType;
 
 public class DurationDialectFactory {
 
-    public static IDurationDialect createDialect() {
-        final DBType dbtype = ApplicationContextFactory.getDBType();
+    public static DurationDialect createDialect() {
+        final DbType dbtype = ApplicationContextFactory.getDBType();
         if (null != dbtype) {
             switch (dbtype) {
             case H2:
@@ -15,11 +15,11 @@ public class DurationDialectFactory {
             case MYSQL:
                 return new DateDiffDurationDialect();
             case MSSQL:
-                return new MSSqlDurationDialect();
+                return new MsSqlDurationDialect();
             case ORACLE:
                 return new Oracle9DurationDialect();
             case POSTGRESQL:
-                return new PostgreSQLDurationDialect();
+                return new PostgreSqlDurationDialect();
             default:
             }
         }

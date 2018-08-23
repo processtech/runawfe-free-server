@@ -27,18 +27,18 @@ import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
 import ru.runa.common.web.PagingNavigationHelper;
-import ru.runa.common.web.html.CheckboxTDBuilder;
+import ru.runa.common.web.html.CheckboxTdBuilder;
 import ru.runa.common.web.html.EnvBaseImpl;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionsAction;
-import ru.runa.wf.web.html.PropertiesProcessTDBuilder;
-import ru.runa.wf.web.html.StartProcessTDBuilder;
+import ru.runa.wf.web.html.PropertiesProcessTdBuilder;
+import ru.runa.wf.web.html.StartProcessTdBuilder;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
@@ -67,9 +67,9 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, definitions.size());
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TDBuilder[] { new CheckboxTDBuilder("id", Permission.ALL), new StartProcessTDBuilder() },
-                batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(
+                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.ALL), new StartProcessTdBuilder() },
+                batchPresentation, new TdBuilder[] { new PropertiesProcessTdBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
                 pageContext);

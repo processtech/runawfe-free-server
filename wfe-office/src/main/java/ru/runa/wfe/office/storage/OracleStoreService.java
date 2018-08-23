@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.google.common.base.Charsets;
 
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
@@ -49,7 +49,7 @@ public class OracleStoreService extends JdbcStoreService {
         }
     };
 
-    public OracleStoreService(IVariableProvider variableProvider) {
+    public OracleStoreService(VariableProvider variableProvider) {
         super(variableProvider);
     }
 

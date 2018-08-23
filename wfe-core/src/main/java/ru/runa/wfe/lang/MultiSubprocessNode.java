@@ -17,11 +17,11 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
-import ru.runa.wfe.execution.dao.NodeProcessDAO;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils.Parameters;
-import ru.runa.wfe.var.ISelectable;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.SelectableOption;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
@@ -38,7 +38,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     @Autowired
     private transient ProcessFactory processFactory;
     @Autowired
-    private transient NodeProcessDAO nodeProcessDAO;
+    private transient NodeProcessDao nodeProcessDao;
 
     private String discriminatorCondition;
 
@@ -73,15 +73,15 @@ public class MultiSubprocessNode extends SubprocessNode {
         map.put(Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED, executionContext.getProcessDefinition().getName());
         map.put(Variables.CURRENT_NODE_NAME_WRAPPED, executionContext.getNode().getName());
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
-        IVariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
+        VariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
         for (int index = 0; index < data.size(); index++) {
             if (ignoredIndexes.contains(index)) {
                 continue;
             }
             Map<String, Object> variables = Maps.newHashMap();
             Object discriminatorValue = TypeConversionUtil.getListValue(parameters.getDiscriminatorValue(), index);
-            if (discriminatorValue instanceof ISelectable) {
-                discriminatorValue = ((ISelectable) discriminatorValue).getValue();
+            if (discriminatorValue instanceof SelectableOption) {
+                discriminatorValue = ((SelectableOption) discriminatorValue).getValue();
             }
             log.debug("setting discriminator var '" + parameters.getDiscriminatorVariableName() + "' to sub process var '"
                     + parameters.getIteratorVariableName() + "': " + discriminatorValue);
@@ -183,7 +183,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     private void leaveBackCompatiblePre410(ExecutionContext executionContext, Transition transition) {
         if (executionContext.getNotEndedSubprocesses().size() == 0) {
             log.debug("Leaving multisubprocess state [in backcompatibility mode] due to 0 active subprocesses");
-            List<Process> subprocesses = nodeProcessDAO.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
+            List<Process> subprocesses = nodeProcessDao.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
                     executionContext.getToken(), null);
             if (!subprocesses.isEmpty()) {
                 ProcessDefinition subProcessDefinition = getSubProcessDefinition();

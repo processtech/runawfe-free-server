@@ -10,7 +10,7 @@ import ru.runa.wfe.extension.OrgFunction;
 import ru.runa.wfe.extension.OrgFunctionException;
 import ru.runa.wfe.extension.orgfunction.NullOrgFunction;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -46,7 +46,7 @@ public class OrgFunctionSwimlaneInitializer extends SwimlaneInitializer {
     }
 
     @Override
-    public List<? extends Executor> evaluate(IVariableProvider variableProvider) {
+    public List<? extends Executor> evaluate(VariableProvider variableProvider) {
         OrgFunction orgFunction = ApplicationContextFactory.createAutowiredBean(orgFunctionClassName);
         List<Object> params = new ArrayList<Object>();
         for (String name : parameterNames) {

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.springframework.util.StringUtils;
 
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
@@ -47,7 +47,7 @@ public class SqlServerStoreService extends JdbcStoreService {
         }
     };
 
-    public SqlServerStoreService(IVariableProvider variableProvider) {
+    public SqlServerStoreService(VariableProvider variableProvider) {
         super(variableProvider);
     }
 

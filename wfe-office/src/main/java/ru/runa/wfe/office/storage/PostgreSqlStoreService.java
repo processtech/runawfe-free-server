@@ -3,7 +3,7 @@ package ru.runa.wfe.office.storage;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.ActorFormat;
 import ru.runa.wfe.var.format.BigDecimalFormat;
 import ru.runa.wfe.var.format.BooleanFormat;
@@ -44,7 +44,7 @@ public class PostgreSqlStoreService extends JdbcStoreService {
         }
     };
 
-    public PostgreSqlStoreService(IVariableProvider variableProvider) {
+    public PostgreSqlStoreService(VariableProvider variableProvider) {
         super(variableProvider);
     }
 

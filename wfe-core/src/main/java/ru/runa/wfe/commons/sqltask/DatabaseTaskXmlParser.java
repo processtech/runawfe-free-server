@@ -26,7 +26,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.base.Strings;
 
@@ -53,7 +53,7 @@ public class DatabaseTaskXmlParser {
      * @param variableProvider
      *            process variables to substitute values in query string
      */
-    public static DatabaseTask[] parse(String configuration, IVariableProvider variableProvider) {
+    public static DatabaseTask[] parse(String configuration, VariableProvider variableProvider) {
         Document document = XmlUtils.parseWithXSDValidation(configuration, "database-tasks.xsd");
         List<Element> taskElementList = document.getRootElement().elements(TASK_ELEMENT_NAME);
         DatabaseTask[] databaseTasks = new DatabaseTask[taskElementList.size()];
@@ -66,7 +66,7 @@ public class DatabaseTaskXmlParser {
         return databaseTasks;
     }
 
-    private static AbstractQuery[] parseTaskQueries(Element taskElement, IVariableProvider variableProvider) {
+    private static AbstractQuery[] parseTaskQueries(Element taskElement, VariableProvider variableProvider) {
         Element queriesElement = taskElement.element(QUERIES_ELEMENT_NAME);
 
         List<Element> queryElementList = queriesElement.elements();
@@ -116,7 +116,7 @@ public class DatabaseTaskXmlParser {
 
     private static final Pattern pattern = Pattern.compile("\\$\\{(.*)\\}");
 
-    public static String parseSQLQueryElement(String sqlText, IVariableProvider variableProvider) {
+    public static String parseSQLQueryElement(String sqlText, VariableProvider variableProvider) {
         sqlText = sqlText.replaceAll("&#10;", "\n");
         if (!sqlText.startsWith("$")) {
             return sqlText;

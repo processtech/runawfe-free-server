@@ -23,12 +23,12 @@ import java.util.Map;
 import ru.runa.wf.logic.bot.assigner.AssignerSettings;
 import ru.runa.wf.logic.bot.assigner.AssignerSettings.Condition;
 import ru.runa.wf.logic.bot.assigner.AssignerSettingsXmlParser;
-import ru.runa.wf.logic.bot.assigner.IEvaluationFunction;
+import ru.runa.wf.logic.bot.assigner.EvaluationFunction;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.collect.Maps;
 
@@ -41,7 +41,7 @@ public class AdvancedSwimlaneAssignerTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         Map<String, Object> outputVariables = Maps.newHashMap();
         List<Condition> conditions = settings.getAssignerConditions();
         for (Condition condition : conditions) {
@@ -54,11 +54,11 @@ public class AdvancedSwimlaneAssignerTaskHandler extends TaskHandlerBase {
         return outputVariables;
     }
 
-    private boolean isAppliedCondition(String functionClassName, IVariableProvider variableProvider) {
+    private boolean isAppliedCondition(String functionClassName, VariableProvider variableProvider) {
         if ("true".equalsIgnoreCase(functionClassName)) {
             return true;
         }
-        IEvaluationFunction evaluationFunction = ClassLoaderUtil.instantiate(functionClassName);
+        EvaluationFunction evaluationFunction = ClassLoaderUtil.instantiate(functionClassName);
         return evaluationFunction.evaluate(variableProvider);
     }
 }

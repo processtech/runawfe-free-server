@@ -5,12 +5,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.audit.dao.ProcessLogDAO;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class AddSubprocessBindingDatePatch extends DBPatch {
+public class AddSubprocessBindingDatePatch extends DbPatch {
     @Autowired
-    private ProcessLogDAO processLogDAO;
+    private ProcessLogDao processLogDao;
 
     @Override
     protected List<String> getDDLQueriesBefore() {

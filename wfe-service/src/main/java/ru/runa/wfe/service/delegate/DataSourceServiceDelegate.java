@@ -5,7 +5,7 @@ import java.util.List;
 import ru.runa.wfe.service.DataSourceService;
 import ru.runa.wfe.user.User;
 
-public class DataSourceServiceDelegate extends EJB3Delegate implements DataSourceService {
+public class DataSourceServiceDelegate extends Ejb3Delegate implements DataSourceService {
 
     public DataSourceServiceDelegate() {
         super(DataSourceService.class);

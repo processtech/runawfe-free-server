@@ -15,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
  * @since 4.2.0
  * @author dofs
  */
-public abstract class DeferredTransactionListener implements ITransactionListener, Runnable {
+public abstract class DeferredTransactionListener implements TransactionListener, Runnable {
     private static final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
     protected final Log log = LogFactory.getLog(getClass());
 

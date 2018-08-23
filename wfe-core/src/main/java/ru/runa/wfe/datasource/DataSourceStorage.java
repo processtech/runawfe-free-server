@@ -17,7 +17,7 @@ import org.springframework.util.FileCopyUtils;
 import com.google.common.collect.Lists;
 
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.IOCommons;
+import ru.runa.wfe.commons.IoCommons;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
 public class DataSourceStorage implements DataSourceStuff {
@@ -29,7 +29,7 @@ public class DataSourceStorage implements DataSourceStuff {
 
     private static synchronized File getStorageDir() {
         if (storageDir == null) {
-            storageDir = new File(IOCommons.getAppServerDirPath() + "/wfe.data-sources");
+            storageDir = new File(IoCommons.getAppServerDirPath() + "/wfe.data-sources");
             if (!storageDir.exists()) {
                 storageDir.mkdir();
             }

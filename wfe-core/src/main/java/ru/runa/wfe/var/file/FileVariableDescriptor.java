@@ -16,7 +16,7 @@ import com.google.common.io.Files;
  *
  */
 @Deprecated
-public class FileVariableDescriptor extends FileVariable {
+public class FileVariableDescriptor extends FileVariableImpl {
     private static final long serialVersionUID = 1L;
     private String variablePath;
     private transient byte[] localData;

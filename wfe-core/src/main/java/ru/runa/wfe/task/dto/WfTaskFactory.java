@@ -18,10 +18,9 @@
 
 package ru.runa.wfe.task.dto;
 
+import com.google.common.base.Objects;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -32,9 +31,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Objects;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * {@link WfTask} factory.
@@ -42,37 +39,16 @@ import com.google.common.base.Objects;
  * @author Dofs
  * @since 4.0
  */
-public class WfTaskFactory implements IWfTaskFactory {
+public class WfTaskFactory {
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
-    /**
-     * 
-     * @param task
-     * @param targetActor
-     * @param acquiredBySubstitution
-     * @param variableNamesToInclude
-     *            can be <code>null</code>
-     * @return
-     */
-    @Override
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude) {
         return create(task, targetActor, acquiredBySubstitution, variableNamesToInclude, !task.getOpenedByExecutorIds().contains(targetActor.getId()));
     }
 
-    /**
-     * 
-     * @param task
-     * @param targetActor
-     * @param acquiredBySubstitution
-     * @param variableNamesToInclude
-     *            can be <code>null</code>
-     * @param firstOpen
-     * @return
-     */
-    @Override
     public WfTask create(Task task, Actor targetActor, boolean acquiredBySubstitution, List<String> variableNamesToInclude, boolean firstOpen) {
         Process process = task.getProcess();
         Deployment deployment = process.getDeployment();
@@ -81,7 +57,7 @@ public class WfTaskFactory implements IWfTaskFactory {
             EscalationGroup escalationGroup = (EscalationGroup) task.getExecutor();
             Executor originalExecutor = escalationGroup.getOriginalExecutor();
             if (originalExecutor instanceof Group) {
-                escalated = !executorDAO.isExecutorInGroup(targetActor, (Group) originalExecutor);
+                escalated = !executorDao.isExecutorInGroup(targetActor, (Group) originalExecutor);
             } else {
                 escalated = !Objects.equal(originalExecutor, targetActor);
             }

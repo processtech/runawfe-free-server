@@ -10,8 +10,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ru.runa.wfe.extension.handler.CommonParamBasedHandler;
 import ru.runa.wfe.extension.handler.HandlerData;
+import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.IFileVariable;
 
 /**
  * @author egorlitvinenko
@@ -22,7 +22,7 @@ public class ExcelFormulaHandler extends CommonParamBasedHandler {
 
     @Override
     protected void executeAction(HandlerData handlerData) throws Exception {
-        final IFileVariable fileVariable = handlerData.getInputParamValueNotNull(PARAM_SOURCE);
+        final FileVariable fileVariable = handlerData.getInputParamValueNotNull(PARAM_SOURCE);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(fileVariable.getData());
         boolean xlsx = ExcelBindings.isFileNameBelongsToXLSX(fileVariable.getName(), true);
         final Workbook workbook = xlsx ? new XSSFWorkbook(inputStream) : new HSSFWorkbook(inputStream);
@@ -30,7 +30,7 @@ public class ExcelFormulaHandler extends CommonParamBasedHandler {
         formulaEvaluator.evaluateAll();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         workbook.write(outputStream);
-        final FileVariable resultFileVariable = new FileVariable(fileVariable.getName(), outputStream.toByteArray(), fileVariable.getContentType());
+        final FileVariableImpl resultFileVariable = new FileVariableImpl(fileVariable.getName(), outputStream.toByteArray(), fileVariable.getContentType());
         handlerData.setOutputParam(PARAM_OUTPUT_FILE, resultFileVariable);
     }
 }

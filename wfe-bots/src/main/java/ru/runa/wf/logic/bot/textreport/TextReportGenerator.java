@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 
 import com.google.common.io.ByteStreams;
@@ -38,7 +38,7 @@ import com.google.common.io.ByteStreams;
 public class TextReportGenerator {
     private static final String VARIABLE_REGEXP = "\\$\\{(.*?[^\\\\])\\}";
 
-    public static synchronized byte[] getReportContent(TextReportSettings settings, IVariableProvider variableProvider) throws IOException {
+    public static synchronized byte[] getReportContent(TextReportSettings settings, VariableProvider variableProvider) throws IOException {
         String templateFileName = settings.getTemplateFileName();
         String templateEncoding = settings.getTemplateEncoding();
         String encoding = settings.getReportEncoding();

@@ -32,7 +32,7 @@ import ru.runa.wfe.service.interceptors.EjbExceptionSupport;
 import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)
@@ -42,7 +42,7 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 public class DataSourceServiceBean implements DataSourceServiceLocal, DataSourceServiceRemote {
 
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDAO;
 
     @Override
     @WebResult(name = "result")

@@ -8,7 +8,7 @@ import ru.runa.wfe.report.dto.WfReportParameter;
 import ru.runa.wfe.service.ReportService;
 import ru.runa.wfe.user.User;
 
-public class ReportServiceDelegate extends EJB3Delegate implements ReportService {
+public class ReportServiceDelegate extends Ejb3Delegate implements ReportService {
     public ReportServiceDelegate() {
         super(ReportService.class);
     }

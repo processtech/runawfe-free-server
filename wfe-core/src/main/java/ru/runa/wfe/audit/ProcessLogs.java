@@ -181,15 +181,15 @@ public class ProcessLogs implements Serializable {
                     taskCreateLog.setProcessId(nodeLeaveLog.getProcessId());
                     taskCreateLog.setSeverity(nodeLeaveLog.getSeverity());
                     taskCreateLog.setTokenId(nodeLeaveLog.getTokenId());
-                    taskCreateLog.addAttribute(IAttributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
+                    taskCreateLog.addAttribute(Attributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
                     TaskEndLog taskEndLog = new TaskEndLog();
                     taskEndLog.setId(processStartLog.getId());
                     taskEndLog.setCreateDate(nodeLeaveLog.getCreateDate());
                     taskEndLog.setProcessId(nodeLeaveLog.getProcessId());
                     taskEndLog.setSeverity(nodeLeaveLog.getSeverity());
                     taskEndLog.setTokenId(nodeLeaveLog.getTokenId());
-                    taskEndLog.addAttribute(IAttributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
-                    taskEndLog.addAttribute(IAttributes.ATTR_ACTOR_NAME, processStartLog.getActorName());
+                    taskEndLog.addAttribute(Attributes.ATTR_TASK_NAME, nodeLeaveLog.getNodeName());
+                    taskEndLog.addAttribute(Attributes.ATTR_ACTOR_NAME, processStartLog.getActorName());
                     result.put(taskCreateLog, taskEndLog);
                 }
             }

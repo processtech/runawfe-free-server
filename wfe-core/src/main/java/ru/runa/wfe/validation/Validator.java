@@ -27,7 +27,7 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 
 import com.google.common.base.Objects;
@@ -36,13 +36,13 @@ public abstract class Validator {
     protected final Log log = LogFactory.getLog(getClass());
     private User user;
     private ExecutionContext executionContext;
-    private IVariableProvider oldVariableProvider;
-    private IVariableProvider variableProvider;
+    private VariableProvider oldVariableProvider;
+    private VariableProvider variableProvider;
     private ValidatorConfig config;
     private ValidatorContext validatorContext;
     private Map<String, Object> newVariables;
 
-    public void init(User user, ExecutionContext executionContext, IVariableProvider variableProvider, ValidatorConfig config,
+    public void init(User user, ExecutionContext executionContext, VariableProvider variableProvider, ValidatorConfig config,
             ValidatorContext validatorContext, Map<String, Object> variables) {
         this.user = user;
         this.executionContext = executionContext;
@@ -64,11 +64,11 @@ public abstract class Validator {
     /**
      * Access only to old values (without submitted ones).
      */
-    protected IVariableProvider getOldVariableProvider() {
+    protected VariableProvider getOldVariableProvider() {
         return oldVariableProvider;
     }
 
-    protected IVariableProvider getVariableProvider() {
+    protected VariableProvider getVariableProvider() {
         return variableProvider;
     }
 

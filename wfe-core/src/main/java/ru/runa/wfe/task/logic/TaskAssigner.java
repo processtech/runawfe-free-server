@@ -14,14 +14,14 @@ import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 
 public class TaskAssigner {
     private static final Log log = LogFactory.getLog(TaskAssigner.class);
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDao;
 
     public boolean assignTask(Task task) {
         ProcessError processError = new ProcessError(ProcessErrorType.assignment, task.getProcess().getId(), task.getNodeId());

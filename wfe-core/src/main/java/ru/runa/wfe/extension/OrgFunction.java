@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * General abstraction for organization function
@@ -35,7 +35,7 @@ public abstract class OrgFunction {
     protected Log log = LogFactory.getLog(getClass());
 
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDao;
 
     /**
      * @param parameters

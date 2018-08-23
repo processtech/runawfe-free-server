@@ -1,7 +1,7 @@
 package ru.runa.wfe.extension.decision;
 
 import ru.runa.wfe.commons.GroovyScriptExecutor;
-import ru.runa.wfe.commons.IScriptExecutor;
+import ru.runa.wfe.commons.ScriptExecutor;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.DecisionHandler;
 
@@ -13,7 +13,7 @@ public class GroovyDecisionHandler implements DecisionHandler {
         this.configuration = configuration;
     }
 
-    protected IScriptExecutor getScriptExecutor() {
+    protected ScriptExecutor getScriptExecutor() {
         return new GroovyScriptExecutor();
     }
 

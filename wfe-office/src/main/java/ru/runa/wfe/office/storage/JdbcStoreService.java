@@ -25,17 +25,17 @@ import ru.runa.wfe.datasource.JdbcDataSource;
 import ru.runa.wfe.datasource.JdbcDataSourceType;
 import ru.runa.wfe.extension.handler.ParamDef;
 import ru.runa.wfe.extension.handler.ParamsDef;
-import ru.runa.wfe.office.excel.IExcelConstraints;
+import ru.runa.wfe.office.excel.ExcelConstraints;
 import ru.runa.wfe.office.excel.OnSheetConstraints;
 import ru.runa.wfe.office.storage.binding.ExecutionResult;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.ParamBasedVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
-import ru.runa.wfe.var.file.IFileVariable;
+import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.format.BooleanFormat;
 import ru.runa.wfe.var.format.DateFormat;
 import ru.runa.wfe.var.format.DateTimeFormat;
@@ -76,12 +76,12 @@ public abstract class JdbcStoreService implements StoreService {
     private static final String EQUALS = "=";
     private static final String DOUBLE_EQUALS = "==";
 
-    protected IExcelConstraints constraints;
+    protected ExcelConstraints constraints;
     protected String fullPath;
-    protected IVariableProvider variableProvider;
+    protected VariableProvider variableProvider;
     protected JdbcDataSource ds;
 
-    public JdbcStoreService(IVariableProvider variableProvider) {
+    public JdbcStoreService(VariableProvider variableProvider) {
         this.variableProvider = variableProvider;
     }
 
@@ -165,7 +165,7 @@ public abstract class JdbcStoreService implements StoreService {
             } else if (format instanceof ProcessIdFormat) {
                 return MessageFormat.format(SQL_VALUE_VARCHAR, ((Long) value).toString());
             } else if (format instanceof FileFormat) {
-                return MessageFormat.format(SQL_VALUE_NVARCHAR, ((IFileVariable) value).getName());
+                return MessageFormat.format(SQL_VALUE_NVARCHAR, ((FileVariable) value).getName());
             } else {
                 return value.toString();
             }
@@ -183,7 +183,7 @@ public abstract class JdbcStoreService implements StoreService {
         Preconditions.checkNotNull(variable);
         Preconditions.checkArgument(checkVariableType(variable),
                 "Variable '" + variable.getDefinition().getName() + "' must be user type or list of user types.");
-        constraints = (IExcelConstraints) properties.get(PROP_CONSTRAINTS);
+        constraints = (ExcelConstraints) properties.get(PROP_CONSTRAINTS);
         fullPath = properties.getProperty(PROP_PATH);
         if (fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE) || fullPath.startsWith(DataSourceStuff.PATH_PREFIX_DATA_SOURCE_VARIABLE)) {
             String dsName = null;

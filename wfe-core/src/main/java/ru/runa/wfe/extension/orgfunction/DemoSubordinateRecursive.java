@@ -30,7 +30,7 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 import com.google.common.base.Objects;
 
@@ -48,15 +48,15 @@ public class DemoSubordinateRecursive {
      *            array of executor ids. Array size must be 1.
      * @throws ExecutorAlreadyExistsException
      */
-    public List<Actor> getSubordinateActors(ExecutorDAO executorDAO, Object[] parameters) throws OrgFunctionException {
+    public List<Actor> getSubordinateActors(ExecutorDao executorDao, Object[] parameters) throws OrgFunctionException {
         if (parameters.length != 1) {
             throw new OrgFunctionException("Wrong parameters array: " + Arrays.asList(parameters) + ", expected 1 parameter.");
         }
         try {
             LinkedList<Actor> list = new LinkedList<Actor>();
             LinkedList<Actor> subordinatesList = new LinkedList<Actor>();
-            Actor actor = executorDAO.getActorByCode(Long.parseLong((String) parameters[0]));
-            List<Executor> executors = executorDAO.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
+            Actor actor = executorDao.getActorByCode(Long.parseLong((String) parameters[0]));
+            List<Executor> executors = executorDao.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
             DemoChiefFunction demoChiefFunction = new DemoChiefFunction();
             for (Executor executor : executors) {
                 if (executor instanceof Actor) {

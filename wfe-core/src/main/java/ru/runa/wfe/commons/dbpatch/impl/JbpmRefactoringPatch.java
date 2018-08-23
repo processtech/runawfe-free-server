@@ -13,9 +13,9 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.DBType;
+import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.PropertyResources;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.lang.NodeType;
 
@@ -28,7 +28,7 @@ import ru.runa.wfe.lang.NodeType;
  * @author dofs
  * @since 4.0
  */
-public class JbpmRefactoringPatch extends DBPatch {
+public class JbpmRefactoringPatch extends DbPatch {
     private boolean jbpmIdTablesExist;
     private boolean jbpmCommentTableExists;
     private static final PropertyResources RESOURCES = new PropertyResources("JbpmRefactoringPatch.properties", false);
@@ -40,7 +40,7 @@ public class JbpmRefactoringPatch extends DBPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {
-        if (dbType != DBType.MSSQL) {
+        if (dbType != DbType.MSSQL) {
             throw new InternalApplicationException("Database migration patch from RunaWFE 3.x to 4.x is currently supported only for MS SQL Server");
         }
         System.out.println("handleManualIndexes = " + handleManualIndexes);

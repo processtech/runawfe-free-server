@@ -23,7 +23,7 @@ import java.util.Map;
 import ru.runa.wfe.service.ScriptingService;
 import ru.runa.wfe.user.User;
 
-public class ScriptingServiceDelegate extends EJB3Delegate implements ScriptingService {
+public class ScriptingServiceDelegate extends Ejb3Delegate implements ScriptingService {
 
     public ScriptingServiceDelegate() {
         super("ScriptingServiceBean", ScriptingService.class);

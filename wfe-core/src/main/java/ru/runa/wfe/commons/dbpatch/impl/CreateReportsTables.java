@@ -6,23 +6,23 @@ import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
-import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatchPostProcessor;
 import ru.runa.wfe.report.ReportDefinition;
 import ru.runa.wfe.report.ReportParameter;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
-public class CreateReportsTables extends DBPatch implements IDbPatchPostProcessor {
+public class CreateReportsTables extends DbPatch implements DbPatchPostProcessor {
 
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDao;
     @Autowired
-    protected PermissionDAO permissionDAO;
+    protected PermissionDao permissionDao;
 
     @Override
     protected List<String> getDDLQueriesBefore() {
@@ -80,14 +80,14 @@ public class CreateReportsTables extends DBPatch implements IDbPatchPostProcesso
 
     @Override
     public void postExecute() {
-        if (permissionDAO.getPrivilegedExecutors(SecuredObjectType.REPORT).isEmpty()) {
+        if (permissionDao.getPrivilegedExecutors(SecuredObjectType.REPORT).isEmpty()) {
             log.info("Adding " + SecuredObjectType.REPORT + " tokens message hash");
             String administratorName = SystemProperties.getAdministratorName();
-            Actor admin = executorDAO.getActor(administratorName);
+            Actor admin = executorDao.getActor(administratorName);
             String administratorsGroupName = SystemProperties.getAdministratorsGroupName();
-            Group adminGroup = executorDAO.getGroup(administratorsGroupName);
+            Group adminGroup = executorDao.getGroup(administratorsGroupName);
             List<? extends Executor> adminWithGroupExecutors = Lists.newArrayList(adminGroup, admin);
-            permissionDAO.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
+            permissionDao.addType(SecuredObjectType.REPORT, adminWithGroupExecutors);
         }
     }
 }

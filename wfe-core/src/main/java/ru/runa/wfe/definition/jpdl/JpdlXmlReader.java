@@ -13,7 +13,7 @@ import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
+import ru.runa.wfe.commons.dao.LocalizationDao;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.logic.SwimlaneUtils;
@@ -60,7 +60,7 @@ public class JpdlXmlReader {
     private final List<Object[]> unresolvedTransitionDestinations = Lists.newArrayList();
 
     @Autowired
-    private LocalizationDAO localizationDAO;
+    private LocalizationDao localizationDao;
 
     private final Document document;
     private static final boolean waitStateCompatibility = true;
@@ -181,7 +181,7 @@ public class JpdlXmlReader {
             if (assignmentElement != null) {
                 swimlaneDefinition.setDelegation(readDelegation(processDefinition, assignmentElement));
             }
-            SwimlaneUtils.setOrgFunctionLabel(swimlaneDefinition, localizationDAO);
+            SwimlaneUtils.setOrgFunctionLabel(swimlaneDefinition, localizationDao);
             processDefinition.addSwimlane(swimlaneDefinition);
         }
     }
