@@ -1,7 +1,6 @@
 package ru.runa.wfe.job.impl;
 
 import com.google.common.collect.Lists;
-import com.querydsl.core.types.dsl.Expressions;
 import java.util.ArrayList;
 import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
@@ -12,10 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
-import ru.runa.wfe.definition.QDeployment;
-import ru.runa.wfe.execution.QCurrentProcess;
-import ru.runa.wfe.execution.QCurrentToken;
 
 @CommonsLog
 public class ProcessArchiver {
@@ -24,8 +19,6 @@ public class ProcessArchiver {
 
     @Autowired
     private SessionFactory sessionFactory;
-    @Autowired
-    private HibernateQueryFactory queryFactory;
 
     // First run on huge database may take long time, so prevent concurrent runs just in case.
     private boolean busy = false;
@@ -34,6 +27,8 @@ public class ProcessArchiver {
     private String sqlSelectProcessIdsToArchive = null;
 
     public void execute() {
+        if (true) return;  // TODO Not implemented.
+
         if (busy) {
             return;
         }
@@ -58,7 +53,7 @@ public class ProcessArchiver {
         return "select distinct p.id " +
                 "from bpm_process p " +
                 "inner join bpm_process_definition d on (d.id = p.definition_id) " +
-                "where p.execution_state = 'ENDED'"
+                "where p.execution_state = 'ENDED' ";  // TODO ...
     }
 
     /**
@@ -94,22 +89,6 @@ public class ProcessArchiver {
      */
     @Transactional
     public boolean step() {
-        // There is NO date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. So, must fallback to SQL.
-        // And since in this arithmetic is different for different servers, have to switch on server type.
-        DbType dbType = ApplicationContextFactory.getDBType();
-
-        val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
-        String canArchiveExpr;
-
-        val d = QDeployment.deployment;
-        val p = QCurrentProcess.currentProcess;
-        val t = QCurrentToken.currentToken;
-
-        val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
-        val canArchiveExpr = p.endDate le(Expressions. Expressions.currentTimestamp(). d.endedDaysBeforeArchiving.coalesce(defaultEndedSecondsBeforeArchiving);
-
-        queryFactory.selectDistinct(p.id).from(p).innerJoin(p.deployment, d)
-
 
         // TODO ...
         // TODO Analyze also token.execution_status.

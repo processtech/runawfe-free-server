@@ -17,8 +17,9 @@ public class ArchivedNodeProcess extends NodeProcess<ArchivedProcess, ArchivedTo
 
     private Long id;
     private ArchivedProcess process;
-    private ArchivedToken parentToken;
     private ArchivedProcess subProcess;
+    private ArchivedProcess rootProcess;
+    private ArchivedToken parentToken;
 
     @Override
     @Transient
@@ -58,21 +59,6 @@ public class ArchivedNodeProcess extends NodeProcess<ArchivedProcess, ArchivedTo
         this.process = process;
     }
 
-    @Override
-    @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_TOKEN_ID")
-    @ForeignKey(name = "none")
-    // @ForeignKey(name = "FK_ARCH_SUBPROCESS_TOKEN") is not created: it would be violated during batch insert-select in ProcessArchiver.
-    // TODO They say Hibernate 5 does not support name="none", so careful when upgrading it.
-    public ArchivedToken getParentToken() {
-        return parentToken;
-    }
-
-    @Override
-    public void setParentToken(ArchivedToken parentToken) {
-        this.parentToken = parentToken;
-    }
-
     /**
      * Copy-pasted from CurrentNodeProcess with different FK and index names.
      */
@@ -88,6 +74,38 @@ public class ArchivedNodeProcess extends NodeProcess<ArchivedProcess, ArchivedTo
     @Override
     public void setSubProcess(ArchivedProcess subProcess) {
         this.subProcess = subProcess;
+    }
+
+    /**
+     * Copy-pasted from CurrentNodeProcess with different FK and index names.
+     */
+    @Override
+    @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "ROOT_PROCESS_ID", nullable = false)
+    @ForeignKey(name = "FK_ARCH_SUBPROCESS_ROOT")
+    @Index(name = "IX_ARCH_SUBPROCESS_ROOT")
+    public ArchivedProcess getRootProcess() {
+        return rootProcess;
+    }
+
+    @Override
+    public void setRootProcess(ArchivedProcess rootProcess) {
+        this.rootProcess = rootProcess;
+    }
+
+    @Override
+    @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_TOKEN_ID")
+    @ForeignKey(name = "none")
+    // @ForeignKey(name = "FK_ARCH_SUBPROCESS_TOKEN") is not created: it would be violated during batch insert-select in ProcessArchiver.
+    // TODO They say Hibernate 5 does not support name="none", so careful when upgrading it.
+    public ArchivedToken getParentToken() {
+        return parentToken;
+    }
+
+    @Override
+    public void setParentToken(ArchivedToken parentToken) {
+        this.parentToken = parentToken;
     }
 
     // TODO Do we need equals() and hashCode() like in CurrentNodeProcess class?

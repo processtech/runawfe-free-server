@@ -49,6 +49,7 @@ import ru.runa.wfe.commons.dbpatch.impl.AddSequentialFlagToBot;
 import ru.runa.wfe.commons.dbpatch.impl.AddSettingsTable;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubProcessIndexColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddSubprocessBindingDatePatch;
+import ru.runa.wfe.commons.dbpatch.impl.AddSubprocessRootIdColumn;
 import ru.runa.wfe.commons.dbpatch.impl.AddTitleAndDepartmentColumnsToActorPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenErrorDataPatch;
 import ru.runa.wfe.commons.dbpatch.impl.AddTokenMessageSelectorPatch;
@@ -155,7 +156,8 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
         patches.add(AddTransactionalBotSupport.class);
         patches.add(RefactorPermissionsStep1.class);
         patches.add(RefactorPermissionsStep3.class);
-        patches.add(SupportProcessArchiving.class);
+        patches.add(AddSubprocessRootIdColumn.class);
+        patches.add(SupportProcessArchiving.class);  // Must go AFTER AddSubprocessRootIdColumn.
         dbPatches = Collections.unmodifiableList(patches);
     }
 

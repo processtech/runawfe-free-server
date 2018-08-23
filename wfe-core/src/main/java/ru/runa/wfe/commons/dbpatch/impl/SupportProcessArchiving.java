@@ -62,6 +62,8 @@ public class SupportProcessArchiving extends DbPatch {
                 getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_process", "process_id", "archived_process", "id"),
                 getDDLCreateIndex     ("archived_subprocess", "ix_arch_subprocess_parent", "parent_process_id"),
                 getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_parent", "parent_process_id", "archived_process", "id"),
+                getDDLCreateIndex     ("archived_subprocess", "ix_arch_subprocess_root", "root_process_id"),
+                getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_root", "root_process_id", "archived_process", "id"),
                 // Not created: would be violated during batch insert-select in ProcessArchiver.
                 //getDDLCreateForeignKey("archived_subprocess", "fk_arch_subprocess_token", "parent_token_id", "archived_token", "id")
 

@@ -26,8 +26,9 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
 
     private Long id;
     private CurrentProcess process;
-    private CurrentToken parentToken;
     private CurrentProcess subProcess;
+    private CurrentProcess rootProcess;
+    private CurrentToken parentToken;
 
     protected CurrentNodeProcess() {
     }
@@ -76,19 +77,6 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_TOKEN_ID")
-    @ForeignKey(name = "FK_SUBPROCESS_TOKEN")
-    public CurrentToken getParentToken() {
-        return parentToken;
-    }
-
-    @Override
-    public void setParentToken(CurrentToken parentToken) {
-        this.parentToken = parentToken;
-    }
-
-    @Override
     @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PROCESS_ID", nullable = false)
     @ForeignKey(name = "FK_SUBPROCESS_PROCESS")
@@ -100,6 +88,33 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
     @Override
     public void setSubProcess(CurrentProcess subProcess) {
         this.subProcess = subProcess;
+    }
+
+    @Override
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "ROOT_PROCESS_ID", nullable = false)
+    @ForeignKey(name = "FK_SUBPROCESS_ROOT_PROCESS")
+    @Index(name = "IX_SUBPROCESS_ROOT_PROCESS")
+    public CurrentProcess getRootProcess() {
+        return rootProcess;
+    }
+
+    @Override
+    public void setRootProcess(CurrentProcess rootProcess) {
+        this.rootProcess = rootProcess;
+    }
+
+    @Override
+    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_TOKEN_ID")
+    @ForeignKey(name = "FK_SUBPROCESS_TOKEN")
+    public CurrentToken getParentToken() {
+        return parentToken;
+    }
+
+    @Override
+    public void setParentToken(CurrentToken parentToken) {
+        this.parentToken = parentToken;
     }
 
     @Override

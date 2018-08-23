@@ -25,12 +25,17 @@ public abstract class NodeProcess<P extends BaseProcess, T extends Token<P, T>> 
     public abstract void setProcess(P process);
 
     @Transient
+    public abstract P getSubProcess();
+    public abstract void setSubProcess(P subProcess);
+
+    @Transient
+    public abstract P getRootProcess();
+    public abstract void setRootProcess(P subProcess);
+
+    @Transient
     public abstract T getParentToken();
     public abstract void setParentToken(T parentToken);
 
-    @Transient
-    public abstract P getSubProcess();
-    public abstract void setSubProcess(P subProcess);
 
     @Column(name = "PARENT_NODE_ID", length = 1024)
     public String getNodeId() {
