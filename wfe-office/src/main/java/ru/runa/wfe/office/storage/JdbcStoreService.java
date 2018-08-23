@@ -213,6 +213,10 @@ public abstract class JdbcStoreService implements StoreService {
         return identifier;
     }
 
+    protected Object adjustValue(Object value) {
+        return value;
+    }
+
     abstract protected String tableExistsSql();
 
     abstract protected Map<Class<? extends VariableFormat>, String> typeMap();
@@ -237,7 +241,7 @@ public abstract class JdbcStoreService implements StoreService {
                         UserTypeMap utm = new UserTypeMap(ut);
                         for (VariableDefinition vd : ut.getAttributes()) {
                             String variableName = vd.getName();
-                            utm.put(variableName, rs.getObject(adjustIdentifier(variableName)));
+                            utm.put(variableName, adjustValue(rs.getObject(adjustIdentifier(variableName))));
                         }
                         utmList.add(utm);
                     }

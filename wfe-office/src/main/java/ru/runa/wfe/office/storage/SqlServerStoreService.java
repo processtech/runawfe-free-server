@@ -1,7 +1,10 @@
 package ru.runa.wfe.office.storage;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.util.StringUtils;
 
 import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.format.ActorFormat;
@@ -61,6 +64,19 @@ public class SqlServerStoreService extends JdbcStoreService {
     @Override
     protected String driverClassName() {
         return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+    }
+
+    @Override
+    protected Object adjustValue(Object value) {
+        if (value != null) {
+            if (value instanceof BigDecimal) {
+                String strValue = ((BigDecimal) value).toPlainString();
+                if (strValue.indexOf('.') > 0) {
+                    value = new BigDecimal(StringUtils.trimTrailingCharacter(StringUtils.trimTrailingCharacter(strValue, '0'), '.'));
+                }
+            }
+        }
+        return super.adjustValue(value);
     }
 
 }
