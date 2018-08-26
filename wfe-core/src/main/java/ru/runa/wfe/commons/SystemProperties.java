@@ -340,8 +340,15 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("process.execution.message.predefined.selector.only.strict.compliance.handling", false);
     }
 
+    /**
+     * -1 means "disable archiving", see {@link #isProcessArchivingEnabled()}. Defaults to 1 year.
+     */
     public static int getProcessDefaultEndedSecondsBeforeArchiving() {
         return RESOURCES.getIntegerProperty("process.default.ended.seconds.before.archiving", 365 * 86400);
+    }
+
+    public static boolean isProcessArchivingEnabled() {
+        return getProcessDefaultEndedSecondsBeforeArchiving() >= 0;
     }
 
     /**

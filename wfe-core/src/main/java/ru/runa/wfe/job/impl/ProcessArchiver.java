@@ -6,6 +6,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
+import org.hibernate.dialect.Dialect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -14,30 +15,43 @@ import ru.runa.wfe.commons.SystemProperties;
 
 @CommonsLog
 public class ProcessArchiver {
-    private static final int IDS_PER_STEP = 1000;
+    private static final int ROOT_PROCESS_IDS_PER_STEP = 100;
     private static final int IDS_PER_INSERT = 100;
 
     @Autowired
     private SessionFactory sessionFactory;
 
-    // First run on huge database may take long time, so prevent concurrent runs just in case.
+    /**
+     * First run on huge database may take long time, so prevent concurrent runs just in case.
+     */
     private boolean busy = false;
 
-    // Lazily initialized:
-    private String sqlSelectProcessIdsToArchive = null;
+    /**
+     * If false, execute() does nothing.
+     */
+    private boolean permanentFailure = false;
+
+    /**
+     * Contains two "?" params:
+     * <ol>
+     *     <li>last process ID processed, so next step continues where previous step stopped (MS SQL does not support OFFSET+LIMIT, only LIMIT);
+     *     <li>LIMIT value.</li>
+     * </ol>
+     */
+    private String sqlSelectRootProcessIds = null;
+
+    private String sqlSelectSubProcessIds = null;
 
     public void execute() {
-        if (true) return;  // TODO Not implemented.
+        log.warn("NOOP for debug, processDefaultEndedSecondsBeforeArchiving() = " + SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving());
+        if (true) return;
 
-        if (busy) {
+        if (!SystemProperties.isProcessArchivingEnabled() || permanentFailure || busy) {
             return;
         }
         busy = true;
         try {
-            if (sqlSelectProcessIdsToArchive == null) {
-                sqlSelectProcessIdsToArchive = generateSql();
-            }
-
+            generateSqls();
             //noinspection StatementWithEmptyBody
             while (step());
         } finally {
@@ -45,39 +59,84 @@ public class ProcessArchiver {
         }
     }
 
-    private String generateSql() {
-        // There is NO date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
+    private void generateSqls() {
+        if (sqlSelectRootProcessIds != null && sqlSelectSubProcessIds != null) {
+            return;
+        }
+
+        Dialect dialect = ApplicationContextFactory.getDialect();
+        if (!dialect.supportsLimit()) {
+            permanentFailure = true;
+            throw new RuntimeException("Current database dialect " + dialect + " does not support LIMIT");
+        }
+
+        // There is no date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
         // And since this arithmetic is different for different SQL servers, have to switch on server type.
         DbType dbType = ApplicationContextFactory.getDBType();
-        val defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
-        return "select distinct p.id " +
+        int defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
+
+        // Since we don't have true tree closure with (root_id, root_id, 0) record,
+        // we must check archiving condition separately for root processes and their subprocesses.
+        sqlSelectRootProcessIds = dialect.getLimitString("select p.id " +
                 "from bpm_process p " +
                 "inner join bpm_process_definition d on (d.id = p.definition_id) " +
+                // Continue since last step:
+                "where p.id > ? and " +
+                // Get only root process IDs:
+                "      not exists (select s.process_id from bpm_subprocess where s.process_id = p.id) and " +
+                // Check condition for root processes:
+                "      " + generateEndDateCheckExpression("d", "p.end_date", dbType, defaultEndedSecondsBeforeArchiving) + " and " +
+                "      not exists (select t.process_id from bpm_task t where t.process_id = p.id) and " +
+                "      not exists (select j.process_jd from bpm_job j where j.process_id = p.id) and " +
+                // Check no descendant processes exist that violate condition:
+                "      not exists (" +
+                "          select p2.id " +
+                "          from bpm_subprocess s2 " +
+                "          inner join bpm_process p2 on (p2.id = s2.process_id) " +
+                "          inner join bpm_process_definition d2 on (d2.id = p2.definition_id) " +
+                "          where s2.root_process_id = p.id and (" +
+                "                not(" + generateEndDateCheckExpression("d2", "p2.end_date", dbType, defaultEndedSecondsBeforeArchiving) + ") or " +
+                "                exists (select t.process_id from bpm_task t where t.process_id = p2.id) or " +
+                "                exists (select j.process_jd from bpm_job j where j.process_id = p2.id) " +
+                "          ) " +
+                "      )" +
+                "order by p.id", 0, ROOT_PROCESS_IDS_PER_STEP);
+
+
+
+        sqlSelectSubProcessIds = "select distinct s.root_process_id, p.id " +
+                "from bpm_process p " +
+                "inner join bpm_process_definition d on (d.id = p.definition_id) " +
+                "inner join bpm_subprocess s on (s.root_process_id = ?)" +
                 "where p.execution_state = 'ENDED' ";  // TODO ...
     }
 
     /**
      * Returned expression contains single "?" parameter for current time.
-     * I could use NOW(), but Java and SQL timezones may differ, and END_DATE values are set by Java code.
+     * I could use NOW(), but Java and SQL timezones may differ, and END_DATE values are set by Java code when entities are stored.
      *
-     * @param field "p.end_date" for process, "t.end_date" for token.
+     * @param definitionAlias E.g. "d".
+     * @param endDateField E.g. "p.end_date" for process, or "t.end_date" for token.
      */
-    private String generateEndedTimeCheckExpression(String field, DbType dbType, int defaultEndedSecondsBeforeArchiving) {
+    private String generateEndDateCheckExpression(
+            String definitionAlias, String endDateField, DbType dbType, int defaultEndedSecondsBeforeArchiving
+    ) {
         // COALESCE function is the same in all supported SQL servers.
-        val seconds = "coalesce(d.ended_seconds_before_archiving, " + defaultEndedSecondsBeforeArchiving + ")";
+        val seconds = "coalesce(" + definitionAlias + ".ended_seconds_before_archiving, " + defaultEndedSecondsBeforeArchiving + ")";
 
         switch (dbType) {
             case H2:
             case HSQL:
             case MSSQL:
-                return "dateadd('second', " + seconds + ", " + field + ") < ?";
+                return "dateadd('second', " + seconds + ", " + endDateField + ") < ?";
             case MYSQL:
-                return "date_add(" + field + ", interval " + seconds + " second) < ?";
+                return "date_add(" + endDateField + ", interval " + seconds + " second) < ?";
             case ORACLE:
-                return "(" + field + " + interval '" + seconds + "' second) < ?";
+                return "(" + endDateField + " + interval '" + seconds + "' second) < ?";
             case POSTGRESQL:
-                return "(" + field + " + interval '" + seconds + " second') < ?";
+                return "(" + endDateField + " + interval '" + seconds + " second') < ?";
             default:
+                permanentFailure = true;
                 throw new RuntimeException("Unsupported dbType = " + dbType);
         }
     }

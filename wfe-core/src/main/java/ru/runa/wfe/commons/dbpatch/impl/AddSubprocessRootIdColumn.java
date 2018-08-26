@@ -50,7 +50,7 @@ public class AddSubprocessRootIdColumn extends DbPatch {
             switch (dbType) {
                 default:
                     // Subquery selects parent subprocess which has ROOT_PROCESS_ID already set.
-                    // It's used in "WHERE EXISTS" since otherwise it will be evaulated to NULL in "SET".
+                    // It's used in "WHERE EXISTS" too, since otherwise it will be evaulated to NULL in "SET".
                     String subquery = "select s2.root_process_id " +
                             "from bpm_subprocess s2 " +
                             "where (s2.process_id = bpm_subprocess.parent_process_id) and (s2.root_process_id is not null)";

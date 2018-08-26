@@ -8,6 +8,7 @@ import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.QCurrentNodeProcess;
+import ru.runa.wfe.execution.QCurrentProcess;
 
 @Component
 public class CurrentNodeProcessDao extends BaseNodeProcessDao<CurrentProcess, CurrentToken, CurrentNodeProcess> {
@@ -19,6 +20,12 @@ public class CurrentNodeProcessDao extends BaseNodeProcessDao<CurrentProcess, Cu
     public CurrentNodeProcess findBySubProcessId(Long subProcessId) {
         val np = QCurrentNodeProcess.currentNodeProcess;
         return queryFactory.selectFrom(np).where(np.subProcess.id.eq(subProcessId)).fetchFirst();
+    }
+
+    public CurrentProcess getRootProcessByParentProcessId(long parentProcessId) {
+        val p = QCurrentProcess.currentProcess;
+        val np = QCurrentNodeProcess.currentNodeProcess;
+        return queryFactory.select(p).from(np).innerJoin(np.rootProcess, p).where(np.process.id.eq(parentProcessId)).fetchFirst();
     }
 
     @Override

@@ -90,12 +90,14 @@ public class ProcessFactory {
         }
     }
 
-    public CurrentProcess createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object> variables,
-            int index) {
+    public CurrentProcess createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object>
+            variables, int index) {
         CurrentProcess parentProcess = parentExecutionContext.getProcess();
+        CurrentProcess rootProcess = currentNodeProcessDao.getRootProcessByParentProcessId(parentProcess.getId());
         Node subProcessNode = parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null);
-        currentNodeProcessDao.create(new CurrentNodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
+        currentNodeProcessDao.create(new CurrentNodeProcess(subProcessNode, parentExecutionContext.getToken(), rootProcess,
+                subExecutionContext.getProcess(), index));
         return subExecutionContext.getProcess();
     }
 

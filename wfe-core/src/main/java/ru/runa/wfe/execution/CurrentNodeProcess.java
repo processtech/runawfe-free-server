@@ -33,7 +33,7 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
     protected CurrentNodeProcess() {
     }
 
-    public CurrentNodeProcess(Node processStateNode, CurrentToken parentToken, CurrentProcess subProcess, Integer index) {
+    public CurrentNodeProcess(Node processStateNode, CurrentToken parentToken, CurrentProcess rootProcess, CurrentProcess subProcess, Integer index) {
         this.process = parentToken.getProcess();
         this.parentToken = parentToken;
         this.nodeId = processStateNode.getNodeId();
