@@ -38,6 +38,7 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
         this.parentToken = parentToken;
         this.nodeId = processStateNode.getNodeId();
         this.subProcess = subProcess;
+        this.rootProcess = rootProcess;
         this.index = index;
         this.createDate = new Date();
     }
