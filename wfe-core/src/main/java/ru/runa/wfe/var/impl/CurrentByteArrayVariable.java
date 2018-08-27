@@ -21,23 +21,28 @@
  */
 package ru.runa.wfe.var.impl;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
-import ru.runa.wfe.var.Variable;
+import javax.persistence.Lob;
+
+import ru.runa.wfe.var.CurrentVariable;
 
 @Entity
-@DiscriminatorValue(value = "S")
-public class StringVariable extends Variable<String> {
+@DiscriminatorValue(value = "B")
+public class CurrentByteArrayVariable extends CurrentVariable<byte[]> {
+    private byte[] object;
 
-    @Transient
+    @Lob
+    @Column(length = 16777216, name = "BYTES")
     @Override
-    public String getStorableValue() {
-        return getStringValue();
+    public byte[] getStorableValue() {
+        return object;
     }
 
     @Override
-    protected void setStorableValue(String object) {
+    public void setStorableValue(byte[] object) {
+        this.object = object;
     }
 
     @Override
@@ -45,7 +50,6 @@ public class StringVariable extends Variable<String> {
         if (super.supports(value)) {
             return true;
         }
-        return value instanceof String && ((String) value).length() <= getMaxStringSize();
+        return value instanceof byte[];
     }
-
 }

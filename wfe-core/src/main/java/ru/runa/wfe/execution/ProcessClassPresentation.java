@@ -25,7 +25,7 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.VariableDbSources;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 /**
  * Created on 22.10.2005
@@ -56,7 +56,7 @@ public class ProcessClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.READ, "version" }),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(), new SubProcessDbSource(
                         CurrentProcess.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTdBuilder", new Object[] {}),
-                new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
+                new FieldDescriptor(PROCESS_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.ProcessVariableTdBuilder", new Object[] {}),
                 new FieldDescriptor(PROCESS_EXECUTION_STATUS, String.class.getName(), new DefaultDbSource(CurrentProcess.class, "executionStatus"), true,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.ProcessExecutionStatusTdBuilder", new Object[] {}) });

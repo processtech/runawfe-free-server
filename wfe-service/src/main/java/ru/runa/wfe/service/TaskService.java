@@ -26,20 +26,18 @@ public interface TaskService {
      * 
      * @param user
      *            authorized user
-     * @param batchPresentation
      * @return not <code>null</code>
      */
-    public List<WfTask> getMyTasks(User user, BatchPresentation batchPresentation);
+    List<WfTask> getMyTasks(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets tasks by {@link BatchPresentation}.
      * 
      * @param user
      *            authorized user
-     * @param batchPresentation
      * @return not <code>null</code>
      */
-    public List<WfTask> getTasks(User user, BatchPresentation batchPresentation);
+    List<WfTask> getTasks(User user, BatchPresentation batchPresentation);
 
     /**
      * Gets task by id.
@@ -49,9 +47,8 @@ public interface TaskService {
      * @param taskId
      *            task id
      * @return not <code>null</code>
-     * @throws TaskDoesNotExistException
      */
-    public WfTask getTask(User user, Long taskId) throws TaskDoesNotExistException;
+    WfTask getTask(User user, Long taskId) throws TaskDoesNotExistException;
 
     /**
      * Gets all process tasks.
@@ -63,9 +60,8 @@ public interface TaskService {
      * @param includeSubprocesses
      *            whether to include tasks from subprocesses
      * @return not <code>null</code>
-     * @throws ProcessDoesNotExistException
      */
-    public List<WfTask> getProcessTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException;
+    List<WfTask> getProcessTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException;
 
     /**
      * Reassigns task to another executor.
@@ -77,7 +73,7 @@ public interface TaskService {
      * @throws TaskAlreadyAcceptedException
      *             if previous owner differs from provided
      */
-    public void assignTask(User user, Long taskId, Executor previousOwner, Executor newOwner) throws TaskAlreadyAcceptedException;
+    void assignTask(User user, Long taskId, Executor previousOwner, Executor newOwner) throws TaskAlreadyAcceptedException;
 
     /**
      * Reassigns tasks using TaskAssigner.
@@ -88,7 +84,7 @@ public interface TaskService {
      *            to load tasks
      * @return reassigned tasks count
      */
-    public int reassignTasks(User user, BatchPresentation batchPresentation);
+    int reassignTasks(User user, BatchPresentation batchPresentation);
 
     /**
      * Reassigns task using TaskAssigner.
@@ -97,7 +93,7 @@ public interface TaskService {
      *            authorized user
      * @return whether task was successfully reassigned
      */
-    public boolean reassignTask(User user, Long taskId);
+    boolean reassignTask(User user, Long taskId);
 
     /**
      * Completes task by id.
@@ -110,10 +106,8 @@ public interface TaskService {
      *            variable values, can contain transition name by key ru.runa.wfe.execution.dto.WfProcess.SELECTED_TRANSITION_KEY
      * @param swimlaneActorId
      *            actor id who will be assigned to task swimlane, can be <code>null</code>
-     * @throws TaskDoesNotExistException
-     * @throws ValidationException
      */
-    public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
+    void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException,
             ValidationException;
 
     /**
@@ -123,9 +117,8 @@ public interface TaskService {
      *            authorized user
      * @param taskId
      *            task id
-     * @throws TaskDoesNotExistException
      */
-    public void markTaskOpened(User user, Long taskId) throws TaskDoesNotExistException;
+    void markTaskOpened(User user, Long taskId) throws TaskDoesNotExistException;
 
     /**
      * Delegate task to another users or groups.
@@ -141,7 +134,7 @@ public interface TaskService {
      * @param newOwners
      *            new executor list
      */
-    public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners);
+    void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> newOwners);
 
     /**
      * Delegate tasks to another users or groups.
@@ -153,6 +146,10 @@ public interface TaskService {
      * @param newOwners
      *            new executor list
      */
-    public void delegateTasks(User user, Set<Long> taskIds, boolean keepCurrentOwners, List<? extends Executor> newOwners);
+    void delegateTasks(User user, Set<Long> taskIds, boolean keepCurrentOwners, List<? extends Executor> newOwners);
 
+    /**
+     * temporary method for #2151
+     */
+    List<WfTask> getUnassignedTasks(User user);
 }

@@ -14,7 +14,7 @@ import ru.runa.wfe.user.Executor;
 
 @Entity
 @Table(name = "ARCHIVED_SWIMLANE")
-public class ArchivedSwimlane extends BaseSwimlane<ArchivedProcess> {
+public class ArchivedSwimlane extends Swimlane<ArchivedProcess> {
 
     private Long id;
     private ArchivedProcess process;

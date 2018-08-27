@@ -25,21 +25,21 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 @Entity
-@DiscriminatorValue(value = "L")
-public class LongVariable extends Variable<Long> {
-    private Long object;
+@DiscriminatorValue(value = "O")
+public class CurrentDoubleVariable extends CurrentVariable<Double> {
+    private Double object;
 
-    @Column(name = "LONGVALUE")
+    @Column(name = "DOUBLEVALUE")
     @Override
-    public Long getStorableValue() {
+    public Double getStorableValue() {
         return object;
     }
 
     @Override
-    public void setStorableValue(Long object) {
+    public void setStorableValue(Double object) {
         this.object = object;
     }
 
@@ -48,7 +48,7 @@ public class LongVariable extends Variable<Long> {
         if (super.supports(value)) {
             return true;
         }
-        return value instanceof Long;
+        return value instanceof Double;
     }
 
 }

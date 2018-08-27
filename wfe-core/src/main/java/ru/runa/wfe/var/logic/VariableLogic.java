@@ -47,7 +47,7 @@ import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ConvertToSimpleVariables;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesContext;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesResult;
@@ -61,8 +61,8 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.UserType;
-import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
@@ -91,7 +91,7 @@ public class VariableLogic extends WfCommonLogic {
         CurrentProcess process = currentProcessDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         permissionDao.checkAllowed(user, Permission.LIST, process);
-        Map<CurrentProcess, Map<String, Variable<?>>> variables = variableDao.getVariables(Sets.newHashSet(process));
+        Map<CurrentProcess, Map<String, CurrentVariable<?>>> variables = currentVariableDao.getVariables(Sets.newHashSet(process));
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
@@ -106,7 +106,7 @@ public class VariableLogic extends WfCommonLogic {
         Map<Long, List<WfVariable>> result = Maps.newHashMap();
         List<CurrentProcess> processes = currentProcessDao.find(processIds);
         processes = filterSecuredObject(user, processes, Permission.LIST);
-        Map<CurrentProcess, Map<String, Variable<?>>> variables = variableDao.getVariables(processes);
+        Map<CurrentProcess, Map<String, CurrentVariable<?>>> variables = currentVariableDao.getVariables(processes);
         for (CurrentProcess process : processes) {
             List<WfVariable> list = Lists.newArrayList();
             ProcessDefinition processDefinition = getDefinition(process);
@@ -239,7 +239,7 @@ public class VariableLogic extends WfCommonLogic {
         CurrentProcess process = currentProcessDao.getNotNull(filter.getProcessId());
         permissionDao.checkAllowed(user, Permission.LIST, process);
         Set<String> simpleVariablesChanged = Sets.newHashSet();
-        Map<CurrentProcess, Map<String, Variable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
+        Map<CurrentProcess, Map<String, CurrentVariable<?>>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
         VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
         ProcessDefinition processDefinition = getDefinition(process);
         BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, processDefinition, process);
@@ -266,10 +266,10 @@ public class VariableLogic extends WfCommonLogic {
      * @param baseProcessVariableLoader
      *            Component for loading variables with base process variable state support.
      */
-    private void removeSyncVariablesInBaseProcessMode(Map<CurrentProcess, Map<String, Variable<?>>> processStateOnTime,
+    private void removeSyncVariablesInBaseProcessMode(Map<CurrentProcess, Map<String, CurrentVariable<?>>> processStateOnTime,
             BaseProcessVariableLoader baseProcessVariableLoader) {
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
-        for (Map.Entry<CurrentProcess, Map<String, Variable<?>>> entry : processStateOnTime.entrySet()) {
+        for (Map.Entry<CurrentProcess, Map<String, CurrentVariable<?>>> entry : processStateOnTime.entrySet()) {
             final CurrentProcess process = entry.getKey();
             if (!baseProcessVariableLoader.getSubprocessSyncCache().isInBaseProcessIdMode(process)) {
                 continue;
@@ -304,14 +304,14 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from process to process variables, loaded according to process filter.
      */
-    private Map<CurrentProcess, Map<String, Variable<?>>> getProcessStateOnTime(User user, CurrentProcess process, ProcessLogFilter filter,
+    private Map<CurrentProcess, Map<String, CurrentVariable<?>>> getProcessStateOnTime(User user, CurrentProcess process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
         Map<CurrentProcess, Map<String, Object>> processToVariables = loadSimpleVariablesState(user, process, filter, simpleVariablesChanged);
-        Map<CurrentProcess, Map<String, Variable<?>>> result = Maps.newHashMap();
+        Map<CurrentProcess, Map<String, CurrentVariable<?>>> result = Maps.newHashMap();
         for (Map.Entry<CurrentProcess, Map<String, Object>> entry : processToVariables.entrySet()) {
             final CurrentProcess currentProcess = entry.getKey();
             Map<String, Object> processVariables = entry.getValue();
-            Map<String, Variable<?>> newMap = Maps.newHashMap();
+            Map<String, CurrentVariable<?>> newMap = Maps.newHashMap();
             result.put(currentProcess, newMap);
             for (CurrentProcess varProcess = currentProcess; varProcess != null; varProcess = getBaseProcess(user, varProcess)) {
                 ProcessDefinition definition = getDefinition(varProcess);
@@ -325,7 +325,7 @@ public class VariableLogic extends WfCommonLogic {
                     if (value instanceof String) {
                         value = variableDefinition.getFormatNotNull().parse((String) value);
                     }
-                    Variable<?> variable = variableCreator.create(varProcess, variableDefinition, value);
+                    CurrentVariable<?> variable = variableCreator.create(varProcess, variableDefinition, value);
                     variable.setValue(new ExecutionContext(definition, varProcess), value, variableDefinition);
                     newMap.put(variableName, variable);
                 }
@@ -369,7 +369,7 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from simple process variable name to it last known value.
      */
-    private Map<String, Object> loadVariablesForProcessFromLogs(User user, BaseProcess process, ProcessLogFilter filter,
+    private Map<String, Object> loadVariablesForProcessFromLogs(User user, Process process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
         ProcessLogFilter localFilter = new ProcessLogFilter(filter);
         localFilter.setType(ProcessLog.Type.VARIABLE);

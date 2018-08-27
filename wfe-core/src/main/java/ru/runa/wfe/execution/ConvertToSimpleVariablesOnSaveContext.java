@@ -2,10 +2,10 @@ package ru.runa.wfe.execution;
 
 import org.apache.commons.logging.Log;
 
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
-import ru.runa.wfe.var.dao.VariableDao;
+import ru.runa.wfe.var.dao.CurrentVariableDao;
 import ru.runa.wfe.var.dto.WfVariable;
 
 /**
@@ -31,7 +31,7 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
     /**
      * DAO instance for work with variables.
      */
-    private final VariableDao variableDao;
+    private final CurrentVariableDao currentVariableDao;
 
     /**
      * Creates context for {@link ConvertToSimpleVariables} operation.
@@ -44,22 +44,22 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
      *            Process instance for saving variables to.
      * @param baseProcessVariableLoader
      *            Loading variables context.
-     * @param variableDao
+     * @param currentVariableDao
      *            DAO instance for work with variables.
      */
     public ConvertToSimpleVariablesOnSaveContext(VariableDefinition variableDefinition, Object value, CurrentProcess process,
-            BaseProcessVariableLoader baseProcessVariableLoader, VariableDao variableDao) {
+            BaseProcessVariableLoader baseProcessVariableLoader, CurrentVariableDao currentVariableDao) {
         super();
         this.variableDefinition = variableDefinition;
         this.value = value;
         this.process = process;
         this.baseProcessVariableLoader = baseProcessVariableLoader;
-        this.variableDao = variableDao;
+        this.currentVariableDao = currentVariableDao;
     }
 
     @Override
     public ConvertToSimpleVariablesContext createFor(VariableDefinition variableDefinition, Object variableValue) {
-        return new ConvertToSimpleVariablesOnSaveContext(variableDefinition, variableValue, process, baseProcessVariableLoader, variableDao);
+        return new ConvertToSimpleVariablesOnSaveContext(variableDefinition, variableValue, process, baseProcessVariableLoader, currentVariableDao);
     }
 
     @Override
@@ -69,10 +69,10 @@ public class ConvertToSimpleVariablesOnSaveContext implements ConvertToSimpleVar
 
     @Override
     public void remove(Log log) {
-        Variable<?> variable = variableDao.get(process, getVariableDefinition().getName());
+        CurrentVariable<?> variable = currentVariableDao.get(process, getVariableDefinition().getName());
         if (variable != null) {
             log.debug("Removing old-style variable '" + getVariableDefinition().getName() + "'");
-            variableDao.delete(variable);
+            currentVariableDao.delete(variable);
         }
     }
 

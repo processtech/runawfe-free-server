@@ -15,7 +15,7 @@ import ru.runa.wfe.definition.Deployment;
 
 @Entity
 @Table(name = "ARCHIVED_PROCESS")
-public class ArchivedProcess extends BaseProcess<ArchivedToken> {
+public class ArchivedProcess extends Process<ArchivedToken> {
     private static final long serialVersionUID = 1L;
 
     private Long id;

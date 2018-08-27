@@ -17,15 +17,13 @@
  */
 package ru.runa.wfe.presentation.filter;
 
+import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.Map;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.var.Variable;
-
-import com.google.common.collect.Maps;
+import ru.runa.wfe.var.CurrentVariable;
 
 /**
  * 
@@ -40,7 +38,7 @@ public class FilterCriteriaFactory {
         filterCriterias.put(String.class, StringFilterCriteria.class);
         filterCriterias.put(Integer.class, LongFilterCriteria.class);
         filterCriterias.put(Date.class, DateFilterCriteria.class);
-        filterCriterias.put(Variable.class, StringFilterCriteria.class);
+        filterCriterias.put(CurrentVariable.class, StringFilterCriteria.class);
     }
 
     public static FilterCriteria createFilterCriteria(BatchPresentation batchPresentation, int fieldIndex) {

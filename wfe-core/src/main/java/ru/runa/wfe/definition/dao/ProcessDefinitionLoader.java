@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.cache.DefinitionCache;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
 
 public class ProcessDefinitionLoader {
@@ -15,7 +15,7 @@ public class ProcessDefinitionLoader {
         return processDefCacheCtrl.getDefinition(id);
     }
 
-    public ProcessDefinition getDefinition(BaseProcess process) {
+    public ProcessDefinition getDefinition(Process process) {
         Preconditions.checkNotNull(process, "process");
         return getDefinition(process.getDeployment().getId());
     }

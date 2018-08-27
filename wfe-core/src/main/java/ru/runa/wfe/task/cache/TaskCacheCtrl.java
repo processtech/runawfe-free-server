@@ -30,7 +30,7 @@ import ru.runa.wfe.commons.cache.Change;
 import ru.runa.wfe.commons.cache.ChangedObjectParameter;
 import ru.runa.wfe.commons.cache.TaskChangeListener;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
@@ -84,7 +84,7 @@ class TaskCacheCtrl extends BaseCacheCtrl<TaskCacheImpl> implements TaskChangeLi
 
     @Override
     public void doOnChange(ChangedObjectParameter changedObject) {
-        if (changedObject.object instanceof Task || changedObject.object instanceof Swimlane) {
+        if (changedObject.object instanceof Task || changedObject.object instanceof CurrentSwimlane) {
             clearObjectWithExecutorProperty(changedObject);
         } else if (changedObject.object instanceof ExecutorGroupMembership) {
             ExecutorGroupMembership membership = (ExecutorGroupMembership) changedObject.object;

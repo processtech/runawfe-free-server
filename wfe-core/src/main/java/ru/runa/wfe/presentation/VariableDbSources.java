@@ -22,11 +22,11 @@ package ru.runa.wfe.presentation;
 
 import com.google.common.base.Preconditions;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.impl.DateVariable;
-import ru.runa.wfe.var.impl.DoubleVariable;
-import ru.runa.wfe.var.impl.LongVariable;
-import ru.runa.wfe.var.impl.StringVariable;
+import ru.runa.wfe.var.CurrentVariable;
+import ru.runa.wfe.var.impl.CurrentDateVariable;
+import ru.runa.wfe.var.impl.CurrentDoubleVariable;
+import ru.runa.wfe.var.impl.CurrentLongVariable;
+import ru.runa.wfe.var.impl.CurrentStringVariable;
 
 /**
  * Implementation of {@link DbSource} interface for referencing variable values.
@@ -43,11 +43,11 @@ public class VariableDbSources {
      */
     public static DbSource[] get(String processPath) {
         return new DbSource[] {
-                new BaseVariableDbSource(Variable.class, processPath),
-                new StorableVariableDbSource(DateVariable.class),
-                new StorableVariableDbSource(DoubleVariable.class),
-                new StorableVariableDbSource(LongVariable.class),
-                new StringVariableDbSource(StringVariable.class)
+                new BaseVariableDbSource(CurrentVariable.class, processPath),
+                new StorableVariableDbSource(CurrentDateVariable.class),
+                new StorableVariableDbSource(CurrentDoubleVariable.class),
+                new StorableVariableDbSource(CurrentLongVariable.class),
+                new StringVariableDbSource(CurrentStringVariable.class)
         };
     }
 

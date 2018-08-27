@@ -2,7 +2,7 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.user.Executor;
 
 /**
@@ -18,7 +18,7 @@ public class CurrentSwimlaneAssignLog extends CurrentProcessLog implements Swiml
     public CurrentSwimlaneAssignLog() {
     }
 
-    public CurrentSwimlaneAssignLog(Swimlane swimlane, Executor newExecutor) {
+    public CurrentSwimlaneAssignLog(CurrentSwimlane swimlane, Executor newExecutor) {
         addAttribute(ATTR_MESSAGE, swimlane.getName());
         if (swimlane.getExecutor() != null) {
             addAttribute(ATTR_OLD_VALUE, swimlane.getExecutor().getName());

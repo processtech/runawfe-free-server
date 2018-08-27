@@ -8,7 +8,7 @@ import ru.runa.wfe.commons.cache.sm.BaseCacheCtrl;
 import ru.runa.wfe.commons.cache.sm.CachingLogic;
 import ru.runa.wfe.commons.cache.sm.factories.StaticCacheFactory;
 import ru.runa.wfe.commons.cache.states.DefaultStateContext;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
@@ -17,7 +17,7 @@ import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorGroupMembership;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 class TaskCacheStateCtrl extends BaseCacheCtrl<ManageableTaskCache, DefaultStateContext> implements TaskCache {
 
@@ -43,11 +43,11 @@ class TaskCacheStateCtrl extends BaseCacheCtrl<ManageableTaskCache, DefaultState
         }
     }
 
-    private static final List<ListenObjectDefinition> createListenObjectTypes() {
-        ArrayList<ListenObjectDefinition> result = new ArrayList<ListenObjectDefinition>();
+    private static List<ListenObjectDefinition> createListenObjectTypes() {
+        ArrayList<ListenObjectDefinition> result = new ArrayList<>();
         result.add(new ListenObjectDefinition(Task.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Swimlane.class, ListenObjectLogType.BECOME_DIRTY));
-        result.add(new ListenObjectDefinition(Variable.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(CurrentSwimlane.class, ListenObjectLogType.BECOME_DIRTY));
+        result.add(new ListenObjectDefinition(CurrentVariable.class, ListenObjectLogType.BECOME_DIRTY));
         result.add(new ListenObjectDefinition(Substitution.class, ListenObjectLogType.BECOME_DIRTY));
         result.add(new ListenObjectDefinition(SubstitutionCriteria.class, ListenObjectLogType.BECOME_DIRTY));
         result.add(new ListenObjectDefinition(ExecutorGroupMembership.class, ListenObjectLogType.BECOME_DIRTY));

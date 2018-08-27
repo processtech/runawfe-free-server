@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -46,7 +46,7 @@ public abstract class AbstractVariableLoader implements VariableLoader {
             return new WfVariable(variableDefinition, variableValue);
         }
         if (SystemProperties.isV3CompatibilityMode()) {
-            Variable<?> variable = get(process, variableName);
+            CurrentVariable<?> variable = get(process, variableName);
             return new WfVariable(variableName, variable != null ? variable.getValue() : null);
         }
         log.debug("No variable defined by name '" + variableName + "' in " + process + ", returning null");

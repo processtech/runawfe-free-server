@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.task.QTask;
 import ru.runa.wfe.task.Task;
@@ -57,7 +57,7 @@ public class TaskDao extends GenericDao<Task> {
         return queryFactory.selectFrom(t).where(t.process.eq(process)).fetch();
     }
 
-    public List<Task> findByProcessAndSwimlane(CurrentProcess process, Swimlane swimlane) {
+    public List<Task> findByProcessAndSwimlane(CurrentProcess process, CurrentSwimlane swimlane) {
         val t = QTask.task;
         return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.swimlane.eq(swimlane))).fetch();
     }
@@ -110,5 +110,10 @@ public class TaskDao extends GenericDao<Task> {
         log.debug("deleting tasks for process " + process.getId());
         val t = QTask.task;
         queryFactory.delete(t).where(t.process.eq(process)).execute();
+    }
+
+    public List<Task> findUnassignedTasks() {
+        QTask t = QTask.task;
+        return queryFactory.selectFrom(t).where(t.executor.isNull()).fetch();
     }
 }

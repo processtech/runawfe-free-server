@@ -24,7 +24,7 @@ package ru.runa.wfe.audit;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 import ru.runa.wfe.var.file.FileVariable;
@@ -42,7 +42,7 @@ public abstract class CurrentVariableLog extends CurrentProcessLog implements Va
     public CurrentVariableLog() {
     }
 
-    public CurrentVariableLog(Variable<?> variable) {
+    public CurrentVariableLog(CurrentVariable<?> variable) {
         setVariableName(variable.getName());
     }
 
@@ -51,7 +51,7 @@ public abstract class CurrentVariableLog extends CurrentProcessLog implements Va
         addAttribute(ATTR_VARIABLE_NAME, variableName);
     }
 
-    protected void setVariableNewValue(Variable<?> variable, Object newValue, VariableDefinition variableDefinition) {
+    protected void setVariableNewValue(CurrentVariable<?> variable, Object newValue, VariableDefinition variableDefinition) {
         addAttributeWithTruncation(ATTR_NEW_VALUE, variable.toString(newValue, variableDefinition));
         boolean file = newValue instanceof FileVariable;
         // TODO FileVariableMatcher

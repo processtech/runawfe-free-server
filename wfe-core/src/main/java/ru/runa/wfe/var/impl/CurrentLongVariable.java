@@ -21,28 +21,25 @@
  */
 package ru.runa.wfe.var.impl;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-import ru.runa.wfe.var.Variable;
-import ru.runa.wfe.var.VariableDefinition;
+import ru.runa.wfe.var.CurrentVariable;
 
 @Entity
-@DiscriminatorValue(value = "D")
-public class DateVariable extends Variable<Date> {
-    private Date object;
+@DiscriminatorValue(value = "L")
+public class CurrentLongVariable extends CurrentVariable<Long> {
+    private Long object;
 
-    @Column(name = "DATEVALUE")
+    @Column(name = "LONGVALUE")
     @Override
-    public Date getStorableValue() {
+    public Long getStorableValue() {
         return object;
     }
 
     @Override
-    public void setStorableValue(Date object) {
+    public void setStorableValue(Long object) {
         this.object = object;
     }
 
@@ -51,11 +48,7 @@ public class DateVariable extends Variable<Date> {
         if (super.supports(value)) {
             return true;
         }
-        return value instanceof Date;
+        return value instanceof Long;
     }
 
-    @Override
-    public String toString(Object value, VariableDefinition variableDefinition) {
-        return variableDefinition.getFormatNotNull().format(value);
-    }
 }

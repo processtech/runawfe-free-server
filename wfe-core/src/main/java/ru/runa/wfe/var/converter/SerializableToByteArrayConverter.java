@@ -35,7 +35,7 @@ import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.Converter;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 public class SerializableToByteArrayConverter implements Converter {
     private static final long serialVersionUID = 1L;
@@ -46,7 +46,7 @@ public class SerializableToByteArrayConverter implements Converter {
     }
 
     @Override
-    public Object convert(ExecutionContext executionContext, Variable<?> variable, Object o) {
+    public Object convert(ExecutionContext executionContext, CurrentVariable<?> variable, Object o) {
         try {
             ByteArrayOutputStream memoryStream = new ByteArrayOutputStream();
             ObjectOutputStream objectStream = new ObjectOutputStream(memoryStream);

@@ -27,7 +27,7 @@ import ru.runa.wfe.audit.SystemLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.logic.CommonLogic;
 import ru.runa.wfe.commons.logic.PresentationCompilerHelper;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.hibernate.PresentationConfiguredCompiler;
@@ -54,13 +54,13 @@ public class AuditLogic extends CommonLogic {
 
     public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter) {
         Preconditions.checkNotNull(filter.getProcessId(), "filter.processId");
-        BaseProcess process = currentProcessDao.getNotNull(filter.getProcessId());
+        Process process = currentProcessDao.getNotNull(filter.getProcessId());
         permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
         List<BaseProcessLog> logs = processLogDao.getAll(filter);
         result.addLogs(logs, filter.isIncludeSubprocessLogs());
         if (filter.isIncludeSubprocessLogs()) {
-            for (BaseProcess subprocess : nodeProcessDao.getSubprocessesRecursive(process)) {
+            for (Process subprocess : nodeProcessDao.getSubprocessesRecursive(process)) {
                 ProcessLogFilter subprocessFilter = new ProcessLogFilter(subprocess.getId());
                 subprocessFilter.setSeverities(filter.getSeverities());
                 logs = processLogDao.getAll(subprocessFilter);

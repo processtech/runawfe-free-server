@@ -5,9 +5,9 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.CurrentToken;
-import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskFactory;
@@ -21,7 +21,7 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     @Autowired
     protected transient TaskDao taskDao;
     @Autowired
-    protected transient SwimlaneDao swimlaneDao;
+    protected transient CurrentSwimlaneDao currentSwimlaneDao;
 
     protected boolean async;
     protected AsyncCompletionMode asyncCompletionMode = AsyncCompletionMode.NEVER;
@@ -64,8 +64,8 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
         }
     }
 
-    protected Swimlane getInitializedSwimlaneNotNull(ExecutionContext executionContext, TaskDefinition taskDefinition) {
-        return swimlaneDao.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlane());
+    protected CurrentSwimlane getInitializedSwimlaneNotNull(ExecutionContext executionContext, TaskDefinition taskDefinition) {
+        return currentSwimlaneDao.findOrCreateInitialized(executionContext, taskDefinition.getSwimlane(), taskDefinition.isReassignSwimlane());
     }
 
     @Override

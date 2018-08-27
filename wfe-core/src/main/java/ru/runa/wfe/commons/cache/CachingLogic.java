@@ -32,7 +32,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.task.Task;
@@ -130,7 +130,7 @@ public class CachingLogic {
             }
             // TODO move qualification of change listeners to
             // ChangeListener.getInterestedEntityClasses ?
-            if (entity instanceof Task || entity instanceof Swimlane || entity instanceof Substitution || entity instanceof SubstitutionCriteria
+            if (entity instanceof Task || entity instanceof CurrentSwimlane || entity instanceof Substitution || entity instanceof SubstitutionCriteria
                     || entity instanceof ExecutorGroupMembership || entity instanceof Actor) {
                 onWriteTransaction(taskListeners, entity, change, currentState, previousState, propertyNames, types);
             }

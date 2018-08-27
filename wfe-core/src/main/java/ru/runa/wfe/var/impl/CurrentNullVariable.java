@@ -3,11 +3,11 @@ package ru.runa.wfe.var.impl;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 @Entity
 @DiscriminatorValue(value = "N")
-public class NullVariable extends Variable<Object> {
+public class CurrentNullVariable extends CurrentVariable<Object> {
 
     @Override
     @Transient

@@ -28,7 +28,7 @@ import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.VariableDbSources;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 /**
  * Created on 2017-04-05
@@ -64,7 +64,7 @@ public class TaskObservableClassPresentation extends ClassPresentation {
                         "ru.runa.wf.web.html.TaskOwnerTdBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_SWIMLINE, String.class.getName(), new DefaultDbSource(Task.class, "swimlane.name"), false,
                         FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskRoleTdBuilder", new Object[] {}),
-                new FieldDescriptor(TASK_VARIABLE, Variable.class.getName(), VariableDbSources.get("process"), true, FieldFilterMode.DATABASE,
+                new FieldDescriptor(TASK_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get("process"), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.TaskVariableTdBuilder", new Object[] {}),
                 new FieldDescriptor(TASK_DEADLINE, Date.class.getName(), new DefaultDbSource(Task.class, "deadlineDate"), true, 1,
                         BatchPresentationConsts.DESC, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.TaskDeadlineTdBuilder", new Object[] {}),

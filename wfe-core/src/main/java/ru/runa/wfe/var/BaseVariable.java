@@ -7,10 +7,10 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Type;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 
 @MappedSuperclass
-public abstract class BaseVariable<P extends BaseProcess, T> {
+public abstract class BaseVariable<P extends Process, T> {
 
     public static int getMaxStringSize() {
         return SystemProperties.getStringVariableValueLength();

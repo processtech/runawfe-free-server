@@ -30,7 +30,7 @@ import ru.runa.wfe.presentation.filter.TaskStatusFilterCriteria;
 import ru.runa.wfe.presentation.filter.UserOrGroupFilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 /**
  * Created on 22.10.2005
@@ -160,7 +160,7 @@ public class ProcessWithTasksClassPresentation extends ClassPresentation {
                         FieldFilterMode.DATABASE_ID_RESTRICTION, "ru.runa.wf.web.html.PropertyTDBuilder", new Object[] {}).setShowable(false),
                 new FieldDescriptor(filterable_prefix + "batch_presentation.process.id", String.class.getName(), new SubProcessDbSource(
                         CurrentProcess.class, "hierarchyIds"), true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.RootProcessTDBuilder", new Object[] {}),
-                new FieldDescriptor(PROCESS_VARIABLE, Variable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
+                new FieldDescriptor(PROCESS_VARIABLE, CurrentVariable.class.getName(), VariableDbSources.get(null), true, FieldFilterMode.DATABASE,
                         "ru.runa.wf.web.html.ProcessVariableTDBuilder", new Object[] {}) });
     }
 

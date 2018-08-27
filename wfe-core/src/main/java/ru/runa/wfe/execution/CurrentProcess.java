@@ -72,7 +72,7 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class CurrentProcess extends BaseProcess<CurrentToken> {
+public class CurrentProcess extends Process<CurrentToken> {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(CurrentProcess.class);
 
@@ -212,13 +212,13 @@ public class CurrentProcess extends BaseProcess<CurrentToken> {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
             endSubprocessAndTasksOnMainProcessEndRecursively(executionContext, canceller);
         }
-        for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDao().findByProcess(this)) {
+        for (CurrentSwimlane swimlane : ApplicationContextFactory.getSwimlaneDao().findByProcess(this)) {
             if (swimlane.getExecutor() instanceof TemporaryGroup) {
                 swimlane.setExecutor(null);
             }
         }
         for (CurrentProcess subProcess : executionContext.getSubprocessesRecursively()) {
-            for (Swimlane swimlane : ApplicationContextFactory.getSwimlaneDao().findByProcess(subProcess)) {
+            for (CurrentSwimlane swimlane : ApplicationContextFactory.getSwimlaneDao().findByProcess(subProcess)) {
                 if (swimlane.getExecutor() instanceof TemporaryGroup) {
                     swimlane.setExecutor(null);
                 }

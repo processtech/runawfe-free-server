@@ -34,7 +34,7 @@ public abstract class GenericDao<T> extends CommonDao implements GenericDaoApi<T
     }
 
     /**
-     * Default constructor fails to determine entityClass if subclasses by generic:
+     * Default constructor fails to determine entityClass if subclass is generic:
      * in this case, getActualTypeArguments() returns TypeVariableImpl instead of Class.
      */
     public GenericDao(Class<T> entityClass) {

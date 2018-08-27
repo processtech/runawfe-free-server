@@ -16,7 +16,7 @@ import ru.runa.wfe.audit.CurrentProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.dao.GenericDao2;
 import ru.runa.wfe.execution.ArchivedProcess;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.dao.ProcessDao;
@@ -36,7 +36,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
         this.customizationDao = customizationDao;
     }
 
-    public List<? extends BaseProcessLog> getAll(@NonNull BaseProcess process) {
+    public List<? extends BaseProcessLog> getAll(@NonNull Process process) {
         if (process.isArchive()) {
             return dao2.getAll(process.getId());
         } else {
@@ -45,7 +45,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
     }
 
     /**
-     * Called with TemporaryGroup.processId; other contexts have BaseProcess instance available.
+     * Called with TemporaryGroup.processId; other contexts have Process instance available.
      */
     public List<? extends BaseProcessLog> getAll(@NonNull Long processId) {
         return getAll(processDao.getNotNull(processId));
@@ -78,7 +78,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
         }
     }
 
-    public List<? extends BaseProcessLog> get(@NonNull BaseProcess process, ProcessDefinition definition) {
+    public List<? extends BaseProcessLog> get(@NonNull Process process, ProcessDefinition definition) {
         if (process.isArchive()) {
             return dao2.get((ArchivedProcess) process, definition);
         } else {
@@ -86,7 +86,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
         }
     }
 
-    public boolean isNodeEntered(@NonNull BaseProcess process, String nodeId) {
+    public boolean isNodeEntered(@NonNull Process process, String nodeId) {
         if (process.isArchive()) {
             return dao2.isNodeEntered((ArchivedProcess) process, nodeId);
         } else {

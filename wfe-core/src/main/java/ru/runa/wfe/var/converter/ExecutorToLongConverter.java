@@ -8,7 +8,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.var.Converter;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 public class ExecutorToLongConverter implements Converter {
     private static final long serialVersionUID = 1L;
@@ -20,7 +20,7 @@ public class ExecutorToLongConverter implements Converter {
     }
 
     @Override
-    public Object convert(ExecutionContext executionContext, Variable<?> variable, Object o) {
+    public Object convert(ExecutionContext executionContext, CurrentVariable<?> variable, Object o) {
         return ((Executor) o).getId();
     }
 

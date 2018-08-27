@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.Node;
@@ -37,7 +37,7 @@ public class ProcessInstanceData {
      */
     private final HashMap<Long, Token> processTokens = Maps.newHashMap();
 
-    public ProcessInstanceData(BaseProcess instance, ProcessDefinition processDefinition) {
+    public ProcessInstanceData(Process instance, ProcessDefinition processDefinition) {
         addToken(instance.getRootToken());
         this.processDefinition = processDefinition;
         for (Node node : processDefinition.getNodes(true)) {

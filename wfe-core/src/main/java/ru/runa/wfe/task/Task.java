@@ -56,9 +56,9 @@ import ru.runa.wfe.audit.CurrentTaskExpiredLog;
 import ru.runa.wfe.audit.CurrentTaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.extension.Assignable;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.lang.ActionEvent;
@@ -90,7 +90,7 @@ public class Task implements Assignable {
     private Date assignDate;
     private String deadlineDateExpression;
     private CurrentToken token;
-    private Swimlane swimlane;
+    private CurrentSwimlane swimlane;
     private CurrentProcess process;
     private Set<Long> openedByExecutorIds;
     private Integer index;
@@ -216,14 +216,14 @@ public class Task implements Assignable {
         this.token = token;
     }
 
-    @ManyToOne(targetEntity = Swimlane.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = CurrentSwimlane.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "SWIMLANE_ID")
     @ForeignKey(name = "FK_TASK_SWIMLANE")
-    public Swimlane getSwimlane() {
+    public CurrentSwimlane getSwimlane() {
         return swimlane;
     }
 
-    public void setSwimlane(Swimlane swimlane) {
+    public void setSwimlane(CurrentSwimlane swimlane) {
         this.swimlane = swimlane;
     }
 

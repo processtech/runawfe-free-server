@@ -21,27 +21,28 @@
  */
 package ru.runa.wfe.var.impl;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
+import ru.runa.wfe.var.VariableDefinition;
 
 @Entity
-@DiscriminatorValue(value = "B")
-public class ByteArrayVariable extends Variable<byte[]> {
-    private byte[] object;
+@DiscriminatorValue(value = "D")
+public class CurrentDateVariable extends CurrentVariable<Date> {
+    private Date object;
 
-    @Lob
-    @Column(length = 16777216, name = "BYTES")
+    @Column(name = "DATEVALUE")
     @Override
-    public byte[] getStorableValue() {
+    public Date getStorableValue() {
         return object;
     }
 
     @Override
-    public void setStorableValue(byte[] object) {
+    public void setStorableValue(Date object) {
         this.object = object;
     }
 
@@ -50,6 +51,11 @@ public class ByteArrayVariable extends Variable<byte[]> {
         if (super.supports(value)) {
             return true;
         }
-        return value instanceof byte[];
+        return value instanceof Date;
+    }
+
+    @Override
+    public String toString(Object value, VariableDefinition variableDefinition) {
+        return variableDefinition.getFormatNotNull().format(value);
     }
 }

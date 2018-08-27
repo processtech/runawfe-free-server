@@ -2,15 +2,14 @@ package ru.runa.wfe.var.dao;
 
 import java.util.List;
 import java.util.Map;
-
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
 /**
- * Supports variable loading via {@link VariableDao} and converting to {@link WfVariable}.
+ * Supports variable loading via {@link CurrentVariableDao} and converting to {@link WfVariable}.
  */
 public interface VariableLoader {
 
@@ -23,7 +22,7 @@ public interface VariableLoader {
      *            Variable name.
      * @return Variable or null, if no variable found.
      */
-    Variable<?> get(CurrentProcess process, String name);
+    CurrentVariable<?> get(CurrentProcess process, String name);
 
     /**
      * Find all variables in all processes, which name is like namePattern and value is equals to stringValue.
@@ -34,7 +33,7 @@ public interface VariableLoader {
      *            Exact string variable value.
      * @return all variable, found by criteria.
      */
-    List<Variable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue);
+    List<CurrentVariable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue);
 
     /**
      * Load all variables for given process.

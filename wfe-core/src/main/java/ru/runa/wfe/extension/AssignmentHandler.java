@@ -21,15 +21,16 @@
  */
 package ru.runa.wfe.extension;
 
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
 
 /**
- * assigns {@link ru.runa.wfe.task.Task}s or {@link ru.runa.wfe.execution.Swimlane}s to actors.
+ * assigns {@link ru.runa.wfe.task.Task}s or {@link CurrentSwimlane}s to actors.
  */
 public interface AssignmentHandler extends Configurable {
 
     /**
-     * assigns the assignable (={@link ru.runa.wfe.task.Task} or a {@link ru.runa.wfe.execution.Swimlane} to an swimlaneActorId.
+     * assigns the assignable (={@link ru.runa.wfe.task.Task} or a {@link CurrentSwimlane} to an swimlaneActorId.
      * 
      * <p>
      * The swimlaneActorId is the user that is responsible for the given task or swimlane. The pooledActors represents a pool of actors to which the task or swimlane is offered.

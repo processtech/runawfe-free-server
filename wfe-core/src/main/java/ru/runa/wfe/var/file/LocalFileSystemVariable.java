@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 import com.google.common.base.Objects;
 import com.google.common.io.Files;
@@ -24,7 +24,7 @@ public class LocalFileSystemVariable implements FileVariable {
     public LocalFileSystemVariable() {
     }
 
-    public LocalFileSystemVariable(Variable<?> variable, String variableName, FileVariable fileVariable) {
+    public LocalFileSystemVariable(CurrentVariable<?> variable, String variableName, FileVariable fileVariable) {
         name = fileVariable.getName();
         contentType = fileVariable.getContentType();
         long version = variable.getVersion() != null ? variable.getVersion() + 1 : 0;

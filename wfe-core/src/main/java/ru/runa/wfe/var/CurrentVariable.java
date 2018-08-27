@@ -64,13 +64,13 @@ import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public abstract class Variable<T> extends BaseVariable<CurrentProcess, T> {
+public abstract class CurrentVariable<T> extends BaseVariable<CurrentProcess, T> {
 
     protected Long id;
     private String name;
     private CurrentProcess process;
 
-    public Variable() {
+    public CurrentVariable() {
     }
 
     @Override

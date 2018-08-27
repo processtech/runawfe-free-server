@@ -23,7 +23,7 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableDefinition;
 
 /**
@@ -39,7 +39,7 @@ public class CurrentVariableCreateLog extends CurrentVariableLog implements Vari
     public CurrentVariableCreateLog() {
     }
 
-    public CurrentVariableCreateLog(Variable<?> variable, Object newValue, VariableDefinition variableDefinition) {
+    public CurrentVariableCreateLog(CurrentVariable<?> variable, Object newValue, VariableDefinition variableDefinition) {
         super(variable);
         setVariableNewValue(variable, newValue, variableDefinition);
     }

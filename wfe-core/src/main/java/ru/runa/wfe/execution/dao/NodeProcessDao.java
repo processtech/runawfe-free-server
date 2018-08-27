@@ -13,7 +13,7 @@ import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ArchivedToken;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.NodeProcess;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentToken;
@@ -29,7 +29,7 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
     /**
      * @return Null if unknown.
      */
-    private Boolean calculateIsArchive(BaseProcess process, Token token) {
+    private Boolean calculateIsArchive(Process process, Token token) {
         if (process != null) {
             Preconditions.checkState(token == null || process.isArchive() == token.isArchive());
             return process.isArchive();
@@ -42,7 +42,7 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
 
     // TODO If finished != null, dao.getNodeProcesses() checks Process.endDate;
     //      maybe we can optimize this by checking executionStatus instead, and thus not-querying archive if finished == true?
-    public List<? extends NodeProcess> getNodeProcesses(BaseProcess process, Token parentToken, String nodeId, Boolean finished) {
+    public List<? extends NodeProcess> getNodeProcesses(Process process, Token parentToken, String nodeId, Boolean finished) {
         Boolean isArchive = calculateIsArchive(process, parentToken);
         if (isArchive == null) {
             val result = new ArrayList<NodeProcess>();
@@ -56,7 +56,7 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
         }
     }
 
-    public List<? extends BaseProcess> getSubprocesses(@NonNull BaseProcess process) {
+    public List<? extends Process> getSubprocesses(@NonNull Process process) {
         if (process.isArchive()) {
             return dao2.getSubprocesses((ArchivedProcess)process);
         } else {
@@ -64,7 +64,7 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
         }
     }
 
-    public List<? extends BaseProcess> getSubprocessesRecursive(@NonNull BaseProcess process) {
+    public List<? extends Process> getSubprocessesRecursive(@NonNull Process process) {
         if (process.isArchive()) {
             return dao2.getSubprocessesRecursive((ArchivedProcess)process);
         } else {

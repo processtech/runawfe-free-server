@@ -26,8 +26,8 @@ import javax.persistence.Entity;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.TypeConversionUtil;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
@@ -50,7 +50,7 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
         Executor executor;
         if (variableName.startsWith(SWIMLANE_PREFIX)) {
             String swimlaneName = variableName.substring(SWIMLANE_PREFIX.length());
-            Swimlane swimlane = ApplicationContextFactory.getSwimlaneDao().findByProcessAndName(executionContext.getProcess(), swimlaneName);
+            CurrentSwimlane swimlane = ApplicationContextFactory.getSwimlaneDao().findByProcessAndName(executionContext.getProcess(), swimlaneName);
             if (swimlane == null) {
                 return true;
             }

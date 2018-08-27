@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.file.FileVariable;
 import ru.runa.wfe.var.file.FileVariableStorage;
 import ru.runa.wfe.var.matcher.FileVariableMatcher;
@@ -36,7 +36,7 @@ public class FileVariableToByteArrayConverter extends SerializableToByteArrayCon
     }
 
     @Override
-    public Object convert(ExecutionContext executionContext, Variable<?> variable, Object object) {
+    public Object convert(ExecutionContext executionContext, CurrentVariable<?> variable, Object object) {
         object = storage.save(executionContext, variable, object);
         log.debug("Saving " + (object != null ? object.getClass() : "null") + " using " + storage);
         return super.convert(executionContext, variable, object);

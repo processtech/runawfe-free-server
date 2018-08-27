@@ -30,11 +30,11 @@ import ru.runa.wfe.audit.dao.SystemLogDao;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.dao.DeploymentDao;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
-import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -56,7 +56,7 @@ import ru.runa.wfe.validation.ValidationException;
 import ru.runa.wfe.validation.ValidatorContext;
 import ru.runa.wfe.validation.ValidatorManager;
 import ru.runa.wfe.var.VariableProvider;
-import ru.runa.wfe.var.dao.VariableDao;
+import ru.runa.wfe.var.dao.CurrentVariableDao;
 
 /**
  * Created on 15.03.2005
@@ -75,13 +75,13 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected TaskDao taskDao;
     @Autowired
-    protected VariableDao variableDao;
+    protected CurrentVariableDao currentVariableDao;
     @Autowired
     protected ProcessLogDao processLogDao;
     @Autowired
     protected JobDao jobDao;
     @Autowired
-    protected SwimlaneDao swimlaneDao;
+    protected CurrentSwimlaneDao currentSwimlaneDao;
     @Autowired
     protected CurrentTokenDao currentTokenDao;
     @Autowired
@@ -91,7 +91,7 @@ public class WfCommonLogic extends CommonLogic {
         return processDefinitionLoader.getDefinition(processDefinitionId);
     }
 
-    public ProcessDefinition getDefinition(BaseProcess process) {
+    public ProcessDefinition getDefinition(Process process) {
         return processDefinitionLoader.getDefinition(process);
     }
 
@@ -195,10 +195,10 @@ public class WfCommonLogic extends CommonLogic {
         }
         processLogDao.deleteAll(process);
         jobDao.deleteByProcess(process);
-        variableDao.deleteAll(process);
+        currentVariableDao.deleteAll(process);
         currentProcessDao.delete(process);
         taskDao.deleteAll(process);
-        swimlaneDao.deleteAll(process);
+        currentSwimlaneDao.deleteAll(process);
         systemLogDao.create(new ProcessDeleteLog(user.getActor().getId(), process.getDeployment().getName(), process.getId()));
     }
 

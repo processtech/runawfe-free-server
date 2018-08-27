@@ -9,13 +9,10 @@ import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 
-/**
- * Named "BaseProcess", since "AbstractProcess" can be misread as "ArchivedProcess".
- */
 // TODO Do we need field setters here and in ArchivedProcess subclass (and in any other Archived... classes) ???
 //      Archive is read-only, so if it's populated without using setters, remove them (keep them only in Process subclass).
 @MappedSuperclass
-public abstract class BaseProcess<T extends Token<?, T>> extends SecuredObjectBase {
+public abstract class Process<T extends Token<?, T>> extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
 
     private Long parentId;

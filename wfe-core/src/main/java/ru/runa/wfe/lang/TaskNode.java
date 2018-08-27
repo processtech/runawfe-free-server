@@ -22,7 +22,7 @@
 package ru.runa.wfe.lang;
 
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.execution.Swimlane;
+import ru.runa.wfe.execution.CurrentSwimlane;
 
 /**
  * is a node that relates to one or more tasks. Property <code>signal</code> specifies how task completion triggers continuation of execution.
@@ -38,7 +38,7 @@ public class TaskNode extends BaseTaskNode {
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         for (TaskDefinition taskDefinition : taskDefinitions) {
-            Swimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
+            CurrentSwimlane swimlane = getInitializedSwimlaneNotNull(executionContext, taskDefinition);
             // copy the swimlane assignment into the task
             taskFactory.create(executionContext, taskDefinition, swimlane, swimlane.getExecutor(), null);
         }

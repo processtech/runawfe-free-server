@@ -19,7 +19,7 @@ package ru.runa.wfe.graph.history;
 
 import java.util.List;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.history.graph.HistoryGraphBuilder;
 import ru.runa.wfe.history.graph.HistoryGraphNode;
@@ -43,7 +43,7 @@ public class GraphHistoryBuilder {
      */
     private final GraphHistoryBuilderData data;
 
-    public GraphHistoryBuilder(List<Executor> executors, BaseProcess process, ProcessDefinition definition,
+    public GraphHistoryBuilder(List<Executor> executors, Process process, ProcessDefinition definition,
             List<? extends BaseProcessLog> fullProcessLogs, String subProcessId) {
         this.data = new GraphHistoryBuilderData(executors, process, definition, fullProcessLogs, subProcessId);
     }

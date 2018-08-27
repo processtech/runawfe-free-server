@@ -11,7 +11,7 @@ import javax.persistence.Version;
 import ru.runa.wfe.lang.NodeType;
 
 @MappedSuperclass
-public abstract class Token<P extends BaseProcess, T extends Token> {
+public abstract class Token<P extends Process, T extends Token> {
 
     protected Long version;
     protected String name;

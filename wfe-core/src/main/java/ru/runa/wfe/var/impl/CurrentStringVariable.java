@@ -21,26 +21,23 @@
  */
 package ru.runa.wfe.var.impl;
 
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
-import ru.runa.wfe.var.Variable;
+import javax.persistence.Transient;
+import ru.runa.wfe.var.CurrentVariable;
 
 @Entity
-@DiscriminatorValue(value = "O")
-public class DoubleVariable extends Variable<Double> {
-    private Double object;
+@DiscriminatorValue(value = "S")
+public class CurrentStringVariable extends CurrentVariable<String> {
 
-    @Column(name = "DOUBLEVALUE")
+    @Transient
     @Override
-    public Double getStorableValue() {
-        return object;
+    public String getStorableValue() {
+        return getStringValue();
     }
 
     @Override
-    public void setStorableValue(Double object) {
-        this.object = object;
+    protected void setStorableValue(String object) {
     }
 
     @Override
@@ -48,7 +45,7 @@ public class DoubleVariable extends Variable<Double> {
         if (super.supports(value)) {
             return true;
         }
-        return value instanceof Double;
+        return value instanceof String && ((String) value).length() <= getMaxStringSize();
     }
 
 }

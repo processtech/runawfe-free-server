@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.NodeProcess;
-import ru.runa.wfe.execution.BaseProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 
-public abstract class BaseNodeProcessDao<P extends BaseProcess, T extends Token<P, T>, NP extends NodeProcess<P, T>> extends GenericDao<NP> {
+public abstract class BaseNodeProcessDao<P extends Process, T extends Token<P, T>, NP extends NodeProcess<P, T>> extends GenericDao<NP> {
 
     BaseNodeProcessDao(Class<NP> entityClass) {
         super(entityClass);

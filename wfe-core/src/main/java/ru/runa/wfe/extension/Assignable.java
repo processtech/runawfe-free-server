@@ -23,11 +23,12 @@ package ru.runa.wfe.extension;
 
 import java.io.Serializable;
 
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.user.Executor;
 
 /**
- * common superclass for {@link ru.runa.wfe.task.Task}s and {@link ru.runa.wfe.execution.Swimlane}s used by the
+ * common superclass for {@link ru.runa.wfe.task.Task}s and {@link CurrentSwimlane}s used by the
  * {@link ru.runa.wfe.extension.AssignmentHandler} interface.
  */
 public interface Assignable extends Serializable {

@@ -23,7 +23,7 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 /**
  * Logging variable deletion.
@@ -38,7 +38,7 @@ public class CurrentVariableDeleteLog extends CurrentVariableLog implements Vari
     public CurrentVariableDeleteLog() {
     }
 
-    public CurrentVariableDeleteLog(Variable<?> variable) {
+    public CurrentVariableDeleteLog(CurrentVariable<?> variable) {
         super(variable);
     }
 }

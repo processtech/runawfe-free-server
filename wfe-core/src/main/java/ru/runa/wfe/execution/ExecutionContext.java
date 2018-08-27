@@ -45,7 +45,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
-import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
@@ -57,12 +57,12 @@ import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
-import ru.runa.wfe.var.dao.VariableDao;
+import ru.runa.wfe.var.dao.CurrentVariableDao;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDaoFallback;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
@@ -92,16 +92,16 @@ public class ExecutionContext {
     @Autowired
     private ProcessLogDao processLogDao;
     @Autowired
-    private VariableDao variableDao;
+    private CurrentVariableDao currentVariableDao;
     @Autowired
     private TaskDao taskDao;
     @Autowired
     private JobDao jobDao;
     @Autowired
-    private SwimlaneDao swimlaneDao;
+    private CurrentSwimlaneDao currentSwimlaneDao;
 
     protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, CurrentToken token,
-            Map<CurrentProcess, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
+            Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
@@ -109,12 +109,12 @@ public class ExecutionContext {
         if (disableVariableDaoLoading) {
             this.variableLoader = new VariableLoaderFromMap(loadedVariables);
         } else {
-            this.variableLoader = new VariableLoaderDaoFallback(variableDao, loadedVariables);
+            this.variableLoader = new VariableLoaderDaoFallback(currentVariableDao, loadedVariables);
         }
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, CurrentToken token, Map<CurrentProcess, Map<String, Variable<?>>> loadedVariables) {
+    public ExecutionContext(ProcessDefinition processDefinition, CurrentToken token, Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables) {
         this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
@@ -122,7 +122,7 @@ public class ExecutionContext {
         this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, CurrentProcess process, Map<CurrentProcess, Map<String, Variable<?>>> loadedVariables,
+    public ExecutionContext(ProcessDefinition processDefinition, CurrentProcess process, Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables,
             boolean disableVariableDaoLoading) {
         this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
@@ -202,9 +202,9 @@ public class ExecutionContext {
         if (searchInSwimlanes) {
             SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
-                Swimlane swimlane = swimlaneDao.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
+                CurrentSwimlane swimlane = currentSwimlaneDao.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
                 if (swimlane == null && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
-                    swimlane = swimlaneDao.findOrCreateInitialized(this, swimlaneDefinition, false);
+                    swimlane = currentSwimlaneDao.findOrCreateInitialized(this, swimlaneDefinition, false);
                 }
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
@@ -228,7 +228,7 @@ public class ExecutionContext {
         SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
-            Swimlane swimlane = swimlaneDao.findOrCreate(getProcess(), swimlaneDefinition);
+            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(getProcess(), swimlaneDefinition);
             swimlane.assignExecutor(this, (Executor) convertValueForVariableType(swimlaneDefinition.toVariableDefinition(), value), true);
             return;
         }
@@ -289,7 +289,7 @@ public class ExecutionContext {
         }
         case DEFAULT: {
             ConvertToSimpleVariablesContext context;
-            context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(), baseProcessVariableLoader, variableDao);
+            context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(), baseProcessVariableLoader, currentVariableDao);
             VariableFormat variableFormat = variableDefinition.getFormatNotNull();
             for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
                 Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
@@ -338,14 +338,14 @@ public class ExecutionContext {
 
     private CurrentVariableLog setSimpleVariableValue(ProcessDefinition processDefinition, CurrentToken token, VariableDefinition variableDefinition, Object value) {
         CurrentVariableLog resultingVariableLog = null;
-        Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
+        CurrentVariable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
         if (variable != null && !variable.supports(value)) {
             String converterStr = variable.getConverter() == null ? "" : " converter is " + variable.getConverter();
             log.debug("Variable type is changing: deleting old variable '" + variableDefinition.getName() + "' in " + token.getProcess()
                     + " variable value is " + value + converterStr);
-            variableDao.delete(variable);
-            variableDao.flushPendingChanges();
+            currentVariableDao.delete(variable);
+            currentVariableDao.flushPendingChanges();
             resultingVariableLog = new CurrentVariableDeleteLog(variable);
             variable = null;
         }
@@ -369,7 +369,7 @@ public class ExecutionContext {
                 if (syncVariableDefinition == null || !subprocessSyncCache.isInBaseProcessIdMode(token.getProcess())) {
                     variable = variableCreator.create(token.getProcess(), variableDefinition, value);
                     resultingVariableLog = variable.setValue(this, value, variableDefinition);
-                    variableDao.create(variable);
+                    currentVariableDao.create(variable);
                 }
             }
         } else {

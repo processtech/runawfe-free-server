@@ -1,7 +1,7 @@
 package ru.runa.wfe.var.file;
 
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.var.Variable;
+import ru.runa.wfe.var.CurrentVariable;
 
 /**
  * Allows alternative file storage.
@@ -17,6 +17,6 @@ public interface FileVariableStorage {
      *
      * @return converted instance to save in internal database
      */
-    public Object save(ExecutionContext executionContext, Variable<?> variable, Object object);
+    public Object save(ExecutionContext executionContext, CurrentVariable<?> variable, Object object);
 
 }

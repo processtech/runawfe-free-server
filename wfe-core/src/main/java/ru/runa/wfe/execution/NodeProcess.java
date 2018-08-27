@@ -7,7 +7,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 @MappedSuperclass
-public abstract class NodeProcess<P extends BaseProcess, T extends Token<P, T>> {
+public abstract class NodeProcess<P extends Process, T extends Token<P, T>> {
 
     protected String nodeId;
     protected Integer index;  // TODO why = 0 for subprocess?

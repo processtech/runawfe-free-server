@@ -13,8 +13,8 @@ import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.QCurrentProcess;
+import ru.runa.wfe.execution.QCurrentSwimlane;
 import ru.runa.wfe.execution.QCurrentToken;
-import ru.runa.wfe.execution.QSwimlane;
 import ru.runa.wfe.task.QTask;
 import ru.runa.wfe.user.Executor;
 
@@ -46,7 +46,7 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
 
     public Set<Long> getDependentProcessIds(Executor executor) {
         Set<Long> processes = new HashSet<>();
-        val s = QSwimlane.swimlane;
+        val s = QCurrentSwimlane.currentSwimlane;
         processes.addAll(queryFactory.selectDistinct(s.process.id).from(s).where(s.executor.eq(executor)).fetch());
         val t = QTask.task;
         processes.addAll(queryFactory.selectDistinct(t.process.id).from(t).where(t.executor.eq(executor)).fetch());

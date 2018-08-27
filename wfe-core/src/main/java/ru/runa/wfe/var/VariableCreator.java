@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
-import ru.runa.wfe.var.impl.ByteArrayVariable;
-import ru.runa.wfe.var.impl.NullVariable;
+import ru.runa.wfe.var.impl.CurrentByteArrayVariable;
+import ru.runa.wfe.var.impl.CurrentNullVariable;
 
 import com.google.common.base.Preconditions;
 
@@ -37,11 +37,11 @@ public class VariableCreator {
      *            initial value
      * @return variable
      */
-    private Variable<?> create(Object value) {
+    private CurrentVariable<?> create(Object value) {
         for (VariableType type : types) {
             if (type.getMatcher().matches(value)) {
                 try {
-                    Variable<?> variable = type.getVariableClass().newInstance();
+                    CurrentVariable<?> variable = type.getVariableClass().newInstance();
                     variable.setConverter(type.getConverter());
                     return variable;
                 } catch (Exception e) {
@@ -59,16 +59,16 @@ public class VariableCreator {
      *            initial value
      * @return variable
      */
-    public Variable<?> create(CurrentProcess process, VariableDefinition variableDefinition, Object value) {
+    public CurrentVariable<?> create(CurrentProcess process, VariableDefinition variableDefinition, Object value) {
         log.debug("Creating variable '" + variableDefinition.getName() + "' in " + process + " with value '" + value + "'"
                 + (value != null ? " of " + value.getClass() : ""));
-        Variable<?> variable;
+        CurrentVariable<?> variable;
         if (value == null) {
-            variable = new NullVariable();
+            variable = new CurrentNullVariable();
         } else if (variableDefinition.getStoreType() == VariableStoreType.BLOB) {
             log.debug("Using blob storage");
             Preconditions.checkArgument(value instanceof Serializable, "Do not use blob storage on non-serializable value");
-            variable = new ByteArrayVariable();
+            variable = new CurrentByteArrayVariable();
             variable.setConverter(serializableToByteArrayConverter);
         } else {
             variable = create(value);
