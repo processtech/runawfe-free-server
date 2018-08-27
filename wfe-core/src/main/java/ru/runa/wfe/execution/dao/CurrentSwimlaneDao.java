@@ -32,31 +32,6 @@ public class CurrentSwimlaneDao extends GenericDao<CurrentSwimlane> {
         return queryFactory.selectFrom(s).where(s.process.eq(process).and(s.name.eq(name))).fetchFirst();
     }
 
-    public CurrentSwimlane findOrCreate(CurrentProcess process, SwimlaneDefinition swimlaneDefinition) {
-        CurrentSwimlane swimlane = findByProcessAndName(process, swimlaneDefinition.getName());
-        if (swimlane == null) {
-            swimlane = new CurrentSwimlane(swimlaneDefinition.getName());
-            swimlane.setProcess(process);
-            create(swimlane);
-        }
-        return swimlane;
-    }
-
-    public CurrentSwimlane findOrCreateInitialized(ExecutionContext executionContext, SwimlaneDefinition swimlaneDefinition, boolean reassign) {
-        CurrentSwimlane swimlane = findOrCreate(executionContext.getProcess(), swimlaneDefinition);
-        if (reassign || swimlane.getExecutor() == null) {
-            try {
-                AssignmentHandler assignmentHandler = swimlaneDefinition.getDelegation().getInstance();
-                assignmentHandler.assign(executionContext, swimlane);
-            } catch (AssignmentException e) {
-                log.warn("Unable to assign in " + swimlane + " due to " + e);
-            } catch (Exception e) {
-                log.warn("Unable to assign in " + swimlane, e);
-            }
-        }
-        return swimlane;
-    }
-
     public void deleteAll(CurrentProcess process) {
         log.debug("deleting swimlanes for process " + process.getId());
         val s = QCurrentSwimlane.currentSwimlane;

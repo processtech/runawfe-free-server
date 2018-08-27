@@ -16,6 +16,11 @@ public class ArchivedNodeProcessDao extends BaseNodeProcessDao<ArchivedProcess, 
         super(ArchivedNodeProcess.class);
     }
 
+    public ArchivedNodeProcess findBySubProcessId(Long subProcessId) {
+        val np = QArchivedNodeProcess.archivedNodeProcess;
+        return queryFactory.selectFrom(np).where(np.subProcess.id.eq(subProcessId)).fetchFirst();
+    }
+
     @Override
     public List<ArchivedNodeProcess> getNodeProcesses(ArchivedProcess process, ArchivedToken parentToken, String nodeId, Boolean finished) {
         val np = QArchivedNodeProcess.archivedNodeProcess;

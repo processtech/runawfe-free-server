@@ -101,8 +101,10 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @Override
     @WebResult(name = "result")
-    public int getProcessesCount(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
+    public int getProcessesCount(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation
+    ) {
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.PROCESSES.createNonPaged();
         }

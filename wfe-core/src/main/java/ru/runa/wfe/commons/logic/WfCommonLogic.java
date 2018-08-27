@@ -37,6 +37,7 @@ import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -59,6 +60,7 @@ import ru.runa.wfe.validation.ValidatorContext;
 import ru.runa.wfe.validation.ValidatorManager;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dao.CurrentVariableDao;
+import ru.runa.wfe.var.dao.VariableDao;
 
 /**
  * Created on 15.03.2005
@@ -81,11 +83,15 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected CurrentVariableDao currentVariableDao;
     @Autowired
+    protected VariableDao variableDao;
+    @Autowired
     protected ProcessLogDao processLogDao;
     @Autowired
     protected JobDao jobDao;
     @Autowired
     protected CurrentSwimlaneDao currentSwimlaneDao;
+    @Autowired
+    protected SwimlaneDao swimlaneDao;
     @Autowired
     protected CurrentTokenDao currentTokenDao;
     @Autowired

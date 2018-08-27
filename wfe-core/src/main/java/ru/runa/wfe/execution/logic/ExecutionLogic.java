@@ -21,7 +21,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +48,7 @@ import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
@@ -81,7 +81,7 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-import ru.runa.wfe.var.CurrentVariable;
+import ru.runa.wfe.var.BaseVariable;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
 
@@ -137,13 +137,13 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public WfProcess getProcess(User user, Long id) throws ProcessDoesNotExistException {
-        CurrentProcess process = currentProcessDao.getNotNull(id);
+        Process process = processDao.getNotNull(id);
         permissionDao.checkAllowed(user, Permission.LIST, process);
         return new WfProcess(process);
     }
 
     public WfProcess getParentProcess(User user, Long processId) throws ProcessDoesNotExistException {
-        CurrentNodeProcess nodeProcess = currentNodeProcessDao.findBySubProcessId(processId);
+        NodeProcess nodeProcess = nodeProcessDao.findBySubProcessId(processId);
         if (nodeProcess == null) {
             return null;
         }
@@ -151,12 +151,12 @@ public class ExecutionLogic extends WfCommonLogic {
     }
 
     public List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
-        CurrentProcess process = currentProcessDao.getNotNull(processId);
-        List<CurrentProcess> subprocesses;
+        Process process = processDao.getNotNull(processId);
+        List<? extends Process> subprocesses;
         if (recursive) {
-            subprocesses = currentNodeProcessDao.getSubprocessesRecursive(process);
+            subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
         } else {
-            subprocesses = currentNodeProcessDao.getSubprocesses(process);
+            subprocesses = nodeProcessDao.getSubprocesses(process);
         }
         subprocesses = filterSecuredObject(user, subprocesses, Permission.LIST);
         return toWfProcesses(subprocesses, null);
@@ -227,7 +227,7 @@ public class ExecutionLogic extends WfCommonLogic {
         if (predefinedProcessStarterObject != null) {
             Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
+            CurrentSwimlane swimlane = swimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
             swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
         }
         log.info(process + " was successfully started by " + user);
@@ -397,7 +397,7 @@ public class ExecutionLogic extends WfCommonLogic {
         CurrentProcess process = currentProcessDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
-        CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, swimlaneDefinition);
+        CurrentSwimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
         List<Executor> executors = executor != null ? Lists.newArrayList(executor) : null;
         AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, executors);
     }
@@ -451,10 +451,10 @@ public class ExecutionLogic extends WfCommonLogic {
         return processes;
     }
 
-    private List<WfProcess> toWfProcesses(List<CurrentProcess> processes, List<String> variableNamesToInclude) {
+    private List<WfProcess> toWfProcesses(List<? extends Process> processes, List<String> variableNamesToInclude) {
         List<WfProcess> result = Lists.newArrayListWithExpectedSize(processes.size());
-        Map<CurrentProcess, Map<String, CurrentVariable<?>>> variables = currentVariableDao.getVariables(Sets.newHashSet(processes), variableNamesToInclude);
-        for (CurrentProcess process : processes) {
+        Map<Process, Map<String, BaseVariable>> variables = variableDao.getVariables(processes, variableNamesToInclude);
+        for (Process process : processes) {
             WfProcess wfProcess = new WfProcess(process);
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {

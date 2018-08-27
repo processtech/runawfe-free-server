@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -53,7 +53,7 @@ public class WfProcess extends SecuredObjectBase {
     public WfProcess() {
     }
 
-    public WfProcess(CurrentProcess process) {
+    public WfProcess(Process process) {
         id = process.getId();
         name = process.getDeployment().getName();
         definitionId = process.getDeployment().getId();

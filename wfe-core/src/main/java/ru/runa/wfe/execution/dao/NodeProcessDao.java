@@ -40,6 +40,14 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
         }
     }
 
+    public NodeProcess findBySubProcessId(Long subProcessId) {
+        NodeProcess result = dao1.findBySubProcessId(subProcessId);
+        if (result == null) {
+            result = dao2.findBySubProcessId(subProcessId);
+        }
+        return result;
+    }
+
     // TODO If finished != null, dao.getNodeProcesses() checks Process.endDate;
     //      maybe we can optimize this by checking executionStatus instead, and thus not-querying archive if finished == true?
     public List<? extends NodeProcess> getNodeProcesses(Process process, Token parentToken, String nodeId, Boolean finished) {

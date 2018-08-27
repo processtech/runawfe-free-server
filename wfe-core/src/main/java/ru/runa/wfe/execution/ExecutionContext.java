@@ -47,6 +47,7 @@ import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
@@ -99,6 +100,8 @@ public class ExecutionContext {
     private JobDao jobDao;
     @Autowired
     private CurrentSwimlaneDao currentSwimlaneDao;
+    @Autowired
+    private SwimlaneDao swimlaneDao;
 
     protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, CurrentToken token,
             Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
@@ -204,7 +207,7 @@ public class ExecutionContext {
             if (swimlaneDefinition != null) {
                 CurrentSwimlane swimlane = currentSwimlaneDao.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
                 if (swimlane == null && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
-                    swimlane = currentSwimlaneDao.findOrCreateInitialized(this, swimlaneDefinition, false);
+                    swimlane = swimlaneDao.findOrCreateInitialized(this, swimlaneDefinition, false);
                 }
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
@@ -228,7 +231,7 @@ public class ExecutionContext {
         SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
-            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(getProcess(), swimlaneDefinition);
+            CurrentSwimlane swimlane = swimlaneDao.findOrCreate(getProcess(), swimlaneDefinition);
             swimlane.assignExecutor(this, (Executor) convertValueForVariableType(swimlaneDefinition.toVariableDefinition(), value), true);
             return;
         }
