@@ -8,7 +8,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.lang.ProcessDefinition;
 
 @MappedSuperclass
 public abstract class Token<P extends Process, T extends Token> {
@@ -76,6 +78,11 @@ public abstract class Token<P extends Process, T extends Token> {
 
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
+    }
+
+    @Transient
+    public Node getNodeNotNull(ProcessDefinition processDefinition) {
+        return processDefinition.getNodeNotNull(nodeId);
     }
 
     @Column(name = "NODE_TYPE", length = 1024)

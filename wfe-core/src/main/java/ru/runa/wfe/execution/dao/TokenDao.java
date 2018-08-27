@@ -1,10 +1,14 @@
 package ru.runa.wfe.execution.dao;
 
+import java.util.Collections;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao2;
 import ru.runa.wfe.execution.ArchivedToken;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 
 @Component
@@ -13,5 +17,14 @@ public class TokenDao extends GenericDao2<Token, CurrentToken, CurrentTokenDao, 
     @Autowired
     TokenDao(CurrentTokenDao dao1, ArchivedTokenDao dao2) {
         super(dao1, dao2);
+    }
+
+    public List<? extends Token> findByProcessAndExecutionStatusIsNotEnded(Process process) {
+        if (process.isArchive()) {
+            // In archive, execution status is always ENDED.
+            return Collections.emptyList();
+        } else {
+            return dao1.findByProcessAndExecutionStatusIsNotEnded((CurrentProcess) process);
+        }
     }
 }

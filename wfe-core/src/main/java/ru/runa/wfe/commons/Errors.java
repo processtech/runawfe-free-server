@@ -1,30 +1,26 @@
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import lombok.extern.apachecommons.CommonsLog;
 import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.SystemError;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.ByteStreams;
-
+@CommonsLog
 public class Errors {
-    private static final Log LOG = LogFactory.getLog(Errors.class);
     private static Set<SystemError> systemErrors = Sets.newConcurrentHashSet();
     private static Map<Long, List<ProcessError>> processErrors = Maps.newConcurrentMap();
     private static byte[] emailNotificationConfigBytes;
@@ -37,10 +33,10 @@ public class Errors {
                     emailNotificationConfigBytes = ByteStreams.toByteArray(in);
                     EmailConfigParser.parse(emailNotificationConfigBytes);
                 } else {
-                    LOG.error("Email notification configuration file not found: " + SystemProperties.getErrorEmailNotificationConfiguration());
+                    log.error("Email notification configuration file not found: " + SystemProperties.getErrorEmailNotificationConfiguration());
                 }
             } catch (Exception e) {
-                LOG.error("Email notification configuration error", e);
+                log.error("Email notification configuration error", e);
                 emailNotificationConfigBytes = null;
             }
         }
@@ -106,28 +102,29 @@ public class Errors {
     }
 
     public static void sendEmailNotification(final SystemError error) {
+        if (emailNotificationConfigBytes == null) {
+            return;
+        }
+
         // non-blocking usage for surrounding transaction
         new Thread() {
             @Override
             public void run() {
                 try {
-                    if (emailNotificationConfigBytes != null) {
-                        EmailConfig config = EmailConfigParser.parse(emailNotificationConfigBytes);
-                        Map<String, Object> map = Maps.newHashMap();
-                        map.put("error", error);
-                        VariableProvider variableProvider = new MapVariableProvider(map);
-                        config.applySubstitutions(variableProvider);
-                        String formMessage = ExpressionEvaluator.process(null, config.getMessage(), variableProvider, null);
-                        config.setMessage(formMessage);
-                        config.setMessageId("Error: " + error.getMessage());
-                        // does not work EmailUtils.sendMessageRequest(config);
-                        EmailUtils.sendMessage(config);
-                    }
+                    EmailConfig config = EmailConfigParser.parse(emailNotificationConfigBytes);
+                    Map<String, Object> map = Maps.newHashMap();
+                    map.put("error", error);
+                    VariableProvider variableProvider = new MapVariableProvider(map);
+                    config.applySubstitutions(variableProvider);
+                    String formMessage = ExpressionEvaluator.process(null, config.getMessage(), variableProvider, null);
+                    config.setMessage(formMessage);
+                    config.setMessageId("Error: " + error.getMessage());
+                    // does not work EmailUtils.sendMessageRequest(config);
+                    EmailUtils.sendMessage(config);
                 } catch (Exception e) {
-                    LOG.error("Unable to send email notification about error", e);
+                    log.error("Unable to send email notification about error", e);
                 }
-            };
+            }
         }.start();
     }
-
 }

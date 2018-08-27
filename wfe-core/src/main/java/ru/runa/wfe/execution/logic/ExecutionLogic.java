@@ -22,8 +22,10 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
@@ -41,17 +43,18 @@ import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.execution.CurrentSwimlane;
-import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.CurrentNodeProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessClassPresentation;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.ProcessFilter;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.async.NodeAsyncExecutor;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
@@ -78,8 +81,8 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.CurrentVariable;
+import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
 
 /**
@@ -176,14 +179,23 @@ public class ExecutionLogic extends WfCommonLogic {
         return result;
     }
 
-    public List<WfToken> getTokens(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
-        CurrentProcess process = currentProcessDao.getNotNull(processId);
+    public List<WfToken> getTokens(User user, Long processId, boolean recursive, boolean toPopulateExecutionErrors)
+            throws ProcessDoesNotExistException
+    {
+        // Search both current and archive even if toPopulateExecutionErrors == true, to check permissions.
+        Process process = processDao.getNotNull(processId);
         permissionDao.checkAllowed(user, Permission.LIST, process);
-        List<WfToken> result = Lists.newArrayList();
+
+        val result = new ArrayList<WfToken>();
+        if (toPopulateExecutionErrors && process.isArchive()) {
+            // Erroneous processes don't go to archive, so optimize out the code below.
+            return result;
+        }
+
         result.addAll(getTokens(process));
         if (recursive) {
-            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(process);
-            for (CurrentProcess subProcess : subprocesses) {
+            List<? extends Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
+            for (Process subProcess : subprocesses) {
                 result.addAll(getTokens(subProcess));
             }
         }
@@ -423,11 +435,11 @@ public class ExecutionLogic extends WfCommonLogic {
         return toWfProcesses(processes, null);
     }
 
-    private List<WfToken> getTokens(CurrentProcess process) throws ProcessDoesNotExistException {
+    private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
         List<WfToken> result = Lists.newArrayList();
-        List<CurrentToken> tokens = currentTokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
+        List<? extends Token> tokens = tokenDao.findByProcessAndExecutionStatusIsNotEnded(process);
         ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
-        for (CurrentToken token : tokens) {
+        for (Token token : tokens) {
             result.add(new WfToken(token, processDefinition));
         }
         return result;

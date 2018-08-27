@@ -207,10 +207,6 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
         return stateChanged;
     }
 
-    public Node getNodeNotNull(ProcessDefinition processDefinition) {
-        return processDefinition.getNodeNotNull(nodeId);
-    }
-
     private void addChild(CurrentToken token) {
         getChildren().add(token);
     }

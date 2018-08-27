@@ -36,6 +36,8 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.dao.NodeProcessDao;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
@@ -73,6 +75,8 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
+    protected NodeProcessDao nodeProcessDao;
+    @Autowired
     protected TaskDao taskDao;
     @Autowired
     protected CurrentVariableDao currentVariableDao;
@@ -84,6 +88,8 @@ public class WfCommonLogic extends CommonLogic {
     protected CurrentSwimlaneDao currentSwimlaneDao;
     @Autowired
     protected CurrentTokenDao currentTokenDao;
+    @Autowired
+    protected TokenDao tokenDao;
     @Autowired
     protected SystemLogDao systemLogDao;
 

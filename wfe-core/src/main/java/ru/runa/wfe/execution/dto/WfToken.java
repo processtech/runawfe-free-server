@@ -17,18 +17,15 @@
  */
 package ru.runa.wfe.execution.dto;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
 import ru.runa.wfe.execution.ExecutionStatus;
-import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.dto.WfNode;
-
-import com.google.common.base.Objects;
 
 /**
  * @since 4.3.0
@@ -51,7 +48,7 @@ public class WfToken implements Serializable {
     public WfToken() {
     }
 
-    public WfToken(CurrentToken token, ProcessDefinition processDefinition) {
+    public WfToken(Token token, ProcessDefinition processDefinition) {
         parentId = token.getParent() != null ? token.getParent().getId() : null;
         id = token.getId();
         processId = token.getProcess().getId();

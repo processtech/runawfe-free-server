@@ -319,7 +319,7 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebResult(name = "result")
     public List<WfToken> getProcessTokens(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "recursive") boolean recursive) {
-        return executionLogic.getTokens(user, processId, recursive);
+        return executionLogic.getTokens(user, processId, recursive, false);
     }
 
     @Override
