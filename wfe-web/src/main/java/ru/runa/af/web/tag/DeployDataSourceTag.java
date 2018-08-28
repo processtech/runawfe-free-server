@@ -27,6 +27,7 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesDataSource;
+import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployDataSource")
@@ -56,6 +57,9 @@ public class DeployDataSourceTag extends TitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
+        if (!Delegates.getExecutorService().isAdministrator(getUser())) {
+            throw new AuthorizationException("No permission on this page");
+        }
         getForm().setEncType(Form.ENC_UPLOAD);
         Input fileUploadInput = new Input(Input.FILE, FileForm.FILE_INPUT_NAME);
         fileUploadInput.setClass(Resources.CLASS_REQUIRED);

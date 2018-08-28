@@ -30,6 +30,7 @@ import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.form.IdsForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesDataSource;
+import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "dataSourceList")
@@ -39,6 +40,9 @@ public class DataSourceListTag extends TitledFormTag {
 
     @Override
     protected void fillFormElement(TD tdFormElement) {
+        if (!Delegates.getExecutorService().isAdministrator(getUser())) {
+            throw new AuthorizationException("No permission on this page");
+        }
         getForm().setName("dataSourceList");
         getForm().setID("dataSourceList");
         getForm().setAction(
