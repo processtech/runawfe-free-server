@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
@@ -61,6 +62,7 @@ import ru.runa.wfe.user.cache.ExecutorCache;
  */
 @Component
 @SuppressWarnings("unchecked")
+@Transactional
 public class ExecutorDao extends CommonDao implements ExecutorLoader {
     private static final String ID_PROPERTY_NAME = "id";
     private static final String CODE_PROPERTY_NAME = "code";
