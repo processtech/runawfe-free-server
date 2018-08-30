@@ -7,16 +7,14 @@ import ru.runa.wfe.var.CurrentVariable;
  * Allows alternative file storage.
  *
  * @author dofs
- * @since 4.2.0
  */
 public interface FileVariableStorage {
 
     /**
-     * Stores file variable data object (can be IFilevariable or
-     * List<FileVariable>).
+     * Stores file variable(s).
      *
-     * @return converted instance to save in internal database
+     * @param object FileVariable, or List of FileVariable, or empty list.
+     * @return Some serializable handler instance (a reference to file saved into storage) to save in database.
      */
-    public Object save(ExecutionContext executionContext, CurrentVariable<?> variable, Object object);
-
+    Object save(ExecutionContext executionContext, CurrentVariable<?> variable, Object object);
 }

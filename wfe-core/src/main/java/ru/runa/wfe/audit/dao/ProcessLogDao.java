@@ -104,7 +104,7 @@ public class ProcessLogDao extends GenericDao2<BaseProcessLog, CurrentProcessLog
             processLog.setNodeId(token.getNodeId());
         }
         processLog.setCreateDate(new Date());
-        create(processLog);
+        dao1.create(processLog);
         registerInCustomizationDao(processLog, process, token);
     }
 

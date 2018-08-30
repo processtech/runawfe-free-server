@@ -195,7 +195,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     protected ExecutionContext getParentExecutionContext(ExecutionContext subExecutionContext) {
-        CurrentNodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
+        CurrentNodeProcess parentNodeProcess = subExecutionContext.getCurrentParentNodeProcess();
         Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
         ProcessDefinition superDefinition = processDefinitionLoader.getDefinition(superDefinitionId);
         return new ExecutionContext(superDefinition, parentNodeProcess.getParentToken());
@@ -210,7 +210,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     protected void onBoundaryEvent(ProcessDefinition processDefinition, CurrentToken token, BoundaryEvent boundaryEvent) {
         super.onBoundaryEvent(processDefinition, token, boundaryEvent);
         if (async) {
-            List<CurrentProcess> processes = new ExecutionContext(processDefinition, token).getTokenSubprocesses();
+            List<CurrentProcess> processes = new ExecutionContext(processDefinition, token).getCurrentTokenSubprocesses();
             for (CurrentProcess process : processes) {
                 if (process.hasEnded()) {
                     continue;

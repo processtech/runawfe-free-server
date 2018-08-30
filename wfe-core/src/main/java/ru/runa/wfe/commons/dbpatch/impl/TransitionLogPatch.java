@@ -10,7 +10,7 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.audit.CurrentTransitionLog;
-import ru.runa.wfe.audit.dao.ProcessLogDao;
+import ru.runa.wfe.audit.dao.CurrentProcessLogDao;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.dbpatch.DbPatch;
 import ru.runa.wfe.definition.Deployment;
@@ -29,7 +29,7 @@ public class TransitionLogPatch extends DbPatch {
     @Autowired
     private CurrentProcessDao currentProcessDao;
     @Autowired
-    private ProcessLogDao processLogDao;
+    private CurrentProcessLogDao currentProcessLogDao;
 
     @Override
     public void executeDML(Session session) {
@@ -60,7 +60,7 @@ public class TransitionLogPatch extends DbPatch {
                     transitionLog.setProcessId(process.getId());
                     transitionLog.setTokenId(process.getRootToken().getId());
                     transitionLog.setCreateDate(new Date());
-                    processLogDao.create(transitionLog);
+                    currentProcessLogDao.create(transitionLog);
                     success++;
                 } catch (Exception e) {
                     log.warn(e);

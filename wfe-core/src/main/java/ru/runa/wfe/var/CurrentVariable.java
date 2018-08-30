@@ -160,15 +160,6 @@ public abstract class CurrentVariable<T> extends BaseVariable<CurrentProcess, T>
         return getLog(oldValue, newValue, variableDefinition);
     }
 
-    @Transient
-    public Object getValue() {
-        Object value = getStorableValue();
-        if (value != null && converter != null) {
-            value = converter.revert(value);
-        }
-        return value;
-    }
-
     public String toString(Object value, VariableDefinition variableDefinition) {
         String string;
         if (SystemProperties.isV3CompatibilityMode() && value != null && String[].class == value.getClass()) {

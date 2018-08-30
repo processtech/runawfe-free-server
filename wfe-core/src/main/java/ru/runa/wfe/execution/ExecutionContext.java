@@ -28,14 +28,15 @@ import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.NonNull;
+import lombok.extern.apachecommons.CommonsLog;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.CurrentProcessLog;
-import ru.runa.wfe.audit.CurrentVariableLog;
 import ru.runa.wfe.audit.CurrentVariableDeleteLog;
+import ru.runa.wfe.audit.CurrentVariableLog;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
@@ -45,9 +46,8 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
-import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
-import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
@@ -58,22 +58,24 @@ import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
+import ru.runa.wfe.var.BaseVariable;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dao.BaseProcessVariableLoader;
 import ru.runa.wfe.var.dao.CurrentVariableDao;
+import ru.runa.wfe.var.dao.VariableDao;
 import ru.runa.wfe.var.dao.VariableLoader;
 import ru.runa.wfe.var.dao.VariableLoaderDaoFallback;
 import ru.runa.wfe.var.dao.VariableLoaderFromMap;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormat;
 
+@CommonsLog
 public class ExecutionContext {
-    private static Log log = LogFactory.getLog(ExecutionContext.class);
     private final ProcessDefinition processDefinition;
-    private final CurrentToken token;
+    private final Token token;
     private final Map<String, Object> transientVariables = Maps.newHashMap();
 
     private final VariableLoader variableLoader;
@@ -87,7 +89,7 @@ public class ExecutionContext {
     @Autowired
     private VariableCreator variableCreator;
     @Autowired
-    private CurrentTokenDao currentTokenDao;
+    private TokenDao tokenDao;
     @Autowired
     private CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
@@ -95,16 +97,20 @@ public class ExecutionContext {
     @Autowired
     private CurrentVariableDao currentVariableDao;
     @Autowired
+    private VariableDao variableDao;
+    @Autowired
     private TaskDao taskDao;
     @Autowired
     private JobDao jobDao;
     @Autowired
-    private CurrentSwimlaneDao currentSwimlaneDao;
-    @Autowired
     private SwimlaneDao swimlaneDao;
 
-    protected ExecutionContext(ApplicationContext applicationContext, ProcessDefinition processDefinition, CurrentToken token,
-            Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
+    protected ExecutionContext(
+            ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
+            Map<Process, Map<String, BaseVariable>> loadedVariables, boolean disableVariableDaoLoading
+    ) {
+        Preconditions.checkArgument(token != null);
+        Preconditions.checkArgument(token.getProcess() != null);
         this.processDefinition = processDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
@@ -112,25 +118,25 @@ public class ExecutionContext {
         if (disableVariableDaoLoading) {
             this.variableLoader = new VariableLoaderFromMap(loadedVariables);
         } else {
-            this.variableLoader = new VariableLoaderDaoFallback(currentVariableDao, loadedVariables);
+            this.variableLoader = new VariableLoaderDaoFallback(variableDao, loadedVariables);
         }
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, CurrentToken token, Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables) {
+    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, BaseVariable>> loadedVariables) {
         this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, CurrentToken token) {
+    public ExecutionContext(ProcessDefinition processDefinition, Token token) {
         this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, CurrentProcess process, Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables,
+    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, BaseVariable>> loadedVariables,
             boolean disableVariableDaoLoading) {
         this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, CurrentProcess process) {
+    public ExecutionContext(ProcessDefinition processDefinition, Process process) {
         this(processDefinition, process.getRootToken());
     }
 
@@ -160,42 +166,50 @@ public class ExecutionContext {
         return processDefinition;
     }
 
-    public CurrentProcess getProcess() {
-        CurrentProcess process = getToken().getProcess();
-        Preconditions.checkNotNull(process, "process");
+    public Process getProcess() {
+        Process process = getToken().getProcess();
+        Preconditions.checkNotNull(process, "process");  // TODO Remove this if Precondition inside constructor always succeeds.
         return process;
     }
 
-    public CurrentToken getToken() {
+    public CurrentProcess getCurrentProcess() {
+        return (CurrentProcess) getProcess();
+    }
+
+    public Token getToken() {
         return token;
+    }
+
+    public CurrentToken getCurrentToken() {
+        return (CurrentToken) getToken();
     }
 
     /**
      * @return task or <code>null</code>
      */
     public Task getTask() {
-        List<Task> tasks = taskDao.findByProcessAndNodeId(token.getProcess(), token.getNodeId());
+        List<Task> tasks = taskDao.findByProcessAndNodeId(getCurrentProcess(), token.getNodeId());
         return tasks.isEmpty() ? null : tasks.get(0);
     }
 
-    public CurrentNodeProcess getParentNodeProcess() {
-        return currentNodeProcessDao.findBySubProcessId(getProcess().getId());
+    public CurrentNodeProcess getCurrentParentNodeProcess() {
+        return currentNodeProcessDao.findBySubProcessId(getCurrentProcess().getId());
     }
 
-    public List<CurrentProcess> getTokenSubprocesses() {
-        return currentNodeProcessDao.getSubprocesses(getToken());
+    public List<CurrentProcess> getCurrentTokenSubprocesses() {
+        return currentNodeProcessDao.getSubprocesses(getCurrentToken());
     }
 
-    public List<CurrentProcess> getSubprocesses() {
-        return currentNodeProcessDao.getSubprocesses(getProcess());
+    public List<CurrentProcess> getCurrentSubprocesses() {
+        return currentNodeProcessDao.getSubprocesses(getCurrentProcess());
     }
 
-    public List<CurrentProcess> getNotEndedSubprocesses() {
-        return currentNodeProcessDao.getSubprocesses(getProcess(), getToken().getNodeId(), getToken(), false);
+    public List<CurrentProcess> getCurrentNotEndedSubprocesses() {
+        return currentNodeProcessDao.getSubprocesses(getCurrentProcess(), getToken().getNodeId(), getCurrentToken(), false);
     }
 
-    public List<CurrentProcess> getSubprocessesRecursively() {
-        return currentNodeProcessDao.getSubprocessesRecursive(getProcess());
+    public List<CurrentProcess> getCurrentSubprocessesRecursively() {
+        return currentNodeProcessDao.getSubprocessesRecursive(getCurrentProcess());
     }
 
     /**
@@ -205,8 +219,8 @@ public class ExecutionContext {
         if (searchInSwimlanes) {
             SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
-                CurrentSwimlane swimlane = currentSwimlaneDao.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
-                if (swimlane == null && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
+                Swimlane swimlane = swimlaneDao.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
+                if (swimlane == null && !getProcess().isArchive() && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
                     swimlane = swimlaneDao.findOrCreateInitialized(this, swimlaneDefinition, false);
                 }
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
@@ -226,12 +240,12 @@ public class ExecutionContext {
         return null;
     }
 
-    public void setVariableValue(String name, Object value) {
-        Preconditions.checkNotNull(name, "name");
+    public void setVariableValue(@NonNull String name, Object value) {
+        Preconditions.checkState(!token.isArchive());
         SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
-            CurrentSwimlane swimlane = swimlaneDao.findOrCreate(getProcess(), swimlaneDefinition);
+            CurrentSwimlane swimlane = swimlaneDao.findOrCreate(getCurrentProcess(), swimlaneDefinition);
             swimlane.assignExecutor(this, (Executor) convertValueForVariableType(swimlaneDefinition.toVariableDefinition(), value), true);
             return;
         }
@@ -249,6 +263,7 @@ public class ExecutionContext {
      * Adds all the given variables. It doesn't remove any existing variables unless they are overwritten by the given variables.
      */
     public void setVariableValues(Map<String, Object> variables) {
+        Preconditions.checkState(!token.isArchive());
         for (Map.Entry<String, Object> entry : variables.entrySet()) {
             setVariableValue(entry.getKey(), entry.getValue());
         }
@@ -259,17 +274,20 @@ public class ExecutionContext {
     }
 
     public void addLog(CurrentProcessLog processLog) {
-        processLogDao.addLog(processLog, getProcess(), token);
+        processLogDao.addLog(processLog, getCurrentProcess(), getCurrentToken());
     }
 
     public void activateTokenIfHasPreviousError() {
-        if (getToken().getExecutionStatus() == ExecutionStatus.FAILED) {
-            getToken().setExecutionStatus(ExecutionStatus.ACTIVE);
-            getToken().setErrorDate(null);
-            getToken().setErrorMessage(null);
-            List<CurrentToken> failedTokens = currentTokenDao.findByProcessAndExecutionStatus(getProcess(), ExecutionStatus.FAILED);
+        val p = getCurrentProcess();
+        val t = getCurrentToken();
+
+        if (t.getExecutionStatus() == ExecutionStatus.FAILED) {
+            t.setExecutionStatus(ExecutionStatus.ACTIVE);
+            t.setErrorDate(null);
+            t.setErrorMessage(null);
+            List<CurrentToken> failedTokens = tokenDao.findByProcessAndExecutionStatus(p, ExecutionStatus.FAILED);
             if (failedTokens.isEmpty()) {
-                getProcess().setExecutionStatus(ExecutionStatus.ACTIVE);
+                p.setExecutionStatus(ExecutionStatus.ACTIVE);
             }
         }
     }
@@ -282,27 +300,28 @@ public class ExecutionContext {
     private void setVariableValue(VariableDefinition variableDefinition, Object value) {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         switch (variableDefinition.getStoreType()) {
-        case BLOB: {
-            setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value);
-            break;
-        }
-        case TRANSIENT: {
-            setTransientVariable(variableDefinition.getName(), value);
-            break;
-        }
-        case DEFAULT: {
-            ConvertToSimpleVariablesContext context;
-            context = new ConvertToSimpleVariablesOnSaveContext(variableDefinition, value, getProcess(), baseProcessVariableLoader, currentVariableDao);
-            VariableFormat variableFormat = variableDefinition.getFormatNotNull();
-            for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
-                Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
-                setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
+            case BLOB: {
+                setSimpleVariableValue(getCurrentToken(), variableDefinition, value);
+                break;
             }
-            break;
-        }
-        default: {
-            throw new InternalApplicationException("Unexpected " + variableDefinition.getStoreType());
-        }
+            case TRANSIENT: {
+                setTransientVariable(variableDefinition.getName(), value);
+                break;
+            }
+            case DEFAULT: {
+                ConvertToSimpleVariablesContext context = new ConvertToSimpleVariablesOnSaveContext(
+                        variableDefinition, value, getCurrentProcess(), baseProcessVariableLoader, currentVariableDao
+                );
+                VariableFormat variableFormat = variableDefinition.getFormatNotNull();
+                for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
+                    Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
+                    setSimpleVariableValue(getCurrentToken(), simpleVariables.variableDefinition, convertedValue);
+                }
+                break;
+            }
+            default: {
+                throw new InternalApplicationException("Unexpected " + variableDefinition.getStoreType());
+            }
         }
     }
 
@@ -339,9 +358,9 @@ public class ExecutionContext {
         return value;
     }
 
-    private CurrentVariableLog setSimpleVariableValue(ProcessDefinition processDefinition, CurrentToken token, VariableDefinition variableDefinition, Object value) {
+    private CurrentVariableLog setSimpleVariableValue(CurrentToken token, VariableDefinition variableDefinition, Object value) {
         CurrentVariableLog resultingVariableLog = null;
-        CurrentVariable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
+        CurrentVariable<?> variable = (CurrentVariable<?>) variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
         if (variable != null && !variable.supports(value)) {
             String converterStr = variable.getConverter() == null ? "" : " converter is " + variable.getConverter();
@@ -354,14 +373,14 @@ public class ExecutionContext {
         }
         final BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
         if (variable == null) {
-            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
-                    token.getProcess(), variableDefinition);
+            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(
+                    token.getProcess(), variableDefinition
+            );
             if (syncVariableDefinition != null) {
-                CurrentToken parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
-                ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
+                CurrentToken parentToken = (CurrentToken) subprocessSyncCache.getParentProcessToken(token.getProcess());
                 log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
                         + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
-                CurrentVariableLog parentVariableLog = setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
+                CurrentVariableLog parentVariableLog = setSimpleVariableValue(parentToken, syncVariableDefinition, value);
                 if (parentVariableLog != null) {
                     CurrentVariableLog markingVariableLog = parentVariableLog.getContentCopy();
                     markingVariableLog.setVariableName(variableDefinition.getName());
@@ -387,14 +406,14 @@ public class ExecutionContext {
             log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'"
                     + (value != null ? " of " + value.getClass() : ""));
             resultingVariableLog = variable.setValue(this, value, variableDefinition);
-            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
-                    token.getProcess(), variableDefinition);
+            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(
+                    token.getProcess(), variableDefinition
+            );
             if (syncVariableDefinition != null) {
-                CurrentToken parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
-                ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
+                CurrentToken parentToken = (CurrentToken) subprocessSyncCache.getParentProcessToken(token.getProcess());
                 log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
                         + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
-                setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
+                setSimpleVariableValue(parentToken, syncVariableDefinition, value);
             }
         }
         if (value instanceof Date) {
@@ -407,13 +426,13 @@ public class ExecutionContext {
     }
 
     private void updateRelatedObjectsDueToDateVariableChange(String variableName) {
-        List<Task> tasks = taskDao.findByProcessAndDeadlineExpressionContaining(getProcess(), variableName);
+        List<Task> tasks = taskDao.findByProcessAndDeadlineExpressionContaining(getCurrentProcess(), variableName);
         for (Task task : tasks) {
             Date oldDate = task.getDeadlineDate();
             task.setDeadlineDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), task.getDeadlineDateExpression()));
             log.info(String.format("Changed deadlineDate for %s from %s to %s", task, oldDate, task.getDeadlineDate()));
         }
-        List<Job> jobs = jobDao.findByProcessAndDeadlineExpressionContaining(getProcess(), variableName);
+        List<Job> jobs = jobDao.findByProcessAndDeadlineExpressionContaining(getCurrentProcess(), variableName);
         for (Job job : jobs) {
             Date oldDate = job.getDueDate();
             job.setDueDate(ExpressionEvaluator.evaluateDueDate(getVariableProvider(), job.getDueDateExpression()));

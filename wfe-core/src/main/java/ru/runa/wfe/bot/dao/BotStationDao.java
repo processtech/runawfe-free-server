@@ -16,6 +16,10 @@ import ru.runa.wfe.commons.dao.GenericDao;
 @Component
 public class BotStationDao extends GenericDao<BotStation> {
 
+    public BotStationDao() {
+        super(BotStation.class);
+    }
+
     @Override
     protected void checkNotNull(BotStation entity, Object identity) {
         if (entity == null) {

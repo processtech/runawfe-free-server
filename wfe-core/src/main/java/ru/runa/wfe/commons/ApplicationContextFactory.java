@@ -29,7 +29,6 @@ import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
-import ru.runa.wfe.report.dao.ReportDao;
 import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.task.dao.TaskDao;
@@ -63,7 +62,7 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(TaskDao.class);
     }
 
-    public static CurrentSwimlaneDao getSwimlaneDao() {
+    public static CurrentSwimlaneDao getCurrentSwimlaneDao() {
         return getContext().getBean(CurrentSwimlaneDao.class);
     }
 
@@ -172,10 +171,6 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(SubstitutionDao.class);
     }
 
-    public static ReportDao getReportDao() {
-        return getContext().getBean(ReportDao.class);
-    }
-
     public static List<TaskNotifier> getTaskNotifiers() {
         return Lists.newArrayList(getContext().getBeansOfType(TaskNotifier.class).values());
     }
@@ -188,6 +183,7 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(VariableLogic.class);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T createAutowiredBean(String className) {
         return (T) createAutowiredBean(ClassLoaderUtil.loadClass(className));
     }

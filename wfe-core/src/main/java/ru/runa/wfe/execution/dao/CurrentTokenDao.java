@@ -20,6 +20,10 @@ import ru.runa.wfe.lang.NodeType;
 @Component
 public class CurrentTokenDao extends GenericDao<CurrentToken> {
 
+    public CurrentTokenDao() {
+        super(CurrentToken.class);
+    }
+
     public List<CurrentToken> findByNodeTypeAndExecutionStatusIsActive(NodeType nodeType) {
         val t = QCurrentToken.currentToken;
         return queryFactory.selectFrom(t).where(t.nodeType.eq(nodeType).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
@@ -28,11 +32,6 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
     public List<CurrentToken> findByProcessAndExecutionStatusIsNotEnded(CurrentProcess process) {
         val t = QCurrentToken.currentToken;
         return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.executionStatus.ne(ExecutionStatus.ENDED))).fetch();
-    }
-
-    public List<CurrentToken> findByProcessAndExecutionStatus(CurrentProcess process, ExecutionStatus status) {
-        val t = QCurrentToken.currentToken;
-        return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.executionStatus.eq(status))).fetch();
     }
 
     public List<CurrentToken> findByProcessAndNodeIdAndExecutionStatusIsFailed(CurrentProcess process, String nodeId) {

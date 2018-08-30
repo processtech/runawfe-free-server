@@ -84,6 +84,15 @@ public abstract class BaseVariable<P extends Process, T> {
      */
     protected abstract void setStorableValue(T object);
 
+    @Transient
+    public Object getValue() {
+        Object value = getStorableValue();
+        if (value != null && converter != null) {
+            value = converter.revert(value);
+        }
+        return value;
+    }
+
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();

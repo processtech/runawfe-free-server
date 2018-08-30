@@ -1,14 +1,11 @@
 package ru.runa.wfe.var.dao;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.var.CurrentVariable;
-import ru.runa.wfe.var.dto.WfVariable;
-
 import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.Map;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.dto.WfVariable;
 
 /**
  * All variables must be preloaded and passed to this component.
@@ -21,7 +18,7 @@ public class VariableLoaderFromMap extends AbstractVariableLoader {
      * Preloaded variables. For each process contains map from variable name to variable. If no entry for variable name exists in preloaded variables,
      * then it will be loaded via {@link CurrentVariableDao}.
      */
-    private final Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables;
+    private final Map<Process, Map<String, BaseVariable>> loadedVariables;
 
     /**
      * Supports variable loading via {@link CurrentVariableDao} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component
@@ -30,32 +27,26 @@ public class VariableLoaderFromMap extends AbstractVariableLoader {
      * @param loadedVariables
      *            Preloaded variables. For each process contains map from variable name to variable. May be null.
      */
-    public VariableLoaderFromMap(Map<CurrentProcess, Map<String, CurrentVariable<?>>> loadedVariables) {
-        this.loadedVariables = loadedVariables == null ? new HashMap<CurrentProcess, Map<String, CurrentVariable<?>>>() : loadedVariables;
+    public VariableLoaderFromMap(Map<Process, Map<String, BaseVariable>> loadedVariables) {
+        this.loadedVariables = loadedVariables == null ? new HashMap<>() : loadedVariables;
     }
 
     @Override
-    public CurrentVariable<?> get(CurrentProcess process, String name) {
-        Map<String, CurrentVariable<?>> loadedProcessVariables = loadedVariables.get(process);
-        if (loadedProcessVariables == null || !loadedProcessVariables.containsKey(name)) {
-            return null;
-        }
-        return loadedProcessVariables.get(name);
+    public BaseVariable get(Process process, String name) {
+        Map<String, BaseVariable> loadedProcessVariables = loadedVariables.get(process);
+        return loadedProcessVariables != null && loadedProcessVariables.containsKey(name)
+                ? loadedProcessVariables.get(name)
+                : null;
     }
 
     @Override
-    public List<CurrentVariable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> getAll(CurrentProcess process) {
-        Map<String, CurrentVariable<?>> processVariables = loadedVariables.get(process);
+    public Map<String, Object> getAll(Process process) {
+        Map<String, BaseVariable> processVariables = loadedVariables.get(process);
         if (processVariables == null) {
             return Maps.newHashMap();
         }
         Map<String, Object> result = Maps.newHashMap();
-        for (CurrentVariable<?> variable : processVariables.values()) {
+        for (BaseVariable variable : processVariables.values()) {
             result.put(variable.getName(), variable.getValue());
         }
         return result;

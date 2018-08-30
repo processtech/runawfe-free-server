@@ -31,11 +31,10 @@ public interface AssignmentHandler extends Configurable {
 
     /**
      * assigns the assignable (={@link ru.runa.wfe.task.Task} or a {@link CurrentSwimlane} to an swimlaneActorId.
-     * 
      * <p>
-     * The swimlaneActorId is the user that is responsible for the given task or swimlane. The pooledActors represents a pool of actors to which the task or swimlane is offered.
+     * The swimlaneActorId is the user that is responsible for the given task or swimlane.
+     * The pooledActors represents a pool of actors to which the task or swimlane is offered.
      * Any actors from the pool can then take a Task by calling {@link ru.runa.wfe.task.Task#setActorId(String)}.
-     * </p>
      */
     void assign(ExecutionContext executionContext, Assignable assignable);
 }

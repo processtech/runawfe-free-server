@@ -50,6 +50,7 @@ import ru.runa.wfe.user.User;
 @WebService(name = "AuditAPI", serviceName = "AuditWebService")
 @SOAPBinding
 public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
+
     @Autowired
     private ExecutionLogic executionLogic;
     @Autowired
@@ -59,7 +60,7 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
     @WebResult(name = "result")
     public byte[] getProcessHistoryDiagram(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "taskId") Long taskId, @WebParam(name = "subprocessId") String subprocessId) {
-        return executionLogic.getProcessHistoryDiagram(user, processId, taskId, subprocessId);
+        return executionLogic.getProcessHistoryDiagram(user, processId, subprocessId);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
     public List<NodeGraphElement> getProcessHistoryDiagramElements(@WebParam(name = "user") @NonNull User user,
             @WebParam(name = "processId") @NonNull Long processId, @WebParam(name = "taskId") Long taskId,
             @WebParam(name = "subprocessId") String subprocessId) {
-        return executionLogic.getProcessHistoryDiagramElements(user, processId, taskId, subprocessId);
+        return executionLogic.getProcessHistoryDiagramElements(user, processId, subprocessId);
     }
 
     @Override

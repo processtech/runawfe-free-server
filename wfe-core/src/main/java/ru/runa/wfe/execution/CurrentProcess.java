@@ -169,7 +169,7 @@ public class CurrentProcess extends Process<CurrentToken> {
         setExecutionStatus(ExecutionStatus.ENDED);
         // check if this process was started as a subprocess of a super
         // process
-        CurrentNodeProcess parentNodeProcess = executionContext.getParentNodeProcess();
+        CurrentNodeProcess parentNodeProcess = executionContext.getCurrentParentNodeProcess();
         if (parentNodeProcess != null && !parentNodeProcess.getParentToken().hasEnded()) {
             ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
@@ -212,13 +212,13 @@ public class CurrentProcess extends Process<CurrentToken> {
             log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
             endSubprocessAndTasksOnMainProcessEndRecursively(executionContext, canceller);
         }
-        for (CurrentSwimlane swimlane : ApplicationContextFactory.getSwimlaneDao().findByProcess(this)) {
+        for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(this)) {
             if (swimlane.getExecutor() instanceof TemporaryGroup) {
                 swimlane.setExecutor(null);
             }
         }
-        for (CurrentProcess subProcess : executionContext.getSubprocessesRecursively()) {
-            for (CurrentSwimlane swimlane : ApplicationContextFactory.getSwimlaneDao().findByProcess(subProcess)) {
+        for (CurrentProcess subProcess : executionContext.getCurrentSubprocessesRecursively()) {
+            for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(subProcess)) {
                 if (swimlane.getExecutor() instanceof TemporaryGroup) {
                     swimlane.setExecutor(null);
                 }
@@ -247,7 +247,7 @@ public class CurrentProcess extends Process<CurrentToken> {
     }
 
     private void endSubprocessAndTasksOnMainProcessEndRecursively(ExecutionContext executionContext, Actor canceller) {
-        List<CurrentProcess> subprocesses = executionContext.getSubprocesses();
+        List<CurrentProcess> subprocesses = executionContext.getCurrentSubprocesses();
         if (subprocesses.size() > 0) {
             ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             for (CurrentProcess subProcess : subprocesses) {

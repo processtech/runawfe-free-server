@@ -17,6 +17,10 @@ public class LocalizationDao extends GenericDao<Localization> {
 
     private Map<String, String> localizations = Maps.newHashMap();
 
+    public LocalizationDao() {
+        super(Localization.class);
+    }
+
     public void init() {
         for (Localization localization : getAll()) {
             localizations.put(localization.getName(), localization.getValue());

@@ -1,9 +1,7 @@
 package ru.runa.wfe.var.converter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.file.FileVariable;
@@ -16,10 +14,12 @@ import ru.runa.wfe.var.matcher.FileVariableMatcher;
  *
  * @author dofs
  * @since 4.0
+ *
+ * TODO Stored as java-serialized, which makes impossible to rename/refactor its structure in any way. Instead should store JSON or something.
  */
+@CommonsLog
 public class FileVariableToByteArrayConverter extends SerializableToByteArrayConverter {
     private static final long serialVersionUID = 1L;
-    private static Log log = LogFactory.getLog(FileVariableToByteArrayConverter.class);
     private FileVariableStorage storage;
 
     @Required
@@ -29,10 +29,8 @@ public class FileVariableToByteArrayConverter extends SerializableToByteArrayCon
 
     @Override
     public boolean supports(Object value) {
-        if (FileVariable.class.isAssignableFrom(value.getClass())) {
-            return true;
-        }
-        return FileVariableMatcher.isFileOrListOfFiles(value);
+        // TODO Duplicates non-static method FileVariableMatcher.matches().
+        return FileVariable.class.isAssignableFrom(value.getClass()) || FileVariableMatcher.isFileOrListOfFiles(value);
     }
 
     @Override
@@ -41,5 +39,4 @@ public class FileVariableToByteArrayConverter extends SerializableToByteArrayCon
         log.debug("Saving " + (object != null ? object.getClass() : "null") + " using " + storage);
         return super.convert(executionContext, variable, object);
     }
-
 }

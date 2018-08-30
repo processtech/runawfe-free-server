@@ -1,11 +1,7 @@
 package ru.runa.wfe.commons.dao;
 
 import com.google.common.base.Preconditions;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * General DAO implementation (type-safe generic DAO pattern).
@@ -16,68 +12,14 @@ import org.apache.commons.logging.LogFactory;
  * @param <T>
  *            entity class
  */
-@SuppressWarnings("unchecked")
-public abstract class GenericDao<T> extends CommonDao implements GenericDaoApi<T> {
-    protected static final Log log = LogFactory.getLog(GenericDao.class);
-    private final Class<T> entityClass;
-
-    public GenericDao() {
-        // Spring can create proxy between GenericDAO and its subclass; so search deeper for GenericDAO superclass.
-        Class c = getClass();
-        while (c.getSuperclass() != GenericDao.class) {
-            c = c.getSuperclass();
-        }
-
-        Type t = c.getGenericSuperclass();
-        ParameterizedType pt = (ParameterizedType) t;
-        entityClass = (Class<T>) pt.getActualTypeArguments()[0];
-    }
+public abstract class GenericDao<T> extends ReadOnlyGenericDao<T> {
 
     /**
      * Default constructor fails to determine entityClass if subclass is generic:
      * in this case, getActualTypeArguments() returns TypeVariableImpl instead of Class.
      */
     public GenericDao(Class<T> entityClass) {
-        this.entityClass = entityClass;
-    }
-
-    public T get(Long id) {
-        Preconditions.checkArgument(id != null);
-        return get(entityClass, id);
-    }
-
-    /**
-     * Load entity from database by id.
-     * 
-     * @return entity.
-     */
-    public T getNotNull(Long id) {
-        T entity = get(id);
-        checkNotNull(entity, id);
-        return entity;
-    }
-
-    /**
-     * Checks that entity is not null. Throws exception in that case. Used in *NotNull methods. Expected to be overriden in subclasses.
-     * 
-     * @param entity
-     *            test entity
-     * @param identity
-     *            search data
-     */
-    protected void checkNotNull(T entity, Object identity) {
-        if (entity == null) {
-            throw new NullPointerException("No entity found");
-        }
-    }
-
-    /**
-     * Load all entities from database.
-     * 
-     * @return entities list, not <code>null</code>.
-     */
-    public List<T> getAll() {
-        return sessionFactory.getCurrentSession().createQuery("from " + entityClass.getName()).list();
+        super(entityClass);
     }
 
     /**
@@ -96,6 +38,7 @@ public abstract class GenericDao<T> extends CommonDao implements GenericDaoApi<T
      * @param entity
      *            detached entity
      */
+    @SuppressWarnings("unchecked")
     public T update(T entity) {
         return (T)sessionFactory.getCurrentSession().merge(entity);
     }

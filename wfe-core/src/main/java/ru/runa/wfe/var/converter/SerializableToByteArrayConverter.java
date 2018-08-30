@@ -71,14 +71,14 @@ public class SerializableToByteArrayConverter implements Converter {
         }
     }
 
-    public static class BackCompatibleObjectInputStream extends ObjectInputStream {
+    private static class BackCompatibleObjectInputStream extends ObjectInputStream {
 
-        public BackCompatibleObjectInputStream(InputStream in) throws IOException {
+        BackCompatibleObjectInputStream(InputStream in) throws IOException {
             super(in);
         }
 
         @Override
-        protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+        protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException {
             try {
                 return super.resolveClass(desc);
             } catch (ClassNotFoundException ex) {

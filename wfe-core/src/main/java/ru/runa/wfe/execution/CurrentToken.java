@@ -216,7 +216,7 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
             if (nodeType != NodeType.SUBPROCESS && nodeType != NodeType.MULTI_SUBPROCESS) {
                 throw new InternalApplicationException("Unexpected token node " + nodeId + " of type " + nodeType + " on subprocess end");
             }
-            CurrentNodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
+            CurrentNodeProcess parentNodeProcess = subExecutionContext.getCurrentParentNodeProcess();
             Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
             ProcessDefinition superDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(superDefinitionId);
             getNodeNotNull(superDefinition).leave(subExecutionContext, null);
@@ -240,7 +240,7 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
         setExecutionStatus(ExecutionStatus.ENDED);
         Node node = processDefinition.getNode(getNodeId());
         if (node instanceof SubprocessNode) {
-            for (CurrentProcess subProcess : executionContext.getTokenSubprocesses()) {
+            for (CurrentProcess subProcess : executionContext.getCurrentTokenSubprocesses()) {
                 ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
                 subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
             }

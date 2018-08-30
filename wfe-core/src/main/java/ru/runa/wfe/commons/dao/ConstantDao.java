@@ -20,8 +20,6 @@ package ru.runa.wfe.commons.dao;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import lombok.val;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.SQLQuery;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.TypeConversionUtil;
@@ -32,8 +30,11 @@ import ru.runa.wfe.commons.TypeConversionUtil;
  */
 @Component
 public class ConstantDao extends GenericDao<Constant> {
-    private static final Log log = LogFactory.getLog(ConstantDao.class);
     private static final String DATABASE_VERSION_VARIABLE_NAME = "ru.runa.database_version";
+
+    public ConstantDao() {
+        super(Constant.class);
+    }
 
     public Integer getDatabaseVersion() throws Exception {
         // we won't handle connection error

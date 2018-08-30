@@ -4,14 +4,17 @@ import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import lombok.val;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.commons.dao.ReadOnlyGenericDao;
 import ru.runa.wfe.execution.ArchivedNodeProcess;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ArchivedToken;
 import ru.runa.wfe.execution.QArchivedNodeProcess;
 
 @Component
-public class ArchivedNodeProcessDao extends BaseNodeProcessDao<ArchivedProcess, ArchivedToken, ArchivedNodeProcess> {
-
+public class ArchivedNodeProcessDao
+        extends ReadOnlyGenericDao<ArchivedNodeProcess>
+        implements BaseNodeProcessDao<ArchivedProcess, ArchivedToken, ArchivedNodeProcess>
+{
     public ArchivedNodeProcessDao() {
         super(ArchivedNodeProcess.class);
     }

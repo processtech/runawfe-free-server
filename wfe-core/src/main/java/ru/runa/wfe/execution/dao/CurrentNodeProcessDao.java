@@ -4,6 +4,7 @@ import com.querydsl.jpa.JPQLQuery;
 import java.util.List;
 import lombok.val;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
@@ -11,8 +12,10 @@ import ru.runa.wfe.execution.QCurrentNodeProcess;
 import ru.runa.wfe.execution.QCurrentProcess;
 
 @Component
-public class CurrentNodeProcessDao extends BaseNodeProcessDao<CurrentProcess, CurrentToken, CurrentNodeProcess> {
-
+public class CurrentNodeProcessDao
+        extends GenericDao<CurrentNodeProcess>
+        implements BaseNodeProcessDao<CurrentProcess, CurrentToken, CurrentNodeProcess>
+{
     public CurrentNodeProcessDao() {
         super(CurrentNodeProcess.class);
     }

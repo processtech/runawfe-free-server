@@ -6,16 +6,15 @@ import java.util.List;
 import java.util.Map;
 import lombok.val;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.SqlCommons;
-import ru.runa.wfe.commons.SqlCommons.StringEqualsExpression;
 import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.QCurrentVariable;
 
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class CurrentVariableDao extends BaseVariableDao<CurrentVariable> {
+public class CurrentVariableDao extends GenericDao<CurrentVariable> {
 
     public CurrentVariableDao() {
         super(CurrentVariable.class);
@@ -26,29 +25,9 @@ public class CurrentVariableDao extends BaseVariableDao<CurrentVariable> {
         return queryFactory.selectFrom(v).where(v.process.eq(process).and(v.name.eq(name))).fetchFirst();
     }
 
-    public List<CurrentVariable<?>> findByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
-        StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(variableNamePattern);
-        return sessionFactory.getCurrentSession().createQuery("from CurrentVariable where name " + expression.getComparisonOperator() + " :name and stringValue = :value")
-                .setParameter("name", expression.getValue())
-                .setParameter("value", stringValue)
-                .list();
-    }
-
-    /**
-     * @return all variable values.
-     */
-    public Map<String, Object> getAll(CurrentProcess process) {
-        Map<String, Object> variables = Maps.newHashMap();
+    List<CurrentVariable<?>> getAllImpl(CurrentProcess process) {
         val v = QCurrentVariable.currentVariable;
-        List<CurrentVariable<?>> list = queryFactory.selectFrom(v).where(v.process.eq(process)).fetch();
-        for (CurrentVariable<?> variable : list) {
-            try {
-                variables.put(variable.getName(), variable.getValue());
-            } catch (Exception e) {
-                log.error("Unable to revert " + variable + " in " + process, e);
-            }
-        }
-        return variables;
+        return queryFactory.selectFrom(v).where(v.process.eq(process)).fetch();
     }
 
     /**

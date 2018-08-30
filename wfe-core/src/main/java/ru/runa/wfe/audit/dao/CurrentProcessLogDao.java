@@ -9,6 +9,7 @@ import ru.runa.wfe.audit.CurrentProcessLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.QCurrentNodeEnterLog;
 import ru.runa.wfe.audit.QCurrentProcessLog;
+import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
@@ -19,14 +20,14 @@ import ru.runa.wfe.lang.SubprocessDefinition;
  * @author dofs
  */
 @Component
-public class CurrentProcessLogDao extends BaseProcessLogDao<CurrentProcessLog> {
+public class CurrentProcessLogDao extends GenericDao<CurrentProcessLog> implements BaseProcessLogDao {
 
     public CurrentProcessLogDao() {
         super(CurrentProcessLog.class);
     }
 
     @Override
-    protected Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type) {
+    public Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type) {
         return type.currentRootClass;
     }
 

@@ -9,19 +9,20 @@ import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.QArchivedNodeEnterLog;
 import ru.runa.wfe.audit.QArchivedProcessLog;
+import ru.runa.wfe.commons.dao.ReadOnlyGenericDao;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
 @Component
-public class ArchivedProcessLogDao extends BaseProcessLogDao<ArchivedProcessLog> {
+public class ArchivedProcessLogDao extends ReadOnlyGenericDao<ArchivedProcessLog> implements BaseProcessLogDao {
 
     public ArchivedProcessLogDao() {
         super(ArchivedProcessLog.class);
     }
 
     @Override
-    protected Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type) {
+    public Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type) {
         return type.archivedRootClass;
     }
 

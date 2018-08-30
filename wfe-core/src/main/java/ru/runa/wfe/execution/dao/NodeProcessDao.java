@@ -48,6 +48,14 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
         return result;
     }
 
+    public NodeProcess findBySubProcess(Process subProcess) {
+        if (subProcess.isArchive()) {
+            return dao2.findBySubProcessId(subProcess.getId());
+        } else {
+            return dao1.findBySubProcessId(subProcess.getId());
+        }
+    }
+
     // TODO If finished != null, dao.getNodeProcesses() checks Process.endDate;
     //      maybe we can optimize this by checking executionStatus instead, and thus not-querying archive if finished == true?
     public List<? extends NodeProcess> getNodeProcesses(Process process, Token parentToken, String nodeId, Boolean finished) {
@@ -66,17 +74,25 @@ public class NodeProcessDao extends GenericDao2<NodeProcess, CurrentNodeProcess,
 
     public List<? extends Process> getSubprocesses(@NonNull Process process) {
         if (process.isArchive()) {
-            return dao2.getSubprocesses((ArchivedProcess)process);
+            return dao2.getSubprocesses((ArchivedProcess) process);
         } else {
-            return dao1.getSubprocesses((CurrentProcess)process);
+            return dao1.getSubprocesses((CurrentProcess) process);
+        }
+    }
+
+    public List<? extends Process> getSubprocesses(@NonNull Token token) {
+        if (token.isArchive()) {
+            return dao2.getSubprocesses((ArchivedToken) token);
+        } else {
+            return dao1.getSubprocesses((CurrentToken) token);
         }
     }
 
     public List<? extends Process> getSubprocessesRecursive(@NonNull Process process) {
         if (process.isArchive()) {
-            return dao2.getSubprocessesRecursive((ArchivedProcess)process);
+            return dao2.getSubprocessesRecursive((ArchivedProcess) process);
         } else {
-            return dao1.getSubprocessesRecursive((CurrentProcess)process);
+            return dao1.getSubprocessesRecursive((CurrentProcess) process);
         }
     }
 }

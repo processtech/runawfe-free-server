@@ -140,7 +140,7 @@ public class MultiSubprocessNode extends SubprocessNode {
             return;
         }
         ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
-        CurrentNodeProcess nodeProcess = subExecutionContext.getParentNodeProcess();
+        CurrentNodeProcess nodeProcess = subExecutionContext.getCurrentParentNodeProcess();
         if (nodeProcess.getIndex() == null) {
             // pre AddSubProcessIndexColumn mode
             leaveBackCompatiblePre410(executionContext, transition);
@@ -173,7 +173,7 @@ public class MultiSubprocessNode extends SubprocessNode {
                 }
             }
             executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getToken(), nodeProcess.getSubProcess()));
-            if (executionContext.getNotEndedSubprocesses().size() == 0) {
+            if (executionContext.getCurrentNotEndedSubprocesses().size() == 0) {
                 log.debug("Leaving multisubprocess state");
                 super.leave(executionContext, transition);
             }
@@ -181,7 +181,7 @@ public class MultiSubprocessNode extends SubprocessNode {
     }
 
     private void leaveBackCompatiblePre410(ExecutionContext executionContext, Transition transition) {
-        if (executionContext.getNotEndedSubprocesses().size() == 0) {
+        if (executionContext.getCurrentNotEndedSubprocesses().size() == 0) {
             log.debug("Leaving multisubprocess state [in backcompatibility mode] due to 0 active subprocesses");
             List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
                     executionContext.getToken(), null);

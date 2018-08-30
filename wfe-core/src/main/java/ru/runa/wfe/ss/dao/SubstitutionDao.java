@@ -36,6 +36,10 @@ import ru.runa.wfe.user.Actor;
 @Component
 public class SubstitutionDao extends GenericDao<Substitution> {
 
+    public SubstitutionDao() {
+        super(Substitution.class);
+    }
+
     @Override
     public Substitution create(Substitution entity) {
         entity.setCreateDate(new Date());

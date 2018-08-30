@@ -6,8 +6,8 @@ import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.QJob;
 import ru.runa.wfe.job.QTimerJob;
@@ -20,6 +20,10 @@ import ru.runa.wfe.job.QTimerJob;
  */
 @Component
 public class JobDao extends GenericDao<Job> {
+
+    public JobDao() {
+        super(Job.class);
+    }
 
     public List<Job> getExpiredJobs() {
         val j = QJob.job;

@@ -1,14 +1,12 @@
 package ru.runa.wfe.var.dao;
 
 import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.var.CurrentVariable;
+import ru.runa.wfe.var.BaseVariable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.VariableFormatContainer;
@@ -23,7 +21,7 @@ public abstract class AbstractVariableLoader implements VariableLoader {
     protected final Log log = LogFactory.getLog(getClass());
 
     @Override
-    public WfVariable getVariable(ProcessDefinition processDefinition, CurrentProcess process, String variableName) {
+    public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
         VariableDefinition variableDefinition = processDefinition.getVariable(variableName, false);
         if (variableDefinition != null) {
             Object variableValue = getVariableValue(processDefinition, process, variableDefinition);
@@ -46,7 +44,7 @@ public abstract class AbstractVariableLoader implements VariableLoader {
             return new WfVariable(variableDefinition, variableValue);
         }
         if (SystemProperties.isV3CompatibilityMode()) {
-            CurrentVariable<?> variable = get(process, variableName);
+            BaseVariable variable = get(process, variableName);
             return new WfVariable(variableName, variable != null ? variable.getValue() : null);
         }
         log.debug("No variable defined by name '" + variableName + "' in " + process + ", returning null");
@@ -54,7 +52,7 @@ public abstract class AbstractVariableLoader implements VariableLoader {
     }
 
     @Override
-    public Object getVariableValue(ProcessDefinition processDefinition, CurrentProcess process, VariableDefinition variableDefinition) {
+    public Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
         LoadVariableOfTypeContext context = new LoadVariableOfTypeContext(processDefinition, process, this, variableDefinition);
         switch (variableDefinition.getStoreType()) {
         case BLOB:

@@ -54,7 +54,7 @@ public class AuditLogic extends CommonLogic {
 
     public ProcessLogs getProcessLogs(User user, ProcessLogFilter filter) {
         Preconditions.checkNotNull(filter.getProcessId(), "filter.processId");
-        Process process = currentProcessDao.getNotNull(filter.getProcessId());
+        Process process = processDao.getNotNull(filter.getProcessId());
         permissionDao.checkAllowed(user, Permission.LIST, process);
         ProcessLogs result = new ProcessLogs(filter.getProcessId());
         List<BaseProcessLog> logs = processLogDao.getAll(filter);

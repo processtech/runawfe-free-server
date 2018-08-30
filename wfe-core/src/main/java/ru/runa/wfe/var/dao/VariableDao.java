@@ -1,13 +1,17 @@
 package ru.runa.wfe.var.dao;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.commons.SqlCommons;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.GenericDao2;
@@ -19,11 +23,41 @@ import ru.runa.wfe.var.BaseVariable;
 import ru.runa.wfe.var.CurrentVariable;
 
 @Component
+@CommonsLog
 public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, CurrentVariableDao, ArchivedVariable, ArchivedVariableDao> {
+
+    @Autowired
+    protected SessionFactory sessionFactory;
 
     @Autowired
     VariableDao(CurrentVariableDao dao1, ArchivedVariableDao dao2) {
         super(dao1, dao2);
+    }
+
+    public BaseVariable get(Process process, String name) {
+        if (process.isArchive()) {
+            return dao2.get((ArchivedProcess) process, name);
+        } else {
+            return dao1.get((CurrentProcess) process, name);
+        }
+    }
+
+    /**
+     * @return All variable values.
+     */
+    public Map<String, Object> getAll(Process process) {
+        Map<String, Object> result = Maps.newHashMap();
+        List<? extends BaseVariable> vars = process.isArchive()
+                ? dao2.getAllImpl((ArchivedProcess) process)
+                : dao1.getAllImpl((CurrentProcess) process);
+        for (BaseVariable v : vars) {
+            try {
+                result.put(v.getName(), v.getValue());
+            } catch (Exception e) {
+                log.error("Unable to revert " + v + " in " + process, e);
+            }
+        }
+        return result;
     }
 
     /**
@@ -74,5 +108,22 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
         }
 
         return result;
+    }
+
+    /**
+     * Used by TNMS.
+     */
+    @SuppressWarnings({"unused", "unchecked"})
+    public List<BaseVariable> findNonEndedByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
+        SqlCommons.StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(variableNamePattern);
+
+        return sessionFactory.getCurrentSession()
+                .createQuery("from CurrentVariable " +
+                        "where process.executionStatus != 'ENDED' " +
+                        "  and name " + expression.getComparisonOperator() + " :name " +
+                        "  and stringValue = :value")
+                .setParameter("name", expression.getValue())
+                .setParameter("value", stringValue)
+                .list();
     }
 }

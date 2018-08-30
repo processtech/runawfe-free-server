@@ -6,12 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentSwimlane;
-import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.QCurrentSwimlane;
-import ru.runa.wfe.execution.QSwimlane;
-import ru.runa.wfe.extension.AssignmentHandler;
-import ru.runa.wfe.extension.assign.AssignmentException;
-import ru.runa.wfe.lang.SwimlaneDefinition;
 
 /**
  * DAO for {@link CurrentSwimlane}.
@@ -21,6 +16,10 @@ import ru.runa.wfe.lang.SwimlaneDefinition;
  */
 @Component
 public class CurrentSwimlaneDao extends GenericDao<CurrentSwimlane> {
+
+    public CurrentSwimlaneDao() {
+        super(CurrentSwimlane.class);
+    }
 
     public List<CurrentSwimlane> findByProcess(CurrentProcess process) {
         val s = QCurrentSwimlane.currentSwimlane;

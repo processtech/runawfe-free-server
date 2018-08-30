@@ -35,6 +35,10 @@ import ru.runa.wfe.relation.RelationDoesNotExistException;
 @Component
 public class RelationDao extends GenericDao<Relation> {
 
+    public RelationDao() {
+        super(Relation.class);
+    }
+
     @Override
     protected void checkNotNull(Relation entity, Object identity) {
         if (entity == null) {

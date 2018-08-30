@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -48,6 +49,7 @@ public class LocalFileSystemStorage implements FileVariableStorage {
             FileVariable fileVariable = (FileVariable) object;
             object = save(variable, fileVariable, null);
         } else {
+            @SuppressWarnings("unchecked")
             List<FileVariable> list = (List<FileVariable>) object;
             for (int i = 0; i < list.size(); i++) {
                 FileVariable fileVariable = list.get(i);
@@ -62,8 +64,8 @@ public class LocalFileSystemStorage implements FileVariableStorage {
         if (SystemProperties.isLocalFileStorageEnabled() && fileVariable != null
                 && fileVariable.getData().length > SystemProperties.getLocalFileStorageFileLimit()) {
             try {
-                String variableName = index != null ? variable.getName() + index : variable.getName();
-                LocalFileSystemVariable fileSystemVariable = new LocalFileSystemVariable(variable, variableName, fileVariable);
+                val variableName = index != null ? variable.getName() + index : variable.getName();
+                val fileSystemVariable = new LocalFileSystemVariable(variable, variableName, fileVariable);
                 Files.write(fileVariable.getData(), getContentFile(fileSystemVariable.getVariablePath(), true));
                 return fileSystemVariable;
             } catch (IOException e) {

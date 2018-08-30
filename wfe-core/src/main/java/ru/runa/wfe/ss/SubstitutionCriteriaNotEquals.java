@@ -50,7 +50,7 @@ public class SubstitutionCriteriaNotEquals extends SubstitutionCriteria {
         Executor executor;
         if (variableName.startsWith(SWIMLANE_PREFIX)) {
             String swimlaneName = variableName.substring(SWIMLANE_PREFIX.length());
-            CurrentSwimlane swimlane = ApplicationContextFactory.getSwimlaneDao().findByProcessAndName(executionContext.getProcess(), swimlaneName);
+            CurrentSwimlane swimlane = ApplicationContextFactory.getCurrentSwimlaneDao().findByProcessAndName(executionContext.getProcess(), swimlaneName);
             if (swimlane == null) {
                 return true;
             }

@@ -18,9 +18,13 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.User;
 
 @Component
-public class ReportDao extends GenericDao<ReportDefinition> {
+public class ReportDefinitionDao extends GenericDao<ReportDefinition> {
 
     private static final SecuredObjectType[] SECURED_OBJECTS = new SecuredObjectType[] { SecuredObjectType.REPORT };
+
+    public ReportDefinitionDao() {
+        super(ReportDefinition.class);
+    }
 
     public List<WfReport> getReportDefinitions(User user, BatchPresentation batchPresentation, boolean enablePaging) {
         RestrictionsToPermissions permissions = new RestrictionsToPermissions(user, Permission.LIST, SECURED_OBJECTS);

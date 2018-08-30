@@ -36,6 +36,10 @@ import ru.runa.wfe.user.User;
 @Component
 public class BotDao extends GenericDao<Bot> {
 
+    public BotDao() {
+        super(Bot.class);
+    }
+
     @Override
     protected void checkNotNull(Bot entity, Object identity) {
         if (entity == null) {

@@ -21,6 +21,10 @@ import ru.runa.wfe.user.Executor;
 @Component
 public class CurrentProcessDao extends GenericDao<CurrentProcess> {
 
+    public CurrentProcessDao() {
+        super(CurrentProcess.class);
+    }
+
     @Override
     protected void checkNotNull(CurrentProcess entity, Object identity) {
         if (entity == null) {

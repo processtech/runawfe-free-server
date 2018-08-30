@@ -30,6 +30,10 @@ import ru.runa.wfe.script.QAdminScript;
 @Component
 public class AdminScriptDao extends GenericDao<AdminScript> {
 
+    public AdminScriptDao() {
+        super(AdminScript.class);
+    }
+
     public AdminScript getByName(String name) {
         val as = QAdminScript.adminScript;
         return queryFactory.selectFrom(as).where(as.name.eq(name)).fetchFirst();

@@ -46,7 +46,7 @@ public class SwimlaneInitializerHelper {
         try {
             List<? extends Executor> result = swimlaneInitializer.evaluate(variableProvider);
             if (result == null) {
-                result = new ArrayList<Executor>();
+                result = new ArrayList<>();
             }
             return result;
         } catch (Exception e) {

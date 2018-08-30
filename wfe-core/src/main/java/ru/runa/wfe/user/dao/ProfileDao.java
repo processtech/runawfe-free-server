@@ -32,6 +32,10 @@ import ru.runa.wfe.user.QProfile;
 @Component
 public class ProfileDao extends GenericDao<Profile> {
 
+    public ProfileDao() {
+        super(Profile.class);
+    }
+
     /**
      * Load profile for user. Return null, if no profile for user can be found.
      * 

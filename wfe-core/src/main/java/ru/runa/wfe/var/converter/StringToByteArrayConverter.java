@@ -8,6 +8,11 @@ public class StringToByteArrayConverter implements Converter {
     private static final long serialVersionUID = 1L;
 
     @Override
+    public boolean supports(Object value) {
+        return value instanceof String;
+    }
+
+    @Override
     public Object convert(ExecutionContext executionContext, CurrentVariable<?> variable, Object o) {
         return ((String) o).getBytes();
     }
@@ -16,10 +21,4 @@ public class StringToByteArrayConverter implements Converter {
     public Object revert(Object o) {
         return new String((byte[]) o);
     }
-
-    @Override
-    public boolean supports(Object value) {
-        return value instanceof String;
-    }
-
 }

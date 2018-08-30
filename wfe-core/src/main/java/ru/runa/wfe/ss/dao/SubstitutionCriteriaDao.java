@@ -19,6 +19,10 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 @Component
 public class SubstitutionCriteriaDao extends GenericDao<SubstitutionCriteria> {
 
+    public SubstitutionCriteriaDao() {
+        super(SubstitutionCriteria.class);
+    }
+
     @Override
     public SubstitutionCriteria create(SubstitutionCriteria entity) {
         entity.setCreateDate(new Date());

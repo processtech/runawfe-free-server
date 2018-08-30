@@ -1,24 +1,20 @@
 package ru.runa.wfe.var;
 
+import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 import ru.runa.wfe.var.impl.CurrentByteArrayVariable;
 import ru.runa.wfe.var.impl.CurrentNullVariable;
 
-import com.google.common.base.Preconditions;
-
+@CommonsLog
 public class VariableCreator {
-    private static final Log log = LogFactory.getLog(VariableCreator.class);
 
     private List<VariableType> types;
 

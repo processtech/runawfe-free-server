@@ -41,6 +41,10 @@ import ru.runa.wfe.definition.QDeployment;
 @Component
 public class DeploymentDao extends GenericDao<Deployment> {
 
+    public DeploymentDao() {
+        super(Deployment.class);
+    }
+
     public void deploy(Deployment deployment, Deployment previousLatestVersion) {
         // if there is a current latest process definition
         if (previousLatestVersion != null) {

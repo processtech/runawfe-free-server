@@ -40,6 +40,10 @@ import ru.runa.wfe.user.Executor;
 @SuppressWarnings("unchecked")
 public class TaskDao extends GenericDao<Task> {
 
+    public TaskDao() {
+        super(Task.class);
+    }
+
     @Override
     protected void checkNotNull(Task entity, Object identity) {
         if (entity == null) {

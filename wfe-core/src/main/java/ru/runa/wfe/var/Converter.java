@@ -26,8 +26,7 @@ import java.io.Serializable;
 import ru.runa.wfe.execution.ExecutionContext;
 
 /**
- * converts plain objects to objects that are persistable via a subclass of
- * Variable.
+ * converts plain objects to objects that are persistable via a subclass of Variable.
  */
 public interface Converter extends Serializable {
 

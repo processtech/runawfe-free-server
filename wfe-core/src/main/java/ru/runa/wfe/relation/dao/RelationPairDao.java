@@ -45,6 +45,10 @@ import ru.runa.wfe.user.Executor;
 @Component
 public class RelationPairDao extends GenericDao<RelationPair> {
 
+    public RelationPairDao() {
+        super(RelationPair.class);
+    }
+
     @Override
     protected void checkNotNull(RelationPair entity, Object identity) {
         if (entity == null) {

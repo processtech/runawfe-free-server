@@ -6,21 +6,17 @@ import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.Severity;
-import ru.runa.wfe.commons.dao.GenericDao;
+import ru.runa.wfe.commons.ApplicationContextFactory;
 
-public abstract class BaseProcessLogDao<T extends BaseProcessLog> extends GenericDao<T> {
+public interface BaseProcessLogDao {
 
-    BaseProcessLogDao(Class<T> entityClass) {
-        super(entityClass);
-    }
-
-    protected abstract Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type);
+    Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type);
 
     /**
      * Public because used in migration.
      */
     @SuppressWarnings("unchecked")
-    public List<BaseProcessLog> getAll(final ProcessLogFilter filter) {
+    default List<BaseProcessLog> getAll(final ProcessLogFilter filter) {
         boolean filterBySeverity = filter.getSeverities().size() != 0 && filter.getSeverities().size() != Severity.values().length;
         String hql = "from " + typeToClass(filter.getType()).getName() + " where processId = :processId";
         if (filter.getIdFrom() != null) {
@@ -45,7 +41,7 @@ public abstract class BaseProcessLogDao<T extends BaseProcessLog> extends Generi
             hql += " and severity in (:severities)";
         }
         hql += " order by id asc";
-        Query query = sessionFactory.getCurrentSession().createQuery(hql);
+        Query query = ApplicationContextFactory.getSessionFactory().getCurrentSession().createQuery(hql);
         query.setParameter("processId", filter.getProcessId());
         if (filter.getIdFrom() != null) {
             query.setParameter("idFrom", filter.getIdFrom());
