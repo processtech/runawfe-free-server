@@ -50,7 +50,7 @@
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="hibernateProperties" ref="hibernateProperties" />
 		<property name="entityInterceptor">
-			<bean class="ru.runa.wfe.commons.hibernate.CacheInterceptor" />
+			<bean class="ru.runa.wfe.commons.hibernate.WfeInterceptor" />
 		</property>
 		<property name="packagesToScan">
 			<list>

@@ -19,17 +19,24 @@ package ru.runa.wfe.commons.hibernate;
 
 import java.io.Serializable;
 
+import lombok.val;
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
 
+import ru.runa.wfe.audit.ArchivedProcessLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.CachingLogic;
 import ru.runa.wfe.commons.cache.Change;
+import ru.runa.wfe.execution.ArchivedNodeProcess;
+import ru.runa.wfe.execution.ArchivedProcess;
+import ru.runa.wfe.execution.ArchivedSwimlane;
+import ru.runa.wfe.execution.ArchivedToken;
+import ru.runa.wfe.var.ArchivedVariable;
 
-public class CacheInterceptor extends EmptyInterceptor {
+public class WfeInterceptor extends EmptyInterceptor {
     private static final long serialVersionUID = 1L;
 
     private boolean isOracleDatabase() {
@@ -37,7 +44,20 @@ public class CacheInterceptor extends EmptyInterceptor {
     }
 
     private boolean onChanges(Object entity, Change change, Object[] state, Object[] previousState, String[] propertyNames, Type[] types,
-            boolean fixOracleStrings) {
+            boolean fixOracleStrings
+    ) {
+        // Archive immutability support:
+        if (entity instanceof ArchivedNodeProcess ||
+                entity instanceof ArchivedProcess ||
+                entity instanceof ArchivedProcessLog ||
+                entity instanceof ArchivedSwimlane ||
+                entity instanceof ArchivedToken ||
+                entity instanceof ArchivedVariable
+        ) {
+            throw new RuntimeException("Attempted to " + change + " immutable " + entity);
+        }
+
+        // Cache invalidatioin support:
         boolean modified = false;
         if (fixOracleStrings && isOracleDatabase()) {
             // Oracle handles empty strings as NULLs so we change empty strings to ' '.
