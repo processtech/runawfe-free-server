@@ -34,7 +34,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -56,8 +55,21 @@ import ru.runa.wfe.user.Executor;
 public class CurrentSwimlane extends Swimlane<CurrentProcess> implements Serializable, Assignable {
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_SWIMLANE", allocationSize = 1)
+    @Column(name = "ID")
     private Long id;
+
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID")
+    @ForeignKey(name = "FK_SWIMLANE_PROCESS")
+    @Index(name = "IX_SWIMLANE_PROCESS")
     private CurrentProcess process;
+
+    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "EXECUTOR_ID")
+    @ForeignKey(name = "FK_SWIMLANE_EXECUTOR")
     private Executor executor;
 
     public CurrentSwimlane() {
@@ -69,53 +81,45 @@ public class CurrentSwimlane extends Swimlane<CurrentProcess> implements Seriali
     }
 
     @Override
-    @Transient
     public boolean isArchive() {
         return false;
     }
 
     @Override
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_SWIMLANE", allocationSize = 1)
-    @Column(name = "ID")
     public Long getId() {
         return id;
     }
 
-    @Override
-    protected void setId(Long id) {
-        this.id = id;
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_SWIMLANE_PROCESS")
-    @Index(name = "IX_SWIMLANE_PROCESS")
     public CurrentProcess getProcess() {
         return process;
     }
 
-    @Override
     public void setProcess(CurrentProcess process) {
         this.process = process;
     }
 
     @Override
-    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "EXECUTOR_ID")
-    @ForeignKey(name = "FK_SWIMLANE_EXECUTOR")
     public Executor getExecutor() {
         return executor;
     }
 
-    @Override
     public void setExecutor(Executor executor) {
         this.executor = executor;
     }
 
-    @Transient
     @Override
     public String getSwimlaneName() {
         return name;

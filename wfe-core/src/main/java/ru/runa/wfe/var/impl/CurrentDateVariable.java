@@ -35,14 +35,14 @@ import ru.runa.wfe.var.VariableDefinition;
 public class CurrentDateVariable extends CurrentVariable<Date> {
     private Date object;
 
-    @Column(name = "DATEVALUE")
     @Override
+    @Column(name = "DATEVALUE")
     public Date getStorableValue() {
         return object;
     }
 
     @Override
-    public void setStorableValue(Date object) {
+    protected void setStorableValue(Date object) {
         this.object = object;
     }
 

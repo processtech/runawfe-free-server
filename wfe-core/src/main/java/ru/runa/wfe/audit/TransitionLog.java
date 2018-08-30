@@ -28,6 +28,7 @@ public interface TransitionLog extends ProcessLog {
         return getAttributeNotNull(ATTR_TRANSITION_ID);
     }
 
+    @Transient
     default Transition getTransitionOrNull(ProcessDefinition processDefinition) {
         // due to process definition version update it can be null
         Node node = processDefinition.getNode(getFromNodeId());

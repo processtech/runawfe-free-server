@@ -26,17 +26,17 @@ public interface AdminActionLog extends ProcessLog {
     @Override
     @Transient
     default Object[] getPatternArguments() {
-        List<Object> arguments = Lists.newArrayList(new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)));
+        List<Object> result = Lists.newArrayList(new ExecutorNameValue(getAttributeNotNull(ATTR_ACTOR_NAME)));
         for (int i = 0; i < 10; i++) {
             String param = getAttribute(ATTR_PARAM + i);
             if (param != null) {
-                arguments.add(param);
+                result.add(param);
             } else {
                 break;
             }
         }
         //noinspection ToArrayCallWithZeroLengthArrayArgument
-        return arguments.toArray(new Object[arguments.size()]);
+        return result.toArray(new Object[result.size()]);
     }
 
     @Override

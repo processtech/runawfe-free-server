@@ -46,7 +46,6 @@ public abstract class CurrentVariableLog extends CurrentProcessLog implements Va
         setVariableName(variable.getName());
     }
 
-    @Override
     public void setVariableName(String variableName) {
         addAttribute(ATTR_VARIABLE_NAME, variableName);
     }

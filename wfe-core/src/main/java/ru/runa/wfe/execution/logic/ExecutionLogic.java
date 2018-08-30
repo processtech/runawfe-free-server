@@ -17,13 +17,16 @@
  */
 package ru.runa.wfe.execution.logic;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.transaction.UserTransaction;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.ConfigurationException;
@@ -31,17 +34,26 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentAdminActionLog;
 import ru.runa.wfe.audit.CurrentProcessActivateLog;
+import ru.runa.wfe.audit.CurrentProcessCancelLog;
+import ru.runa.wfe.audit.CurrentProcessEndLog;
 import ru.runa.wfe.audit.CurrentProcessSuspendLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
+import ru.runa.wfe.commons.ApplicationContextFactory;
+import ru.runa.wfe.commons.ClassLoaderUtil;
+import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TransactionListeners;
+import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.cache.CacheResetTransactionListener;
+import ru.runa.wfe.commons.error.ProcessError;
+import ru.runa.wfe.commons.error.ProcessErrorType;
 import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.definition.DefinitionVariableProvider;
 import ru.runa.wfe.definition.Deployment;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentSwimlane;
@@ -59,6 +71,7 @@ import ru.runa.wfe.execution.async.NodeAsyncExecutor;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.execution.dto.WfToken;
+import ru.runa.wfe.extension.ProcessEndHandler;
 import ru.runa.wfe.extension.assign.AssignmentHelper;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.history.GraphHistoryBuilder;
@@ -67,19 +80,29 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
 import ru.runa.wfe.job.Job;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.job.dto.WfJob;
+import ru.runa.wfe.lang.AsyncCompletionMode;
+import ru.runa.wfe.lang.BaseTaskNode;
+import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.Node;
+import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
+import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.presentation.filter.StringFilterCriteria;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
+import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
+import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.BaseVariable;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
@@ -131,8 +154,223 @@ public class ExecutionLogic extends WfCommonLogic {
         for (CurrentProcess process : processes) {
             ProcessDefinition processDefinition = getDefinition(process);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-            process.end(executionContext, user.getActor());
+            endProcess(process, executionContext, user.getActor());
             log.info(process + " was cancelled by " + user);
+        }
+    }
+
+    public void failProcessExecution(UserTransaction transaction, Long tokenId, Throwable throwable) {
+        new TransactionalExecutor(transaction) {
+
+            @Override
+            protected void doExecuteInTransaction() {
+                CurrentToken token = ApplicationContextFactory.getTokenDao().getNotNull(tokenId);
+                boolean stateChanged = failToken(token, Throwables.getRootCause(throwable));
+                if (stateChanged) {
+                    token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
+                    ProcessError processError = new ProcessError(ProcessErrorType.execution, token.getProcess().getId(), token.getNodeId());
+                    processError.setThrowable(throwable);
+                    Errors.sendEmailNotification(processError);
+                }
+            }
+        }.executeInTransaction(true);
+    }
+
+    public boolean failToken(CurrentToken token, Throwable throwable) {
+        boolean stateChanged = token.getExecutionStatus() != ExecutionStatus.FAILED;
+        token.setExecutionStatus(ExecutionStatus.FAILED);
+        token.setErrorDate(new Date());
+        // safe for unicode
+        String errorMessage = Utils.getCuttedString(throwable.toString(), 1024 / 2);
+        stateChanged |= !Objects.equal(errorMessage, token.getErrorMessage());
+        token.setErrorMessage(errorMessage);
+        return stateChanged;
+    }
+
+    /**
+     * Ends specified process and all the tokens in it.
+     *
+     * @param canceller
+     *            actor who cancels process (if any), can be <code>null</code>
+     */
+    public void endProcess(CurrentProcess process, ExecutionContext executionContext, Actor canceller) {
+        if (process.hasEnded()) {
+            log.debug(this + " already ended");
+            return;
+        }
+        log.info("Ending " + this + " by " + canceller);
+        Errors.removeProcessErrors(process.getId());
+        TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(process.getId());
+        // end the main path of execution
+        endToken(process.getRootToken(), executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
+        // mark this process as ended
+        process.setEndDate(new Date());
+        process.setExecutionStatus(ExecutionStatus.ENDED);
+        // check if this process was started as a subprocess of a super
+        // process
+        CurrentNodeProcess parentNodeProcess = executionContext.getCurrentParentNodeProcess();
+        if (parentNodeProcess != null && !parentNodeProcess.getParentToken().hasEnded()) {
+            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+            ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
+            Node node = parentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
+            Synchronizable synchronizable = (Synchronizable) node;
+            if (!synchronizable.isAsync()) {
+                log.info("Signalling to parent " + parentNodeProcess.getProcess());
+                endSubprocessSignalToken(parentNodeProcess.getParentToken(), executionContext);
+            }
+        }
+
+        // make sure all the timers for this process are canceled
+        // after the process end updates are posted to the database
+        JobDao jobDao = ApplicationContextFactory.getJobDao();
+        jobDao.deleteByProcess(process);
+        if (canceller != null) {
+            executionContext.addLog(new CurrentProcessCancelLog(canceller));
+        } else {
+            executionContext.addLog(new CurrentProcessEndLog());
+        }
+        // flush just created tasks
+        ApplicationContextFactory.getTaskDao().flushPendingChanges();
+        boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
+        for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(process)) {
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
+            if (taskNode.isAsync()) {
+                switch (taskNode.getCompletionMode()) {
+                    case NEVER:
+                        continue;
+                    case ON_MAIN_PROCESS_END:
+                        if (activeSuperProcessExists) {
+                            continue;
+                        }
+                    case ON_PROCESS_END:
+                }
+            }
+            task.end(executionContext, taskNode, taskCompletionInfo);
+        }
+        if (parentNodeProcess == null) {
+            log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
+            endSubprocessAndTasksOnMainProcessEndRecursively(process, executionContext, canceller);
+        }
+        for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(process)) {
+            if (swimlane.getExecutor() instanceof TemporaryGroup) {
+                swimlane.setExecutor(null);
+            }
+        }
+        for (CurrentProcess subProcess : executionContext.getCurrentSubprocessesRecursively()) {
+            for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(subProcess)) {
+                if (swimlane.getExecutor() instanceof TemporaryGroup) {
+                    swimlane.setExecutor(null);
+                }
+            }
+        }
+        for (String processEndHandlerClassName : SystemProperties.getProcessEndHandlers()) {
+            try {
+                ProcessEndHandler handler = ClassLoaderUtil.instantiate(processEndHandlerClassName);
+                handler.execute(executionContext);
+            } catch (Throwable th) {
+                Throwables.propagate(th);
+            }
+        }
+        if (SystemProperties.deleteTemporaryGroupsOnProcessEnd()) {
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
+            List<TemporaryGroup> groups = executorDao.getTemporaryGroups(process.getId());
+            for (TemporaryGroup temporaryGroup : groups) {
+                if (ApplicationContextFactory.getProcessDao().getDependentProcessIds(temporaryGroup).isEmpty()) {
+                    log.debug("Cleaning " + temporaryGroup);
+                    executorDao.remove(temporaryGroup);
+                } else {
+                    log.debug("Group " + temporaryGroup + " deletion postponed");
+                }
+            }
+        }
+    }
+
+    private void endSubprocessAndTasksOnMainProcessEndRecursively(CurrentProcess process, ExecutionContext executionContext, Actor canceller) {
+        List<CurrentProcess> subprocesses = executionContext.getCurrentSubprocesses();
+        if (subprocesses.size() > 0) {
+            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+            for (CurrentProcess subProcess : subprocesses) {
+                ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
+                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+
+                endSubprocessAndTasksOnMainProcessEndRecursively(process, subExecutionContext, canceller);
+
+                for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(subProcess)) {
+                    BaseTaskNode taskNode = (BaseTaskNode) subProcessDefinition.getNodeNotNull(task.getNodeId());
+                    if (taskNode.isAsync()) {
+                        switch (taskNode.getCompletionMode()) {
+                            case NEVER:
+                            case ON_PROCESS_END:
+                                continue;
+                            case ON_MAIN_PROCESS_END:
+                                task.end(subExecutionContext, taskNode, TaskCompletionInfo.createForProcessEnd(process.getId()));
+                        }
+                    }
+                }
+
+                if (!subProcess.hasEnded()) {
+                    CurrentNodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDao().findBySubProcessId(subProcess.getId());
+                    SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
+                    if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
+                        endProcess(subProcess, subExecutionContext, canceller);
+                    }
+                }
+            }
+        }
+    }
+
+    private void endSubprocessSignalToken(CurrentToken token, ExecutionContext subExecutionContext) {
+        if (!token.hasEnded()) {
+            if (token.getNodeType() != NodeType.SUBPROCESS && token.getNodeType() != NodeType.MULTI_SUBPROCESS) {
+                throw new InternalApplicationException(
+                        "Unexpected token node " + token.getNodeId() + " of type " + token.getNodeType() + " on subprocess end"
+                );
+            }
+            CurrentNodeProcess parentNodeProcess = subExecutionContext.getCurrentParentNodeProcess();
+            Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
+            ProcessDefinition superDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(superDefinitionId);
+            token.getNodeNotNull(superDefinition).leave(subExecutionContext, null);
+        }
+    }
+
+    /**
+     * Ends specified token and all of its children (if recursive).
+     *
+     * @param canceller
+     *            actor who cancels process (if any), can be <code>null</code>
+     */
+    public void endToken(
+            CurrentToken token, ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive
+    ) {
+        ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+        ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
+
+        ExecutionContext executionContext = new ExecutionContext(processDefinition, token);
+        if (token.hasEnded()) {
+            log.debug(this + " already ended");
+            return;
+        }
+        log.info("Ending " + this + " by " + canceller);
+        token.setEndDate(new Date());
+        token.setExecutionStatus(ExecutionStatus.ENDED);
+        Node node = processDefinition.getNode(token.getNodeId());
+        if (node instanceof SubprocessNode) {
+            for (CurrentProcess subProcess : executionContext.getCurrentTokenSubprocesses()) {
+                ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
+                executionLogic.endProcess(subProcess, new ExecutionContext(subProcessDefinition, subProcess), canceller);
+            }
+        } else if (node instanceof BaseTaskNode) {
+            ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
+        } else if (node instanceof BoundaryEvent) {
+            log.info("Cancelling " + node + " with " + this);
+            ((BoundaryEvent) node).cancelBoundaryEvent(token);
+        } else if (node == null) {
+            log.warn("Node is null");
+        }
+        if (recursive) {
+            for (CurrentToken child : token.getChildren()) {
+                executionLogic.endToken(child, executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
+            }
         }
     }
 

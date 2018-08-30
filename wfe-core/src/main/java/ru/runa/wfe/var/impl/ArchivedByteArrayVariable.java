@@ -40,7 +40,7 @@ public class ArchivedByteArrayVariable extends ArchivedVariable<byte[]> {
     }
 
     @Override
-    public void setStorableValue(byte[] object) {
+    protected void setStorableValue(byte[] object) {
         this.object = object;
     }
 }

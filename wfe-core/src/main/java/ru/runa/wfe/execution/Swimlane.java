@@ -2,60 +2,45 @@ package ru.runa.wfe.execution;
 
 import com.google.common.base.Objects;
 import java.util.Date;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 import javax.persistence.Version;
 import ru.runa.wfe.user.Executor;
 
+/**
+ * No setters here and in ArchivedSwimlane subclass since the latter is read-only; only CurrentSwimlane subclass is mutable and thus has setters.
+ */
 @MappedSuperclass
+@Access(AccessType.FIELD)
 public abstract class Swimlane<P extends Process> {
-
-    protected Long version;
-    protected String name;
-    protected Date createDate;
-
-    @Transient
-    public abstract boolean isArchive();
-
-    @Transient
-    public abstract Long getId();
-    protected abstract void setId(Long id);
-
-    @Transient
-    public abstract P getProcess();
-    public abstract void setProcess(P process);
 
     @Version
     @Column(name = "VERSION")
+    protected Long version;
+
+    @Column(name = "NAME", length = 1024)
+    protected String name;
+
+    @Column(name = "CREATE_DATE", nullable = false)
+    protected Date createDate;
+
+    public abstract boolean isArchive();
+    public abstract Long getId();
+    public abstract P getProcess();
+    public abstract Executor getExecutor();
+
     protected Long getVersion() {
         return version;
     }
 
-    protected void setVersion(Long version) {
-        this.version = version;
-    }
-
-    @Column(name = "NAME", length = 1024)
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Transient
-    public abstract Executor getExecutor();
-    public abstract void setExecutor(Executor executor);
-
-    @Column(name = "CREATE_DATE", nullable = false)
     public Date getCreateDate() {
         return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
     }
 
     @Override

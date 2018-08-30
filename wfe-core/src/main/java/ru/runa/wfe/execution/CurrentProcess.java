@@ -22,9 +22,7 @@
 package ru.runa.wfe.execution;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
 import java.util.Date;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -37,34 +35,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.audit.CurrentProcessCancelLog;
-import ru.runa.wfe.audit.CurrentProcessEndLog;
-import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.ClassLoaderUtil;
-import ru.runa.wfe.commons.Errors;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.extension.ProcessEndHandler;
-import ru.runa.wfe.job.dao.JobDao;
-import ru.runa.wfe.lang.AsyncCompletionMode;
-import ru.runa.wfe.lang.BaseTaskNode;
-import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.lang.Synchronizable;
-import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.TaskCompletionInfo;
-import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
@@ -72,13 +48,30 @@ import ru.runa.wfe.user.dao.ExecutorDao;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@CommonsLog
 public class CurrentProcess extends Process<CurrentToken> {
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(CurrentProcess.class);
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_PROCESS", allocationSize = 1)
+    @Column(name = "ID")
     private Long id;
-    private CurrentToken rootToken;
+
+    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEFINITION_ID", nullable = false)
+    @ForeignKey(name = "FK_PROCESS_DEFINITION")
+    @Index(name = "IX_PROCESS_DEFINITION")
     private Deployment deployment;
+
+    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
+    @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
+    @ForeignKey(name = "FK_PROCESS_ROOT_TOKEN")
+    @Index(name = "IX_PROCESS_ROOT_TOKEN")
+    private CurrentToken rootToken;
+
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
 
     public CurrentProcess() {
@@ -90,194 +83,60 @@ public class CurrentProcess extends Process<CurrentToken> {
     }
 
     @Override
-    @Transient
     public boolean isArchive() {
         return false;
     }
 
     @Override
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_PROCESS", allocationSize = 1)
-    @Column(name = "ID")
     public Long getId() {
         return id;
     }
 
-    @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public void setHierarchyIds(String hierarchyIds) {
+        this.hierarchyIds = hierarchyIds;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     @Override
-    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFINITION_ID", nullable = false)
-    @ForeignKey(name = "FK_PROCESS_DEFINITION")
-    @Index(name = "IX_PROCESS_DEFINITION")
     public Deployment getDeployment() {
         return deployment;
     }
 
-    @Override
     public void setDeployment(Deployment deployment) {
         this.deployment = deployment;
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
-    @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
-    @ForeignKey(name = "FK_PROCESS_ROOT_TOKEN")
-    @Index(name = "IX_PROCESS_ROOT_TOKEN")
     public CurrentToken getRootToken() {
         return rootToken;
     }
 
-    @Override
     public void setRootToken(CurrentToken rootToken) {
         this.rootToken = rootToken;
     }
 
     @Override
-    @Column(name = "EXECUTION_STATUS", nullable = false)
-    @Enumerated(EnumType.STRING)
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;
     }
 
     public void setExecutionStatus(ExecutionStatus executionStatus) {
         this.executionStatus = executionStatus;
-    }
-
-    /**
-     * Ends this process and all the tokens in it.
-     * 
-     * @param canceller
-     *            actor who cancels process (if any), can be <code>null</code>
-     */
-    public void end(ExecutionContext executionContext, Actor canceller) {
-        if (hasEnded()) {
-            log.debug(this + " already ended");
-            return;
-        }
-        log.info("Ending " + this + " by " + canceller);
-        Errors.removeProcessErrors(id);
-        TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
-        // end the main path of execution
-        rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
-        // mark this process as ended
-        setEndDate(new Date());
-        setExecutionStatus(ExecutionStatus.ENDED);
-        // check if this process was started as a subprocess of a super
-        // process
-        CurrentNodeProcess parentNodeProcess = executionContext.getCurrentParentNodeProcess();
-        if (parentNodeProcess != null && !parentNodeProcess.getParentToken().hasEnded()) {
-            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
-            ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
-            Node node = parentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
-            Synchronizable synchronizable = (Synchronizable) node;
-            if (!synchronizable.isAsync()) {
-                log.info("Signalling to parent " + parentNodeProcess.getProcess());
-                parentNodeProcess.getParentToken().signalOnSubprocessEnd(executionContext);
-            }
-        }
-
-        // make sure all the timers for this process are canceled
-        // after the process end updates are posted to the database
-        JobDao jobDao = ApplicationContextFactory.getJobDao();
-        jobDao.deleteByProcess(this);
-        if (canceller != null) {
-            executionContext.addLog(new CurrentProcessCancelLog(canceller));
-        } else {
-            executionContext.addLog(new CurrentProcessEndLog());
-        }
-        // flush just created tasks
-        ApplicationContextFactory.getTaskDao().flushPendingChanges();
-        boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
-        for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(this)) {
-            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
-            if (taskNode.isAsync()) {
-                switch (taskNode.getCompletionMode()) {
-                case NEVER:
-                    continue;
-                case ON_MAIN_PROCESS_END:
-                    if (activeSuperProcessExists) {
-                        continue;
-                    }
-                case ON_PROCESS_END:
-                }
-            }
-            task.end(executionContext, taskNode, taskCompletionInfo);
-        }
-        if (parentNodeProcess == null) {
-            log.debug("Removing async tasks and subprocesses ON_MAIN_PROCESS_END");
-            endSubprocessAndTasksOnMainProcessEndRecursively(executionContext, canceller);
-        }
-        for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(this)) {
-            if (swimlane.getExecutor() instanceof TemporaryGroup) {
-                swimlane.setExecutor(null);
-            }
-        }
-        for (CurrentProcess subProcess : executionContext.getCurrentSubprocessesRecursively()) {
-            for (CurrentSwimlane swimlane : ApplicationContextFactory.getCurrentSwimlaneDao().findByProcess(subProcess)) {
-                if (swimlane.getExecutor() instanceof TemporaryGroup) {
-                    swimlane.setExecutor(null);
-                }
-            }
-        }
-        for (String processEndHandlerClassName : SystemProperties.getProcessEndHandlers()) {
-            try {
-                ProcessEndHandler handler = ClassLoaderUtil.instantiate(processEndHandlerClassName);
-                handler.execute(executionContext);
-            } catch (Throwable th) {
-                Throwables.propagate(th);
-            }
-        }
-        if (SystemProperties.deleteTemporaryGroupsOnProcessEnd()) {
-            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
-            List<TemporaryGroup> groups = executorDao.getTemporaryGroups(id);
-            for (TemporaryGroup temporaryGroup : groups) {
-                if (ApplicationContextFactory.getProcessDao().getDependentProcessIds(temporaryGroup).isEmpty()) {
-                    log.debug("Cleaning " + temporaryGroup);
-                    executorDao.remove(temporaryGroup);
-                } else {
-                    log.debug("Group " + temporaryGroup + " deletion postponed");
-                }
-            }
-        }
-    }
-
-    private void endSubprocessAndTasksOnMainProcessEndRecursively(ExecutionContext executionContext, Actor canceller) {
-        List<CurrentProcess> subprocesses = executionContext.getCurrentSubprocesses();
-        if (subprocesses.size() > 0) {
-            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
-            for (CurrentProcess subProcess : subprocesses) {
-                ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
-                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
-
-                endSubprocessAndTasksOnMainProcessEndRecursively(subExecutionContext, canceller);
-
-                for (Task task : ApplicationContextFactory.getTaskDao().findByProcess(subProcess)) {
-                    BaseTaskNode taskNode = (BaseTaskNode) subProcessDefinition.getNodeNotNull(task.getNodeId());
-                    if (taskNode.isAsync()) {
-                        switch (taskNode.getCompletionMode()) {
-                        case NEVER:
-                        case ON_PROCESS_END:
-                            continue;
-                        case ON_MAIN_PROCESS_END:
-                            task.end(subExecutionContext, taskNode, TaskCompletionInfo.createForProcessEnd(id));
-                        }
-                    }
-                }
-
-                if (!subProcess.hasEnded()) {
-                    CurrentNodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDao().findBySubProcessId(subProcess.getId());
-                    SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
-                    if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
-                        subProcess.end(subExecutionContext, canceller);
-                    }
-                }
-            }
-        }
     }
 
     @Override

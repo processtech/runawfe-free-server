@@ -12,7 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
@@ -24,10 +23,33 @@ import ru.runa.wfe.lang.Node;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken> {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_SUBPROCESS", allocationSize = 1)
+    @Column(name = "ID", nullable = false)
     private Long id;
+
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_PROCESS_ID", nullable = false)
+    @ForeignKey(name = "FK_SUBPROCESS_PARENT_PROCESS")
+    @Index(name = "IX_SUBPROCESS_PARENT_PROCESS")
     private CurrentProcess process;
+
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID", nullable = false)
+    @ForeignKey(name = "FK_SUBPROCESS_PROCESS")
+    @Index(name = "IX_SUBPROCESS_PROCESS")
     private CurrentProcess subProcess;
+
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "ROOT_PROCESS_ID", nullable = false)
+    @ForeignKey(name = "FK_SUBPROCESS_ROOT_PROCESS")
+    @Index(name = "IX_SUBPROCESS_ROOT_PROCESS")
     private CurrentProcess rootProcess;
+
+    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_TOKEN_ID")
+    @ForeignKey(name = "FK_SUBPROCESS_TOKEN")
     private CurrentToken parentToken;
 
     protected CurrentNodeProcess() {
@@ -44,76 +66,59 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
     }
 
     @Override
-    @Transient
     public boolean isArchive() {
         return false;
     }
 
     @Override
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_SUBPROCESS", allocationSize = 1)
-    @Column(name = "ID", nullable = false)
     public Long getId() {
         return id;
     }
 
-    @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_PARENT_PROCESS")
-    @Index(name = "IX_SUBPROCESS_PARENT_PROCESS")
     public CurrentProcess getProcess() {
         return process;
     }
 
-    @Override
     public void setProcess(CurrentProcess process) {
         this.process = process;
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_PROCESS")
-    @Index(name = "IX_SUBPROCESS_PROCESS")
     public CurrentProcess getSubProcess() {
         return subProcess;
     }
 
-    @Override
     public void setSubProcess(CurrentProcess subProcess) {
         this.subProcess = subProcess;
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "ROOT_PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_ROOT_PROCESS")
-    @Index(name = "IX_SUBPROCESS_ROOT_PROCESS")
     public CurrentProcess getRootProcess() {
         return rootProcess;
     }
 
-    @Override
     public void setRootProcess(CurrentProcess rootProcess) {
         this.rootProcess = rootProcess;
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_TOKEN_ID")
-    @ForeignKey(name = "FK_SUBPROCESS_TOKEN")
     public CurrentToken getParentToken() {
         return parentToken;
     }
 
-    @Override
     public void setParentToken(CurrentToken parentToken) {
         this.parentToken = parentToken;
     }

@@ -26,6 +26,7 @@ import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
 import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.relation.dao.RelationDao;
 import ru.runa.wfe.relation.dao.RelationPairDao;
@@ -177,6 +178,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static ExecutorLogic getExecutorLogic() {
         return getContext().getBean(ExecutorLogic.class);
+    }
+
+    public static ExecutionLogic getExecutionLogic() {
+        return getContext().getBean(ExecutionLogic.class);
     }
 
     public static VariableLogic getVariableLogic() {

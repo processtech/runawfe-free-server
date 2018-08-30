@@ -19,12 +19,12 @@ public class StopProcessHandler extends TaskHandlerBase implements ActionHandler
     private ParamsDef paramsDef;
 
     @Override
-    public void setConfiguration(String configuration) throws Exception {
+    public void setConfiguration(String configuration) {
         paramsDef = ParamsDef.parse(configuration);
     }
 
     @Override
-    public void execute(ExecutionContext executionContext) throws Exception {
+    public void execute(ExecutionContext executionContext) {
         Long processId = TypeConversionUtil.convertTo(Long.class,
                 paramsDef.getInputParamValueNotNull("processId", executionContext.getVariableProvider()));
         if (processId > 0) {
@@ -32,14 +32,14 @@ public class StopProcessHandler extends TaskHandlerBase implements ActionHandler
             ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
             ExecutionContext targetExecutionContext = new ExecutionContext(processDefinition, process);
-            process.end(targetExecutionContext, null);
+            ApplicationContextFactory.getExecutionLogic().endProcess(process, targetExecutionContext, null);
         } else {
             log.warn("ProcessID = " + processId + ", don't stopping process");
         }
     }
 
     @Override
-    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) {
         Long processId = TypeConversionUtil.convertTo(Long.class, paramsDef.getInputParamValueNotNull("processId", variableProvider));
         if (processId > 0) {
             Delegates.getExecutionService().cancelProcess(user, processId);

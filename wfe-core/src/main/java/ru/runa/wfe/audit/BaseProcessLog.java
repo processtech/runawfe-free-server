@@ -17,6 +17,11 @@ import javax.xml.bind.annotation.XmlTransient;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.xml.XmlUtils;
 
+/**
+ * Archived entities are read-lony.
+ * But to avoid (at least for now) problems with field-based access in complex entity hierarchies, Archived* entity setters are defined private,
+ * or protected if inherited (I defined abstract setters in this class just in case, because Hibernate requires both getters and setters).
+ */
 @MappedSuperclass
 public abstract class BaseProcessLog implements ProcessLog {
 
@@ -38,10 +43,7 @@ public abstract class BaseProcessLog implements ProcessLog {
         return tokenId;
     }
 
-    @Override
-    public void setTokenId(Long tokenId) {
-        this.tokenId = tokenId;
-    }
+    protected abstract void setTokenId(Long tokenId);
 
     @Override
     @Column(name = "CREATE_DATE", nullable = false)
@@ -49,10 +51,7 @@ public abstract class BaseProcessLog implements ProcessLog {
         return createDate;
     }
 
-    @Override
-    public void setCreateDate(Date date) {
-        this.createDate = date;
-    }
+    protected abstract void setCreateDate(Date date);
 
     @Override
     @Column(name = "SEVERITY", nullable = false, length = 1024)
@@ -61,10 +60,7 @@ public abstract class BaseProcessLog implements ProcessLog {
         return severity;
     }
 
-    @Override
-    public void setSeverity(Severity severity) {
-        this.severity = severity;
-    }
+    protected abstract void setSeverity(Severity severity);
 
     @Override
     @Column(name = "CONTENT", length = 4000)
@@ -72,21 +68,7 @@ public abstract class BaseProcessLog implements ProcessLog {
         return XmlUtils.serialize(attributes);
     }
 
-    @Override
-    public void setContent(String content) {
-        attributes = XmlUtils.deserialize(content);
-    }
-
-    protected void addAttribute(String name, String value) {
-        attributes.put(name, value);
-    }
-
-    protected void addAttributeWithTruncation(String name, String value) {
-        if (value.length() > getAttributeMaxLength()) {
-            value = value.substring(0, getAttributeMaxLength()) + "...";
-        }
-        addAttribute(name, value);
-    }
+    protected abstract void setContent(String content);
 
     @Override
     public String getAttribute(String name) {
@@ -106,10 +88,7 @@ public abstract class BaseProcessLog implements ProcessLog {
         return nodeId;
     }
 
-    @Override
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
+    protected abstract void setNodeId(String nodeId);
 
     @Override
     @Lob
@@ -119,10 +98,7 @@ public abstract class BaseProcessLog implements ProcessLog {
         return bytes;
     }
 
-    @Override
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
-    }
+    protected abstract void setBytes(byte[] bytes);
 
     @Override
     @Transient

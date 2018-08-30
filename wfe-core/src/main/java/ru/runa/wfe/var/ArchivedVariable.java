@@ -1,5 +1,6 @@
 package ru.runa.wfe.var;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -23,7 +24,7 @@ import ru.runa.wfe.execution.ArchivedProcess;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
-public abstract class ArchivedVariable<T> extends BaseVariable<ArchivedProcess, T> {
+public abstract class ArchivedVariable<V> extends BaseVariable<ArchivedProcess, V> {
 
     protected Long id;
     private String name;
@@ -45,9 +46,28 @@ public abstract class ArchivedVariable<T> extends BaseVariable<ArchivedProcess, 
         return id;
     }
 
-    @Override
-    protected void setId(Long id) {
+    private void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    protected void setVersion(Long version) {
+        this.version = version;
+    }
+
+    @Override
+    protected void setConverter(Converter converter) {
+        this.converter = converter;
+    }
+
+    @Override
+    protected void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    @Override
+    protected void setStringValue(String stringValue) {
+        this.stringValue = stringValue;
     }
 
     /**
@@ -60,8 +80,7 @@ public abstract class ArchivedVariable<T> extends BaseVariable<ArchivedProcess, 
         return name;
     }
 
-    @Override
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 
@@ -77,8 +96,7 @@ public abstract class ArchivedVariable<T> extends BaseVariable<ArchivedProcess, 
         return process;
     }
 
-    @Override
-    public void setProcess(ArchivedProcess process) {
+    private void setProcess(ArchivedProcess process) {
         this.process = process;
     }
 }

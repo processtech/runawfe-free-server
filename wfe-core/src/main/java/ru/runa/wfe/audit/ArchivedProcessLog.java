@@ -1,5 +1,6 @@
 package ru.runa.wfe.audit;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -11,6 +12,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Index;
+import ru.runa.wfe.commons.xml.XmlUtils;
 
 @Entity
 @Table(name = "ARCHIVED_LOG")
@@ -38,9 +40,38 @@ public abstract class ArchivedProcessLog extends BaseProcessLog {
         return id;
     }
 
-    @Override
-    public void setId(Long id) {
+    private void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    protected void setTokenId(Long tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    @Override
+    protected void setCreateDate(Date date) {
+        this.createDate = date;
+    }
+
+    @Override
+    protected void setSeverity(Severity severity) {
+        this.severity = severity;
+    }
+
+    @Override
+    protected void setContent(String content) {
+        attributes = XmlUtils.deserialize(content);
+    }
+
+    @Override
+    protected void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    @Override
+    protected void setBytes(byte[] bytes) {
+        this.bytes = bytes;
     }
 
     @Override
@@ -50,19 +81,7 @@ public abstract class ArchivedProcessLog extends BaseProcessLog {
         return processId;
     }
 
-    @Override
-    public void setProcessId(Long processId) {
+    private void setProcessId(Long processId) {
         this.processId = processId;
-    }
-
-    @Transient
-    @Override
-    public Long getTokenId() {
-        return null;
-    }
-
-    @Override
-    public void setTokenId(Long tokenId) {
-        throw new IllegalAccessError();
     }
 }

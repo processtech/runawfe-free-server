@@ -68,23 +68,18 @@ public interface ProcessLog extends Attributes, Comparable<ProcessLog> {
 
     @Transient
     Long getId();
-    void setId(Long id);
 
     @Transient
     Long getProcessId();
-    void setProcessId(Long processId);
 
     @Transient
     Date getCreateDate();
-    void setCreateDate(Date date);
 
     @Transient
     Severity getSeverity();
-    void setSeverity(Severity severity);
 
     @Transient
     String getContent();
-    void setContent(String content);
     @Transient
     String getAttribute(String name);
     @Transient
@@ -92,15 +87,12 @@ public interface ProcessLog extends Attributes, Comparable<ProcessLog> {
 
     @Transient
     String getNodeId();
-    void setNodeId(String nodeId);
 
     @Transient
     Long getTokenId();
-    void setTokenId(Long tokenId);
 
     @Transient
     byte[] getBytes();
-    void setBytes(byte[] bytes);
 
     /**
      * Applies some operation to process log instance.

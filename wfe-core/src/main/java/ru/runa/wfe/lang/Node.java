@@ -33,6 +33,7 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.lang.bpmn2.CatchEventNode;
@@ -243,13 +244,16 @@ public abstract class Node extends GraphElement {
             endBoundaryEventTokens(executionContext);
         }
         if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
+            ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
             CurrentToken parentToken = executionContext.getToken().getParent();
             ((Node) getParentElement()).onBoundaryEvent(executionContext.getProcessDefinition(), parentToken, (BoundaryEvent) this);
             for (CurrentToken token : parentToken.getActiveChildren()) {
                 if (Objects.equal(token, executionContext.getToken())) {
                     continue;
                 }
-                token.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true);
+                executionLogic.endToken(
+                        token, executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true
+                );
             }
         }
         CurrentToken token = executionContext.getToken();
@@ -294,11 +298,12 @@ public abstract class Node extends GraphElement {
 
     public void endBoundaryEventTokens(ExecutionContext executionContext) {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
+            ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
             for (CurrentToken token : executionContext.getToken().getActiveChildren()) {
                 Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
                 if (boundaryEvents.contains(node)) {
-                    token.end(executionContext.getProcessDefinition(), null, null, false);
+                    executionLogic.endToken(token, executionContext.getProcessDefinition(), null, null, false);
                 }
             }
         }
@@ -309,6 +314,7 @@ public abstract class Node extends GraphElement {
     }
 
     protected void onBoundaryEvent(ProcessDefinition processDefinition, CurrentToken token, BoundaryEvent boundaryEvent) {
-        token.end(processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
+        ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
+        executionLogic.endToken(token, processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
     }
 }

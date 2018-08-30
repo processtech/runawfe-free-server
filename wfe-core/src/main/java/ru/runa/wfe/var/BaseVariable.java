@@ -9,41 +9,41 @@ import org.hibernate.annotations.Type;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.Process;
 
+/**
+ * Archived entities are read-lony.
+ * But to avoid (at least for now) problems with field-based access in complex entity hierarchies, Archived* entity setters are defined private,
+ * or protected if inherited (I defined abstract setters in this class just in case, because Hibernate requires both getters and setters).
+ */
 @MappedSuperclass
-public abstract class BaseVariable<P extends Process, T> {
+public abstract class BaseVariable<P extends Process, V> {
 
     public static int getMaxStringSize() {
         return SystemProperties.getStringVariableValueLength();
     }
 
-    private Long version;
+    protected Long version;
     protected Converter converter;
-    private String stringValue;
-    private Date createDate;
+    protected String stringValue;
+    protected Date createDate;
 
     @Transient
     public abstract boolean isArchive();
 
     @Transient
     public abstract Long getId();
-    protected abstract void setId(Long id);
 
     @Transient
     public abstract String getName();
-    public abstract void setName(String name);
 
     @Transient
     public abstract P getProcess();
-    public abstract void setProcess(P process);
 
     @Column(name = "VERSION")
     public Long getVersion() {
         return version;
     }
 
-    public void setVersion(Long version) {
-        this.version = version;
-    }
+    protected abstract void setVersion(Long version);
 
     @Column(name = "CONVERTER")
     @Type(type = "ru.runa.wfe.commons.hibernate.ConverterEnumType")
@@ -51,38 +51,32 @@ public abstract class BaseVariable<P extends Process, T> {
         return converter;
     }
 
-    public void setConverter(Converter converter) {
-        this.converter = converter;
-    }
+    protected abstract void setConverter(Converter converter);
 
     @Column(name = "CREATE_DATE", nullable = false)
     public Date getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
+    protected abstract void setCreateDate(Date createDate);
 
     @Column(name = "STRINGVALUE", length = 1024)
     public String getStringValue() {
         return stringValue;
     }
 
-    public void setStringValue(String stringValue) {
-        this.stringValue = stringValue;
-    }
+    protected abstract void setStringValue(String stringValue);
 
     /**
      * Get the value of the variable.
      */
     @Transient
-    public abstract T getStorableValue();
+    public abstract V getStorableValue();
 
     /**
      * Set new variable value
      */
-    protected abstract void setStorableValue(T object);
+    protected abstract void setStorableValue(V object);
 
     @Transient
     public Object getValue() {

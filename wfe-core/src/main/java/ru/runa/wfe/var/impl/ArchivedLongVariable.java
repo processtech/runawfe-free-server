@@ -31,14 +31,14 @@ import ru.runa.wfe.var.ArchivedVariable;
 public class ArchivedLongVariable extends ArchivedVariable<Long> {
     private Long object;
 
-    @Column(name = "LONGVALUE")
     @Override
+    @Column(name = "LONGVALUE")
     public Long getStorableValue() {
         return object;
     }
 
     @Override
-    public void setStorableValue(Long object) {
+    protected void setStorableValue(Long object) {
         this.object = object;
     }
 }

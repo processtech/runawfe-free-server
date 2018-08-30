@@ -41,7 +41,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -50,18 +49,9 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.lang.BaseTaskNode;
-import ru.runa.wfe.lang.BoundaryEvent;
-import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
-import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.task.TaskCompletionInfo;
-import ru.runa.wfe.user.Actor;
 
 /**
  * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.lang.ProcessDefinition}.
@@ -73,11 +63,35 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(CurrentToken.class);
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_TOKEN", allocationSize = 1)
+    @Column(name = "ID")
     private Long id;
+
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID")
+    @ForeignKey(name = "FK_TOKEN_PROCESS")
+    @Index(name = "IX_TOKEN_PROCESS")
     private CurrentProcess process;
+
+    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_ID")
+    @ForeignKey(name = "FK_TOKEN_PARENT")
+    @Index(name = "IX_TOKEN_PARENT")
     private CurrentToken parent;
+
+    @OneToMany(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_ID")
+    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     private Set<CurrentToken> children;
+
+    @Column(name = "EXECUTION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ExecutionStatus executionStatus = ExecutionStatus.ACTIVE;
+
+    @Column(name = "MESSAGE_SELECTOR", length = 1024)
+    @Index(name = "IX_MESSAGE_SELECTOR")
     private String messageSelector;
 
     public CurrentToken() {
@@ -99,7 +113,6 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
     }
 
     @Override
-    @Transient
     public boolean isArchive() {
         return false;
     }
@@ -121,50 +134,69 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
     }
 
     @Override
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BPM_TOKEN", allocationSize = 1)
-    @Column(name = "ID")
     public Long getId() {
         return id;
     }
 
-    @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    public void setTransitionId(String transitionId) {
+        this.transitionId = transitionId;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public void setAbleToReactivateParent(boolean ableToReactivateParent) {
+        this.ableToReactivateParent = ableToReactivateParent;
+    }
+
+    public void setErrorDate(Date errorDate) {
+        this.errorDate = errorDate;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_TOKEN_PROCESS")
-    @Index(name = "IX_TOKEN_PROCESS")
     public CurrentProcess getProcess() {
         return process;
     }
 
-    @Override
     public void setProcess(CurrentProcess process) {
         this.process = process;
     }
 
     @Override
-    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_ID")
-    @ForeignKey(name = "FK_TOKEN_PARENT")
-    @Index(name = "IX_TOKEN_PARENT")
     public CurrentToken getParent() {
         return parent;
     }
 
-    @Override
     public void setParent(CurrentToken parent) {
         this.parent = parent;
     }
 
-    @OneToMany(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_ID")
-    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
+    @Override
     public Set<CurrentToken> getChildren() {
         return children;
     }
@@ -174,8 +206,6 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
     }
 
     @Override
-    @Column(name = "EXECUTION_STATUS", nullable = false)
-    @Enumerated(EnumType.STRING)
     public ExecutionStatus getExecutionStatus() {
         return executionStatus;
     }
@@ -185,85 +215,22 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
     }
 
     @Override
-    @Column(name = "MESSAGE_SELECTOR", length = 1024)
-    @Index(name = "IX_MESSAGE_SELECTOR")
     public String getMessageSelector() {
         return messageSelector;
     }
 
-    @Override
     public void setMessageSelector(String messageSelector) {
         this.messageSelector = messageSelector;
-    }
-
-    public boolean fail(Throwable throwable) {
-        boolean stateChanged = getExecutionStatus() != ExecutionStatus.FAILED;
-        setExecutionStatus(ExecutionStatus.FAILED);
-        setErrorDate(new Date());
-        // safe for unicode
-        String errorMessage = Utils.getCuttedString(throwable.toString(), 1024 / 2);
-        stateChanged |= !Objects.equal(errorMessage, getErrorMessage());
-        setErrorMessage(errorMessage);
-        return stateChanged;
     }
 
     private void addChild(CurrentToken token) {
         getChildren().add(token);
     }
 
-    public void signalOnSubprocessEnd(ExecutionContext subExecutionContext) {
-        if (!hasEnded()) {
-            if (nodeType != NodeType.SUBPROCESS && nodeType != NodeType.MULTI_SUBPROCESS) {
-                throw new InternalApplicationException("Unexpected token node " + nodeId + " of type " + nodeType + " on subprocess end");
-            }
-            CurrentNodeProcess parentNodeProcess = subExecutionContext.getCurrentParentNodeProcess();
-            Long superDefinitionId = parentNodeProcess.getProcess().getDeployment().getId();
-            ProcessDefinition superDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(superDefinitionId);
-            getNodeNotNull(superDefinition).leave(subExecutionContext, null);
-        }
-    }
-
-    /**
-     * ends this token and all of its children (if recursive).
-     * 
-     * @param canceller
-     *            actor who cancels process (if any), can be <code>null</code>
-     */
-    public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
-        ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
-        if (hasEnded()) {
-            log.debug(this + " already ended");
-            return;
-        }
-        log.info("Ending " + this + " by " + canceller);
-        setEndDate(new Date());
-        setExecutionStatus(ExecutionStatus.ENDED);
-        Node node = processDefinition.getNode(getNodeId());
-        if (node instanceof SubprocessNode) {
-            for (CurrentProcess subProcess : executionContext.getCurrentTokenSubprocesses()) {
-                ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
-                subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
-            }
-        } else if (node instanceof BaseTaskNode) {
-            ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
-        } else if (node instanceof BoundaryEvent) {
-            log.info("Cancelling " + node + " with " + this);
-            ((BoundaryEvent) node).cancelBoundaryEvent(this);
-        } else if (node == null) {
-            log.warn("Node " + node + " is null");
-        }
-        if (recursive) {
-            for (CurrentToken child : getChildren()) {
-                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, recursive);
-            }
-        }
-    }
-
     public boolean hasEnded() {
         return executionStatus == ExecutionStatus.ENDED;
     }
 
-    @Transient
     public List<CurrentToken> getActiveChildren() {
         List<CurrentToken> activeChildren = Lists.newArrayList();
         for (CurrentToken child : getChildren()) {
@@ -274,7 +241,6 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
         return activeChildren;
     }
 
-    @Transient
     public int getDepth() {
         return getParent() != null ? getParent().getDepth() + 1 : 0;
     }
@@ -284,5 +250,4 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
         return Objects.toStringHelper(this).add("id", id).add("processId", getProcess().getId()).add("nodeId", nodeId).add("status", executionStatus)
                 .toString();
     }
-
 }

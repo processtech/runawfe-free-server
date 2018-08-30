@@ -26,5 +26,4 @@ public interface NodeLog extends ProcessLog {
     default Object[] getPatternArguments() {
         return new Object[] { getNodeName() };
     }
-
 }

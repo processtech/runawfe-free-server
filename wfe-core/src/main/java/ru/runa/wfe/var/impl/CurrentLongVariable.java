@@ -32,14 +32,14 @@ import ru.runa.wfe.var.CurrentVariable;
 public class CurrentLongVariable extends CurrentVariable<Long> {
     private Long object;
 
-    @Column(name = "LONGVALUE")
     @Override
+    @Column(name = "LONGVALUE")
     public Long getStorableValue() {
         return object;
     }
 
     @Override
-    public void setStorableValue(Long object) {
+    protected void setStorableValue(Long object) {
         this.object = object;
     }
 

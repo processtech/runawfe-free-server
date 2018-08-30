@@ -22,6 +22,7 @@
 package ru.runa.wfe.var;
 
 import java.util.Arrays;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -64,7 +65,7 @@ import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public abstract class CurrentVariable<T> extends BaseVariable<CurrentProcess, T> {
+public abstract class CurrentVariable<V> extends BaseVariable<CurrentProcess, V> {
 
     protected Long id;
     private String name;
@@ -88,9 +89,28 @@ public abstract class CurrentVariable<T> extends BaseVariable<CurrentProcess, T>
         return id;
     }
 
-    @Override
-    protected void setId(Long id) {
+    private void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    @Override
+    public void setConverter(Converter converter) {
+        this.converter = converter;
+    }
+
+    @Override
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    @Override
+    public void setStringValue(String stringValue) {
+        this.stringValue = stringValue;
     }
 
     @Override
@@ -100,7 +120,6 @@ public abstract class CurrentVariable<T> extends BaseVariable<CurrentProcess, T>
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -113,7 +132,6 @@ public abstract class CurrentVariable<T> extends BaseVariable<CurrentProcess, T>
         return process;
     }
 
-    @Override
     public void setProcess(CurrentProcess process) {
         this.process = process;
     }
@@ -156,7 +174,7 @@ public abstract class CurrentVariable<T> extends BaseVariable<CurrentProcess, T>
         if (converter != null && oldValue != null) {
             oldValue = converter.revert(oldValue);
         }
-        setStorableValue((T) newStorableValue);
+        setStorableValue((V) newStorableValue);
         return getLog(oldValue, newValue, variableDefinition);
     }
 

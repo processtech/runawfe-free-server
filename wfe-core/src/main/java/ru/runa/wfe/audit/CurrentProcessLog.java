@@ -23,6 +23,7 @@ package ru.runa.wfe.audit;
 
 import com.google.common.base.Objects;
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -42,6 +43,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.commons.CalendarUtil;
+import ru.runa.wfe.commons.xml.XmlUtils;
 
 /**
  * Base class for logging process unit of work.
@@ -76,9 +78,49 @@ public abstract class CurrentProcessLog extends BaseProcessLog implements Serial
         return id;
     }
 
-    @Override
-    public void setId(Long id) {
+    private void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public void setTokenId(Long tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    @Override
+    public void setCreateDate(Date date) {
+        this.createDate = date;
+    }
+
+    @Override
+    public void setSeverity(Severity severity) {
+        this.severity = severity;
+    }
+
+    @Override
+    public void setContent(String content) {
+        attributes = XmlUtils.deserialize(content);
+    }
+
+    protected void addAttribute(String name, String value) {
+        attributes.put(name, value);
+    }
+
+    protected void addAttributeWithTruncation(String name, String value) {
+        if (value.length() > getAttributeMaxLength()) {
+            value = value.substring(0, getAttributeMaxLength()) + "...";
+        }
+        addAttribute(name, value);
+    }
+
+    @Override
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    @Override
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
     }
 
     @Override
@@ -88,7 +130,6 @@ public abstract class CurrentProcessLog extends BaseProcessLog implements Serial
         return processId;
     }
 
-    @Override
     public void setProcessId(Long processId) {
         this.processId = processId;
     }

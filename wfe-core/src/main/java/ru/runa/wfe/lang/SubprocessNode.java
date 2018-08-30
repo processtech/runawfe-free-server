@@ -14,10 +14,10 @@ import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.CurrentToken;
-import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
@@ -215,7 +215,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                 if (process.hasEnded()) {
                     continue;
                 }
-                process.end(new ExecutionContext(getSubProcessDefinition(), process), null);
+                ApplicationContextFactory.getExecutionLogic().endProcess(process, new ExecutionContext(getSubProcessDefinition(), process), null);
             }
         }
     }

@@ -18,7 +18,9 @@ public interface SubprocessEndLog extends NodeLeaveLog {
     }
 
     @Transient
-    Long getParentTokenId();
+    default Long getParentTokenId() {
+        return TypeConversionUtil.convertTo(long.class, getAttribute(ATTR_TOKEN_ID));
+    }
 
     @Override
     @Transient

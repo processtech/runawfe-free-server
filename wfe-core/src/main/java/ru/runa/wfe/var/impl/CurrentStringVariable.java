@@ -30,8 +30,8 @@ import ru.runa.wfe.var.CurrentVariable;
 @DiscriminatorValue(value = "S")
 public class CurrentStringVariable extends CurrentVariable<String> {
 
-    @Transient
     @Override
+    @Transient
     public String getStorableValue() {
         return getStringValue();
     }

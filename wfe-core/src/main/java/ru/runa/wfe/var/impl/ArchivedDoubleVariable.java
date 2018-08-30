@@ -31,14 +31,14 @@ import ru.runa.wfe.var.ArchivedVariable;
 public class ArchivedDoubleVariable extends ArchivedVariable<Double> {
     private Double object;
 
-    @Column(name = "DOUBLEVALUE")
     @Override
+    @Column(name = "DOUBLEVALUE")
     public Double getStorableValue() {
         return object;
     }
 
     @Override
-    public void setStorableValue(Double object) {
+    protected void setStorableValue(Double object) {
         this.object = object;
     }
 }

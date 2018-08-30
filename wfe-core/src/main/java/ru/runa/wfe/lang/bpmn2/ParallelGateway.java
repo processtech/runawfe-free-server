@@ -1,16 +1,18 @@
 package ru.runa.wfe.lang.bpmn2;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.transaction.UserTransaction;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.Errors;
-import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.commons.TransactionListener;
 import ru.runa.wfe.commons.TransactionListeners;
 import ru.runa.wfe.commons.TransactionalExecutor;
 import ru.runa.wfe.commons.error.ProcessError;
@@ -20,15 +22,11 @@ import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.execution.logic.ProcessExecutionException;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.Transition;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class ParallelGateway extends Node {
     private static final long serialVersionUID = 1L;
@@ -40,8 +38,9 @@ public class ParallelGateway extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
+        ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
         CurrentToken token = executionContext.getToken();
-        token.end(executionContext.getProcessDefinition(), null, null, false);
+        executionLogic.endToken(token, executionContext.getProcessDefinition(), null, null, false);
         log.debug("Executing " + this + " with " + token);
         StateInfo stateInfo = findStateInfo(executionContext.getProcess().getRootToken(), true);
         switch (stateInfo.state) {
@@ -70,7 +69,7 @@ public class ParallelGateway extends Node {
         case BLOCKING: {
             log.warn("failing token " + token.getId() + " execution because " + stateInfo.unreachableTransition
                     + " cannot be passed by active tokens in nodes " + stateInfo.activeTokenNodeIds);
-            token.fail(new ProcessExecutionException(ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION,
+            executionLogic.failToken(token, new ProcessExecutionException(ProcessExecutionException.PARALLEL_GATEWAY_UNREACHABLE_TRANSITION,
                     stateInfo.unreachableTransition));
             TransactionListeners.addListener(new FailedCheck(this, executionContext.getProcess().getId()), false);
             break;

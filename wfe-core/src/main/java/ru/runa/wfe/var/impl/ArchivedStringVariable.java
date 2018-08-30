@@ -30,8 +30,8 @@ import ru.runa.wfe.var.ArchivedVariable;
 @DiscriminatorValue(value = "S")
 public class ArchivedStringVariable extends ArchivedVariable<String> {
 
-    @Transient
     @Override
+    @Transient
     public String getStorableValue() {
         return getStringValue();
     }

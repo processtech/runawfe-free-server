@@ -33,15 +33,15 @@ import ru.runa.wfe.var.CurrentVariable;
 public class CurrentByteArrayVariable extends CurrentVariable<byte[]> {
     private byte[] object;
 
+    @Override
     @Lob
     @Column(length = 16777216, name = "BYTES")
-    @Override
     public byte[] getStorableValue() {
         return object;
     }
 
     @Override
-    public void setStorableValue(byte[] object) {
+    protected void setStorableValue(byte[] object) {
         this.object = object;
     }
 

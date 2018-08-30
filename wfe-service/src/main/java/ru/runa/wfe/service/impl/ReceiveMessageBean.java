@@ -35,8 +35,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.transaction.UserTransaction;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.runa.wfe.InternalApplicationException;
@@ -49,6 +48,7 @@ import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.dao.CurrentTokenDao;
+import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
@@ -65,8 +65,10 @@ import ru.runa.wfe.var.VariableProvider;
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, SpringBeanAutowiringInterceptor.class })
 @SuppressWarnings("unchecked")
+@CommonsLog
 public class ReceiveMessageBean implements MessageListener {
-    private static Log log = LogFactory.getLog(ReceiveMessageBean.class);
+    @Autowired
+    private ExecutionLogic executionLogic;
     @Autowired
     private CurrentTokenDao currentTokenDao;
     @Autowired
@@ -188,7 +190,7 @@ public class ReceiveMessageBean implements MessageListener {
                 }
             }.executeInTransaction(true);
         } catch (final Throwable th) {
-            Utils.failProcessExecution(context.getUserTransaction(), data.tokenId, th);
+            executionLogic.failProcessExecution(context.getUserTransaction(), data.tokenId, th);
             Throwables.propagate(th);
         }
     }

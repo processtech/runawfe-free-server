@@ -19,8 +19,6 @@ public interface VariableLog extends ProcessLog {
         return getAttributeNotNull(ATTR_VARIABLE_NAME);
     }
 
-    void setVariableName(String variableName);
-
     @Transient
     default String getVariableNewValueAttribute() {
         return getAttribute(ATTR_NEW_VALUE);
