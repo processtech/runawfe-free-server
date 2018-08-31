@@ -99,7 +99,7 @@ public class Transition extends GraphElement {
      */
     public void take(ExecutionContext executionContext) {
         // update the runtime context information
-        executionContext.getToken().setTransitionId(getNodeId());
+        executionContext.getCurrentToken().setTransitionId(getNodeId());
         executionContext.addLog(new CurrentTransitionLog(this));
         // fire the transition event (if any)
         fireEvent(executionContext, ActionEvent.TRANSITION);
@@ -110,7 +110,7 @@ public class Transition extends GraphElement {
     @Override
     public Transition clone() throws CloneNotSupportedException {
         Transition clone = (Transition) super.clone();
-        clone.bendpoints = new ArrayList<Bendpoint>(bendpoints);
+        clone.bendpoints = new ArrayList<>(bendpoints);
         return clone;
     }
 }

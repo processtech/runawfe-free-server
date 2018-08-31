@@ -1,16 +1,14 @@
 package ru.runa.wfe.var.file;
 
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.var.CurrentVariable;
-
-import com.google.common.io.Files;
+import ru.runa.wfe.var.BaseVariable;
 
 public class LocalFileSystemStorage implements FileVariableStorage {
 
@@ -44,7 +42,7 @@ public class LocalFileSystemStorage implements FileVariableStorage {
     }
 
     @Override
-    public Object save(ExecutionContext executionContext, CurrentVariable<?> variable, Object object) {
+    public Object save(ExecutionContext executionContext, BaseVariable variable, Object object) {
         if (object instanceof FileVariable) {
             FileVariable fileVariable = (FileVariable) object;
             object = save(variable, fileVariable, null);
@@ -60,7 +58,7 @@ public class LocalFileSystemStorage implements FileVariableStorage {
         return object;
     }
 
-    private FileVariable save(CurrentVariable<?> variable, FileVariable fileVariable, Integer index) {
+    private FileVariable save(BaseVariable variable, FileVariable fileVariable, Integer index) {
         if (SystemProperties.isLocalFileStorageEnabled() && fileVariable != null
                 && fileVariable.getData().length > SystemProperties.getLocalFileStorageFileLimit()) {
             try {

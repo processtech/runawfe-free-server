@@ -65,7 +65,6 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.BaseVariable;
-import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
@@ -305,9 +304,8 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from process to process variables, loaded according to process filter.
      */
-    private Map<Process, Map<String, BaseVariable>> getProcessStateOnTime(
-            User user, Process process, ProcessLogFilter filter, Set<String> simpleVariablesChanged
-    ) {
+    private Map<Process, Map<String, BaseVariable>> getProcessStateOnTime(User user, Process process, ProcessLogFilter filter,
+            Set<String> simpleVariablesChanged) {
         Map<Process, Map<String, Object>> processToVariables = loadSimpleVariablesState(user, process, filter, simpleVariablesChanged);
         val result = new HashMap<Process, Map<String, BaseVariable>>();
         for (val kv : processToVariables.entrySet()) {
@@ -327,7 +325,7 @@ public class VariableLogic extends WfCommonLogic {
                     if (varValue instanceof String) {
                         varValue = variableDefinition.getFormatNotNull().parse((String) varValue);
                     }
-                    CurrentVariable<?> variable = variableCreator.create(procOrBase, variableDefinition, varValue);
+                    BaseVariable variable = variableCreator.create(procOrBase, variableDefinition, varValue);
                     variable.setValue(new ExecutionContext(definition, procOrBase), varValue, variableDefinition);
                     newMap.put(varName, variable);
                 }
@@ -349,9 +347,8 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from process to it simple variables state.
      */
-    private Map<Process, Map<String, Object>> loadSimpleVariablesState(
-            User user, Process process, ProcessLogFilter filter, Set<String> simpleVariablesChanged
-    ) {
+    private Map<Process, Map<String, Object>> loadSimpleVariablesState(User user, Process process, ProcessLogFilter filter,
+            Set<String> simpleVariablesChanged) {
         Map<Process, Map<String, Object>> processToVariables = Maps.newHashMap();
         for (Process loadingProcess = process; loadingProcess != null; loadingProcess = getBaseProcess(loadingProcess)) {
             processToVariables.put(loadingProcess, loadVariablesForProcessFromLogs(user, loadingProcess, filter, simpleVariablesChanged));
@@ -372,9 +369,8 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from simple process variable name to it last known value.
      */
-    private Map<String, Object> loadVariablesForProcessFromLogs(
-            User user, Process process, ProcessLogFilter filter, Set<String> simpleVariablesChanged
-    ) {
+    private Map<String, Object> loadVariablesForProcessFromLogs(User user, Process process, ProcessLogFilter filter,
+            Set<String> simpleVariablesChanged) {
         val localFilter = new ProcessLogFilter(filter);
         localFilter.setType(ProcessLog.Type.VARIABLE);
         localFilter.setProcessId(process.getId());

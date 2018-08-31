@@ -48,7 +48,7 @@ public class TaskObservableClassPresentation extends ClassPresentation {
     public static final String TASK_DURATION = "batch_presentation.task.duration";
     public static final String TASK_OBSERVABLE_EXECUTOR = "batch_presentation.task.observable_executor";
 
-    private static final ClassPresentation INSTANCE = new TaskObservableClassPresentation();
+    public static final ClassPresentation INSTANCE = new TaskObservableClassPresentation();
 
     private TaskObservableClassPresentation() {
         super(Task.class, "", false, new FieldDescriptor[] {
@@ -81,5 +81,4 @@ public class TaskObservableClassPresentation extends ClassPresentation {
     public static ClassPresentation getInstance() {
         return INSTANCE;
     }
-
 }

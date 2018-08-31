@@ -66,9 +66,9 @@ public class ProcessFactory {
             Map<String, Object> transientVariables) {
         Preconditions.checkNotNull(actor, "can't start a process when actor is null");
         ExecutionContext executionContext = createProcessInternal(processDefinition, variables, actor, null, transientVariables);
-        grantProcessPermissions(processDefinition, executionContext.getProcess(), actor);
+        grantProcessPermissions(processDefinition, executionContext.getCurrentProcess(), actor);
         startProcessInternal(executionContext, transitionName);
-        return executionContext.getProcess();
+        return executionContext.getCurrentProcess();
     }
 
     private void grantProcessPermissions(ProcessDefinition processDefinition, CurrentProcess process, Actor actor) {
@@ -92,19 +92,20 @@ public class ProcessFactory {
 
     public CurrentProcess createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object>
             variables, int index) {
-        CurrentProcess parentProcess = parentExecutionContext.getProcess();
+        CurrentProcess parentProcess = parentExecutionContext.getCurrentProcess();
         CurrentProcess rootProcess = currentNodeProcessDao.getRootProcessByParentProcessId(parentProcess.getId());
         Node subProcessNode = parentExecutionContext.getNode();
         ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null);
-        currentNodeProcessDao.create(new CurrentNodeProcess(subProcessNode, parentExecutionContext.getToken(), rootProcess,
-                subExecutionContext.getProcess(), index));
-        return subExecutionContext.getProcess();
+        currentNodeProcessDao.create(new CurrentNodeProcess(subProcessNode, parentExecutionContext.getCurrentToken(), rootProcess,
+                subExecutionContext.getCurrentProcess(), index));
+        return subExecutionContext.getCurrentProcess();
     }
 
     public void startSubprocess(ExecutionContext parentExecutionContext, ExecutionContext executionContext) {
-        parentExecutionContext
-                .addLog(new CurrentSubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getToken(), executionContext.getProcess()));
-        grantSubprocessPermissions(executionContext.getProcessDefinition(), executionContext.getProcess(), parentExecutionContext.getProcess());
+        parentExecutionContext.addLog(new CurrentSubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getCurrentToken(),
+                executionContext.getCurrentProcess()));
+        grantSubprocessPermissions(executionContext.getProcessDefinition(), executionContext.getCurrentProcess(),
+                parentExecutionContext.getCurrentProcess());
         startProcessInternal(executionContext, null);
     }
 

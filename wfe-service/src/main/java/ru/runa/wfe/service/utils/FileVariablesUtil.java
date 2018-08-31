@@ -123,5 +123,4 @@ public class FileVariablesUtil {
         }
         return variableValue;
     }
-
 }

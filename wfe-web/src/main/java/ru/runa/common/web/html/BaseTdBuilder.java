@@ -63,10 +63,10 @@ public abstract class BaseTdBuilder implements TdBuilder {
             if (isExceptionOnAbsent) {
                 throw Throwables.propagate(e);
             }
+            return "";
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
-        return "";
     }
 
     protected SecuredObjectExtractor getExtractor() {

@@ -177,7 +177,7 @@ public abstract class Node extends GraphElement {
      */
     public void enter(ExecutionContext executionContext) {
         log.debug("Entering " + this + " with " + executionContext);
-        CurrentToken token = executionContext.getToken();
+        CurrentToken token = executionContext.getCurrentToken();
         // update the runtime context information
         token.setNodeId(getNodeId());
         token.setNodeType(getNodeType());
@@ -187,7 +187,7 @@ public abstract class Node extends GraphElement {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessEndNode)) {
             for (BoundaryEvent boundaryEvent : ((BoundaryEventContainer) this).getBoundaryEvents()) {
                 Node boundaryNode = (Node) boundaryEvent;
-                CurrentToken eventToken = new CurrentToken(executionContext.getToken(), boundaryNode.getNodeId());
+                CurrentToken eventToken = new CurrentToken(executionContext.getCurrentToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
                 ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
@@ -245,7 +245,7 @@ public abstract class Node extends GraphElement {
         }
         if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
             ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
-            CurrentToken parentToken = executionContext.getToken().getParent();
+            CurrentToken parentToken = executionContext.getCurrentToken().getParent();
             ((Node) getParentElement()).onBoundaryEvent(executionContext.getProcessDefinition(), parentToken, (BoundaryEvent) this);
             for (CurrentToken token : parentToken.getActiveChildren()) {
                 if (Objects.equal(token, executionContext.getToken())) {
@@ -256,7 +256,7 @@ public abstract class Node extends GraphElement {
                 );
             }
         }
-        CurrentToken token = executionContext.getToken();
+        CurrentToken token = executionContext.getCurrentToken();
         for (ProcessExecutionListener listener : SystemProperties.getProcessExecutionListeners()) {
             listener.onNodeLeave(executionContext, this, transition);
         }
@@ -300,7 +300,7 @@ public abstract class Node extends GraphElement {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
             ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
-            for (CurrentToken token : executionContext.getToken().getActiveChildren()) {
+            for (CurrentToken token : executionContext.getCurrentToken().getActiveChildren()) {
                 Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
                 if (boundaryEvents.contains(node)) {
                     executionLogic.endToken(token, executionContext.getProcessDefinition(), null, null, false);

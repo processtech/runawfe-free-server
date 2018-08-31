@@ -26,8 +26,7 @@ import ru.runa.wfe.user.Executor;
 public class SystemLogActorTdBuilder extends BaseExecutorTdBuilder<SystemLog> {
 
     /**
-     * Creates component to build table cell for {@link Executor}, executed
-     * action.
+     * Creates component to build table cell for {@link Executor}, executed action.
      */
     public SystemLogActorTdBuilder() {
         setSecuredObjectExtractor(new ExecutorExtractor());
@@ -42,5 +41,4 @@ public class SystemLogActorTdBuilder extends BaseExecutorTdBuilder<SystemLog> {
     protected Executor getExecutor(SystemLog object, Env env) {
         return (Executor) getExtractor().getSecuredObject(object.getActorId(), env);
     }
-
 }

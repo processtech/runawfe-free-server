@@ -43,4 +43,10 @@ public class ArchivedByteArrayVariable extends ArchivedVariable<byte[]> {
     protected void setStorableValue(byte[] object) {
         this.object = object;
     }
+
+    @Override
+    public boolean supports(Object value) {
+        // ATTENTION! Same logic in CurrentByteArrayVariable.
+        return super.supports(value) || value instanceof byte[];
+    }
 }

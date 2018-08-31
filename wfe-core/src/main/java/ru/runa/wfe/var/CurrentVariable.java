@@ -136,7 +136,8 @@ public abstract class CurrentVariable<V> extends BaseVariable<CurrentProcess, V>
         this.process = process;
     }
 
-    private CurrentVariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition) {
+    @Override
+    protected CurrentVariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition) {
         if (oldValue == null) {
             return new CurrentVariableCreateLog(this, newValue, variableDefinition);
         } else if (newValue == null) {
@@ -144,50 +145,5 @@ public abstract class CurrentVariable<V> extends BaseVariable<CurrentProcess, V>
         } else {
             return new CurrentVariableUpdateLog(this, oldValue, newValue, variableDefinition);
         }
-    }
-
-    public boolean supports(Object value) {
-        if (value == null) {
-            return false;
-        }
-        return converter != null && converter.supports(value);
-    }
-
-    public CurrentVariableLog setValue(ExecutionContext executionContext, Object newValue, VariableDefinition variableDefinition) {
-        Object newStorableValue;
-        if (supports(newValue)) {
-            if (converter != null && converter.supports(newValue)) {
-                newStorableValue = converter.convert(executionContext, this, newValue);
-            } else {
-                converter = null;
-                newStorableValue = newValue;
-            }
-        } else {
-            throw new InternalApplicationException(this + " does not support new value '" + newValue + "' of '" + newValue.getClass() + "'");
-        }
-        Object oldValue = getStorableValue();
-        if (newValue == null || converter instanceof SerializableToByteArrayConverter) {
-            setStringValue(null);
-        } else {
-            setStringValue(toString(newValue, variableDefinition));
-        }
-        if (converter != null && oldValue != null) {
-            oldValue = converter.revert(oldValue);
-        }
-        setStorableValue((V) newStorableValue);
-        return getLog(oldValue, newValue, variableDefinition);
-    }
-
-    public String toString(Object value, VariableDefinition variableDefinition) {
-        String string;
-        if (SystemProperties.isV3CompatibilityMode() && value != null && String[].class == value.getClass()) {
-            string = Arrays.toString((String[]) value);
-        } else if (value instanceof Executor) {
-            string = ((Executor) value).getLabel();
-        } else {
-            string = String.valueOf(value);
-        }
-        string = Utils.getCuttedString(string, getMaxStringSize());
-        return string;
     }
 }

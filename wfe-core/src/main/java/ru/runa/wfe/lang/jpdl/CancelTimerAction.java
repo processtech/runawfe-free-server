@@ -34,8 +34,7 @@ public class CancelTimerAction extends Action {
 
     @Override
     public void execute(ExecutionContext executionContext) {
-        jobDao.deleteByToken(executionContext.getToken());
+        jobDao.deleteByToken(executionContext.getCurrentToken());
         executionContext.addLog(new CurrentActionLog(this));
     }
-
 }

@@ -41,7 +41,7 @@ public class Join extends Node {
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
-        CurrentToken token = executionContext.getToken();
+        CurrentToken token = executionContext.getCurrentToken();
         executionLogic.endToken(token, executionContext.getProcessDefinition(), null, null, false);
         if (token.isAbleToReactivateParent()) {
             token.setAbleToReactivateParent(false);

@@ -41,4 +41,10 @@ public class ArchivedDoubleVariable extends ArchivedVariable<Double> {
     protected void setStorableValue(Double object) {
         this.object = object;
     }
+
+    @Override
+    public boolean supports(Object value) {
+        // ATTENTION! Same logic in CurrentDoubleVariable.
+        return super.supports(value) || value instanceof Double;
+    }
 }

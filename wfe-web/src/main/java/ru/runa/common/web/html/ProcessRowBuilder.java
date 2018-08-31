@@ -170,9 +170,9 @@ public class ProcessRowBuilder extends ReflectionRowBuilder {
     }
 
     @Override
-    protected List<? extends Object> getItems() {
+    protected List<?> getItems() {
         if (allProcesses == null) {
-            allProcesses = new ArrayList<WfProcess>();
+            allProcesses = new ArrayList<>();
             for (Object item : items) {
                 List<WfProcess> listSubProcessInstance = Delegates.getExecutionService().getSubprocesses(Commons.getUser(pageContext.getSession()),
                         ((WfProcess) item).getId(), true);

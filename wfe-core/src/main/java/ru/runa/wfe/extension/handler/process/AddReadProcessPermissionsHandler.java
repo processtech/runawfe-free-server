@@ -1,9 +1,7 @@
 package ru.runa.wfe.extension.handler.process;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ExecutionContext;
@@ -24,7 +22,7 @@ public class AddReadProcessPermissionsHandler extends ParamBasedHandlerActionHan
             log.warn("Null executors in " + this + ", returning");
             return;
         }
-        CurrentProcess securedObject = executionContext.getProcess();
+        CurrentProcess securedObject = executionContext.getCurrentProcess();
         Permission permission = Permission.READ;
         for (Executor executor : executors) {
             List<Permission> permissions = permissionDao.getIssuedPermissions(executor, securedObject);

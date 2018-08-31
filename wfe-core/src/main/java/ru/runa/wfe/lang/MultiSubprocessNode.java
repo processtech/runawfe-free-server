@@ -1,12 +1,12 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.CurrentSubprocessEndLog;
 import ru.runa.wfe.commons.GroovyScriptExecutor;
@@ -20,17 +20,14 @@ import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils;
 import ru.runa.wfe.lang.utils.MultiinstanceUtils.Parameters;
-import ru.runa.wfe.var.SelectableOption;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
+import ru.runa.wfe.var.SelectableOption;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.Variables;
 import ru.runa.wfe.var.dto.WfVariable;
 import ru.runa.wfe.var.format.ListFormat;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class MultiSubprocessNode extends SubprocessNode {
     private static final long serialVersionUID = 1L;
@@ -172,7 +169,7 @@ public class MultiSubprocessNode extends SubprocessNode {
                     executionContext.setVariableValue(processVariableName, value);
                 }
             }
-            executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getToken(), nodeProcess.getSubProcess()));
+            executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getCurrentToken(), nodeProcess.getSubProcess()));
             if (executionContext.getCurrentNotEndedSubprocesses().size() == 0) {
                 log.debug("Leaving multisubprocess state");
                 super.leave(executionContext, transition);
@@ -183,8 +180,8 @@ public class MultiSubprocessNode extends SubprocessNode {
     private void leaveBackCompatiblePre410(ExecutionContext executionContext, Transition transition) {
         if (executionContext.getCurrentNotEndedSubprocesses().size() == 0) {
             log.debug("Leaving multisubprocess state [in backcompatibility mode] due to 0 active subprocesses");
-            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
-                    executionContext.getToken(), null);
+            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocesses(executionContext.getCurrentProcess(),
+                    executionContext.getToken().getNodeId(), executionContext.getCurrentToken(), null);
             if (!subprocesses.isEmpty()) {
                 ProcessDefinition subProcessDefinition = getSubProcessDefinition();
                 for (VariableMapping variableMapping : variableMappings) {
@@ -214,7 +211,7 @@ public class MultiSubprocessNode extends SubprocessNode {
                 }
             }
             for (CurrentProcess subProcess : subprocesses) {
-                executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getToken(), subProcess));
+                executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getCurrentToken(), subProcess));
             }
             super.leave(executionContext, transition);
         }

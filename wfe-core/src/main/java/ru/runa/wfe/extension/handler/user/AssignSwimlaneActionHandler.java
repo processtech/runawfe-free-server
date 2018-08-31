@@ -82,7 +82,7 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
     private boolean assignSwimlane(ExecutionContext executionContext, String swimlaneName, String swimlaneInitializer) {
         List<? extends Executor> executors = SwimlaneInitializerHelper.evaluate(swimlaneInitializer, executionContext.getVariableProvider());
         SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
-        CurrentSwimlane swimlane = swimlaneDao.findOrCreate(executionContext.getProcess(), swimlaneDefinition);
+        CurrentSwimlane swimlane = swimlaneDao.findOrCreate(executionContext.getCurrentProcess(), swimlaneDefinition);
         return AssignmentHelper.assign(executionContext, swimlane, executors);
     }
 

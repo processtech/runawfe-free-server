@@ -1,7 +1,7 @@
 package ru.runa.wfe.extension.handler.task;
 
-import com.google.common.collect.Lists;
-import java.util.List;
+import java.util.ArrayList;
+import lombok.val;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.handler.ParamBasedHandlerActionHandler;
@@ -18,14 +18,10 @@ public class EndAsyncTasksHandler extends ParamBasedHandlerActionHandler {
         if (!taskNode.isAsync()) {
             throw new IllegalArgumentException("This handler can end only async tasks");
         }
-        List<Task> tasks = Lists.newArrayList();
-        for (Task task : ApplicationContextFactory.getTaskDao().findByProcessAndNodeId(context.getProcess(), nodeId)) {
-            tasks.add(task);
-        }
+        val tasks = new ArrayList<Task>(ApplicationContextFactory.getTaskDao().findByProcessAndNodeId(context.getCurrentProcess(), nodeId));
         log.info("Cancelling tasks by '" + nodeId + "': " + tasks);
         for (Task task : tasks) {
             task.end(context, taskNode, TaskCompletionInfo.createForHandler(nodeId));
         }
     }
-
 }

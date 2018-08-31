@@ -1,11 +1,9 @@
 package ru.runa.wfe.lang;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
-
 import ru.runa.wfe.audit.CurrentNodeEnterLog;
 import ru.runa.wfe.execution.ExecutionContext;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Used for embedded subprocess merging.
@@ -37,7 +35,7 @@ public class EmbeddedSubprocessStartNode extends StartNode implements BoundaryEv
     @Override
     public void enter(ExecutionContext executionContext) {
         Preconditions.checkNotNull(subprocessNode, "subprocessNode");
-        executionContext.getToken().setNodeId(subprocessNode.getNodeId());
+        executionContext.getCurrentToken().setNodeId(subprocessNode.getNodeId());
         executionContext.addLog(new CurrentNodeEnterLog(subprocessNode));
         super.enter(executionContext);
     }

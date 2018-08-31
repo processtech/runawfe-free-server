@@ -67,13 +67,12 @@ public class CatchEventNode extends BaseMessageNode implements BoundaryEventCont
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().setMessageSelector(Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), this));
+        executionContext.getCurrentToken().setMessageSelector(Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), this));
     }
 
     @Override
     public void leave(ExecutionContext executionContext, Transition transition) {
         super.leave(executionContext, transition);
-        executionContext.getToken().setMessageSelector(null);
+        executionContext.getCurrentToken().setMessageSelector(null);
     }
-
 }

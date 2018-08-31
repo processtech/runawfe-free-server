@@ -47,9 +47,7 @@ public class CurrentByteArrayVariable extends CurrentVariable<byte[]> {
 
     @Override
     public boolean supports(Object value) {
-        if (super.supports(value)) {
-            return true;
-        }
-        return value instanceof byte[];
+        // ATTENTION! Same logic in ArchivedByteArrayVariable.
+        return super.supports(value) || value instanceof byte[];
     }
 }

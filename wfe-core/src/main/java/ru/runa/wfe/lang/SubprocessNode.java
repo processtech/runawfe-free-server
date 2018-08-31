@@ -171,7 +171,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
             return;
         }
         if (getClass() == SubprocessNode.class) {
-            CurrentProcess subProcess = subExecutionContext.getProcess();
+            CurrentProcess subProcess = subExecutionContext.getCurrentProcess();
             ExecutionContext executionContext = getParentExecutionContext(subExecutionContext);
             for (VariableMapping variableMapping : variableMappings) {
                 // if this variable access is writable
@@ -187,7 +187,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                     }
                 }
             }
-            executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getToken(), subProcess));
+            executionContext.addLog(new CurrentSubprocessEndLog(this, executionContext.getCurrentToken(), subProcess));
             super.leave(executionContext, transition);
         } else {
             super.leave(subExecutionContext, transition);

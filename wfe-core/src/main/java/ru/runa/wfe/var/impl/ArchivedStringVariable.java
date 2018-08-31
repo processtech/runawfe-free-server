@@ -39,4 +39,10 @@ public class ArchivedStringVariable extends ArchivedVariable<String> {
     @Override
     protected void setStorableValue(String object) {
     }
+
+    @Override
+    public boolean supports(Object value) {
+        // ATTENTION! Same logic in CurrentStringVariable.
+        return super.supports(value) || value instanceof String && ((String) value).length() <= getMaxStringSize();
+    }
 }

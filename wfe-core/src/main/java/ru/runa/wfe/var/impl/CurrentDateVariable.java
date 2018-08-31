@@ -48,14 +48,13 @@ public class CurrentDateVariable extends CurrentVariable<Date> {
 
     @Override
     public boolean supports(Object value) {
-        if (super.supports(value)) {
-            return true;
-        }
-        return value instanceof Date;
+        // ATTENTION! Same logic in ArchivedDateVariable.
+        return super.supports(value) || value instanceof Date;
     }
 
     @Override
     public String toString(Object value, VariableDefinition variableDefinition) {
+        // ATTENTION! Same logic in ArchivedDateVariable.
         return variableDefinition.getFormatNotNull().format(value);
     }
 }

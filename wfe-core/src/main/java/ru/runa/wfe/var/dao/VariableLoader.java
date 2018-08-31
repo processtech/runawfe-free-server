@@ -8,7 +8,7 @@ import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
 /**
- * Supports variable loading via {@link CurrentVariableDao} and converting to {@link WfVariable}.
+ * Supports variable loading via {@link VariableDao} and converting to {@link WfVariable}.
  */
 public interface VariableLoader {
 

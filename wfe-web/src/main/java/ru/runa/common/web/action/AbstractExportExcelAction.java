@@ -167,6 +167,5 @@ public abstract class AbstractExportExcelAction<T> extends ActionBase {
         public boolean isAllowed(Permission permission, SecuredObjectExtractor extractor) {
             return false;
         }
-
     }
 }

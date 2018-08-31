@@ -52,8 +52,7 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
     public TD build(Object object, Env env) {
         WfTask task = (WfTask) object;
         Long processId = task.getProcessId();
-        ConcreteElement link = new StringElement(processId.toString());
-        boolean isAllowed = false;
+        boolean isAllowed;
         try {
             isAllowed = env.isAllowed(Permission.LIST, new SecuredObjectExtractor() {
                 private static final long serialVersionUID = 1L;
@@ -67,8 +66,10 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
 
             });
         } catch (Exception e) {
-            // Do nothing.
+            isAllowed = false;
         }
+
+        ConcreteElement link = new StringElement(processId.toString());
         if (isAllowed) {
             Map<String, Object> params = Maps.newHashMap();
             if (task.getProcessId() == null) {
@@ -81,6 +82,7 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
             String url = Commons.getActionUrl(ShowGraphModeHelper.getManageProcessAction(), params, env.getPageContext(), PortletUrlType.Render);
             link = new A(url, link);
         }
+
         TD td = new TD(link);
         td.setClass(ru.runa.common.web.Resources.CLASS_LIST_TABLE_TD);
         return td;

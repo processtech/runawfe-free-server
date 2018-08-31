@@ -41,4 +41,10 @@ public class ArchivedLongVariable extends ArchivedVariable<Long> {
     protected void setStorableValue(Long object) {
         this.object = object;
     }
+
+    @Override
+    public boolean supports(Object value) {
+        // ATTENTION! Same logic in CurrentLongVariable.
+        return super.supports(value) || value instanceof Long;
+    }
 }

@@ -42,10 +42,7 @@ public class CurrentStringVariable extends CurrentVariable<String> {
 
     @Override
     public boolean supports(Object value) {
-        if (super.supports(value)) {
-            return true;
-        }
-        return value instanceof String && ((String) value).length() <= getMaxStringSize();
+        // ATTENTION! Same logic in ArchivedStringVariable.
+        return super.supports(value) || value instanceof String && ((String) value).length() <= getMaxStringSize();
     }
-
 }

@@ -45,10 +45,7 @@ public class CurrentDoubleVariable extends CurrentVariable<Double> {
 
     @Override
     public boolean supports(Object value) {
-        if (super.supports(value)) {
-            return true;
-        }
-        return value instanceof Double;
+        // ATTENTION! Same logic in ArchivedDoubleVariable.
+        return super.supports(value) || value instanceof Double;
     }
-
 }

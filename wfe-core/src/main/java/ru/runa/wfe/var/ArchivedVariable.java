@@ -17,6 +17,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import ru.runa.wfe.audit.CurrentVariableLog;
 import ru.runa.wfe.execution.ArchivedProcess;
 
 @Entity
@@ -98,5 +99,10 @@ public abstract class ArchivedVariable<V> extends BaseVariable<ArchivedProcess, 
 
     protected void setProcess(ArchivedProcess process) {
         this.process = process;
+    }
+
+    @Override
+    protected CurrentVariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition) {
+        return null;
     }
 }

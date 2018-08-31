@@ -1,14 +1,20 @@
 package ru.runa.wfe.var;
 
 import com.google.common.base.Objects;
+import java.util.Arrays;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Type;
+import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.CurrentVariableLog;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.commons.Utils;
+import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.user.Executor;
+import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 
 /**
  * Archived entities are read-lony.
@@ -87,6 +93,36 @@ public abstract class BaseVariable<P extends Process, V> {
      */
     protected abstract void setStorableValue(V object);
 
+    public CurrentVariableLog setValue(ExecutionContext executionContext, Object newValue, VariableDefinition variableDefinition) {
+        Object newStorableValue;
+        if (supports(newValue)) {
+            if (converter != null && converter.supports(newValue)) {
+                newStorableValue = converter.convert(executionContext, this, newValue);
+            } else {
+                converter = null;
+                newStorableValue = newValue;
+            }
+        } else {
+            throw new InternalApplicationException(this + " does not support new value '" + newValue + "' of '" + newValue.getClass() + "'");
+        }
+        Object oldValue = getStorableValue();
+        if (newValue == null || converter instanceof SerializableToByteArrayConverter) {
+            setStringValue(null);
+        } else {
+            setStringValue(toString(newValue, variableDefinition));
+        }
+        if (converter != null && oldValue != null) {
+            oldValue = converter.revert(oldValue);
+        }
+        setStorableValue((V) newStorableValue);
+        return getLog(oldValue, newValue, variableDefinition);
+    }
+
+    /**
+     * Null if called for ArchivedVariable (this can be only when called from VariableLogic.getProcessStateOnTime() which ignores result).
+     */
+    protected abstract CurrentVariableLog getLog(Object oldValue, Object newValue, VariableDefinition variableDefinition);
+
     @Transient
     public Object getValue() {
         Object value = getStorableValue();
@@ -94,6 +130,25 @@ public abstract class BaseVariable<P extends Process, V> {
             value = converter.revert(value);
         }
         return value;
+    }
+
+    // ATTENTION! Overrides by Current* and Archive* subclasses are the same.
+    public boolean supports(Object value) {
+        return value != null && converter != null && converter.supports(value);
+    }
+
+    // ATTENTION! Overrides by Current* and Archive* subclasses are the same.
+    public String toString(Object value, VariableDefinition variableDefinition) {
+        String string;
+        if (SystemProperties.isV3CompatibilityMode() && value != null && String[].class == value.getClass()) {
+            string = Arrays.toString((String[]) value);
+        } else if (value instanceof Executor) {
+            string = ((Executor) value).getLabel();
+        } else {
+            string = String.valueOf(value);
+        }
+        string = Utils.getCuttedString(string, getMaxStringSize());
+        return string;
     }
 
     @Override

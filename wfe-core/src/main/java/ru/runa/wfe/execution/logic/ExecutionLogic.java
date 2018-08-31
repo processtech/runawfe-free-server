@@ -487,7 +487,7 @@ public class ExecutionLogic extends WfCommonLogic {
             if (subprocessId != null) {
                 processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
             }
-            ProcessLogs processLogs = new ProcessLogs(processId);
+            val processLogs = new ProcessLogs(processId);
             processLogs.addLogs(processLogDao.get(process, processDefinition), false);
             GraphImageBuilder builder = new GraphImageBuilder(processDefinition);
             builder.setHighlightedToken(highlightedToken);

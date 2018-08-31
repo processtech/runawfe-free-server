@@ -29,11 +29,13 @@ import ru.runa.wfe.task.TaskCompletionInfo;
 
 public class TimerNode extends Node implements BoundaryEventContainer, BoundaryEvent {
     private static final long serialVersionUID = 1L;
+
     private Boolean boundaryEventInterrupting;
     private String dueDateExpression;
     private String repeatDurationString;
     private Delegation actionDelegation;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
+
     @Autowired
     private transient JobDao jobDao;
 
@@ -75,7 +77,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        TimerJob timerJob = new TimerJob(executionContext.getToken());
+        TimerJob timerJob = new TimerJob(executionContext.getCurrentToken());
         timerJob.setName(getName());
         timerJob.setDueDateExpression(dueDateExpression);
         timerJob.setDueDate(ExpressionEvaluator.evaluateDueDate(executionContext.getVariableProvider(), dueDateExpression));
@@ -112,11 +114,11 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
                 }
             }
             if (!getLeavingTransitions().isEmpty()) {
-                cancelBoundaryEvent(executionContext.getToken());
+                cancelBoundaryEvent(executionContext.getCurrentToken());
                 leave(executionContext);
             } else if (Boolean.TRUE.equals(executionContext.getTransientVariable(TimerJob.STOP_RE_EXECUTION))) {
                 log.debug("Deleting " + timerJob + " due to STOP_RE_EXECUTION");
-                cancelBoundaryEvent(executionContext.getToken());
+                cancelBoundaryEvent(executionContext.getCurrentToken());
             } else if (repeatDurationString != null) {
                 // restart timer
                 BusinessDuration repeatDuration = BusinessDurationParser.parse(repeatDurationString);
@@ -130,7 +132,7 @@ public class TimerNode extends Node implements BoundaryEventContainer, BoundaryE
                 }
             } else {
                 log.debug("Deleting " + timerJob + " after execution");
-                cancelBoundaryEvent(executionContext.getToken());
+                cancelBoundaryEvent(executionContext.getCurrentToken());
             }
             Errors.removeProcessError(processError);
         } catch (Throwable th) {

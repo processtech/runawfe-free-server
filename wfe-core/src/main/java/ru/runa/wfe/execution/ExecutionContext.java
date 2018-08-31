@@ -389,7 +389,7 @@ public class ExecutionContext {
             }
             if (value != null) {
                 if (syncVariableDefinition == null || !subprocessSyncCache.isInBaseProcessIdMode(token.getProcess())) {
-                    variable = variableCreator.create(token.getProcess(), variableDefinition, value);
+                    variable = (CurrentVariable) variableCreator.create(token.getProcess(), variableDefinition, value);
                     resultingVariableLog = variable.setValue(this, value, variableDefinition);
                     currentVariableDao.create(variable);
                 }

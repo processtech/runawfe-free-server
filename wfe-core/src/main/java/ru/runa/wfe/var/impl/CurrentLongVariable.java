@@ -45,10 +45,7 @@ public class CurrentLongVariable extends CurrentVariable<Long> {
 
     @Override
     public boolean supports(Object value) {
-        if (super.supports(value)) {
-            return true;
-        }
-        return value instanceof Long;
+        // ATTENTION! Same logic in ArchivedLongVariable.
+        return super.supports(value) || value instanceof Long;
     }
-
 }

@@ -22,7 +22,6 @@
 package ru.runa.wfe.var;
 
 import java.io.Serializable;
-
 import ru.runa.wfe.execution.ExecutionContext;
 
 /**
@@ -38,7 +37,7 @@ public interface Converter extends Serializable {
     /**
      * converts a given object to its persistable format.
      */
-    Object convert(ExecutionContext executionContext, CurrentVariable<?> variable, Object o);
+    Object convert(ExecutionContext executionContext, BaseVariable variable, Object o);
 
     /**
      * reverts a persisted object to its original form.

@@ -39,10 +39,10 @@ public class ParallelGateway extends Node {
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         ExecutionLogic executionLogic = ApplicationContextFactory.getExecutionLogic();
-        CurrentToken token = executionContext.getToken();
+        CurrentToken token = executionContext.getCurrentToken();
         executionLogic.endToken(token, executionContext.getProcessDefinition(), null, null, false);
         log.debug("Executing " + this + " with " + token);
-        StateInfo stateInfo = findStateInfo(executionContext.getProcess().getRootToken(), true);
+        StateInfo stateInfo = findStateInfo(executionContext.getCurrentProcess().getRootToken(), true);
         switch (stateInfo.state) {
         case LEAVING: {
             log.debug("marking tokens as inactive " + stateInfo.tokensToPop);
@@ -80,7 +80,7 @@ public class ParallelGateway extends Node {
     @Override
     public void leave(ExecutionContext executionContext, Transition transition) {
         log.debug("Leaving " + this + " with " + executionContext.toString());
-        CurrentToken token = executionContext.getToken();
+        CurrentToken token = executionContext.getCurrentToken();
         checkCyclicExecution(token);
         Map<CurrentToken, Transition> childTokens = Maps.newHashMap();
         for (Transition leavingTransition : getLeavingTransitions()) {

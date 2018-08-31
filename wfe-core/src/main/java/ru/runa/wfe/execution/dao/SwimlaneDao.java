@@ -7,10 +7,10 @@ import ru.runa.wfe.commons.dao.GenericDao2;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ArchivedSwimlane;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Swimlane;
-import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentException;
 import ru.runa.wfe.lang.SwimlaneDefinition;
@@ -43,7 +43,7 @@ public class SwimlaneDao extends GenericDao2<Swimlane, CurrentSwimlane, CurrentS
     }
 
     public CurrentSwimlane findOrCreateInitialized(ExecutionContext executionContext, SwimlaneDefinition swimlaneDefinition, boolean reassign) {
-        CurrentSwimlane swimlane = findOrCreate(executionContext.getProcess(), swimlaneDefinition);
+        CurrentSwimlane swimlane = findOrCreate(executionContext.getCurrentProcess(), swimlaneDefinition);
         if (reassign || swimlane.getExecutor() == null) {
             try {
                 AssignmentHandler assignmentHandler = swimlaneDefinition.getDelegation().getInstance();

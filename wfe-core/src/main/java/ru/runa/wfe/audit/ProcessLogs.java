@@ -2,8 +2,8 @@ package ru.runa.wfe.audit;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
+import lombok.val;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.SafeIndefiniteLoop;
 import ru.runa.wfe.lang.NodeType;
@@ -19,9 +20,9 @@ import ru.runa.wfe.lang.NodeType;
 public class ProcessLogs implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final List<BaseProcessLog> logs = Lists.newArrayList();
+    private final List<BaseProcessLog> logs = new ArrayList<>();
     @XmlTransient
-    private final HashMap<Long, Long> subprocessToProcessIds = Maps.newHashMap();
+    private final HashMap<Long, Long> subprocessToProcessIds = new HashMap<>();
 
     public ProcessLogs() {
     }
@@ -44,8 +45,8 @@ public class ProcessLogs implements Serializable {
     }
 
     public int getMaxSubprocessLevel() {
-        final Map<Long, Long> tmpIds = Maps.newHashMap(subprocessToProcessIds);
-        final Map<Long, Integer> levels = Maps.newHashMap();
+        val tmpIds = new HashMap<Long, Long>(subprocessToProcessIds);
+        val levels = new HashMap<Long, Integer>();
         new SafeIndefiniteLoop(100) {
 
             @Override
@@ -83,7 +84,7 @@ public class ProcessLogs implements Serializable {
     }
 
     public List<Long> getSubprocessIds(BaseProcessLog processLog) {
-        List<Long> result = Lists.newArrayList();
+        val result = new ArrayList<Long>();
         Long processId = processLog.getProcessId();
         while (subprocessToProcessIds.get(processId) != null) {
             result.add(processId);
@@ -116,7 +117,7 @@ public class ProcessLogs implements Serializable {
     }
 
     public <T extends ProcessLog> List<T> getLogs(Class<T> logClass) {
-        List<T> list = Lists.newArrayList();
+        val list = new ArrayList<T>();
         for (ProcessLog log : logs) {
             if (logClass.isAssignableFrom(log.getClass())) {
                 list.add((T) log);
@@ -126,7 +127,7 @@ public class ProcessLogs implements Serializable {
     }
 
     public List<BaseProcessLog> getLogs(String nodeId) {
-        List<BaseProcessLog> list = Lists.newArrayList();
+        val list = new ArrayList<BaseProcessLog>();
         for (BaseProcessLog log : logs) {
             if (Objects.equal(log.getNodeId(), nodeId)) {
                 list.add(log);
@@ -136,19 +137,19 @@ public class ProcessLogs implements Serializable {
     }
 
     public Map<TaskCreateLog, TaskEndLog> getTaskLogs() {
-        Map<String, TaskCreateLog> tmpByTaskName = Maps.newHashMap();
-        Map<Long, TaskCreateLog> tmpByTaskId = Maps.newHashMap();
-        Map<TaskCreateLog, TaskEndLog> result = Maps.newHashMap();
+        val tmpByTaskName = new HashMap<String, TaskCreateLog>();
+        val tmpByTaskId = new HashMap<Long, TaskCreateLog>();
+        val result = new HashMap<TaskCreateLog, TaskEndLog>();
         boolean compatibilityMode = false;
         for (BaseProcessLog log : logs) {
             if (log instanceof TaskCreateLog) {
-                TaskCreateLog taskCreateLog = (TaskCreateLog) log;
+                val taskCreateLog = (TaskCreateLog) log;
                 String key = log.getProcessId() + taskCreateLog.getTaskName();
                 tmpByTaskName.put(key, taskCreateLog);
                 tmpByTaskId.put(taskCreateLog.getTaskId(), taskCreateLog);
             }
             if (log instanceof TaskEndLog) {
-                TaskEndLog taskEndLog = (TaskEndLog) log;
+                val taskEndLog = (TaskEndLog) log;
                 TaskCreateLog taskCreateLog;
                 if (taskEndLog.getTaskId() != null && tmpByTaskId.containsKey(taskEndLog.getTaskId())) {
                     taskCreateLog = tmpByTaskId.remove(taskEndLog.getTaskId());

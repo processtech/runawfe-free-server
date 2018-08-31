@@ -21,6 +21,8 @@
  */
 package ru.runa.wfe.definition.par;
 
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.Deployment;
@@ -38,32 +39,26 @@ import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.ByteStreams;
-
 public class ProcessArchive {
-    private final Deployment deployment;
-    public static final List<String> UNSECURED_FILE_NAMES = Lists.newArrayList();
-    static {
-        UNSECURED_FILE_NAMES.add(FileDataProvider.START_IMAGE_FILE_NAME);
-        UNSECURED_FILE_NAMES.add(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
-        UNSECURED_FILE_NAMES.add(FileDataProvider.BOTS_XML_FILE);
-    }
+    public static final List<String> UNSECURED_FILE_NAMES = new ArrayList<String>() {{
+        add(FileDataProvider.START_IMAGE_FILE_NAME);
+        add(FileDataProvider.START_DISABLED_IMAGE_FILE_NAME);
+        add(FileDataProvider.BOTS_XML_FILE);
+    }};
 
-    static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<ProcessArchiveParser>();
-    static {
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new FileArchiveParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new ProcessDefinitionParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new VariableDefinitionParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new InteractionsParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new TaskSubsitutionParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new GraphXmlParser()));
-        processArchiveParsers.add(ApplicationContextFactory.autowireBean(new CommentsParser()));
-    }
+    static List<ProcessArchiveParser> processArchiveParsers = new ArrayList<ProcessArchiveParser>() {{
+        add(ApplicationContextFactory.autowireBean(new FileArchiveParser()));
+        add(ApplicationContextFactory.autowireBean(new ProcessDefinitionParser()));
+        add(ApplicationContextFactory.autowireBean(new VariableDefinitionParser()));
+        add(ApplicationContextFactory.autowireBean(new InteractionsParser()));
+        add(ApplicationContextFactory.autowireBean(new TaskSubsitutionParser()));
+        add(ApplicationContextFactory.autowireBean(new GraphXmlParser()));
+        add(ApplicationContextFactory.autowireBean(new CommentsParser()));
+    }};
     private static final Pattern SUBPROCESS_DEFINITION_PATTERN = Pattern.compile(FileDataProvider.SUBPROCESS_DEFINITION_PREFIX + "(\\d*)."
             + FileDataProvider.PROCESSDEFINITION_XML_FILE_NAME);
 
+    private final Deployment deployment;
     private final Map<String, byte[]> fileData = Maps.newHashMap();
 
     public ProcessArchive(Deployment deployment) {
