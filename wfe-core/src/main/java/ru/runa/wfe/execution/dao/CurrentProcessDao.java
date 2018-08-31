@@ -40,10 +40,7 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
         return queryFactory.selectFrom(p).where(p.deployment.id.eq(definitionId)).orderBy(p.startDate.desc()).fetch();
     }
 
-    public List<CurrentProcess> find(List<Long> ids) {
-        if (ids.isEmpty()) {
-            return new ArrayList<>();
-        }
+    List<CurrentProcess> findImpl(List<Long> ids) {
         val p = QCurrentProcess.currentProcess;
         return queryFactory.selectFrom(p).where(p.id.in(ids)).fetch();
     }

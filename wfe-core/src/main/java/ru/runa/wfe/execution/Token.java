@@ -15,6 +15,8 @@ import ru.runa.wfe.lang.ProcessDefinition;
 
 /**
  * No setters here and in ArchivedToken subclass since the latter is read-only; only CurrentToken subclass is mutable and thus has setters.
+ *
+ * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
 @MappedSuperclass
 @Access(AccessType.FIELD)

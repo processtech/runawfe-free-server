@@ -19,8 +19,11 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 
 /**
  * Archived entities are read-lony.
+ * <p>
  * But to avoid (at least for now) problems with field-based access in complex entity hierarchies, Archived* entity setters are defined private,
  * or protected if inherited (I defined abstract setters in this class just in case, because Hibernate requires both getters and setters).
+ *
+ * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
 @MappedSuperclass
 public abstract class BaseProcessLog implements ProcessLog {

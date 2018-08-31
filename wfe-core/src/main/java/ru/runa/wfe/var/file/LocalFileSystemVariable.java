@@ -28,7 +28,7 @@ public class LocalFileSystemVariable implements FileVariable {
         name = fileVariable.getName();
         contentType = fileVariable.getContentType();
         long version = variable.getVersion() != null ? variable.getVersion() + 1 : 0;
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         for (char ch : variableName.toCharArray()) {
             if (Character.isLetterOrDigit(ch)) {
                 b.append(ch);

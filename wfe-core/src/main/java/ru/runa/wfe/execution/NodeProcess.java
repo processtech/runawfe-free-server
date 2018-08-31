@@ -7,6 +7,11 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 
+/**
+ * No setters here and in ArchivedNodeProcess subclass since the latter is read-only; only Current* subclass is mutable and thus has setters.
+ *
+ * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
+ */
 @MappedSuperclass
 @Access(AccessType.FIELD)
 public abstract class NodeProcess<P extends Process, T extends Token<P, T>> {

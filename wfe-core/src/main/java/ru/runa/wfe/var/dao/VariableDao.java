@@ -60,6 +60,12 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
         return result;
     }
 
+    public Map<Process, Map<String, BaseVariable>> getVariables(List<? extends Process> processes) {
+        return Utils.isNullOrEmpty(processes)
+                ? new HashMap<>()
+                : getVariablesImpl(processes, null);
+    }
+
     /**
      * Load variables with given names for given processes.
      *
@@ -71,10 +77,12 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
      *         still contains variable name as key, but it value is null (Result is filled completely for all processes and variable names).
      */
     public Map<Process, Map<String, BaseVariable>> getVariables(List<? extends Process> processes, List<String> variableNames) {
-        if (Utils.isNullOrEmpty(processes) || Utils.isNullOrEmpty(variableNames)) {
-            return null;
-        }
+        return Utils.isNullOrEmpty(processes) || Utils.isNullOrEmpty(variableNames)
+                ? null
+                : getVariablesImpl(processes, variableNames);
+    }
 
+    private Map<Process, Map<String, BaseVariable>> getVariablesImpl(List<? extends Process> processes, List<String> variableNamesOrNull) {
         val result = new HashMap<Process, Map<String, BaseVariable>>();
         val currentProcesses = new ArrayList<CurrentProcess>(processes.size());
         val archivedProcesses = new ArrayList<ArchivedProcess>(processes.size());
@@ -86,22 +94,24 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
             }
             val vars = new HashMap<String, BaseVariable>();
             result.put(p, vars);
-            for (String name : variableNames) {
-                vars.put(name, null);
+            if (variableNamesOrNull != null) {
+                for (String name : variableNamesOrNull) {
+                    vars.put(name, null);
+                }
             }
         }
 
         int databaseParametersCount = SystemProperties.getDatabaseParametersCount();
         if (!currentProcesses.isEmpty()) {
             for (val pp : Lists.partition(currentProcesses, databaseParametersCount)) {
-                for (val v : dao1.getVariablesImpl(pp, variableNames)) {
+                for (val v : dao1.getVariablesImpl(pp, variableNamesOrNull)) {
                     result.get(v.getProcess()).put(v.getName(), v);
                 }
             }
         }
         if (!archivedProcesses.isEmpty()) {
             for (val pp : Lists.partition(archivedProcesses, databaseParametersCount)) {
-                for (val v : dao2.getVariablesImpl(pp, variableNames)) {
+                for (val v : dao2.getVariablesImpl(pp, variableNamesOrNull)) {
                     result.get(v.getProcess()).put(v.getName(), v);
                 }
             }

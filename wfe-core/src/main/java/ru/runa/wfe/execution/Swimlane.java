@@ -11,6 +11,8 @@ import ru.runa.wfe.user.Executor;
 
 /**
  * No setters here and in ArchivedSwimlane subclass since the latter is read-only; only CurrentSwimlane subclass is mutable and thus has setters.
+ *
+ * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
 @MappedSuperclass
 @Access(AccessType.FIELD)

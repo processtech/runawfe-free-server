@@ -47,6 +47,9 @@ public class WfeInterceptor extends EmptyInterceptor {
             boolean fixOracleStrings
     ) {
         // Archive immutability support:
+        // NOTE: This check is mandatory, because some archived entity classes HAVE public setters.
+        //       E.g. variables, since VariableLogic.getProcessStateOnTime() creates temporary fake variables which are then proxied.
+        //       Also, a reflection potentially can be used to make archived variable dirty.
         if (entity instanceof ArchivedNodeProcess ||
                 entity instanceof ArchivedProcess ||
                 entity instanceof ArchivedProcessLog ||

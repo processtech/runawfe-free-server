@@ -80,7 +80,7 @@ public abstract class ArchivedVariable<V> extends BaseVariable<ArchivedProcess, 
         return name;
     }
 
-    private void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
@@ -96,7 +96,7 @@ public abstract class ArchivedVariable<V> extends BaseVariable<ArchivedProcess, 
         return process;
     }
 
-    private void setProcess(ArchivedProcess process) {
+    protected void setProcess(ArchivedProcess process) {
         this.process = process;
     }
 }

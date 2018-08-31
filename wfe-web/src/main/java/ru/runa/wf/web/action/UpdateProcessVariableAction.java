@@ -38,7 +38,7 @@ public class UpdateProcessVariableAction extends ActionBase {
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         User user = Commons.getUser(request.getSession());
         Long processId = Long.valueOf(request.getParameter("id"));
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put(ProcessForm.ID_INPUT_NAME, processId);
         try {
             String variableName = request.getParameter("variableSelect");
@@ -54,7 +54,7 @@ public class UpdateProcessVariableAction extends ActionBase {
             if (variableValue instanceof UserTypeMap && variable.getValue() instanceof UserTypeMap) {
                 map = getValues(variableName, (UserTypeMap) variable.getValue(), (UserTypeMap) variableValue);
             } else {
-                map = new HashMap<String, Object>();
+                map = new HashMap<>();
                 map.put(variableName, variableValue);
             }
             Delegates.getExecutionService().updateVariables(user, processId, map);
@@ -77,6 +77,7 @@ public class UpdateProcessVariableAction extends ActionBase {
         return variableMap;
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     private boolean isDefaultValue(Object value) {
         if (value == null) {
             return true;

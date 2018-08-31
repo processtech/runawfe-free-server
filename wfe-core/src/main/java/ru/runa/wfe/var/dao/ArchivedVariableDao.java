@@ -25,8 +25,12 @@ public class ArchivedVariableDao extends ReadOnlyGenericDao<ArchivedVariable> {
         return queryFactory.selectFrom(v).where(v.process.eq(process)).fetch();
     }
 
-    List<ArchivedVariable<?>> getVariablesImpl(List<ArchivedProcess> processesPart, List<String> variableNames) {
+    List<ArchivedVariable<?>> getVariablesImpl(List<ArchivedProcess> processesPart, List<String> variableNamesOrNull) {
         val v = QArchivedVariable.archivedVariable;
-        return queryFactory.selectFrom(v).where(v.process.in(processesPart).and(v.name.in(variableNames))).fetch();
+        val q = queryFactory.selectFrom(v).where(v.process.in(processesPart));
+        if (variableNamesOrNull != null) {
+            q.where(v.name.in(variableNamesOrNull));
+        }
+        return q.fetch();
     }
 }

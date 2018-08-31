@@ -53,9 +53,13 @@ public class CurrentVariableDao extends GenericDao<CurrentVariable> {
         return result;
     }
 
-    List<CurrentVariable<?>> getVariablesImpl(List<CurrentProcess> processesPart, List<String> variableNames) {
+    List<CurrentVariable<?>> getVariablesImpl(List<CurrentProcess> processesPart, List<String> variableNamesOrNull) {
         val v = QCurrentVariable.currentVariable;
-        return queryFactory.selectFrom(v).where(v.process.in(processesPart).and(v.name.in(variableNames))).fetch();
+        val q = queryFactory.selectFrom(v).where(v.process.in(processesPart));
+        if (variableNamesOrNull != null) {
+            q.where(v.name.in(variableNamesOrNull));
+        }
+        return q.fetch();
     }
 
     public void deleteAll(CurrentProcess process) {

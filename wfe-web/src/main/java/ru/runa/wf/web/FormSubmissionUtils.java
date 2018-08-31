@@ -82,8 +82,7 @@ public class FormSubmissionUtils {
         getUserInputFiles(request).clear();
     }
 
-    public static Map<String, Object> getPreviousUserInputVariables(HttpServletRequest request, Interaction interaction,
-            VariableProvider variableProvider) {
+    public static Map<String, Object> getPreviousUserInputVariables(HttpServletRequest request) {
         return (Map<String, Object>) request.getAttribute(USER_DEFINED_VARIABLES);
     }
 
@@ -105,7 +104,7 @@ public class FormSubmissionUtils {
         return variables;
     }
 
-    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, VariableDefinition variableDefinition) throws Exception {
+    public static Object extractVariable(HttpServletRequest request, ActionForm actionForm, VariableDefinition variableDefinition) {
         Map<String, String> formatErrorsForFields = Maps.newHashMap();
         Map<String, Object> inputs = Maps.newHashMap(actionForm.getMultipartRequestHandler().getAllElements());
         inputs.putAll(getUserInputFiles(request, request.getParameter("id")));
@@ -120,7 +119,7 @@ public class FormSubmissionUtils {
     }
 
     private static Map<String, Object> extractVariables(HttpServletRequest request, Interaction interaction, VariableProvider variableProvider,
-            Map<String, ? extends Object> userInput, Map<String, String> errors) {
+            Map<String, ?> userInput, Map<String, String> errors) {
         try {
             User user = Commons.getUser(request.getSession());
             FormComponentExtractionModel model = new FormComponentExtractionModel(variableProvider, user, new RequestWebHelper(request));
@@ -156,8 +155,8 @@ public class FormSubmissionUtils {
         }
     }
 
-    private static Object extractVariable(HttpServletRequest request, Map<String, ? extends Object> userInput, VariableDefinition variableDefinition,
-            Map<String, String> errors) throws Exception {
+    private static Object extractVariable(HttpServletRequest request, Map<String, ?> userInput, VariableDefinition variableDefinition,
+            Map<String, String> errors) {
         VariableFormat format = FormatCommons.create(variableDefinition);
         HttpFormToVariableValue httpFormToVariableValue = new HttpFormToVariableValue(userInput, new DelegateExecutorLoader(Commons.getUser(request
                 .getSession())));

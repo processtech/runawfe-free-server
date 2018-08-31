@@ -21,7 +21,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -91,12 +91,12 @@ public class VariableLogic extends WfCommonLogic {
     private VariableCreator variableCreator;
 
     public List<WfVariable> getVariables(User user, Long processId) throws ProcessDoesNotExistException {
-        List<WfVariable> result = Lists.newArrayList();
+        val result = new ArrayList<WfVariable>();
         Process process = processDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         permissionDao.checkAllowed(user, Permission.LIST, process);
         Map<Process, Map<String, BaseVariable>> variables = variableDao.getVariables(Collections.singletonList(process));
-        ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
+        val executionContext = new ExecutionContext(processDefinition, process, variables, true);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
             if (variable != null && !Utils.isNullOrEmpty(variable.getValue())) {
@@ -107,14 +107,13 @@ public class VariableLogic extends WfCommonLogic {
     }
 
     public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) throws ProcessDoesNotExistException {
-        Map<Long, List<WfVariable>> result = Maps.newHashMap();
-        List<CurrentProcess> processes = currentProcessDao.find(processIds);
-        processes = filterSecuredObject(user, processes, Permission.LIST);
-        Map<CurrentProcess, Map<String, CurrentVariable<?>>> variables = currentVariableDao.getVariables(processes);
-        for (CurrentProcess process : processes) {
-            List<WfVariable> list = Lists.newArrayList();
+        val result = new HashMap<Long, List<WfVariable>>();
+        List<Process> processes = filterSecuredObject(user, processDao.find(processIds), Permission.LIST);
+        Map<Process, Map<String, BaseVariable>> variables = variableDao.getVariables(processes);
+        for (Process process : processes) {
+            val list = new ArrayList<WfVariable>();
             ProcessDefinition processDefinition = getDefinition(process);
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, true);
+            val executionContext = new ExecutionContext(processDefinition, process, variables, true);
             for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
                 WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
                 if (variable != null && !Utils.isNullOrEmpty(variable.getValue())) {
@@ -182,12 +181,12 @@ public class VariableLogic extends WfCommonLogic {
         Calendar dateFrom = CalendarUtil.dateToCalendar(taskCompletePressedDate != null ? taskCompletePressedDate : taskEndDate);
         dateFrom.add(Calendar.MILLISECOND, -100);
         filter.setCreateDateFrom(dateFrom.getTime());
-        WfVariableHistoryState completeTaskState = getHistoricalVariableOnRange(user, filter);
-        return completeTaskState;
+        return getHistoricalVariableOnRange(user, filter);
     }
 
+    // TODO check Permission.LIST on process (but this method is also called from other places).
     public WfVariable getVariable(User user, Long processId, String variableName) throws ProcessDoesNotExistException {
-        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         return executionContext.getVariable(variableName, true);
@@ -198,7 +197,7 @@ public class VariableLogic extends WfCommonLogic {
         if (task.getIndex() == null) {
             return getVariable(user, processId, variableName);
         }
-        CurrentProcess process = currentProcessDao.getNotNull(processId);
+        Process process = processDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         MultiTaskNode node = (MultiTaskNode) processDefinition.getNodeNotNull(task.getNodeId());
         for (VariableMapping mapping : node.getVariableMappings()) {
@@ -218,8 +217,7 @@ public class VariableLogic extends WfCommonLogic {
 
     public void updateVariables(User user, Long processId, Map<String, Object> variables) {
         CurrentProcess process = currentProcessDao.getNotNull(processId);
-        // TODO check ProcessPermission.UPDATE
-        permissionDao.checkAllowed(user, Permission.LIST, process);
+        permissionDao.checkAllowed(user, Permission.UPDATE, process);
         ProcessDefinition processDefinition = getDefinition(process);
         ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
         processLogDao.addLog(new CurrentAdminActionLog(user.getActor(), CurrentAdminActionLog.ACTION_UPDATE_VARIABLES), process, null);
@@ -227,9 +225,9 @@ public class VariableLogic extends WfCommonLogic {
     }
 
     private WfVariableHistoryState getHistoricalVariableOnRange(User user, ProcessLogFilter filter) {
-        HashSet<String> simpleVariablesChanged = Sets.<String> newHashSet();
+        val simpleVariablesChanged = new HashSet<String>();
         // Next call is for filling simpleVariablesChanged structure.
-        loadSimpleVariablesState(user, currentProcessDao.getNotNull(filter.getProcessId()), filter, simpleVariablesChanged);
+        loadSimpleVariablesState(user, processDao.getNotNull(filter.getProcessId()), filter, simpleVariablesChanged);
         Date dateFrom = filter.getCreateDateFrom();
         filter.setCreateDateFrom(null);
         WfVariableHistoryState toState = getHistoricalVariableOnDate(user, filter);
@@ -239,10 +237,10 @@ public class VariableLogic extends WfCommonLogic {
     }
 
     private WfVariableHistoryState getHistoricalVariableOnDate(User user, ProcessLogFilter filter) {
-        List<WfVariable> result = Lists.newArrayList();
-        CurrentProcess process = currentProcessDao.getNotNull(filter.getProcessId());
+        val result = new ArrayList<WfVariable>();
+        Process process = processDao.getNotNull(filter.getProcessId());
         permissionDao.checkAllowed(user, Permission.LIST, process);
-        Set<String> simpleVariablesChanged = Sets.newHashSet();
+        val simpleVariablesChanged = new HashSet<String>();
         Map<Process, Map<String, BaseVariable>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
         VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
         ProcessDefinition processDefinition = getDefinition(process);
@@ -270,11 +268,11 @@ public class VariableLogic extends WfCommonLogic {
      * @param baseProcessVariableLoader
      *            Component for loading variables with base process variable state support.
      */
-    private void removeSyncVariablesInBaseProcessMode(Map<CurrentProcess, Map<String, CurrentVariable<?>>> processStateOnTime,
+    private void removeSyncVariablesInBaseProcessMode(Map<Process, Map<String, BaseVariable>> processStateOnTime,
             BaseProcessVariableLoader baseProcessVariableLoader) {
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
-        for (Map.Entry<CurrentProcess, Map<String, CurrentVariable<?>>> entry : processStateOnTime.entrySet()) {
-            final CurrentProcess process = entry.getKey();
+        for (val entry : processStateOnTime.entrySet()) {
+            Process process = entry.getKey();
             if (!baseProcessVariableLoader.getSubprocessSyncCache().isInBaseProcessIdMode(process)) {
                 continue;
             }

@@ -12,6 +12,8 @@ import ru.runa.wfe.security.SecuredObjectType;
 
 /**
  * No setters here and in ArchivedProcess subclass since the latter is read-only; only CurrentProcess subclass is mutable and thus has setters.
+ *
+ * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
 @MappedSuperclass
 @Access(AccessType.FIELD)

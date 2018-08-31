@@ -8,8 +8,10 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
+import ru.runa.wfe.var.impl.ArchivedByteArrayVariable;
+import ru.runa.wfe.var.impl.ArchivedNullVariable;
 import ru.runa.wfe.var.impl.CurrentByteArrayVariable;
 import ru.runa.wfe.var.impl.CurrentNullVariable;
 
@@ -33,15 +35,16 @@ public class VariableCreator {
      *            initial value
      * @return variable
      */
-    private CurrentVariable<?> create(Object value) {
+    private BaseVariable create(Object value, boolean isArchive) {
         for (VariableType type : types) {
             if (type.getMatcher().matches(value)) {
+                Class<? extends BaseVariable> variableClass = type.getVariableClass(isArchive);
                 try {
-                    CurrentVariable<?> variable = type.getVariableClass().newInstance();
+                    BaseVariable variable = variableClass.newInstance();
                     variable.setConverter(type.getConverter());
                     return variable;
                 } catch (Exception e) {
-                    throw new InternalApplicationException("Unable to create variable " + type.getVariableClass(), e);
+                    throw new InternalApplicationException("Unable to create variable " + variableClass, e);
                 }
             }
         }
@@ -55,24 +58,24 @@ public class VariableCreator {
      *            initial value
      * @return variable
      */
-    public CurrentVariable<?> create(CurrentProcess process, VariableDefinition variableDefinition, Object value) {
+    public BaseVariable create(Process process, VariableDefinition variableDefinition, Object value) {
         log.debug("Creating variable '" + variableDefinition.getName() + "' in " + process + " with value '" + value + "'"
                 + (value != null ? " of " + value.getClass() : ""));
-        CurrentVariable<?> variable;
+        boolean isArchive = process.isArchive();
+        BaseVariable variable;
         if (value == null) {
-            variable = new CurrentNullVariable();
+            variable = isArchive ? new ArchivedNullVariable() : new CurrentNullVariable();
         } else if (variableDefinition.getStoreType() == VariableStoreType.BLOB) {
             log.debug("Using blob storage");
             Preconditions.checkArgument(value instanceof Serializable, "Do not use blob storage on non-serializable value");
-            variable = new CurrentByteArrayVariable();
+            variable = isArchive ? new ArchivedByteArrayVariable() : new CurrentByteArrayVariable();
             variable.setConverter(serializableToByteArrayConverter);
         } else {
-            variable = create(value);
+            variable = create(value, isArchive);
         }
         variable.setName(variableDefinition.getName());
         variable.setProcess(process);
         variable.setCreateDate(new Date());
         return variable;
     }
-
 }

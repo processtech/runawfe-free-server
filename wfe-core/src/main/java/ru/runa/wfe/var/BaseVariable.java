@@ -7,12 +7,19 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Type;
 import ru.runa.wfe.commons.SystemProperties;
+import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
 
 /**
  * Archived entities are read-lony.
+ * <p>
  * But to avoid (at least for now) problems with field-based access in complex entity hierarchies, Archived* entity setters are defined private,
  * or protected if inherited (I defined abstract setters in this class just in case, because Hibernate requires both getters and setters).
+ * <p>
+ * UPD: VariableLogic.getProcessStateOnTime() creates temporary fake variables which are then proxied;
+ * it uses VariableCreator which can access protected setters. Immutability of archive variables is enforced by WfeInterceptor.
+ *
+ * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
 @MappedSuperclass
 public abstract class BaseVariable<P extends Process, V> {
@@ -34,9 +41,11 @@ public abstract class BaseVariable<P extends Process, V> {
 
     @Transient
     public abstract String getName();
+    protected abstract void setName(String name);
 
     @Transient
     public abstract P getProcess();
+    protected abstract void setProcess(P process);
 
     @Column(name = "VERSION")
     public Long getVersion() {
