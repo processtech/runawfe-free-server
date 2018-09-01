@@ -90,6 +90,15 @@ public class AuthorizationServiceDelegate extends Ejb3Delegate implements Author
     }
 
     @Override
+    public boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
+        try {
+            return getAuthorizationService().isAllowed(user, permission, type, ids);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectTypes) {
         try {
             return getAuthorizationService().isAllowedForAny(user, permission, securedObjectTypes);

@@ -95,8 +95,20 @@ public class AuthorizationServiceBean implements AuthorizationServiceLocal, Auth
     @WebMethod(exclude = true)
     @Override
     public <T extends SecuredObject> boolean[] isAllowed(@NonNull User user, @NonNull Permission permission, @NonNull List<T> securedObjects) {
-        Preconditions.checkArgument(!securedObjects.contains(null), "identifiables element");
+        Preconditions.checkArgument(!securedObjects.contains(null), "securedObjects element");
         return authorizationLogic.isAllowed(user, permission, securedObjects);
+    }
+
+    @WebMethod(exclude = true)
+    @Override
+    public boolean[] isAllowed(
+            @NonNull User user,
+            @NonNull Permission permission,
+            @NonNull SecuredObjectType type,
+            @NonNull List<Long> ids
+    ) {
+        Preconditions.checkArgument(!ids.contains(null), "ids element");
+        return authorizationLogic.isAllowed(user, permission, type, ids);
     }
 
     @WebMethod(exclude = true)

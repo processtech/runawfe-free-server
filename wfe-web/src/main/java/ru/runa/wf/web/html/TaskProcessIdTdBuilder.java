@@ -34,6 +34,7 @@ import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.dto.WfTask;
 
 /**
@@ -58,12 +59,19 @@ public class TaskProcessIdTdBuilder implements TdBuilder, Serializable {
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                public SecuredObject getSecuredObject(final Object o, final Env env) {
-                    CurrentProcess securedObject = new CurrentProcess();
-                    securedObject.setId(((WfTask) o).getProcessId());
-                    return securedObject;
+                public SecuredObject getSecuredObject(Object o, Env env) {
+                    throw new IllegalAccessError();
                 }
 
+                @Override
+                public SecuredObjectType getSecuredObjectType(Object o, Env env) {
+                    return SecuredObjectType.PROCESS;
+                }
+
+                @Override
+                public Long getSecuredObjectId(Object o, Env env) {
+                    return ((WfTask) o).getProcessId();
+                }
             });
         } catch (Exception e) {
             isAllowed = false;

@@ -17,6 +17,7 @@
  */
 package ru.runa.common.web.html;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.jsp.PageContext;
+import lombok.val;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Entities;
@@ -53,6 +55,7 @@ import ru.runa.wfe.presentation.ClassPresentation;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
 
@@ -350,11 +353,20 @@ public class ReflectionRowBuilder implements RowBuilder {
                 if (extractor == null) {
                     retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, (List<SecuredObject>) getItems());
                 } else {
-                    List<SecuredObject> securedObjects = Lists.newArrayListWithExpectedSize(getItems().size());
+                    SecuredObjectType type = null;
+                    val ids = new ArrayList<Long>(getItems().size());
                     for (Object object : getItems()) {
-                        securedObjects.add(extractor.getSecuredObject(object, this));
+                        val t = extractor.getSecuredObjectType(object, this);
+                        val id = extractor.getSecuredObjectId(object, this);
+                        Preconditions.checkArgument(t != null && id != null);
+                        if (type == null) {
+                            type = t;
+                        } else {
+                            Preconditions.checkArgument(t == type);
+                        }
+                        ids.add(id);
                     }
-                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, securedObjects);
+                    retVal = Delegates.getAuthorizationService().isAllowed(getUser(), permission, type, ids);
                 }
                 allowedCache.put(permission, retVal);
             }

@@ -31,7 +31,7 @@ import ru.runa.wfe.user.Actor;
  * Creates {@link SecuredObject} to check permissions on {@link Actor}, executed
  * action.
  */
-public class ExecutorExtractor implements SecuredObjectExtractor {
+public class ExecutorExtractor extends SecuredObjectExtractor {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(ExecutorExtractor.class);
     private final Map<Long, SecuredObject> cache = new WeakHashMap<>();

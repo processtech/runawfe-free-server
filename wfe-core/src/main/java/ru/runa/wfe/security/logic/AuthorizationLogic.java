@@ -107,12 +107,16 @@ public class AuthorizationLogic extends CommonLogic {
         return permissionDao.isAllowed(user, permission, object.getSecuredObjectType(), object.getIdentifiableId());
     }
 
-    public boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId) {
-        return permissionDao.isAllowed(user, permission, securedObjectType, identifiableId);
+    public boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long identifiableId) {
+        return permissionDao.isAllowed(user, permission, type, identifiableId);
     }
 
     public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
         return permissionDao.isAllowed(user, permission, securedObjects);
+    }
+
+    public boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
+        return permissionDao.isAllowed(user, permission, type, ids);
     }
 
     public boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType) {

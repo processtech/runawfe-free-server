@@ -48,7 +48,7 @@ public interface AuthorizationService {
     /**
      * Checks whether user has permission on object.
      */
-    boolean isAllowed(User user, Permission permission, SecuredObjectType securedObjectType, Long identifiableId);
+    boolean isAllowed(User user, Permission permission, SecuredObjectType type, Long id);
 
     /**
      * Checks whether user has permission on secured objects of the same secured object type.
@@ -56,9 +56,14 @@ public interface AuthorizationService {
     <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects);
 
     /**
+     * Generally same as {@link #isAllowed(User, Permission, List)}, introduced to prevent creation of fake entities.
+     */
+    boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids);
+
+    /**
      * Checks if user has parmission on any object of specified type.
      */
-    boolean isAllowedForAny(User user, Permission permission, SecuredObjectType securedObjectType);
+    boolean isAllowedForAny(User user, Permission permission, SecuredObjectType type);
 
     /**
      * Special case to check UPDATE and/or UPDATE_SELF permissions.

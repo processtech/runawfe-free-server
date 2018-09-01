@@ -36,7 +36,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
@@ -51,9 +50,11 @@ import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.PermissionSubstitutions;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.SecuredObjectUtil;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
+import ru.runa.wfe.util.Pair;
 
 
 /**
@@ -266,14 +267,12 @@ public class PermissionDao extends CommonDao {
      *            Executor, which permission must be check.
      * @param permission
      *            Checking permission.
-     * @param securedObjects
-     *            Secured objects to check permission on.
+     * @param ids
+     *            Secured object IDs to check.
      * @return Array of: true if executor has requested permission on securedObject; false otherwise.
-     * @deprecated Use filterAllowedIds() which takes list of IDs, not of whole entities.
      */
-    @Deprecated
-    public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> securedObjects) {
-        boolean[] result = new boolean[securedObjects.size()];
+    public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, SecuredObjectType type, List<Long> ids) {
+        boolean[] result = new boolean[ids.size()];
         if (result.length == 0) {
             return result;
         }
@@ -284,7 +283,6 @@ public class PermissionDao extends CommonDao {
             return result;
         }
 
-        SecuredObjectType type = securedObjects.get(0).getSecuredObjectType();
         Set<Executor> executorWithGroups = getExecutorWithAllHisGroups(user.getActor());
         if (isPrivilegedExecutor(type, executorWithGroups)) {
             Arrays.fill(result, true);
@@ -312,11 +310,7 @@ public class PermissionDao extends CommonDao {
             int end = Math.min((i + 1) * window, result.length);
             List<Long> identifiableIds = new ArrayList<>(end - start);
             for (int j = start; j < end; j++) {
-                SecuredObject securedObject = securedObjects.get(j);
-                identifiableIds.add(securedObject.getIdentifiableId());
-                if (type != securedObject.getSecuredObjectType()) {
-                    throw new InternalApplicationException("Secured objects should be of the same secured object type (" + type + ")");
-                }
+                identifiableIds.add(ids.get(j));
             }
             if (identifiableIds.isEmpty()) {
                 break;
@@ -328,10 +322,15 @@ public class PermissionDao extends CommonDao {
                             .and(pm.permission.in(subst.selfPermissions)))
                     .fetch());
         }
-        for (int i = 0; i < securedObjects.size(); i++) {
-            result[i] = allowedIdentifiableIds.contains(securedObjects.get(i).getIdentifiableId());
+        for (int i = 0; i < ids.size(); i++) {
+            result[i] = allowedIdentifiableIds.contains(ids.get(i));
         }
         return result;
+    }
+
+    public <T extends SecuredObject> boolean[] isAllowed(User user, Permission permission, List<T> objects) {
+        Pair<SecuredObjectType, ArrayList<Long>> pair = SecuredObjectUtil.splitObjectsToTypeAndIds(objects);
+        return isAllowed(user, permission, pair.getValue1(), pair.getValue2());
     }
 
     private Set<Executor> getExecutorWithAllHisGroups(Executor executor) {
