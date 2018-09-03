@@ -2,14 +2,16 @@ package ru.runa.wfe.execution.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao2;
 import ru.runa.wfe.execution.ArchivedProcess;
-import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
+import ru.runa.wfe.user.Executor;
 
 @Component
 public class ProcessDao extends GenericDao2<Process, CurrentProcess, CurrentProcessDao, ArchivedProcess, ArchivedProcessDao> {
@@ -37,6 +39,14 @@ public class ProcessDao extends GenericDao2<Process, CurrentProcess, CurrentProc
         }
         result.addAll(dao1.findImpl(ids));
         result.addAll(dao2.findImpl(ids));
+        return result;
+    }
+
+    public Set<Long> getDependentProcessIds(Executor executor, int limit) {
+        val result = dao1.getDependentProcessIds(executor, limit);
+        if (result.size() < limit) {
+            result.addAll(dao2.getDependentProcessIds(executor, limit - result.size()));
+        }
         return result;
     }
 }

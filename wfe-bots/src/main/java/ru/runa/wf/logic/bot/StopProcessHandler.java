@@ -28,7 +28,7 @@ public class StopProcessHandler extends TaskHandlerBase implements ActionHandler
         Long processId = TypeConversionUtil.convertTo(Long.class,
                 paramsDef.getInputParamValueNotNull("processId", executionContext.getVariableProvider()));
         if (processId > 0) {
-            CurrentProcess process = ApplicationContextFactory.getProcessDao().get(processId);
+            CurrentProcess process = ApplicationContextFactory.getCurrentProcessDao().get(processId);
             ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
             ExecutionContext targetExecutionContext = new ExecutionContext(processDefinition, process);

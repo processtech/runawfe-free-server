@@ -41,7 +41,7 @@ public class EndToken extends Node {
         val executionLogic = ApplicationContextFactory.getExecutionLogic();
         executionLogic.endToken(executionContext.getCurrentToken(), executionContext.getProcessDefinition(), null, null, false);
         if (!executionContext.getProcess().hasEnded()) {
-            val tokenDao = ApplicationContextFactory.getTokenDao();
+            val tokenDao = ApplicationContextFactory.getCurrentTokenDao();
             int count = tokenDao.findByProcessAndExecutionStatusIsNotEnded(executionContext.getCurrentProcess()).size();
             if (count == 0) {
                 executionLogic.endProcess(executionContext.getCurrentProcess(), executionContext, null);

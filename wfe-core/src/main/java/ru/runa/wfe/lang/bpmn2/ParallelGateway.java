@@ -87,7 +87,7 @@ public class ParallelGateway extends Node {
             CurrentToken childToken = new CurrentToken(token, getNodeId() + "/" + leavingTransition.getNodeId());
             childTokens.put(childToken, leavingTransition);
         }
-        ApplicationContextFactory.getTokenDao().flushPendingChanges();
+        ApplicationContextFactory.getCurrentTokenDao().flushPendingChanges();
         log.debug("Child tokens created: " + childTokens.keySet());
         for (Map.Entry<CurrentToken, Transition> entry : childTokens.entrySet()) {
             ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), entry.getKey());
@@ -197,8 +197,8 @@ public class ParallelGateway extends Node {
                     @Override
                     protected void doExecuteInTransaction() throws Exception {
                         log.debug("Executing " + this);
-                        CurrentProcess process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
-                        CurrentTokenDao currentTokenDao = ApplicationContextFactory.getTokenDao();
+                        CurrentProcess process = ApplicationContextFactory.getCurrentProcessDao().getNotNull(processId);
+                        CurrentTokenDao currentTokenDao = ApplicationContextFactory.getCurrentTokenDao();
                         List<CurrentToken> endedTokens = currentTokenDao.findByProcessAndNodeIdAndExecutionStatusIsEndedAndAbleToReactivateParent(process,
                                 gateway.getNodeId());
                         if (endedTokens.isEmpty()) {
@@ -260,8 +260,8 @@ public class ParallelGateway extends Node {
                     @Override
                     protected void doExecuteInTransaction() throws Exception {
                         log.debug("Executing " + this);
-                        CurrentProcess process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
-                        CurrentTokenDao currentTokenDao = ApplicationContextFactory.getTokenDao();
+                        CurrentProcess process = ApplicationContextFactory.getCurrentProcessDao().getNotNull(processId);
+                        CurrentTokenDao currentTokenDao = ApplicationContextFactory.getCurrentTokenDao();
                         List<CurrentToken> failedTokens = currentTokenDao.findByProcessAndNodeIdAndExecutionStatusIsFailed(process, gateway.getNodeId());
                         if (failedTokens.isEmpty()) {
                             log.warn("no failed tokens found");

@@ -67,7 +67,7 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(CurrentSwimlaneDao.class);
     }
 
-    public static CurrentTokenDao getTokenDao() {
+    public static CurrentTokenDao getCurrentTokenDao() {
         return getContext().getBean(CurrentTokenDao.class);
     }
 
@@ -75,11 +75,11 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getContext().getBean(SettingDao.class);
     }
 
-    public static CurrentProcessDao getProcessDao() {
+    public static CurrentProcessDao getCurrentProcessDao() {
         return getContext().getBean(CurrentProcessDao.class);
     }
 
-    public static CurrentNodeProcessDao getNodeProcessDao() {
+    public static CurrentNodeProcessDao getCurrentNodeProcessDao() {
         return getContext().getBean(CurrentNodeProcessDao.class);
     }
 

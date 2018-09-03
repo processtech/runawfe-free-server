@@ -23,7 +23,7 @@ public class TargetProcessSetDateVariableHandler extends SetDateVariableHandler 
     @Override
     protected Map<String, Object> executeAction(VariableProvider variableProvider) throws Exception {
         Long processId = variableProvider.getValueNotNull(Long.class, ((TargetProcessSetDateVariableConfig) config).processIdVariableName);
-        CurrentProcess process = ApplicationContextFactory.getProcessDao().getNotNull(processId);
+        CurrentProcess process = ApplicationContextFactory.getCurrentProcessDao().getNotNull(processId);
         ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
         ExecutionContext context = new ExecutionContext(processDefinition, process);
         Map<String, Object> map = super.executeAction(context.getVariableProvider());

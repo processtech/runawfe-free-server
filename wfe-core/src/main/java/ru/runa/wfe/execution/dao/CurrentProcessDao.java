@@ -1,5 +1,6 @@
 package ru.runa.wfe.execution.dao;
 
+import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,13 +46,25 @@ public class CurrentProcessDao extends GenericDao<CurrentProcess> {
         return queryFactory.selectFrom(p).where(p.id.in(ids)).fetch();
     }
 
-    public Set<Long> getDependentProcessIds(Executor executor) {
-        Set<Long> processes = new HashSet<>();
+    public Set<Long> getDependentProcessIds(Executor executor, int limit) {
+        Preconditions.checkArgument(limit > 0);
         val s = QCurrentSwimlane.currentSwimlane;
-        processes.addAll(queryFactory.selectDistinct(s.process.id).from(s).where(s.executor.eq(executor)).fetch());
-        val t = QTask.task;
-        processes.addAll(queryFactory.selectDistinct(t.process.id).from(t).where(t.executor.eq(executor)).fetch());
-        return processes;
+        val result = new HashSet<Long>(queryFactory
+                .selectDistinct(s.process.id)
+                .from(s)
+                .where(s.executor.eq(executor))
+                .limit(limit)
+                .fetch());
+        if (result.size() < limit) {
+            val t = QTask.task;
+            result.addAll(queryFactory
+                    .selectDistinct(t.process.id)
+                    .from(t)
+                    .where(t.executor.eq(executor))
+                    .limit(limit - result.size())
+                    .fetch());
+        }
+        return result;
     }
 
     public List<CurrentProcess> getProcesses(final ProcessFilter filter) {

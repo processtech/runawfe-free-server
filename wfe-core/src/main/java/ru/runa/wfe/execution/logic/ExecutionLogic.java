@@ -23,6 +23,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -164,7 +165,7 @@ public class ExecutionLogic extends WfCommonLogic {
 
             @Override
             protected void doExecuteInTransaction() {
-                CurrentToken token = ApplicationContextFactory.getTokenDao().getNotNull(tokenId);
+                CurrentToken token = ApplicationContextFactory.getCurrentTokenDao().getNotNull(tokenId);
                 boolean stateChanged = failToken(token, Throwables.getRootCause(throwable));
                 if (stateChanged) {
                     token.getProcess().setExecutionStatus(ExecutionStatus.FAILED);
@@ -275,7 +276,7 @@ public class ExecutionLogic extends WfCommonLogic {
             ExecutorDao executorDao = ApplicationContextFactory.getExecutorDao();
             List<TemporaryGroup> groups = executorDao.getTemporaryGroups(process.getId());
             for (TemporaryGroup temporaryGroup : groups) {
-                if (ApplicationContextFactory.getProcessDao().getDependentProcessIds(temporaryGroup).isEmpty()) {
+                if (ApplicationContextFactory.getCurrentProcessDao().getDependentProcessIds(temporaryGroup, 1).isEmpty()) {
                     log.debug("Cleaning " + temporaryGroup);
                     executorDao.remove(temporaryGroup);
                 } else {
@@ -309,7 +310,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 }
 
                 if (!subProcess.hasEnded()) {
-                    CurrentNodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDao().findBySubProcessId(subProcess.getId());
+                    CurrentNodeProcess nodeProcess = ApplicationContextFactory.getCurrentNodeProcessDao().findBySubProcessId(subProcess.getId());
                     SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
                     if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
                         endProcess(subProcess, subExecutionContext, canceller);
@@ -382,9 +383,12 @@ public class ExecutionLogic extends WfCommonLogic {
 
     public WfProcess getParentProcess(User user, Long processId) throws ProcessDoesNotExistException {
         NodeProcess nodeProcess = nodeProcessDao.findBySubProcessId(processId);
-        return nodeProcess != null
-                ? new WfProcess(nodeProcess.getProcess())
-                : null;
+        if (nodeProcess == null) {
+            return null;
+        }
+        Process parentProcess = nodeProcess.getProcess();
+        permissionDao.checkAllowed(user, Permission.LIST, parentProcess);  // TODO Should also check permission on subprocess?
+        return new WfProcess(parentProcess);
     }
 
     public List<WfProcess> getSubprocesses(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
@@ -392,16 +396,21 @@ public class ExecutionLogic extends WfCommonLogic {
         List<? extends Process> subprocesses = recursive
                 ? nodeProcessDao.getSubprocessesRecursive(process)
                 : nodeProcessDao.getSubprocesses(process);
-        subprocesses = filterSecuredObject(user, subprocesses, Permission.LIST);
+        subprocesses = filterSecuredObject(user, subprocesses, Permission.LIST);  // TODO Should also check permission on parent process?
         return toWfProcesses(subprocesses, null);
     }
 
     public List<WfJob> getJobs(User user, Long processId, boolean recursive) throws ProcessDoesNotExistException {
-        CurrentProcess process = currentProcessDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
-        List<Job> jobs = jobDao.findByProcess(process);
+        Process p = processDao.getNotNull(processId);
+        permissionDao.checkAllowed(user, Permission.LIST, p);
+        if (p.isArchive()) {
+            return Collections.emptyList();
+        }
+
+        val cp = (CurrentProcess) p;
+        List<Job> jobs = jobDao.findByProcess(cp);
         if (recursive) {
-            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(process);
+            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(cp);
             for (CurrentProcess subProcess : subprocesses) {
                 jobs.addAll(jobDao.findByProcess(subProcess));
             }
@@ -420,13 +429,12 @@ public class ExecutionLogic extends WfCommonLogic {
         Process process = processDao.getNotNull(processId);
         permissionDao.checkAllowed(user, Permission.LIST, process);
 
-        val result = new ArrayList<WfToken>();
+        // Optimization: erroneous processes don't go to archive.
         if (toPopulateExecutionErrors && process.isArchive()) {
-            // Erroneous processes don't go to archive, so optimize out the code below.
-            return result;
+            return Collections.emptyList();
         }
 
-        result.addAll(getTokens(process));
+        val result = new ArrayList<WfToken>(getTokens(process));
         if (recursive) {
             List<? extends Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
             for (Process subProcess : subprocesses) {

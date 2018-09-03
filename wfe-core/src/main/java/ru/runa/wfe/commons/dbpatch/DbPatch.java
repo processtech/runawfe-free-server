@@ -359,6 +359,12 @@ public abstract class DbPatch {
         }
     }
 
+    public class BooleanColumnDef extends ColumnDef {
+        public BooleanColumnDef(String name, boolean allowNulls) {
+            super(name, Types.TINYINT, allowNulls);
+        }
+    }
+
     public class IntColumnDef extends ColumnDef {
         public IntColumnDef(String name, boolean allowNulls) {
             super(name, Types.INTEGER, allowNulls);

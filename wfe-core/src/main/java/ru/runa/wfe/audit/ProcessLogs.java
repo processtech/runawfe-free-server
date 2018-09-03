@@ -172,6 +172,7 @@ public class ProcessLogs implements Serializable {
                     if (processStartLog == null) {
                         continue;
                     }
+                    // These fake temporary entities are never stored. TODO Can we get rid of them and then make CurrentProcessLog.setId() private?
                     CurrentTaskCreateLog taskCreateLog = new CurrentTaskCreateLog();
                     taskCreateLog.setId(processStartLog.getId());
                     taskCreateLog.setCreateDate(nodeLeaveLog.getCreateDate());

@@ -78,7 +78,8 @@ public abstract class CurrentProcessLog extends BaseProcessLog implements Serial
         return id;
     }
 
-    private void setId(Long id) {
+    // Public because used in ProcessLogs.getTaskLogs() to create fake temporary entities.
+    public void setId(Long id) {
         this.id = id;
     }
 
