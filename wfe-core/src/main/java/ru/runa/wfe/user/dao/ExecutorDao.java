@@ -272,7 +272,10 @@ public class ExecutorDao extends CommonDao implements ExecutorLoader {
     }
 
     public List<TemporaryGroup> getUnusedTemporaryGroups() {
-        String query = "select tg from TemporaryGroup tg where tg.processId not in (select process.id from CurrentSwimlane where executor=tg) and tg.processId not in (select process.id from Task where executor=tg)";
+        String query = "select tg from TemporaryGroup tg " +
+                "where tg.processId not in (select process.id from CurrentSwimlane where executor=tg) " +
+                "  and tg.processId not in (select process.id from ArchivedSwimlane where executor=tg) " +
+                "  and tg.processId not in (select process.id from Task where executor=tg)";
         return sessionFactory.getCurrentSession().createQuery(query).list();
     }
 

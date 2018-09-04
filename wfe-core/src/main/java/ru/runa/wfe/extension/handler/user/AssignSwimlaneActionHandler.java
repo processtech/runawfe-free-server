@@ -25,6 +25,7 @@ import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.execution.CurrentSwimlane;
 import ru.runa.wfe.execution.ExecutionContext;
+import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.ActionHandlerBase;
@@ -41,7 +42,7 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
     private String swimlaneInitializer;
 
     @Autowired
-    private SwimlaneDao swimlaneDao;
+    private CurrentSwimlaneDao currentSwimlaneDao;
 
     @Override
     public void setConfiguration(String configuration) {
@@ -68,7 +69,7 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
         if (Utils.isNullOrEmpty(swimlaneInitializer)) {
             log.debug("using process definition swimlane initializer");
             SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
-            CurrentSwimlane swimlane = swimlaneDao.findOrCreateInitialized(executionContext, swimlaneDefinition, true);
+            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreateInitialized(executionContext, swimlaneDefinition, true);
             assigned = swimlane.getExecutor() != null;
         } else {
             log.debug("using handler swimlane initializer");
@@ -82,7 +83,7 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
     private boolean assignSwimlane(ExecutionContext executionContext, String swimlaneName, String swimlaneInitializer) {
         List<? extends Executor> executors = SwimlaneInitializerHelper.evaluate(swimlaneInitializer, executionContext.getVariableProvider());
         SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
-        CurrentSwimlane swimlane = swimlaneDao.findOrCreate(executionContext.getCurrentProcess(), swimlaneDefinition);
+        CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(executionContext.getCurrentProcess(), swimlaneDefinition);
         return AssignmentHelper.assign(executionContext, swimlane, executors);
     }
 

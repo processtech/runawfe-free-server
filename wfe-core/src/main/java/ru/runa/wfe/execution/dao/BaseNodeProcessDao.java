@@ -6,7 +6,7 @@ import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 
-public interface BaseNodeProcessDao<P extends Process, T extends Token<P, T>, NP extends NodeProcess<P, T>> {
+public interface BaseNodeProcessDao<T extends Token, P extends Process<T>, NP extends NodeProcess<P, T>> {
 
     List<NP> getNodeProcesses(P process, T parentToken, String nodeId, Boolean finished);
 
@@ -35,7 +35,8 @@ public interface BaseNodeProcessDao<P extends Process, T extends Token<P, T>, NP
     }
 
     default List<P> getSubprocesses(T token) {
-        List<NP> nodeProcesses = getNodeProcesses(token.getProcess(), token, null, null);
+        @SuppressWarnings("unchecked")
+        List<NP> nodeProcesses = getNodeProcesses((P)token.getProcess(), token, null, null);
         List<P> result = Lists.newArrayListWithExpectedSize(nodeProcesses.size());
         for (NP nodeProcess : nodeProcesses) {
             result.add(nodeProcess.getSubProcess());

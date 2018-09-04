@@ -98,8 +98,6 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
     @Autowired
     private CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
-    private CurrentVariableDao currentVariableDao;
-    @Autowired
     private VariableDao variableDao;
     @Autowired
     private PermissionDao permissionDao;

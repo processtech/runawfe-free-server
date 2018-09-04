@@ -470,7 +470,7 @@ public class ExecutionLogic extends WfCommonLogic {
         if (predefinedProcessStarterObject != null) {
             Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
             ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
-            CurrentSwimlane swimlane = swimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
+            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, startTaskSwimlaneDefinition);
             swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
         }
         log.info(process + " was successfully started by " + user);
@@ -491,7 +491,7 @@ public class ExecutionLogic extends WfCommonLogic {
                 }
             }
             if (childProcessId != null) {
-                highlightedToken = currentNodeProcessDao.findBySubProcessId(childProcessId).getParentToken();
+                highlightedToken = nodeProcessDao.findBySubProcessId(childProcessId).getParentToken();
             }
             if (subprocessId != null) {
                 processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
@@ -640,7 +640,7 @@ public class ExecutionLogic extends WfCommonLogic {
         CurrentProcess process = currentProcessDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
-        CurrentSwimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
+        CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, swimlaneDefinition);
         List<Executor> executors = executor != null ? Lists.newArrayList(executor) : null;
         AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, executors);
     }
@@ -726,10 +726,10 @@ public class ExecutionLogic extends WfCommonLogic {
         if (process.getExecutionStatus() == ExecutionStatus.ACTIVE) {
             throw new InternalApplicationException(process + " already activated");
         }
-        for (CurrentToken token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
+        for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.FAILED)) {
             nodeAsyncExecutor.execute(token, false);
         }
-        for (CurrentToken token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
+        for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.SUSPENDED)) {
             token.setExecutionStatus(ExecutionStatus.ACTIVE);
         }
         if (process.getExecutionStatus() == ExecutionStatus.SUSPENDED) {
@@ -752,7 +752,7 @@ public class ExecutionLogic extends WfCommonLogic {
             return;
         }
         process.setExecutionStatus(ExecutionStatus.SUSPENDED);
-        for (CurrentToken token : tokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.ACTIVE)) {
+        for (CurrentToken token : currentTokenDao.findByProcessAndExecutionStatus(process, ExecutionStatus.ACTIVE)) {
             token.setExecutionStatus(ExecutionStatus.SUSPENDED);
         }
         processLogDao.addLog(new CurrentProcessSuspendLog(user.getActor()), process, null);

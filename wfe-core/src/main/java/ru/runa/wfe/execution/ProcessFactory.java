@@ -13,7 +13,7 @@ import ru.runa.wfe.audit.CurrentSubprocessStartLog;
 import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
 import ru.runa.wfe.execution.dao.CurrentProcessDao;
-import ru.runa.wfe.execution.dao.SwimlaneDao;
+import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
@@ -36,7 +36,7 @@ public class ProcessFactory {
     @Autowired
     private CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
-    private SwimlaneDao swimlaneDao;
+    private CurrentSwimlaneDao currentSwimlaneDao;
 
     private static final Map<Permission, Permission> DEFINITION_TO_PROCESS_PERMISSION_MAP = new HashMap<Permission, Permission>() {{
         put(Permission.READ_PROCESS, Permission.READ);
@@ -71,7 +71,7 @@ public class ProcessFactory {
         return executionContext.getCurrentProcess();
     }
 
-    private void grantProcessPermissions(ProcessDefinition processDefinition, CurrentProcess process, Actor actor) {
+    private void grantProcessPermissions(ProcessDefinition processDefinition, Process process, Actor actor) {
         boolean permissionsAreSetToProcessStarter = false;
         Executor processStarter = executorDao.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
         Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, processDefinition);
@@ -109,7 +109,7 @@ public class ProcessFactory {
         startProcessInternal(executionContext, null);
     }
 
-    private void grantSubprocessPermissions(ProcessDefinition processDefinition, CurrentProcess subProcess, CurrentProcess parentProcess) {
+    private void grantSubprocessPermissions(ProcessDefinition processDefinition, Process subProcess, Process parentProcess) {
         Set<Executor> executors = new HashSet<>();
         executors.addAll(permissionDao.getExecutorsWithPermission(processDefinition.getDeployment()));
         executors.addAll(permissionDao.getExecutorsWithPermission(parentProcess));
@@ -147,7 +147,7 @@ public class ProcessFactory {
         executionContext.setVariableValues(variables);
         if (actor != null) {
             SwimlaneDefinition swimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
-            CurrentSwimlane swimlane = swimlaneDao.findOrCreate(process, swimlaneDefinition);
+            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(process, swimlaneDefinition);
             swimlane.assignExecutor(executionContext, actor, false);
         }
         return executionContext;

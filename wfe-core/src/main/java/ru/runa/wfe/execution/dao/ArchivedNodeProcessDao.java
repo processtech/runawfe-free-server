@@ -13,7 +13,7 @@ import ru.runa.wfe.execution.QArchivedNodeProcess;
 @Component
 public class ArchivedNodeProcessDao
         extends ReadOnlyGenericDao<ArchivedNodeProcess>
-        implements BaseNodeProcessDao<ArchivedProcess, ArchivedToken, ArchivedNodeProcess>
+        implements BaseNodeProcessDao<ArchivedToken, ArchivedProcess, ArchivedNodeProcess>
 {
     public ArchivedNodeProcessDao() {
         super(ArchivedNodeProcess.class);

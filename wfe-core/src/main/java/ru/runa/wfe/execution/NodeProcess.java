@@ -14,7 +14,7 @@ import javax.persistence.MappedSuperclass;
  */
 @MappedSuperclass
 @Access(AccessType.FIELD)
-public abstract class NodeProcess<P extends Process, T extends Token<P, T>> {
+public abstract class NodeProcess<P extends Process, T extends Token> {
 
     @Column(name = "PARENT_NODE_ID", length = 1024)
     protected String nodeId;

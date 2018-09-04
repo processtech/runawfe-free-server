@@ -17,7 +17,7 @@ import ru.runa.wfe.security.SecuredObjectType;
  */
 @MappedSuperclass
 @Access(AccessType.FIELD)
-public abstract class Process<T extends Token<?, T>> extends SecuredObjectBase {
+public abstract class Process<T extends Token> extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "PARENT_ID")

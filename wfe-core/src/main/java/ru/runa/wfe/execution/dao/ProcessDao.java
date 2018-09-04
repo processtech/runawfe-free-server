@@ -11,6 +11,7 @@ import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
+import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.user.Executor;
 
 @Component
@@ -33,7 +34,7 @@ public class ProcessDao extends GenericDao2<Process, CurrentProcess, CurrentProc
      * and if some requested process ids don't exist, returned list size will be smaller than ids list size.
      */
     public List<Process> find(List<Long> ids) {
-        List<Process> result = new ArrayList<>(ids.size());
+        val result = new ArrayList<Process>(ids.size());
         if (ids.isEmpty()) {
             return result;
         }
@@ -47,6 +48,14 @@ public class ProcessDao extends GenericDao2<Process, CurrentProcess, CurrentProc
         if (result.size() < limit) {
             result.addAll(dao2.getDependentProcessIds(executor, limit - result.size()));
         }
+        return result;
+    }
+
+    // TODO Unused.
+    public List<Process> getProcesses(final ProcessFilter filter) {
+        val result = new ArrayList<Process>();
+        result.addAll(dao1.getProcesses(filter));
+        result.addAll(dao2.getProcesses(filter));
         return result;
     }
 }

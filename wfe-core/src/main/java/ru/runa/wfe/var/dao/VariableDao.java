@@ -60,6 +60,13 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
         return result;
     }
 
+    /**
+     * Load all variables for given processes.
+     *
+     * @param processes
+     *            Processes, which variables must be loaded.
+     * @return for each given process: map from variable name to loaded variable.
+     */
     public Map<Process, Map<String, BaseVariable>> getVariables(List<? extends Process> processes) {
         return Utils.isNullOrEmpty(processes)
                 ? new HashMap<>()
@@ -118,22 +125,5 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
         }
 
         return result;
-    }
-
-    /**
-     * Used by TNMS.
-     */
-    @SuppressWarnings({"unused", "unchecked"})
-    public List<BaseVariable> findNonEndedByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
-        SqlCommons.StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(variableNamePattern);
-
-        return sessionFactory.getCurrentSession()
-                .createQuery("from CurrentVariable " +
-                        "where process.executionStatus != 'ENDED' " +
-                        "  and name " + expression.getComparisonOperator() + " :name " +
-                        "  and stringValue = :value")
-                .setParameter("name", expression.getValue())
-                .setParameter("value", stringValue)
-                .list();
     }
 }

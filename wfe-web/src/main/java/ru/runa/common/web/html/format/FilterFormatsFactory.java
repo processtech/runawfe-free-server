@@ -20,13 +20,13 @@ package ru.runa.common.web.html.format;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import ru.runa.wfe.presentation.SystemLogTypeFilterCriteria;
 import ru.runa.wfe.presentation.SystemLogTypeHelper;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
 import ru.runa.wfe.presentation.filter.TaskDurationFilterCriteria;
 import ru.runa.wfe.presentation.filter.TaskStatusFilterCriteria;
 import ru.runa.wfe.presentation.filter.UserOrGroupFilterCriteria;
+import ru.runa.wfe.var.ArchivedVariable;
 import ru.runa.wfe.var.CurrentVariable;
 
 /**
@@ -35,7 +35,7 @@ import ru.runa.wfe.var.CurrentVariable;
 public class FilterFormatsFactory {
 
     private static Map<String, FilterTDFormatter> formattersMap = new HashMap<>();
-    private static FiltersParser filtersParser = new FilterParserImpl();
+    private static FilterParser filtersParser = new FilterParser();
 
     static {
         formattersMap.put(String.class.getName(), new StringFilterTDFormatter());
@@ -43,6 +43,7 @@ public class FilterFormatsFactory {
         formattersMap.put(Date.class.getName(), new DateFilterTDFormatter());
         formattersMap.put(AnywhereStringFilterCriteria.class.getName(), new StringFilterTDFormatter());
         formattersMap.put(CurrentVariable.class.getName(), new StringFilterTDFormatter());
+        formattersMap.put(ArchivedVariable.class.getName(), new StringFilterTDFormatter());
         formattersMap.put(SystemLogTypeFilterCriteria.class.getName(), new StringEnumerationFilterTDFormatter(SystemLogTypeHelper.getValues()));
         formattersMap.put(UserOrGroupFilterCriteria.class.getName(), new UserOrGroupFilterTDFormatter());
         formattersMap.put(TaskDurationFilterCriteria.class.getName(), new DurationFilterTDFormatter());
@@ -53,7 +54,7 @@ public class FilterFormatsFactory {
         return formattersMap.get(fieldType);
     }
 
-    public static FiltersParser getParser() {
+    public static FilterParser getParser() {
         return filtersParser;
     }
 }

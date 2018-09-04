@@ -1,5 +1,6 @@
 package ru.runa.wfe.execution.dao;
 
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
 import lombok.val;
@@ -27,6 +28,14 @@ public class CurrentTokenDao extends GenericDao<CurrentToken> {
     public List<CurrentToken> findByNodeTypeAndExecutionStatusIsActive(NodeType nodeType) {
         val t = QCurrentToken.currentToken;
         return queryFactory.selectFrom(t).where(t.nodeType.eq(nodeType).and(t.executionStatus.eq(ExecutionStatus.ACTIVE))).fetch();
+    }
+
+    public List<CurrentToken> findByProcessAndExecutionStatus(CurrentProcess process, ExecutionStatus status) {
+        // At the moment of refactoring, this method was never called with ENDED status, so I didn't bother to implement that case.
+        Preconditions.checkArgument(status != ExecutionStatus.ENDED);
+
+        val t = QCurrentToken.currentToken;
+        return queryFactory.selectFrom(t).where(t.process.eq(process).and(t.executionStatus.eq(status))).fetch();
     }
 
     public List<CurrentToken> findByProcessAndExecutionStatusIsNotEnded(CurrentProcess process) {

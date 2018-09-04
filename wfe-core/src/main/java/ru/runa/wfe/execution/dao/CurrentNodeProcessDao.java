@@ -14,7 +14,7 @@ import ru.runa.wfe.execution.QCurrentProcess;
 @Component
 public class CurrentNodeProcessDao
         extends GenericDao<CurrentNodeProcess>
-        implements BaseNodeProcessDao<CurrentProcess, CurrentToken, CurrentNodeProcess>
+        implements BaseNodeProcessDao<CurrentToken, CurrentProcess, CurrentNodeProcess>
 {
     public CurrentNodeProcessDao() {
         super(CurrentNodeProcess.class);

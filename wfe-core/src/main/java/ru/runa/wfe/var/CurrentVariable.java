@@ -21,7 +21,6 @@
  */
 package ru.runa.wfe.var;
 
-import java.util.Arrays;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -44,17 +43,11 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.audit.CurrentVariableCreateLog;
 import ru.runa.wfe.audit.CurrentVariableDeleteLog;
 import ru.runa.wfe.audit.CurrentVariableLog;
-import ru.runa.wfe.audit.CurrentVariableCreateLog;
 import ru.runa.wfe.audit.CurrentVariableUpdateLog;
-import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 
 /**
  * Base class for classes that store variable values in the database.

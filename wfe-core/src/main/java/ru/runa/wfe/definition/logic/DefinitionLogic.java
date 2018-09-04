@@ -42,8 +42,9 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.definition.par.ProcessArchive;
-import ru.runa.wfe.execution.ParentProcessExistsException;
+import ru.runa.wfe.execution.CurrentNodeProcess;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.ParentProcessExistsException;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
@@ -254,14 +255,18 @@ public class DefinitionLogic extends WfCommonLogic {
 
     public void undeployProcessDefinition(User user, String definitionName, Long version) {
         Preconditions.checkNotNull(definitionName, "definitionName must be specified.");
+        Deployment d = deploymentDao.findDeployment(definitionName, version);
+        if (archivedProcessDao.processesExist(d)) {
+            throw new RuntimeException("Archived processes exist for definition id=" + d.getId());
+        }
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(definitionName);
         filter.setDefinitionVersion(version);
         List<CurrentProcess> processes = currentProcessDao.getProcesses(filter);
         for (CurrentProcess process : processes) {
-            if (currentNodeProcessDao.findBySubProcessId(process.getId()) != null) {
-                throw new ParentProcessExistsException(definitionName, currentNodeProcessDao.findBySubProcessId(process.getId()).getProcess()
-                        .getDeployment().getName());
+            CurrentNodeProcess cnp = currentNodeProcessDao.findBySubProcessId(process.getId());
+            if (cnp != null) {
+                throw new ParentProcessExistsException(definitionName, cnp.getProcess().getDeployment().getName());
             }
         }
         if (version == null) {
@@ -281,6 +286,9 @@ public class DefinitionLogic extends WfCommonLogic {
     }
 
     private void removeDeployment(User user, Deployment deployment) {
+        if (archivedProcessDao.processesExist(deployment)) {
+            throw new RuntimeException("Archived processes exist for definition id=" + deployment.getId());
+        }
         List<CurrentProcess> processes = currentProcessDao.findAllProcesses(deployment.getId());
         for (CurrentProcess process : processes) {
             deleteProcess(user, process);

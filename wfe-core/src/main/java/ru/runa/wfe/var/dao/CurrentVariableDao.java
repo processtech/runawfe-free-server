@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import lombok.val;
 import org.springframework.stereotype.Component;
+import ru.runa.wfe.commons.SqlCommons;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.var.BaseVariable;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.QCurrentVariable;
 
@@ -30,29 +32,6 @@ public class CurrentVariableDao extends GenericDao<CurrentVariable> {
         return queryFactory.selectFrom(v).where(v.process.eq(process)).fetch();
     }
 
-    /**
-     * Load all variables for given processes.
-     *
-     * @param processes
-     *            Processes, which variables must be loaded.
-     * @return for each given process: map from variable name to loaded variable.
-     */
-    public Map<CurrentProcess, Map<String, CurrentVariable<?>>> getVariables(Collection<CurrentProcess> processes) {
-        Map<CurrentProcess, Map<String, CurrentVariable<?>>> result = Maps.newHashMap();
-        if (Utils.isNullOrEmpty(processes)) {
-            return result;
-        }
-        for (CurrentProcess process : processes) {
-            result.put(process, Maps.newHashMap());
-        }
-        val v = QCurrentVariable.currentVariable;
-        List<CurrentVariable<?>> list = queryFactory.selectFrom(v).where(v.process.in(processes)).fetch();
-        for (CurrentVariable<?> variable : list) {
-            result.get(variable.getProcess()).put(variable.getName(), variable);
-        }
-        return result;
-    }
-
     List<CurrentVariable<?>> getVariablesImpl(List<CurrentProcess> processesPart, List<String> variableNamesOrNull) {
         val v = QCurrentVariable.currentVariable;
         val q = queryFactory.selectFrom(v).where(v.process.in(processesPart));
@@ -66,5 +45,22 @@ public class CurrentVariableDao extends GenericDao<CurrentVariable> {
         log.debug("deleting variables for process " + process.getId());
         val v = QCurrentVariable.currentVariable;
         queryFactory.delete(v).where(v.process.eq(process)).execute();
+    }
+
+    /**
+     * Used by TNMS.
+     */
+    @SuppressWarnings({"unused", "unchecked"})
+    public List<BaseVariable> findNonEndedByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
+        SqlCommons.StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(variableNamePattern);
+
+        return sessionFactory.getCurrentSession()
+                .createQuery("from CurrentVariable " +
+                        "where process.executionStatus != 'ENDED' " +
+                        "  and name " + expression.getComparisonOperator() + " :name " +
+                        "  and stringValue = :value")
+                .setParameter("name", expression.getValue())
+                .setParameter("value", stringValue)
+                .list();
     }
 }

@@ -44,10 +44,10 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.dao.CurrentNodeProcessDao;
+import ru.runa.wfe.execution.dao.CurrentSwimlaneDao;
+import ru.runa.wfe.execution.dao.CurrentTokenDao;
 import ru.runa.wfe.execution.dao.SwimlaneDao;
-import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.Node;
@@ -85,11 +85,9 @@ public class ExecutionContext {
     private final BaseProcessVariableLoader baseProcessVariableLoader;
 
     @Autowired
-    private ProcessDefinitionLoader processDefinitionLoader;
-    @Autowired
     private VariableCreator variableCreator;
     @Autowired
-    private TokenDao tokenDao;
+    private CurrentTokenDao currentTokenDao;
     @Autowired
     private CurrentNodeProcessDao currentNodeProcessDao;
     @Autowired
@@ -102,6 +100,8 @@ public class ExecutionContext {
     private TaskDao taskDao;
     @Autowired
     private JobDao jobDao;
+    @Autowired
+    private CurrentSwimlaneDao currentSwimlaneDao;
     @Autowired
     private SwimlaneDao swimlaneDao;
 
@@ -221,7 +221,7 @@ public class ExecutionContext {
             if (swimlaneDefinition != null) {
                 Swimlane swimlane = swimlaneDao.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
                 if (swimlane == null && !getProcess().isArchive() && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
-                    swimlane = swimlaneDao.findOrCreateInitialized(this, swimlaneDefinition, false);
+                    swimlane = currentSwimlaneDao.findOrCreateInitialized(this, swimlaneDefinition, false);
                 }
                 return new WfVariable(swimlaneDefinition.toVariableDefinition(), swimlane != null ? swimlane.getExecutor() : null);
             }
@@ -245,7 +245,7 @@ public class ExecutionContext {
         SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
-            CurrentSwimlane swimlane = swimlaneDao.findOrCreate(getCurrentProcess(), swimlaneDefinition);
+            CurrentSwimlane swimlane = currentSwimlaneDao.findOrCreate(getCurrentProcess(), swimlaneDefinition);
             swimlane.assignExecutor(this, (Executor) convertValueForVariableType(swimlaneDefinition.toVariableDefinition(), value), true);
             return;
         }
@@ -285,7 +285,7 @@ public class ExecutionContext {
             t.setExecutionStatus(ExecutionStatus.ACTIVE);
             t.setErrorDate(null);
             t.setErrorMessage(null);
-            List<CurrentToken> failedTokens = tokenDao.findByProcessAndExecutionStatus(p, ExecutionStatus.FAILED);
+            List<CurrentToken> failedTokens = currentTokenDao.findByProcessAndExecutionStatus(p, ExecutionStatus.FAILED);
             if (failedTokens.isEmpty()) {
                 p.setExecutionStatus(ExecutionStatus.ACTIVE);
             }

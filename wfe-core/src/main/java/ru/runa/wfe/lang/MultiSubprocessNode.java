@@ -192,7 +192,7 @@ public class MultiSubprocessNode extends SubprocessNode {
                         WfVariable variable = executionContext.getVariableProvider().getVariable(processVariableName);
                         Object value;
                         if (variable == null || variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
-                            value = new ArrayList<Object>();
+                            value = new ArrayList<>();
                             for (CurrentProcess subprocess : subprocesses) {
                                 ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocess);
                                 ((List<Object>) value).add(subExecutionContext.getVariableValue(subprocessVariableName));

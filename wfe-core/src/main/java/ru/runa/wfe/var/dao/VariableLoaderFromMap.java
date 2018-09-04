@@ -15,15 +15,11 @@ import ru.runa.wfe.var.dto.WfVariable;
 public class VariableLoaderFromMap extends AbstractVariableLoader {
 
     /**
-     * Preloaded variables. For each process contains map from variable name to variable. If no entry for variable name exists in preloaded variables,
-     * then it will be loaded via {@link CurrentVariableDao}.
+     * Preloaded variables. For each process contains map from variable name to variable.
      */
     private final Map<Process, Map<String, BaseVariable>> loadedVariables;
 
     /**
-     * Supports variable loading via {@link CurrentVariableDao} and converting to {@link WfVariable}. Variables may be preloaded and passed to this component
-     * in case of mass variables loading.
-     *
      * @param loadedVariables
      *            Preloaded variables. For each process contains map from variable name to variable. May be null.
      */

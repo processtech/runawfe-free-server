@@ -93,9 +93,9 @@ public class WfCommonLogic extends CommonLogic {
     @Autowired
     protected SwimlaneDao swimlaneDao;
     @Autowired
-    protected CurrentTokenDao currentTokenDao;
-    @Autowired
     protected TokenDao tokenDao;
+    @Autowired
+    protected CurrentTokenDao currentTokenDao;
     @Autowired
     protected SystemLogDao systemLogDao;
 

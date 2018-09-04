@@ -396,7 +396,7 @@ public class VariableLogic extends WfCommonLogic {
         VariableProvider provider = new ExecutionVariableProvider(new ExecutionContext(getDefinition(process), process));
         final Long baseProcessId = (Long) provider.getValue(SystemProperties.getBaseProcessIdVariableName());
         return baseProcessId != null
-                ? currentProcessDao.getNotNull(baseProcessId)
+                ? processDao.getNotNull(baseProcessId)
                 : null;
     }
 }
