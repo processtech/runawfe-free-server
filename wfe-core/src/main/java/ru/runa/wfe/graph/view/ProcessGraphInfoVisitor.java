@@ -5,8 +5,8 @@ import java.util.List;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.ApplicationContextFactory;
-import ru.runa.wfe.execution.CurrentNodeProcess;
-import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.NodeProcess;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessDefinition;
 import ru.runa.wfe.security.Permission;
@@ -26,9 +26,9 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
     /**
      * Instances of subprocesses, which must be added to graph elements.
      */
-    private final List<CurrentNodeProcess> nodeProcesses;
+    private final List<? extends NodeProcess> nodeProcesses;
     private final ProcessDefinition definition;
-    private final CurrentProcess process;
+    private final Process process;
     private final ProcessLogs processLogs;
 
     /**
@@ -37,7 +37,9 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
      * @param nodeProcesses
      *            Subprocesses which must be added to graph elements.
      */
-    public ProcessGraphInfoVisitor(User user, ProcessDefinition definition, CurrentProcess process, ProcessLogs processLogs, List<CurrentNodeProcess> nodeProcesses) {
+    public ProcessGraphInfoVisitor(User user, ProcessDefinition definition, Process process, ProcessLogs processLogs,
+            List<? extends NodeProcess> nodeProcesses
+    ) {
         this.user = user;
         this.definition = definition;
         this.process = process;
@@ -58,7 +60,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
 
     @Override
     protected void onMultiSubprocessNode(MultiSubprocessNodeGraphElement element) {
-        for (CurrentNodeProcess nodeProcess : nodeProcesses) {
+        for (NodeProcess nodeProcess : nodeProcesses) {
             if (Objects.equal(nodeProcess.getNodeId(), element.getNodeId())) {
                 element.addSubprocessInfo(nodeProcess.getSubProcess().getId(), hasReadPermission(nodeProcess.getSubProcess()), nodeProcess
                         .getSubProcess().hasEnded());
@@ -77,8 +79,8 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
             element.setEmbeddedSubprocessGraphWidth(subprocessDefinition.getGraphConstraints()[2]);
             element.setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);
         } else {
-            CurrentProcess lastSubProcess = null;
-            for (CurrentNodeProcess nodeProcess : nodeProcesses) {
+            Process lastSubProcess = null;
+            for (NodeProcess nodeProcess : nodeProcesses) {
                 if (Objects.equal(nodeProcess.getNodeId(), element.getNodeId())) {
                     if (lastSubProcess == null || lastSubProcess.getId().compareTo(nodeProcess.getSubProcess().getId()) < 0) {
                         lastSubProcess = nodeProcess.getSubProcess();
@@ -99,9 +101,8 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
      *            Process instance to check READ permission.
      * @return true, if current actor can read process definition and false otherwise.
      */
-    private boolean hasReadPermission(CurrentProcess process) {
+    private boolean hasReadPermission(Process process) {
         PermissionDao permissionDao = ApplicationContextFactory.getPermissionDao();
         return permissionDao.isAllowed(user, Permission.LIST, process);
     }
-
 }

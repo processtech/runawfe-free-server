@@ -1,5 +1,7 @@
 package ru.runa.wfe.execution;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,7 +18,7 @@ import org.hibernate.annotations.Index;
 
 @Entity
 @Table(name = "ARCHIVED_TOKEN")
-public class ArchivedToken extends Token<ArchivedProcess, ArchivedToken> {
+public class ArchivedToken extends Token {
 
     @Id
     @Column(name = "ID")
@@ -73,6 +75,11 @@ public class ArchivedToken extends Token<ArchivedProcess, ArchivedToken> {
     @Override
     public Set<ArchivedToken> getChildren() {
         return children;
+    }
+
+    @Override
+    public List<ArchivedToken> getActiveChildren() {
+        return Collections.emptyList();
     }
 
     @Override

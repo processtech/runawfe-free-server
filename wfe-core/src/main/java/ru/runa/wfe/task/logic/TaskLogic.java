@@ -5,10 +5,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.audit.CurrentTaskDelegationLog;
@@ -22,6 +24,7 @@ import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
+import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
 import ru.runa.wfe.execution.ProcessSuspendedException;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -230,13 +233,17 @@ public class TaskLogic extends WfCommonLogic {
 
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
-        CurrentProcess process = currentProcessDao.getNotNull(processId);
-        permissionDao.checkAllowed(user, Permission.LIST, process);
-        for (Task task : taskDao.findByProcess(process)) {
+        Process p = processDao.getNotNull(processId);
+        permissionDao.checkAllowed(user, Permission.LIST, p);
+        if (p.isArchive()) {
+            return Collections.emptyList();
+        }
+        val cp = (CurrentProcess) p;
+        for (Task task : taskDao.findByProcess(cp)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
-            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(process);
+            List<CurrentProcess> subprocesses = currentNodeProcessDao.getSubprocessesRecursive(cp);
             for (CurrentProcess subprocess : subprocesses) {
                 permissionDao.checkAllowed(user, Permission.LIST, subprocess);
                 for (Task task : taskDao.findByProcess(subprocess)) {

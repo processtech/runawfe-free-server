@@ -4,11 +4,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+import lombok.val;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -53,11 +52,11 @@ public class ProcessInstanceData {
 
     private void addToken(Token token) {
         processTokens.put(token.getId(), token);
-        Set<CurrentToken> childrens = token.getChildren();
-        if (childrens == null) {
+        val children = token.getChildren();
+        if (children == null) {
             return;
         }
-        for (CurrentToken child : childrens) {
+        for (val child : children) {
             addToken(child);
         }
     }

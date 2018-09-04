@@ -1,6 +1,7 @@
 package ru.runa.wfe.execution;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -20,7 +21,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
  */
 @MappedSuperclass
 @Access(AccessType.FIELD)
-public abstract class Token<P extends Process, T extends Token> {
+public abstract class Token {
 
     @Version
     @Column(name = "VERSION")
@@ -56,9 +57,10 @@ public abstract class Token<P extends Process, T extends Token> {
 
     public abstract boolean isArchive();
     public abstract Long getId();
-    public abstract P getProcess();
-    public abstract T getParent();
-    public abstract Set<T> getChildren();
+    public abstract Process getProcess();
+    public abstract Token getParent();
+    public abstract Set<? extends Token> getChildren();
+    public abstract List<? extends Token> getActiveChildren();
     public abstract ExecutionStatus getExecutionStatus();
     public abstract String getMessageSelector();
 

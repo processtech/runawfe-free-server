@@ -29,8 +29,8 @@ import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.definition.Language;
-import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.execution.CurrentToken;
+import ru.runa.wfe.execution.Process;
+import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
@@ -53,7 +53,7 @@ import ru.runa.wfe.task.TaskDeadlineUtils;
  */
 public class GraphImageBuilder {
     private final ProcessDefinition processDefinition;
-    private CurrentToken highlightedToken;
+    private Token highlightedToken;
     private final Map<String, AbstractFigure> allNodeFigures = Maps.newHashMap();
     private final Map<TransitionFigure, RenderHits> transitionFigures = Maps.newHashMap();
     private final Map<AbstractFigure, RenderHits> nodeFigures = Maps.newLinkedHashMap();
@@ -64,11 +64,11 @@ public class GraphImageBuilder {
         this.smoothTransitions = DrawProperties.isSmoothLinesEnabled() && processDefinition.getDeployment().getLanguage() == Language.BPMN2;
     }
 
-    public void setHighlightedToken(CurrentToken highlightedToken) {
+    public void setHighlightedToken(Token highlightedToken) {
         this.highlightedToken = highlightedToken;
     }
 
-    public byte[] createDiagram(CurrentProcess process, ProcessLogs logs) throws Exception {
+    public byte[] createDiagram(Process process, ProcessLogs logs) throws Exception {
         AbstractFigureFactory factory;
         if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
             factory = new BpmnFigureFactory();
@@ -134,8 +134,8 @@ public class GraphImageBuilder {
         return graphImage.getImageBytes();
     }
 
-    private void fillActiveSubprocesses(CurrentToken token) {
-        for (CurrentToken childToken : token.getActiveChildren()) {
+    private void fillActiveSubprocesses(Token token) {
+        for (Token childToken : token.getActiveChildren()) {
             fillActiveSubprocesses(childToken);
         }
         if (processDefinition.getNode(token.getNodeId()) != null && token.getNodeNotNull(processDefinition) instanceof SubprocessNode) {

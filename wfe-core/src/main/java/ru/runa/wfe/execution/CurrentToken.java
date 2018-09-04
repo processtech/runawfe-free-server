@@ -22,8 +22,8 @@
 package ru.runa.wfe.execution;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +41,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import lombok.val;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -59,7 +60,7 @@ import ru.runa.wfe.lang.StartNode;
 @Entity
 @Table(name = "BPM_TOKEN")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements Serializable {
+public class CurrentToken extends Token implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(CurrentToken.class);
 
@@ -231,14 +232,15 @@ public class CurrentToken extends Token<CurrentProcess, CurrentToken> implements
         return executionStatus == ExecutionStatus.ENDED;
     }
 
+    @Override
     public List<CurrentToken> getActiveChildren() {
-        List<CurrentToken> activeChildren = Lists.newArrayList();
-        for (CurrentToken child : getChildren()) {
+        val result = new ArrayList<CurrentToken>();
+        for (val child : getChildren()) {
             if (!child.hasEnded()) {
-                activeChildren.add(child);
+                result.add(child);
             }
         }
-        return activeChildren;
+        return result;
     }
 
     public int getDepth() {
