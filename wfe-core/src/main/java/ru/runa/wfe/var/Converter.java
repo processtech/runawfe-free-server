@@ -37,7 +37,7 @@ public interface Converter extends Serializable {
     /**
      * converts a given object to its persistable format.
      */
-    Object convert(ExecutionContext executionContext, BaseVariable variable, Object o);
+    Object convert(ExecutionContext executionContext, Variable variable, Object o);
 
     /**
      * reverts a persisted object to its original form.

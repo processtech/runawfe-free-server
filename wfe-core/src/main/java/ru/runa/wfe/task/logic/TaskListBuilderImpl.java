@@ -60,8 +60,7 @@ import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDao;
-import ru.runa.wfe.var.BaseVariable;
-import ru.runa.wfe.var.dao.CurrentVariableDao;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.dao.VariableDao;
 
 /**
@@ -119,7 +118,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         tasksState.addAll(loadAdministrativeTasks(actor));
 
         List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
-        Map<Process, Map<String, BaseVariable>> variables = variableDao.getVariables(getTasksProcesses(tasksState), variableNames);
+        Map<Process, Map<String, Variable>> variables = variableDao.getVariables(getTasksProcesses(tasksState), variableNames);
         HashSet<Long> openedTasks = new HashSet<>(taskDao.getOpenedTasks(actor.getId(), getTasksIds(tasksState)));
 
         List<WfTask> result = new ArrayList<>();
@@ -146,7 +145,7 @@ public class TaskListBuilderImpl implements TaskListBuilder, ObservableTaskListB
         Preconditions.checkArgument(batchPresentation.getType() == ClassPresentationType.TASK_OBSERVABLE);
         List<TaskInListState> tasksState = loadObservableTasks(actor, batchPresentation);
         List<String> variableNames = batchPresentation.getDynamicFieldsToDisplay(true);
-        Map<Process, Map<String, BaseVariable>> variables = variableDao.getVariables(getTasksProcesses(tasksState), variableNames);
+        Map<Process, Map<String, Variable>> variables = variableDao.getVariables(getTasksProcesses(tasksState), variableNames);
         HashSet<Long> openedTasks = new HashSet<>();
         for (List<Long> partitionedTasksIds : Lists.partition(getTasksIds(tasksState), SystemProperties.getDatabaseParametersCount())) {
             openedTasks.addAll(taskDao.getOpenedTasks(actor.getId(), partitionedTasksIds));

@@ -33,7 +33,7 @@ import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.BackCompatibilityClassNames;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.execution.ExecutionContext;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.Converter;
 
 public class SerializableToByteArrayConverter implements Converter {
@@ -45,7 +45,7 @@ public class SerializableToByteArrayConverter implements Converter {
     }
 
     @Override
-    public Object convert(ExecutionContext executionContext, BaseVariable variable, Object o) {
+    public Object convert(ExecutionContext executionContext, Variable variable, Object o) {
         try {
             ByteArrayOutputStream memoryStream = new ByteArrayOutputStream();
             ObjectOutputStream objectStream = new ObjectOutputStream(memoryStream);

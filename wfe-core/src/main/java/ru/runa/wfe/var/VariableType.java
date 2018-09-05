@@ -59,7 +59,7 @@ public class VariableType {
         this.archivedVariableClass = archivedVariableClass;
     }
 
-    public Class<? extends BaseVariable> getVariableClass(boolean isArchive) {
+    public Class<? extends Variable> getVariableClass(boolean isArchive) {
         return isArchive ? archivedVariableClass : currentVariableClass;
     }
 }

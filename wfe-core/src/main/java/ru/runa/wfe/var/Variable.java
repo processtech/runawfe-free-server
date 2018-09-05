@@ -28,7 +28,7 @@ import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
  * @see ru.runa.wfe.commons.hibernate.WfeInterceptor
  */
 @MappedSuperclass
-public abstract class BaseVariable<P extends Process, V> {
+public abstract class Variable<P extends Process, V> {
 
     public static int getMaxStringSize() {
         return SystemProperties.getStringVariableValueLength();

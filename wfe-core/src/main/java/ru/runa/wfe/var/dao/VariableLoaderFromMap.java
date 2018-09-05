@@ -4,8 +4,7 @@ import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.var.BaseVariable;
-import ru.runa.wfe.var.dto.WfVariable;
+import ru.runa.wfe.var.Variable;
 
 /**
  * All variables must be preloaded and passed to this component.
@@ -17,19 +16,19 @@ public class VariableLoaderFromMap extends AbstractVariableLoader {
     /**
      * Preloaded variables. For each process contains map from variable name to variable.
      */
-    private final Map<Process, Map<String, BaseVariable>> loadedVariables;
+    private final Map<Process, Map<String, Variable>> loadedVariables;
 
     /**
      * @param loadedVariables
      *            Preloaded variables. For each process contains map from variable name to variable. May be null.
      */
-    public VariableLoaderFromMap(Map<Process, Map<String, BaseVariable>> loadedVariables) {
+    public VariableLoaderFromMap(Map<Process, Map<String, Variable>> loadedVariables) {
         this.loadedVariables = loadedVariables == null ? new HashMap<>() : loadedVariables;
     }
 
     @Override
-    public BaseVariable get(Process process, String name) {
-        Map<String, BaseVariable> loadedProcessVariables = loadedVariables.get(process);
+    public Variable get(Process process, String name) {
+        Map<String, Variable> loadedProcessVariables = loadedVariables.get(process);
         return loadedProcessVariables != null && loadedProcessVariables.containsKey(name)
                 ? loadedProcessVariables.get(name)
                 : null;
@@ -37,12 +36,12 @@ public class VariableLoaderFromMap extends AbstractVariableLoader {
 
     @Override
     public Map<String, Object> getAll(Process process) {
-        Map<String, BaseVariable> processVariables = loadedVariables.get(process);
+        Map<String, Variable> processVariables = loadedVariables.get(process);
         if (processVariables == null) {
             return Maps.newHashMap();
         }
         Map<String, Object> result = Maps.newHashMap();
-        for (BaseVariable variable : processVariables.values()) {
+        for (Variable variable : processVariables.values()) {
             result.put(variable.getName(), variable.getValue());
         }
         return result;

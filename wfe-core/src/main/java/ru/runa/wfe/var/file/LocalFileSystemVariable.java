@@ -5,7 +5,7 @@ import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import ru.runa.wfe.InternalApplicationException;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 
 /**
  * This class eliminates need to persist large bytes array in database.
@@ -22,7 +22,7 @@ public class LocalFileSystemVariable implements FileVariable {
     public LocalFileSystemVariable() {
     }
 
-    public LocalFileSystemVariable(BaseVariable variable, String variableName, FileVariable fileVariable) {
+    public LocalFileSystemVariable(Variable variable, String variableName, FileVariable fileVariable) {
         name = fileVariable.getName();
         contentType = fileVariable.getContentType();
         long version = variable.getVersion() != null ? variable.getVersion() + 1 : 0;

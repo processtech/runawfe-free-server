@@ -25,7 +25,7 @@ import ru.runa.wfe.execution.ArchivedProcess;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
-public abstract class ArchivedVariable<V> extends BaseVariable<ArchivedProcess, V> {
+public abstract class ArchivedVariable<V> extends Variable<ArchivedProcess, V> {
 
     protected Long id;
     private String name;

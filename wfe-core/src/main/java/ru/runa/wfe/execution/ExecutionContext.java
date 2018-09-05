@@ -58,7 +58,7 @@ import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
@@ -107,7 +107,7 @@ public class ExecutionContext {
 
     protected ExecutionContext(
             ApplicationContext applicationContext, ProcessDefinition processDefinition, Token token,
-            Map<Process, Map<String, BaseVariable>> loadedVariables, boolean disableVariableDaoLoading
+            Map<Process, Map<String, Variable>> loadedVariables, boolean disableVariableDaoLoading
     ) {
         Preconditions.checkArgument(token != null);
         Preconditions.checkArgument(token.getProcess() != null);
@@ -123,7 +123,7 @@ public class ExecutionContext {
         this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, BaseVariable>> loadedVariables) {
+    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable>> loadedVariables) {
         this(ApplicationContextFactory.getContext(), processDefinition, token, loadedVariables, false);
     }
 
@@ -131,7 +131,7 @@ public class ExecutionContext {
         this(ApplicationContextFactory.getContext(), processDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, BaseVariable>> loadedVariables,
+    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable>> loadedVariables,
             boolean disableVariableDaoLoading) {
         this(ApplicationContextFactory.getContext(), processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.SystemProperties;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
@@ -101,7 +101,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
         if (size == null) {
             if (SystemProperties.isV4ListVariableCompatibilityMode()) {
-                BaseVariable variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
+                Variable variable = context.variableLoader.get(context.process, context.variableDefinition.getName());
                 if (variable != null) {
                     return processComplexVariables(context.variableDefinition, null, variable.getValue());
                 }
@@ -130,7 +130,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
         Number size = (Number) sizeDefinition.getFormatNotNull().processBy(this, context.createFor(sizeDefinition));
         if (size == null && SystemProperties.isV4MapVariableCompatibilityMode()) {
             VariableDefinition variableDefinition = context.variableDefinition;
-            BaseVariable variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            Variable variable = context.variableLoader.get(context.process, variableDefinition.getName());
             if (variable == null) {
                 return variableDefinition.getDefaultValue();
             }
@@ -185,7 +185,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
             userTypeMap.put(attributeDefinition.getName(), value);
         }
         if (userTypeMap.isEmpty()) {
-            BaseVariable variable = context.variableLoader.get(context.process, variableDefinition.getName());
+            Variable variable = context.variableLoader.get(context.process, variableDefinition.getName());
             if (variable != null) {
                 // Back compatibility for variables stored as blob.
                 if (variable.getValue() == null) {
@@ -221,7 +221,7 @@ public class LoadVariableOfType implements VariableFormatVisitor<Object, LoadVar
      */
     private Object loadSimpleVariable(VariableFormat format, LoadVariableOfTypeContext context) {
         VariableDefinition variableDefinition = context.variableDefinition;
-        BaseVariable variable = context.variableLoader.get(context.process, variableDefinition.getName());
+        Variable variable = context.variableLoader.get(context.process, variableDefinition.getName());
         if (variable == null) {
             return variableDefinition.getDefaultValue();
         }

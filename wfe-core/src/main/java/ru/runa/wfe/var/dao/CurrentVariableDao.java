@@ -1,16 +1,11 @@
 package ru.runa.wfe.var.dao;
 
-import com.google.common.collect.Maps;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.SqlCommons;
-import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.var.BaseVariable;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.QCurrentVariable;
 
@@ -51,7 +46,7 @@ public class CurrentVariableDao extends GenericDao<CurrentVariable> {
      * Used by TNMS.
      */
     @SuppressWarnings({"unused", "unchecked"})
-    public List<BaseVariable> findNonEndedByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
+    public List<CurrentVariable> findNonEndedByNameLikeAndStringValueEqualTo(String variableNamePattern, String stringValue) {
         SqlCommons.StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(variableNamePattern);
 
         return sessionFactory.getCurrentSession()

@@ -35,12 +35,12 @@ public class VariableCreator {
      *            initial value
      * @return variable
      */
-    private BaseVariable create(Object value, boolean isArchive) {
+    private Variable create(Object value, boolean isArchive) {
         for (VariableType type : types) {
             if (type.getMatcher().matches(value)) {
-                Class<? extends BaseVariable> variableClass = type.getVariableClass(isArchive);
+                Class<? extends Variable> variableClass = type.getVariableClass(isArchive);
                 try {
-                    BaseVariable variable = variableClass.newInstance();
+                    Variable variable = variableClass.newInstance();
                     variable.setConverter(type.getConverter());
                     return variable;
                 } catch (Exception e) {
@@ -58,11 +58,11 @@ public class VariableCreator {
      *            initial value
      * @return variable
      */
-    public BaseVariable create(Process process, VariableDefinition variableDefinition, Object value) {
+    public Variable create(Process process, VariableDefinition variableDefinition, Object value) {
         log.debug("Creating variable '" + variableDefinition.getName() + "' in " + process + " with value '" + value + "'"
                 + (value != null ? " of " + value.getClass() : ""));
         boolean isArchive = process.isArchive();
-        BaseVariable variable;
+        Variable variable;
         if (value == null) {
             variable = isArchive ? new ArchivedNullVariable() : new CurrentNullVariable();
         } else if (variableDefinition.getStoreType() == VariableStoreType.BLOB) {

@@ -11,8 +11,6 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
-import ru.runa.wfe.execution.CurrentProcess;
-import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
@@ -22,7 +20,7 @@ import ru.runa.wfe.lang.MultiSubprocessNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
@@ -62,7 +60,7 @@ public class BaseProcessVariableLoader {
             return variable;
         }
         if (SystemProperties.isV3CompatibilityMode()) {
-            BaseVariable dbVariable = variableLoader.get(process, name);
+            Variable dbVariable = variableLoader.get(process, name);
             return new WfVariable(name, dbVariable != null ? dbVariable.getValue() : null);
         }
         log.debug("No variable defined by '" + name + "' in " + process + ", returning null");

@@ -3,7 +3,7 @@ package ru.runa.wfe.var.dao;
 import java.util.Map;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -21,7 +21,7 @@ public interface VariableLoader {
      *            Variable name.
      * @return Variable or null, if no variable found.
      */
-    BaseVariable get(Process process, String name);
+    Variable get(Process process, String name);
 
     /**
      * Load all variables for given process.

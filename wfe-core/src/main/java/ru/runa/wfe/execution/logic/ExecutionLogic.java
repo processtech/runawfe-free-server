@@ -106,7 +106,7 @@ import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableProvider;
 
@@ -701,7 +701,7 @@ public class ExecutionLogic extends WfCommonLogic {
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {
                     ProcessDefinition processDefinition = getDefinition(process);
-                    Map<Process, Map<String, BaseVariable>> variables = variableDao.getVariables(processes, variableNamesToInclude);
+                    Map<Process, Map<String, Variable>> variables = variableDao.getVariables(processes, variableNamesToInclude);
                     ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
                     for (String variableName : variableNamesToInclude) {
                         try {

@@ -64,7 +64,7 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableCreator;
 import ru.runa.wfe.var.VariableDefinition;
@@ -94,7 +94,7 @@ public class VariableLogic extends WfCommonLogic {
         Process process = processDao.getNotNull(processId);
         ProcessDefinition processDefinition = getDefinition(process);
         permissionDao.checkAllowed(user, Permission.LIST, process);
-        Map<Process, Map<String, BaseVariable>> variables = variableDao.getVariables(Collections.singletonList(process));
+        Map<Process, Map<String, Variable>> variables = variableDao.getVariables(Collections.singletonList(process));
         val executionContext = new ExecutionContext(processDefinition, process, variables, true);
         for (VariableDefinition variableDefinition : processDefinition.getVariables()) {
             WfVariable variable = executionContext.getVariable(variableDefinition.getName(), false);
@@ -108,7 +108,7 @@ public class VariableLogic extends WfCommonLogic {
     public Map<Long, List<WfVariable>> getVariables(User user, List<Long> processIds) throws ProcessDoesNotExistException {
         val result = new HashMap<Long, List<WfVariable>>();
         List<Process> processes = filterSecuredObject(user, processDao.find(processIds), Permission.LIST);
-        Map<Process, Map<String, BaseVariable>> variables = variableDao.getVariables(processes);
+        Map<Process, Map<String, Variable>> variables = variableDao.getVariables(processes);
         for (Process process : processes) {
             val list = new ArrayList<WfVariable>();
             ProcessDefinition processDefinition = getDefinition(process);
@@ -240,7 +240,7 @@ public class VariableLogic extends WfCommonLogic {
         Process process = processDao.getNotNull(filter.getProcessId());
         permissionDao.checkAllowed(user, Permission.LIST, process);
         val simpleVariablesChanged = new HashSet<String>();
-        Map<Process, Map<String, BaseVariable>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
+        Map<Process, Map<String, Variable>> processStateOnTime = getProcessStateOnTime(user, process, filter, simpleVariablesChanged);
         VariableLoader loader = new VariableLoaderFromMap(processStateOnTime);
         ProcessDefinition processDefinition = getDefinition(process);
         BaseProcessVariableLoader baseProcessVariableLoader = new BaseProcessVariableLoader(loader, processDefinition, process);
@@ -267,7 +267,7 @@ public class VariableLogic extends WfCommonLogic {
      * @param baseProcessVariableLoader
      *            Component for loading variables with base process variable state support.
      */
-    private void removeSyncVariablesInBaseProcessMode(Map<Process, Map<String, BaseVariable>> processStateOnTime,
+    private void removeSyncVariablesInBaseProcessMode(Map<Process, Map<String, Variable>> processStateOnTime,
             BaseProcessVariableLoader baseProcessVariableLoader) {
         ConvertToSimpleVariables operation = new ConvertToSimpleVariables();
         for (val entry : processStateOnTime.entrySet()) {
@@ -304,14 +304,14 @@ public class VariableLogic extends WfCommonLogic {
      *            Simple variables (as it stored in database/logs) names, changed in process.
      * @return Map from process to process variables, loaded according to process filter.
      */
-    private Map<Process, Map<String, BaseVariable>> getProcessStateOnTime(User user, Process process, ProcessLogFilter filter,
+    private Map<Process, Map<String, Variable>> getProcessStateOnTime(User user, Process process, ProcessLogFilter filter,
             Set<String> simpleVariablesChanged) {
         Map<Process, Map<String, Object>> processToVariables = loadSimpleVariablesState(user, process, filter, simpleVariablesChanged);
-        val result = new HashMap<Process, Map<String, BaseVariable>>();
+        val result = new HashMap<Process, Map<String, Variable>>();
         for (val kv : processToVariables.entrySet()) {
             val proc = kv.getKey();
             val vars = kv.getValue();
-            val newMap = new HashMap<String, BaseVariable>();
+            val newMap = new HashMap<String, Variable>();
             result.put(proc, newMap);
             for (Process procOrBase = proc; procOrBase != null; procOrBase = getBaseProcess(procOrBase)) {
                 ProcessDefinition definition = getDefinition(procOrBase);
@@ -325,7 +325,7 @@ public class VariableLogic extends WfCommonLogic {
                     if (varValue instanceof String) {
                         varValue = variableDefinition.getFormatNotNull().parse((String) varValue);
                     }
-                    BaseVariable variable = variableCreator.create(procOrBase, variableDefinition, varValue);
+                    Variable variable = variableCreator.create(procOrBase, variableDefinition, varValue);
                     variable.setValue(new ExecutionContext(definition, procOrBase), varValue, variableDefinition);
                     newMap.put(varName, variable);
                 }

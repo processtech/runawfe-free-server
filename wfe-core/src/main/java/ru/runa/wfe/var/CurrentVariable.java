@@ -58,7 +58,7 @@ import ru.runa.wfe.execution.CurrentProcess;
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
 @DiscriminatorValue(value = "V")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public abstract class CurrentVariable<V> extends BaseVariable<CurrentProcess, V> {
+public abstract class CurrentVariable<V> extends Variable<CurrentProcess, V> {
 
     protected Long id;
     private String name;

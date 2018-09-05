@@ -11,7 +11,6 @@ import lombok.val;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.runa.wfe.commons.SqlCommons;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.commons.dao.GenericDao2;
@@ -19,12 +18,12 @@ import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.var.ArchivedVariable;
-import ru.runa.wfe.var.BaseVariable;
+import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.CurrentVariable;
 
 @Component
 @CommonsLog
-public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, CurrentVariableDao, ArchivedVariable, ArchivedVariableDao> {
+public class VariableDao extends GenericDao2<Variable, CurrentVariable, CurrentVariableDao, ArchivedVariable, ArchivedVariableDao> {
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -34,7 +33,7 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
         super(dao1, dao2);
     }
 
-    public BaseVariable get(Process process, String name) {
+    public Variable get(Process process, String name) {
         if (process.isArchive()) {
             return dao2.get((ArchivedProcess) process, name);
         } else {
@@ -47,10 +46,10 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
      */
     public Map<String, Object> getAll(Process process) {
         Map<String, Object> result = Maps.newHashMap();
-        List<? extends BaseVariable> vars = process.isArchive()
+        List<? extends Variable> vars = process.isArchive()
                 ? dao2.getAllImpl((ArchivedProcess) process)
                 : dao1.getAllImpl((CurrentProcess) process);
-        for (BaseVariable v : vars) {
+        for (Variable v : vars) {
             try {
                 result.put(v.getName(), v.getValue());
             } catch (Exception e) {
@@ -67,7 +66,7 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
      *            Processes, which variables must be loaded.
      * @return for each given process: map from variable name to loaded variable.
      */
-    public Map<Process, Map<String, BaseVariable>> getVariables(List<? extends Process> processes) {
+    public Map<Process, Map<String, Variable>> getVariables(List<? extends Process> processes) {
         return Utils.isNullOrEmpty(processes)
                 ? new HashMap<>()
                 : getVariablesImpl(processes, null);
@@ -83,14 +82,14 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
      * @return for each given process: map from variable name to loaded variable. If no variable loaded for some variable name+process, when map is
      *         still contains variable name as key, but it value is null (Result is filled completely for all processes and variable names).
      */
-    public Map<Process, Map<String, BaseVariable>> getVariables(List<? extends Process> processes, List<String> variableNames) {
+    public Map<Process, Map<String, Variable>> getVariables(List<? extends Process> processes, List<String> variableNames) {
         return Utils.isNullOrEmpty(processes) || Utils.isNullOrEmpty(variableNames)
                 ? null
                 : getVariablesImpl(processes, variableNames);
     }
 
-    private Map<Process, Map<String, BaseVariable>> getVariablesImpl(List<? extends Process> processes, List<String> variableNamesOrNull) {
-        val result = new HashMap<Process, Map<String, BaseVariable>>();
+    private Map<Process, Map<String, Variable>> getVariablesImpl(List<? extends Process> processes, List<String> variableNamesOrNull) {
+        val result = new HashMap<Process, Map<String, Variable>>();
         val currentProcesses = new ArrayList<CurrentProcess>(processes.size());
         val archivedProcesses = new ArrayList<ArchivedProcess>(processes.size());
         for (Process p : processes) {
@@ -99,7 +98,7 @@ public class VariableDao extends GenericDao2<BaseVariable, CurrentVariable, Curr
             } else {
                 currentProcesses.add((CurrentProcess) p);
             }
-            val vars = new HashMap<String, BaseVariable>();
+            val vars = new HashMap<String, Variable>();
             result.put(p, vars);
             if (variableNamesOrNull != null) {
                 for (String name : variableNamesOrNull) {
