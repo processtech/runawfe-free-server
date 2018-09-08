@@ -21,15 +21,17 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
+import ru.runa.wfe.presentation.hibernate.QueryParameter;
 
 public abstract class FilterCriteria implements Serializable {
     private static final long serialVersionUID = 1L;
     private String[] filterTemplates;
     private int templatesCount;
+    private boolean exclusive;
 
     /**
      * For web services only
@@ -87,6 +89,9 @@ public abstract class FilterCriteria implements Serializable {
         if (!getClass().equals(obj.getClass())) {
             return false;
         }
+        if (exclusive != ((FilterCriteria) obj).isExclusive()) {
+            return false;
+        }
         if (Arrays.equals(((FilterCriteria) obj).filterTemplates, filterTemplates)) {
             return true;
         }
@@ -106,4 +111,39 @@ public abstract class FilterCriteria implements Serializable {
     public String toString() {
         return Objects.toStringHelper(this).add("filters", filterTemplates).toString();
     }
+
+    public boolean isExclusive() {
+        return exclusive;
+    }
+
+    public void setExclusive(boolean exclusive) {
+        this.exclusive = exclusive;
+    }
+
+    protected String buildInOperator(String aliasedFieldName) {
+        String where = "";
+        String[] values = getFilterTemplate(0).split(",");
+        if (values.length > 0) {
+            for (String value : values) {
+                if (Strings.isNullOrEmpty(where)) {
+                    where = aliasedFieldName + " IN (";
+                } else {
+                    where += ",";
+                }
+                where += "'" + value.trim() + "'";
+            }
+            where += ")";
+        }
+        return where;
+    }
+
+    protected String buildBetweenOperator(String aliasedFieldName) {
+        String where = "";
+        String[] values = getFilterTemplate(0).split("-");
+        if (values.length == 2) {
+            where = aliasedFieldName + " BETWEEN '" + values[0].trim() + "' AND '" + values[1].trim() + "'";
+        }
+        return where;
+    }
+
 }
