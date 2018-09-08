@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.portlet.PortletSession;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
@@ -34,6 +35,7 @@ import org.apache.struts.Globals;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.taglib.TagUtils;
 
+import org.springframework.util.Assert;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
@@ -197,7 +199,7 @@ public class Commons {
         return url;
     }
 
-    private static String encodeToUTF8(String string) {
+    public static String encodeToUTF8(String string) {
         try {
             return URLEncoder.encode(string, Charsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
@@ -251,4 +253,20 @@ public class Commons {
         return false;
     }
 
+    public static String getSelfActionWithQueryString(PageContext ctx) {
+        HttpServletRequest rq = (HttpServletRequest) ctx.getRequest();
+
+        String uri = (String)rq.getAttribute("javax.servlet.forward.request_uri");
+
+        String pfx = rq.getContextPath();
+        Assert.isTrue(uri.startsWith(pfx));
+        uri = uri.substring(pfx.length());
+
+        String qs = rq.getQueryString();
+        if (qs != null) {
+            uri = uri + "?" + qs;
+        }
+
+        return uri;
+    }
 }

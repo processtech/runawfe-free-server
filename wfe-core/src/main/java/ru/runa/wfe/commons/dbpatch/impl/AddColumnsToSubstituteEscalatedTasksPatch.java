@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
 
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class AddColumnsToSubstituteEscalatedTasksPatch extends DBPatch {
+public class AddColumnsToSubstituteEscalatedTasksPatch extends DbPatch {
 
     private static final Pattern DECIMAL_LONG = Pattern.compile("([\\d]+)");
 

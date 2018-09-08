@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
 
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Parses and evaluates swimlane initializers. Swimlane initializer can be given in 2 forms:
@@ -41,7 +41,7 @@ public class SwimlaneInitializerHelper {
         return CACHE.get(swimlaneConfiguration);
     }
 
-    public static List<? extends Executor> evaluate(String swimlaneConfiguration, IVariableProvider variableProvider) {
+    public static List<? extends Executor> evaluate(String swimlaneConfiguration, VariableProvider variableProvider) {
         SwimlaneInitializer swimlaneInitializer = parse(swimlaneConfiguration);
         try {
             List<? extends Executor> result = swimlaneInitializer.evaluate(variableProvider);

@@ -18,18 +18,14 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.AddMembersToGroupAction;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listNotGroupMembersForm")
 public class ListNotGroupMembersFormTag extends ListExecutorsBaseFormTag {
@@ -37,12 +33,7 @@ public class ListNotGroupMembersFormTag extends ListExecutorsBaseFormTag {
     private static final long serialVersionUID = 1770247337446619592L;
 
     @Override
-    protected Permission getPermission() {
-        return GroupPermission.ADD_TO_GROUP;
-    }
-
-    @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 
@@ -70,6 +61,6 @@ public class ListNotGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return ExecutorPermission.READ;
+        return Permission.LIST;
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://runa.ru/xml workflowScript.xsd">
+<workflowScript xmlns="http://runa.ru/xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	 <!-- This script was designed to demonstrate features of RUNA WFE scripting language
 	 it shows how to create/remove executors, grant/set/removke permissions etc.
 	 -->

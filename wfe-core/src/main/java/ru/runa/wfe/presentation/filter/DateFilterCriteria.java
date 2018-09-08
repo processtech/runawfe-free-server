@@ -17,16 +17,12 @@
  */
 package ru.runa.wfe.presentation.filter;
 
+import com.google.common.base.Strings;
 import java.util.Date;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
-
-import com.google.common.base.Strings;
+import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 public class DateFilterCriteria extends FilterCriteria {
     private static final long serialVersionUID = 1L;
@@ -72,7 +68,7 @@ public class DateFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
         initDates();
 
         String placeholderStart = makePlaceHolderName(aliasedFieldName + "Start");
@@ -102,10 +98,10 @@ public class DateFilterCriteria extends FilterCriteria {
         }
 
         if (dateStart != null) {
-            placeholders.put(placeholderStart, new QueryParameter(placeholderStart, dateStart));
+            placeholders.add(placeholderStart, dateStart);
         }
         if (dateEnd != null) {
-            placeholders.put(placeholderEnd, new QueryParameter(placeholderEnd, dateEnd));
+            placeholders.add(placeholderEnd, dateEnd);
         }
 
         whereStringBuilder.append(" ");

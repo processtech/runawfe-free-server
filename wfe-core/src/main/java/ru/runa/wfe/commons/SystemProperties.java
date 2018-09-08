@@ -1,16 +1,14 @@
 package ru.runa.wfe.commons;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-
-import ru.runa.wfe.execution.logic.IProcessExecutionListener;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import ru.runa.wfe.execution.logic.ProcessExecutionListener;
 import ru.runa.wfe.lang.NodeType;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 
@@ -24,14 +22,8 @@ public class SystemProperties {
 
     public static final String RESOURCE_EXTENSION_PREFIX = "wfe.custom.";
     public static final String DEPRECATED_PREFIX = "deprecated.";
-    @Deprecated
-    public static final Calendar SYSTEM_STARTUP_CALENDAR = Calendar.getInstance();
 
-    public static final String TIMERTASK_START_MILLIS_JOB_EXECUTION_NAME = "timertask.start.millis.job.execution";
-    public static final String TIMERTASK_PERIOD_MILLIS_JOB_EXECUTION_NAME = "timertask.period.millis.job.execution";
-    public static final String TIMERTASK_START_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME = "timertask.start.unassigned.tasks.execution";
-    public static final String TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME = "timertask.period.millis.unassigned.tasks.execution";
-    private static volatile List<IProcessExecutionListener> processExecutionListeners = null;
+    private static volatile List<ProcessExecutionListener> processExecutionListeners = null;
 
     public static PropertyResources getResources() {
         return RESOURCES;
@@ -107,10 +99,6 @@ public class SystemProperties {
         return RESOURCES.getStringProperty("build.date");
     }
 
-    public static String getStartup() {
-        return CalendarUtil.formatDateTime(SYSTEM_STARTUP_CALENDAR);
-    }
-
     public static String getAdministratorName() {
         return RESOURCES.getStringPropertyNotNull("default.administrator.name");
     }
@@ -136,7 +124,7 @@ public class SystemProperties {
     }
 
     public static String getLocalFileStoragePath() {
-        return RESOURCES.getStringProperty("file.variable.local.storage.path", IOCommons.getAppServerDirPath() + "/wfe.filedata");
+        return RESOURCES.getStringProperty("file.variable.local.storage.path", IoCommons.getAppServerDirPath() + "/wfe.filedata");
     }
 
     public static int getLocalFileStorageFileLimit() {
@@ -274,8 +262,18 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("base.process.id.variable.read.all", true);
     }
 
+    /**
+     * Max.number of integer IDs in "in (...)" clause in queries.
+     */
     public static int getDatabaseParametersCount() {
         return RESOURCES.getIntegerProperty("database.parameters.count", 900);
+    }
+
+    /**
+     * Max.number of string names (executor names, definition names, etc.) in "in (...)" clause in queries.
+     */
+    public static int getDatabaseNameParametersCount() {
+        return RESOURCES.getIntegerProperty("database.name.parameters.count", 50);
     }
 
     public static List<String> getFreemarkerStaticClassNames() {
@@ -294,14 +292,14 @@ public class SystemProperties {
         return RESOURCES.getBooleanProperty("temporary.groups.delete.on.task.end", false);
     }
 
-    public static List<IProcessExecutionListener> getProcessExecutionListeners() {
+    public static List<ProcessExecutionListener> getProcessExecutionListeners() {
         if (processExecutionListeners == null) {
             synchronized (SystemProperties.class) {
                 if (processExecutionListeners == null) {
                     processExecutionListeners = Lists.newArrayList();
                     for (String className : RESOURCES.getMultipleStringProperty("process.execution.listeners")) {
                         try {
-                            IProcessExecutionListener listener = ClassLoaderUtil.instantiate(className);
+                            ProcessExecutionListener listener = ClassLoaderUtil.instantiate(className);
                             processExecutionListeners.add(listener);
                         } catch (Throwable th) {
                             processExecutionListeners = null;
@@ -347,11 +345,11 @@ public class SystemProperties {
      */
     public static List<Permission> getDefaultPermissions(SecuredObjectType securedObjectType) {
         List<Permission> result = new ArrayList<>();
-        List<Permission> allPermissions = securedObjectType.getAllPermissions();
+        List<Permission> applicablePermissions = ApplicablePermissions.listVisible(securedObjectType);
         List<String> permissionNames = RESOURCES.getMultipleStringProperty(securedObjectType.toString().toLowerCase() + ".default.permissions");
         for (String permissionName : permissionNames) {
             Permission foundPermission = null;
-            for (Permission permission : allPermissions) {
+            for (Permission permission : applicablePermissions) {
                 if (permission.getName().equals(permissionName)) {
                     foundPermission = permission;
                     break;

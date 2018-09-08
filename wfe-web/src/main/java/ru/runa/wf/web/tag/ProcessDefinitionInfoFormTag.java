@@ -39,11 +39,9 @@ import ru.runa.wf.web.action.ShowDefinitionHistoryAction;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.definition.DefinitionClassPresentation;
-import ru.runa.wfe.definition.DefinitionPermission;
-import ru.runa.wfe.definition.WorkflowSystemPermission;
 import ru.runa.wfe.definition.dto.WfDefinition;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.TaskClassPresentation;
 
@@ -52,12 +50,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
     private static final long serialVersionUID = 7118850164438509260L;
 
     @Override
-    protected boolean isVisible() {
-        return true;
-    }
-
-    @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 
@@ -74,7 +67,7 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
         nameTR.addElement(new TD(definitionName).setClass(Resources.CLASS_LIST_TABLE_TD));
         TD nameTD = new TD();
         nameTD.setClass(Resources.CLASS_LIST_TABLE_TD);
-        if (Delegates.getAuthorizationService().isAllowed(getUser(), WorkflowSystemPermission.DEPLOY_DEFINITION, ASystem.INSTANCE)) {
+        if (Delegates.getAuthorizationService().isAllowed(getUser(), Permission.CREATE, SecuredSingleton.DEFINITIONS)) {
             nameTD.addElement(definition.getName() + " (");
             String historyUrl = Commons.getActionUrl(ShowDefinitionHistoryAction.ACTION, "name", definition.getName(), pageContext,
                     PortletUrlType.Render);
@@ -178,8 +171,8 @@ public class ProcessDefinitionInfoFormTag extends ProcessDefinitionBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return DefinitionPermission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override

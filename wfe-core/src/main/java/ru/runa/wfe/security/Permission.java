@@ -1,219 +1,222 @@
 /*
  * This file is part of the RUNA WFE project.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU Lesser General Public License 
- * as published by the Free Software Foundation; version 2.1 
- * of the License. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
- * GNU Lesser General Public License for more details. 
- * 
- * You should have received a copy of the GNU Lesser General Public License 
- * along with this program; if not, write to the Free Software 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
+ * as published by the Free Software Foundation; version 2.1
+ * of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 package ru.runa.wfe.security;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
 import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
+import java.io.Serializable;
+import java.util.HashMap;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import ru.runa.wfe.commons.xml.Permission2XmlAdapter;
+
 
 /**
- * Class represents permissions on any {@link SecuredObject}. Every type of {@link SecuredObject} can own subclass of this class which represent set
- * of allowed permissions.
+ * "Extensible enum": more "enum items" can be added elsewhere.
+ * For example, if subproject needs additional permissions EXTRA_EXECUTOR_PERM and EXTRA_ACTOR_PERM
+ * applicable to actors and groups, code it like this:
+ *
+ * <pre>
+ * class ExtraPermission {
+ *     public static final Permission EXTRA_EXECUTOR_PERM = new Permission("EXTRA_EXECUTOR_PERM");
+ *     public static final Permission EXTRA_ACTOR_PERM = new Permission("EXTRA_ACTOR_PERM");
+ *     static {
+ *         // Declare which types new permissions are applicable to.
+ *         ApplicablePermissions.add(SecuredObjectType.ACTOR, EXTRA_EXECUTOR_PERM, EXTRA_ACTOR_PERM);
+ *         ApplicablePermissions.add(SecuredObjectType.GROUP, EXTRA_EXECUTOR_PERM);
+ *
+ *         // Declare that if EXTRA_ACTOR_PERM is requested on ACTOR, then it's sufficient to have
+ *         // UDPATE permission on the same ACTOR instance, or ALL or UPDATE permission on EXECUTORS list.
+ *         // Note 1: declare substitutions after declaring applicability.
+ *         // Note 2: list type EXECUTORS is known from SecuredObjectType.ACTOR definition.
+ *         // Note 3: lists's ALL is already a substitution for list's UPDATE, and list's UPDATE is already
+ *         //         a substitution for instance's UDPATE (see PermissionSubstitutions static initialization),
+ *         //         so .list() call can be omitted here.
+ *         PermissionSubstitutions.add(SecuredObjectType.ACTOR, EXTRA_ACTOR_PERM)
+ *                 .self(Permission.UPDATE)
+ *                 .list(Permission.ALL, Permission.UPDATE);
+ *     }
+ * }
+ * </pre>
+ *
+ * These permissions are pretty fine-grained. Some of them are as hidden (globally or for specific object types),
+ * i.e. used internally but not editable by user. See method {@link ApplicablePermissions.DSL#hidden(Permission...)}
+ * for details.
+ * <p>
+ * <b>ATTENTION!!!</b> Since once initialization completes, permissions are accessed as read-only,
+ * no synchronization is done on internal structures to avoid unnecessary performance overhead.
+ * So you MUST initialize permissions in single thread. Make sure that all classes that perform
+ * this initialization (Permission itself and, considering example above, ExtraPermission)
+ * are touched by class-loader in main thread during application startup.
+ *
+ * @see SecuredObjectType
+ * @see ApplicablePermissions
+ * @see PermissionSubstitutions
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-public class Permission implements Serializable {
-    private static final long serialVersionUID = -3672653529467591904L;
-    /**
-     * Read permission. Read permission usually allows read/get object.
-     */
-    public static final Permission READ = new Permission(0, "permission.read");
-    /**
-     * Update permission. Update permission usually allows change object state.
-     */
-    public static final Permission UPDATE_PERMISSIONS = new Permission(1, "permission.update_permissions");
+@XmlJavaTypeAdapter(Permission2XmlAdapter.class)
+public final class Permission implements Serializable, Comparable<Permission> {
+    private static final long serialVersionUID = 2L;
+
+    private static HashMap<String, Permission> instancesByName = new HashMap<>();
 
     /**
-     * All defined permissions.
+     * Mimics enum's valueOf() method, including thrown exception type.
+     *
+     * Old Permission threw PermissionNotFoundException (now renamed to PermissionNotApplicableException)
+     * which is subclass of InternalApplicationException; but unknown Throwable is wrapped
+     * into InternalApplicationException by exception handlers, so there's no difference.
      */
-    private static final Permission[] ALL_PERMISSIONS = { READ, UPDATE_PERMISSIONS };
+    public static Permission valueOf(String name) {
+        Permission result;
+        try {
+            result = instancesByName.get(name);
+        } catch (Throwable e) {
+            throw new IllegalArgumentException("Illegal Permission name");
+        }
+        if (result == null) {
+            throw new IllegalArgumentException("Unknown Permission name \"" + name + "\"");
+        }
+        return result;
+    }
 
-    /**
-     * Permission name.
-     */
+
     private final String name;
 
     /**
-     * Permission mask. Every specific permission (Read, Update) has it's own bit position in this mask. If permission is granted, then permission bit
-     * is set to 1; otherwise permission bit is set to 0.
+     * @param name Should be equal to instance name. Returned by name() method.
      */
-    private final long mask;
-
-    /**
-     * Create permission with specified name and permission bit position.
-     * 
-     * @param maskPower
-     *            Bit position, where permission is stored in {@link #mask}.
-     * @param name
-     *            Permission name.
-     */
-    protected Permission(int maskPower, String name) {
-        mask = getMask(maskPower);
+    public Permission(String name) {
+        if (name == null || name.isEmpty() || name.length() > 32) {
+            // permission_mapping.permission is varchar(32)
+            throw new RuntimeException("Null, empty or too large Permission name");
+        }
         this.name = name;
+        if (instancesByName.put(name, this) != null) {
+            throw new RuntimeException("Duplicate Permission name \"" + name + "\"");
+        }
     }
 
     /**
-     * Creates permission with mask==0 i.e means NO_PERMISSION
-     */
-    public Permission() {
-        mask = 0;
-        name = null;
-    }
-
-    /**
-     * Return permission mask. Every specific permission (Read, Update) has it's own bit position in this mask. If permission is granted, then
-     * permission bit is set to 1; otherwise permission bit is set to 0.
-     * 
-     * @return Permission mask.
-     */
-    public long getMask() {
-        return mask;
-    }
-
-    /**
-     * Return permission name.
-     * 
-     * @return Permission name.
+     * Equivalent to enum's name() method. Returns constructor argument.
      */
     public String getName() {
         return name;
     }
 
-    /**
-     * Return permission with specified mask if found, throws {@link PermissionNotFoundException} otherwise.
-     * 
-     * @param mask
-     *            Permission bit mask.
-     * @return Permission with specified mask.
-     * @throws PermissionNotFoundException
-     *             Permission with specified mask not found.
-     */
-    public Permission getPermission(long mask) throws PermissionNotFoundException {
-        List<Permission> permissions = getAllPermissions();
-        for (Permission permission : permissions) {
-            if (mask == permission.getMask()) {
-                return permission;
-            }
-        }
-        throw new PermissionNotFoundException("mask = " + mask);
-    }
-
-    /**
-     * Returns an array of all permissions that executor may have on type of secured object this class represents. This method must be overridden in
-     * subclass.
-     */
-    public List<Permission> getAllPermissions() {
-        return Lists.newArrayList(ALL_PERMISSIONS);
-    }
-
-    /**
-     * Returns permission array, which represents no permission on secured object.
-     * 
-     * @return Permission array.
-     */
-    public static List<Permission> getNoPermissions() {
-        return Lists.newArrayList();
-    }
-
-    /**
-     * Return permission with specified name or throws {@link PermissionNotFoundException} otherwise.
-     * 
-     * @param name
-     *            Permission name
-     * @return Permission with specified name.
-     * @throws PermissionNotFoundException
-     *             Permission with specified name was not found.
-     */
-    public Permission getPermission(String name) throws PermissionNotFoundException {
-        for (Permission permission : getAllPermissions()) {
-            if (permission.getName().equals(name)) {
-                return permission;
-            }
-        }
-        throw new PermissionNotFoundException(name);
-    }
-
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Permission) {
-            Permission p = (Permission) obj;
-            return Objects.equal(name, p.name) && mask == p.mask;
-        }
-        return super.equals(obj);
+    public int compareTo(Permission o) {
+        return getName().compareTo(o.getName());
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(name, mask);
-    }
-
+    /**
+     * Same as old Permission.toString().
+     */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("name", name).toString();
+        return Objects.toStringHelper(this).add("name", getName()).toString();
     }
 
-    /**
-     * Merge two permission arrays together into single permission array.
-     * 
-     * @param p1
-     *            First permission array.
-     * @param p2
-     *            Second permission array.
-     * @return Merged permission array.
-     */
-    public static Set<Permission> mergePermissions(Collection<Permission> p1, Collection<Permission> p2) {
-        Set<Permission> set = new HashSet<Permission>();
-        set.addAll(p1);
-        set.addAll(p2);
-        return set;
-    }
 
     /**
-     * Remove permissions from permission array.
-     * 
-     * @param p1
-     *            Source permission array, from which permissions removed.
-     * @param p2
-     *            Permission array with permissions to remove.
-     * @return Permission array
+     * All permissions.
      */
-    public static Set<Permission> subtractPermissions(Collection<Permission> p1, Collection<Permission> p2) {
-        Set<Permission> set = new HashSet<Permission>();
-        set.addAll(p1);
-        set.removeAll(p2);
-        return set;
-    }
+    public static final Permission ALL = new Permission("ALL");
 
     /**
-     * Create mask for specified bit position.
-     * 
-     * @param maskPower
-     *            Bit position.
-     * @return Bit-mask, contains 1 in bit position maskPower and 0 in other bits.
+     * Cancel specific process or any processes.
      */
-    private static final long getMask(long maskPower) {
-        return (long) Math.pow(2, maskPower);
-    }
+    public static final Permission CANCEL = new Permission("CANCEL");
+
+    /**
+     * Grant CANCEL permission for process started from specific definition or from any definitions.
+     */
+    public static final Permission CANCEL_PROCESS = new Permission("CANCEL_PROCESS");
+
+    /**
+     * Create or import object of specific type.
+     */
+    public static final Permission CREATE = new Permission("CREATE");
+
+    /**
+     * Delete specific object (when applied to that object), or any object of specific type (when applied to objects list).
+     */
+    public static final Permission DELETE = new Permission("DELETE");
+
+    /**
+     * Actor is allowed to login into system.
+     */
+    public static final Permission LOGIN = new Permission("LOGIN");
+
+    /**
+     * Formerly no-arg Permission constructor, used only as PropertyTdBuilder constructor argument in FieldDescriptor constructor calls.
+     * PermissionDAO.isAllowed...() checks always return false for it, without accessing database.
+     *
+     * TODO Review all usages. PropertyTdBuilder's 2/3 constructors' behaviour looks contradictionary with its own base class.
+     *      Maybe with a little more refactoring, NONE can be removed and null can be passed everywhere instead.
+     */
+    public static final Permission NONE = new Permission("NONE");
+
+    /**
+     * Read objects list, corresponding menu item is visible.
+     * When applied to specific objects instead of whole list, only those objects will be visible in list.
+     */
+    public static final Permission LIST = new Permission("LIST");
+
+    /**
+     * Can read and export any object details.
+     */
+    public static final Permission READ = new Permission("READ");
+
+    /**
+     * Can read object permissions.
+     */
+    public static final Permission READ_PERMISSIONS = new Permission("READ_PERMISSIONS");
+
+    /**
+     * Grant READ permission for process started from specific definition or from any definitions.
+     */
+    public static final Permission READ_PROCESS = new Permission("READ_PROCESS");
+
+    /**
+     * Can start specific process (when applied to process) or any processes (when applied to process list).
+     */
+    public static final Permission START = new Permission("START");
+
+    /**
+     * Can edit specific object (when applied to that object) or any object of specific type (when applied to objects list).
+     */
+    public static final Permission UPDATE = new Permission("UPDATE");
+
+    /**
+     * Can edit object permissions.
+     */
+    public static final Permission UPDATE_PERMISSIONS = new Permission("UPDATE_PERMISSIONS");
+
+    /**
+     * Actor can edit his own profile.
+     */
+    public static final Permission UPDATE_SELF = new Permission("UPDATE_SELF");
+
+    /**
+     * Can edit actors's status.
+     */
+    public static final Permission UPDATE_STATUS = new Permission("UPDATE_STATUS");
+
+    /**
+     * Can view actor's tasks.
+     */
+    public static final Permission VIEW_TASKS = new Permission("VIEW_TASKS");
 }

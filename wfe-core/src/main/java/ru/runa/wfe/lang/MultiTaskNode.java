@@ -197,7 +197,7 @@ public class MultiTaskNode extends BaseTaskNode {
     private boolean isLastTaskToComplete(Task task) {
         Token token = task.getToken();
         boolean lastToComplete = true;
-        for (Task other : taskDAO.findByToken(token)) {
+        for (Task other : taskDao.findByToken(token)) {
             if (!other.equals(task)) {
                 lastToComplete = false;
                 break;

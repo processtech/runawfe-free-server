@@ -39,12 +39,12 @@ import ru.runa.wfe.commons.cache.sm.CacheInitializationProcessContextStub;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.ss.Substitution;
 import ru.runa.wfe.ss.TerminatorSubstitution;
-import ru.runa.wfe.ss.dao.SubstitutionDAO;
+import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Cache implementation for substitutions.
@@ -136,17 +136,17 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
     private static Map<Long, TreeMap<Substitution, HashSet<Long>>> getMapActorToSubstitutors(
             CacheInitializationProcessContext initializationContext) {
         Map<Long, TreeMap<Substitution, HashSet<Long>>> result = Maps.newHashMap();
-        final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
+        final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
         try {
-            final SubstitutionDAO substitutionDAO = ApplicationContextFactory.getSubstitutionDAO();
-            for (Substitution substitution : substitutionDAO.getAll()) {
+            final SubstitutionDao substitutionDao = ApplicationContextFactory.getSubstitutionDAO();
+            for (Substitution substitution : substitutionDao.getAll()) {
                 if (!initializationContext.isInitializationStillRequired()) {
                     return result;
                 }
                 try {
                     Long actorId;
                     try {
-                        actorId = executorDAO.getActor(substitution.getActorId()).getId();
+                        actorId = executorDao.getActor(substitution.getActorId()).getId();
                     } catch (ExecutorDoesNotExistException e) {
                         log.error("in " + substitution + ": " + e);
                         continue;
@@ -169,7 +169,7 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
                         if (sub instanceof Actor) {
                             substitutors.add(sub.getId());
                         } else {
-                            for (Actor groupActor : executorDAO.getGroupActors((Group) sub)) {
+                            for (Actor groupActor : executorDao.getGroupActors((Group) sub)) {
                                 substitutors.add(groupActor.getId());
                             }
                         }
@@ -188,7 +188,7 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
     private static Map<Long, HashSet<Long>> getMapActorToSubstituted(Map<Long, TreeMap<Substitution, HashSet<Long>>> mapActorToSubstitutors,
             CacheInitializationProcessContext initializationContext) {
         Map<Long, HashSet<Long>> result = new HashMap<Long, HashSet<Long>>();
-        final ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
+        final ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
         for (Map.Entry<Long, TreeMap<Substitution, HashSet<Long>>> entry1 : mapActorToSubstitutors.entrySet()) {
             final Long substitutedId = entry1.getKey();
             // TODO why is it here?
@@ -196,7 +196,7 @@ public class SubstitutionCacheStateImpl extends BaseCacheImpl implements Managea
                 return result;
             }
             try {
-                Actor substitutedActor = executorDAO.getActor(substitutedId);
+                Actor substitutedActor = executorDao.getActor(substitutedId);
                 if (substitutedActor.isActive()) {
                     continue;
                 }

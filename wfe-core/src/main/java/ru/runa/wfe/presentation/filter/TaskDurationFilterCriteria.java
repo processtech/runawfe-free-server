@@ -18,16 +18,13 @@
 package ru.runa.wfe.presentation.filter;
 
 import java.util.Calendar;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.commons.bc.BusinessDuration;
 import ru.runa.wfe.commons.bc.BusinessDurationParser;
 import ru.runa.wfe.presentation.filter.dialect.DurationDialectFactory;
-import ru.runa.wfe.presentation.filter.dialect.IDurationDialect;
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
+import ru.runa.wfe.presentation.filter.dialect.DurationDialect;
+import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 public class TaskDurationFilterCriteria extends FilterCriteria {
     private static final long serialVersionUID = 1L;
@@ -81,9 +78,9 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
         initTimes();
-        final IDurationDialect durationDialect = DurationDialectFactory.createDialect();
+        final DurationDialect durationDialect = DurationDialectFactory.createDialect();
         final String placeholderStart = makePlaceHolderName(aliasedFieldName + "Start");
         final String placeholderEnd = makePlaceHolderName(aliasedFieldName + "End");
         final String wrappedPlaceholderStart = durationDialect.wrapParameter(placeholderStart);
@@ -113,10 +110,10 @@ public class TaskDurationFilterCriteria extends FilterCriteria {
         }
 
         if (durationStart != null) {
-            placeholders.put(placeholderStart, new QueryParameter(placeholderStart, durationDialect.convertValue(durationStart.getAmount())));
+            placeholders.add(placeholderStart, durationDialect.convertValue(durationStart.getAmount()));
         }
         if (durationEnd != null) {
-            placeholders.put(placeholderEnd, new QueryParameter(placeholderEnd, durationDialect.convertValue(durationEnd.getAmount())));
+            placeholders.add(placeholderEnd, durationDialect.convertValue(durationEnd.getAmount()));
         }
 
         whereStringBuilder.append(" ");

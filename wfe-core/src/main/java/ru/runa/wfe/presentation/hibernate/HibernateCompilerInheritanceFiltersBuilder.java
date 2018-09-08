@@ -21,13 +21,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.presentation.BatchPresentation;
-import ru.runa.wfe.presentation.DBSource;
-import ru.runa.wfe.presentation.DBSource.AccessType;
+import ru.runa.wfe.presentation.DbSource;
+import ru.runa.wfe.presentation.DbSource.AccessType;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.FieldState;
@@ -49,7 +47,7 @@ public class HibernateCompilerInheritanceFiltersBuilder {
     /**
      * Component to build HQL query for {@link BatchPresentation}.
      */
-    private final HibernateCompilerHQLBuider hqlBuilder;
+    private final HibernateCompilerHqlBuider hqlBuilder;
 
     /**
      * Translator, used to translate HQL query to SQL.
@@ -66,7 +64,7 @@ public class HibernateCompilerInheritanceFiltersBuilder {
      * @param queryTranslator
      *            Translator, used to translate HQL query to SQL.
      */
-    public HibernateCompilerInheritanceFiltersBuilder(BatchPresentation batchPresentation, HibernateCompilerHQLBuider hqlBuilder,
+    public HibernateCompilerInheritanceFiltersBuilder(BatchPresentation batchPresentation, HibernateCompilerHqlBuider hqlBuilder,
             HibernateCompilerTranslator queryTranslator) {
         this.batchPresentation = batchPresentation;
         this.hqlBuilder = hqlBuilder;
@@ -111,10 +109,10 @@ public class HibernateCompilerInheritanceFiltersBuilder {
     private List<String> buildFiltersStatements() {
         Map<Integer, FilterCriteria> filteredMap = batchPresentation.getFilteredFields();
         if (filteredMap.size() == 0) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
         FieldDescriptor[] fields = batchPresentation.getAllFields();
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         for (Map.Entry<Integer, FilterCriteria> entry : filteredMap.entrySet()) {
             int index = entry.getKey();
             if (fields[index].filterMode != FieldFilterMode.DATABASE || fields[index].fieldState == FieldState.DISABLED) {
@@ -147,8 +145,8 @@ public class HibernateCompilerInheritanceFiltersBuilder {
      * @return SQL statements to filter by field.
      */
     private List<String> buildFiltersForField(FieldDescriptor field, FilterCriteria criteria) {
-        List<String> result = new LinkedList<String>();
-        for (DBSource dbSource : field.dbSources) {
+        List<String> result = new LinkedList<>();
+        for (DbSource dbSource : field.dbSources) {
             if (dbSource.getValueDBPath(AccessType.FILTER, null) == null) {
                 continue;
             }
@@ -182,7 +180,7 @@ public class HibernateCompilerInheritanceFiltersBuilder {
      *            Filter templates.
      * @return HQL condition string to filter by database source.
      */
-    private String createDbSourceFilterCriteria(FieldDescriptor field, DBSource dbSource, String[] filterTemplates) {
+    private String createDbSourceFilterCriteria(FieldDescriptor field, DbSource dbSource, String[] filterTemplates) {
         FilterCriteria fieldsToFilterCriteria = FilterCriteriaFactory.createFilterCriteria(dbSource.getSourceObject());
         try {
             fieldsToFilterCriteria.applyFilterTemplates(filterTemplates);

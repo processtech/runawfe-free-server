@@ -17,15 +17,12 @@
  */
 package ru.runa.wfe.var;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-
+import java.io.Serializable;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;

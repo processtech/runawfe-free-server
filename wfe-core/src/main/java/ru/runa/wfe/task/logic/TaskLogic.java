@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +17,11 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.TimeMeasurer;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
-import ru.runa.wfe.commons.logic.WFCommonLogic;
+import ru.runa.wfe.commons.logic.WfCommonLogic;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessDoesNotExistException;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.ProcessSuspendedException;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dto.WfProcess;
@@ -35,8 +33,10 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.lang.Transition;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.hibernate.CompilerParameters;
 import ru.runa.wfe.presentation.hibernate.PresentationCompiler;
+import ru.runa.wfe.security.ApplicablePermissions;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.task.Task;
@@ -44,19 +44,17 @@ import ru.runa.wfe.task.TaskAlreadyAcceptedException;
 import ru.runa.wfe.task.TaskCompletionBy;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.task.TaskDoesNotExistException;
-import ru.runa.wfe.task.TaskObservableClassPresentation;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.task.dto.WfTaskFactory;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.DelegationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.validation.ValidationException;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableMapping;
@@ -68,20 +66,20 @@ import ru.runa.wfe.var.format.VariableFormatContainer;
  * @author Dofs
  * @since 4.0
  */
-public class TaskLogic extends WFCommonLogic {
+public class TaskLogic extends WfCommonLogic {
     @Autowired
     private WfTaskFactory taskObjectFactory;
     @Autowired
-    private ITaskListBuilder taskListBuilder;
+    private TaskListBuilder taskListBuilder;
     @Autowired
-    private IObservableTaskListBuilder observableTaskListBuilder;
+    private ObservableTaskListBuilder observableTaskListBuilder;
     @Autowired
     private TaskAssigner taskAssigner;
     @Autowired
     private ExecutorLogic executorLogic;
 
     public void completeTask(User user, Long taskId, Map<String, Object> variables, Long swimlaneActorId) throws TaskDoesNotExistException {
-        Task task = taskDAO.getNotNull(taskId);
+        Task task = taskDao.getNotNull(taskId);
         if (task.getProcess().getExecutionStatus() == ExecutionStatus.SUSPENDED) {
             throw new ProcessSuspendedException(task.getProcess().getId());
         }
@@ -95,7 +93,7 @@ public class TaskLogic extends WFCommonLogic {
             TaskCompletionBy completionBy = checkCanParticipate(user.getActor(), task);
             BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
             if (swimlaneActorId != null) {
-                Actor swimlaneActor = executorDAO.getActor(swimlaneActorId);
+                Actor swimlaneActor = executorDao.getActor(swimlaneActorId);
                 checkCanParticipate(swimlaneActor, task);
                 boolean reassignSwimlane = taskNode.getFirstTaskNotNull().isReassignSwimlaneToTaskPerformer();
                 AssignmentHelper.reassignTask(executionContext, task, swimlaneActor, reassignSwimlane);
@@ -122,7 +120,7 @@ public class TaskLogic extends WFCommonLogic {
                     extraVariablesMap.put(mapping.getMappedName(), value);
                 }
             }
-            IVariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
+            VariableProvider validationVariableProvider = new MapDelegableVariableProvider(extraVariablesMap, executionContext.getVariableProvider());
             validateVariables(user, executionContext, validationVariableProvider, processDefinition, task.getNodeId(), variables);
             processMultiTaskVariables(executionContext, task, variables);
             executionContext.setVariableValues(variables);
@@ -134,7 +132,7 @@ public class TaskLogic extends WFCommonLogic {
             }
             executionContext.setTransientVariable(WfProcess.SELECTED_TRANSITION_KEY, transition.getName());
             task.end(executionContext, taskNode, TaskCompletionInfo.createForUser(completionBy, user.getActor()));
-            if (taskNode instanceof Synchronizable && ((Synchronizable) taskNode).isAsync()) {
+            if (taskNode instanceof Synchronizable && taskNode.isAsync()) {
                 taskNode.endBoundaryEventTokens(executionContext);
             } else {
                 pushToken(executionContext, task, transition);
@@ -156,7 +154,7 @@ public class TaskLogic extends WFCommonLogic {
         ProcessDefinition processDefinition = getDefinition(task);
         MultiTaskNode node = (MultiTaskNode) processDefinition.getNodeNotNull(task.getNodeId());
         for (VariableMapping mapping : node.getVariableMappings()) {
-            Set<Map.Entry<String, Object>> entries = new HashSet<Map.Entry<String, Object>>(variables.entrySet());
+            Set<Map.Entry<String, Object>> entries = new HashSet<>(variables.entrySet());
             for (Map.Entry<String, Object> entry : entries) {
                 if (Objects.equal(mapping.getMappedName(), entry.getKey()) || entry.getKey().startsWith(mapping.getMappedName() + UserType.DELIM)) {
                     String mappedVariableName = entry.getKey().replaceFirst(
@@ -190,19 +188,19 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public void markTaskOpened(User user, Long taskId) {
-        Task task = taskDAO.getNotNull(taskId);
+        Task task = taskDao.getNotNull(taskId);
         task.getOpenedByExecutorIds().add(user.getActor().getId());
     }
 
     public WfTask getTask(User user, Long taskId) {
-        Task task = taskDAO.getNotNull(taskId);
+        Task task = taskDao.getNotNull(taskId);
         WfTask wfTask = taskObjectFactory.create(task, user.getActor(), false, null);
         wfTask.setReadOnly(getTaskParticipationRole(user.getActor(), task) == null);
         return wfTask;
     }
 
     public Long getProcessId(User user, Long taskId) {
-        return taskDAO.getNotNull(taskId).getProcess().getId();
+        return taskDao.getNotNull(taskId).getProcess().getId();
     }
 
     public List<WfTask> getMyTasks(User user, BatchPresentation batchPresentation) {
@@ -210,7 +208,7 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public List<WfTask> getTasks(User user, BatchPresentation batchPresentation) {
-        if (batchPresentation.getClassPresentation() instanceof TaskObservableClassPresentation) {
+        if (batchPresentation.getType() == ClassPresentationType.TASK_OBSERVABLE) {
             return observableTaskListBuilder.getObservableTasks(user.getActor(), batchPresentation);
         }
         if (!executorLogic.isAdministrator(user)) {
@@ -232,16 +230,16 @@ public class TaskLogic extends WFCommonLogic {
 
     public List<WfTask> getTasks(User user, Long processId, boolean includeSubprocesses) throws ProcessDoesNotExistException {
         List<WfTask> result = Lists.newArrayList();
-        Process process = processDAO.getNotNull(processId);
-        checkPermissionAllowed(user, process, ProcessPermission.READ);
-        for (Task task : taskDAO.findByProcess(process)) {
+        Process process = processDao.getNotNull(processId);
+        permissionDao.checkAllowed(user, Permission.LIST, process);
+        for (Task task : taskDao.findByProcess(process)) {
             result.add(taskObjectFactory.create(task, user.getActor(), false, null));
         }
         if (includeSubprocesses) {
-            List<Process> subprocesses = nodeProcessDAO.getSubprocessesRecursive(process);
+            List<Process> subprocesses = nodeProcessDao.getSubprocessesRecursive(process);
             for (Process subprocess : subprocesses) {
-                checkPermissionAllowed(user, subprocess, ProcessPermission.READ);
-                for (Task task : taskDAO.findByProcess(subprocess)) {
+                permissionDao.checkAllowed(user, Permission.LIST, subprocess);
+                for (Task task : taskDao.findByProcess(subprocess)) {
                     result.add(taskObjectFactory.create(task, user.getActor(), false, null));
                 }
             }
@@ -251,7 +249,7 @@ public class TaskLogic extends WFCommonLogic {
 
     public void assignTask(User user, Long taskId, Executor previousOwner, Executor newExecutor) throws TaskAlreadyAcceptedException {
         // check assigned executor for the task
-        Task task = taskDAO.getNotNull(taskId);
+        Task task = taskDao.getNotNull(taskId);
         if (!Objects.equal(previousOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
         }
@@ -263,33 +261,32 @@ public class TaskLogic extends WFCommonLogic {
     }
 
     public void delegateTask(User user, Long taskId, Executor currentOwner, boolean keepCurrentOwners, List<? extends Executor> executors) {
-        Task task = taskDAO.getNotNull(taskId);
+        Task task = taskDao.getNotNull(taskId);
         // check assigned executor for the task
         if (!Objects.equal(currentOwner, task.getExecutor())) {
             throw new TaskAlreadyAcceptedException(task.getName());
         }
         if (keepCurrentOwners) {
             if (currentOwner instanceof TemporaryGroup) {
-                ((List<Executor>) executors).addAll(executorDAO.getGroupChildren((Group) currentOwner));
+                ((List<Executor>) executors).addAll(executorDao.getGroupChildren((Group) currentOwner));
             } else if (currentOwner != null) {
-                ((List<Executor>) executors).add(executorDAO.getExecutor(currentOwner.getId()));
+                ((List<Executor>) executors).add(executorDao.getExecutor(currentOwner.getId()));
             }
         }
         DelegationGroup delegationGroup = DelegationGroup.create(user, task.getProcess().getId(), taskId);
-        List<Permission> selfPermissions = Lists.newArrayList(Permission.READ, GroupPermission.LIST_GROUP);
-        if (executorDAO.isExecutorExist(delegationGroup.getName())) {
-            delegationGroup = (DelegationGroup) executorDAO.getExecutor(delegationGroup.getName());
-            Set<Executor> oldExecutors = executorDAO.getGroupChildren(delegationGroup);
-            executorDAO.deleteExecutorsFromGroup(delegationGroup, oldExecutors);
+        List<Permission> selfPermissions = Lists.newArrayList(Permission.READ);
+        if (executorDao.isExecutorExist(delegationGroup.getName())) {
+            delegationGroup = (DelegationGroup) executorDao.getExecutor(delegationGroup.getName());
+            Set<Executor> oldExecutors = executorDao.getGroupChildren(delegationGroup);
+            executorDao.deleteExecutorsFromGroup(delegationGroup, oldExecutors);
         } else {
-            executorDAO.create(delegationGroup);
+            executorDao.create(delegationGroup);
         }
         if (SystemProperties.setPermissionsToTemporaryGroups()) {
-            Collection<Permission> p = delegationGroup.getSecuredObjectType().getNoPermission().getAllPermissions();
-            permissionDAO.setPermissions(user.getActor(), p, delegationGroup);
-            permissionDAO.setPermissions(delegationGroup, selfPermissions, delegationGroup);
+            permissionDao.setPermissions(user.getActor(), ApplicablePermissions.listVisible(delegationGroup), delegationGroup);
+            permissionDao.setPermissions(delegationGroup, selfPermissions, delegationGroup);
         }
-        executorDAO.addExecutorsToGroup(executors, delegationGroup);
+        executorDao.addExecutorsToGroup(executors, delegationGroup);
         ProcessDefinition processDefinition = getDefinition(task);
         final ExecutionContext executionContext = new ExecutionContext(processDefinition, task);
         executionContext.addLog(new TaskDelegationLog(task, user.getActor(), executors));
@@ -321,7 +318,7 @@ public class TaskLogic extends WFCommonLogic {
         if (!executorLogic.isAdministrator(user)) {
             throw new AuthorizationException(user + " is not Administrator");
         }
-        Task task = taskDAO.getNotNull(taskId);
+        Task task = taskDao.getNotNull(taskId);
         return taskAssigner.assignTask(task);
     }
 

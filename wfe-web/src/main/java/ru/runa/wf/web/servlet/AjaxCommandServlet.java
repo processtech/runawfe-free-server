@@ -17,30 +17,26 @@
  */
 package ru.runa.wf.web.servlet;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.common.web.Commons;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.web.AjaxCommand;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.user.User;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
 
 public class AjaxCommandServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;

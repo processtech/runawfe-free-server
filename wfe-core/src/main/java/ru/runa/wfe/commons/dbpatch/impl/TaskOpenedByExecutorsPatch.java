@@ -8,10 +8,10 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 import com.google.common.collect.Lists;
 
@@ -21,10 +21,10 @@ import com.google.common.collect.Lists;
  * @author Dofs
  * @since 4.1.0
  */
-public class TaskOpenedByExecutorsPatch extends DBPatch {
+public class TaskOpenedByExecutorsPatch extends DbPatch {
 
     @Autowired
-    private ExecutorDAO executorDAO;
+    private ExecutorDao executorDao;
 
     @Override
     protected List<String> getDDLQueriesAfter() {
@@ -55,7 +55,7 @@ public class TaskOpenedByExecutorsPatch extends DBPatch {
             Long taskId = ((Number) scrollableResults.get(0)).longValue();
             try {
                 Long executorId = ((Number) scrollableResults.get(1)).longValue();
-                Executor executor = executorDAO.getExecutor(executorId);
+                Executor executor = executorDao.getExecutor(executorId);
                 if (executor instanceof Actor) {
                     q = "INSERT INTO BPM_TASK_OPENED VALUES (" + taskId + ", " + executorId + ")";
                     session.createSQLQuery(q).executeUpdate();

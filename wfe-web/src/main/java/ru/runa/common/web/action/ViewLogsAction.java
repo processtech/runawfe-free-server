@@ -1,27 +1,34 @@
 package ru.runa.common.web.action;
 
-import com.google.common.collect.ContiguousSet;
-import com.google.common.collect.DiscreteDomain;
-import com.google.common.collect.Range;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
-import com.google.common.primitives.Ints;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import ru.runa.common.WebResources;
+import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.ViewLogForm;
-import ru.runa.wfe.commons.IOCommons;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import ru.runa.wfe.commons.IoCommons;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.service.delegate.Delegates;
+import ru.runa.wfe.user.User;
 
 /**
  * @author dofs
@@ -37,7 +44,9 @@ public class ViewLogsAction extends ActionBase {
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request, HttpServletResponse response) {
         try {
-            String logDirPath = IOCommons.getLogDirPath();
+            Delegates.getAuthorizationService().checkAllowed(Commons.getUser(request.getSession()), Permission.ALL, SecuredSingleton.LOGS);
+
+            String logDirPath = IoCommons.getLogDirPath();
             request.setAttribute("logDirPath", logDirPath);
             ViewLogForm form = (ViewLogForm) actionForm;
             if (form.getFileName() != null) {
@@ -61,7 +70,7 @@ public class ViewLogsAction extends ActionBase {
 
                 String logFileContent;
                 if (form.getMode() == ViewLogForm.MODE_SEARCH) {
-                    List<Integer> lineNumbers = new ArrayList<Integer>();
+                    List<Integer> lineNumbers = new ArrayList<>();
                     String lines = searchLines(file, form, lineNumbers);
                     StringBuilder b = new StringBuilder(lines.length() + 200);
                     b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
@@ -73,7 +82,7 @@ public class ViewLogsAction extends ActionBase {
                     b.append("</td></tr></table>");
                     logFileContent = b.toString();
                 } else if (form.getMode() == ViewLogForm.MODE_ERRORS_AND_WARNS) {
-                    List<Integer> lineNumbers = new ArrayList<Integer>();
+                    List<Integer> lineNumbers = new ArrayList<>();
                     String lines = searchErrorsAndWarns(file, lineNumbers);
                     StringBuilder b = new StringBuilder(lines.length() + 200);
                     b.append("<table class=\"log\"><tr><td class=\"lineNumbers\">");
@@ -100,10 +109,11 @@ public class ViewLogsAction extends ActionBase {
             }
             form.setLimitLinesCount(limitLinesCount);
             request.setAttribute("autoReloadTimeoutSec", autoReloadTimeoutSec);
+            return mapping.findForward(Resources.FORWARD_SUCCESS);
         } catch (Exception e) {
             addError(request, e);
+            return mapping.findForward(Resources.FORWARD_FAILURE);
         }
-        return mapping.findForward(Resources.FORWARD_SUCCESS);
     }
 
     private int countLines(File file) throws IOException {
@@ -112,7 +122,7 @@ public class ViewLogsAction extends ActionBase {
             is = new BufferedInputStream(new FileInputStream(file));
             byte[] c = new byte[1024];
             int count = 0;
-            int readChars = 0;
+            int readChars;
             while ((readChars = is.read(c)) != -1) {
                 for (int i = 0; i < readChars; i++) {
                     if (c[i] == '\n') {

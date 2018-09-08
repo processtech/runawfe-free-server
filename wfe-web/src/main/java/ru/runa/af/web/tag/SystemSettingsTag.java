@@ -53,12 +53,12 @@ public class SystemSettingsTag extends TitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 
     /*
-     * @Override protected String getFormButtonName() { return Messages.getMessage(Messages.BUTTON_USE_DAFAULT_PROPERTIES, pageContext); }
+     * @Override protected String getSubmitButtonName() { return Messages.getMessage(Messages.BUTTON_USE_DAFAULT_PROPERTIES, pageContext); }
      * 
      * @Override public String getAction() { return RestoreDefaultSettingsAction.RESTORE_DEFAULT_SETTINGS_ACTION_PATH; }
      * 

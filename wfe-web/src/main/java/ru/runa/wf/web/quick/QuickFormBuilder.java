@@ -9,7 +9,7 @@ import org.dom4j.Element;
 
 import ru.runa.wf.web.ftl.FtlFormBuilder;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapVariableProvider;
 import ru.runa.wfe.var.dto.QuickFormProperty;
 import ru.runa.wfe.var.dto.QuickFormVariable;
@@ -29,7 +29,7 @@ public class QuickFormBuilder extends FtlFormBuilder {
     private static final String ELEMENT_PROPERTY = "property";
 
     @Override
-    protected String buildForm(IVariableProvider variableProvider) {
+    protected String buildForm(VariableProvider variableProvider) {
         String quickForm = new String(interaction.getFormData(), Charsets.UTF_8);
         List<QuickFormVariable> templateVariables = new ArrayList<QuickFormVariable>();
         Document document = XmlUtils.parseWithoutValidation(quickForm);
@@ -82,7 +82,7 @@ public class QuickFormBuilder extends FtlFormBuilder {
         for (QuickFormProperty quickFormGpdProperty : templateProperties) {
             map.put(quickFormGpdProperty.getName(), quickFormGpdProperty.getValue() == null ? "" : quickFormGpdProperty.getValue());
         }
-        IVariableProvider variableProvider = new MapVariableProvider(map);
+        VariableProvider variableProvider = new MapVariableProvider(map);
         Preconditions.checkNotNull(templateData, "Template is required");
         return processFreemarkerTemplate(new String(templateData, Charsets.UTF_8), variableProvider);
     }

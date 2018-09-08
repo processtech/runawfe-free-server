@@ -1,9 +1,6 @@
 package ru.runa.wfe.audit.dao;
 
-import java.util.List;
-
-import org.springframework.orm.hibernate3.HibernateTemplate;
-
+import org.hibernate.SessionFactory;
 import ru.runa.wfe.audit.ActionLog;
 import ru.runa.wfe.audit.AdminActionLog;
 import ru.runa.wfe.audit.CreateTimerLog;
@@ -35,22 +32,28 @@ import ru.runa.wfe.audit.VariableCreateLog;
 import ru.runa.wfe.audit.VariableDeleteLog;
 import ru.runa.wfe.audit.VariableUpdateLog;
 import ru.runa.wfe.audit.aggregated.ProcessInstanceAggregatedLog;
+import ru.runa.wfe.audit.aggregated.QProcessInstanceAggregatedLog;
+import ru.runa.wfe.audit.aggregated.QTaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog.EndReason;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
 
 public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
 
-    private final HibernateTemplate hibernateTemplate;
+    private final SessionFactory sessionFactory;
+    private final HibernateQueryFactory queryFactory;
     private final Process process;
     private final Token token;
-    private final IProcessDefinitionLoader processDefinitionLoader;
+    private final ProcessDefinitionLoader processDefinitionLoader;
 
-    public UpdateAggregatedLogOperation(HibernateTemplate hibernateTemplate, IProcessDefinitionLoader processDefinitionLoader, Process process,
-            Token token) {
-        this.hibernateTemplate = hibernateTemplate;
+    public UpdateAggregatedLogOperation(SessionFactory sessionFactory, HibernateQueryFactory queryFactory,
+            ProcessDefinitionLoader processDefinitionLoader,
+            Process process, Token token) {
+        this.sessionFactory = sessionFactory;
+        this.queryFactory = queryFactory;
         this.processDefinitionLoader = processDefinitionLoader;
         this.process = process;
         this.token = token;
@@ -61,7 +64,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
         if (getProcessInstanceLog(processStartLog.getProcessId()) != null) {
             return;
         }
-        hibernateTemplate.save(new ProcessInstanceAggregatedLog(processStartLog, process, token));
+        sessionFactory.getCurrentSession().save(new ProcessInstanceAggregatedLog(processStartLog, process, token));
     }
 
     @Override
@@ -79,7 +82,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
             return;
         }
         logEntry.update(processEndLog);
-        hibernateTemplate.merge(logEntry);
+        sessionFactory.getCurrentSession().merge(logEntry);
     }
 
     @Override
@@ -89,7 +92,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
             return;
         }
         logEntry.update(processCancelLog);
-        hibernateTemplate.merge(logEntry);
+        sessionFactory.getCurrentSession().merge(logEntry);
     }
 
     @Override
@@ -129,7 +132,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
         if (getTaskLog(taskCreateLog.getTaskId()) != null) {
             return;
         }
-        hibernateTemplate.save(new TaskAggregatedLog(taskCreateLog, processDefinitionLoader, process, token));
+        sessionFactory.getCurrentSession().save(new TaskAggregatedLog(taskCreateLog, processDefinitionLoader, process, token));
     }
 
     @Override
@@ -139,7 +142,7 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
             return;
         }
         logEntry.updateAssignment(taskAssignLog);
-        hibernateTemplate.merge(logEntry);
+        sessionFactory.getCurrentSession().merge(logEntry);
     }
 
     @Override
@@ -205,21 +208,13 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
     }
 
     private ProcessInstanceAggregatedLog getProcessInstanceLog(long processId) {
-        String query = "from ProcessInstanceAggregatedLog where processInstanceId=? order by processInstanceId desc";
-        List<ProcessInstanceAggregatedLog> existing = hibernateTemplate.find(query, processId);
-        if (existing != null && !existing.isEmpty()) {
-            return existing.get(0);
-        }
-        return null;
+        QProcessInstanceAggregatedLog l = QProcessInstanceAggregatedLog.processInstanceAggregatedLog;
+        return queryFactory.selectFrom(l).where(l.processInstanceId.eq(processId)).fetchFirst();
     }
 
     private TaskAggregatedLog getTaskLog(long taskId) {
-        String query = "from TaskAggregatedLog where taskId=? order by taskId desc";
-        List<TaskAggregatedLog> existing = hibernateTemplate.find(query, taskId);
-        if (existing != null && !existing.isEmpty()) {
-            return existing.get(0);
-        }
-        return null;
+        QTaskAggregatedLog l = QTaskAggregatedLog.taskAggregatedLog;
+        return queryFactory.selectFrom(l).where(l.taskId.eq(taskId)).fetchFirst();
     }
 
     private void onTaskEnd(TaskEndLog taskEndLog, EndReason endReason) {
@@ -228,6 +223,6 @@ public class UpdateAggregatedLogOperation implements ProcessLogVisitor {
             return;
         }
         logEntry.updateOnEnd(taskEndLog.getCreateDate(), taskEndLog.getActorName(), endReason);
-        hibernateTemplate.merge(logEntry);
+        sessionFactory.getCurrentSession().merge(logEntry);
     }
 }

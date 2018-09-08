@@ -21,6 +21,12 @@
  */
 package ru.runa.wfe.commons;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,33 +39,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
-
 import ru.runa.wfe.InternalApplicationException;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
 
 public class ClassLoaderUtil {
     private static final Log log = LogFactory.getLog(ClassLoaderUtil.class);
     private static final ClassLoader extensionClassLoader;
     private static final PathMatchingResourcePatternResolver resourcePatternResolver;
     static {
-        File extensionDirectory = new File(IOCommons.getExtensionDirPath());
+        File extensionDirectory = new File(IoCommons.getExtensionDirPath());
         if (extensionDirectory.exists() && extensionDirectory.isDirectory()) {
             List<URL> urls = Lists.newArrayList();
             try {
                 urls.add(extensionDirectory.toURI().toURL());
-                for (File file : IOCommons.getJarFiles(extensionDirectory)) {
+                for (File file : IoCommons.getJarFiles(extensionDirectory)) {
                     urls.add(file.toURI().toURL());
                 }
             } catch (MalformedURLException e) {

@@ -1,4 +1,4 @@
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles" %>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -39,6 +39,8 @@ $(document).ready(function() {
 	<wf:createActorLink />
 	&nbsp;&nbsp;&nbsp;
 	<wf:createGroupLink />
+	&nbsp;&nbsp;&nbsp;
+	<wf:managePermissionsLink securedObjectType="EXECUTORS" />
 <%
 if (ru.runa.wfe.security.logic.LdapProperties.isSynchronizationEnabled()) {
 %>

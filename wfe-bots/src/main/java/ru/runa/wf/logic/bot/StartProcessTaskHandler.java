@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.logging.LogFactory;
 
 import ru.runa.wf.logic.bot.startprocess.StartProcessTask;
@@ -38,7 +37,7 @@ import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 import com.google.common.collect.Maps;
 
@@ -57,7 +56,7 @@ public class StartProcessTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) {
         Map<String, Object> outputVariables = Maps.newHashMap();
         Map<String, Object> variables = Maps.newHashMap();
         for (StartProcessTask startProcessTask : startProcessTasks) {
@@ -89,13 +88,9 @@ public class StartProcessTaskHandler extends TaskHandlerBase {
                 List<Executor> executors = Delegates.getAuthorizationService().getExecutorsWithPermission(user, parentProcess, batchPresentation,
                         true);
                 for (Executor executor : executors) {
-                    Set<Permission> permissions = new HashSet<Permission>();
-                    for (Permission permission : Delegates.getAuthorizationService().getIssuedPermissions(user, executor, parentProcess)) {
-                        permissions.add(permission);
-                    }
-                    for (Permission permission : Delegates.getAuthorizationService().getIssuedPermissions(user, executor, process)) {
-                        permissions.add(permission);
-                    }
+                    Set<Permission> permissions = new HashSet<>();
+                    permissions.addAll(Delegates.getAuthorizationService().getIssuedPermissions(user, executor, parentProcess));
+                    permissions.addAll(Delegates.getAuthorizationService().getIssuedPermissions(user, executor, process));
                     if (permissions.size() > 0) {
                         // priveleged permissions wasn't acquired
                         Delegates.getAuthorizationService().setPermissions(user, executor.getId(), permissions, process);

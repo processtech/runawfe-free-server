@@ -2,23 +2,20 @@ package ru.runa.wfe.commons.dbpatch.impl;
 
 import java.sql.Types;
 import java.util.List;
-
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
-import ru.runa.wfe.commons.dbpatch.IDbPatchPostProcessor;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatchPostProcessor;
 import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.execution.dao.TokenDAO;
+import ru.runa.wfe.execution.dao.TokenDao;
 import ru.runa.wfe.lang.BaseMessageNode;
 import ru.runa.wfe.lang.ProcessDefinition;
 
-public class AddTokenMessageSelectorPatch extends DBPatch implements IDbPatchPostProcessor {
+public class AddTokenMessageSelectorPatch extends DbPatch implements DbPatchPostProcessor {
     @Autowired
-    TokenDAO tokenDAO;
+    TokenDao tokenDao;
     @Autowired
     ProcessDefinitionLoader processDefinitionLoader;
 
@@ -31,8 +28,8 @@ public class AddTokenMessageSelectorPatch extends DBPatch implements IDbPatchPos
     }
 
     @Override
-    public void postExecute(Session session) throws Exception {
-        List<Token> tokens = tokenDAO.findByMessageSelectorIsNullAndExecutionStatusIsActive();
+    public void postExecute() throws Exception {
+        List<Token> tokens = tokenDao.findByMessageSelectorIsNullAndExecutionStatusIsActive();
         log.info("Updating " + tokens.size() + " tokens message selector");
         for (Token token : tokens) {
             ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());

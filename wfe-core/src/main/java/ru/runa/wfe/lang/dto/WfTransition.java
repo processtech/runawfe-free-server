@@ -1,12 +1,9 @@
 package ru.runa.wfe.lang.dto;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import com.google.common.base.Objects;
-
 import ru.runa.wfe.lang.Transition;
 
 /**

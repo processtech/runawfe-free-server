@@ -17,62 +17,61 @@
  */
 package ru.runa.wfe.commons.logic;
 
+import com.google.common.collect.Lists;
 import java.util.List;
-
-import javax.security.auth.Subject;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.timer.ScheduledTimerTask;
-
-import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.PropertyResources;
-import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.Localization;
-import ru.runa.wfe.commons.dao.LocalizationDAO;
-import ru.runa.wfe.commons.dao.SettingDAO;
-import ru.runa.wfe.execution.dao.ProcessDAO;
+import ru.runa.wfe.commons.dao.LocalizationDao;
+import ru.runa.wfe.commons.dao.SettingDao;
+import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
+import ru.runa.wfe.execution.dao.ProcessDao;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.AuthorizationException;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.SystemExecutors;
 import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.collect.Lists;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Created on 14.03.2005
  */
 public class CommonLogic {
-    private static final Log log = LogFactory.getLog(CommonLogic.class);
+    protected final Log log = LogFactory.getLog(getClass());
     @Autowired
-    protected PermissionDAO permissionDAO;
+    protected PermissionDao permissionDao;
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDao;
     @Autowired
-    protected LocalizationDAO localizationDAO;
+    protected LocalizationDao localizationDao;
     @Autowired
-    protected ProcessDAO processDAO;
+    protected ProcessDao processDao;
     @Autowired
-    protected SettingDAO settingDAO;
+    protected SettingDao settingDao;
+
+    // For the sake of mering DAO and logic layers:
+    @Autowired
+    protected SessionFactory sessionFactory;
+    @Autowired
+    protected HibernateQueryFactory queryFactory;
 
     protected <T extends Executor> T checkPermissionsOnExecutor(User user, T executor, Permission permission) {
-        if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.READ)) {
+        if (executor.getName().equals(SystemExecutors.PROCESS_STARTER_NAME) && permission.equals(Permission.LIST)) {
             return executor;
         }
-        if (executor instanceof TemporaryGroup && permission.equals(Permission.READ)) {
+        if (executor instanceof TemporaryGroup && permission.equals(Permission.LIST)) {
             return executor;
         }
-        checkPermissionAllowed(user, executor, permission);
+        permissionDao.checkAllowed(user, permission, executor);
         return executor;
     }
 
@@ -83,49 +82,39 @@ public class CommonLogic {
         return executors;
     }
 
-    protected void checkPermissionAllowed(User user, Identifiable identifiable, Permission permission) throws AuthorizationException {
-        if (!isPermissionAllowed(user, identifiable, permission)) {
-            throw new AuthorizationException(user + " does not have " + permission + " to " + identifiable);
-        }
-    }
-
-    public boolean isPermissionAllowed(User user, Identifiable identifiable, Permission permission) {
-        return permissionDAO.isAllowed(user, permission, identifiable);
-    }
-
-    public <T extends Identifiable> void isPermissionAllowed(User user, List<T> identifiables, Permission permission,
+    public <T extends SecuredObject> void isPermissionAllowed(User user, List<T> securedObjects, Permission permission,
             CheckMassPermissionCallback callback) {
-        boolean[] allowedArray = permissionDAO.isAllowed(user, permission, identifiables);
+        boolean[] allowedArray = permissionDao.isAllowed(user, permission, securedObjects);
         for (int i = 0; i < allowedArray.length; i++) {
             if (allowedArray[i]) {
-                callback.OnPermissionGranted(identifiables.get(i));
+                callback.onPermissionGranted(securedObjects.get(i));
             } else {
-                callback.OnPermissionDenied(identifiables.get(i));
+                callback.onPermissionDenied(securedObjects.get(i));
             }
         }
     }
 
-    protected <T extends Identifiable> List<T> filterIdentifiable(User user, List<T> identifiables, Permission permission) {
-        boolean[] allowedArray = permissionDAO.isAllowed(user, permission, identifiables);
-        List<T> identifiableList = Lists.newArrayListWithExpectedSize(identifiables.size());
+    protected <T extends SecuredObject> List<T> filterSecuredObject(User user, List<T> securedObjects, Permission permission) {
+        boolean[] allowedArray = permissionDao.isAllowed(user, permission, securedObjects);
+        List<T> securedObjectList = Lists.newArrayListWithExpectedSize(securedObjects.size());
         for (int i = 0; i < allowedArray.length; i++) {
             if (allowedArray[i]) {
-                identifiableList.add(identifiables.get(i));
+                securedObjectList.add(securedObjects.get(i));
             }
         }
-        return identifiableList;
+        return securedObjectList;
     }
 
     /**
      * Load objects list according to {@linkplain BatchPresentation} with permission check for subject.
      * 
-     * @param subject
-     *            Current actor {@linkplain Subject}.
+     * @param user
+     *            Current actor {@linkplain User}.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load objects.
      * @param permission
      *            {@linkplain Permission}, which current actor must have on loaded objects.
-     * @param securedObjectClasses
+     * @param securedObjectTypes
      *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
      *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
      * @param enablePaging
@@ -133,73 +122,55 @@ public class CommonLogic {
      * @return Loaded according to {@linkplain BatchPresentation} objects list.
      */
     @SuppressWarnings("unchecked")
-    public <T extends Object> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
+    public <T> List<T> getPersistentObjects(User user, BatchPresentation batchPresentation, Permission permission,
             SecuredObjectType[] securedObjectTypes, boolean enablePaging) {
-        return (List<T>) permissionDAO.getPersistentObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging);
+        return (List<T>) permissionDao.getPersistentObjects(user, batchPresentation, permission, securedObjectTypes, enablePaging);
     }
 
     /**
      * Load objects count according to {@linkplain BatchPresentation} with permission check for subject.
-     * 
-     * @param subject
-     *            Current actor {@linkplain Subject}.
+     *
+     * @param user
+     *            Current actor {@linkplain User}.
      * @param batchPresentation
      *            {@linkplain BatchPresentation} to load objects count.
      * @param permission
      *            {@linkplain Permission}, which current actor must have on loaded objects.
-     * @param securedObjectClasses
+     * @param securedObjectTypes
      *            Classes, loaded by query. Must be subset of classes, loaded by {@linkplain BatchPresentation}. For example {@linkplain Actor} for
      *            {@linkplain BatchPresentation}, which loads {@linkplain Executor}.
      * @return Objects count, which will be loaded according to {@linkplain BatchPresentation}.
      */
     public int getPersistentObjectCount(User user, BatchPresentation batchPresentation, Permission permission, SecuredObjectType[] securedObjectTypes) {
-        return permissionDAO.getPersistentObjectCount(user, batchPresentation, permission, securedObjectTypes);
+        return permissionDao.getPersistentObjectCount(user, batchPresentation, permission, securedObjectTypes);
     }
 
     public List<Localization> getLocalizations() {
-        return localizationDAO.getAll();
+        return localizationDao.getAll();
     }
 
     public String getLocalized(String name) {
-        return localizationDAO.getLocalized(name);
+        return localizationDao.getLocalized(name);
     }
 
     public void saveLocalizations(User user, List<Localization> localizations) {
-        if (!executorDAO.isAdministrator(user.getActor())) {
+        if (!executorDao.isAdministrator(user.getActor())) {
             throw new AuthorizationException("Not admin");
         }
-        localizationDAO.saveLocalizations(localizations, true);
+        localizationDao.saveLocalizations(localizations, true);
     }
 
     public String getSetting(String fileName, String name) {
-        return settingDAO.getValue(fileName, name);
+        return settingDao.getValue(fileName, name);
     }
 
     public void setSetting(String fileName, String name, String value) {
-        settingDAO.setValue(fileName, name, value);
+        settingDao.setValue(fileName, name, value);
         PropertyResources.renewCachedProperty(fileName, name, value);
-        if (fileName.equals(SystemProperties.CONFIG_FILE_NAME)) {
-            String bean = null;
-            if (name.equals(SystemProperties.TIMERTASK_PERIOD_MILLIS_JOB_EXECUTION_NAME)) {
-                bean = "jobExecutorTask";
-            }
-            if (name.equals(SystemProperties.TIMERTASK_PERIOD_MILLIS_UNASSIGNED_TASKS_EXECUTION_NAME)) {
-                bean = "tasksAssignTask";
-            }
-            if (bean != null) {
-                try {
-                    Long period = SystemProperties.getResources().getLongProperty(name, 60000);
-                    ScheduledTimerTask t = ApplicationContextFactory.getContext().getBean(bean, ScheduledTimerTask.class);
-                    t.setPeriod(period);
-                } catch (BeansException e) {
-                    log.error("Can't renew TIMERTASK settings", e);
-                }
-            }
-        }
     }
 
     public void clearSettings() {
-        settingDAO.clear();
+        settingDao.clear();
         PropertyResources.clearPropertiesCache();
     }
 

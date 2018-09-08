@@ -19,27 +19,25 @@ package ru.runa.wf.web.html;
 
 import java.util.Map;
 import java.util.WeakHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import ru.runa.common.web.html.TDBuilder.Env;
-import ru.runa.common.web.html.TDBuilder.Env.IdentifiableExtractor;
-import ru.runa.wfe.security.Identifiable;
+import ru.runa.common.web.html.TdBuilder.Env;
+import ru.runa.common.web.html.TdBuilder.Env.SecuredObjectExtractor;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
 
 /**
- * Creates {@link Identifiable} to check permissions on {@link Actor}, executed
+ * Creates {@link SecuredObject} to check permissions on {@link Actor}, executed
  * action.
  */
-public class ExecutorExtractor implements IdentifiableExtractor {
+public class ExecutorExtractor implements SecuredObjectExtractor {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(ExecutorExtractor.class);
-    private final Map<Long, Identifiable> cache = new WeakHashMap<Long, Identifiable>();
+    private final Map<Long, SecuredObject> cache = new WeakHashMap<>();
 
     @Override
-    public Identifiable getIdentifiable(Object o, Env env) {
+    public SecuredObject getSecuredObject(Object o, Env env) {
         Long id = (Long) o;
         try {
             if (!cache.containsKey(id)) {

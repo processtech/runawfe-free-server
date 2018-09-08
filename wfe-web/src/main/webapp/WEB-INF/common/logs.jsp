@@ -81,6 +81,16 @@ function reloadLogFile() {
 </tiles:put>
 
 <tiles:put name="body" type="string" >
+    <wf:managePermissionsForm securedObjectType="LOGS">
+        <table width="100%">
+            <tr>
+                <td align="left">
+                    <wf:grantPermissionsLink securedObjectType="LOGS"/>
+                </td>
+            </tr>
+        </table>
+    </wf:managePermissionsForm>
+    <br /><br />
 	<b><%= logDirPath %></b><br />
 	<wf:viewLogs logDirPath="<%= logDirPath %>" />
 	<% if (logFileContent != null) { %>

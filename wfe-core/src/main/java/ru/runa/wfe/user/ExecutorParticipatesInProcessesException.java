@@ -31,7 +31,7 @@ public class ExecutorParticipatesInProcessesException extends InternalApplicatio
     private final String executorName;
     private final String idsInfo;
 
-    public ExecutorParticipatesInProcessesException(String executorName, Set<Number> processIds) {
+    public ExecutorParticipatesInProcessesException(String executorName, Set<Long> processIds) {
         super(executorName + " " + processIds);
         this.executorName = executorName;
         this.idsInfo = processIds.size() > 100 ? " > 100" : processIds.toString();

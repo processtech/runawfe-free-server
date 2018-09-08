@@ -17,8 +17,8 @@
  */
 package ru.runa.wfe.service.delegate;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.service.AuditService;
 import ru.runa.wfe.service.AuthenticationService;
@@ -27,7 +27,6 @@ import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.ExecutionService;
 import ru.runa.wfe.service.ExecutorService;
-import ru.runa.wfe.service.InitializerService;
 import ru.runa.wfe.service.ProfileService;
 import ru.runa.wfe.service.RelationService;
 import ru.runa.wfe.service.ReportService;
@@ -36,8 +35,6 @@ import ru.runa.wfe.service.SubstitutionService;
 import ru.runa.wfe.service.SynchronizationService;
 import ru.runa.wfe.service.SystemService;
 import ru.runa.wfe.service.TaskService;
-
-import com.google.common.collect.Maps;
 
 /**
  * Provides delegates. Delegate's type can not be switched at run-time.
@@ -48,7 +45,7 @@ public class Delegates {
     private static Map<Class<?>, Object> delegates = Maps.newHashMap();
 
     @SuppressWarnings("unchecked")
-    protected static <T extends EJB3Delegate> T getDelegate(Class<T> delegateClass) {
+    protected static <T extends Ejb3Delegate> T getDelegate(Class<T> delegateClass) {
         if (!delegates.containsKey(delegateClass)) {
             Object delegate = createDelegate(delegateClass);
             delegates.put(delegateClass, delegate);
@@ -56,7 +53,7 @@ public class Delegates {
         return (T) delegates.get(delegateClass);
     }
 
-    public static <T extends EJB3Delegate> T createDelegate(Class<T> delegateClass) {
+    public static <T extends Ejb3Delegate> T createDelegate(Class<T> delegateClass) {
         return ClassLoaderUtil.instantiate(delegateClass);
     }
 
@@ -102,10 +99,6 @@ public class Delegates {
 
     public static ExecutionService getExecutionService() {
         return getDelegate(ExecutionServiceDelegate.class);
-    }
-
-    public static InitializerService getInitializerService() {
-        return getDelegate(InitializerServiceDelegate.class);
     }
 
     public static ScriptingService getScriptingService() {

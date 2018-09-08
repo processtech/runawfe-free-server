@@ -18,10 +18,8 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveExecutorsAction;
@@ -33,16 +31,16 @@ import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.html.CssClassStrategy;
 import ru.runa.common.web.html.HeaderBuilder;
-import ru.runa.common.web.html.IdentifiableCheckboxTDBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
+import ru.runa.common.web.html.SecuredObjectCheckboxTdBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.presentation.BatchPresentation;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 
@@ -64,13 +62,12 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
         int executorsCount = Delegates.getExecutorService().getExecutorsCount(getUser(), getBatchPresentation());
         List<Executor> executors = (List<Executor>) Delegates.getExecutorService().getExecutors(getUser(), getBatchPresentation());
         BatchPresentation batchPresentation = getBatchPresentation();
-        buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation,
-                ExecutorPermission.UPDATE);
+        buttonEnabled = BatchPresentationUtils.isExecutorPermissionAllowedForAnyone(getUser(), executors, batchPresentation, Permission.UPDATE);
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, executorsCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
         TableBuilder tableBuilder = new TableBuilder();
-        TDBuilder[] prefixBuilders = new TDBuilder[] { new IdentifiableCheckboxTDBuilder(ExecutorPermission.UPDATE) };
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
+        TdBuilder[] prefixBuilders = new TdBuilder[] { new SecuredObjectCheckboxTdBuilder(Permission.UPDATE) };
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(prefixBuilders, batchPresentation, null);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(executors, batchPresentation, pageContext,
                 WebResources.ACTION_MAPPING_UPDATE_EXECUTOR, getReturnAction(), IdForm.ID_INPUT_NAME, builders);
         rowBuilder.setCssClassStrategy(new CssClassStrategy() {
@@ -94,12 +91,12 @@ public class ListAllExecutorsFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return buttonEnabled;
     }
 

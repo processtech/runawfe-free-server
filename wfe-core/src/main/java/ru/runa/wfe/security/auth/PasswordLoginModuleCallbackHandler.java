@@ -26,7 +26,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
- * Callback handler for InternalDBPasswordLoginModule. 
+ * Callback handler for InternalDbPasswordLoginModule. 
  * <p> Created on 19.07.2004 </p>
  */
 public class PasswordLoginModuleCallbackHandler implements CallbackHandler {

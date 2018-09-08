@@ -19,7 +19,7 @@ package ru.runa.wf.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 
 /**
  * 
@@ -33,6 +33,6 @@ public class StartDisabledImageProcessAction extends LoadProcessDefinitionGifAct
 
     @Override
     protected String getFileName(HttpServletRequest request) {
-        return IFileDataProvider.START_DISABLED_IMAGE_FILE_NAME;
+        return FileDataProvider.START_DISABLED_IMAGE_FILE_NAME;
     }
 }

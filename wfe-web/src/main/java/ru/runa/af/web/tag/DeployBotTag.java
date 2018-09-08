@@ -22,7 +22,6 @@ import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.action.DeployBotAction;
 import ru.runa.af.web.form.DeployBotForm;
 import ru.runa.common.WebResources;
@@ -32,8 +31,8 @@ import ru.runa.common.web.form.FileForm;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
 import ru.runa.wf.web.ftl.component.ViewUtil;
-import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployBot")
@@ -52,12 +51,12 @@ public class DeployBotTag extends TitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), BotStationPermission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+    protected boolean isSubmitButtonEnabled() {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesBot.BUTTON_DEPLOY_BOT.message(pageContext);
     }
 

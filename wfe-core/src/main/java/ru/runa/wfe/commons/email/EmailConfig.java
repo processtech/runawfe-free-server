@@ -1,21 +1,18 @@
 package ru.runa.wfe.commons.email;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.var.IVariableProvider;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
+import ru.runa.wfe.var.VariableProvider;
 
 public class EmailConfig implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -104,22 +101,22 @@ public class EmailConfig implements Serializable {
         return "html";
     }
 
-    public void checkValid() throws Exception {
+    public void checkValid() {
         Preconditions.checkNotNull(message, "Message is null");
         if (connectionProperties.size() == 0) {
-            throw new Exception("Invalid configuration: connectionProperties.size() == 0");
+            throw new RuntimeException("Invalid configuration: connectionProperties.size() == 0");
         }
         if (headerProperties.size() == 0) {
-            throw new Exception("Invalid configuration: headerProperties.size() == 0");
+            throw new RuntimeException("Invalid configuration: headerProperties.size() == 0");
         }
     }
 
-    public void applySubstitutions(IVariableProvider variableProvider) {
+    public void applySubstitutions(VariableProvider variableProvider) {
         applySubstitutions(variableProvider, connectionProperties);
         applySubstitutions(variableProvider, headerProperties);
     }
 
-    private void applySubstitutions(IVariableProvider variableProvider, Map<String, String> map) {
+    private void applySubstitutions(VariableProvider variableProvider, Map<String, String> map) {
         for (Map.Entry<String, String> entry : new HashMap<String, String>(map).entrySet()) {
             String substitutedValue = ExpressionEvaluator.process(null, entry.getValue(), variableProvider, null);
             if (!Objects.equal(substitutedValue, entry.getValue())) {

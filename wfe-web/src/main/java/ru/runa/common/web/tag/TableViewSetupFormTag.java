@@ -17,11 +17,10 @@
  */
 package ru.runa.common.web.tag;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-
 import org.apache.commons.logging.LogFactory;
 import org.apache.ecs.Entities;
 import org.apache.ecs.html.A;
@@ -36,9 +35,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.Messages;
@@ -127,7 +123,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         Table table = buildBatchTable(activeBatchPresentation);
         form.addElement(table);
 
-        if (activeBatchPresentation.getClassPresentation().isWithPaging()) {
+        if (activeBatchPresentation.getType().isWithPaging()) {
             TR tr = new TR();
             table.addElement(tr);
             TD td = new TD();
@@ -137,9 +133,9 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
             td.addElement(Entities.NBSP);
             Select selectSize = new Select(TableViewSetupForm.VIEW_SIZE_NAME);
             int[] allowedSizes = BatchPresentationConsts.getAllowedViewSizes();
-            for (int i = 0; i < allowedSizes.length; i++) {
-                boolean isSelected = activeBatchPresentation.getRangeSize() == allowedSizes[i];
-                selectSize.addElement(HTMLUtils.createOption(allowedSizes[i], String.valueOf(allowedSizes[i]), isSelected));
+            for (int allowedSize : allowedSizes) {
+                boolean isSelected = activeBatchPresentation.getRangeSize() == allowedSize;
+                selectSize.addElement(HTMLUtils.createOption(allowedSize, String.valueOf(allowedSize), isSelected));
             }
             td.addElement(selectSize);
         }
@@ -238,20 +234,18 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                     table.addElement(buildViewRow(batchPresentation, displayedFields[i].fieldIdx, i));
                 }
             }
-            FieldDescriptor[] hiddenFields = batchPresentation.getHiddenFields();
-            for (int i = 0; i < hiddenFields.length; ++i) {
-                if (hiddenFields[i].displayName.startsWith(ClassPresentation.filterable_prefix)) {
+            for (FieldDescriptor f : batchPresentation.getHiddenFields()) {
+                if (f.displayName.startsWith(ClassPresentation.filterable_prefix)) {
                     continue;
                 }
-                if (!hiddenFields[i].displayName.startsWith(ClassPresentation.editable_prefix) && hiddenFields[i].fieldState == FieldState.ENABLED) {
-                    table.addElement(buildViewRow(batchPresentation, hiddenFields[i].fieldIdx, -1));
+                if (!f.displayName.startsWith(ClassPresentation.editable_prefix) && f.fieldState == FieldState.ENABLED) {
+                    table.addElement(buildViewRow(batchPresentation, f.fieldIdx, -1));
                 }
             }
-            FieldDescriptor[] allFields = batchPresentation.getAllFields();
-            for (int i = 0; i < allFields.length; ++i) {
-                if (allFields[i].displayName.startsWith(ClassPresentation.editable_prefix) && allFields[i].fieldState == FieldState.ENABLED
-                        || allFields[i].displayName.startsWith(ClassPresentation.filterable_prefix) && groupBySubprocessEnabled) {
-                    table.addElement(buildViewRow(batchPresentation, allFields[i].fieldIdx, -1));
+            for (FieldDescriptor f : batchPresentation.getAllFields()) {
+                if (f.displayName.startsWith(ClassPresentation.editable_prefix) && f.fieldState == FieldState.ENABLED
+                        || f.displayName.startsWith(ClassPresentation.filterable_prefix) && groupBySubprocessEnabled) {
+                    table.addElement(buildViewRow(batchPresentation, f.fieldIdx, -1));
                 }
             }
         } catch (Exception e) {
@@ -272,7 +266,7 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
         tr.addAttribute("field", field.displayName);
 
         { // field name section
-            TD td = null;
+            TD td;
             if (isEditable) {
                 td = new TD(Messages.getMessage(field.displayName.substring(field.displayName.lastIndexOf(':') + 1), pageContext) + ":");
                 td.addElement(new Input(Input.TEXT, TableViewSetupForm.EDITABLE_FIELDS, ""));
@@ -390,10 +384,10 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
     }
 
     protected Option[] createSortModeOptions() {
-        Option[] sortingModesOptions = {
+        return new Option[] {
                 HTMLUtils.createOption(TableViewSetupForm.ASC_SORTING_MODE, MessagesBatch.SORT_ASC.message(pageContext), false),
-                HTMLUtils.createOption(TableViewSetupForm.DSC_SORTING_MODE, MessagesBatch.SORT_DESC.message(pageContext), false) };
-        return sortingModesOptions;
+                HTMLUtils.createOption(TableViewSetupForm.DSC_SORTING_MODE, MessagesBatch.SORT_DESC.message(pageContext), false)
+        };
     }
 
     private TR getHeaderRow() {
@@ -402,8 +396,8 @@ public class TableViewSetupFormTag extends AbstractReturningTag implements Batch
                 MessagesBatch.SORTING_TYPE.message(pageContext), MessagesBatch.SORTING_POSITION.message(pageContext),
                 MessagesBatch.GROUPING.message(pageContext), MessagesBatch.FILTER_CRITERIA.message(pageContext)
                         + " <a href='javascript:showFiltersHelp();' style='color: red; text-decoration: none;'>*</a>" };
-        for (int i = 0; i < headerNames.length; i++) {
-            tr.addElement(new TH(headerNames[i]));
+        for (String headerName : headerNames) {
+            tr.addElement(new TH(headerName));
         }
         return tr;
     }

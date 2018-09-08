@@ -52,22 +52,22 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.extension.ProcessEndHandler;
-import ru.runa.wfe.job.dao.JobDAO;
+import ru.runa.wfe.job.dao.JobDao;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Synchronizable;
-import ru.runa.wfe.security.IdentifiableBase;
+import ru.runa.wfe.security.SecuredObjectBase;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.TemporaryGroup;
-import ru.runa.wfe.user.dao.ExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
@@ -75,7 +75,7 @@ import ru.runa.wfe.user.dao.ExecutorDAO;
 @Entity
 @Table(name = "BPM_PROCESS")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Process extends IdentifiableBase {
+public class Process extends SecuredObjectBase {
     private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Process.class);
 
@@ -219,7 +219,7 @@ public class Process extends IdentifiableBase {
         // process
         NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();
         if (parentNodeProcess != null && !parentNodeProcess.getParentToken().hasEnded()) {
-            IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
             Node node = parentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
             Synchronizable synchronizable = (Synchronizable) node;
@@ -231,8 +231,8 @@ public class Process extends IdentifiableBase {
 
         // make sure all the timers for this process are canceled
         // after the process end updates are posted to the database
-        JobDAO jobDAO = ApplicationContextFactory.getJobDAO();
-        jobDAO.deleteByProcess(this);
+        JobDao jobDao = ApplicationContextFactory.getJobDAO();
+        jobDao.deleteByProcess(this);
         if (canceller != null) {
             executionContext.addLog(new ProcessCancelLog(canceller));
         } else {
@@ -281,12 +281,12 @@ public class Process extends IdentifiableBase {
             }
         }
         if (SystemProperties.deleteTemporaryGroupsOnProcessEnd()) {
-            ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-            List<TemporaryGroup> groups = executorDAO.getTemporaryGroups(id);
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+            List<TemporaryGroup> groups = executorDao.getTemporaryGroups(id);
             for (TemporaryGroup temporaryGroup : groups) {
                 if (ApplicationContextFactory.getProcessDAO().getDependentProcessIds(temporaryGroup).isEmpty()) {
                     log.debug("Cleaning " + temporaryGroup);
-                    executorDAO.remove(temporaryGroup);
+                    executorDao.remove(temporaryGroup);
                 } else {
                     log.debug("Group " + temporaryGroup + " deletion postponed");
                 }
@@ -297,7 +297,7 @@ public class Process extends IdentifiableBase {
     private void endSubprocessAndTasksOnMainProcessEndRecursively(ExecutionContext executionContext, Actor canceller) {
         List<Process> subprocesses = executionContext.getSubprocesses();
         if (subprocesses.size() > 0) {
-            IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
+            ProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             for (Process subProcess : subprocesses) {
                 ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
                 ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);

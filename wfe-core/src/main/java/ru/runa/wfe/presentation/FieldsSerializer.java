@@ -1,17 +1,14 @@
 package ru.runa.wfe.presentation;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
-
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.presentation.filter.FilterCriteria;

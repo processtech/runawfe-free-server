@@ -17,15 +17,12 @@
  */
 package ru.runa.wfe.presentation.filter;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Map;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
+import java.io.Serializable;
+import java.util.Arrays;
+import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 public abstract class FilterCriteria implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -76,7 +73,7 @@ public abstract class FilterCriteria implements Serializable {
         this.filterTemplates = filterTemplates;
     }
 
-    public abstract String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders);
+    public abstract String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders);
 
     @Override
     public boolean equals(Object obj) {

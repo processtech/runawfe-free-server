@@ -51,7 +51,7 @@
 	</filter-mapping>
 
 	<listener>
-		<listener-class>ru.runa.common.web.InitializeDBListener</listener-class>
+		<listener-class>ru.runa.common.web.InitializeListener</listener-class>
 	</listener>
 
 	<servlet>

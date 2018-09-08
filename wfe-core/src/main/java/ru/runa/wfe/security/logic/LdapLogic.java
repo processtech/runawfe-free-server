@@ -17,6 +17,12 @@
  */
 package ru.runa.wfe.security.logic;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.List;
@@ -24,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -34,30 +39,20 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
-import ru.runa.wfe.security.ASystem;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.ExecutorDAO;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
 /**
  * Imports users and group from LDAP directory.
@@ -80,9 +75,9 @@ public class LdapLogic {
             "S", "T", "U", "V", "W", "X", "Y", "Z" };
 
     @Autowired
-    protected ExecutorDAO executorDAO;
+    protected ExecutorDao executorDao;
     @Autowired
-    private PermissionDAO permissionDAO;
+    private PermissionDao permissionDao;
     private Pattern patternForMissedPeople;
     private Group importGroup = null;
     private Group wasteGroup = null;
@@ -113,14 +108,14 @@ public class LdapLogic {
 
     private int synchronizeActors(DirContext dirContext, Map<String, Actor> actorsByDistinguishedName) throws Exception {
         int changesCount = 0;
-        List<Actor> existingActorsList = executorDAO.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged());
+        List<Actor> existingActorsList = executorDao.getAllActors(BatchPresentationFactory.ACTORS.createNonPaged());
         Map<String, Actor> existingActorsMap = Maps.newHashMap();
         for (Actor actor : existingActorsList) {
             existingActorsMap.put(actor.getName().toLowerCase(), actor);
         }
         Set<Actor> ldapActorsToDelete = Sets.newHashSet();
         if (LdapProperties.isSynchronizationDeleteExecutors()) {
-            ldapActorsToDelete.addAll(executorDAO.getGroupActors(importGroup));
+            ldapActorsToDelete.addAll(executorDao.getGroupActors(importGroup));
         }
         SearchControls controls = new SearchControls();
         controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -165,9 +160,9 @@ public class LdapLogic {
                     }
                     actor = new Actor(name, description, fullName, null, email, phone, title, department);
                     log.info("Creating " + actor);
-                    executorDAO.create(actor);
-                    executorDAO.addExecutorsToGroup(Lists.newArrayList(actor), importGroup);
-                    permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.READ), actor);
+                    executorDao.create(actor);
+                    executorDao.addExecutorsToGroup(Lists.newArrayList(actor), importGroup);
+                    permissionDao.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), actor);
                     changesCount++;
                 } else {
                     ldapActorsToDelete.remove(actor);
@@ -202,15 +197,15 @@ public class LdapLogic {
                                 actor.setActive(true);
                                 changes.add(new AttributeChange("active", "false", "true"));
                             }
-                            if (executorDAO.removeExecutorFromGroup(actor, wasteGroup)) {
+                            if (executorDao.removeExecutorFromGroup(actor, wasteGroup)) {
                                 changes.add(new Change("waste group removal"));
                             }
-                            if (executorDAO.addExecutorToGroup(actor, importGroup)) {
+                            if (executorDao.addExecutorToGroup(actor, importGroup)) {
                                 changes.add(new Change("import group addition"));
                             }
                         }
                         if (!changes.isEmpty()) {
-                            executorDAO.update(actor);
+                            executorDao.update(actor);
                             log.info("Updating " + actor + ": " + changes);
                             changesCount++;
                         }
@@ -223,13 +218,13 @@ public class LdapLogic {
             if (LdapProperties.isSynchronizationUserStatusEnabled()) {
                 for (Actor actor : ldapActorsToDelete) {
                     actor.setActive(false);
-                    executorDAO.update(actor);
+                    executorDao.update(actor);
                     log.info("Inactivating " + actor);
                     changesCount++;
                 }
             }
-            executorDAO.removeExecutorsFromGroup(ldapActorsToDelete, importGroup);
-            executorDAO.addExecutorsToGroup(ldapActorsToDelete, wasteGroup);
+            executorDao.removeExecutorsFromGroup(ldapActorsToDelete, importGroup);
+            executorDao.addExecutorsToGroup(ldapActorsToDelete, wasteGroup);
             changesCount += ldapActorsToDelete.size();
         }
         return changesCount;
@@ -237,7 +232,7 @@ public class LdapLogic {
 
     private int synchronizeGroups(DirContext dirContext, Map<String, Actor> actorsByDistinguishedName) throws NamingException {
         int changesCount = 0;
-        List<Group> existingGroupsList = executorDAO.getAllGroups();
+        List<Group> existingGroupsList = executorDao.getAllGroups();
         Map<String, Group> existingGroupsByLdapNameMap = Maps.newHashMap();
         for (Group group : existingGroupsList) {
             if (!Strings.isNullOrEmpty(group.getLdapGroupName())) {
@@ -246,7 +241,7 @@ public class LdapLogic {
         }
         Set<Group> ldapGroupsToDelete = Sets.newHashSet();
         if (LdapProperties.isSynchronizationDeleteExecutors()) {
-            Set<Executor> ldapExecutors = executorDAO.getGroupChildren(importGroup);
+            Set<Executor> ldapExecutors = executorDao.getGroupChildren(importGroup);
             for (Executor executor : ldapExecutors) {
                 if (executor instanceof Group) {
                     ldapGroupsToDelete.add((Group) executor);
@@ -280,9 +275,9 @@ public class LdapLogic {
                 group = new Group(name, description);
                 group.setLdapGroupName(name);
                 log.info("Creating " + group);
-                executorDAO.create(group);
-                executorDAO.addExecutorsToGroup(Lists.newArrayList(group), importGroup);
-                permissionDAO.setPermissions(importGroup, Lists.newArrayList(Permission.READ), group);
+                executorDao.create(group);
+                executorDao.addExecutorsToGroup(Lists.newArrayList(group), importGroup);
+                permissionDao.setPermissions(importGroup, Lists.newArrayList(Permission.LIST), group);
                 changesCount++;
             } else {
                 ldapGroupsToDelete.remove(group);
@@ -291,12 +286,12 @@ public class LdapLogic {
                     if (isAttributeNeedsChange(description, group.getDescription())) {
                         changes.add(new AttributeChange("description", group.getDescription(), description));
                         group.setDescription(description);
-                        executorDAO.update(group);
+                        executorDao.update(group);
                     }
-                    if (executorDAO.removeExecutorFromGroup(group, wasteGroup)) {
+                    if (executorDao.removeExecutorFromGroup(group, wasteGroup)) {
                         changes.add(new Change("waste group removal"));
                     }
-                    if (executorDAO.addExecutorToGroup(group, importGroup)) {
+                    if (executorDao.addExecutorToGroup(group, importGroup)) {
                         changes.add(new Change("import group addition"));
                     }
                     if (!changes.isEmpty()) {
@@ -306,7 +301,7 @@ public class LdapLogic {
                 }
             }
 
-            Set<Actor> actorsToDelete = Sets.newHashSet(executorDAO.getGroupActors(group));
+            Set<Actor> actorsToDelete = Sets.newHashSet(executorDao.getGroupActors(group));
             Set<Actor> actorsToAdd = Sets.newHashSet();
             Set<Actor> groupTargetActors = Sets.newHashSet();
             fillTargetActorsRecursively(dirContext, groupTargetActors, searchResult, groupResultsByDistinguishedName, actorsByDistinguishedName);
@@ -317,17 +312,17 @@ public class LdapLogic {
             }
             if (actorsToAdd.size() > 0) {
                 log.info("Adding to " + group + ": " + actorsToAdd);
-                executorDAO.addExecutorsToGroup(actorsToAdd, group);
+                executorDao.addExecutorsToGroup(actorsToAdd, group);
                 changesCount++;
             }
             if (actorsToDelete.size() > 0) {
-                executorDAO.removeExecutorsFromGroup(Lists.newArrayList(actorsToDelete), group);
+                executorDao.removeExecutorsFromGroup(Lists.newArrayList(actorsToDelete), group);
                 changesCount++;
             }
         }
         if (LdapProperties.isSynchronizationDeleteExecutors() && ldapGroupsToDelete.size() > 0) {
-            executorDAO.removeExecutorsFromGroup(ldapGroupsToDelete, importGroup);
-            executorDAO.addExecutorsToGroup(ldapGroupsToDelete, wasteGroup);
+            executorDao.removeExecutorsFromGroup(ldapGroupsToDelete, importGroup);
+            executorDao.addExecutorsToGroup(ldapGroupsToDelete, wasteGroup);
             log.info("Inactivating " + ldapGroupsToDelete);
             changesCount += ldapGroupsToDelete.size();
         }
@@ -351,17 +346,16 @@ public class LdapLogic {
     }
 
     private DirContext getContext() throws NamingException {
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.putAll(LdapProperties.getAllProperties());
+        Hashtable<String, String> env = new Hashtable<>(LdapProperties.getAllProperties());
         return new InitialDirContext(env);
     }
 
     private Group loadGroup(Group group) {
-        if (executorDAO.isExecutorExist(group.getName())) {
-            group = executorDAO.getGroup(group.getName());
+        if (executorDao.isExecutorExist(group.getName())) {
+            group = executorDao.getGroup(group.getName());
         } else {
-            group = executorDAO.create(group);
-            permissionDAO.setPermissions(group, Lists.newArrayList(Permission.READ, SystemPermission.LOGIN_TO_SYSTEM), ASystem.INSTANCE);
+            group = executorDao.create(group);
+            permissionDao.setPermissions(group, Lists.newArrayList(Permission.LOGIN), SecuredSingleton.EXECUTORS);
         }
         return group;
     }
@@ -398,7 +392,7 @@ public class LdapLogic {
                         String executorName = samAttribute.get().toString();
                         log.debug("Executor name " + executorDistinguishedName + " fetched by invocation: " + executorName);
                         try {
-                            Executor executor = executorDAO.getExecutor(executorName);
+                            Executor executor = executorDao.getExecutor(executorName);
                             if (executor instanceof Actor) {
                                 recursiveActors.add((Actor) executor);
                             }
@@ -413,7 +407,7 @@ public class LdapLogic {
         }
     }
 
-    private static interface IChange {
+    private interface IChange {
 
     }
 
@@ -435,7 +429,7 @@ public class LdapLogic {
         final String oldValue;
         final String newValue;
 
-        public AttributeChange(String attributeName, String oldValue, String newValue) {
+        AttributeChange(String attributeName, String oldValue, String newValue) {
             this.attributeName = attributeName;
             this.oldValue = oldValue;
             this.newValue = newValue;

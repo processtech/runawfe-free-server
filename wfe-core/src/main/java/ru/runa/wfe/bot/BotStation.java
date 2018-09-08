@@ -17,8 +17,9 @@
  */
 package ru.runa.wfe.bot;
 
+import com.google.common.base.Objects;
+import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,30 +27,38 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import ru.runa.wfe.security.IdentifiableBase;
-import ru.runa.wfe.security.SecuredObjectType;
-
-import com.google.common.base.Objects;
 
 @Entity
 @Table(name = "BOT_STATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BotStation extends IdentifiableBase {
+@Getter
+@Setter
+public class BotStation implements Serializable {
     private static final long serialVersionUID = 1L;
-    public static final BotStation INSTANCE = new BotStation(0L);
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
+    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BOT_STATION", allocationSize = 1)
+    @Column(name = "ID", nullable = false)
     private Long id;
+
+    @Column(name = "VERSION")
     private Long version;
+
+    @Column(name = "NAME", unique = true, nullable = false, length = 1024)
     private String name;
+
+    @Column(name = "ADDRESS", length = 1024)
     private String address;
+
+    @Column(name = "CREATE_DATE", nullable = false)
     private Date createDate;
 
     public BotStation() {
@@ -70,61 +79,6 @@ public class BotStation extends IdentifiableBase {
         this.id = id;
     }
 
-    @Transient
-    @Override
-    public SecuredObjectType getSecuredObjectType() {
-        return SecuredObjectType.BOTSTATION;
-    }
-
-    @Override
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "SEQ_BOT_STATION", allocationSize = 1)
-    @Column(name = "ID", nullable = false)
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @Column(name = "VERSION")
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    @Column(name = "NAME", unique = true, nullable = false, length = 1024)
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Column(name = "ADDRESS", length = 1024)
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    @Column(name = "CREATE_DATE", nullable = false)
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
     @Override
     public int hashCode() {
         return Objects.hashCode(name);
@@ -143,5 +97,4 @@ public class BotStation extends IdentifiableBase {
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("name", name).add("address", address).toString();
     }
-
 }

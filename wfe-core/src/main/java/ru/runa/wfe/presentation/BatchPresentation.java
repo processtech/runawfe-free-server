@@ -68,7 +68,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     private boolean active;
     private int rangeSize;
     private int pageNumber = 1;
-    // TODO: only this field or 'BatchPresentationFields fields' must be stay.
+    // TODO: only this field or 'BatchPresentationFields fields' must stay.
     // One of field must be removed.
     private byte[] fieldsData;
     @XmlTransient
@@ -408,14 +408,6 @@ public class BatchPresentation implements Cloneable, Serializable {
     public void setFieldsToGroup(int[] fieldsToGroupIds) {
         getFields().setFieldsToGroup(fieldsToGroupIds, getAllFields());
         storage = null;
-    }
-
-    /**
-     * {@link ClassPresentation}, refers by this {@link BatchPresentation}.
-     */
-    @Transient
-    public ClassPresentation getClassPresentation() {
-        return ClassPresentations.getClassPresentation(type);
     }
 
     @Override

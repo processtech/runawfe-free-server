@@ -4,9 +4,9 @@ import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public class DelegableVariableProvider extends AbstractVariableProvider {
-    protected final IVariableProvider delegate;
+    protected final VariableProvider delegate;
 
-    public DelegableVariableProvider(IVariableProvider delegate) {
+    public DelegableVariableProvider(VariableProvider delegate) {
         this.delegate = delegate;
     }
 

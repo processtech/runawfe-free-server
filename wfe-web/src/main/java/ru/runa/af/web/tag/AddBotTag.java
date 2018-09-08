@@ -66,7 +66,7 @@ public class AddBotTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesBot.BUTTON_ADD_BOT.message(pageContext);
     }
 

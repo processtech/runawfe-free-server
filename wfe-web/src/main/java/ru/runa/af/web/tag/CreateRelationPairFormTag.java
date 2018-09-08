@@ -48,7 +48,7 @@ public class CreateRelationPairFormTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesCommon.BUTTON_CREATE.message(pageContext);
     }
 

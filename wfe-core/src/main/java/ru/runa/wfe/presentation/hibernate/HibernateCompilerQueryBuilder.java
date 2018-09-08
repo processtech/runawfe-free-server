@@ -18,13 +18,10 @@
 package ru.runa.wfe.presentation.hibernate;
 
 import java.util.List;
-import java.util.Map;
-
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.transform.ResultTransformer;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.presentation.BatchPresentation;
 
@@ -46,7 +43,7 @@ public class HibernateCompilerQueryBuilder {
     /**
      * Component to build HQL query for {@link BatchPresentation}.
      */
-    private final HibernateCompilerHQLBuider hqlBuilder;
+    private final HibernateCompilerHqlBuider hqlBuilder;
 
     /**
      * {@link Session}, used to create a {@link Query}.
@@ -62,7 +59,7 @@ public class HibernateCompilerQueryBuilder {
      *            Parameters, used to build query.
      */
     public HibernateCompilerQueryBuilder(BatchPresentation batchPresentation, CompilerParameters parameters) {
-        hqlBuilder = new HibernateCompilerHQLBuider(batchPresentation, parameters);
+        hqlBuilder = new HibernateCompilerHqlBuider(batchPresentation, parameters);
         this.parameters = parameters;
         this.batchPresentation = batchPresentation;
     }
@@ -79,7 +76,7 @@ public class HibernateCompilerQueryBuilder {
             return session.createSQLQuery(sqlRequest).setResultTransformer(CountIdResultTransformer.INSTANCE);
         } else {
             SQLQuery query = session.createSQLQuery(sqlRequest);
-            query.addEntity(batchPresentation.getClassPresentation().getPresentationClass());
+            query.addEntity(batchPresentation.getType().getPresentationClass());
             return query;
         }
     }
@@ -89,7 +86,7 @@ public class HibernateCompilerQueryBuilder {
      *
      * @return Map from SQL positional parameter name to parameter value.
      */
-    public Map<String, QueryParameter> getPlaceholders() {
+    public QueryParametersMap getPlaceholders() {
         return hqlBuilder.getPlaceholders();
     }
 

@@ -18,12 +18,12 @@
 package ru.runa.wfe.definition;
 
 import java.util.Date;
-
 import ru.runa.wfe.presentation.ClassPresentation;
-import ru.runa.wfe.presentation.DefaultDBSource;
+import ru.runa.wfe.presentation.DefaultDbSource;
 import ru.runa.wfe.presentation.FieldDescriptor;
 import ru.runa.wfe.presentation.FieldFilterMode;
 import ru.runa.wfe.presentation.filter.AnywhereStringFilterCriteria;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.user.Actor;
 
 /**
@@ -47,29 +47,29 @@ public class DefinitionHistoryClassPresentation extends ClassPresentation {
                 new FieldDescriptor[] {
                         // display name field type DB source isSort filter mode
                         // get value/show in web getter parameters
-                        new FieldDescriptor(NAME, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] {
-                                        DefinitionPermission.START_PROCESS, "name" }),
-                        new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDBSource(Deployment.class, "version"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTDBuilder", new Object[] { DefinitionPermission.READ,
+                        new FieldDescriptor(NAME, String.class.getName(), new DefaultDbSource(Deployment.class, "name"), true,
+                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] {
+                                        Permission.START, "name" }),
+                        new FieldDescriptor(VERSION, Integer.class.getName(), new DefaultDbSource(Deployment.class, "version"), true,
+                                FieldFilterMode.DATABASE, "ru.runa.common.web.html.PropertyTdBuilder", new Object[] { Permission.LIST,
                                         "version" }),
-                        new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDBSource(Deployment.class, "description"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTDBuilder", new Object[] {}),
-                        new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDBSource(Deployment.class, "category"),
-                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTDBuilder", new Object[] {}),
-                        new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "createDate"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTDBuilder", new Object[] {}),
-                        new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "createActor"), false,
-                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionCreateActorTDBuilder", new Object[] {}),
-                        new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDBSource(Deployment.class, "updateDate"), true,
-                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTDBuilder", new Object[] {}),
-                        new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDBSource(Deployment.class, "updateActor"), false,
-                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTDBuilder", new Object[] {}),
-                        new FieldDescriptor(PROCESSES_COUNT, String.class.getName(), new DefaultDBSource(Deployment.class, "name"), false,
-                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTDBuilder", new Object[] {}) });
+                        new FieldDescriptor(DESCRIPTION, String.class.getName(), new DefaultDbSource(Deployment.class, "description"), true,
+                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DescriptionProcessTdBuilder", new Object[] {}),
+                        new FieldDescriptor(TYPE, AnywhereStringFilterCriteria.class.getName(), new DefaultDbSource(Deployment.class, "category"),
+                                true, FieldFilterMode.DATABASE, "ru.runa.wf.web.html.CategoryTdBuilder", new Object[] {}),
+                        new FieldDescriptor(CREATE_DATE, Date.class.getName(), new DefaultDbSource(Deployment.class, "createDate"), true,
+                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionCreateDateTdBuilder", new Object[] {}),
+                        new FieldDescriptor(CREATE_ACTOR, Actor.class.getName(), new DefaultDbSource(Deployment.class, "createActor"), false,
+                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionCreateActorTdBuilder", new Object[] {}),
+                        new FieldDescriptor(UPDATE_DATE, Date.class.getName(), new DefaultDbSource(Deployment.class, "updateDate"), true,
+                                FieldFilterMode.DATABASE, "ru.runa.wf.web.html.DefinitionUpdateDateTdBuilder", new Object[] {}),
+                        new FieldDescriptor(UPDATE_ACTOR, Actor.class.getName(), new DefaultDbSource(Deployment.class, "updateActor"), false,
+                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionUpdateActorTdBuilder", new Object[] {}),
+                        new FieldDescriptor(PROCESSES_COUNT, String.class.getName(), new DefaultDbSource(Deployment.class, "name"), false,
+                                FieldFilterMode.NONE, "ru.runa.wf.web.html.DefinitionProcessesCountTdBuilder", new Object[] {}) });
     }
 
-    public static final ClassPresentation getInstance() {
+    public static ClassPresentation getInstance() {
         return INSTANCE;
     }
 }

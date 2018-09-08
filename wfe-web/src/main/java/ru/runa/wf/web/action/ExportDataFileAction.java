@@ -16,15 +16,18 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.dom4j.Document;
 
+import ru.runa.common.web.Commons;
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.action.ActionBase;
 import ru.runa.wf.web.datafile.DataFileCreator;
 import ru.runa.wf.web.datafile.builder.DataFileBuilder;
 import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.service.utils.AdminScriptUtils;
 
 /**
- * 
  * @author riven
  * @struts:action path="/exportDataFileAction" scope="request" unknown="false" validate="false"
  */
@@ -33,7 +36,9 @@ public class ExportDataFileAction extends ActionBase {
     public static final String ACTION_PATH = "/exportDataFileAction";
 
     @Override
-    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        Delegates.getAuthorizationService().checkAllowed(Commons.getUser(request.getSession()), Permission.ALL, SecuredSingleton.DATAFILE);
+
         try {
             final File file = File.createTempFile(DataFileBuilder.FILE_NAME, DataFileBuilder.FILE_EXT);
             file.deleteOnExit();

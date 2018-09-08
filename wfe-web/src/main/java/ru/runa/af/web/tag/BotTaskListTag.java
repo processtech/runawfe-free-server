@@ -21,9 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Form;
 import org.apache.ecs.html.Input;
@@ -34,7 +32,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.Native2AsciiHelper;
 import ru.runa.af.web.action.BotTaskConfigurationDownloadAction;
 import ru.runa.af.web.action.UpdateBotTaskConfigurationAction;
@@ -51,11 +48,11 @@ import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wf.web.MessagesBot;
-import ru.runa.wfe.bot.BotStation;
-import ru.runa.wfe.bot.BotStationPermission;
 import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.commons.xml.XmlUtils;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -74,8 +71,8 @@ public class BotTaskListTag extends TitledFormTag {
     }
 
     @Override
-    public boolean isFormButtonEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), BotStationPermission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+    public boolean isSubmitButtonEnabled() {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
     }
 
     @Override
@@ -83,7 +80,7 @@ public class BotTaskListTag extends TitledFormTag {
         tdFormElement.addElement(new Input(Input.hidden, IdsForm.ID_INPUT_NAME, Long.toString(botId)));
         BotService botService = Delegates.getBotService();
         getForm().setEncType(Form.ENC_UPLOAD);
-        boolean disabled = !Delegates.getAuthorizationService().isAllowed(getUser(), BotStationPermission.BOT_STATION_CONFIGURE, BotStation.INSTANCE);
+        boolean disabled = !Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.BOTSTATIONS);
         List<BotTask> tasks = botService.getBotTasks(getUser(), botId);
         int nameSize = 1;
         for (BotTask botTask : tasks) {
@@ -103,7 +100,7 @@ public class BotTaskListTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
@@ -258,7 +255,7 @@ public class BotTaskListTag extends TitledFormTag {
             link.setClass(Resources.CLASS_LINK);
             fileUploadTD.addElement(link);
 
-            StringBuffer str = new StringBuffer();
+            StringBuilder str = new StringBuilder();
             str.append("&nbsp;");
             str.append(MessagesBot.LABEL_BOT_TASK_CONFIG_EDIT.message(pageContext));
             boolean configurationIsXml = true;
@@ -270,8 +267,8 @@ public class BotTaskListTag extends TitledFormTag {
             if (!configurationIsXml && !Native2AsciiHelper.isNeedConvert(new String(task.getConfiguration()))) {
                 str.append("*");
             }
-            StringBuffer jsLink = new StringBuffer("javascript:");
-            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            StringBuilder jsLink = new StringBuilder("javascript:");
+            Map<String, Object> parameterMap = new HashMap<>();
             parameterMap.put("id", task.getId());
             parameterMap.put("edit", "true");
             jsLink.append("openDocumentEditor('");

@@ -20,7 +20,7 @@ package ru.runa.wfe.service.delegate;
 import ru.runa.wfe.service.SynchronizationService;
 import ru.runa.wfe.user.User;
 
-public class SynchronizationServiceDelegate extends EJB3Delegate implements SynchronizationService {
+public class SynchronizationServiceDelegate extends Ejb3Delegate implements SynchronizationService {
 
     public SynchronizationServiceDelegate() {
         super("SynchronizationServiceBean", SynchronizationService.class);

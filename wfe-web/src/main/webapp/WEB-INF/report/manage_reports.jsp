@@ -1,11 +1,10 @@
-<%@page import="ru.runa.common.Version"%>
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
+<%@ page import="ru.runa.common.Version"%>
+<%@ page import="ru.runa.common.WebResources" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-
-<%@ page import="ru.runa.common.WebResources" %>
 
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
 
@@ -37,7 +36,7 @@
 					<wf:deployReportLink forward="deploy_report" />
 				</td>
 				<td align="right">
-					<wf:managePermissionsOnReportsLink />
+					<wf:managePermissionsLink securedObjectType="REPORTS" />
 				</td>
 			</tr>
 		</table>

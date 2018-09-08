@@ -24,7 +24,6 @@ import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.SubprocessStartLog;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.ExecutionService;
@@ -48,7 +47,7 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
         filter.setIncludeSubprocessLogs(true);
         ProcessLogs logs = Delegates.getAuditService().getProcessLogs(getUser(), filter);
         Map<TaskCreateLog, TaskEndLog> taskLogs = logs.getTaskLogs();
-        List<String> barList = new ArrayList<String>();
+        List<String> barList = new ArrayList<>();
         barList.add(getBar(process.getId(), process.getName(), new Date(), new Date(), "process", null, true, "0", null));
         TaskService taskService = Delegates.getTaskService();
         for (ProcessLog log : logs.getLogs()) {
@@ -112,8 +111,8 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return ProcessPermission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override
@@ -127,7 +126,7 @@ public class ShowGanttDiagramTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 }

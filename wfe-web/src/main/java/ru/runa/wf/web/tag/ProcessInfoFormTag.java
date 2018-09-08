@@ -17,8 +17,8 @@
  */
 package ru.runa.wf.web.tag;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import org.apache.ecs.ConcreteElement;
 import org.apache.ecs.Element;
 import org.apache.ecs.Entities;
@@ -31,7 +31,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -56,13 +55,10 @@ import ru.runa.wfe.definition.DefinitionClassPresentation;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.ProcessClassPresentation;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfProcess;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
-
-import com.google.common.collect.Maps;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "processInfoForm")
 public class ProcessInfoFormTag extends ProcessBaseFormTag {
@@ -70,7 +66,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
 
     private Long taskId;
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
@@ -79,31 +75,26 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
         return taskId;
     }
 
-    @Override
-    protected boolean isVisible() {
-        return true;
-    }
-
     // start #179
 
     @Override
-    protected Permission getPermission() {
-        // @see #isFormButtonEnabled()
+    protected Permission getSubmitPermission() {
+        // @see #isSubmitButtonEnabled()
         return null;
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
-        return isFormButtonEnabled(getIdentifiable(), null);
+    protected boolean isSubmitButtonEnabled() {
+        return isSubmitButtonEnabled(getSecuredObject(), null);
     }
 
     @Override
-    protected boolean isFormButtonEnabled(Identifiable identifiable, Permission permission) {
+    protected boolean isSubmitButtonEnabled(SecuredObject securedObject, Permission permission) {
         boolean ended = getProcess().isEnded();
         if (ended) {
             return WebResources.isProcessRemovalEnabled() && Delegates.getExecutorService().isAdministrator(getUser());
         } else {
-            return super.isFormButtonEnabled(identifiable, ProcessPermission.CANCEL_PROCESS);
+            return super.isSubmitButtonEnabled(securedObject, Permission.CANCEL);
         }
     }
 
@@ -120,7 +111,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         boolean ended = getProcess().isEnded();
         return ended ? MessagesCommon.BUTTON_REMOVE.message(pageContext) : MessagesProcesses.BUTTON_CANCEL_PROCESS.message(pageContext);
     }
@@ -257,7 +248,7 @@ public class ProcessInfoFormTag extends ProcessBaseFormTag {
     }
 
     private boolean checkReadable(WfProcess parentProcess) {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), ProcessPermission.READ, parentProcess);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.LIST, parentProcess);
     }
 
     @Override

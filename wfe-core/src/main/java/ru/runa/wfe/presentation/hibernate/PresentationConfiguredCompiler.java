@@ -27,7 +27,7 @@ import ru.runa.wfe.presentation.BatchPresentation;
  * Creates {@link Query} to load data according to {@link BatchPresentation}.
  */
 public class PresentationConfiguredCompiler<T extends Object> extends PresentationCompiler<T> implements
-        IBatchPresentationConfiguredCompiler<T> {
+        BatchPresentationConfiguredCompiler<T> {
 
     /**
      * Parameters, used to create last hibernate query or set explicitly to compiler.

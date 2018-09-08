@@ -20,10 +20,9 @@ package ru.runa.wf.logic.bot.updatepermission;
 import java.util.Collection;
 import java.util.List;
 
-import ru.runa.wfe.security.Permission;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import ru.runa.wfe.security.Permission;
 
 public class UpdatePermissionsSettings {
     private final Collection<Permission> permissions = Lists.newArrayList();

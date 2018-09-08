@@ -1,13 +1,8 @@
 package ru.runa.wfe.task.logic;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +13,20 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.collections.Sets;
-
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.TaskEscalationLog;
-import ru.runa.wfe.audit.dao.IProcessLogDAO;
+import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.EscalationGroup;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.dao.IExecutorDAO;
+import ru.runa.wfe.user.dao.ExecutorDao;
 
-import com.google.common.collect.Lists;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 @Test
 @ContextConfiguration(locations = { "classpath:ru/runa/wfe/task/logic/test.context.xml" })
@@ -108,19 +105,19 @@ public class ActorInInactiveEscalationGroupBoundConditionsTests extends Abstract
         }
 
         @Override
-        public void mockRules(IExecutorDAO executorDAO) {
-            when(executorDAO.getGroupActors(any(EscalationGroup.class))).thenReturn(groupActors);
+        public void mockRules(ExecutorDao executorDao) {
+            when(executorDao.getGroupActors(any(EscalationGroup.class))).thenReturn(groupActors);
             for (Actor a : groupActors) {
-                when(executorDAO.getActor(a.getId())).thenReturn(a);
+                when(executorDao.getActor(a.getId())).thenReturn(a);
             }
         }
 
         @Override
-        public void mockRules(IProcessLogDAO<ProcessLog> logDAO) {
+        public void mockRules(ProcessLogDao processLogDao) {
             if (getAllLogsException != null) {
-                when(logDAO.getAll(group.getProcessId())).thenThrow(getAllLogsException);
+                when(processLogDao.getAll(group.getProcessId())).thenThrow(getAllLogsException);
             } else {
-                when(logDAO.getAll(group.getProcessId())).thenReturn(pLogs);
+                when(processLogDao.getAll(group.getProcessId())).thenReturn(pLogs);
             }
         }
 

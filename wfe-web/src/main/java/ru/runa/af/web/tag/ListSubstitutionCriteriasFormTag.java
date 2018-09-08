@@ -21,9 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.Input;
 import org.apache.ecs.html.TD;
@@ -32,7 +30,6 @@ import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.DeleteSubstitutionCriteriasAction;
 import ru.runa.af.web.action.UpdateSubstitutionCriteriaAction;
@@ -44,9 +41,12 @@ import ru.runa.common.web.MessagesConfirmation;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.form.IdForm;
 import ru.runa.common.web.form.SubstitutionCriteriasForm;
+import ru.runa.common.web.tag.SecuredObjectFormTag;
 import ru.runa.wfe.commons.web.PortletUrlType;
 import ru.runa.wfe.commons.web.WebUtils;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.SubstitutionService;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -55,7 +55,7 @@ import ru.runa.wfe.ss.SubstitutionCriteria;
 import ru.runa.wfe.user.Actor;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listSubstitutionCriteriasForm")
-public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
+public class ListSubstitutionCriteriasFormTag extends SecuredObjectFormTag {
     private static final long serialVersionUID = 1L;
     private String substitutionCriteriaIds;
 
@@ -69,13 +69,13 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
     }
 
     private static ArrayList<Long> arrayFromString(String string) {
-        ArrayList<Long> result = new ArrayList<Long>();
+        ArrayList<Long> result = new ArrayList<>();
         if (string == null || string.isEmpty()) {
             return result;
         }
         String[] strings = string.replace("[", "").replace("]", "").split(",");
-        for (int i = 0; i < strings.length; i++) {
-            result.add(Long.valueOf(strings[i].trim()));
+        for (String s : strings) {
+            result.add(Long.valueOf(s.trim()));
         }
         return result;
     }
@@ -89,7 +89,7 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
         if (substitutionCriteriaIds != null && !substitutionCriteriaIds.isEmpty()) {
             StringBuilder javascript = new StringBuilder(MessagesExecutor.LABEL_SUBSTITUTION_CRITERIA_USED_BY.message(pageContext)).append(":<ul>");
             ArrayList<Long> ids = arrayFromString(substitutionCriteriaIds);
-            ArrayList<Substitution> substitutions = new ArrayList<Substitution>();
+            ArrayList<Substitution> substitutions = new ArrayList<>();
             SubstitutionService substitutionService = Delegates.getSubstitutionService();
             for (Long id : ids) {
                 SubstitutionCriteria substitutionCriteria = substitutionService.getCriteria(getUser(), id);
@@ -98,9 +98,9 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
             for (Substitution substitution : substitutions) {
                 ExecutorService executorService = Delegates.getExecutorService();
                 Actor actor = executorService.getExecutor(getUser(), substitution.getActorId());
-                javascript.append("<li>" + actor.getFullName() + " (" + actor.getName() + ")</li>");
+                javascript.append("<li>").append(actor.getFullName()).append(" (").append(actor.getName()).append(")</li>");
             }
-            javascript.append("</ul>" + MessagesConfirmation.CONF_POPUP_REMOVE_SUBSTITUTION_CRITERIA.message(pageContext));
+            javascript.append("</ul>").append(MessagesConfirmation.CONF_POPUP_REMOVE_SUBSTITUTION_CRITERIA.message(pageContext));
             getForm().addAttribute("id", "substitutionCriteriasForm");
             javascript.insert(0, "onload = function() {" + "openSubstitutionCriteriasConfirmPopup('").append("', '")
                     .append(SubstitutionCriteriasForm.REMOVE_METHOD_ALL).append("', '")
@@ -111,12 +111,17 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
+    protected Permission getSubmitPermission() {
         return Permission.UPDATE_PERMISSIONS;
     }
 
     @Override
-    public String getFormButtonName() {
+    protected SecuredObject getSecuredObject() {
+        return SecuredSingleton.SYSTEM;
+    }
+
+    @Override
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
@@ -138,11 +143,11 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
     private class SubstitutionCriteriaTableBuilder {
         private final PageContext pageContext;
 
-        public SubstitutionCriteriaTableBuilder(PageContext pageContext) {
+        SubstitutionCriteriaTableBuilder(PageContext pageContext) {
             this.pageContext = pageContext;
         }
 
-        public Table buildTable() {
+        Table buildTable() {
             Table table = new Table();
             table.setClass(Resources.CLASS_PERMISSION_TABLE);
             table.addElement(createTableHeaderTR());
@@ -170,7 +175,7 @@ public class ListSubstitutionCriteriasFormTag extends UpdateSystemBaseFormTag {
             input.setChecked(enabled);
             tr.addElement(new TD(input).setClass(Resources.CLASS_LIST_TABLE_TD));
             {
-                Map<String, Object> params = new HashMap<String, Object>();
+                Map<String, Object> params = new HashMap<>();
                 params.put(IdForm.ID_INPUT_NAME, substitutionCriteria.getId());
                 A editHref = new A(Commons.getActionUrl(UpdateSubstitutionCriteriaAction.EDIT_ACTION, params, pageContext, PortletUrlType.Action));
                 editHref.addElement(substitutionCriteria.getName());

@@ -14,7 +14,7 @@ import ru.runa.wf.web.FormSubmissionUtils;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -192,7 +192,7 @@ public class ViewUtil {
         }
     }
 
-    public static String generateTableHeader(List<WfVariable> variables, IVariableProvider variableProvider, String operationsColumn) {
+    public static String generateTableHeader(List<WfVariable> variables, VariableProvider variableProvider, String operationsColumn) {
         StringBuffer header = new StringBuffer();
         header.append("<tr class=\"header\">");
         for (WfVariable variable : variables) {

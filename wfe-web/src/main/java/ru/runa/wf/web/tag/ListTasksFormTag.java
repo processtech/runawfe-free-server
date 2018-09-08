@@ -34,12 +34,12 @@ import ru.runa.common.web.html.CssClassStrategy;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ProcessTaskAssignmentAction;
-import ru.runa.wf.web.html.AssignTaskCheckboxTDBuilder;
+import ru.runa.wf.web.html.AssignTaskCheckboxTdBuilder;
 import ru.runa.wf.web.html.TaskUrlStrategy;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -90,7 +90,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
                 }
             }
         }
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(new TDBuilder[] { new AssignTaskCheckboxTDBuilder(!disableCheckbox) },
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(new TdBuilder[] { new AssignTaskCheckboxTdBuilder(!disableCheckbox) },
                 batchPresentation, null);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 1, 0, returnAction, pageContext);
         ReflectionRowBuilder rowBuilder = new ReflectionRowBuilder(tasks, batchPresentation, pageContext,
@@ -100,7 +100,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return isButtonEnabled;
     }
 
@@ -110,7 +110,7 @@ public class ListTasksFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_ACCEPT_TASK.message(pageContext);
     }
 

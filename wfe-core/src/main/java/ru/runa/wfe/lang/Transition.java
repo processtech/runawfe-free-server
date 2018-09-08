@@ -21,12 +21,10 @@
  */
 package ru.runa.wfe.lang;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
+import java.util.List;
 import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.execution.ExecutionContext;
 

@@ -32,7 +32,6 @@ import ru.runa.wf.web.action.HistoryGraphImageAction;
 import ru.runa.wf.web.form.TaskIdForm;
 import ru.runa.wf.web.html.GraphElementPresentationHelper;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -158,23 +157,17 @@ public class ShowGraphHistoryFormTag extends ProcessBaseFormTag {
     // }
 
     @Override
-    protected Permission getPermission() {
-        return ProcessPermission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
-    }
-
-    @Override
-    protected boolean isVisible() {
-        return true;
     }
 
     @Override
     protected String getTitle() {
         return MessagesProcesses.TITLE_PROCESS_GRAPH.message(pageContext);
     }
-
 }

@@ -28,13 +28,13 @@ import ru.runa.af.web.action.CreateRelationAction;
 import ru.runa.af.web.action.UpdateRelationAction;
 import ru.runa.af.web.form.RelationForm;
 import ru.runa.common.web.HTMLUtils;
-import ru.runa.common.web.Messages;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.tag.TitledFormTag;
 import ru.runa.wfe.relation.Relation;
-import ru.runa.wfe.relation.RelationPermission;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "relationForm")
@@ -58,7 +58,7 @@ public class RelationFormTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return (relationId != null ? MessagesCommon.BUTTON_SAVE : MessagesCommon.BUTTON_CREATE).message(pageContext);
     }
 
@@ -68,9 +68,10 @@ public class RelationFormTag extends TitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         if (relationId != null) {
-            enabled = Delegates.getAuthorizationService().isAllowed(getUser(), RelationPermission.UPDATE, SecuredObjectType.RELATION, relationId);
+            // TODO Was isAllowed(RELATION, relationId). Is this if() necessary? Where enabled was initialized?
+            enabled = Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.RELATIONS);
         }
         return enabled;
     }

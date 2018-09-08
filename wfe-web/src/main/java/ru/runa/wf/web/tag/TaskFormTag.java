@@ -91,14 +91,14 @@ public class TaskFormTag extends WFFormTag {
 
     @Override
     protected String getTitle() {
-        if (!isFormButtonEnabled()) {
+        if (!isSubmitButtonEnabled()) {
             return MessagesProcesses.TITLE_TASK_FORM.message(pageContext) + " " + MessagesProcesses.TITLE_VIEW_ONLY.message(pageContext);
         }
         return super.getTitle();
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return !Delegates.getTaskService().getTask(getUser(), getTaskId()).isReadOnly();
     }
 

@@ -13,7 +13,7 @@ public class AllActorsOrgFunction extends OrgFunction {
     @Override
     public List<? extends Executor> getExecutors(Object... parameters) throws OrgFunctionException {
         BatchPresentation batchPresentation = BatchPresentationFactory.EXECUTORS.createNonPaged();
-        return executorDAO.getAllActors(batchPresentation);
+        return executorDao.getAllActors(batchPresentation);
     }
 
 }

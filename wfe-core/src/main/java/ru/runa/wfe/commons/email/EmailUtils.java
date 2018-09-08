@@ -1,5 +1,10 @@
 package ru.runa.wfe.commons.email;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
-
 import javax.activation.DataHandler;
 import javax.activation.MimetypesFileTypeMap;
 import javax.mail.Address;
@@ -24,10 +28,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 import javax.mail.util.ByteArrayDataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import ru.runa.wfe.ConfigurationException;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -40,15 +42,9 @@ import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.user.dao.ExecutorDAO;
-import ru.runa.wfe.var.IVariableProvider;
-import ru.runa.wfe.var.file.IFileVariable;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import ru.runa.wfe.user.dao.ExecutorDao;
+import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.file.FileVariable;
 
 public class EmailUtils {
     private static final Log log = LogFactory.getLog(EmailConfig.class);
@@ -57,7 +53,7 @@ public class EmailUtils {
     /**
      * Sends email in non-blocking and transactional mode
      */
-    public static void sendMessageRequest(EmailConfig config) throws Exception {
+    public static void sendMessageRequest(EmailConfig config) {
         config.checkValid();
         if (Strings.isNullOrEmpty(config.getHeaderProperties().get(EmailConfig.HEADER_TO))) {
             log.warn("Ignored message with empty 'To' recipients: " + config);
@@ -152,7 +148,7 @@ public class EmailUtils {
         }
     }
 
-    public static void prepareMessage(User user, EmailConfig config, Interaction interaction, IVariableProvider variableProvider) {
+    public static void prepareMessage(User user, EmailConfig config, Interaction interaction, VariableProvider variableProvider) {
         config.setMessageId(variableProvider.getProcessId() + ": " + (interaction != null ? interaction.getName() : "no interaction"));
         config.applySubstitutions(variableProvider);
         String formTemplate;
@@ -177,7 +173,7 @@ public class EmailUtils {
         config.setMessage(formMessage);
         log.debug(formMessage);
         for (String variableName : config.getAttachmentVariableNames()) {
-            IFileVariable fileVariable = variableProvider.getValue(IFileVariable.class, variableName);
+            FileVariable fileVariable = variableProvider.getValue(FileVariable.class, variableName);
             if (fileVariable != null) {
                 Attachment attachment = new Attachment();
                 attachment.fileName = fileVariable.getName();
@@ -195,8 +191,8 @@ public class EmailUtils {
                 emails.add(actor.getEmail().trim());
             }
         } else if (executor instanceof Group) {
-            ExecutorDAO executorDAO = ApplicationContextFactory.getExecutorDAO();
-            Collection<Actor> actors = executorDAO.getGroupActors((Group) executor);
+            ExecutorDao executorDao = ApplicationContextFactory.getExecutorDAO();
+            Collection<Actor> actors = executorDao.getGroupActors((Group) executor);
             for (Actor actor : actors) {
                 if (actor.isActive() && !Utils.isNullOrEmpty(actor.getEmail())) {
                     emails.add(actor.getEmail().trim());

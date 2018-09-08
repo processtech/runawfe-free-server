@@ -10,7 +10,7 @@ import ru.runa.wfe.extension.handler.TaskHandlerBase;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Suspend process by id.
@@ -27,7 +27,7 @@ public class SuspendProcessTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         Long processId = paramsDef.getInputParamValueNotNull("processId", variableProvider);
         boolean excludeMe = TypeConversionUtil.convertTo(boolean.class, paramsDef.getInputParamValueNotNull("excludeMe", variableProvider));
         Delegates.getExecutionService().suspendProcess(user, processId);

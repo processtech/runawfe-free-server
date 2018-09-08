@@ -94,7 +94,7 @@ public class ImportDataFileTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesOther.TITLE_IMPORT_DATAFILE.message(pageContext);
     }
 }

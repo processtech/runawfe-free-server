@@ -1,14 +1,12 @@
 package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.tag.IdLinkBaseTag;
 import ru.runa.wf.web.MessagesProcesses;
+import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.ActorPermission;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.GroupPermission;
 
 /**
  * Link to executor's tasks list form
@@ -20,8 +18,8 @@ public class ListExecutorTasksLinkTag extends IdLinkBaseTag {
     @Override
     protected boolean isLinkEnabled() {
         return getUser().getActor().getId().equals(getIdentifiableId())
-                || Delegates.getAuthorizationService().isAllowed(getUser(), ActorPermission.VIEW_TASKS, SecuredObjectType.ACTOR, getIdentifiableId())
-                || Delegates.getAuthorizationService().isAllowed(getUser(), GroupPermission.VIEW_TASKS, SecuredObjectType.GROUP, getIdentifiableId());
+                || Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_TASKS, SecuredObjectType.ACTOR, getIdentifiableId())
+                || Delegates.getAuthorizationService().isAllowed(getUser(), Permission.VIEW_TASKS, SecuredObjectType.GROUP, getIdentifiableId());
     }
 
     @Override

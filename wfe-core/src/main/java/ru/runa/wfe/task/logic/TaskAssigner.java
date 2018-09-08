@@ -3,8 +3,6 @@ package ru.runa.wfe.task.logic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-
 import ru.runa.wfe.commons.Errors;
 import ru.runa.wfe.commons.error.ProcessError;
 import ru.runa.wfe.commons.error.ProcessErrorType;
@@ -16,16 +14,15 @@ import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
 import ru.runa.wfe.lang.Delegation;
 import ru.runa.wfe.lang.ProcessDefinition;
 import ru.runa.wfe.task.Task;
-import ru.runa.wfe.task.dao.TaskDAO;
+import ru.runa.wfe.task.dao.TaskDao;
 
 public class TaskAssigner {
     private static final Log log = LogFactory.getLog(TaskAssigner.class);
     @Autowired
     private ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
-    private TaskDAO taskDAO;
+    private TaskDao taskDao;
 
-    @Transactional
     public boolean assignTask(Task task) {
         ProcessError processError = new ProcessError(ProcessErrorType.assignment, task.getProcess().getId(), task.getNodeId());
         try {

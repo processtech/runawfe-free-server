@@ -17,18 +17,15 @@
  */
 package ru.runa.wf.web.tag;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.ecs.html.A;
 import org.apache.ecs.html.TD;
 import org.apache.ecs.html.TR;
 import org.apache.ecs.html.Table;
 import org.tldgen.annotations.BodyContent;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.Commons;
@@ -39,7 +36,6 @@ import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.html.ProcessSwimlaneRowBuilder;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.execution.dto.WfSwimlane;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -50,7 +46,7 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
     private static final long serialVersionUID = -5024428545159087986L;
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 
@@ -82,8 +78,8 @@ public class ProcessSwimlaneMonitorTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return ProcessPermission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override

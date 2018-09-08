@@ -17,72 +17,38 @@
  */
 package ru.runa.common.web.tag;
 
-import org.apache.ecs.ConcreteElement;
-import org.apache.ecs.StringElement;
-import org.apache.ecs.html.A;
 import org.tldgen.annotations.Attribute;
-
 import ru.runa.common.web.Commons;
-import ru.runa.common.web.Resources;
 import ru.runa.wfe.commons.web.PortletUrlType;
 
-public abstract class LinkTag extends VisibleTag {
-
+public abstract class LinkTag extends BaseLinkTag {
     private static final long serialVersionUID = -6333366313026520201L;
 
     private String href = "";
-
     private String linkText = "";
 
-    /**
-     * @return true if link must be enabled
-     */
-    protected boolean isLinkEnabled() {
-        return true;
-    }
-
     @Override
-    protected ConcreteElement getEndElement() {
-        ConcreteElement concreteElement;
-        try {
-            if (isLinkEnabled()) {
-                concreteElement = new A(getHref(), getLinkText());
-            } else {
-                concreteElement = new StringElement();
-            }
-        } catch (Exception e) {
-            log.debug("link.isEnabled", e);
-            concreteElement = new StringElement();
-        }
-        concreteElement.setClass(Resources.CLASS_LINK);
-        return concreteElement;
-    }
-
     protected String getLinkText() {
         return linkText;
     }
 
+    @Override
     protected String getHref() {
         return href;
     }
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setForward(String forward) {
         href = Commons.getForwardUrl(forward, pageContext, PortletUrlType.Action);
     }
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setHref(String href) {
         this.href = Commons.getActionUrl(href, pageContext, PortletUrlType.Render);
     }
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setLinkText(String linkText) {
         this.linkText = linkText;
-    }
-
-    @Override
-    protected ConcreteElement getStartElement() {
-        return new StringElement();
     }
 }

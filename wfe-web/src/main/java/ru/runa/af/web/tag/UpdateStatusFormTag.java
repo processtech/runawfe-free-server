@@ -19,14 +19,13 @@ package ru.runa.af.web.tag;
 
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.UpdateStatusAction;
 import ru.runa.af.web.html.StatusTableBuilder;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.ActorPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "updateStatusForm")
 public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
@@ -35,23 +34,23 @@ public class UpdateStatusFormTag extends UpdateExecutorBaseFormTag {
 
     @Override
     public void fillFormData(TD formTd) {
-        StatusTableBuilder builder = new StatusTableBuilder((Actor) getExecutor(), !isFormButtonEnabled(), pageContext);
+        StatusTableBuilder builder = new StatusTableBuilder((Actor) getExecutor(), !isSubmitButtonEnabled(), pageContext);
         formTd.addElement(builder.build());
     }
 
     @Override
-    protected Permission getPermission() {
-        return ActorPermission.UPDATE_STATUS;
-    }
-
-    @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_APPLY.message(pageContext);
     }
 
     @Override
     protected boolean isVisible() {
         return getExecutor() instanceof Actor;
+    }
+
+    @Override
+    protected boolean isSubmitButtonEnabled() {
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UPDATE_STATUS, getExecutor());
     }
 
     @Override

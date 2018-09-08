@@ -30,7 +30,7 @@ import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ProcessRowBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
@@ -70,7 +70,7 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, instanceCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
 
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, new String[0], new String[0], getReturnAction(), pageContext);
 
         boolean isFilterable = false;
@@ -95,12 +95,12 @@ public class ListProcessesFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return false;
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 

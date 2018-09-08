@@ -19,33 +19,30 @@ package ru.runa.wf.web.tag;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.jsp.PageContext;
-
 import org.apache.ecs.html.TD;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.BatchPresentationUtils;
 import ru.runa.common.WebResources;
 import ru.runa.common.web.ConfirmationPopupHelper;
 import ru.runa.common.web.GroupState;
 import ru.runa.common.web.PagingNavigationHelper;
-import ru.runa.common.web.html.CheckboxTDBuilder;
+import ru.runa.common.web.html.CheckboxTdBuilder;
 import ru.runa.common.web.html.EnvBaseImpl;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.UndeployProcessDefinitionsAction;
-import ru.runa.wf.web.html.PropertiesProcessTDBuilder;
-import ru.runa.wf.web.html.StartProcessTDBuilder;
-import ru.runa.wfe.definition.DefinitionPermission;
+import ru.runa.wf.web.html.PropertiesProcessTdBuilder;
+import ru.runa.wf.web.html.StartProcessTdBuilder;
 import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.DefinitionService;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -70,9 +67,9 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, definitions.size());
         navigation.addPagingNavigationTable(tdFormElement);
         isButtonEnabled = isUndeployAllowed(definitions);
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(
-                new TDBuilder[] { new CheckboxTDBuilder("id", DefinitionPermission.UNDEPLOY_DEFINITION), new StartProcessTDBuilder() },
-                batchPresentation, new TDBuilder[] { new PropertiesProcessTDBuilder() });
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(
+                new TdBuilder[] { new CheckboxTdBuilder("id", Permission.ALL), new StartProcessTdBuilder() },
+                batchPresentation, new TdBuilder[] { new PropertiesProcessTdBuilder() });
         String[] prefixCellsHeaders = getGrouppingCells(batchPresentation, definitions);
         SortingHeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, prefixCellsHeaders, new String[] { "" }, getReturnAction(),
                 pageContext);
@@ -83,7 +80,7 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private String[] getGrouppingCells(BatchPresentation batchPresentation, List<WfDefinition> definitions) {
-        List<String> prefixCellsHeaders = new ArrayList<String>();
+        List<String> prefixCellsHeaders = new ArrayList<>();
         int grouppingCells = GroupState.getMaxAdditionalCellsNum(batchPresentation, definitions, new EnvImpl(batchPresentation));
         for (int i = 0; i < 1 + grouppingCells; ++i) {
             prefixCellsHeaders.add("");
@@ -93,12 +90,14 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
     }
 
     private boolean isUndeployAllowed(List<WfDefinition> definitions) {
-        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), DefinitionPermission.UNDEPLOY_DEFINITION, definitions)) {
-            if (undeploy) {
-                return true;
-            }
-        }
-        return false;
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.DEFINITIONS);
+        // TODO If (when) hidden types & permissions are implemented, uncomment and review/edit this.
+//        for (boolean undeploy : Delegates.getAuthorizationService().isAllowed(getUser(), Permission.UNDEPLOY_DEFINITION, definitions)) {
+//            if (undeploy) {
+//                return true;
+//            }
+//        }
+//        return false;
     }
 
     class EnvImpl extends EnvBaseImpl {
@@ -128,20 +127,20 @@ public class ListProcessesDefinitionsFormTag extends BatchReturningTitledFormTag
         }
 
         @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+        public boolean isAllowed(Permission permission, SecuredObjectExtractor extractor) {
             return false;
         }
 
-        BatchPresentation batchPresentation = null;
+        BatchPresentation batchPresentation;
     }
 
     @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_UNDEPLOY_DEFINITION.message(pageContext);
     }
 
     @Override
-    protected boolean isFormButtonEnabled() {
+    protected boolean isSubmitButtonEnabled() {
         return isButtonEnabled;
     }
 

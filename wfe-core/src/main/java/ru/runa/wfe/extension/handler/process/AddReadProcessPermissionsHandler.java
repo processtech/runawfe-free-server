@@ -8,12 +8,12 @@ import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.extension.handler.ParamBasedHandlerActionHandler;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.dao.PermissionDAO;
+import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.user.Executor;
 
 public class AddReadProcessPermissionsHandler extends ParamBasedHandlerActionHandler {
     @Autowired
-    private PermissionDAO permissionDAO;
+    private PermissionDao permissionDao;
 
     @Override
     public void execute(ExecutionContext executionContext) throws Exception {
@@ -23,16 +23,16 @@ public class AddReadProcessPermissionsHandler extends ParamBasedHandlerActionHan
             log.warn("Null executors in " + this + ", returning");
             return;
         }
-        ru.runa.wfe.execution.Process identifiable = executionContext.getProcess();
+        ru.runa.wfe.execution.Process securedObject = executionContext.getProcess();
         Permission permission = Permission.READ;
         for (Executor executor : executors) {
-            List<Permission> permissions = permissionDAO.getIssuedPermissions(executor, identifiable);
+            List<Permission> permissions = permissionDao.getIssuedPermissions(executor, securedObject);
             if (!permissions.contains(permission)) {
                 permissions.add(permission);
-                log.debug("Adding " + permission + " to " + executor + " on " + identifiable);
-                permissionDAO.setPermissions(executor, permissions, identifiable);
+                log.debug("Adding " + permission + " to " + executor + " on " + securedObject);
+                permissionDao.setPermissions(executor, permissions, securedObject);
             } else {
-                log.debug(executor + " already contains " + permission + " on " + identifiable);
+                log.debug(executor + " already contains " + permission + " on " + securedObject);
             }
         }
     }

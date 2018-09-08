@@ -13,15 +13,15 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
+import ru.runa.wfe.definition.dao.ProcessDefinitionLoader;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.ProcessFactory;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.dto.Variables;
 
 public class SubprocessNode extends VariableContainerNode implements Synchronizable, BoundaryEventContainer {
@@ -33,7 +33,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     private boolean transactional;
     private final List<BoundaryEvent> boundaryEvents = Lists.newArrayList();
     @Autowired
-    private transient IProcessDefinitionLoader processDefinitionLoader;
+    private transient ProcessDefinitionLoader processDefinitionLoader;
     @Autowired
     private transient ProcessFactory processFactory;
 
@@ -110,11 +110,11 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         }
         if (getProcessDefinition().getDeployment().getSubprocessBindingDate() != null) {
             Date beforeDate = getProcessDefinition().getDeployment().getSubprocessBindingDate();
-            Number deploymentId = ApplicationContextFactory.getDeploymentDAO().findDeploymentIdLatestVersionBeforeDate(subProcessName, beforeDate);
+            Long deploymentId = ApplicationContextFactory.getDeploymentDAO().findDeploymentIdLatestVersionBeforeDate(subProcessName, beforeDate);
             if (deploymentId == null) {
                 throw new InternalApplicationException("No definition " + subProcessName + " found before " + CalendarUtil.formatDateTime(beforeDate));
             }
-            return processDefinitionLoader.getDefinition(deploymentId.longValue());
+            return processDefinitionLoader.getDefinition(deploymentId);
         }
         return processDefinitionLoader.getLatestDefinition(subProcessName);
     }
@@ -129,7 +129,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         map.put(Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED, executionContext.getProcessDefinition().getName());
         map.put(Variables.CURRENT_NODE_NAME_WRAPPED, executionContext.getNode().getName());
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
-        IVariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
+        VariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
         Map<String, Object> variables = Maps.newHashMap();
         boolean baseProcessIdMode = isInBaseProcessIdMode();
         ProcessDefinition subProcessDefinition = getSubProcessDefinition();

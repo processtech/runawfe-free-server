@@ -7,7 +7,7 @@ import ru.runa.wfe.bot.BotTask;
 import ru.runa.wfe.service.BotService;
 import ru.runa.wfe.user.User;
 
-public class BotServiceDelegate extends EJB3Delegate implements BotService {
+public class BotServiceDelegate extends Ejb3Delegate implements BotService {
 
     public BotServiceDelegate() {
         super(BotService.class);

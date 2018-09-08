@@ -38,7 +38,7 @@ import ru.runa.common.web.HTMLUtils;
 import ru.runa.common.web.ProfileHttpSessionHelper;
 import ru.runa.common.web.form.BatchPresentationForm;
 import ru.runa.common.web.html.EnvBaseImpl;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
@@ -51,7 +51,7 @@ import ru.runa.wfe.user.User;
 /**
  * @since 4.3.0
  */
-public abstract class AbstractExportExcelAction<T extends Object> extends ActionBase {
+public abstract class AbstractExportExcelAction<T> extends ActionBase {
 
     protected abstract List<T> getData(User user, BatchPresentation batchPresentation);
 
@@ -113,13 +113,13 @@ public abstract class AbstractExportExcelAction<T extends Object> extends Action
     }
 
     private void buildData(Sheet dataSheet, User user, BatchPresentation batchPresentation, List<T> data) {
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
         int rowNum = 1;
         EnvImpl env = new EnvImpl(user, batchPresentation);
         for (T object : data) {
             Row row = dataSheet.createRow(rowNum++);
             int i = 0;
-            for (TDBuilder builder : builders) {
+            for (TdBuilder builder : builders) {
                 String string = builder.getValue(object, env);
                 // TODO strings instead of native types
                 CellUtil.createCell(row, i++, string);
@@ -164,7 +164,7 @@ public abstract class AbstractExportExcelAction<T extends Object> extends Action
         }
 
         @Override
-        public boolean isAllowed(Permission permission, IdentifiableExtractor extractor) {
+        public boolean isAllowed(Permission permission, SecuredObjectExtractor extractor) {
             return false;
         }
 

@@ -1,29 +1,29 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-
-import ru.runa.wfe.var.IVariableProvider;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
+import ru.runa.wfe.office.OfficeProperties;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
-
-import com.google.common.collect.Lists;
+import ru.runa.wfe.var.VariableProvider;
 
 public class DocxFileChanger {
     private final DocxConfig config;
     private final MapDelegableVariableProvider variableProvider;
     private final XWPFDocument document;
 
-    public DocxFileChanger(DocxConfig config, IVariableProvider variableProvider, InputStream templateInputStream) throws IOException {
+    public DocxFileChanger(DocxConfig config, VariableProvider variableProvider, InputStream templateInputStream) throws IOException {
         this.config = config;
         this.variableProvider = new MapDelegableVariableProvider(new HashMap<String, Object>(), variableProvider);
         this.document = new XWPFDocument(templateInputStream);
@@ -47,31 +47,48 @@ public class DocxFileChanger {
                 for (XWPFTableRow row : Lists.newArrayList(rows)) {
                     List<XWPFTableCell> cells = row.getTableCells();
                     // try to expand cells by column
-                    TableExpansionOperation tableExpansionOperation = new TableExpansionOperation(cells);
+                    TableExpansionOperation tableExpansionOperation = new TableExpansionOperation(row);
                     for (int columnIndex = 0; columnIndex < cells.size(); columnIndex++) {
                         final XWPFTableCell cell = cells.get(columnIndex);
                         ColumnExpansionOperation operation = DocxUtils.parseIterationOperation(config, variableProvider, cell.getText(),
                                 new ColumnExpansionOperation());
                         if (operation != null && operation.isValid()) {
                             tableExpansionOperation.addOperation(columnIndex, operation);
-                            String text0 = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, 0);
-                            DocxUtils.setCellText(cell, text0);
                         } else {
                             operation = new ColumnSetValueOperation();
                             operation.setContainerValue(cell.getText());
                             tableExpansionOperation.addOperation(columnIndex, operation);
                         }
+                        String text0 = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, 0);
+                        DocxUtils.setCellText(cell, text0);
                     }
                     if (tableExpansionOperation.getRows() == 0) {
                         for (XWPFTableCell cell : cells) {
                             DocxUtils.replaceInParagraphs(config, variableProvider, cell.getParagraphs());
                         }
                     } else {
+                        int templateRowIndex = table.getRows().indexOf(tableExpansionOperation.getTemplateRow());
                         for (int rowIndex = 1; rowIndex < tableExpansionOperation.getRows(); rowIndex++) {
-                            XWPFTableRow dynamicRow = table.createRow();
+                            XWPFTableRow dynamicRow = table.insertNewTableRow(templateRowIndex + rowIndex);
+                            for (int columnIndex = 0; columnIndex < tableExpansionOperation.getTemplateRow().getTableCells().size(); columnIndex++) {
+                                dynamicRow.createCell();
+                            }
                             for (int columnIndex = 0; columnIndex < dynamicRow.getTableCells().size(); columnIndex++) {
                                 String text = tableExpansionOperation.getStringValue(config, variableProvider, columnIndex, rowIndex);
-                                DocxUtils.setCellText(dynamicRow.getCell(columnIndex), text, tableExpansionOperation.getCell(columnIndex));
+                                DocxUtils.setCellText(dynamicRow.getCell(columnIndex), text, tableExpansionOperation.getTemplateCell(columnIndex));
+                                if (OfficeProperties.getDocxPlaceholderVMerge().equals(text)) {
+                                    CTTcPr tcPr = dynamicRow.getCell(columnIndex).getCTTc().getTcPr();
+                                    tcPr.addNewVMerge().setVal(STMerge.CONTINUE);
+
+                                    int restartVMergeRowIndex = table.getRows().indexOf(dynamicRow) - 1;
+                                    if (restartVMergeRowIndex >= 0) {
+                                        XWPFTableRow restartRow = table.getRow(restartVMergeRowIndex);
+                                        CTTcPr previousTcPr = restartRow.getCell(columnIndex).getCTTc().getTcPr();
+                                        if (previousTcPr.getVMerge() == null) {
+                                            previousTcPr.addNewVMerge().setVal(STMerge.RESTART);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

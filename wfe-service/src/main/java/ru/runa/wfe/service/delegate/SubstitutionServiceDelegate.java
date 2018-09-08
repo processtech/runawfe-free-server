@@ -28,7 +28,7 @@ import ru.runa.wfe.user.User;
  * Created on 30.01.2006
  * 
  */
-public class SubstitutionServiceDelegate extends EJB3Delegate implements SubstitutionService {
+public class SubstitutionServiceDelegate extends Ejb3Delegate implements SubstitutionService {
 
     public SubstitutionServiceDelegate() {
         super(SubstitutionService.class);

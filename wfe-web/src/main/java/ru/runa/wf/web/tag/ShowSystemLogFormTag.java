@@ -29,13 +29,12 @@ import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.ReflectionRowBuilder;
 import ru.runa.common.web.html.RowBuilder;
 import ru.runa.common.web.html.SortingHeaderBuilder;
-import ru.runa.common.web.html.TDBuilder;
+import ru.runa.common.web.html.TdBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.common.web.tag.BatchReturningTitledFormTag;
 import ru.runa.wfe.audit.SystemLog;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.security.Permission;
-import ru.runa.wfe.security.SystemPermission;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "showSystemLogForm")
@@ -56,7 +55,7 @@ public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
         PagingNavigationHelper navigation = new PagingNavigationHelper(pageContext, batchPresentation, instanceCount, getReturnAction());
         navigation.addPagingNavigationTable(tdFormElement);
 
-        TDBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
+        TdBuilder[] builders = BatchPresentationUtils.getBuilders(null, batchPresentation, null);
 
         HeaderBuilder headerBuilder = new SortingHeaderBuilder(batchPresentation, 0, 0, getReturnAction(), pageContext);
         RowBuilder rowBuilder = new ReflectionRowBuilder(instances, batchPresentation, pageContext, null, getReturnAction(), "id", builders);
@@ -66,7 +65,7 @@ public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
     }
 
     protected Permission getPermission() {
-        return SystemPermission.READ;
+        return Permission.LIST;
     }
 
     @Override
@@ -80,7 +79,7 @@ public class ShowSystemLogFormTag extends BatchReturningTitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 }

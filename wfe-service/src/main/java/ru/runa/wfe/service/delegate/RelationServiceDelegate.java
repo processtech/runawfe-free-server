@@ -32,7 +32,7 @@ import ru.runa.wfe.user.User;
  * 
  * @author Konstantinov Aleksey 12.02.2012
  */
-public class RelationServiceDelegate extends EJB3Delegate implements RelationService {
+public class RelationServiceDelegate extends Ejb3Delegate implements RelationService {
 
     public RelationServiceDelegate() {
         super(RelationService.class);
@@ -109,6 +109,24 @@ public class RelationServiceDelegate extends EJB3Delegate implements RelationSer
     public List<RelationPair> getExecutorsRelationPairsLeft(User user, String name, List<? extends Executor> left) {
         try {
             return getRelationService().getExecutorsRelationPairsLeft(user, name, left);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<Relation> getRelationsContainingExecutorsOnLeft(User user, List<Executor> executors) {
+        try {
+            return getRelationService().getRelationsContainingExecutorsOnLeft(user, executors);
+        } catch (Exception e) {
+            throw handleException(e);
+        }
+    }
+
+    @Override
+    public List<Relation> getRelationsContainingExecutorsOnRight(User user, List<Executor> executors) {
+        try {
+            return getRelationService().getRelationsContainingExecutorsOnRight(user, executors);
         } catch (Exception e) {
             throw handleException(e);
         }

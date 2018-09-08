@@ -26,16 +26,10 @@ public class DefaultBatchPresentations {
     static {
         create(BatchPresentationConsts.ID_ALL_EXECUTORS, BatchPresentationFactory.EXECUTORS);
         create(BatchPresentationConsts.ID_EXECUTORS_GROUPS, BatchPresentationFactory.GROUPS);
-        create(BatchPresentationConsts.ID_EXECUTORS_WITHOUT_PERMISSIONS_ON_EXECUTOR, BatchPresentationFactory.EXECUTORS);
         create(BatchPresentationConsts.ID_GROUP_MEMBERS, BatchPresentationFactory.EXECUTORS);
         create(BatchPresentationConsts.ID_NOT_EXECUTOR_IN_GROUPS, BatchPresentationFactory.GROUPS);
         create(BatchPresentationConsts.ID_NOT_GROUP_MEMBERS, BatchPresentationFactory.EXECUTORS);
-        create(BatchPresentationConsts.ID_EXECUTORS_WITHOUT_PERMISSIONS_ON_SYSTEM, BatchPresentationFactory.EXECUTORS);
-        create(BatchPresentationConsts.ID_EXECUTORS_WITHOUT_PERMISSIONS_ON_DEFINITION, BatchPresentationFactory.EXECUTORS);
-        create(BatchPresentationConsts.ID_EXECUTORS_WITHOUT_PERMISSIONS_ON_PROCESS, BatchPresentationFactory.EXECUTORS);
-        create(BatchPresentationConsts.ID_EXECUTORS_WITHOUT_PERMISSIONS_ON_RELATION, BatchPresentationFactory.EXECUTORS);
-        create(BatchPresentationConsts.ID_EXECUTORS_WITHOUT_BOT_STATION_PERMISSION, BatchPresentationFactory.EXECUTORS);
-        create(BatchPresentationConsts.ID_EXECUTORS_WITHOUT_REPORTS_PERMISSION, BatchPresentationFactory.EXECUTORS);
+        create(BatchPresentationConsts.ID_GRANT_PERMISSIONS, BatchPresentationFactory.EXECUTORS);
         create(BatchPresentationConsts.ID_RELATIONS, BatchPresentationFactory.RELATIONS);
         create(BatchPresentationConsts.ID_RELATION_PAIRS, BatchPresentationFactory.RELATION_PAIRS);
         create(BatchPresentationConsts.ID_REPORTS, BatchPresentationFactory.REPORTS);

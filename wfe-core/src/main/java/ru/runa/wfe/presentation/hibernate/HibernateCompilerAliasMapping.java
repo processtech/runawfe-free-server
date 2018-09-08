@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentation;
@@ -36,22 +35,22 @@ public class HibernateCompilerAliasMapping {
     /**
      * Map {@link FieldDescriptor} from BatchPresentation to HQL query alias.
      */
-    private final Map<FieldDescriptor, String> fieldToAlias = new HashMap<FieldDescriptor, String>();
+    private final Map<FieldDescriptor, String> fieldToAlias = new HashMap<>();
 
     /**
      * Map HQL query alias to {@link FieldDescriptor} from BatchPresentation.
      */
-    private final Map<String, List<FieldDescriptor>> aliasToField = new HashMap<String, List<FieldDescriptor>>();
+    private final Map<String, List<FieldDescriptor>> aliasToField = new HashMap<>();
 
     /**
      * Map Class (database DTO) to query alias.
      */
-    private final Map<Class<?>, String> joinedClassToAlias = new HashMap<Class<?>, String>();
+    private final Map<Class<?>, String> joinedClassToAlias = new HashMap<>();
 
     /**
      * Map HQL query alias to class (database DTO).
      */
-    private final Map<String, Class<?>> joinedAliasToClass = new HashMap<String, Class<?>>();
+    private final Map<String, Class<?>> joinedAliasToClass = new HashMap<>();
 
     /**
      * Creates mapping from {@link FieldDescriptor} to alias for specified {@link BatchPresentation}.
@@ -68,7 +67,7 @@ public class HibernateCompilerAliasMapping {
                 throw new InternalApplicationException("Field dbSource is null. Something wrong with " + batchPresentation);
             }
             final Class<?> entity = field.dbSources[0].getSourceObject();
-            if (entity.equals(batchPresentation.getClassPresentation().getPresentationClass())) {
+            if (entity.equals(batchPresentation.getType().getPresentationClass())) {
                 addAliasMapping(field, ClassPresentation.classNameSQL);
             } else if (field.displayName.startsWith(ClassPresentation.removable_prefix)) {
                 addAliasMapping(field, "editedField" + idx);
@@ -103,7 +102,7 @@ public class HibernateCompilerAliasMapping {
      */
     public List<FieldDescriptor> getFields(String alias) {
         if (!aliasToField.containsKey(alias)) {
-            aliasToField.put(alias, new ArrayList<FieldDescriptor>());
+            aliasToField.put(alias, new ArrayList<>());
         }
         return aliasToField.get(alias);
     }

@@ -31,7 +31,6 @@ import ru.runa.common.web.form.IdForm;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.ProcessDefinitionGraphImageAction;
 import ru.runa.wfe.commons.web.PortletUrlType;
-import ru.runa.wfe.definition.DefinitionPermission;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -48,7 +47,7 @@ public class DefinitionGraphFormTag extends ProcessDefinitionBaseFormTag {
         return subprocessId;
     }
 
-    @Attribute(required = false, rtexprvalue = true)
+    @Attribute
     public void setSubprocessId(String subprocessId) {
         this.subprocessId = subprocessId;
     }
@@ -75,12 +74,12 @@ public class DefinitionGraphFormTag extends ProcessDefinitionBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return DefinitionPermission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 

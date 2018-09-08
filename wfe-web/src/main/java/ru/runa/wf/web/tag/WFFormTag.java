@@ -102,11 +102,11 @@ public abstract class WFFormTag extends TitledFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return formButtonVisible;
     }
 
-    protected void setFormButtonVisible(boolean isVisible) {
+    protected void setSubmitButtonVisible(boolean isVisible) {
         this.formButtonVisible = isVisible;
     }
 
@@ -116,7 +116,7 @@ public abstract class WFFormTag extends TitledFormTag {
     }
 
     @Override
-    protected String getFormButtonName() {
+    protected String getSubmitButtonName() {
         return MessagesProcesses.BUTTON_COMPLETE.message(pageContext);
     }
 
@@ -141,7 +141,7 @@ public abstract class WFFormTag extends TitledFormTag {
     }
 
     @Override
-    protected List<Map<String, String>> getFormButtonsData() {
+    protected List<Map<String, String>> getSubmitButtonsData() {
         List<Map<String, String>> data = Lists.newArrayList();
         for (WfTransition transition : interaction.getOutputTransitions()) {
             Map<String, String> transitionData = Maps.newHashMap();

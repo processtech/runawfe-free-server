@@ -21,8 +21,8 @@ import org.tldgen.annotations.BodyContent;
 
 import ru.runa.common.web.tag.LinkTag;
 import ru.runa.report.web.MessagesReport;
-import ru.runa.wfe.report.ReportPermission;
-import ru.runa.wfe.report.ReportsSecure;
+import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredSingleton;
 import ru.runa.wfe.service.delegate.Delegates;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "deployReportLink")
@@ -32,7 +32,7 @@ public class DeployReportLinkTag extends LinkTag {
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), ReportPermission.DEPLOY, ReportsSecure.INSTANCE);
+        return Delegates.getAuthorizationService().isAllowed(getUser(), Permission.ALL, SecuredSingleton.REPORTS);
     }
 
     @Override

@@ -37,7 +37,7 @@ import ru.runa.wfe.var.VariableDefinition;
 /**
  * Provides simplified access to local ProcessDefinition. Created on 28.09.2004
  */
-public class DefinitionServiceDelegate extends EJB3Delegate implements DefinitionService {
+public class DefinitionServiceDelegate extends Ejb3Delegate implements DefinitionService {
 
     public DefinitionServiceDelegate() {
         super(DefinitionService.class);

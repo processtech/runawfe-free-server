@@ -7,9 +7,9 @@ import java.util.List;
 import ru.runa.wfe.audit.aggregated.AssignmentHistory;
 import ru.runa.wfe.audit.aggregated.ProcessInstanceAggregatedLog;
 import ru.runa.wfe.audit.aggregated.TaskAggregatedLog;
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class CreateAggregatedLogsTables extends DBPatch {
+public class CreateAggregatedLogsTables extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {
@@ -28,7 +28,7 @@ public class CreateAggregatedLogsTables extends DBPatch {
      */
     private List<String> createAssignmentHistoryTable() {
         List<String> sql = new LinkedList<String>();
-        List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
+        List<ColumnDef> columns = new LinkedList<DbPatch.ColumnDef>();
         ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
         columns.add(id);
@@ -54,7 +54,7 @@ public class CreateAggregatedLogsTables extends DBPatch {
      */
     private List<String> createTaskHistoryTable() {
         List<String> sql = new LinkedList<String>();
-        List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
+        List<ColumnDef> columns = new LinkedList<DbPatch.ColumnDef>();
         ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
         columns.add(id);
@@ -86,7 +86,7 @@ public class CreateAggregatedLogsTables extends DBPatch {
      */
     private List<String> createProcessHistoryTable() {
         List<String> sql = new LinkedList<String>();
-        List<ColumnDef> columns = new LinkedList<DBPatch.ColumnDef>();
+        List<ColumnDef> columns = new LinkedList<DbPatch.ColumnDef>();
         ColumnDef id = new ColumnDef("ID", Types.BIGINT, false);
         id.setPrimaryKey();
         columns.add(id);

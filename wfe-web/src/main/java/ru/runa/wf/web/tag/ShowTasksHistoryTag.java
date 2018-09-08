@@ -12,7 +12,7 @@ import org.tldgen.annotations.BodyContent;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.html.HeaderBuilder;
 import ru.runa.common.web.html.RowBuilder;
-import ru.runa.common.web.html.TRRowBuilder;
+import ru.runa.common.web.html.TrRowBuilder;
 import ru.runa.common.web.html.TableBuilder;
 import ru.runa.wf.web.MessagesProcesses;
 import ru.runa.wf.web.action.CancelProcessAction;
@@ -23,7 +23,6 @@ import ru.runa.wfe.audit.ProcessStartLog;
 import ru.runa.wfe.audit.TaskCreateLog;
 import ru.runa.wfe.audit.TaskEndLog;
 import ru.runa.wfe.commons.CalendarUtil;
-import ru.runa.wfe.execution.ProcessPermission;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 
@@ -46,7 +45,7 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
         ProcessLogs logs = Delegates.getAuditService().getProcessLogs(getUser(), filter);
         List<TR> rows = processLogs(logs);
         HeaderBuilder tasksHistoryHeaderBuilder = new TasksHistoryHeaderBuilder();
-        RowBuilder rowBuilder = new TRRowBuilder(rows);
+        RowBuilder rowBuilder = new TrRowBuilder(rows);
         TableBuilder tableBuilder = new TableBuilder();
         tdFormElement.addElement(tableBuilder.build(tasksHistoryHeaderBuilder, rowBuilder));
     }
@@ -122,8 +121,8 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected Permission getPermission() {
-        return ProcessPermission.READ;
+    protected Permission getSubmitPermission() {
+        return Permission.LIST;
     }
 
     @Override
@@ -137,7 +136,7 @@ public class ShowTasksHistoryTag extends ProcessBaseFormTag {
     }
 
     @Override
-    protected boolean isFormButtonVisible() {
+    protected boolean isSubmitButtonVisible() {
         return false;
     }
 }

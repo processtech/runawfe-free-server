@@ -19,12 +19,9 @@ package ru.runa.af.web.tag;
 
 import org.tldgen.annotations.Attribute;
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.common.web.Messages;
 import ru.runa.common.web.tag.IdLinkBaseTag;
-import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.delegate.Delegates;
-import ru.runa.wfe.user.ActorPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.EMPTY, name = "addSubstitutionLink")
 public class AddSubstitutionLinkTag extends IdLinkBaseTag {
@@ -35,14 +32,14 @@ public class AddSubstitutionLinkTag extends IdLinkBaseTag {
         return text;
     }
 
-    @Attribute(required = true, rtexprvalue = true)
+    @Attribute(required = true)
     public void setText(String text) {
         this.text = text;
     }
 
     @Override
     protected boolean isLinkEnabled() {
-        return Delegates.getAuthorizationService().isAllowed(getUser(), ActorPermission.UPDATE, SecuredObjectType.ACTOR, getIdentifiableId());
+        return Delegates.getAuthorizationService().isAllowedUpdateExecutor(getUser(), getIdentifiableId());
     }
 
     @Override

@@ -14,10 +14,10 @@ import com.google.common.net.MediaType;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
-import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.var.IVariableProvider;
+import ru.runa.wfe.definition.FileDataProvider;
+import ru.runa.wfe.var.VariableProvider;
+import ru.runa.wfe.var.file.FileVariableImpl;
 import ru.runa.wfe.var.file.FileVariable;
-import ru.runa.wfe.var.file.IFileVariable;
 
 public abstract class FilesSupplierConfig {
     protected String inputFilePath;
@@ -60,7 +60,7 @@ public abstract class FilesSupplierConfig {
         return outputFileName;
     }
 
-    public InputStream getFileInputStream(IVariableProvider variableProvider, IFileDataProvider fileDataProvider, boolean required) {
+    public InputStream getFileInputStream(VariableProvider variableProvider, FileDataProvider fileDataProvider, boolean required) {
         if (inputFileVariableName != null) {
             return getInputStreamByVariableName(variableProvider, inputFileVariableName);
         }
@@ -73,15 +73,15 @@ public abstract class FilesSupplierConfig {
         return null;
     }
 
-    protected InputStream getInputStreamByPath(IVariableProvider variableProvider, IFileDataProvider fileDataProvider, String inputFilePath) {
-        if (inputFilePath.startsWith(IFileDataProvider.PROCESS_FILE_PROTOCOL) || inputFilePath.startsWith(IFileDataProvider.BOT_TASK_FILE_PROTOCOL)) {
+    protected InputStream getInputStreamByPath(VariableProvider variableProvider, FileDataProvider fileDataProvider, String inputFilePath) {
+        if (inputFilePath.startsWith(FileDataProvider.PROCESS_FILE_PROTOCOL) || inputFilePath.startsWith(FileDataProvider.BOT_TASK_FILE_PROTOCOL)) {
 
             String inputFilePathWithoutProtocol = inputFilePath;
-            if (inputFilePath.startsWith(IFileDataProvider.PROCESS_FILE_PROTOCOL)) {
-                inputFilePathWithoutProtocol = inputFilePath.substring(IFileDataProvider.PROCESS_FILE_PROTOCOL.length());
+            if (inputFilePath.startsWith(FileDataProvider.PROCESS_FILE_PROTOCOL)) {
+                inputFilePathWithoutProtocol = inputFilePath.substring(FileDataProvider.PROCESS_FILE_PROTOCOL.length());
             }
-            if (inputFilePath.startsWith(IFileDataProvider.BOT_TASK_FILE_PROTOCOL)) {
-                inputFilePathWithoutProtocol = inputFilePath.substring(IFileDataProvider.BOT_TASK_FILE_PROTOCOL.length());
+            if (inputFilePath.startsWith(FileDataProvider.BOT_TASK_FILE_PROTOCOL)) {
+                inputFilePathWithoutProtocol = inputFilePath.substring(FileDataProvider.BOT_TASK_FILE_PROTOCOL.length());
             }
 
             byte[] data = fileDataProvider.getFileDataNotNull(inputFilePathWithoutProtocol);
@@ -99,10 +99,10 @@ public abstract class FilesSupplierConfig {
         return ClassLoaderUtil.getAsStreamNotNull(path, getClass());
     }
 
-    protected InputStream getInputStreamByVariableName(IVariableProvider variableProvider, String inputFileVariableName) {
+    protected InputStream getInputStreamByVariableName(VariableProvider variableProvider, String inputFileVariableName) {
         Object value = variableProvider.getValue(inputFileVariableName);
-        if (value instanceof IFileVariable) {
-            IFileVariable fileVariable = (IFileVariable) value;
+        if (value instanceof FileVariable) {
+            FileVariable fileVariable = (FileVariable) value;
             return new ByteArrayInputStream(fileVariable.getData());
         }
         if (value instanceof byte[]) {
@@ -111,10 +111,10 @@ public abstract class FilesSupplierConfig {
         throw new InternalApplicationException("Variable '" + inputFileVariableName + "' should contains a file");
     }
 
-    public OutputStream getFileOutputStream(Map<String, Object> outputVariables, IVariableProvider variableProvider, boolean required) {
+    public OutputStream getFileOutputStream(Map<String, Object> outputVariables, VariableProvider variableProvider, boolean required) {
         final String outputFileName = ExpressionEvaluator.process(null, getOutputFileName(), variableProvider, null);
         if (outputFileVariableName != null) {
-            FileVariable fileVariable = new FileVariable(outputFileName, getContentType().toString());
+            FileVariableImpl fileVariable = new FileVariableImpl(outputFileName, getContentType().toString());
             outputVariables.put(outputFileVariableName, fileVariable);
             return new FileVariableOutputStream(fileVariable);
         }
@@ -147,9 +147,9 @@ public abstract class FilesSupplierConfig {
     }
 
     public static class FileVariableOutputStream extends ByteArrayOutputStream {
-        private final FileVariable fileVariable;
+        private final FileVariableImpl fileVariable;
 
-        public FileVariableOutputStream(FileVariable fileVariable) {
+        public FileVariableOutputStream(FileVariableImpl fileVariable) {
             this.fileVariable = fileVariable;
         }
 

@@ -18,16 +18,13 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.AddExecutorToGroupsAction;
 import ru.runa.common.web.MessagesCommon;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.GroupPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listNotExecutorGroupsForm")
 public class ListNotExecutorGroupsFormTag extends ListExecutorsBaseFormTag {
@@ -35,12 +32,7 @@ public class ListNotExecutorGroupsFormTag extends ListExecutorsBaseFormTag {
     private static final long serialVersionUID = 5067294728960890661L;
 
     @Override
-    protected Permission getPermission() {
-        return Permission.READ;
-    }
-
-    @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_ADD.message(pageContext);
     }
 
@@ -66,6 +58,6 @@ public class ListNotExecutorGroupsFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return GroupPermission.ADD_TO_GROUP;
+        return Permission.UPDATE;  // TODO Was ADD_TO_GROUP. Why this is in *List*ExecutorGroupsFormTag?
     }
 }

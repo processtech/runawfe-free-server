@@ -6,7 +6,7 @@ import org.dom4j.Element;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.xml.XmlUtils;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.Language;
 import ru.runa.wfe.definition.bpmn.BpmnXmlReader;
 import ru.runa.wfe.definition.jpdl.JpdlXmlReader;
@@ -22,7 +22,7 @@ public class ProcessDefinitionParser implements ProcessArchiveParser {
 
     @Override
     public void readFromArchive(ProcessArchive processArchive, ProcessDefinition processDefinition) {
-        String fileName = IFileDataProvider.PROCESSDEFINITION_XML_FILE_NAME;
+        String fileName = FileDataProvider.PROCESSDEFINITION_XML_FILE_NAME;
         if (processDefinition instanceof SubprocessDefinition) {
             fileName = processDefinition.getNodeId() + "." + fileName;
         }

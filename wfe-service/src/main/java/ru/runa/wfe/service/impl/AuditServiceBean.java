@@ -18,7 +18,6 @@
 package ru.runa.wfe.service.impl;
 
 import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -27,10 +26,9 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.audit.SystemLog;
@@ -46,8 +44,6 @@ import ru.runa.wfe.service.interceptors.EjbTransactionSupport;
 import ru.runa.wfe.service.interceptors.PerformanceObserver;
 import ru.runa.wfe.user.User;
 
-import com.google.common.base.Preconditions;
-
 @Stateless(name = "AuditServiceBean")
 @TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors({ EjbExceptionSupport.class, PerformanceObserver.class, EjbTransactionSupport.class, SpringBeanAutowiringInterceptor.class })
@@ -61,42 +57,35 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
 
     @Override
     @WebResult(name = "result")
-    public byte[] getProcessHistoryDiagram(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
+    public byte[] getProcessHistoryDiagram(@WebParam(name = "user") @NonNull User user, @WebParam(name = "processId") @NonNull Long processId,
             @WebParam(name = "taskId") Long taskId, @WebParam(name = "subprocessId") String subprocessId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
         return executionLogic.getProcessHistoryDiagram(user, processId, taskId, subprocessId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<NodeGraphElement> getProcessHistoryDiagramElements(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
-            @WebParam(name = "taskId") Long taskId, @WebParam(name = "subprocessId") String subprocessId) {
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(processId != null, "processId");
+    public List<NodeGraphElement> getProcessHistoryDiagramElements(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "processId") @NonNull Long processId, @WebParam(name = "taskId") Long taskId,
+            @WebParam(name = "subprocessId") String subprocessId) {
         return executionLogic.getProcessHistoryDiagramElements(user, processId, taskId, subprocessId);
     }
 
     @Override
     @WebResult(name = "result")
-    public ProcessLogs getProcessLogs(@WebParam(name = "user") User user, @WebParam(name = "filter") ProcessLogFilter filter) {
-        Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(user != null, "user");
-        Preconditions.checkArgument(filter != null, "filter");
+    public ProcessLogs getProcessLogs(@WebParam(name = "user") @NonNull User user, @WebParam(name = "filter") @NonNull ProcessLogFilter filter) {
         return auditLogic.getProcessLogs(user, filter);
     }
 
     @Override
     @WebResult(name = "result")
-    public Object getProcessLogValue(@WebParam(name = "user") User user, @WebParam(name = "logId") Long logId) {
-        Preconditions.checkArgument(user != null, "user");
+    public Object getProcessLogValue(@WebParam(name = "user") @NonNull User user, @WebParam(name = "logId") Long logId) {
         return auditLogic.getProcessLogValue(user, logId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<SystemLog> getSystemLogs(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null, "user");
+    public List<SystemLog> getSystemLogs(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.SYSTEM_LOGS.createNonPaged();
         }
@@ -105,8 +94,8 @@ public class AuditServiceBean implements AuditServiceLocal, AuditServiceRemote {
 
     @Override
     @WebResult(name = "result")
-    public int getSystemLogsCount(@WebParam(name = "user") User user, @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
-        Preconditions.checkArgument(user != null, "user");
+    public int getSystemLogsCount(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "batchPresentation") BatchPresentation batchPresentation) {
         if (batchPresentation == null) {
             batchPresentation = BatchPresentationFactory.SYSTEM_LOGS.createNonPaged();
         }

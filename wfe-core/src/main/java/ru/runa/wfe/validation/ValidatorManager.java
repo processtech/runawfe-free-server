@@ -1,5 +1,7 @@
 package ru.runa.wfe.validation;
 
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -7,12 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
-
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ClassLoaderUtil;
@@ -21,10 +21,7 @@ import ru.runa.wfe.definition.par.ValidationXmlParser;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
-
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
+import ru.runa.wfe.var.VariableProvider;
 
 public class ValidatorManager {
     private static final Log log = LogFactory.getLog(ValidatorManager.class);
@@ -69,7 +66,7 @@ public class ValidatorManager {
         return "";
     }
 
-    public List<Validator> createValidators(User user, ExecutionContext executionContext, IVariableProvider variableProvider, byte[] validationXml,
+    public List<Validator> createValidators(User user, ExecutionContext executionContext, VariableProvider variableProvider, byte[] validationXml,
             ValidatorContext validatorContext, Map<String, Object> variables) {
         List<ValidatorConfig> configs = ValidationXmlParser.parseValidatorConfigs(validationXml);
         ArrayList<Validator> validators = new ArrayList<>(configs.size());
@@ -88,7 +85,7 @@ public class ValidatorManager {
         return validators;
     }
 
-    public ValidatorContext validate(User user, ExecutionContext executionContext, IVariableProvider variableProvider, byte[] validationXml,
+    public ValidatorContext validate(User user, ExecutionContext executionContext, VariableProvider variableProvider, byte[] validationXml,
             Map<String, Object> variables) {
         ValidatorContext validatorContext = new ValidatorContext();
         List<Validator> validators = createValidators(user, executionContext, variableProvider, validationXml, validatorContext, variables);

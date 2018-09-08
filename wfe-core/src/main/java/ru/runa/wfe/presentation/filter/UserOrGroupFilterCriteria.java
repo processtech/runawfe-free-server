@@ -1,10 +1,8 @@
 package ru.runa.wfe.presentation.filter;
 
-import java.util.Map;
-
-import ru.runa.wfe.commons.SQLCommons;
-import ru.runa.wfe.commons.SQLCommons.StringEqualsExpression;
-import ru.runa.wfe.presentation.hibernate.QueryParameter;
+import ru.runa.wfe.commons.SqlCommons;
+import ru.runa.wfe.commons.SqlCommons.StringEqualsExpression;
+import ru.runa.wfe.presentation.hibernate.QueryParametersMap;
 
 public class UserOrGroupFilterCriteria extends FilterCriteria {
     private static final long serialVersionUID = 1L;
@@ -14,18 +12,18 @@ public class UserOrGroupFilterCriteria extends FilterCriteria {
     }
 
     @Override
-    public String buildWhereCondition(String aliasedFieldName, Map<String, QueryParameter> placeholders) {
+    public String buildWhereCondition(String aliasedFieldName, QueryParametersMap placeholders) {
         boolean includeGroup = false;
         if (!getFilterTemplate(1).isEmpty()) {
             includeGroup = 1 == Integer.parseInt(getFilterTemplate(1));
         }
-        final StringEqualsExpression expression = SQLCommons.getStringEqualsExpression(getFilterTemplate(0));
+        final StringEqualsExpression expression = SqlCommons.getStringEqualsExpression(getFilterTemplate(0));
         final String alias = makePlaceHolderName(aliasedFieldName);
         final StringBuilder paramStringBuilder = new StringBuilder();
         paramStringBuilder.append(expression.getComparisonOperator());
         paramStringBuilder.append(":");
         paramStringBuilder.append(alias);
-        placeholders.put(alias, new QueryParameter(alias, expression.getValue()));
+        placeholders.add(alias, expression.getValue());
 
         final StringBuilder where = new StringBuilder();
         where.append("( ").append(aliasedFieldName).append(paramStringBuilder);

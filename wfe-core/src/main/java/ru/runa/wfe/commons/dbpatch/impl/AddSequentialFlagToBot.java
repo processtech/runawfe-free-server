@@ -6,9 +6,9 @@ import java.util.List;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 
-import ru.runa.wfe.commons.dbpatch.DBPatch;
+import ru.runa.wfe.commons.dbpatch.DbPatch;
 
-public class AddSequentialFlagToBot extends DBPatch {
+public class AddSequentialFlagToBot extends DbPatch {
 
     @Override
     protected List<String> getDDLQueriesBefore() {

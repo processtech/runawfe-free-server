@@ -17,27 +17,26 @@
  */
 package ru.runa.wf.logic.bot;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import ru.runa.wf.logic.bot.updatepermission.Method;
 import ru.runa.wf.logic.bot.updatepermission.UpdatePermissionsSettings;
 import ru.runa.wf.logic.bot.updatepermission.UpdatePermissionsXmlParser;
 import ru.runa.wfe.InternalApplicationException;
+import ru.runa.wfe.commons.CollectionUtil;
 import ru.runa.wfe.execution.logic.SwimlaneInitializerHelper;
 import ru.runa.wfe.extension.handler.TaskHandlerBase;
-import ru.runa.wfe.security.Identifiable;
 import ru.runa.wfe.security.Permission;
+import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.task.dto.WfTask;
 import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.var.IVariableProvider;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import ru.runa.wfe.var.VariableProvider;
 
 /**
  * Sets permissions to current process.
@@ -54,7 +53,7 @@ public class UpdatePermissionsTaskHandler extends TaskHandlerBase {
     }
 
     @Override
-    public Map<String, Object> handle(User user, IVariableProvider variableProvider, WfTask task) throws Exception {
+    public Map<String, Object> handle(User user, VariableProvider variableProvider, WfTask task) throws Exception {
         boolean allowed = true;
         if (settings.isConditionExists()) {
             String conditionVar = variableProvider.getValue(String.class, settings.getConditionVarName());
@@ -68,25 +67,25 @@ public class UpdatePermissionsTaskHandler extends TaskHandlerBase {
                 executors.addAll(SwimlaneInitializerHelper.evaluate(swimlaneInitializer, variableProvider));
             }
             List<Collection<Permission>> allPermissions = Lists.newArrayListWithExpectedSize(executors.size());
-            Identifiable identifiable = Delegates.getExecutionService().getProcess(user, task.getProcessId());
+            SecuredObject securedObject = Delegates.getExecutionService().getProcess(user, task.getProcessId());
             List<Long> executorIds = Lists.newArrayList();
             for (Executor executor : executors) {
-                List<Permission> oldPermissions = Delegates.getAuthorizationService().getIssuedPermissions(user, executor, identifiable);
+                List<Permission> oldPermissions = Delegates.getAuthorizationService().getIssuedPermissions(user, executor, securedObject);
                 allPermissions.add(getNewPermissions(oldPermissions, settings.getPermissions(), settings.getMethod()));
                 executorIds.add(executor.getId());
             }
-            Delegates.getAuthorizationService().setPermissions(user, executorIds, allPermissions, identifiable);
+            Delegates.getAuthorizationService().setPermissions(user, executorIds, allPermissions, securedObject);
         }
         return null;
     }
 
     private Collection<Permission> getNewPermissions(Collection<Permission> oldPermissions, Collection<Permission> permissions, Method method) {
         if (Method.add == method) {
-            return Permission.mergePermissions(oldPermissions, permissions);
+            return CollectionUtil.unionSet(oldPermissions, permissions);
         } else if (Method.set == method) {
             return permissions;
         } else if (Method.delete == method) {
-            return Permission.subtractPermissions(oldPermissions, permissions);
+            return CollectionUtil.diffSet(oldPermissions, permissions);
         } else {
             // should never happened
             throw new InternalApplicationException("Unknown method provided: " + method);

@@ -21,19 +21,17 @@
  */
 package ru.runa.wfe.lang;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import ru.runa.wfe.InternalApplicationException;
 import ru.runa.wfe.definition.DefinitionFileDoesNotExistException;
 import ru.runa.wfe.definition.Deployment;
-import ru.runa.wfe.definition.IFileDataProvider;
+import ru.runa.wfe.definition.FileDataProvider;
 import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
@@ -45,7 +43,7 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-public class ProcessDefinition extends GraphElement implements IFileDataProvider {
+public class ProcessDefinition extends GraphElement implements FileDataProvider {
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
     protected Deployment deployment;
@@ -264,12 +262,12 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     }
 
     public byte[] getGraphImageBytesNotNull() {
-        byte[] graphBytes = processDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
+        byte[] graphBytes = processDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
         if (graphBytes == null) {
-            graphBytes = processDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
+            graphBytes = processDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
         }
         if (graphBytes == null) {
-            graphBytes = processDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
+            graphBytes = processDefinition.getFileData(FileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
         }
         if (graphBytes == null) {
             throw new InternalApplicationException("No process graph image file found in process definition");

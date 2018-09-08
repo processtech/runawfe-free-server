@@ -16,7 +16,7 @@ import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.commons.web.WebUtils;
 import ru.runa.wfe.service.client.FileVariableProxy;
 import ru.runa.wfe.user.User;
-import ru.runa.wfe.util.OrderedJSONObject;
+import ru.runa.wfe.util.OrderedJsonObject;
 import ru.runa.wfe.var.UserTypeMap;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -84,7 +84,7 @@ public abstract class LegacyAbstractListUserVariables extends FormComponent {
                 return "";
             }
             UserTypeMap userTypeMap = (UserTypeMap) value;
-            OrderedJSONObject cvarObj = new OrderedJSONObject();
+            OrderedJsonObject cvarObj = new OrderedJsonObject();
             for (VariableDefinition varDef : userTypeMap.getUserType().getAttributes()) {
                 if (userTypeMap.get(varDef.getName()) == null) {
                     cvarObj.put(varDef.getName(), "");

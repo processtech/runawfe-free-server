@@ -1,4 +1,4 @@
-<%@ page language="java" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ taglib uri="/WEB-INF/struts-tiles.tld" prefix="tiles"%>
 <%@ taglib uri="/WEB-INF/wf.tld" prefix="wf" %>
 <tiles:insert page="/WEB-INF/af/main_layout.jsp" flush="true">
@@ -19,7 +19,7 @@
 				<wf:createRelationLink />
 			</td>
 			<td align="right">
-				<wf:managePermissionsOnRelationGroupLink />
+				<wf:managePermissionsLink securedObjectType="RELATIONS" />
 			</td>
 		</tr>
 	</table>

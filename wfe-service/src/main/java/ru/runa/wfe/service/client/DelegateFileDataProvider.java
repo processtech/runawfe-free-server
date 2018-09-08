@@ -1,6 +1,6 @@
 package ru.runa.wfe.service.client;
 
-import ru.runa.wfe.definition.par.FileDataProvider;
+import ru.runa.wfe.definition.par.FileDataProviderImpl;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.User;
 
@@ -11,7 +11,7 @@ import ru.runa.wfe.user.User;
  * @author Dofs
  * @since 4.0.6
  */
-public class DelegateFileDataProvider extends FileDataProvider {
+public class DelegateFileDataProvider extends FileDataProviderImpl {
     private final User user;
     private final Long definitionId;
 

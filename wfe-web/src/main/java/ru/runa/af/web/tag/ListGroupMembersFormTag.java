@@ -18,9 +18,7 @@
 package ru.runa.af.web.tag;
 
 import java.util.List;
-
 import org.tldgen.annotations.BodyContent;
-
 import ru.runa.af.web.MessagesExecutor;
 import ru.runa.af.web.action.RemoveExecutorsFromGroupAction;
 import ru.runa.common.web.ConfirmationPopupHelper;
@@ -30,9 +28,7 @@ import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.service.ExecutorService;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Executor;
-import ru.runa.wfe.user.ExecutorPermission;
 import ru.runa.wfe.user.Group;
-import ru.runa.wfe.user.GroupPermission;
 
 @org.tldgen.annotations.Tag(bodyContent = BodyContent.JSP, name = "listGroupMembersForm")
 public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
@@ -40,19 +36,14 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
     private static final long serialVersionUID = -2400457393576894819L;
 
     @Override
-    protected Permission getPermission() {
-        return GroupPermission.REMOVE_FROM_GROUP;
-    }
-
-    @Override
-    public String getFormButtonName() {
+    public String getSubmitButtonName() {
         return MessagesCommon.BUTTON_REMOVE.message(pageContext);
     }
 
     @Override
     protected boolean isVisible() {
         return getExecutor() instanceof Group
-                && Delegates.getAuthorizationService().isAllowed(getUser(), GroupPermission.LIST_GROUP, SecuredObjectType.GROUP, getIdentifiableId());
+                && Delegates.getAuthorizationService().isAllowed(getUser(), Permission.READ, SecuredObjectType.GROUP, getIdentifiableId());
     }
 
     @Override
@@ -85,7 +76,7 @@ public class ListGroupMembersFormTag extends ListExecutorsBaseFormTag {
 
     @Override
     protected Permission getExecutorsPermission() {
-        return ExecutorPermission.READ;
+        return Permission.LIST;
     }
 
     @Override

@@ -17,14 +17,11 @@
  */
 package ru.runa.af.web.tag;
 
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.ecs.html.Option;
 import org.apache.ecs.html.Select;
-
-import com.google.common.base.Strings;
-
 import ru.runa.common.web.HTMLUtils;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;

@@ -17,8 +17,9 @@
  */
 package ru.runa.wfe.relation;
 
+import com.google.common.base.Objects;
+import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,15 +27,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import ru.runa.wfe.security.IdentifiableBase;
-import ru.runa.wfe.security.SecuredObjectType;
-
-import com.google.common.base.Objects;
 
 /**
  * Relation between executors. Each relation contains some RelationPair, which
@@ -43,7 +37,7 @@ import com.google.common.base.Objects;
 @Entity
 @Table(name = "EXECUTOR_RELATION")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Relation extends IdentifiableBase {
+public class Relation implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -68,13 +62,6 @@ public class Relation extends IdentifiableBase {
         this.createDate = new Date();
     }
 
-    @Transient
-    @Override
-    public SecuredObjectType getSecuredObjectType() {
-        return SecuredObjectType.RELATION;
-    }
-
-    @Override
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
     @SequenceGenerator(name = "sequence", sequenceName = "SEQ_RELATION_GROUP", allocationSize = 1)
@@ -143,6 +130,6 @@ public class Relation extends IdentifiableBase {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("id", getIdentifiableId()).add("name", getName()).toString();
+        return Objects.toStringHelper(this).add("id", getId()).add("name", getName()).toString();
     }
 }

@@ -53,13 +53,10 @@ public class RedeployProcessDefinitionAction extends BaseDeployProcessDefinition
 
     @Override
     protected void doAction(User user, FileForm fileForm, List<String> categories, boolean isUpdateCurrentVersion) throws IOException {
-        WfDefinition definition = Delegates.getDefinitionService().getProcessDefinition(user, fileForm.getId());
         byte[] data = Strings.isNullOrEmpty(fileForm.getFile().getFileName()) ? null : fileForm.getFile().getFileData();
-        if (isUpdateCurrentVersion) {
-            definition = Delegates.getDefinitionService().updateProcessDefinition(user, fileForm.getId(), data);
-        } else {
-            definition = Delegates.getDefinitionService().redeployProcessDefinition(user, fileForm.getId(), data, categories);
-        }
+        WfDefinition definition = isUpdateCurrentVersion
+                ? Delegates.getDefinitionService().updateProcessDefinition(user, fileForm.getId(), data)
+                : Delegates.getDefinitionService().redeployProcessDefinition(user, fileForm.getId(), data, categories);
         definitionId = definition.getId();
     }
 
