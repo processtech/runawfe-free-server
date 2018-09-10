@@ -2,12 +2,13 @@ package ru.runa.wfe.job.impl;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.apachecommons.CommonsLog;
 import lombok.val;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.SessionFactory;
+import org.hibernate.SQLQuery;
 import org.hibernate.dialect.Dialect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.DbType;
@@ -18,13 +19,10 @@ public class ProcessArchiver {
     private static final int ROOT_PROCESS_IDS_PER_STEP = 100;
     private static final int IDS_PER_INSERT = 100;
 
-    @Autowired
-    private SessionFactory sessionFactory;
-
     /**
      * First run on huge database may take long time, so prevent concurrent runs just in case.
      */
-    private boolean busy = false;
+    private AtomicBoolean busy = new AtomicBoolean(false);
 
     /**
      * If false, execute() does nothing.
@@ -32,34 +30,50 @@ public class ProcessArchiver {
     private boolean permanentFailure = false;
 
     /**
-     * Contains two "?" params:
+     * Contains four "?" params:
      * <ol>
      *     <li>last process ID processed, so next step continues where previous step stopped (MS SQL does not support OFFSET+LIMIT, only LIMIT);
+     *     <li>Current time.</li>
+     *     <li>Current time again.</li>
      *     <li>LIMIT value.</li>
      * </ol>
      */
     private String sqlSelectRootProcessIds = null;
 
+    /**
+     * Contains substring "in ({rootIds})", where "{rootIds}" is a macro to be replaced by CSV like "1,2,3".
+     */
     private String sqlSelectSubProcessIds = null;
 
-    public void execute() {
-        log.warn("NOOP for debug, processDefaultEndedSecondsBeforeArchiving() = " + SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving());
-        if (true) return;
+    /**
+     * Filled once per execute(), not per every step().
+     */
+    private Date currentTime;
 
-        if (!SystemProperties.isProcessArchivingEnabled() || permanentFailure || busy) {
+    private long lastHandledProcessId;
+    private long totalProcessIdsHandled;
+
+    public void execute() {
+        if (!SystemProperties.isProcessArchivingEnabled() || permanentFailure || !busy.compareAndSet(false, true)) {
             return;
         }
-        busy = true;
         try {
-            generateSqls();
+            log.info("Started");
+            generateSqlsOnce();
+            currentTime = new Date();
+            lastHandledProcessId = 0;
+            totalProcessIdsHandled = 0;
+            // Need this to call proxied @Transactional step() method:
+            val myself = ApplicationContextFactory.getContext().getBean(ProcessArchiver.class);
             //noinspection StatementWithEmptyBody
-            while (step());
+            while (myself.step());
+            log.info("Finished; archived " + totalProcessIdsHandled + " processes");
         } finally {
-            busy = false;
+            busy.set(false);
         }
     }
 
-    private void generateSqls() {
+    private void generateSqlsOnce() {
         if (sqlSelectRootProcessIds != null && sqlSelectSubProcessIds != null) {
             return;
         }
@@ -67,7 +81,7 @@ public class ProcessArchiver {
         Dialect dialect = ApplicationContextFactory.getDialect();
         if (!dialect.supportsLimit()) {
             permanentFailure = true;
-            throw new RuntimeException("Current database dialect " + dialect + " does not support LIMIT");
+            throw new RuntimeException("Current database dialect " + dialect + " does not support LIMIT; ProcessArchiver disabled");
         }
 
         // There is no date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
@@ -77,17 +91,19 @@ public class ProcessArchiver {
 
         // Since we don't have true tree closure with (root_id, root_id, 0) record,
         // we must check archiving condition separately for root processes and their subprocesses.
+        // "Order by" is for determinism and to simplify updating lastHandledProcessId.
         sqlSelectRootProcessIds = dialect.getLimitString("select p.id " +
                 "from bpm_process p " +
                 "inner join bpm_process_definition d on (d.id = p.definition_id) " +
                 // Continue since last step:
                 "where p.id > ? and " +
                 // Get only root process IDs:
-                "      not exists (select s.process_id from bpm_subprocess where s.process_id = p.id) and " +
+                "      not exists (select s.process_id from bpm_subprocess s where s.process_id = p.id) and " +
                 // Check condition for root processes:
+                "      p.execution_status = 'ENDED' and " +
                 "      " + generateEndDateCheckExpression("d", "p.end_date", dbType, defaultEndedSecondsBeforeArchiving) + " and " +
                 "      not exists (select t.process_id from bpm_task t where t.process_id = p.id) and " +
-                "      not exists (select j.process_jd from bpm_job j where j.process_id = p.id) and " +
+                "      not exists (select j.process_id from bpm_job j where j.process_id = p.id) and " +
                 // Check no descendant processes exist that violate condition:
                 "      not exists (" +
                 "          select p2.id " +
@@ -95,20 +111,19 @@ public class ProcessArchiver {
                 "          inner join bpm_process p2 on (p2.id = s2.process_id) " +
                 "          inner join bpm_process_definition d2 on (d2.id = p2.definition_id) " +
                 "          where s2.root_process_id = p.id and (" +
+                "                p2.execution_status <> 'ENDED' or " +
                 "                not(" + generateEndDateCheckExpression("d2", "p2.end_date", dbType, defaultEndedSecondsBeforeArchiving) + ") or " +
                 "                exists (select t.process_id from bpm_task t where t.process_id = p2.id) or " +
-                "                exists (select j.process_jd from bpm_job j where j.process_id = p2.id) " +
+                "                exists (select j.process_id from bpm_job j where j.process_id = p2.id) " +
                 "          ) " +
                 "      )" +
                 "order by p.id", 0, ROOT_PROCESS_IDS_PER_STEP);
 
-
-
-        sqlSelectSubProcessIds = "select distinct s.root_process_id, p.id " +
-                "from bpm_process p " +
-                "inner join bpm_process_definition d on (d.id = p.definition_id) " +
-                "inner join bpm_subprocess s on (s.root_process_id = ?)" +
-                "where p.execution_state = 'ENDED' ";  // TODO ...
+        // "Order by" is for determinism and to simplify updating lastHandledProcessId.
+        sqlSelectSubProcessIds = "select distinct process_id " +
+                "from bpm_subprocess " +
+                "where root_process_id in ({rootIds}) " +
+                "order by process_id";
     }
 
     /**
@@ -128,13 +143,13 @@ public class ProcessArchiver {
             case H2:
             case HSQL:
             case MSSQL:
-                return "dateadd('second', " + seconds + ", " + endDateField + ") < ?";
+                return "dateadd('second', " + seconds + ", " + endDateField + ") < ?";  // TODO Will work?
             case MYSQL:
-                return "date_add(" + endDateField + ", interval " + seconds + " second) < ?";
+                return "date_add(" + endDateField + ", interval " + seconds + " second) < ?";  // TODO Will work?
             case ORACLE:
-                return "(" + endDateField + " + interval '" + seconds + "' second) < ?";
+                return "(" + endDateField + " + interval '" + seconds + "' second) < ?";  // TODO Will work?
             case POSTGRESQL:
-                return "(" + endDateField + " + interval '" + seconds + " second') < ?";
+                return "(" + endDateField + " + cast(" + seconds + " || ' second' as interval)) < ?";
             default:
                 permanentFailure = true;
                 throw new RuntimeException("Unsupported dbType = " + dbType);
@@ -148,19 +163,32 @@ public class ProcessArchiver {
      */
     @Transactional
     public boolean step() {
+        val session = ApplicationContextFactory.getSessionFactory().getCurrentSession();
 
-        // TODO ...
-        // TODO Analyze also token.execution_status.
-        // Including subprocesses.
-        val processIdsToArchive = new ArrayList<Long>();
-
-        log.debug("step(): processIdsToArchive.size() = " + processIdsToArchive.size());
-        if (processIdsToArchive.isEmpty()) {
+        SQLQuery q = session.createSQLQuery(sqlSelectRootProcessIds);
+        q.setParameter(0, lastHandledProcessId);
+        q.setParameter(1, currentTime);
+        q.setParameter(2, currentTime);
+        q.setParameter(3, ROOT_PROCESS_IDS_PER_STEP);
+        //noinspection unchecked
+        val processIds = new ArrayList<Number>(q.list());
+        if (processIds.isEmpty()) {
+            log.debug("step(): processIds.size() = 0, done");
             return false;
         }
+        // Do it twice, after each query (both queries contain "order by id").
+        lastHandledProcessId = Math.max(lastHandledProcessId, processIds.get(processIds.size() - 1).longValue());
 
-        val session = sessionFactory.getCurrentSession();
-        for (val pids : Lists.partition(processIdsToArchive, IDS_PER_INSERT)) {
+        q = session.createSQLQuery(sqlSelectSubProcessIds.replace("{rootIds}", StringUtils.join(processIds, ",")));
+        //noinspection unchecked
+        processIds.addAll(q.list());
+        // Do it twice, after each query (both queries contain "order by id").
+        lastHandledProcessId = Math.max(lastHandledProcessId, processIds.get(processIds.size() - 1).longValue());
+
+        log.info("step(): processIds.size() = " + processIds.size());  // TODO Replace with debug() when done debugging.
+        totalProcessIdsHandled += processIds.size();
+
+        for (val pids : Lists.partition(processIds, IDS_PER_INSERT)) {
             val pidsCSV = "(" + StringUtils.join(pids, ",") + ")";
 
             // Create rows in referenced tables first, then in referencing tables.
@@ -227,15 +255,17 @@ public class ProcessArchiver {
             // References process and token.
             session.createSQLQuery("delete from bpm_subprocess where process_id in " + pidsCSV).executeUpdate();
 
-            // References process and self.
-            // Also, since process references token, must null that references before deleting tokens.
-            session.createSQLQuery("update bpm_token set parent_id = null where process_id in " + pidsCSV).executeUpdate();
-            session.createSQLQuery("update bpm_process set root_token_id = null where id in " + pidsCSV).executeUpdate();
-            session.createSQLQuery("delete from bpm_token where process_id in " + pidsCSV).executeUpdate();
-
-            // References token (already deleted above) and self.
+            // References token and self.
+            // Since token references process, must null that references before deleting processes.
+            // Also, I delete processes before tokens, because reverse FK cannot bpm_process.root_token_id is not null.
             session.createSQLQuery("update bpm_process set parent_id = null where id in " + pidsCSV).executeUpdate();
+            session.createSQLQuery("update bpm_token set process_id = null where process_id in " + pidsCSV).executeUpdate();
             session.createSQLQuery("delete from bpm_process where id in " + pidsCSV).executeUpdate();
+
+            // References process (already deleted above) and self.
+            // Process_id is nulled above, so cannot check it against pidsCSV, only against nulls. TODO Check there are no nulls in Oracle.
+            session.createSQLQuery("update bpm_token set parent_id = null where process_id is null").executeUpdate();
+            session.createSQLQuery("delete from bpm_token where process_id is null").executeUpdate();
         }
 
         return true;
