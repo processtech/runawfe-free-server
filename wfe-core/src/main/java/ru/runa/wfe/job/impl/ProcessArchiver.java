@@ -143,11 +143,11 @@ public class ProcessArchiver {
             case H2:
             case HSQL:
             case MSSQL:
-                return "dateadd('second', " + seconds + ", " + endDateField + ") < ?";  // TODO Will work?
+                return "dateadd('second', " + seconds + ", " + endDateField + ") < ?";  // Works for H2, at least.
             case MYSQL:
-                return "date_add(" + endDateField + ", interval " + seconds + " second) < ?";  // TODO Will work?
+                return "date_add(" + endDateField + ", interval " + seconds + " second) < ?";  // TODO Will it work?
             case ORACLE:
-                return "(" + endDateField + " + interval '" + seconds + "' second) < ?";  // TODO Will work?
+                return "(" + endDateField + " + interval '" + seconds + "' second) < ?";  // TODO Will it work?
             case POSTGRESQL:
                 return "(" + endDateField + " + cast(" + seconds + " || ' second' as interval)) < ?";
             default:
