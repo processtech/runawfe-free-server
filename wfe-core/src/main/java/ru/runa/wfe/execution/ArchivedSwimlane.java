@@ -28,7 +28,7 @@ public class ArchivedSwimlane extends Swimlane<ArchivedProcess> {
 
     @SuppressWarnings("unused")
     @ManyToOne
-    @JoinColumn(name = "EXECUTOR_ID", @ForeignKey(name = "FK_ARCH_SWIMLANE_EXECUTOR"))
+    @JoinColumn(name = "EXECUTOR_ID", foreignKey = @ForeignKey(name = "FK_ARCH_SWIMLANE_EXECUTOR"))
     private Executor executor;
 
     @Override
