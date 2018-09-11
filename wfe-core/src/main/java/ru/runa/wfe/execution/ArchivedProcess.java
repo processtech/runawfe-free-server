@@ -1,15 +1,14 @@
 package ru.runa.wfe.execution;
 
 import com.google.common.base.Objects;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.definition.Deployment;
 
@@ -23,17 +22,18 @@ public class ArchivedProcess extends Process<ArchivedToken> {
     @SuppressWarnings("unused")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFINITION_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_ARCH_PROCESS_DEFINITION"))
+    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEFINITION_ID", nullable = false)
+    @ForeignKey(name = "FK_ARCH_PROCESS_DEFINITION")
     @Index(name = "IX_ARCH_PROCESS_DEFINITION")
     @SuppressWarnings("unused")
     private Deployment deployment;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
     @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
+    @ForeignKey(name = "none")
     // @ForeignKey(name = "FK_ARCH_PROCESS_ROOT_TOKEN") is not created: it would be violated during batch insert-select in ProcessArchiver.
-    // Using deprecated Hibernate annotation to suppress FK creation: https://stackoverflow.com/questions/50190233
-    @org.hibernate.annotations.ForeignKey(name = "none")
+    // TODO They say Hibernate 5 does not support name="none", so careful when upgrading it.
     @Index(name = "IX_ARCH_PROCESS_ROOT_TOKEN")
     @SuppressWarnings("unused")
     private ArchivedToken rootToken;

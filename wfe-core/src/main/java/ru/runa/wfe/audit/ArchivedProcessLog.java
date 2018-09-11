@@ -18,7 +18,7 @@ import ru.runa.wfe.commons.xml.XmlUtils;
 @Table(name = "ARCHIVED_LOG")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DISCRIMINATOR", discriminatorType = DiscriminatorType.CHAR)
-@DiscriminatorValue(value = "-")
+@DiscriminatorValue(value = "0")
 public abstract class ArchivedProcessLog extends BaseProcessLog {
 
     private Long id;

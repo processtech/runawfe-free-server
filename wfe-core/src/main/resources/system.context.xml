@@ -47,7 +47,7 @@
     <context:component-scan base-package="ru.runa.wfe" />
 
 	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="hibernateProperties" ref="hibernateProperties" />
 		<property name="entityInterceptor">
 			<bean class="ru.runa.wfe.commons.hibernate.WfeInterceptor" />

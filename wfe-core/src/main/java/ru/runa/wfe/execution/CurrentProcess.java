@@ -23,13 +23,11 @@ package ru.runa.wfe.execution;
 
 import com.google.common.base.Objects;
 import java.util.Date;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -40,6 +38,7 @@ import javax.persistence.Table;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.definition.Deployment;
 
@@ -59,13 +58,15 @@ public class CurrentProcess extends Process<CurrentToken> {
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFINITION_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_PROCESS_DEFINITION"))
+    @ManyToOne(targetEntity = Deployment.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEFINITION_ID", nullable = false)
+    @ForeignKey(name = "FK_PROCESS_DEFINITION")
     @Index(name = "IX_PROCESS_DEFINITION")
     private Deployment deployment;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_PROCESS_ROOT_TOKEN"))
+    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY, cascade = { javax.persistence.CascadeType.ALL })
+    @JoinColumn(name = "ROOT_TOKEN_ID", nullable = false)
+    @ForeignKey(name = "FK_PROCESS_ROOT_TOKEN")
     @Index(name = "IX_PROCESS_ROOT_TOKEN")
     private CurrentToken rootToken;
 

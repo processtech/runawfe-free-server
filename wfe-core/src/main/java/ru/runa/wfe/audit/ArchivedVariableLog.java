@@ -8,7 +8,7 @@ import ru.runa.wfe.var.converter.SerializableToByteArrayConverter;
 import ru.runa.wfe.var.converter.StringToByteArrayConverter;
 
 @Entity
-@DiscriminatorValue(value = ",")
+@DiscriminatorValue(value = "0")
 public abstract class ArchivedVariableLog extends ArchivedProcessLog implements VariableLog {
 
     @Override

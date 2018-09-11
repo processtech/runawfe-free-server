@@ -27,7 +27,6 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,6 +37,7 @@ import javax.persistence.Table;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.CurrentSwimlaneAssignLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -61,13 +61,15 @@ public class CurrentSwimlane extends Swimlane<CurrentProcess> implements Seriali
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID", foreignKey = @ForeignKey(name = "FK_SWIMLANE_PROCESS"))
+    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID")
+    @ForeignKey(name = "FK_SWIMLANE_PROCESS")
     @Index(name = "IX_SWIMLANE_PROCESS")
     private CurrentProcess process;
 
-    @ManyToOne
-    @JoinColumn(name = "EXECUTOR_ID", foreignKey = @ForeignKey(name = "FK_SWIMLANE_EXECUTOR"))
+    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "EXECUTOR_ID")
+    @ForeignKey(name = "FK_SWIMLANE_EXECUTOR")
     private Executor executor;
 
     public CurrentSwimlane() {

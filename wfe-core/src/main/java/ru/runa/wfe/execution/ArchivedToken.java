@@ -3,16 +3,17 @@ package ru.runa.wfe.execution;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 @Entity
@@ -24,22 +25,25 @@ public class ArchivedToken extends Token {
     @SuppressWarnings("unused")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID", foreignKey = @ForeignKey(name = "FK_ARCH_TOKEN_PROCESS"))
+    @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID")
+    @ForeignKey(name = "FK_ARCH_TOKEN_PROCESS")
     @Index(name = "IX_ARCH_TOKEN_PROCESS")
     @SuppressWarnings("unused")
     private ArchivedProcess process;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
+    @ForeignKey(name = "none")
     // @ForeignKey(name = "FK_ARCH_TOKEN_PARENT") is not created: it would be violated during batch insert-select in ProcessArchiver.
-    // Using deprecated Hibernate annotation to suppress FK creation: https://stackoverflow.com/questions/50190233
-    @org.hibernate.annotations.ForeignKey(name = "none")
+    // TODO They say Hibernate 5 does not support name="none", so careful when upgrading it.
     @Index(name = "IX_ARCH_TOKEN_PARENT")
     @SuppressWarnings("unused")
     private ArchivedToken parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(targetEntity = ArchivedToken.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_ID")
+    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     @SuppressWarnings("unused")
     private Set<ArchivedToken> children;
 

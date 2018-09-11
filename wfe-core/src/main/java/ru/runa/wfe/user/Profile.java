@@ -18,20 +18,15 @@
 
 package ru.runa.wfe.user;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.persistence.CascadeType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -45,10 +40,23 @@ import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlTransient;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
+
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.DefaultBatchPresentations;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Created on 17.01.2005
@@ -101,8 +109,9 @@ public final class Profile implements Serializable {
         this.version = version;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "ACTOR_ID", nullable = false, updatable = false, unique = true, foreignKey = @ForeignKey(name = "FK_PROFILE_ACTOR"))
+    @ManyToOne(targetEntity = Actor.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "ACTOR_ID", nullable = false, updatable = false, unique = true)
+    @ForeignKey(name = "FK_PROFILE_ACTOR")
     public Actor getActor() {
         return actor;
     }
@@ -120,7 +129,12 @@ public final class Profile implements Serializable {
         this.createDate = createDate;
     }
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(targetEntity = BatchPresentation.class, fetch = FetchType.EAGER)
+    @Sort(type = SortType.UNSORTED)
+    @JoinColumn(name = "PROFILE_ID")
+    @ForeignKey(name = "FK_BATCH_PRESENTATION_PROFILE")
+    @Index(name = "IX_BATCH_PRESENTATION_PROFILE")
+    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     public Set<BatchPresentation> getBatchPresentations() {
         return batchPresentations;
     }

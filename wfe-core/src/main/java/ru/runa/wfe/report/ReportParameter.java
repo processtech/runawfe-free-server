@@ -4,13 +4,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -46,8 +43,6 @@ public class ReportParameter {
      * True if parameter is required and false if it's optional.
      */
     private boolean required;
-
-    private ReportDefinition definition;
 
     public ReportParameter() {
     }
@@ -106,15 +101,5 @@ public class ReportParameter {
 
     public void setRequired(boolean required) {
         this.required = required;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "REPORT_ID", nullable = false)
-    public ReportDefinition getDefinition() {
-        return definition;
-    }
-
-    public void setDefinition(ReportDefinition definition) {
-        this.definition = definition;
     }
 }

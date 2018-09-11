@@ -1,17 +1,16 @@
 package ru.runa.wfe.script.batch;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
-import lombok.val;
+
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.script.AdminScriptConstants;
@@ -21,6 +20,9 @@ import ru.runa.wfe.script.common.ScriptOperation;
 import ru.runa.wfe.script.common.ScriptValidationException;
 import ru.runa.wfe.user.Actor;
 import ru.runa.wfe.user.Profile;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 @XmlType(name = ReplicateBatchPresentationOperation.SCRIPT_NAME + "Type", namespace = AdminScriptConstants.NAMESPACE)
 public class ReplicateBatchPresentationOperation extends ScriptOperation {
@@ -46,7 +48,7 @@ public class ReplicateBatchPresentationOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         BatchPresentation srcBatch = null;
-        val replaceableBatchPresentations = new HashSet<BatchPresentation>();
+        Set<BatchPresentation> replaceableBatchPresentations = new HashSet<BatchPresentation>();
         for (XmlBatchPresentation batchElement : batchPresentations) {
             switch (batchElement.batchReplicationType) {
             case SOURCE:

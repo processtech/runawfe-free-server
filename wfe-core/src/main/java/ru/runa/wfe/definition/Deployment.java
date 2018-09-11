@@ -10,7 +10,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,6 +21,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import ru.runa.wfe.commons.Utils;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
@@ -130,7 +130,8 @@ public class Deployment extends SecuredObject {
     }
 
     @ManyToOne
-    @JoinColumn(name = "CREATE_USER_ID", foreignKey = @ForeignKey(name = "FK_DEFINITION_CREATE_USER"))
+    @JoinColumn(name = "CREATE_USER_ID")
+    @ForeignKey(name = "FK_DEFINITION_CREATE_USER")
     public Actor getCreateActor() {
         return createActor;
     }
@@ -149,7 +150,8 @@ public class Deployment extends SecuredObject {
     }
 
     @ManyToOne
-    @JoinColumn(name = "UPDATE_USER_ID", foreignKey = @ForeignKey(name = "FK_DEFINITION_UPDATE_USER"))
+    @JoinColumn(name = "UPDATE_USER_ID")
+    @ForeignKey(name = "FK_DEFINITION_UPDATE_USER")
     public Actor getUpdateActor() {
         return updateActor;
     }

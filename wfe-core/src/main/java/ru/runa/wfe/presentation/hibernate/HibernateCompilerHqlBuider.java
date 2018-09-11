@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.val;
-import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.Hibernate;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.querydsl.HibernateQueryFactory;
@@ -373,8 +373,8 @@ public class HibernateCompilerHqlBuider {
         placeholders.add("securedOwnerIds", executorIds);
 //        placeholders.add("securedTypes", Arrays.stream(types).map(SecuredObjectType::getName).collect(Collectors.toList()), Hibernate.STRING);
 //        placeholders.add("securedPermissions", subst.selfPermissions.stream().map(Permission::getName).collect(Collectors.toList()), Hibernate.STRING);
-        placeholders.add("securedTypes", typeNames, StandardBasicTypes.STRING);
-        placeholders.add("securedPermissions", permissionNames, StandardBasicTypes.STRING);
+        placeholders.add("securedTypes", typeNames, Hibernate.STRING);
+        placeholders.add("securedPermissions", permissionNames, Hibernate.STRING);
 
         return result;
     }

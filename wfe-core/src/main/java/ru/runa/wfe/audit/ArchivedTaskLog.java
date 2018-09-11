@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 @Entity
-@DiscriminatorValue(value = ".")
+@DiscriminatorValue(value = "0")
 public abstract class ArchivedTaskLog extends ArchivedProcessLog implements TaskLog {
 
     @Override

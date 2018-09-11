@@ -17,13 +17,16 @@
  */
 package ru.runa.wfe.user;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+
 import org.hibernate.annotations.Index;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+
 import ru.runa.wfe.security.SecuredObjectType;
 
 /**

@@ -32,7 +32,7 @@ import ru.runa.wfe.task.Task;
  * @author Dofs
  */
 @Entity
-@DiscriminatorValue(value = ".")
+@DiscriminatorValue(value = "0")
 public abstract class CurrentTaskLog extends CurrentProcessLog implements TaskLog {
     private static final long serialVersionUID = 1L;
 

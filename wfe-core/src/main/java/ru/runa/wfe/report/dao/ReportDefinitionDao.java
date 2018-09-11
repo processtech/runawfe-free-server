@@ -2,7 +2,7 @@ package ru.runa.wfe.report.dao;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import lombok.val;
+import org.hibernate.classic.Session;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.GenericDao;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -53,7 +53,7 @@ public class ReportDefinitionDao extends GenericDao<ReportDefinition> {
     }
 
     public void redeployReport(ReportDefinition reportDefinition) {
-        val session = sessionFactory.getCurrentSession();
+        Session session = sessionFactory.getCurrentSession();
         // TODO All this magic is weird: get() then updateFrom().
         ReportDefinition def = get(reportDefinition.getId());
         for (ReportParameter p : def.getParameters()) {

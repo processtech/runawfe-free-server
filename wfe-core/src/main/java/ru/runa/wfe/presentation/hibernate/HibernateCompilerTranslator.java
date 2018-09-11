@@ -18,8 +18,10 @@
 package ru.runa.wfe.presentation.hibernate;
 
 import java.util.HashMap;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.hql.internal.classic.QueryTranslatorImpl;
+
+import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.hql.classic.QueryTranslatorImpl;
+
 import ru.runa.wfe.commons.ApplicationContextFactory;
 
 /**

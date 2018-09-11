@@ -22,7 +22,7 @@ import com.querydsl.core.annotations.PropertyType;
 import com.querydsl.core.annotations.QueryType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import ru.runa.wfe.security.Permission;
@@ -61,8 +62,9 @@ public class PermissionMapping {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "EXECUTOR_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_PERMISSION_EXECUTOR"))
+    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "EXECUTOR_ID", nullable = false)
+    @ForeignKey(name = "FK_PERMISSION_EXECUTOR")
     private Executor executor;
 
     @Column(name = "OBJECT_TYPE", nullable = false)
