@@ -17,15 +17,15 @@
  */
 package ru.runa.wfe.ss;
 
+import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,14 +35,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.PolymorphismType;
-
-import com.google.common.base.Objects;
 
 /**
  * Represents substitution rule.
@@ -137,9 +133,8 @@ public class Substitution implements Comparable<Substitution>, Serializable {
         this.actorId = actorId;
     }
 
-    @ManyToOne(targetEntity = SubstitutionCriteria.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "CRITERIA_ID")
-    @ForeignKey(name = "FK_SUBSTITUTION_CRITERIA")
+    @ManyToOne
+    @JoinColumn(name = "CRITERIA_ID", foreignKey = @ForeignKey(name = "FK_SUBSTITUTION_CRITERIA"))
     @Index(name = "IX_SUBSTITUTION_CRITERIA")
     public SubstitutionCriteria getCriteria() {
         return criteria;

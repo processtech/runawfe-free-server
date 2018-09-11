@@ -7,6 +7,7 @@ import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -15,7 +16,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.CurrentVariableLog;
 import ru.runa.wfe.execution.ArchivedProcess;
@@ -89,9 +89,8 @@ public abstract class ArchivedVariable<V> extends Variable<ArchivedProcess, V> {
      * Copy-pasted from Variable with referenced ArchivedProcess FK and index names.
      */
     @Override
-    @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_ARCH_VARIABLE_PROCESS")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_ARCH_VARIABLE_PROCESS"))
     @Index(name = "IX_ARCH_VARIABLE_PROCESS")
     public ArchivedProcess getProcess() {
         return process;

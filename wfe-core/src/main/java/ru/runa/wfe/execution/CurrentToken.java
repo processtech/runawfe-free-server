@@ -28,11 +28,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -46,9 +48,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.ProcessDefinition;
@@ -70,21 +69,17 @@ public class CurrentToken extends Token implements Serializable {
     @Column(name = "ID")
     private Long id;
 
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_TOKEN_PROCESS")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID", foreignKey = @ForeignKey(name = "FK_TOKEN_PROCESS"))
     @Index(name = "IX_TOKEN_PROCESS")
     private CurrentProcess process;
 
-    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_ID")
-    @ForeignKey(name = "FK_TOKEN_PARENT")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_ID", foreignKey = @ForeignKey(name = "FK_TOKEN_PARENT"))
     @Index(name = "IX_TOKEN_PARENT")
     private CurrentToken parent;
 
-    @OneToMany(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_ID")
-    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<CurrentToken> children;
 
     @Column(name = "EXECUTION_STATUS", nullable = false)

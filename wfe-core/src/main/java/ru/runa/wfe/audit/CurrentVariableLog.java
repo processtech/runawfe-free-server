@@ -35,7 +35,7 @@ import ru.runa.wfe.var.file.FileVariable;
  * @author Dofs
  */
 @Entity
-@DiscriminatorValue(value = "0")
+@DiscriminatorValue(value = ",")
 public abstract class CurrentVariableLog extends CurrentProcessLog implements VariableLog {
     private static final long serialVersionUID = 1L;
 

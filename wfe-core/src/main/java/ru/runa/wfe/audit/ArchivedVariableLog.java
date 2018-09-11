@@ -4,6 +4,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue(value = "0")
+@DiscriminatorValue(value = ",")
 public abstract class ArchivedVariableLog extends ArchivedProcessLog implements VariableLog {
 }

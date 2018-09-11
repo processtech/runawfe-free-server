@@ -23,6 +23,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +36,6 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import com.google.common.base.Objects;
@@ -92,9 +92,8 @@ public class BotTask implements Serializable {
         this.version = version;
     }
 
-    @ManyToOne(targetEntity = Bot.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "BOT_ID", nullable = false, updatable = true, insertable = true)
-    @ForeignKey(name = "FK_BOT_TASK_BOT")
+    @ManyToOne
+    @JoinColumn(name = "BOT_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_BOT_TASK_BOT"))
     @Index(name = "IX_BOT_TASK_BOT")
     public Bot getBot() {
         return bot;

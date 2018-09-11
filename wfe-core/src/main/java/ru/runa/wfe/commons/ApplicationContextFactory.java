@@ -3,6 +3,7 @@ package ru.runa.wfe.commons;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Properties;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -13,7 +14,7 @@ import org.hibernate.dialect.Dialect;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.dao.ProcessLogDao;
 import ru.runa.wfe.commons.bc.BusinessCalendar;
@@ -112,9 +113,16 @@ public class ApplicationContextFactory implements ApplicationContextAware {
         return getSessionFactory().getCurrentSession();
     }
 
+    private static LocalSessionFactoryBean getSessionFactoryBean() {
+        return (LocalSessionFactoryBean) getContext().getBean("&sessionFactory");
+    }
+
+    public static Properties getHibernateProperties() {
+        return getSessionFactoryBean().getHibernateProperties();
+    }
+
     public static Configuration getConfiguration() {
-        LocalSessionFactoryBean factoryBean = (LocalSessionFactoryBean) getContext().getBean("&sessionFactory");
-        return factoryBean.getConfiguration();
+        return getSessionFactoryBean().getConfiguration();
     }
 
     public static DataSource getDataSource() throws NamingException {

@@ -21,9 +21,10 @@
 		<downloadJavadocs>true</downloadJavadocs>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.organization.name>runawfe.org</project.organization.name>
-		<spring.version>3.1.2.RELEASE</spring.version>
-		<!--spring.version>4.3.17.RELEASE</spring.version-->
+		<!--spring.version>3.1.2.RELEASE</spring.version-->
+		<spring.version>4.3.19.RELEASE</spring.version>
 		<!--spring.version>5.0.6.RELEASE</spring.version-->
+		<hibernate.version>5.3.6.Final</hibernate.version>
 		<querydsl.version>4.2.1</querydsl.version>
 		<project.build.cactus>false</project.build.cactus>
 		<maven.profile.jndi.name>java:global/runawfe/${jar.name}-${project.version}/${bean.name}!${interface.class.name}</maven.profile.jndi.name>
@@ -98,12 +99,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
-				<artifactId>spring-orm</artifactId>
+				<artifactId>spring-context</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
+				<artifactId>spring-orm</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
 			<dependency>
@@ -114,7 +115,7 @@
 			<dependency>
 				<groupId>org.codehaus.groovy</groupId>
 				<artifactId>groovy</artifactId>
-				<version>2.0.5</version>
+				<version>2.4.15</version>
 			</dependency>
 			<dependency>
 				<groupId>com.googlecode.json-simple</groupId>
@@ -147,8 +148,8 @@
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate</artifactId>
-				<version>3.2.4.sp1</version>
+				<artifactId>hibernate-core</artifactId>
+				<version>${hibernate.version}</version>
 				<exclusions>
 					<exclusion>
 						<artifactId>ehcache</artifactId>
@@ -169,14 +170,14 @@
 				</exclusions>
 			</dependency>
 			<dependency>
-				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-annotations</artifactId>
-				<version>3.2.1.ga</version>
-			</dependency>
-			<dependency>
 				<groupId>net.sf.ehcache</groupId>
 				<artifactId>ehcache-core</artifactId>
 				<version>2.4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-ehcache</artifactId>
+				<version>${hibernate.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cglib</groupId>

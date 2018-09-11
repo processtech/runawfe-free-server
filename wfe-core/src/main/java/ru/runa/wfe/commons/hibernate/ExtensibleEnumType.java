@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.EnhancedUserType;
 
 public abstract class ExtensibleEnumType implements EnhancedUserType {
@@ -53,14 +54,14 @@ public abstract class ExtensibleEnumType implements EnhancedUserType {
     }
 
     @Override
-    public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
         String s = rs.getString(names[0]);
         // I use fromXMLString() here because it does what I need, to avoid introducing another correctly named abstract method.
         return s == null ? null : fromXMLString(s);
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session) throws HibernateException, SQLException {
         if (value == null) {
             st.setNull(index, Types.VARCHAR);
         } else {
