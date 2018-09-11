@@ -1,34 +1,33 @@
 package ru.runa.wfe.office.doc;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import ru.runa.wfe.var.IVariableProvider;
 
-import com.google.common.collect.Lists;
-
 public class TableExpansionOperation extends Operation {
-    private final List<XWPFTableCell> cells;
+    private final XWPFTableRow templateRow;
     private int rows = 0;
     private final List<ColumnExpansionOperation> operations;
     private List<Comparable> sortedMapKeys = null;
 
-    public TableExpansionOperation(List<XWPFTableCell> cells) {
-        this.cells = cells;
-        this.operations = Lists.newArrayListWithExpectedSize(cells.size());
+    public TableExpansionOperation(XWPFTableRow templateRow) {
+        this.templateRow = templateRow;
+        this.operations = Lists.newArrayListWithExpectedSize(templateRow.getTableCells().size());
     }
 
-    public XWPFTableCell getCell(int columnIndex) {
-        if (columnIndex < cells.size()) {
-            return cells.get(columnIndex);
-        }
-        return null;
+    public XWPFTableRow getTemplateRow() {
+        return templateRow;
     }
-    
+
+    public XWPFTableCell getTemplateCell(int columnIndex) {
+        return templateRow.getCell(columnIndex);
+    }
+
     public int getRows() {
         return rows;
     }

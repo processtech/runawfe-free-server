@@ -115,8 +115,7 @@ public class ListFormat extends VariableFormat implements VariableFormatContaine
 
     @Override
     public String toString() {
-        VariableFormat componentFormat = FormatCommons.createComponent(this, 0);
-        return getClass().getName() + COMPONENT_PARAMETERS_START + componentFormat.getName() + COMPONENT_PARAMETERS_END;
+        return getClass().getName() + COMPONENT_PARAMETERS_START + componentClassName + COMPONENT_PARAMETERS_END;
     }
 
     @Override

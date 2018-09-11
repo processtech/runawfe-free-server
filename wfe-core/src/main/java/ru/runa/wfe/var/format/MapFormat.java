@@ -1,12 +1,9 @@
 package ru.runa.wfe.var.format;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Set;
-
 import org.json.simple.JSONObject;
-
-import com.google.common.collect.Maps;
-
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.web.WebHelper;
 import ru.runa.wfe.user.User;
@@ -146,9 +143,7 @@ public class MapFormat extends VariableFormat implements VariableFormatContainer
 
     @Override
     public String toString() {
-        VariableFormat keyFormat = FormatCommons.createComponent(this, 0);
-        VariableFormat valueFormat = FormatCommons.createComponent(this, 1);
-        return getClass().getName() + COMPONENT_PARAMETERS_START + keyFormat.getName() + COMPONENT_PARAMETERS_DELIM + valueFormat.getName()
+        return getClass().getName() + COMPONENT_PARAMETERS_START + keyFormatClassName + COMPONENT_PARAMETERS_DELIM + valueFormatClassName
                 + COMPONENT_PARAMETERS_END;
     }
 

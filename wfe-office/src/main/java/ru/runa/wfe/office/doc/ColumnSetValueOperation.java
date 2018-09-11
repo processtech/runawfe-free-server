@@ -8,16 +8,18 @@ import ru.runa.wfe.var.IVariableProvider;
  */
 public class ColumnSetValueOperation extends ColumnExpansionOperation {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * ru.runa.wfe.office.doc.ColumnExpansionOperation#getStringValue(ru.runa.wfe.office.doc.DocxConfig,runa.wfe.var.IVariableProvider,java.lang.Object
-     * )
-     */
     @Override
     public String getStringValue(DocxConfig config, IVariableProvider variableProvider, Object key) {
         final Object value = getContainerValue();
-        return value == null ? "" : String.valueOf(value);
+        if (value == null) {
+            return "";
+        }
+        final String string = String.valueOf(value);
+        if (string.startsWith(DocxUtils.PLACEHOLDER_START) && string.endsWith(DocxUtils.PLACEHOLDER_END)) {
+            String selector = string.substring(DocxUtils.PLACEHOLDER_START.length(), string.length() - DocxUtils.PLACEHOLDER_END.length());
+            Object object = DocxUtils.getValue(config, variableProvider, null, selector);
+            return object != null ? object.toString() : "";
+        }
+        return string;
     }
 }
