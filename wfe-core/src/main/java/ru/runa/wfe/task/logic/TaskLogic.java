@@ -54,10 +54,10 @@ import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.validation.ValidationException;
-import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableMapping;
+import ru.runa.wfe.var.VariableProvider;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
 /**
@@ -320,6 +320,14 @@ public class TaskLogic extends WfCommonLogic {
         }
         Task task = taskDao.getNotNull(taskId);
         return taskAssigner.assignTask(task);
+    }
+
+    public List<WfTask> getUnassignedTasks(User user) {
+        List<WfTask> result = Lists.newArrayList();
+        for (Task task : taskDao.findUnassignedTasks()) {
+            result.add(taskObjectFactory.create(task, user.getActor(), false, null));
+        }
+        return result;
     }
 
 }
