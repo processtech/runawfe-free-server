@@ -6,7 +6,7 @@ import lombok.val;
 import org.springframework.stereotype.Component;
 import ru.runa.wfe.audit.BaseProcessLog;
 import ru.runa.wfe.audit.CurrentProcessLog;
-import ru.runa.wfe.audit.ProcessLog;
+import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.QCurrentNodeEnterLog;
 import ru.runa.wfe.audit.QCurrentProcessLog;
 import ru.runa.wfe.commons.dao.GenericDao;
@@ -20,15 +20,14 @@ import ru.runa.wfe.lang.SubprocessDefinition;
  * @author dofs
  */
 @Component
-public class CurrentProcessLogDao extends GenericDao<CurrentProcessLog> implements BaseProcessLogDao {
+public class CurrentProcessLogDao extends GenericDao<CurrentProcessLog> {
 
     public CurrentProcessLogDao() {
         super(CurrentProcessLog.class);
     }
 
-    @Override
-    public Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type) {
-        return type.currentRootClass;
+    public List<BaseProcessLog> getAll(final ProcessLogFilter filter) {
+        return CommonProcessLogDao.getAll(filter, filter.getType().currentRootClass);
     }
 
     List<CurrentProcessLog> getAll(@NonNull Long processId) {

@@ -3,22 +3,16 @@ package ru.runa.wfe.audit.dao;
 import java.util.List;
 import org.hibernate.Query;
 import ru.runa.wfe.audit.BaseProcessLog;
-import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.audit.Severity;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 
-public interface BaseProcessLogDao {
+class CommonProcessLogDao {
 
-    Class<? extends BaseProcessLog> typeToClass(ProcessLog.Type type);
-
-    /**
-     * Public because used in migration.
-     */
     @SuppressWarnings("unchecked")
-    default List<BaseProcessLog> getAll(final ProcessLogFilter filter) {
+    static List<BaseProcessLog> getAll(final ProcessLogFilter filter, Class<? extends BaseProcessLog> entityClass) {
         boolean filterBySeverity = filter.getSeverities().size() != 0 && filter.getSeverities().size() != Severity.values().length;
-        String hql = "from " + typeToClass(filter.getType()).getName() + " where processId = :processId";
+        String hql = "from " + entityClass.getName() + " where processId = :processId";
         if (filter.getIdFrom() != null) {
             hql += " and id >= :idFrom";
         }

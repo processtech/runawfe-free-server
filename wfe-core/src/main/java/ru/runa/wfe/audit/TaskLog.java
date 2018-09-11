@@ -4,32 +4,12 @@ import javax.persistence.Transient;
 
 public interface TaskLog extends ProcessLog {
 
-    @Override
     @Transient
-    default Type getType() {
-        return Type.TASK;
-    }
+    Long getTaskId();
 
     @Transient
-    default Long getTaskId() {
-        String taskIdString = getAttribute(ATTR_TASK_ID);
-        if (taskIdString != null) {
-            return Long.parseLong(taskIdString);
-        }
-        return null;
-    }
+    String getTaskName();
 
     @Transient
-    default String getTaskName() {
-        return getAttributeNotNull(ATTR_TASK_NAME);
-    }
-
-    @Transient
-    default Integer getTaskIndex() {
-        String taskIndexString = getAttribute(ATTR_INDEX);
-        if (taskIndexString != null) {
-            return Integer.valueOf(taskIndexString);
-        }
-        return null;
-    }
+    Integer getTaskIndex();
 }

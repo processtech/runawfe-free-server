@@ -23,6 +23,7 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 import ru.runa.wfe.var.CurrentVariable;
 
 /**
@@ -40,5 +41,22 @@ public class CurrentVariableDeleteLog extends CurrentVariableLog implements Vari
 
     public CurrentVariableDeleteLog(CurrentVariable<?> variable) {
         super(variable);
+    }
+
+    @Override
+    @Transient
+    public Type getType() {
+        return Type.VARIABLE_DELETE;
+    }
+
+    @Override
+    @Transient
+    public Object[] getPatternArguments() {
+        return new Object[] { getVariableName() };
+    }
+
+    @Override
+    public void processBy(ProcessLogVisitor visitor) {
+        visitor.onVariableDeleteLog(this);
     }
 }

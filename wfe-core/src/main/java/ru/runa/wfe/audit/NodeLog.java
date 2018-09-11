@@ -5,25 +5,9 @@ import ru.runa.wfe.lang.NodeType;
 
 public interface NodeLog extends ProcessLog {
 
-    @Override
     @Transient
-    default Type getType() {
-        return Type.NODE;
-    }
+    String getNodeName();
 
     @Transient
-    default String getNodeName() {
-        return getAttributeNotNull(ATTR_NODE_NAME);
-    }
-
-    @Transient
-    default NodeType getNodeType() {
-        return NodeType.valueOf(getAttributeNotNull(ATTR_NODE_TYPE));
-    }
-
-    @Override
-    @Transient
-    default Object[] getPatternArguments() {
-        return new Object[] { getNodeName() };
-    }
+    NodeType getNodeType();
 }

@@ -16,8 +16,11 @@ public class CurrentNodeProcessDao
         extends GenericDao<CurrentNodeProcess>
         implements BaseNodeProcessDao<CurrentToken, CurrentProcess, CurrentNodeProcess>
 {
+    private CommonNodeProcessDao<CurrentToken, CurrentProcess, CurrentNodeProcess> delegate;
+
     public CurrentNodeProcessDao() {
         super(CurrentNodeProcess.class);
+        delegate = new CommonNodeProcessDao<>(this);
     }
 
     public CurrentNodeProcess findBySubProcessId(Long subProcessId) {
@@ -48,6 +51,26 @@ public class CurrentNodeProcessDao
             q.where(finished ? np.subProcess.endDate.isNotNull() : np.subProcess.endDate.isNull());
         }
         return q.fetch();
+    }
+
+    @Override
+    public List<CurrentProcess> getSubprocesses(CurrentProcess process) {
+        return delegate.getSubprocesses(process);
+    }
+
+    @Override
+    public List<CurrentProcess> getSubprocessesRecursive(CurrentProcess process) {
+        return delegate.getSubprocessesRecursive(process);
+    }
+
+    @Override
+    public List<CurrentProcess> getSubprocesses(CurrentToken token) {
+        return delegate.getSubprocesses(token);
+    }
+
+    @Override
+    public List<CurrentProcess> getSubprocesses(CurrentProcess process, String nodeId, CurrentToken parentToken, Boolean finished) {
+        return delegate.getSubprocesses(process, nodeId, parentToken, finished);
     }
 
     public void deleteByProcess(CurrentProcess process) {

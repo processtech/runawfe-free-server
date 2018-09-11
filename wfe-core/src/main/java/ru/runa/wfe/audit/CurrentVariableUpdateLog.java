@@ -23,6 +23,8 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
+import ru.runa.wfe.audit.presentation.FileValue;
 import ru.runa.wfe.var.CurrentVariable;
 import ru.runa.wfe.var.VariableDefinition;
 
@@ -42,5 +44,25 @@ public class CurrentVariableUpdateLog extends CurrentVariableLog implements Vari
     public CurrentVariableUpdateLog(CurrentVariable<?> variable, Object oldValue, Object newValue, VariableDefinition variableDefinition) {
         super(variable);
         setVariableNewValue(variable, newValue, variableDefinition);
+    }
+
+    @Override
+    @Transient
+    public Type getType() {
+        return Type.VARIABLE_UPDATE;
+    }
+
+    @Override
+    @Transient
+    public Object[] getPatternArguments() {
+        if (isFileValue()) {
+            return new Object[] { getVariableName(), new FileValue(getId(), getVariableNewValueAttribute()) };
+        }
+        return new Object[] { getVariableName(), getVariableNewValue() };
+    }
+
+    @Override
+    public void processBy(ProcessLogVisitor visitor) {
+        visitor.onVariableUpdateLog(this);
     }
 }

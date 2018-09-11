@@ -1,17 +1,15 @@
 package ru.runa.wfe.audit;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
+import javax.persistence.Transient;
 import ru.runa.wfe.audit.presentation.ExecutorIdsValue;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.user.Executor;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 /**
  * Logging task escalation.
@@ -34,5 +32,22 @@ public class CurrentTaskEscalationLog extends CurrentTaskLog implements TaskEsca
         }
         addAttribute(ATTR_MESSAGE, Joiner.on(ExecutorIdsValue.DELIM).join(ids));
         setSeverity(Severity.INFO);
+    }
+
+    @Override
+    @Transient
+    public Type getType() {
+        return Type.TASK_ESCALATION;
+    }
+
+    @Override
+    @Transient
+    public Object[] getPatternArguments() {
+        return new Object[] { getTaskName(), new ExecutorIdsValue(getAttributeNotNull(ATTR_MESSAGE)) };
+    }
+
+    @Override
+    public void processBy(ProcessLogVisitor visitor) {
+        visitor.onTaskEscalationLog(this);
     }
 }

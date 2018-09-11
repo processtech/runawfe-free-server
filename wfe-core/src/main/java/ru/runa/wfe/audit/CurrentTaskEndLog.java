@@ -23,6 +23,8 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
+import ru.runa.wfe.audit.presentation.ExecutorNameValue;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.TaskCompletionInfo;
 
@@ -45,5 +47,32 @@ public class CurrentTaskEndLog extends CurrentTaskLog implements TaskEndLog {
             addAttribute(ATTR_ACTOR_NAME, completionInfo.getExecutor().getName());
         }
         setSeverity(Severity.INFO);
+    }
+
+    @Override
+    @Transient
+    public Type getType() {
+        return Type.TASK_END;
+    }
+
+    @Override
+    @Transient
+    public String getActorName() {
+        String actorName = getAttribute(ATTR_ACTOR_NAME);
+        if (actorName != null) {
+            return actorName;
+        }
+        return "";
+    }
+
+    @Override
+    @Transient
+    public Object[] getPatternArguments() {
+        return new Object[] { getTaskName(), new ExecutorNameValue(getActorName()) };
+    }
+
+    @Override
+    public void processBy(ProcessLogVisitor visitor) {
+        visitor.onTaskEndLog(this);
     }
 }

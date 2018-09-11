@@ -8,6 +8,9 @@ import ru.runa.wfe.commons.dao.ReadOnlyGenericDao;
 import ru.runa.wfe.execution.ArchivedNodeProcess;
 import ru.runa.wfe.execution.ArchivedProcess;
 import ru.runa.wfe.execution.ArchivedToken;
+import ru.runa.wfe.execution.CurrentNodeProcess;
+import ru.runa.wfe.execution.CurrentProcess;
+import ru.runa.wfe.execution.CurrentToken;
 import ru.runa.wfe.execution.QArchivedNodeProcess;
 
 @Component
@@ -15,8 +18,11 @@ public class ArchivedNodeProcessDao
         extends ReadOnlyGenericDao<ArchivedNodeProcess>
         implements BaseNodeProcessDao<ArchivedToken, ArchivedProcess, ArchivedNodeProcess>
 {
+    private CommonNodeProcessDao<ArchivedToken, ArchivedProcess, ArchivedNodeProcess> delegate;
+
     public ArchivedNodeProcessDao() {
         super(ArchivedNodeProcess.class);
+        delegate = new CommonNodeProcessDao<>(this);
     }
 
     public ArchivedNodeProcess findBySubProcessId(Long subProcessId) {
@@ -41,5 +47,25 @@ public class ArchivedNodeProcessDao
             q.where(finished ? np.subProcess.endDate.isNotNull() : np.subProcess.endDate.isNull());
         }
         return q.fetch();
+    }
+
+    @Override
+    public List<ArchivedProcess> getSubprocesses(ArchivedProcess process) {
+        return delegate.getSubprocesses(process);
+    }
+
+    @Override
+    public List<ArchivedProcess> getSubprocessesRecursive(ArchivedProcess process) {
+        return delegate.getSubprocessesRecursive(process);
+    }
+
+    @Override
+    public List<ArchivedProcess> getSubprocesses(ArchivedToken token) {
+        return delegate.getSubprocesses(token);
+    }
+
+    @Override
+    public List<ArchivedProcess> getSubprocesses(ArchivedProcess process, String nodeId, ArchivedToken parentToken, Boolean finished) {
+        return delegate.getSubprocesses(process, nodeId, parentToken, finished);
     }
 }

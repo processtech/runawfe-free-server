@@ -23,6 +23,7 @@ package ru.runa.wfe.audit;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 import ru.runa.wfe.lang.Node;
 
 /**
@@ -41,5 +42,16 @@ public class CurrentNodeLeaveLog extends CurrentNodeLog implements NodeLeaveLog 
     public CurrentNodeLeaveLog(Node node) {
         super(node);
         setSeverity(Severity.INFO);
+    }
+
+    @Override
+    @Transient
+    public Type getType() {
+        return Type.NODE_LEAVE;
+    }
+
+    @Override
+    public void processBy(ProcessLogVisitor visitor) {
+        visitor.onNodeLeaveLog(this);
     }
 }
