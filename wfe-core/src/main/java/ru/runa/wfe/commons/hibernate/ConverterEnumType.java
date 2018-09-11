@@ -26,10 +26,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
-
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.var.Converter;
 
@@ -38,7 +37,7 @@ import ru.runa.wfe.var.Converter;
  */
 public class ConverterEnumType implements UserType {
 
-    static final int[] SQLTYPES = new int[] { Types.CHAR };
+    private static final int[] SQLTYPES = new int[] { Types.CHAR };
 
     @Override
     public boolean equals(Object o1, Object o2) {
@@ -86,15 +85,14 @@ public class ConverterEnumType implements UserType {
     }
 
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner) throws HibernateException, SQLException {
-        String converterDatabaseId = resultSet.getString(names[0]);
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
+        String converterDatabaseId = rs.getString(names[0]);
         return ApplicationContextFactory.getConverters().getConverterByDatabaseId(converterDatabaseId);
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index) throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session) throws HibernateException, SQLException {
         String converterDatabaseId = ApplicationContextFactory.getConverters().getConverterId((Converter) value);
-        preparedStatement.setString(index, converterDatabaseId);
+        st.setString(index, converterDatabaseId);
     }
-
 }

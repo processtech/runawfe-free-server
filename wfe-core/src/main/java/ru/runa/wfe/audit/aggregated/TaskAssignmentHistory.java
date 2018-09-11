@@ -24,7 +24,7 @@ public class TaskAssignmentHistory extends AssignmentHistory {
         log = taskAggregatedLog;
     }
 
-    @ManyToOne(targetEntity = TaskAggregatedLog.class)
+    @ManyToOne
     @JoinColumn(name = "ASSIGNMENT_OBJECT_ID", insertable = false, updatable = false)
     public TaskAggregatedLog getLog() {
         return log;

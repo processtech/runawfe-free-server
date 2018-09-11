@@ -23,6 +23,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,7 +33,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Executor;
 
@@ -108,9 +108,8 @@ public class RelationPair implements Serializable {
      * 
      * @return Left part of relation pair.
      */
-    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "EXECUTOR_FROM", nullable = false, insertable = true, updatable = false)
-    @ForeignKey(name = "FK_ERP_EXECUTOR_FROM")
+    @ManyToOne
+    @JoinColumn(name = "EXECUTOR_FROM", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_ERP_EXECUTOR_FROM"))
     @Index(name = "IX_ERP_EXECUTOR_FROM")
     public Executor getLeft() {
         return left;
@@ -125,9 +124,8 @@ public class RelationPair implements Serializable {
      * 
      * @return Right part of relation pair.
      */
-    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "EXECUTOR_TO", nullable = false, insertable = true, updatable = false)
-    @ForeignKey(name = "FK_ERP_EXECUTOR_TO")
+    @ManyToOne
+    @JoinColumn(name = "EXECUTOR_TO", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_ERP_EXECUTOR_TO"))
     @Index(name = "IX_ERP_EXECUTOR_TO")
     public Executor getRight() {
         return right;
@@ -142,9 +140,8 @@ public class RelationPair implements Serializable {
      * 
      * @return Relation, to which belongs this executors pair.
      */
-    @ManyToOne(targetEntity = Relation.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "RELATION_ID", nullable = false, insertable = true, updatable = false)
-    @ForeignKey(name = "FK_ERP_RELATION")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RELATION_ID", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_ERP_RELATION"))
     @Index(name = "IX_ERP_RELATION")
     public Relation getRelation() {
         return relation;

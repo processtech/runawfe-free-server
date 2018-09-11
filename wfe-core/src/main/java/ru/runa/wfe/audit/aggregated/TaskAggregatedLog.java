@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,8 +22,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.IndexColumn;
 import ru.runa.wfe.audit.TaskAssignLog;
@@ -309,10 +308,8 @@ public class TaskAggregatedLog {
         this.swimlaneName = swimlaneName;
     }
 
-    @OneToMany(targetEntity = TaskAssignmentHistory.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "ASSIGNMENT_OBJECT_ID", nullable = false)
+    @OneToMany(mappedBy = "log", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @IndexColumn(name = "IDX")
-    @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     public List<TaskAssignmentHistory> getAssignmentHistory() {
         return assignmentHistory;
     }

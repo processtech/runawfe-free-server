@@ -26,10 +26,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -41,12 +45,14 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.hibernate.annotations.Index;
 import ru.runa.wfe.commons.ArraysCommons;
 import ru.runa.wfe.presentation.filter.FilterCriteria;
 import ru.runa.wfe.presentation.filter.FilterCriteriaFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import ru.runa.wfe.user.Profile;
 
 /**
  * Presentation of objects collection, contains sorting rules, filter rules and so on.
@@ -80,6 +86,7 @@ public class BatchPresentation implements Cloneable, Serializable {
     private transient Store storage;
     private Date createDate;
     private boolean shared;
+    private Profile profile;
 
     protected BatchPresentation() {
     }
@@ -236,6 +243,17 @@ public class BatchPresentation implements Cloneable, Serializable {
      */
     public void setShared(boolean shared) {
         this.shared = shared;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROFILE_ID", foreignKey = @ForeignKey(name = "FK_BATCH_PRESENTATION_PROFILE"))
+    @Index(name = "IX_BATCH_PRESENTATION_PROFILE")
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 
     @Transient

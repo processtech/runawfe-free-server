@@ -3,11 +3,11 @@ package ru.runa.wfe.execution;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.user.Executor;
 
@@ -20,17 +20,15 @@ public class ArchivedSwimlane extends Swimlane<ArchivedProcess> {
     @SuppressWarnings("unused")
     private Long id;
 
-    @ManyToOne(targetEntity = ArchivedProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_ARCH_SWIMLANE_PROCESS")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID", foreignKey = @ForeignKey(name = "FK_ARCH_SWIMLANE_PROCESS"))
     @Index(name = "IX_ARCH_SWIMLANE_PROCESS")
     @SuppressWarnings("unused")
     private ArchivedProcess process;
 
     @SuppressWarnings("unused")
-    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "EXECUTOR_ID")
-    @ForeignKey(name = "FK_ARCH_SWIMLANE_EXECUTOR")
+    @ManyToOne
+    @JoinColumn(name = "EXECUTOR_ID", foreignKey = @ForeignKey(name = "FK_ARCH_SWIMLANE_EXECUTOR"))
     private Executor executor;
 
     @Override

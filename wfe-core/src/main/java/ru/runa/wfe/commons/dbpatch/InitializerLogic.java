@@ -20,10 +20,17 @@ package ru.runa.wfe.commons.dbpatch;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import lombok.val;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.hbm2ddl.SchemaExport.Action;
+import org.hibernate.tool.schema.TargetType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -169,8 +176,18 @@ public class InitializerLogic implements ApplicationListener<ContextRefreshedEve
                 applyPatches(databaseVersion);
             } else {
                 log.info("initializing database");
-                SchemaExport schemaExport = new SchemaExport(ApplicationContextFactory.getConfiguration());
-                schemaExport.execute(true, true, false, true);
+
+                // Adopted from SchemaExport.main():
+                val bsr = new BootstrapServiceRegistryBuilder()
+                        .build();
+                val ssr = new StandardServiceRegistryBuilder(bsr)
+                        .applySettings(ApplicationContextFactory.getHibernateProperties())
+                        .build();
+                val md = new MetadataSources(ssr)
+                        .getMetadataBuilder()
+                        .build();
+                new SchemaExport().execute(EnumSet.of(TargetType.DATABASE), Action.CREATE, md);
+
                 dbTransactionalInitializer.initialize(dbPatches.size());
             }
             dbTransactionalInitializer.initPermissions();

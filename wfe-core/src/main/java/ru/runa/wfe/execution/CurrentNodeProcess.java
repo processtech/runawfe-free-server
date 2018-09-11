@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,7 +15,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.lang.Node;
 
@@ -29,27 +29,23 @@ public class CurrentNodeProcess extends NodeProcess<CurrentProcess, CurrentToken
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_PARENT_PROCESS")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_PROCESS_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_SUBPROCESS_PARENT_PROCESS"))
     @Index(name = "IX_SUBPROCESS_PARENT_PROCESS")
     private CurrentProcess process;
 
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_PROCESS")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_SUBPROCESS_PROCESS"))
     @Index(name = "IX_SUBPROCESS_PROCESS")
     private CurrentProcess subProcess;
 
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "ROOT_PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_SUBPROCESS_ROOT_PROCESS")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ROOT_PROCESS_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_SUBPROCESS_ROOT_PROCESS"))
     @Index(name = "IX_SUBPROCESS_ROOT_PROCESS")
     private CurrentProcess rootProcess;
 
-    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PARENT_TOKEN_ID")
-    @ForeignKey(name = "FK_SUBPROCESS_TOKEN")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_TOKEN_ID", foreignKey = @ForeignKey(name = "FK_SUBPROCESS_TOKEN"))
     private CurrentToken parentToken;
 
     protected CurrentNodeProcess() {

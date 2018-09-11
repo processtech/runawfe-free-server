@@ -26,8 +26,10 @@ import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -44,14 +46,12 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.CollectionOfElements;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.CurrentTaskAssignLog;
-import ru.runa.wfe.audit.CurrentTaskEndBySubstitutorLog;
-import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.audit.CurrentTaskCancelledLog;
 import ru.runa.wfe.audit.CurrentTaskEndByAdminLog;
+import ru.runa.wfe.audit.CurrentTaskEndBySubstitutorLog;
+import ru.runa.wfe.audit.CurrentTaskEndLog;
 import ru.runa.wfe.audit.CurrentTaskExpiredLog;
 import ru.runa.wfe.audit.CurrentTaskRemovedOnProcessEndLog;
 import ru.runa.wfe.commons.ApplicationContextFactory;
@@ -192,11 +192,11 @@ public class Task implements Assignable {
         this.deadlineDateExpression = deadlineDateExpression;
     }
 
-    @CollectionOfElements
+    @ElementCollection
     @JoinTable(name = "BPM_TASK_OPENED", joinColumns = { @JoinColumn(name = "TASK_ID", nullable = false, updatable = false) })
     @Cascade({ CascadeType.ALL, CascadeType.DELETE_ORPHAN })
     @Column(name = "EXECUTOR_ID", updatable = false)
-    @ForeignKey(name = "FK_TASK_OPENED_TASK")
+    @org.hibernate.annotations.ForeignKey(name = "FK_TASK_OPENED_TASK")
     public Set<Long> getOpenedByExecutorIds() {
         return openedByExecutorIds;
     }
@@ -205,9 +205,8 @@ public class Task implements Assignable {
         this.openedByExecutorIds = openedByExecutorIds;
     }
 
-    @ManyToOne(targetEntity = CurrentToken.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "TOKEN_ID")
-    @ForeignKey(name = "FK_TASK_TOKEN")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TOKEN_ID", foreignKey = @ForeignKey(name = "FK_TASK_TOKEN"))
     public CurrentToken getToken() {
         return token;
     }
@@ -216,9 +215,8 @@ public class Task implements Assignable {
         this.token = token;
     }
 
-    @ManyToOne(targetEntity = CurrentSwimlane.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "SWIMLANE_ID")
-    @ForeignKey(name = "FK_TASK_SWIMLANE")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SWIMLANE_ID", foreignKey = @ForeignKey(name = "FK_TASK_SWIMLANE"))
     public CurrentSwimlane getSwimlane() {
         return swimlane;
     }
@@ -227,9 +225,8 @@ public class Task implements Assignable {
         this.swimlane = swimlane;
     }
 
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "PROCESS_ID")
-    @ForeignKey(name = "FK_TASK_PROCESS")
+    @ManyToOne
+    @JoinColumn(name = "PROCESS_ID", foreignKey = @ForeignKey(name = "FK_TASK_PROCESS"))
     @Index(name = "IX_TASK_PROCESS")
     public CurrentProcess getProcess() {
         return process;
@@ -240,9 +237,8 @@ public class Task implements Assignable {
     }
 
     @Override
-    @ManyToOne(targetEntity = Executor.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "EXECUTOR_ID")
-    @ForeignKey(name = "FK_TASK_EXECUTOR")
+    @ManyToOne
+    @JoinColumn(name = "EXECUTOR_ID", foreignKey = @ForeignKey(name = "FK_TASK_EXECUTOR"))
     @Index(name = "IX_TASK_EXECUTOR")
     public Executor getExecutor() {
         return executor;

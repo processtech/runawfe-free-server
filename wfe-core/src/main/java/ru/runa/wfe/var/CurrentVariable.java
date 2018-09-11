@@ -28,6 +28,7 @@ import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,7 +42,6 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import ru.runa.wfe.audit.CurrentVariableCreateLog;
 import ru.runa.wfe.audit.CurrentVariableDeleteLog;
@@ -117,9 +117,8 @@ public abstract class CurrentVariable<V> extends Variable<CurrentProcess, V> {
         this.name = name;
     }
 
-    @ManyToOne(targetEntity = CurrentProcess.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROCESS_ID", nullable = false)
-    @ForeignKey(name = "FK_VARIABLE_PROCESS")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROCESS_ID", nullable = false, foreignKey = @ForeignKey(name = "FK_VARIABLE_PROCESS"))
     @Index(name = "IX_VARIABLE_PROCESS")
     public CurrentProcess getProcess() {
         return process;
