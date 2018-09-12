@@ -1,6 +1,5 @@
 package ru.runa.wfe.job.impl;
 
-import com.google.common.collect.Lists;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,12 +14,13 @@ import ru.runa.wfe.commons.SystemProperties;
 
 @CommonsLog
 public class ProcessArchiver {
-    private static final int ROOT_PROCESS_IDS_PER_STEP = 100;
-
     /**
-     * ATTENTION! In "delete from bpm_subprocess" statement, this number of IDs appears twice.
+     * ATTENTION! List of ALL process IDs is generated from this number of ROOT process ids and then used in all SQL statements.
+     * So if you specify too much, and if your process hierarchies are deep, you may get too large SQL statements.
+     * <p>
+     * ATTENTION! In statements on "subprocess" table, list of ALL process IDs appears twice.
      */
-    private static final int IDS_PER_SQL_STATEMENT = 100;
+    private static final int ROOT_PROCESS_IDS_PER_STEP = 100;
 
     /**
      * First run on huge database may take long time, so prevent concurrent runs just in case.
@@ -197,87 +197,86 @@ public class ProcessArchiver {
         totalProcessIdsHandled += processIds.size();
 
         try (val stmt = conn.createStatement()) {
-            for (val pids : Lists.partition(processIds, IDS_PER_SQL_STATEMENT)) {
-                val pidsCSV = "(" + StringUtils.join(pids, ",") + ")";
-                try {
-                    // Create rows in referenced tables first, then in referencing tables.
+            // ATTENTION! Don't Lists.partition(processIds), or you'll get FK violations if parent and child processes go into different partitions.
+            val pidsCSV = "(" + StringUtils.join(processIds, ",") + ")";
+            try {
+                // Create rows in referenced tables first, then in referencing tables.
 
-                    // Refernces self, plus has root_token_id field.
-                    stmt.executeUpdate("insert into archived_process " +
-                            "      (id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id) " +
-                            "select id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id " +
-                            "from bpm_process " +
-                            "where id in " + pidsCSV
-                    );
+                // Refernces self, plus has root_token_id field.
+                stmt.executeUpdate("insert into archived_process " +
+                        "      (id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id) " +
+                        "select id, parent_id, tree_path, start_date, end_date, version, definition_id, root_token_id " +
+                        "from bpm_process " +
+                        "where id in " + pidsCSV
+                );
 
-                    // References process and self.
-                    stmt.executeUpdate("insert into archived_token " +
-                            "      (id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name) " +
-                            "select id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name " +
-                            "from bpm_token " +
-                            "where process_id in " + pidsCSV
-                    );
+                // References process and self.
+                stmt.executeUpdate("insert into archived_token " +
+                        "      (id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name) " +
+                        "select id, process_id, parent_id, error_message, transition_id, message_selector, start_date, end_date, error_date, node_id, reactivate_parent, node_type, version, name " +
+                        "from bpm_token " +
+                        "where process_id in " + pidsCSV
+                );
 
-                    // References process, also has parent_token_id field.
-                    stmt.executeUpdate("insert into archived_subprocess " +
-                            "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id) " +
-                            "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id " +
-                            "from bpm_subprocess " +
-                            "where process_id in " + pidsCSV
-                    );
+                // References process, also has parent_token_id field.
+                stmt.executeUpdate("insert into archived_subprocess " +
+                        "      (id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id) " +
+                        "select id, process_id, parent_process_id, root_process_id, parent_node_id, create_date, subprocess_index, parent_token_id " +
+                        "from bpm_subprocess " +
+                        "where process_id in " + pidsCSV + " or parent_process_id in " + pidsCSV
+                );
 
-                    // References process.
-                    stmt.executeUpdate("insert into archived_swimlane " +
-                            "      (id, process_id, create_date, name, version, executor_id) " +
-                            "select id, process_id, create_date, name, version, executor_id " +
-                            "from bpm_swimlane " +
-                            "where process_id in " + pidsCSV
-                    );
+                // References process.
+                stmt.executeUpdate("insert into archived_swimlane " +
+                        "      (id, process_id, create_date, name, version, executor_id) " +
+                        "select id, process_id, create_date, name, version, executor_id " +
+                        "from bpm_swimlane " +
+                        "where process_id in " + pidsCSV
+                );
 
-                    // References process.
-                    stmt.executeUpdate("insert into archived_variable " +
-                            "      (discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue) " +
-                            "select discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue " +
-                            "from bpm_variable " +
-                            "where process_id in " + pidsCSV
-                    );
+                // References process.
+                stmt.executeUpdate("insert into archived_variable " +
+                        "      (discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue) " +
+                        "select discriminator, id, process_id, create_date, name, version, converter, bytes, stringvalue, longvalue, doublevalue, datevalue " +
+                        "from bpm_variable " +
+                        "where process_id in " + pidsCSV
+                );
 
-                    // No FKs, but has process_id and token_id fields.
-                    stmt.executeUpdate("insert into archived_log " +
-                            "      (discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content) " +
-                            "select discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content " +
-                            "from bpm_log " +
-                            "where process_id in " + pidsCSV
-                    );
+                // No FKs, but has process_id and token_id fields.
+                stmt.executeUpdate("insert into archived_log " +
+                        "      (discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content) " +
+                        "select discriminator, id, process_id, node_id, token_id, create_date, severity, bytes, content " +
+                        "from bpm_log " +
+                        "where process_id in " + pidsCSV
+                );
 
-                    // Delete rows in reverse order (from referencing tables first):
+                // Delete rows in reverse order (from referencing tables first):
 
-                    // No FKs, but has process_id and token_id fields.
-                    stmt.executeUpdate("delete from bpm_log where process_id in " + pidsCSV);
+                // No FKs, but has process_id and token_id fields.
+                stmt.executeUpdate("delete from bpm_log where process_id in " + pidsCSV);
 
-                    // References process.
-                    stmt.executeUpdate("delete from bpm_variable where process_id in " + pidsCSV);
+                // References process.
+                stmt.executeUpdate("delete from bpm_variable where process_id in " + pidsCSV);
 
-                    // References process.
-                    stmt.executeUpdate("delete from bpm_swimlane where process_id in " + pidsCSV);
+                // References process.
+                stmt.executeUpdate("delete from bpm_swimlane where process_id in " + pidsCSV);
 
-                    // References process and token.
-                    stmt.executeUpdate("delete from bpm_subprocess where process_id in " + pidsCSV + " or parent_process_id in " + pidsCSV);
+                // References process and token.
+                stmt.executeUpdate("delete from bpm_subprocess where process_id in " + pidsCSV + " or parent_process_id in " + pidsCSV);
 
-                    // References token and self.
-                    // Since token references process, must null that references before deleting processes.
-                    // Also, I delete processes before tokens, because reverse FK cannot bpm_process.root_token_id is not null.
-                    stmt.executeUpdate("update bpm_process set parent_id = null where id in " + pidsCSV);
-                    stmt.executeUpdate("update bpm_token set process_id = null where process_id in " + pidsCSV);
-                    stmt.executeUpdate("delete from bpm_process where id in " + pidsCSV);
+                // References token and self.
+                // Since token references process, must null that references before deleting processes.
+                // Also, I delete processes before tokens, because reverse FK cannot bpm_process.root_token_id is not null.
+                stmt.executeUpdate("update bpm_process set parent_id = null where id in " + pidsCSV);
+                stmt.executeUpdate("update bpm_token set process_id = null where process_id in " + pidsCSV);
+                stmt.executeUpdate("delete from bpm_process where id in " + pidsCSV);
 
-                    // References process (already deleted above) and self.
-                    // Process_id is already nulled above, so cannot check it against pidsCSV, only against nulls.
-                    stmt.executeUpdate("update bpm_token set parent_id = null where process_id is null");
-                    stmt.executeUpdate("delete from bpm_token where process_id is null");
-                } catch (Throwable e) {
-                    throw new RuntimeException("Failed for pidsCSV = " + pidsCSV, e);
-                }
+                // References process (already deleted above) and self.
+                // Process_id is already nulled above, so cannot check it against pidsCSV, only against nulls.
+                stmt.executeUpdate("update bpm_token set parent_id = null where process_id is null");
+                stmt.executeUpdate("delete from bpm_token where process_id is null");
+            } catch (Throwable e) {
+                throw new RuntimeException("Failed for pidsCSV = " + pidsCSV, e);
             }
         }
 
