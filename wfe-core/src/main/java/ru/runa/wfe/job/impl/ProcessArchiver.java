@@ -178,7 +178,7 @@ public class ProcessArchiver {
             }
         }
         if (processIds.isEmpty()) {
-            log.info("step(): processIds.size() = 0; done");  // TODO Replace with debug() when done debugging.
+            log.debug("step(): processIds.size() = 0; done");
             return false;
         }
         // Do it twice, after both queries (both queries contain "order by id").
@@ -193,7 +193,7 @@ public class ProcessArchiver {
         // Do it twice, after both queries (both queries contain "order by id").
         lastHandledProcessId = Math.max(lastHandledProcessId, processIds.get(processIds.size() - 1).longValue());
 
-        log.info("step(): processIds.size() = " + processIds.size());  // TODO Replace with debug() when done debugging.
+        log.debug("step(): processIds.size() = " + processIds.size());
         totalProcessIdsHandled += processIds.size();
 
         try (val stmt = conn.createStatement()) {
