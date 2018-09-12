@@ -17,8 +17,6 @@
  */
 package ru.runa.wfe.user.dao;
 
-import ru.runa.wfe.user.ExecutorLoader;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -33,7 +31,6 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.cache.VersionedCacheData;
@@ -47,6 +44,7 @@ import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.ExecutorAlreadyExistsException;
 import ru.runa.wfe.user.ExecutorDoesNotExistException;
 import ru.runa.wfe.user.ExecutorGroupMembership;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.QActor;
 import ru.runa.wfe.user.QExecutor;
@@ -62,7 +60,6 @@ import ru.runa.wfe.user.cache.ExecutorCache;
  */
 @Component
 @SuppressWarnings("unchecked")
-@Transactional
 public class ExecutorDao extends CommonDao implements ExecutorLoader {
     private static final String ID_PROPERTY_NAME = "id";
     private static final String CODE_PROPERTY_NAME = "code";

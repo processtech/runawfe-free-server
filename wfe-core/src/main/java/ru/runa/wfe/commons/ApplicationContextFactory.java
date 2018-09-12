@@ -34,6 +34,8 @@ import ru.runa.wfe.security.dao.PermissionDao;
 import ru.runa.wfe.ss.dao.SubstitutionDao;
 import ru.runa.wfe.task.dao.TaskDao;
 import ru.runa.wfe.task.logic.TaskNotifier;
+import ru.runa.wfe.user.BaseExecutorLoader;
+import ru.runa.wfe.user.ExecutorLoader;
 import ru.runa.wfe.user.dao.ExecutorDao;
 import ru.runa.wfe.user.logic.ExecutorLogic;
 import ru.runa.wfe.var.logic.VariableLogic;
@@ -182,6 +184,10 @@ public class ApplicationContextFactory implements ApplicationContextAware {
 
     public static ExecutorLogic getExecutorLogic() {
         return getContext().getBean(ExecutorLogic.class);
+    }
+
+    public static ExecutorLoader getExecutorLoader() {
+        return getContext().getBean(BaseExecutorLoader.class);
     }
 
     public static VariableLogic getVariableLogic() {
