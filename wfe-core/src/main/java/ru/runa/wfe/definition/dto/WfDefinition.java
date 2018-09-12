@@ -48,6 +48,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     private Date updateDate;
     private Actor updateActor;
     private Date subprocessBindingDate;
+    private Integer secondsBeforeArchiving;
 
     public WfDefinition() {
     }
@@ -72,6 +73,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         updateDate = deployment.getUpdateDate();
         updateActor = deployment.getUpdateActor();
         subprocessBindingDate = deployment.getSubprocessBindingDate();
+        secondsBeforeArchiving = deployment.getSecondsBeforeArchiving();
     }
 
     @Override
@@ -147,6 +149,10 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
 
     public Date getSubprocessBindingDate() {
         return subprocessBindingDate;
+    }
+
+    public Integer getSecondsBeforeArchiving() {
+        return secondsBeforeArchiving;
     }
 
     @Override

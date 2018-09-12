@@ -48,18 +48,19 @@ public class DefinitionServiceDelegate extends Ejb3Delegate implements Definitio
     }
 
     @Override
-    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) {
+    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories, Integer secondsBeforeArchiving) {
         try {
-            return getDefinitionService().deployProcessDefinition(user, archive, categories);
+            return getDefinitionService().deployProcessDefinition(user, archive, categories, secondsBeforeArchiving);
         } catch (Exception e) {
             throw handleException(e);
         }
     }
 
     @Override
-    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchive, List<String> categories) {
+    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchive, List<String> categories,
+            Integer secondsBeforeArchiving) {
         try {
-            return getDefinitionService().redeployProcessDefinition(user, definitionId, processArchive, categories);
+            return getDefinitionService().redeployProcessDefinition(user, definitionId, processArchive, categories, secondsBeforeArchiving);
         } catch (Exception e) {
             throw handleException(e);
         }

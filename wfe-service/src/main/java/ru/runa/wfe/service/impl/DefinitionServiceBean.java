@@ -66,17 +66,25 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition deployProcessDefinition(@WebParam(name = "user") @NonNull User user, @WebParam(name = "par") @NonNull byte[] par,
-            @WebParam(name = "categories") @NonNull List<String> categories) {
-        return definitionLogic.deployProcessDefinition(user, par, categories);
+    public WfDefinition deployProcessDefinition(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "par") @NonNull byte[] par,
+            @WebParam(name = "categories") @NonNull List<String> categories,
+            @WebParam(name = "secondsBeforeArchiving") Integer secondsBeforeArchiving
+    ) {
+        return definitionLogic.deployProcessDefinition(user, par, categories, secondsBeforeArchiving);
     }
 
     @Override
     @WebResult(name = "result")
-    public WfDefinition redeployProcessDefinition(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long definitionId, @WebParam(name = "par") byte[] par,
-            @WebParam(name = "categories") List<String> categories) {
-        return definitionLogic.redeployProcessDefinition(user, definitionId, par, categories);
+    public WfDefinition redeployProcessDefinition(
+            @WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long definitionId,
+            @WebParam(name = "par") byte[] par,
+            @WebParam(name = "categories") List<String> categories,
+            @WebParam(name = "secondsBeforeArchiving") Integer secondsBeforeArchiving
+    ) {
+        return definitionLogic.redeployProcessDefinition(user, definitionId, par, categories, secondsBeforeArchiving == null ? -1 : secondsBeforeArchiving);
     }
 
     @Override

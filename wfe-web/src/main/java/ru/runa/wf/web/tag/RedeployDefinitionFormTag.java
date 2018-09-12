@@ -51,22 +51,34 @@ import ru.runa.wfe.user.User;
 public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     public static final String TYPE_UPDATE_CURRENT_VERSION = "updateCurrentVersion";
+    public static final String TYPE_DAYS_BEFORE_ARCHIVING = "daysBeforeArchiving";
 
     private static final long serialVersionUID = 5106903896165128752L;
     private static RedeployDefinitionFormTag instance;
 
-    protected void fillTD(TD tdFormElement, Form form, String[] definitionTypes, User user, PageContext pageContext) {
+    protected void fillTD(TD tdFormElement, Form form, WfDefinition def, User user, PageContext pageContext) {
         form.setEncType(Form.ENC_UPLOAD);
         Table table = new Table();
         table.setClass(Resources.CLASS_LIST_TABLE);
+
         Input fileInput = HTMLUtils.createInput(Input.FILE, FileForm.FILE_INPUT_NAME, "", true, true);
         table.addElement(HTMLUtils.createRow(MessagesProcesses.LABEL_DEFINITIONS_ARCHIVE.message(pageContext), fileInput));
+
         DefinitionCategoriesIterator iterator = new DefinitionCategoriesIterator(user);
-        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, definitionTypes, pageContext);
+        TD hierarchyType = CategoriesSelectUtils.createSelectTD(iterator, def == null ? null : def.getCategories(), pageContext);
         table.addElement(HTMLUtils.createRow(Messages.getMessage(DefinitionClassPresentation.TYPE, pageContext), hierarchyType));
-        tdFormElement.addElement(table);
+
+        Integer secondsBeforeArchiving = def == null ? null : def.getSecondsBeforeArchiving();
+        String daysBeforeArchiving = secondsBeforeArchiving == null ? "" : Integer.toString(secondsBeforeArchiving / 86400);
+        table.addElement(HTMLUtils.createRow(
+                MessagesProcesses.LABEL_DEFINITIONS_DAYS_BEFORE_ARCHIVING.message(pageContext),
+                new Input(Input.TEXT, TYPE_DAYS_BEFORE_ARCHIVING, daysBeforeArchiving).setStyle("width:100px")
+        ));
+
         table.addElement(HTMLUtils.createCheckboxRow(MessagesProcesses.LABEL_UPDATE_CURRENT_VERSION.message(pageContext),
                 TYPE_UPDATE_CURRENT_VERSION, false, true, false));
+
+        tdFormElement.addElement(table);
 
         if (SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             WfDefinition wfDefinition = Delegates.getDefinitionService().getProcessDefinition(user, getIdentifiableId());
@@ -80,7 +92,7 @@ public class RedeployDefinitionFormTag extends ProcessDefinitionBaseFormTag {
 
     @Override
     protected void fillFormData(TD tdFormElement) {
-        fillTD(tdFormElement, getForm(), getDefinition().getCategories(), getUser(), pageContext);
+        fillTD(tdFormElement, getForm(), getDefinition(), getUser(), pageContext);
     }
 
     @Override

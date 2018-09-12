@@ -27,14 +27,20 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     @XmlAttribute(name = AdminScriptConstants.TYPE_ATTRIBUTE_NAME)
     public String type;
 
-    @XmlAttribute(name = AdminScriptConstants.NAME_ATTRIBUTE_NAME, required = false)
+    @XmlAttribute(name = AdminScriptConstants.NAME_ATTRIBUTE_NAME)
     public String name;
 
-    @XmlAttribute(name = AdminScriptConstants.DEFINITION_ID_ATTRIBUTE_NAME, required = false)
+    @XmlAttribute(name = AdminScriptConstants.DEFINITION_ID_ATTRIBUTE_NAME)
     public Long definitionId;
 
+    /**
+     * If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
+     */
     @XmlAttribute(name = AdminScriptConstants.FILE_ATTRIBUTE_NAME, required = true)
     public String file;
+
+    @XmlAttribute(name = AdminScriptConstants.SECONDS_BEFORE_ARCHIVING)
+    public Integer secondsBeforeArchiving;
 
     @Override
     public void validate(ScriptExecutionContext context) {
@@ -59,7 +65,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
         }
         try {
             byte[] scriptBytes = Files.toByteArray(new File(file));
-            context.getDefinitionLogic().redeployProcessDefinition(context.getUser(), definitionId, scriptBytes, parsedType);
+            context.getDefinitionLogic().redeployProcessDefinition(context.getUser(), definitionId, scriptBytes, parsedType, secondsBeforeArchiving);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }

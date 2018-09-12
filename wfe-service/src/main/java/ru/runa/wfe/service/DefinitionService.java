@@ -54,15 +54,17 @@ public interface DefinitionService {
      *            process definition archive (ZIP format)
      * @param categories
      *            process categories
+     * @param secondsBeforeArchiving
+     *            If null or negative, will be nulled in database (default will be used).
      * @return deployed definition
      * @throws DefinitionAlreadyExistException
      * @throws DefinitionArchiveFormatException
      */
-    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories) throws DefinitionAlreadyExistException,
-            DefinitionArchiveFormatException;
+    public WfDefinition deployProcessDefinition(User user, byte[] archive, List<String> categories, Integer secondsBeforeArchiving)
+            throws DefinitionAlreadyExistException, DefinitionArchiveFormatException;
 
     /**
-     * Redeploys process definition by name.
+     * Redeploys process definition by name, by creating new definition version.
      * 
      * @param user
      *            authorized user
@@ -72,16 +74,15 @@ public interface DefinitionService {
      *            process definition archive (ZIP format)
      * @param categories
      *            process categories
+     * @param secondsBeforeArchiving
+     *            If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
      * @return redeployed definition
-     * @throws DefinitionDoesNotExistException
-     * @throws DefinitionArchiveFormatException
-     * @throws DefinitionNameMismatchException
      */
-    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] archive, List<String> categories)
-            throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
+    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] archive, List<String> categories,
+            Integer secondsBeforeArchiving) throws DefinitionDoesNotExistException, DefinitionArchiveFormatException, DefinitionNameMismatchException;
 
     /**
-     * Updates process definition.
+     * Updates current process definition, without incrementing version number.
      * 
      * @param user
      *            authorized user

@@ -1,19 +1,16 @@
 package ru.runa.wf.web.action;
 
+import com.google.common.io.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import lombok.val;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
-
 import ru.runa.common.web.CategoriesSelectUtils;
 import ru.runa.common.web.Resources;
 import ru.runa.common.web.action.ActionBase;
@@ -45,11 +42,11 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
             BatchPresentation presentation = BatchPresentationFactory.DEFINITIONS.createDefault();
             List<WfDefinition> existingDefinitions = Delegates.getDefinitionService().getProcessDefinitions(getLoggedUser(request), presentation,
                     false);
-            Map<String, WfDefinition> existingDefinitionsMap = Maps.newHashMap();
+            val existingDefinitionsMap = new HashMap<String, WfDefinition>();
             for (WfDefinition definition : existingDefinitions) {
                 existingDefinitionsMap.put(definition.getName(), definition);
             }
-            List<String> successKeys = new ArrayList<String>();
+            val successKeys = new ArrayList<String>();
             List<String> categories = CategoriesSelectUtils.extract(request);
             for (Map.Entry<String, UploadedFile> entry : uploadedParFiles.entrySet()) {
                 UploadedFile uploadedFile = entry.getValue();
@@ -57,7 +54,7 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                 boolean redeploy = existingDefinitionsMap.containsKey(existingDefinitionName);
                 if (!redeploy) {
                     try {
-                        Delegates.getDefinitionService().deployProcessDefinition(getLoggedUser(request), uploadedFile.getContent(), categories);
+                        Delegates.getDefinitionService().deployProcessDefinition(getLoggedUser(request), uploadedFile.getContent(), categories, null);
                         successKeys.add(entry.getKey());
                     } catch (DefinitionAlreadyExistException e) {
                         existingDefinitionName = e.getName();
@@ -69,9 +66,13 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                 if (redeploy) {
                     try {
                         WfDefinition definition = existingDefinitionsMap.get(existingDefinitionName);
-                        Delegates.getDefinitionService().redeployProcessDefinition(getLoggedUser(request), definition.getId(),
+                        Delegates.getDefinitionService().redeployProcessDefinition(
+                                getLoggedUser(request),
+                                definition.getId(),
                                 uploadedFile.getContent(),
-                                BulkDeployDefinitionFormTag.TYPE_APPLYIES_TO_ALL_PROCESSES.equals(paramTypeApplying) ? categories : null);
+                                BulkDeployDefinitionFormTag.TYPE_APPLYIES_TO_ALL_PROCESSES.equals(paramTypeApplying) ? categories : null,
+                                null
+                        );
                         successKeys.add(entry.getKey());
                     } catch (Exception ex) {
                         addError(request, ex);
@@ -79,9 +80,7 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                 }
             }
             for (String key : successKeys) {
-                if (uploadedParFiles.containsKey(key)) {
-                    uploadedParFiles.remove(key);
-                }
+                uploadedParFiles.remove(key);
             }
             if (uploadedParFiles.isEmpty()) {
                 return getSuccessAction(mapping);

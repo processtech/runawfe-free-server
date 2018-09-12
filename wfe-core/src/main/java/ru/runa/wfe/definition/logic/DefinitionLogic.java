@@ -67,7 +67,11 @@ import ru.runa.wfe.var.VariableDefinition;
  */
 public class DefinitionLogic extends WfCommonLogic {
 
-    public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories) {
+    /**
+     * @param secondsBeforeArchiving
+     *              If null or negative, will be nulled in database (default will be used).
+     */
+    public WfDefinition deployProcessDefinition(User user, byte[] processArchiveBytes, List<String> categories, Integer secondsBeforeArchiving) {
         permissionDao.checkAllowed(user, Permission.CREATE, SecuredSingleton.DEFINITIONS);
         ProcessDefinition definition;
         try {
@@ -81,7 +85,11 @@ public class DefinitionLogic extends WfCommonLogic {
         } catch (DefinitionDoesNotExistException e) {
             // expected
         }
+        if (secondsBeforeArchiving != null && secondsBeforeArchiving < 0) {
+            secondsBeforeArchiving = null;
+        }
         definition.getDeployment().setCategories(categories);
+        definition.getDeployment().setSecondsBeforeArchiving(secondsBeforeArchiving);
         definition.getDeployment().setCreateDate(new Date());
         definition.getDeployment().setCreateActor(user.getActor());
         deploymentDao.deploy(definition.getDeployment(), null);
@@ -90,12 +98,22 @@ public class DefinitionLogic extends WfCommonLogic {
         return new WfDefinition(definition, permissionDao.isAllowed(user, Permission.START, definition.getDeployment()));
     }
 
-    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories) {
+    /**
+     * Redeploys process definition by name, by creating new definition version.
+     *
+     * @param secondsBeforeArchiving
+     *              If null, old value will be used (compatibility mode); if negative, will be nulled in database (default will be used).
+     */
+    public WfDefinition redeployProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes, List<String> categories,
+            Integer secondsBeforeArchiving) {
         Deployment oldDeployment = deploymentDao.getNotNull(definitionId);
         permissionDao.checkAllowed(user, Permission.UPDATE, oldDeployment);
         if (processArchiveBytes == null) {
-            Preconditions.checkNotNull(categories, "In mode 'update only categories' categories are required");
+            Preconditions.checkNotNull(categories, "In 'update only categories & properties' mode, categories are required");
             oldDeployment.setCategories(categories);
+            if (secondsBeforeArchiving != null) {
+                oldDeployment.setSecondsBeforeArchiving(secondsBeforeArchiving < 0 ? null : secondsBeforeArchiving);
+            }
             return getProcessDefinition(user, definitionId);
         }
         ProcessDefinition definition;
@@ -108,11 +126,18 @@ public class DefinitionLogic extends WfCommonLogic {
             throw new DefinitionNameMismatchException("Expected definition name " + oldDeployment.getName(), definition.getName(),
                     oldDeployment.getName());
         }
+
         if (categories != null) {
             definition.getDeployment().setCategories(categories);
         } else {
             definition.getDeployment().setCategory(oldDeployment.getCategory());
         }
+        if (secondsBeforeArchiving == null) {
+            definition.getDeployment().setSecondsBeforeArchiving(oldDeployment.getSecondsBeforeArchiving());
+        } else {
+            definition.getDeployment().setSecondsBeforeArchiving(secondsBeforeArchiving < 0 ? null : secondsBeforeArchiving);
+        }
+
         try {
             ProcessDefinition oldDefinition = parseProcessDefinition(oldDeployment.getContent());
             boolean containsAllPreviousComments = definition.getChanges().containsAll(oldDefinition.getChanges());
@@ -140,7 +165,7 @@ public class DefinitionLogic extends WfCommonLogic {
     }
 
     /**
-     * Updates process definition.
+     * Updates process definition, without incrementing version number.
      */
     public WfDefinition updateProcessDefinition(User user, Long definitionId, byte[] processArchiveBytes) {
         Preconditions.checkNotNull(processArchiveBytes, "processArchiveBytes is required!");
