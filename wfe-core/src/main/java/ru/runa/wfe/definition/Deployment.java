@@ -47,9 +47,9 @@ public class Deployment extends SecuredObject {
 
     /**
      * Seconds, not days -- for easier debugging.
-     * If null, use SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving().
+     * If null, use SystemProperties.getProcessDefaultSecondsBeforeArchiving().
      */
-    private Integer endedSecondsBeforeArchiving;
+    private Integer secondsBeforeArchiving;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sequence")
@@ -169,13 +169,13 @@ public class Deployment extends SecuredObject {
         this.subprocessBindingDate = subprocessBindingDate;
     }
 
-    @Column(name = "ENDED_SECONDS_BEFORE_ARCHIVING")
-    public Integer getEndedSecondsBeforeArchiving() {
-        return endedSecondsBeforeArchiving;
+    @Column(name = "SECONDS_BEFORE_ARCHIVING")
+    public Integer getSecondsBeforeArchiving() {
+        return secondsBeforeArchiving;
     }
 
-    public void setEndedSecondsBeforeArchiving(Integer endedDaysBeforeArchiving) {
-        this.endedSecondsBeforeArchiving = endedDaysBeforeArchiving;
+    public void setSecondsBeforeArchiving(Integer endedDaysBeforeArchiving) {
+        this.secondsBeforeArchiving = endedDaysBeforeArchiving;
     }
 
     @Transient

@@ -343,12 +343,12 @@ public class SystemProperties {
     /**
      * -1 means "disable archiving", see {@link #isProcessArchivingEnabled()}. Defaults to 1 year.
      */
-    public static int getProcessDefaultEndedSecondsBeforeArchiving() {
-        return RESOURCES.getIntegerProperty("process.default.ended.seconds.before.archiving", /*365 * 86400*/ 60);
+    public static int getProcessDefaultSecondsBeforeArchiving() {
+        return RESOURCES.getIntegerProperty("process.default.seconds.before.archiving", /*365 * 86400*/ 60);
     }
 
     public static boolean isProcessArchivingEnabled() {
-        return getProcessDefaultEndedSecondsBeforeArchiving() >= 0;
+        return getProcessDefaultSecondsBeforeArchiving() >= 0;
     }
 
     /**

@@ -86,7 +86,7 @@ public class ProcessArchiver {
         // There is no date / time / timestamp arithmetic in QueryDSL, neither in HQL / JPA. Must fallback to SQL.
         // And since this arithmetic is different for different SQL servers, have to switch on server type.
         DbType dbType = ApplicationContextFactory.getDBType();
-        int defaultEndedSecondsBeforeArchiving = SystemProperties.getProcessDefaultEndedSecondsBeforeArchiving();
+        int defaultSecondsBeforeArchiving = SystemProperties.getProcessDefaultSecondsBeforeArchiving();
 
         // Since we don't have true tree closure with (root_id, root_id, 0) record,
         // we must check archiving condition separately for root processes and their subprocesses.
@@ -100,7 +100,7 @@ public class ProcessArchiver {
                 "      not exists (select s.process_id from bpm_subprocess s where s.process_id = p.id) and " +
                 // Check condition for root processes:
                 "      p.execution_status = 'ENDED' and " +
-                "      " + generateEndDateCheckExpression("d", "p.end_date", dbType, defaultEndedSecondsBeforeArchiving) + " and " +
+                "      " + generateEndDateCheckExpression("d", "p.end_date", dbType, defaultSecondsBeforeArchiving) + " and " +
                 "      not exists (select t.process_id from bpm_task t where t.process_id = p.id) and " +
                 "      not exists (select j.process_id from bpm_job j where j.process_id = p.id) and " +
                 // Check no descendant processes exist that violate condition:
@@ -111,7 +111,7 @@ public class ProcessArchiver {
                 "          inner join bpm_process_definition d2 on (d2.id = p2.definition_id) " +
                 "          where s2.root_process_id = p.id and (" +
                 "                p2.execution_status <> 'ENDED' or " +
-                "                not(" + generateEndDateCheckExpression("d2", "p2.end_date", dbType, defaultEndedSecondsBeforeArchiving) + ") or " +
+                "                not(" + generateEndDateCheckExpression("d2", "p2.end_date", dbType, defaultSecondsBeforeArchiving) + ") or " +
                 "                exists (select t.process_id from bpm_task t where t.process_id = p2.id) or " +
                 "                exists (select j.process_id from bpm_job j where j.process_id = p2.id) " +
                 "          ) " +
@@ -132,11 +132,9 @@ public class ProcessArchiver {
      * @param definitionAlias E.g. "d".
      * @param endDateField E.g. "p.end_date" for process, or "t.end_date" for token.
      */
-    private String generateEndDateCheckExpression(
-            String definitionAlias, String endDateField, DbType dbType, int defaultEndedSecondsBeforeArchiving
-    ) {
+    private String generateEndDateCheckExpression(String definitionAlias, String endDateField, DbType dbType, int defaultSecondsBeforeArchiving) {
         // COALESCE function is the same in all supported SQL servers.
-        val seconds = "coalesce(" + definitionAlias + ".ended_seconds_before_archiving, " + defaultEndedSecondsBeforeArchiving + ")";
+        val seconds = "coalesce(" + definitionAlias + ".seconds_before_archiving, " + defaultSecondsBeforeArchiving + ")";
 
         switch (dbType) {
             case H2:
