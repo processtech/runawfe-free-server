@@ -10,11 +10,9 @@ import org.springframework.stereotype.Component;
 import ru.runa.wfe.commons.dao.ReadOnlyGenericDao;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.execution.ArchivedProcess;
-import ru.runa.wfe.execution.CurrentProcess;
 import ru.runa.wfe.execution.ProcessFilter;
 import ru.runa.wfe.execution.QArchivedProcess;
 import ru.runa.wfe.execution.QArchivedSwimlane;
-import ru.runa.wfe.execution.QCurrentProcess;
 import ru.runa.wfe.user.Executor;
 
 @Component

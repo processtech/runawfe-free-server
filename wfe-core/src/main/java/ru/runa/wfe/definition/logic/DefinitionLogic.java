@@ -280,10 +280,6 @@ public class DefinitionLogic extends WfCommonLogic {
 
     public void undeployProcessDefinition(User user, String definitionName, Long version) {
         Preconditions.checkNotNull(definitionName, "definitionName must be specified.");
-        Deployment d = deploymentDao.findDeployment(definitionName, version);
-        if (archivedProcessDao.processesExist(d)) {
-            throw new RuntimeException("Archived processes exist for definition id=" + d.getId());
-        }
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(definitionName);
         filter.setDefinitionVersion(version);
@@ -300,20 +296,27 @@ public class DefinitionLogic extends WfCommonLogic {
             permissionDao.deleteAllPermissions(latestDeployment);
             List<Deployment> deployments = deploymentDao.findAllDeploymentVersions(definitionName);
             for (Deployment deployment : deployments) {
+                checkCanRemoveDeployment(user, deployment);
+            }
+            for (Deployment deployment : deployments) {
                 removeDeployment(user, deployment);
             }
             log.info("Process definition " + latestDeployment + " successfully undeployed");
         } else {
             Deployment deployment = deploymentDao.findDeployment(definitionName, version);
+            checkCanRemoveDeployment(user, deployment);
             removeDeployment(user, deployment);
             log.info("Process definition " + deployment + " successfully undeployed");
         }
     }
 
-    private void removeDeployment(User user, Deployment deployment) {
-        if (archivedProcessDao.processesExist(deployment)) {
-            throw new RuntimeException("Archived processes exist for definition id=" + deployment.getId());
+    private void checkCanRemoveDeployment(User u, Deployment d) {
+        if (archivedProcessDao.processesExist(d)) {
+            throw new RuntimeException("Archived processes exist for definition id=" + d.getId());
         }
+    }
+
+    private void removeDeployment(User user, Deployment deployment) {
         List<CurrentProcess> processes = currentProcessDao.findAllProcesses(deployment.getId());
         for (CurrentProcess process : processes) {
             deleteProcess(user, process);
