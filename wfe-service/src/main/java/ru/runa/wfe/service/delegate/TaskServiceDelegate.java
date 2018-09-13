@@ -3,7 +3,6 @@ package ru.runa.wfe.service.delegate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.service.TaskService;
 import ru.runa.wfe.task.dto.WfTask;

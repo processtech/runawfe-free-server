@@ -140,7 +140,8 @@ public class TaskServiceBean implements TaskServiceLocal, TaskServiceRemote, Tas
     }
 
     @Override
-    public List<WfTask> getUnassignedTasks(@NonNull User user) {
+    @WebResult(name = "result")
+    public List<WfTask> getUnassignedTasks(@WebParam(name = "user") @NonNull User user) {
         return taskLogic.getUnassignedTasks(user);
     }
 }

@@ -89,6 +89,11 @@ public class TaskDao extends GenericDao<Task> {
         return queryFactory.selectFrom(t).where(t.executor.isNull().and(t.token.executionStatus.ne(ExecutionStatus.SUSPENDED))).fetch();
     }
 
+    public List<Task> findUnassignedTasks() {
+        QTask t = QTask.task;
+        return queryFactory.selectFrom(t).where(t.executor.isNull()).fetch();
+    }
+
     /**
      * @return tasks, opened by user.
      */
@@ -114,10 +119,5 @@ public class TaskDao extends GenericDao<Task> {
         log.debug("deleting tasks for process " + process.getId());
         val t = QTask.task;
         queryFactory.delete(t).where(t.process.eq(process)).execute();
-    }
-
-    public List<Task> findUnassignedTasks() {
-        QTask t = QTask.task;
-        return queryFactory.selectFrom(t).where(t.executor.isNull()).fetch();
     }
 }
