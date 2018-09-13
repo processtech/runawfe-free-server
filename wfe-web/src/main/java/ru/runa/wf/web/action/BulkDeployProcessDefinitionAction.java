@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.val;
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -23,6 +24,8 @@ import ru.runa.wfe.definition.dto.WfDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
+
+import static ru.runa.wf.web.tag.RedeployDefinitionFormTag.TYPE_DAYS_BEFORE_ARCHIVING;
 
 /**
  * Created on 26.05.2014
@@ -47,14 +50,25 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                 existingDefinitionsMap.put(definition.getName(), definition);
             }
             val successKeys = new ArrayList<String>();
+
             List<String> categories = CategoriesSelectUtils.extract(request);
+
+            String s = request.getParameter(TYPE_DAYS_BEFORE_ARCHIVING);
+            Integer secondsBeforeArchiving = StringUtils.isBlank(s) ? null : (int)(Double.parseDouble(s) * 86400);
+            if (secondsBeforeArchiving == null) {
+                // API does not change current value if we pass null;
+                // but form will show current value and user can edit / delete it, so if user deleted value, we must delete it too.
+                secondsBeforeArchiving = -1;
+            }
+
             for (Map.Entry<String, UploadedFile> entry : uploadedParFiles.entrySet()) {
                 UploadedFile uploadedFile = entry.getValue();
                 String existingDefinitionName = Files.getNameWithoutExtension(uploadedFile.getName());
                 boolean redeploy = existingDefinitionsMap.containsKey(existingDefinitionName);
                 if (!redeploy) {
                     try {
-                        Delegates.getDefinitionService().deployProcessDefinition(getLoggedUser(request), uploadedFile.getContent(), categories, null);
+                        Delegates.getDefinitionService().deployProcessDefinition(getLoggedUser(request), uploadedFile.getContent(), categories,
+                                secondsBeforeArchiving);
                         successKeys.add(entry.getKey());
                     } catch (DefinitionAlreadyExistException e) {
                         existingDefinitionName = e.getName();
@@ -71,7 +85,7 @@ public class BulkDeployProcessDefinitionAction extends ActionBase {
                                 definition.getId(),
                                 uploadedFile.getContent(),
                                 BulkDeployDefinitionFormTag.TYPE_APPLYIES_TO_ALL_PROCESSES.equals(paramTypeApplying) ? categories : null,
-                                null
+                                secondsBeforeArchiving
                         );
                         successKeys.add(entry.getKey());
                     } catch (Exception ex) {

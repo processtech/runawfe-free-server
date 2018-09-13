@@ -30,6 +30,8 @@ import ru.runa.common.web.form.FileForm;
 import ru.runa.wf.web.tag.RedeployDefinitionFormTag;
 import ru.runa.wfe.user.User;
 
+import static ru.runa.wf.web.tag.RedeployDefinitionFormTag.TYPE_DAYS_BEFORE_ARCHIVING;
+
 public abstract class BaseDeployProcessDefinitionAction extends ActionBase {
 
     protected abstract void doAction(User user, FileForm fileForm, boolean isUpdateCurrentVersion, List<String> categories,
@@ -39,7 +41,7 @@ public abstract class BaseDeployProcessDefinitionAction extends ActionBase {
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         boolean isUpdateCurrentVersion = request.getParameter(RedeployDefinitionFormTag.TYPE_UPDATE_CURRENT_VERSION) != null;
 
-        String s = request.getParameter("daysBeforeArchiving");
+        String s = request.getParameter(TYPE_DAYS_BEFORE_ARCHIVING);
         Integer secondsBeforeArchiving = StringUtils.isBlank(s) ? null : (int)(Double.parseDouble(s) * 86400);
         if (secondsBeforeArchiving == null) {
             // API does not change current value if we pass null;
