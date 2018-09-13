@@ -69,7 +69,7 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
         boolean assigned;
         if (Utils.isNullOrEmpty(swimlaneInitializer)) {
             log.debug("using process definition swimlane initializer");
-            SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
+            SwimlaneDefinition swimlaneDefinition = executionContext.getParsedProcessDefinition().getSwimlaneNotNull(swimlaneName);
             Swimlane swimlane = swimlaneDAO.findOrCreateInitialized(executionContext, swimlaneDefinition, true);
             assigned = swimlane.getExecutor() != null;
         } else {
@@ -83,7 +83,7 @@ public class AssignSwimlaneActionHandler extends ActionHandlerBase {
 
     private boolean assignSwimlane(ExecutionContext executionContext, String swimlaneName, String swimlaneInitializer) {
         List<? extends Executor> executors = SwimlaneInitializerHelper.evaluate(swimlaneInitializer, executionContext.getVariableProvider());
-        SwimlaneDefinition swimlaneDefinition = executionContext.getProcessDefinition().getSwimlaneNotNull(swimlaneName);
+        SwimlaneDefinition swimlaneDefinition = executionContext.getParsedProcessDefinition().getSwimlaneNotNull(swimlaneName);
         Swimlane swimlane = swimlaneDAO.findOrCreate(executionContext.getProcess(), swimlaneDefinition);
         return AssignmentHelper.assign(executionContext, swimlane, executors);
     }

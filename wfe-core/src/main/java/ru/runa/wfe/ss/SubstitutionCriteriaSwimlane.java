@@ -38,7 +38,7 @@ public class SubstitutionCriteriaSwimlane extends SubstitutionCriteria {
 
     @Override
     public boolean isSatisfied(ExecutionContext executionContext, Task task, Actor asActor, Actor substitutorActor) {
-        String processDefinitionName = executionContext.getProcessDefinition().getName();
+        String processDefinitionName = executionContext.getParsedProcessDefinition().getName();
         if (task.getSwimlane() == null) {
             return false;
         }

@@ -13,7 +13,7 @@ import ru.runa.wfe.audit.TransitionLog;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
 import ru.runa.wfe.lang.SubprocessNode;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -103,7 +103,7 @@ public class EmbeddedSubprocessLogsData {
         if (log instanceof NodeEnterLog && NodeType.SUBPROCESS == ((NodeEnterLog) log).getNodeType()) {
             SubprocessNode node = getSubprocessNode(log.getNodeId());
             if (node != null && node.isEmbedded()) {
-                SubprocessDefinition subprocessDefinition = processDefinitionData.getEmbeddedSubprocess(node.getSubProcessName());
+                ParsedSubprocessDefinition subprocessDefinition = processDefinitionData.getEmbeddedSubprocess(node.getSubProcessName());
                 String subProcessName = subprocessDefinition.getNodeId();
                 Stack<String> stack = new Stack<String>();
                 stack.push(subProcessName);
@@ -122,7 +122,7 @@ public class EmbeddedSubprocessLogsData {
         if (log instanceof NodeEnterLog && NodeType.SUBPROCESS == ((NodeEnterLog) log).getNodeType()) {
             SubprocessNode node = getSubprocessNode(log.getNodeId());
             if (node != null && node.isEmbedded()) {
-                SubprocessDefinition subprocessDefinition = processDefinitionData.getEmbeddedSubprocess(node.getSubProcessName());
+                ParsedSubprocessDefinition subprocessDefinition = processDefinitionData.getEmbeddedSubprocess(node.getSubProcessName());
                 String newSubprocessName = subprocessDefinition.getNodeId();
                 stack.push(newSubprocessName);
             }

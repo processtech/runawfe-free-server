@@ -57,7 +57,7 @@ import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.AsyncCompletionMode;
 import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.lang.Synchronizable;
 import ru.runa.wfe.security.SecuredObjectBase;
@@ -69,7 +69,7 @@ import ru.runa.wfe.user.TemporaryGroup;
 import ru.runa.wfe.user.dao.ExecutorDAO;
 
 /**
- * Is one execution of a {@link ru.runa.wfe.lang.ProcessDefinition}.
+ * Is one execution of a {@link ParsedProcessDefinition}.
  */
 @Entity
 @Table(name = "BPM_PROCESS")
@@ -210,7 +210,7 @@ public class Process extends SecuredObjectBase {
         Errors.removeProcessErrors(id);
         TaskCompletionInfo taskCompletionInfo = TaskCompletionInfo.createForProcessEnd(id);
         // end the main path of execution
-        rootToken.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
+        rootToken.end(executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true);
         // mark this process as ended
         setEndDate(new Date());
         setExecutionStatus(ExecutionStatus.ENDED);
@@ -219,8 +219,8 @@ public class Process extends SecuredObjectBase {
         NodeProcess parentNodeProcess = executionContext.getParentNodeProcess();
         if (parentNodeProcess != null && !parentNodeProcess.getParentToken().hasEnded()) {
             IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
-            ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
-            Node node = parentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
+            ParsedProcessDefinition parsedParentProcessDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
+            Node node = parsedParentProcessDefinition.getNodeNotNull(parentNodeProcess.getNodeId());
             Synchronizable synchronizable = (Synchronizable) node;
             if (!synchronizable.isAsync()) {
                 log.info("Signalling to parent " + parentNodeProcess.getProcess());
@@ -241,7 +241,7 @@ public class Process extends SecuredObjectBase {
         ApplicationContextFactory.getTaskDAO().flushPendingChanges();
         boolean activeSuperProcessExists = parentNodeProcess != null && !parentNodeProcess.getProcess().hasEnded();
         for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(this)) {
-            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getProcessDefinition().getNodeNotNull(task.getNodeId());
+            BaseTaskNode taskNode = (BaseTaskNode) executionContext.getParsedProcessDefinition().getNodeNotNull(task.getNodeId());
             if (taskNode.isAsync()) {
                 switch (taskNode.getCompletionMode()) {
                 case NEVER:
@@ -298,13 +298,13 @@ public class Process extends SecuredObjectBase {
         if (subprocesses.size() > 0) {
             IProcessDefinitionLoader processDefinitionLoader = ApplicationContextFactory.getProcessDefinitionLoader();
             for (Process subProcess : subprocesses) {
-                ProcessDefinition subProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
-                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subProcess);
+                ParsedProcessDefinition parsedSubProcessDefinition = processDefinitionLoader.getDefinition(subProcess);
+                ExecutionContext subExecutionContext = new ExecutionContext(parsedSubProcessDefinition, subProcess);
 
                 endSubprocessAndTasksOnMainProcessEndRecursively(subExecutionContext, canceller);
 
                 for (Task task : ApplicationContextFactory.getTaskDAO().findByProcess(subProcess)) {
-                    BaseTaskNode taskNode = (BaseTaskNode) subProcessDefinition.getNodeNotNull(task.getNodeId());
+                    BaseTaskNode taskNode = (BaseTaskNode) parsedSubProcessDefinition.getNodeNotNull(task.getNodeId());
                     if (taskNode.isAsync()) {
                         switch (taskNode.getCompletionMode()) {
                         case NEVER:
@@ -318,7 +318,7 @@ public class Process extends SecuredObjectBase {
 
                 if (!subProcess.hasEnded()) {
                     NodeProcess nodeProcess = ApplicationContextFactory.getNodeProcessDAO().findBySubProcessId(subProcess.getId());
-                    SubprocessNode subprocessNode = (SubprocessNode) executionContext.getProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
+                    SubprocessNode subprocessNode = (SubprocessNode) executionContext.getParsedProcessDefinition().getNodeNotNull(nodeProcess.getNodeId());
                     if (subprocessNode.getCompletionMode() == AsyncCompletionMode.ON_MAIN_PROCESS_END) {
                         subProcess.end(subExecutionContext, canceller);
                     }

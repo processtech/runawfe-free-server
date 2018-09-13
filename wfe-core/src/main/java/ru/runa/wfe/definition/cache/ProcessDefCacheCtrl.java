@@ -11,7 +11,7 @@ import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.DeploymentVersion;
 import ru.runa.wfe.definition.dao.DeploymentDAO;
 import ru.runa.wfe.definition.dao.DeploymentVersionDAO;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache> implements DefinitionCache {
 
@@ -31,17 +31,17 @@ class ProcessDefCacheCtrl extends BaseCacheCtrl<ManageableProcessDefinitionCache
     }
 
     @Override
-    public ProcessDefinition getDefinition(long deploymentVersionId) throws DefinitionDoesNotExistException {
-        return CachingLogic.getCacheImpl(stateMachine).getDefinition(deploymentDAO, deploymentVersionDAO, deploymentVersionId);
+    public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) throws DefinitionDoesNotExistException {
+        return CachingLogic.getCacheImpl(stateMachine).getDefinition(deploymentDAO, deploymentVersionDAO, processDefinitionVersionId);
     }
 
     @Override
-    public ProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
+    public ParsedProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException {
         return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(deploymentDAO, deploymentVersionDAO, definitionName);
     }
 
     @Override
-    public ProcessDefinition getLatestDefinition(long deploymentId) throws DefinitionDoesNotExistException {
+    public ParsedProcessDefinition getLatestDefinition(long deploymentId) throws DefinitionDoesNotExistException {
         return CachingLogic.getCacheImpl(stateMachine).getLatestDefinition(deploymentDAO, deploymentVersionDAO, deploymentId);
     }
 

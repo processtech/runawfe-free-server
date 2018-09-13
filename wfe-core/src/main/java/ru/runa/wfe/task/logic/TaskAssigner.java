@@ -11,7 +11,7 @@ import ru.runa.wfe.extension.AssignmentHandler;
 import ru.runa.wfe.extension.assign.AssignmentException;
 import ru.runa.wfe.extension.assign.NoExecutorAssignedException;
 import ru.runa.wfe.lang.Delegation;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.task.Task;
 
 @CommonsLog
@@ -22,11 +22,11 @@ public class TaskAssigner {
     public boolean assignTask(Task task) {
         ProcessError processError = new ProcessError(ProcessErrorType.assignment, task.getProcess().getId(), task.getNodeId());
         try {
-            ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(task.getProcess());
+            ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(task.getProcess());
             if (task.getSwimlane() != null) {
-                Delegation delegation = processDefinition.getSwimlaneNotNull(task.getSwimlane().getName()).getDelegation();
+                Delegation delegation = parsedProcessDefinition.getSwimlaneNotNull(task.getSwimlane().getName()).getDelegation();
                 AssignmentHandler handler = delegation.getInstance();
-                handler.assign(new ExecutionContext(processDefinition, task), task);
+                handler.assign(new ExecutionContext(parsedProcessDefinition, task), task);
             }
             if (task.getExecutor() != null) {
                 Errors.removeProcessError(processError);

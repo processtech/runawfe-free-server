@@ -30,7 +30,7 @@ import ru.runa.wfe.execution.IExecutionContextFactory;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.ClassPresentationType;
 import ru.runa.wfe.presentation.FieldDescriptor;
@@ -123,8 +123,8 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
                     !openedTasks.contains(state.getTask().getId()));
             if (!Utils.isNullOrEmpty(variableNames)) {
                 Process process = state.getTask().getProcess();
-                ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
-                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
+                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process.getDeploymentVersion().getId());
+                ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process, variables, false);
                 for (String variableName : variableNames) {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
                 }
@@ -153,8 +153,8 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
                     !openedTasks.contains(state.getTask().getId()));
             if (!Utils.isNullOrEmpty(variableNames)) {
                 Process process = state.getTask().getProcess();
-                ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process.getDeployment().getId());
-                ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
+                ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process.getDeploymentVersion().getId());
+                ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process, variables, false);
                 for (String variableName : variableNames) {
                     wfTask.addVariable(executionContext.getVariableProvider().getVariable(variableName));
                 }
@@ -406,9 +406,9 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
             return null;
         }
         Executor taskExecutor = task.getExecutor();
-        ProcessDefinition processDefinition;
+        ParsedProcessDefinition parsedProcessDefinition;
         try {
-            processDefinition = processDefinitionLoader.getDefinition(task.getProcess());
+            parsedProcessDefinition = processDefinitionLoader.getDefinition(task.getProcess());
         } catch (DefinitionDoesNotExistException e) {
             log.warn(String.format("getAcceptableTask: not found definition for task: %s with process: %s", task, task.getProcess()));
             return null;
@@ -417,11 +417,11 @@ public class TaskListBuilder implements ITaskListBuilder, IObservableTaskListBui
             log.debug(String.format("getAcceptableTask: task: %s is acquired by membership rules", task));
             return new TaskInListState(task, actor, false);
         }
-        if (processDefinition.ignoreSubsitutionRulesForTask(task)) {
+        if (parsedProcessDefinition.ignoreSubsitutionRulesForTask(task)) {
             log.debug(String.format("getAcceptableTask: task: %s is ignored due to ignore subsitution rule", task));
             return null;
         }
-        return getAcceptableTask(task, actor, batchPresentation, executionContextFactory.createExecutionContext(processDefinition, task));
+        return getAcceptableTask(task, actor, batchPresentation, executionContextFactory.createExecutionContext(parsedProcessDefinition, task));
     }
 
     protected TaskInListState getAcceptableTask(Task task, Actor actor, BatchPresentation batchPresentation, ExecutionContext executionContext) {

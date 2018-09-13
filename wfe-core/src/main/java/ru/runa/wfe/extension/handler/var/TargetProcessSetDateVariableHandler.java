@@ -8,7 +8,7 @@ import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.commons.ftl.ExpressionEvaluator;
 import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.IVariableProvider;
 
 import com.google.common.base.Objects;
@@ -24,8 +24,8 @@ public class TargetProcessSetDateVariableHandler extends SetDateVariableHandler 
     protected Map<String, Object> executeAction(IVariableProvider variableProvider) throws Exception {
         Long processId = variableProvider.getValueNotNull(Long.class, ((TargetProcessSetDateVariableConfig) config).processIdVariableName);
         Process process = ApplicationContextFactory.getProcessDAO().getNotNull(processId);
-        ProcessDefinition processDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
-        ExecutionContext context = new ExecutionContext(processDefinition, process);
+        ParsedProcessDefinition parsedProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(process);
+        ExecutionContext context = new ExecutionContext(parsedProcessDefinition, process);
         Map<String, Object> map = super.executeAction(context.getVariableProvider());
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             context.setVariableValue(entry.getKey(), entry.getValue());

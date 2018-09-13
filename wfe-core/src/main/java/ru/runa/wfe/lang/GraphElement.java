@@ -48,7 +48,7 @@ public abstract class GraphElement implements Serializable, Cloneable {
     protected String name;
     protected String description;
     @XmlTransient
-    protected ProcessDefinition processDefinition;
+    protected ParsedProcessDefinition parsedProcessDefinition;
     @XmlTransient
     protected GraphElement parentElement;
     @XmlTransient
@@ -82,12 +82,12 @@ public abstract class GraphElement implements Serializable, Cloneable {
         this.description = null == description ? null : description.intern();
     }
 
-    public void setProcessDefinition(ProcessDefinition processDefinition) {
-        this.processDefinition = processDefinition;
+    public void setParsedProcessDefinition(ParsedProcessDefinition parsedProcessDefinition) {
+        this.parsedProcessDefinition = parsedProcessDefinition;
     }
 
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        return parsedProcessDefinition;
     }
 
     public int[] getGraphConstraints() {
@@ -157,7 +157,7 @@ public abstract class GraphElement implements Serializable, Cloneable {
     }
 
     public GraphElement getParentElement() {
-        return parentElement != null ? parentElement : processDefinition;
+        return parentElement != null ? parentElement : parsedProcessDefinition;
     }
 
     public void setParentElement(GraphElement parentElement) {

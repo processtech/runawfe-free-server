@@ -24,7 +24,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import ru.runa.wfe.commons.Utils;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.format.FormatCommons;
 import ru.runa.wfe.var.format.UserTypeFormat;
 import ru.runa.wfe.var.format.VariableFormat;
@@ -90,11 +90,11 @@ public class VariableDefinition implements Serializable {
         setDefaultValue(attributeDefinition.getDefaultValue());
     }
 
-    public void initComponentUserTypes(ProcessDefinition processDefinition) {
+    public void initComponentUserTypes(ParsedProcessDefinition parsedProcessDefinition) {
         String[] componentFormats = getFormatComponentClassNames();
         this.formatComponentUserTypes = new UserType[componentFormats.length];
         for (int i = 0; i < componentFormats.length; i++) {
-            this.formatComponentUserTypes[i] = processDefinition.getUserType(componentFormats[i]);
+            this.formatComponentUserTypes[i] = parsedProcessDefinition.getUserType(componentFormats[i]);
         }
     }
 

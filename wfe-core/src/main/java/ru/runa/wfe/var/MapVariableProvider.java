@@ -8,7 +8,7 @@ import ru.runa.wfe.execution.ConvertToSimpleVariables;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesContext;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesResult;
 import ru.runa.wfe.execution.ConvertToSimpleVariablesUnrollContext;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.dto.Variables;
 import ru.runa.wfe.var.dto.WfVariable;
 
@@ -17,13 +17,13 @@ import com.google.common.collect.Maps;
 public class MapVariableProvider extends AbstractVariableProvider {
     protected final Map<String, Object> values = Maps.newHashMap();
     // TODO 2505 seems ugly; try to extract ProcessDefinitionMapVariableProvider for that case
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
 
     public MapVariableProvider(Map<String, ? extends Object> variables) {
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) variables).entrySet()) {
             add(entry.getKey(), entry.getValue());
         }
-        processDefinition = null;
+        parsedProcessDefinition = null;
     }
 
     /**
@@ -33,11 +33,11 @@ public class MapVariableProvider extends AbstractVariableProvider {
      *            Variables, accessible from this instance.
      * @param unroll
      *            Flag, equals true, if variables must be unrolled to database related (simple) values and false otherwise.
-     * @param processDefinition
+     * @param parsedProcessDefinition
      *            Process definition, for return process related info from variable provider.
      */
-    public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll, ProcessDefinition processDefinition) {
-        this.processDefinition = processDefinition;
+    public MapVariableProvider(Map<String, WfVariable> variables, boolean unroll, ParsedProcessDefinition parsedProcessDefinition) {
+        this.parsedProcessDefinition = parsedProcessDefinition;
         for (Map.Entry<String, WfVariable> entry : variables.entrySet()) {
             values.put(entry.getKey(), entry.getValue());
             if (unroll) {
@@ -97,17 +97,17 @@ public class MapVariableProvider extends AbstractVariableProvider {
 
     @Override
     public Long getDeploymentVersionId() {
-        return processDefinition == null ? null : processDefinition.getId();
+        return parsedProcessDefinition == null ? null : parsedProcessDefinition.getId();
     }
 
     @Override
     public String getProcessDefinitionName() {
-        return processDefinition == null ? null : processDefinition.getName();
+        return parsedProcessDefinition == null ? null : parsedProcessDefinition.getName();
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition == null ? null : processDefinition;
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        return parsedProcessDefinition == null ? null : parsedProcessDefinition;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class MapVariableProvider extends AbstractVariableProvider {
 
     @Override
     public UserType getUserType(String name) {
-        return processDefinition == null ? null : processDefinition.getUserType(name);
+        return parsedProcessDefinition == null ? null : parsedProcessDefinition.getUserType(name);
     }
 
     @Override

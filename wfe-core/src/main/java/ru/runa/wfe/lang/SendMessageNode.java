@@ -54,7 +54,7 @@ public class SendMessageNode extends BaseMessageNode {
         variables.put(Variables.CURRENT_PROCESS_ID, executionContext.getProcess().getId());
         // back compatibility
         variables.put("currentInstanceId", executionContext.getProcess().getId());
-        variables.put(Variables.CURRENT_PROCESS_DEFINITION_NAME, executionContext.getProcessDefinition().getName());
+        variables.put(Variables.CURRENT_PROCESS_DEFINITION_NAME, executionContext.getParsedProcessDefinition().getName());
         variables.put(Variables.CURRENT_NODE_NAME, executionContext.getNode().getName());
         variables.put(Variables.CURRENT_NODE_ID, executionContext.getNode().getNodeId());
         MapDelegableVariableProvider variableProvider = new MapDelegableVariableProvider(variables, executionContext.getVariableProvider());

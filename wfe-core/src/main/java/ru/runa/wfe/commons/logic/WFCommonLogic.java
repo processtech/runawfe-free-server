@@ -41,7 +41,7 @@ import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.graph.view.NodeGraphElementBuilder;
 import ru.runa.wfe.graph.view.NodeGraphElementVisitor;
 import ru.runa.wfe.job.dao.JobDAO;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.AuthorizationException;
 import ru.runa.wfe.ss.logic.SubstitutionLogic;
 import ru.runa.wfe.task.Task;
@@ -89,29 +89,29 @@ public class WFCommonLogic extends CommonLogic {
     @Autowired
     protected SystemLogDAO systemLogDAO;
 
-    public ProcessDefinition getDefinition(long deploymentVersionId) {
-        return processDefinitionLoader.getDefinition(deploymentVersionId);
+    public ParsedProcessDefinition getDefinition(long processDefinitionVersionId) {
+        return processDefinitionLoader.getDefinition(processDefinitionVersionId);
     }
 
-    public ProcessDefinition getDefinition(Process process) {
+    public ParsedProcessDefinition getDefinition(Process process) {
         return processDefinitionLoader.getDefinition(process);
     }
 
-    public ProcessDefinition getDefinition(Task task) {
+    public ParsedProcessDefinition getDefinition(Task task) {
         return getDefinition(task.getProcess());
     }
 
-    protected ProcessDefinition getLatestDefinition(String definitionName) {
+    protected ParsedProcessDefinition getLatestDefinition(String definitionName) {
         return processDefinitionLoader.getLatestDefinition(definitionName);
     }
 
-    protected ProcessDefinition getLatestDefinition(long deploymentId) {
+    protected ParsedProcessDefinition getLatestDefinition(long deploymentId) {
         return processDefinitionLoader.getLatestDefinition(deploymentId);
     }
 
     protected void validateVariables(User user, ExecutionContext executionContext, IVariableProvider variableProvider,
-            ProcessDefinition processDefinition, String nodeId, Map<String, Object> variables) throws ValidationException {
-        Interaction interaction = processDefinition.getInteractionNotNull(nodeId);
+            ParsedProcessDefinition parsedProcessDefinition, String nodeId, Map<String, Object> variables) throws ValidationException {
+        Interaction interaction = parsedProcessDefinition.getInteractionNotNull(nodeId);
         if (interaction.getValidationData() != null) {
             ValidatorContext context = ValidatorManager.getInstance().validate(user, executionContext, variableProvider,
                     interaction.getValidationData(), variables);
@@ -215,7 +215,7 @@ public class WFCommonLogic extends CommonLogic {
      *            Operation, which must be applied to loaded graph elements, or null, if nothing to apply.
      * @return List of graph presentation elements.
      */
-    protected List<NodeGraphElement> getDefinitionGraphElements(ProcessDefinition definition, NodeGraphElementVisitor visitor) {
+    protected List<NodeGraphElement> getDefinitionGraphElements(ParsedProcessDefinition definition, NodeGraphElementVisitor visitor) {
         List<NodeGraphElement> elements = NodeGraphElementBuilder.createElements(definition);
         if (visitor != null) {
             visitor.visit(elements);

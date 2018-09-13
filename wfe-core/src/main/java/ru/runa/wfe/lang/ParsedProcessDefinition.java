@@ -46,7 +46,7 @@ import ru.runa.wfe.var.format.ListFormat;
 import ru.runa.wfe.var.format.LongFormat;
 import ru.runa.wfe.var.format.VariableFormatContainer;
 
-public class ProcessDefinition extends GraphElement implements IFileDataProvider {
+public class ParsedProcessDefinition extends GraphElement implements IFileDataProvider {
     private static final long serialVersionUID = 1L;
     // TODO remove association for efficiency
     protected Deployment deployment;
@@ -61,21 +61,21 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     protected final List<VariableDefinition> variables = Lists.newArrayList();
     protected final Map<String, VariableDefinition> variablesMap = Maps.newHashMap();
     protected ProcessDefinitionAccessType accessType = ProcessDefinitionAccessType.Process;
-    protected Map<String, SubprocessDefinition> embeddedSubprocesses = Maps.newHashMap();
+    protected Map<String, ParsedSubprocessDefinition> embeddedSubprocesses = Maps.newHashMap();
     private Boolean nodeAsyncExecution;
     private boolean graphActionsEnabled;
     private final List<ProcessDefinitionChange> changes = Lists.newArrayList();
 
-    protected ProcessDefinition() {
+    protected ParsedProcessDefinition() {
     }
 
-    public ProcessDefinition(@NonNull Deployment d, @NonNull DeploymentVersion dv) {
+    public ParsedProcessDefinition(@NonNull Deployment d, @NonNull DeploymentVersion dv) {
         this.deployment = d;
         this.deploymentVersion = dv;
-        processDefinition = this;
+        parsedProcessDefinition = this;
     }
 
-    public ProcessDefinition(DeploymentWithVersion dwv) {
+    public ParsedProcessDefinition(DeploymentWithVersion dwv) {
         this(dwv.deployment, dwv.deploymentVersion);
     }
 
@@ -281,12 +281,12 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     }
 
     public byte[] getGraphImageBytesNotNull() {
-        byte[] graphBytes = processDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
+        byte[] graphBytes = parsedProcessDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_NEW_FILE_NAME);
         if (graphBytes == null) {
-            graphBytes = processDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
+            graphBytes = parsedProcessDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_OLD2_FILE_NAME);
         }
         if (graphBytes == null) {
-            graphBytes = processDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
+            graphBytes = parsedProcessDefinition.getFileData(IFileDataProvider.GRAPH_IMAGE_OLD1_FILE_NAME);
         }
         if (graphBytes == null) {
             throw new InternalApplicationException("No process graph image file found in process definition");
@@ -312,7 +312,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     public List<Node> getNodes(boolean withEmbeddedSubprocesses) {
         List<Node> result = Lists.newArrayList(nodes);
         if (withEmbeddedSubprocesses) {
-            for (SubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+            for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
                 result.addAll(subprocessDefinition.getNodes(withEmbeddedSubprocesses));
             }
         }
@@ -322,7 +322,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
     public Node addNode(Node node) {
         Preconditions.checkArgument(node != null, "can't add a null node to a processdefinition");
         nodes.add(node);
-        node.processDefinition = this;
+        node.parsedProcessDefinition = this;
         if (node instanceof StartNode) {
             if (startNode != null) {
                 throw new InvalidDefinitionException(getName(), "only one start-state allowed in a process");
@@ -343,7 +343,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
                 return node;
             }
         }
-        for (SubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+        for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
             Node node = subprocessDefinition.getNode(id);
             if (node != null) {
                 return node;
@@ -376,7 +376,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
                 return swimlaneDefinition;
             }
         }
-        for (SubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+        for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
             GraphElement graphElement = subprocessDefinition.getGraphElement(id);
             if (graphElement != null) {
                 return graphElement;
@@ -446,7 +446,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         this.graphActionsEnabled = graphActionsEnabled;
     }
 
-    public void addEmbeddedSubprocess(SubprocessDefinition subprocessDefinition) {
+    public void addEmbeddedSubprocess(ParsedSubprocessDefinition subprocessDefinition) {
         embeddedSubprocesses.put(subprocessDefinition.getNodeId(), subprocessDefinition);
     }
 
@@ -469,7 +469,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
                 }
             }
         }
-        for (SubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
+        for (ParsedSubprocessDefinition subprocessDefinition : embeddedSubprocesses.values()) {
             String nodeId = subprocessDefinition.getEmbeddedSubprocessNodeId(subprocessName);
             if (nodeId != null) {
                 return nodeId;
@@ -486,12 +486,12 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         return subprocessNodeId;
     }
 
-    public Map<String, SubprocessDefinition> getEmbeddedSubprocesses() {
+    public Map<String, ParsedSubprocessDefinition> getEmbeddedSubprocesses() {
         return embeddedSubprocesses;
     }
 
-    public SubprocessDefinition getEmbeddedSubprocessByIdNotNull(String id) {
-        SubprocessDefinition subprocessDefinition = getEmbeddedSubprocesses().get(id);
+    public ParsedSubprocessDefinition getEmbeddedSubprocessByIdNotNull(String id) {
+        ParsedSubprocessDefinition subprocessDefinition = getEmbeddedSubprocesses().get(id);
         if (subprocessDefinition == null) {
             throw new InternalApplicationException(
                     "Embedded subprocess definition not found by id '" + id + "' in " + this + ", all = " + getEmbeddedSubprocesses().keySet());
@@ -499,8 +499,8 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
         return subprocessDefinition;
     }
 
-    public SubprocessDefinition getEmbeddedSubprocessByNameNotNull(String name) {
-        for (SubprocessDefinition subprocessDefinition : getEmbeddedSubprocesses().values()) {
+    public ParsedSubprocessDefinition getEmbeddedSubprocessByNameNotNull(String name) {
+        for (ParsedSubprocessDefinition subprocessDefinition : getEmbeddedSubprocesses().values()) {
             if (Objects.equal(name, subprocessDefinition.getName())) {
                 return subprocessDefinition;
             }
@@ -514,7 +514,7 @@ public class ProcessDefinition extends GraphElement implements IFileDataProvider
             if (node instanceof SubprocessNode) {
                 SubprocessNode subprocessNode = (SubprocessNode) node;
                 if (subprocessNode.isEmbedded()) {
-                    SubprocessDefinition subprocessDefinition = getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName());
+                    ParsedSubprocessDefinition subprocessDefinition = getEmbeddedSubprocessByNameNotNull(subprocessNode.getSubProcessName());
                     EmbeddedSubprocessStartNode startNode = subprocessDefinition.getStartStateNotNull();
                     for (Transition transition : subprocessNode.getArrivingTransitions()) {
                         startNode.addArrivingTransition(transition);

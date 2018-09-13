@@ -1,6 +1,6 @@
 package ru.runa.wfe.var;
 
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
 
 public class DelegableVariableProvider extends AbstractVariableProvider {
@@ -27,9 +27,9 @@ public class DelegableVariableProvider extends AbstractVariableProvider {
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
+    public ParsedProcessDefinition getParsedProcessDefinition() {
         if (delegate != null) {
-            return delegate.getProcessDefinition();
+            return delegate.getParsedProcessDefinition();
         }
         return null;
     }

@@ -40,7 +40,7 @@ public class ParallelGateway extends Node {
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
         Token token = executionContext.getToken();
-        token.end(executionContext.getProcessDefinition(), null, null, false);
+        token.end(executionContext.getParsedProcessDefinition(), null, null, false);
         log.debug("Executing " + this + " with " + token);
         StateInfo stateInfo = findStateInfo(executionContext.getProcess().getRootToken(), true);
         switch (stateInfo.state) {
@@ -51,7 +51,7 @@ public class ParallelGateway extends Node {
             }
             if (getArrivingTransitions().size() > 1 && token.getParent() != null) {
                 Token parentToken = token.getParent();
-                leave(new ExecutionContext(executionContext.getProcessDefinition(), parentToken));
+                leave(new ExecutionContext(executionContext.getParsedProcessDefinition(), parentToken));
             } else {
                 leave(executionContext);
             }
@@ -90,7 +90,7 @@ public class ParallelGateway extends Node {
         ApplicationContextFactory.getTokenDAO().flushPendingChanges();
         log.debug("Child tokens created: " + childTokens.keySet());
         for (Map.Entry<Token, Transition> entry : childTokens.entrySet()) {
-            ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), entry.getKey());
+            ExecutionContext childExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), entry.getKey());
             super.leave(childExecutionContext, entry.getValue());
         }
     }
@@ -213,7 +213,7 @@ public class ParallelGateway extends Node {
                                 tokenToPop.setAbleToReactivateParent(false);
                             }
                             Token parentToken = stateInfo.tokensToPop.get(0).getParent();
-                            gateway.leave(new ExecutionContext(gateway.getProcessDefinition(), parentToken));
+                            gateway.leave(new ExecutionContext(gateway.getParsedProcessDefinition(), parentToken));
                             break;
                         }
                         case WAITING: {
@@ -276,7 +276,7 @@ public class ParallelGateway extends Node {
                                 tokenToPop.setExecutionStatus(ExecutionStatus.ENDED);
                             }
                             Token parentToken = stateInfo.tokensToPop.get(0).getParent();
-                            gateway.leave(new ExecutionContext(gateway.getProcessDefinition(), parentToken));
+                            gateway.leave(new ExecutionContext(gateway.getParsedProcessDefinition(), parentToken));
                             break;
                         }
                         case WAITING: {

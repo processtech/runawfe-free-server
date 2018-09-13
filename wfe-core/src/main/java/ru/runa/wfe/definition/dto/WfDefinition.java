@@ -27,7 +27,7 @@ import ru.runa.wfe.definition.DeploymentVersion;
 import ru.runa.wfe.definition.DeploymentWithVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionAccessType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.SecuredObject;
 import ru.runa.wfe.security.SecuredObjectType;
 import ru.runa.wfe.user.Actor;
@@ -37,7 +37,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     private static final long serialVersionUID = -6032491529439317948L;
 
     /**
-     * In fact, this is deploymentVersionId. But I cannot change structure which is part of the API.
+     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
      */
     private Long id;
 
@@ -76,7 +76,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
         this(dwv.deployment, dwv.deploymentVersion);
     }
 
-    public WfDefinition(ProcessDefinition pd, boolean canBeStarted) {
+    public WfDefinition(ParsedProcessDefinition pd, boolean canBeStarted) {
         this(pd.getDeployment(), pd.getDeploymentVersion());
         hasHtmlDescription = pd.getFileData(IFileDataProvider.INDEX_FILE_NAME) != null;
         hasStartImage = pd.getFileData(IFileDataProvider.START_IMAGE_FILE_NAME) != null;
@@ -96,7 +96,7 @@ public class WfDefinition extends SecuredObject implements Comparable<WfDefiniti
     }
 
     /**
-     * In fact, this is deploymentVersionId. But I cannot change structure which is part of the API.
+     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
      */
     public Long getId() {
         return id;

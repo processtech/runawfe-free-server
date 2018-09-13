@@ -189,7 +189,7 @@ public abstract class Node extends GraphElement {
                 Token eventToken = new Token(executionContext.getToken(), boundaryNode.getNodeId());
                 eventToken.setNodeId(boundaryNode.getNodeId());
                 eventToken.setNodeType(boundaryNode.getNodeType());
-                ExecutionContext eventExecutionContext = new ExecutionContext(getProcessDefinition(), eventToken);
+                ExecutionContext eventExecutionContext = new ExecutionContext(getParsedProcessDefinition(), eventToken);
                 ((Node) boundaryEvent).handle(eventExecutionContext);
             }
         }
@@ -205,8 +205,8 @@ public abstract class Node extends GraphElement {
         if (asyncExecution != null) {
             return asyncExecution;
         }
-        if (executionContext.getProcessDefinition().getNodeAsyncExecution() != null) {
-            return executionContext.getProcessDefinition().getNodeAsyncExecution();
+        if (executionContext.getParsedProcessDefinition().getNodeAsyncExecution() != null) {
+            return executionContext.getParsedProcessDefinition().getNodeAsyncExecution();
         }
         return SystemProperties.isProcessExecutionNodeAsyncEnabled(getNodeType());
     }
@@ -244,12 +244,12 @@ public abstract class Node extends GraphElement {
         }
         if (this instanceof BoundaryEvent && Boolean.TRUE.equals(((BoundaryEvent) this).getBoundaryEventInterrupting())) {
             Token parentToken = executionContext.getToken().getParent();
-            ((Node) getParentElement()).onBoundaryEvent(executionContext.getProcessDefinition(), parentToken, (BoundaryEvent) this);
+            ((Node) getParentElement()).onBoundaryEvent(executionContext.getParsedProcessDefinition(), parentToken, (BoundaryEvent) this);
             for (Token token : parentToken.getActiveChildren()) {
                 if (Objects.equal(token, executionContext.getToken())) {
                     continue;
                 }
-                token.end(executionContext.getProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true);
+                token.end(executionContext.getParsedProcessDefinition(), null, ((BoundaryEvent) this).getTaskCompletionInfoIfInterrupting(), true);
             }
         }
         Token token = executionContext.getToken();
@@ -296,9 +296,9 @@ public abstract class Node extends GraphElement {
         if (this instanceof BoundaryEventContainer && !(this instanceof EmbeddedSubprocessStartNode)) {
             List<BoundaryEvent> boundaryEvents = ((BoundaryEventContainer) this).getBoundaryEvents();
             for (Token token : executionContext.getToken().getActiveChildren()) {
-                Node node = token.getNodeNotNull(executionContext.getProcessDefinition());
+                Node node = token.getNodeNotNull(executionContext.getParsedProcessDefinition());
                 if (boundaryEvents.contains(node)) {
-                    token.end(executionContext.getProcessDefinition(), null, null, false);
+                    token.end(executionContext.getParsedProcessDefinition(), null, null, false);
                 }
             }
         }
@@ -308,7 +308,7 @@ public abstract class Node extends GraphElement {
         return true;
     }
 
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
-        token.end(processDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
+    protected void onBoundaryEvent(ParsedProcessDefinition parsedProcessDefinition, Token token, BoundaryEvent boundaryEvent) {
+        token.end(parsedProcessDefinition, null, boundaryEvent.getTaskCompletionInfoIfInterrupting(), false);
     }
 }

@@ -38,6 +38,7 @@ public interface TDBuilder {
 
         final class IdentitySecuredObjectExtractor<T extends SecuredObject> implements SecuredObjectExtractor {
             @Override
+            @SuppressWarnings("unchecked")
             public SecuredObject getSecuredObject(Object o, Env env) {
                 return (T)o;
             }
@@ -55,7 +56,7 @@ public interface TDBuilder {
 
         boolean isAllowed(Permission permission, ru.runa.common.web.html.TDBuilder.Env.SecuredObjectExtractor extractor);
 
-        boolean hasProcessDefinitionPermission(Permission permission, Long deploymentVersionId);
+        boolean hasProcessDefinitionPermission(Permission permission, Long processDefinitionVersionId);
 
     }
 

@@ -6,7 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.Variable;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -38,7 +38,7 @@ public abstract class VariableLoader {
     /**
      * Load variable.
      *
-     * @param processDefinition
+     * @param parsedProcessDefinition
      *            Process definition.
      * @param process
      *            Process instance for loading variable from.
@@ -46,18 +46,18 @@ public abstract class VariableLoader {
      *            Loading variable name.
      * @return Loaded variable or null if no such variable defined.
      */
-    public WfVariable getVariable(ProcessDefinition processDefinition, Process process, String variableName) {
-        VariableDefinition variableDefinition = processDefinition.getVariable(variableName, false);
+    public WfVariable getVariable(ParsedProcessDefinition parsedProcessDefinition, Process process, String variableName) {
+        VariableDefinition variableDefinition = parsedProcessDefinition.getVariable(variableName, false);
         if (variableDefinition != null) {
-            Object variableValue = getVariableValue(processDefinition, process, variableDefinition);
+            Object variableValue = getVariableValue(parsedProcessDefinition, process, variableDefinition);
             if (variableValue == null && SystemProperties.isV4ListVariableCompatibilityMode()
                     && variableName.endsWith(VariableFormatContainer.COMPONENT_QUALIFIER_END)) {
                 int startQualifierIndex = variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_START);
                 int endQualifierIndex = variableName.indexOf(VariableFormatContainer.COMPONENT_QUALIFIER_END);
                 String listVariableName = variableName.substring(0, startQualifierIndex);
                 int listIndex = Integer.parseInt(variableName.substring(startQualifierIndex + 1, endQualifierIndex));
-                VariableDefinition listVariableDefinition = processDefinition.getVariable(listVariableName, false);
-                List<Object> list = (List<Object>) getVariableValue(processDefinition, process, listVariableDefinition);
+                VariableDefinition listVariableDefinition = parsedProcessDefinition.getVariable(listVariableName, false);
+                List<Object> list = (List<Object>) getVariableValue(parsedProcessDefinition, process, listVariableDefinition);
                 if (list != null) {
                     if (list.size() > listIndex) {
                         variableValue = list.get(listIndex);
@@ -79,7 +79,7 @@ public abstract class VariableLoader {
     /**
      * Load variable value.
      *
-     * @param processDefinition
+     * @param parsedProcessDefinition
      *            Process definition.
      * @param process
      *            Process instance for loading variable from.
@@ -87,8 +87,8 @@ public abstract class VariableLoader {
      *            Loading variable name.
      * @return Loaded variable value or null.
      */
-    private Object getVariableValue(ProcessDefinition processDefinition, Process process, VariableDefinition variableDefinition) {
-        LoadVariableOfTypeContext context = new LoadVariableOfTypeContext(processDefinition, process, this, variableDefinition);
+    private Object getVariableValue(ParsedProcessDefinition parsedProcessDefinition, Process process, VariableDefinition variableDefinition) {
+        LoadVariableOfTypeContext context = new LoadVariableOfTypeContext(parsedProcessDefinition, process, this, variableDefinition);
         switch (variableDefinition.getStoreType()) {
         case BLOB:
             return new LoadVariableOfType().onOther(variableDefinition.getFormatNotNull(), context);

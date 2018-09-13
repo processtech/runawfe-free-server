@@ -15,7 +15,7 @@ import ru.runa.wfe.commons.SystemProperties;
 import ru.runa.wfe.commons.dao.LocalizationDAO;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableStoreType;
@@ -49,26 +49,26 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
     }
 
     @Override
-    public void readFromArchive(ProcessArchive archive, ProcessDefinition processDefinition) {
-        byte[] xml = processDefinition.getFileDataNotNull(IFileDataProvider.VARIABLES_XML_FILE_NAME);
+    public void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition) {
+        byte[] xml = parsedProcessDefinition.getFileDataNotNull(IFileDataProvider.VARIABLES_XML_FILE_NAME);
         Document document = XmlUtils.parseWithoutValidation(xml);
         Element root = document.getRootElement();
         List<Element> typeElements = document.getRootElement().elements(USER_TYPE);
         for (Element typeElement : typeElements) {
             UserType type = new UserType(typeElement.attributeValue(NAME));
-            processDefinition.addUserType(type);
+            parsedProcessDefinition.addUserType(type);
         }
         for (Element typeElement : typeElements) {
-            UserType type = processDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
+            UserType type = parsedProcessDefinition.getUserTypeNotNull(typeElement.attributeValue(NAME));
             List<Element> attributeElements = typeElement.elements(VARIABLE);
             for (Element element : attributeElements) {
-                VariableDefinition variableDefinition = parse(processDefinition, element);
+                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
                 type.addAttribute(variableDefinition);
             }
         }
-        for (UserType userType : processDefinition.getUserTypes()) {
+        for (UserType userType : parsedProcessDefinition.getUserTypes()) {
             for (VariableDefinition variableDefinition : userType.getAttributes()) {
-                parseDefaultValue(processDefinition, variableDefinition);
+                parseDefaultValue(parsedProcessDefinition, variableDefinition);
             }
         }
         List<Element> variableElements = root.elements(VARIABLE);
@@ -77,16 +77,16 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             if (swimlane) {
                 String name = element.attributeValue(NAME);
                 String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
-                processDefinition.setSwimlaneScriptingName(name, scriptingName);
+                parsedProcessDefinition.setSwimlaneScriptingName(name, scriptingName);
             } else {
-                VariableDefinition variableDefinition = parse(processDefinition, element);
-                parseDefaultValue(processDefinition, variableDefinition);
-                processDefinition.addVariable(variableDefinition);
+                VariableDefinition variableDefinition = parse(parsedProcessDefinition, element);
+                parseDefaultValue(parsedProcessDefinition, variableDefinition);
+                parsedProcessDefinition.addVariable(variableDefinition);
             }
         }
     }
 
-    private VariableDefinition parse(ProcessDefinition processDefinition, Element element) {
+    private VariableDefinition parse(ParsedProcessDefinition parsedProcessDefinition, Element element) {
         String name = element.attributeValue(NAME);
         String scriptingName = element.attributeValue(SCRIPTING_NAME, name);
         VariableDefinition variableDefinition = new VariableDefinition(name, scriptingName);
@@ -94,7 +94,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         String userTypeName = element.attributeValue(USER_TYPE);
         if (userTypeName != null) {
             variableDefinition.setFormat(userTypeName);
-            variableDefinition.setUserType(processDefinition.getUserTypeNotNull(userTypeName));
+            variableDefinition.setUserType(parsedProcessDefinition.getUserTypeNotNull(userTypeName));
         } else {
             String format = element.attributeValue(FORMAT);
             format = BackCompatibilityClassNames.getClassName(format);
@@ -118,7 +118,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
             }
             variableDefinition.setFormatLabel(formatLabel);
         }
-        variableDefinition.initComponentUserTypes(processDefinition);
+        variableDefinition.initComponentUserTypes(parsedProcessDefinition);
         variableDefinition.setPublicAccess(Boolean.parseBoolean(element.attributeValue(PUBLIC, "false")));
         variableDefinition.setDefaultValue(element.attributeValue(DEFAULT_VALUE));
         String storeTypeString = element.attributeValue(STORE_TYPE);
@@ -128,7 +128,7 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
         return variableDefinition;
     }
 
-    private void parseDefaultValue(ProcessDefinition processDefinition, VariableDefinition variableDefinition) {
+    private void parseDefaultValue(ParsedProcessDefinition parsedProcessDefinition, VariableDefinition variableDefinition) {
         String stringDefaultValue = (String) variableDefinition.getDefaultValue();
         if (!Strings.isNullOrEmpty(stringDefaultValue)) {
             try {
@@ -138,10 +138,11 @@ public class VariableDefinitionParser implements ProcessArchiveParser {
                 variableDefinition.setDefaultValue(value);
             } catch (Exception e) {
                 if (!SystemProperties.isVariablesInvalidDefaultValuesAllowed()
-                        || processDefinition.getDeployment().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())) {
+                        || parsedProcessDefinition.getDeploymentVersion().getCreateDate().after(SystemProperties.getVariablesInvalidDefaultValuesAllowedBefore())
+                ) {
                     throw new InternalApplicationException("Unable to parse default value '" + stringDefaultValue + "'", e);
                 } else {
-                    log.error("Unable to format default value '" + stringDefaultValue + "' in " + processDefinition + ":" + variableDefinition, e);
+                    log.error("Unable to format default value '" + stringDefaultValue + "' in " + parsedProcessDefinition + ":" + variableDefinition, e);
                 }
             }
         }

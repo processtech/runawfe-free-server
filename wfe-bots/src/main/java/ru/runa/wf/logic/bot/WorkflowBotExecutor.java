@@ -40,8 +40,8 @@ import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.execution.dto.WfProcess;
 import ru.runa.wfe.lang.EmbeddedSubprocessEndNode;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.delegate.Delegates;
@@ -157,13 +157,13 @@ public class WorkflowBotExecutor {
                     }
                 } else {
                     if (StringUtils.startsWith(task.getNodeId(), IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX)) {
-                        ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user,
+                        ParsedProcessDefinition parsedProcessDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user,
                                 task.getDefinitionId());
-                        Node taskNode = processDefinition.getNode(task.getNodeId());
+                        Node taskNode = parsedProcessDefinition.getNode(task.getNodeId());
 
-                        SubprocessDefinition subprocessDefinition = (SubprocessDefinition) taskNode.getProcessDefinition();
-                        String embeddedSubprocessNodeId = processDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
-                        SubprocessNode subprocessNode = (SubprocessNode) processDefinition.getNode(embeddedSubprocessNodeId);
+                        ParsedSubprocessDefinition subprocessDefinition = (ParsedSubprocessDefinition) taskNode.getParsedProcessDefinition();
+                        String embeddedSubprocessNodeId = parsedProcessDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
+                        SubprocessNode subprocessNode = (SubprocessNode) parsedProcessDefinition.getNode(embeddedSubprocessNodeId);
 
                         if (subprocessNode.isTransactional()) {
                             bot.bindToEmbeddedSubprocess(task.getProcessId(), subprocessDefinition.getNodeId());
@@ -226,8 +226,8 @@ public class WorkflowBotExecutor {
         if (process.isEnded()) {
             return true;
         }
-        ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
-        SubprocessDefinition subprocessDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
+        ParsedProcessDefinition parsedProcessDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
+        ParsedSubprocessDefinition subprocessDefinition = parsedProcessDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
         List<EmbeddedSubprocessEndNode> endNodes = subprocessDefinition.getEndNodes();
 
         for (EmbeddedSubprocessEndNode endNode : endNodes) {
@@ -246,9 +246,9 @@ public class WorkflowBotExecutor {
         Preconditions.checkArgument(isBotBoundToEmbeddedSubprocess());
 
         WfProcess process = Delegates.getExecutionService().getProcess(user, bot.getBoundProcessId());
-        ProcessDefinition processDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
-        SubprocessDefinition subprocessDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
-        final String embeddedSubprocessNodeId = processDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
+        ParsedProcessDefinition parsedProcessDefinition = Delegates.getDefinitionService().getParsedProcessDefinition(user, process.getDefinitionId());
+        ParsedSubprocessDefinition subprocessDefinition = parsedProcessDefinition.getEmbeddedSubprocessByIdNotNull(bot.getBoundSubprocessId());
+        final String embeddedSubprocessNodeId = parsedProcessDefinition.getEmbeddedSubprocessNodeIdNotNull(subprocessDefinition.getName());
 
         new TransactionalExecutor() {
 

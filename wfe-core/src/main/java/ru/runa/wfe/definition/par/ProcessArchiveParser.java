@@ -21,11 +21,11 @@
  */
 package ru.runa.wfe.definition.par;
 
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public interface ProcessArchiveParser {
 
-    void readFromArchive(ProcessArchive archive, ProcessDefinition processDefinition);
+    void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition);
 
     boolean isApplicableToEmbeddedSubprocess();
     

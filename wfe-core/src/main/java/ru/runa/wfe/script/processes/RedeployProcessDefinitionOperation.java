@@ -31,7 +31,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     public String name;
 
     @XmlAttribute(name = AdminScriptConstants.DEFINITION_ID_ATTRIBUTE_NAME)
-    public Long deploymentVersionId;
+    public Long processDefinitionVersionId;
 
     @XmlAttribute(name = AdminScriptConstants.FILE_ATTRIBUTE_NAME, required = true)
     public String file;
@@ -40,7 +40,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     public void validate(ScriptExecutionContext context) {
         ScriptValidation.requiredAttribute(this, AdminScriptConstants.FILE_ATTRIBUTE_NAME, file);
         if (Strings.isNullOrEmpty(name)) {
-            if (deploymentVersionId == null) {
+            if (processDefinitionVersionId == null) {
                 throw new ScriptValidationException(this, "Required definition name or id");
             }
         } else {
@@ -51,7 +51,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
     @Override
     public void execute(ScriptExecutionContext context) {
         if (!Strings.isNullOrEmpty(name)) {
-            deploymentVersionId = ApplicationContextFactory.getDeploymentDAO().findLatestDeployment(name).deploymentVersion.getId();
+            processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findLatestDeployment(name).deploymentVersion.getId();
         }
         List<String> parsedType = null;
         if (Strings.isNullOrEmpty(type)) {
@@ -59,7 +59,7 @@ public class RedeployProcessDefinitionOperation extends ScriptOperation {
         }
         try {
             byte[] scriptBytes = Files.toByteArray(new File(file));
-            context.getDefinitionLogic().redeployProcessDefinition(context.getUser(), deploymentVersionId, scriptBytes, parsedType);
+            context.getDefinitionLogic().redeployProcessDefinition(context.getUser(), processDefinitionVersionId, scriptBytes, parsedType);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }

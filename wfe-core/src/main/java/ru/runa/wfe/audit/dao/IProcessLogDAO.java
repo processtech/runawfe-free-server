@@ -5,14 +5,14 @@ import java.util.List;
 import ru.runa.wfe.audit.ProcessLog;
 import ru.runa.wfe.audit.ProcessLogFilter;
 import ru.runa.wfe.commons.dao.IGenericDAO;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public interface IProcessLogDAO<T extends ProcessLog> extends IGenericDAO<T> {
 
     /**
      * @return process logs for embedded subprocess or for main process without embedded subprocesses.
      */
-    public List<T> get(Long processId, ProcessDefinition definition);
+    public List<T> get(Long processId, ParsedProcessDefinition definition);
 
     /**
      * @return process logs.

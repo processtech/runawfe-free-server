@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import ru.runa.wfe.execution.ExecutionStatus;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.dto.WfNode;
 
 import com.google.common.base.Objects;
@@ -51,14 +51,14 @@ public class WfToken implements Serializable {
     public WfToken() {
     }
 
-    public WfToken(Token token, ProcessDefinition processDefinition) {
+    public WfToken(Token token, ParsedProcessDefinition parsedProcessDefinition) {
         parentId = token.getParent() != null ? token.getParent().getId() : null;
         id = token.getId();
         processId = token.getProcess().getId();
         name = token.getName();
         startDate = token.getStartDate();
         endDate = token.getEndDate();
-        node = new WfNode(token.getNodeNotNull(processDefinition));
+        node = new WfNode(token.getNodeNotNull(parsedProcessDefinition));
         transitionId = token.getTransitionId();
         executionStatus = token.getExecutionStatus();
         errorDate = token.getErrorDate();

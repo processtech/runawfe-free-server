@@ -103,19 +103,19 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         this.asyncCompletionMode = completionMode;
     }
 
-    protected ProcessDefinition getSubProcessDefinition() {
-        long version = getProcessDefinition().getDeploymentVersion().getVersion();
+    protected ParsedProcessDefinition getSubProcessDefinition() {
+        long version = getParsedProcessDefinition().getDeploymentVersion().getVersion();
         if (version < 0) {
             DeploymentWithVersion dwv = ApplicationContextFactory.getDeploymentDAO().findDeployment(subProcessName, version);
             return processDefinitionLoader.getDefinition(dwv.deploymentVersion.getId());
         }
-        Date beforeDate = getProcessDefinition().getDeploymentVersion().getSubprocessBindingDate();
+        Date beforeDate = getParsedProcessDefinition().getDeploymentVersion().getSubprocessBindingDate();
         if (beforeDate != null) {
-            Long deploymentVersionId = ApplicationContextFactory.getDeploymentDAO().findDeploymentVersionIdLatestVersionBeforeDate(subProcessName, beforeDate);
-            if (deploymentVersionId == null) {
+            Long processDefinitionVersionId = ApplicationContextFactory.getDeploymentDAO().findDeploymentVersionIdLatestVersionBeforeDate(subProcessName, beforeDate);
+            if (processDefinitionVersionId == null) {
                 throw new InternalApplicationException("No definition \"" + subProcessName + "\" found before " + CalendarUtil.formatDateTime(beforeDate));
             }
-            return processDefinitionLoader.getDefinition(deploymentVersionId);
+            return processDefinitionLoader.getDefinition(processDefinitionVersionId);
         }
         return processDefinitionLoader.getLatestDefinition(subProcessName);
     }
@@ -127,17 +127,17 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
         }
         val map = new HashMap<String, Object>();
         map.put(Variables.CURRENT_PROCESS_ID_WRAPPED, executionContext.getProcess().getId());
-        map.put(Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED, executionContext.getProcessDefinition().getName());
+        map.put(Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED, executionContext.getParsedProcessDefinition().getName());
         map.put(Variables.CURRENT_NODE_NAME_WRAPPED, executionContext.getNode().getName());
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
         val variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
         val variables = new HashMap<String, Object>();
         boolean baseProcessIdMode = isInBaseProcessIdMode();
-        ProcessDefinition subProcessDefinition = getSubProcessDefinition();
+        ParsedProcessDefinition parsedSubProcessDefinition = getSubProcessDefinition();
         for (VariableMapping variableMapping : variableMappings) {
             String variableName = variableMapping.getName();
             String mappedName = variableMapping.getMappedName();
-            boolean isSwimlane = subProcessDefinition.getSwimlane(mappedName) != null;
+            boolean isSwimlane = parsedSubProcessDefinition.getSwimlane(mappedName) != null;
             if (isSwimlane && variableMapping.isSyncable()) {
                 throw new InternalApplicationException("Sync mode does not supported for swimlane " + mappedName);
             }
@@ -157,8 +157,8 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
                 }
             }
         }
-        Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, 0);
-        processFactory.startSubprocess(executionContext, new ExecutionContext(subProcessDefinition, subProcess));
+        Process subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, 0);
+        processFactory.startSubprocess(executionContext, new ExecutionContext(parsedSubProcessDefinition, subProcess));
         if (async) {
             log.debug("continue execution in async " + this);
             leave(executionContext);
@@ -197,7 +197,7 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
 
     protected ExecutionContext getParentExecutionContext(ExecutionContext subExecutionContext) {
         NodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
-        ProcessDefinition superDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
+        ParsedProcessDefinition superDefinition = processDefinitionLoader.getDefinition(parentNodeProcess.getProcess());
         return new ExecutionContext(superDefinition, parentNodeProcess.getParentToken());
     }
 
@@ -207,10 +207,10 @@ public class SubprocessNode extends VariableContainerNode implements Synchroniza
     }
 
     @Override
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
-        super.onBoundaryEvent(processDefinition, token, boundaryEvent);
+    protected void onBoundaryEvent(ParsedProcessDefinition parsedProcessDefinition, Token token, BoundaryEvent boundaryEvent) {
+        super.onBoundaryEvent(parsedProcessDefinition, token, boundaryEvent);
         if (async) {
-            List<Process> processes = new ExecutionContext(processDefinition, token).getTokenSubprocesses();
+            List<Process> processes = new ExecutionContext(parsedProcessDefinition, token).getTokenSubprocesses();
             for (Process process : processes) {
                 if (process.hasEnded()) {
                     continue;

@@ -39,8 +39,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 import lombok.extern.apachecommons.CommonsLog;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
@@ -278,11 +276,11 @@ public class Task implements Assignable {
             // do the actual assignment
             setExecutor(executor);
             setAssignDate(new Date());
-            InteractionNode node = (InteractionNode) executionContext.getProcessDefinition().getNodeNotNull(nodeId);
-            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
+            InteractionNode node = (InteractionNode) executionContext.getParsedProcessDefinition().getNodeNotNull(nodeId);
+            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), this);
             node.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_ASSIGN);
             for (ITaskNotifier notifier : ApplicationContextFactory.getTaskNotifiers()) {
-                notifier.onTaskAssigned(executionContext.getProcessDefinition(), executionContext.getVariableProvider(), this, previousExecutor);
+                notifier.onTaskAssigned(executionContext.getParsedProcessDefinition(), executionContext.getVariableProvider(), this, previousExecutor);
             }
         }
         if (cascadeUpdate && swimlane != null) {
@@ -320,7 +318,7 @@ public class Task implements Assignable {
             throw new IllegalArgumentException("Unimplemented for " + completionInfo.getCompletionBy());
         }
         if (completionInfo.getCompletionBy() != TaskCompletionBy.PROCESS_END) {
-            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getProcessDefinition(), this);
+            ExecutionContext taskExecutionContext = new ExecutionContext(executionContext.getParsedProcessDefinition(), this);
             taskNode.getFirstTaskNotNull().fireEvent(taskExecutionContext, ActionEvent.TASK_END);
         }
         delete();

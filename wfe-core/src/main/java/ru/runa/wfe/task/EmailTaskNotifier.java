@@ -14,7 +14,7 @@ import ru.runa.wfe.commons.email.EmailConfig;
 import ru.runa.wfe.commons.email.EmailConfigParser;
 import ru.runa.wfe.commons.email.EmailUtils;
 import ru.runa.wfe.form.Interaction;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.security.auth.UserHolder;
 import ru.runa.wfe.task.logic.ITaskNotifier;
 import ru.runa.wfe.user.Executor;
@@ -75,13 +75,13 @@ public class EmailTaskNotifier implements ITaskNotifier {
     }
 
     @Override
-    public void onTaskAssigned(ProcessDefinition processDefinition, IVariableProvider variableProvider, Task task, Executor previousExecutor) {
+    public void onTaskAssigned(ParsedProcessDefinition parsedProcessDefinition, IVariableProvider variableProvider, Task task, Executor previousExecutor) {
         if (!enabled || configBytes == null) {
             return;
         }
         try {
             log.debug("About " + task + " assigned to " + task.getExecutor() + ", previous: " + previousExecutor);
-            final String processName = task.getProcess().getDeployment().getName();
+            final String processName = task.getProcess().getDeploymentVersion().getDeployment().getName();
             if (!EmailUtils.isProcessNameMatching(processName, includeProcessNameFilter, excludeProcessNameFilter)) {
                 log.debug("Ignored due to excluded process name " + processName);
                 return;
@@ -100,7 +100,7 @@ public class EmailTaskNotifier implements ITaskNotifier {
                 return;
             }
             String emails = EmailUtils.concatenateEmails(emailsToSend);
-            Interaction interaction = processDefinition.getInteractionNotNull(task.getNodeId());
+            Interaction interaction = parsedProcessDefinition.getInteractionNotNull(task.getNodeId());
             Map<String, Object> map = Maps.newHashMap();
             map.put("interaction", interaction);
             map.put("task", task);

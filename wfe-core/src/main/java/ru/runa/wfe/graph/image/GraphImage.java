@@ -36,32 +36,32 @@ import ru.runa.wfe.graph.DrawProperties;
 import ru.runa.wfe.graph.RenderHits;
 import ru.runa.wfe.graph.image.figure.AbstractFigure;
 import ru.runa.wfe.graph.image.figure.TransitionFigure;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 import com.google.common.base.Throwables;
 
 public class GraphImage {
     private static final String FORMAT = "png";
     private BufferedImage origImage = null;
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
     private final Map<TransitionFigure, RenderHits> transitions;
     private final Map<AbstractFigure, RenderHits> nodes;
     private final boolean useEdgingOnly = DrawProperties.useEdgingOnly();
 
-    public GraphImage(ProcessDefinition processDefinition, Map<TransitionFigure, RenderHits> transitions, Map<AbstractFigure, RenderHits> nodes) {
+    public GraphImage(ParsedProcessDefinition parsedProcessDefinition, Map<TransitionFigure, RenderHits> transitions, Map<AbstractFigure, RenderHits> nodes) {
         try {
-            origImage = ImageIO.read(new ByteArrayInputStream(processDefinition.getGraphImageBytesNotNull()));
+            origImage = ImageIO.read(new ByteArrayInputStream(parsedProcessDefinition.getGraphImageBytesNotNull()));
         } catch (IOException e) {
             Throwables.propagate(e);
         }
-        this.processDefinition = processDefinition;
+        this.parsedProcessDefinition = parsedProcessDefinition;
         this.transitions = transitions;
         this.nodes = nodes;
     }
 
     public byte[] getImageBytes() throws IOException {
-        int width = processDefinition.getGraphConstraints()[2];
-        int height = processDefinition.getGraphConstraints()[3];
+        int width = parsedProcessDefinition.getGraphConstraints()[2];
+        int height = parsedProcessDefinition.getGraphConstraints()[3];
         BufferedImage resultImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = resultImage.createGraphics();
 
@@ -86,7 +86,7 @@ public class GraphImage {
             if (entry.getValue().isActive()) {
                 lineWidth *= 2;
             }
-            if (processDefinition.getDeployment().getLanguage() == Language.BPMN2) {
+            if (parsedProcessDefinition.getDeployment().getLanguage() == Language.BPMN2) {
                 lineWidth *= 2;
             }
             entry.getKey().setRenderHits(entry.getValue());

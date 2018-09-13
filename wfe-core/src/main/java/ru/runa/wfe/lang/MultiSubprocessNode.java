@@ -53,7 +53,7 @@ public class MultiSubprocessNode extends SubprocessNode {
         Parameters parameters = MultiinstanceUtils.parse(executionContext, this);
         List<Object> data = TypeConversionUtil.convertTo(List.class, parameters.getDiscriminatorValue());
         List<Process> subProcesses = Lists.newArrayList();
-        ProcessDefinition subProcessDefinition = getSubProcessDefinition();
+        ParsedProcessDefinition parsedSubProcessDefinition = getSubProcessDefinition();
         List<Integer> ignoredIndexes = Lists.newArrayList();
         if (!Utils.isNullOrEmpty(discriminatorCondition)) {
             GroovyScriptExecutor scriptExecutor = new GroovyScriptExecutor();
@@ -70,7 +70,7 @@ public class MultiSubprocessNode extends SubprocessNode {
         }
         Map<String, Object> map = Maps.newHashMap();
         map.put(Variables.CURRENT_PROCESS_ID_WRAPPED, executionContext.getProcess().getId());
-        map.put(Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED, executionContext.getProcessDefinition().getName());
+        map.put(Variables.CURRENT_PROCESS_DEFINITION_NAME_WRAPPED, executionContext.getParsedProcessDefinition().getName());
         map.put(Variables.CURRENT_NODE_NAME_WRAPPED, executionContext.getNode().getName());
         map.put(Variables.CURRENT_NODE_ID_WRAPPED, executionContext.getNode().getNodeId());
         IVariableProvider variableProvider = new MapDelegableVariableProvider(map, executionContext.getVariableProvider());
@@ -90,7 +90,7 @@ public class MultiSubprocessNode extends SubprocessNode {
             for (VariableMapping variableMapping : variableMappings) {
                 String variableName = variableMapping.getName();
                 String mappedName = variableMapping.getMappedName();
-                boolean isSwimlane = subProcessDefinition.getSwimlane(mappedName) != null;
+                boolean isSwimlane = parsedSubProcessDefinition.getSwimlane(mappedName) != null;
                 if (isSwimlane && variableMapping.isSyncable()) {
                     throw new InternalApplicationException("Sync mode does not supported for swimlane " + mappedName);
                 }
@@ -115,11 +115,11 @@ public class MultiSubprocessNode extends SubprocessNode {
                     }
                 }
             }
-            Process subProcess = processFactory.createSubprocess(executionContext, subProcessDefinition, variables, index);
+            Process subProcess = processFactory.createSubprocess(executionContext, parsedSubProcessDefinition, variables, index);
             subProcesses.add(subProcess);
         }
         for (Process subprocess : subProcesses) {
-            ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocess);
+            ExecutionContext subExecutionContext = new ExecutionContext(parsedSubProcessDefinition, subprocess);
             processFactory.startSubprocess(executionContext, subExecutionContext);
         }
         MultiinstanceUtils.autoExtendContainerVariables(executionContext, getVariableMappings(), data.size());
@@ -186,7 +186,7 @@ public class MultiSubprocessNode extends SubprocessNode {
             List<Process> subprocesses = nodeProcessDAO.getSubprocesses(executionContext.getProcess(), executionContext.getToken().getNodeId(),
                     executionContext.getToken(), null);
             if (!subprocesses.isEmpty()) {
-                ProcessDefinition subProcessDefinition = getSubProcessDefinition();
+                ParsedProcessDefinition parsedSubProcessDefinition = getSubProcessDefinition();
                 for (VariableMapping variableMapping : variableMappings) {
                     // if this variable access is writable
                     if (variableMapping.isWritable()) {
@@ -197,12 +197,12 @@ public class MultiSubprocessNode extends SubprocessNode {
                         if (variable == null || variable.getDefinition().getFormatNotNull() instanceof ListFormat) {
                             value = new ArrayList<Object>();
                             for (Process subprocess : subprocesses) {
-                                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocess);
+                                ExecutionContext subExecutionContext = new ExecutionContext(parsedSubProcessDefinition, subprocess);
                                 ((List<Object>) value).add(subExecutionContext.getVariableValue(subprocessVariableName));
                             }
                         } else {
                             if (subprocesses.size() > 0) {
-                                ExecutionContext subExecutionContext = new ExecutionContext(subProcessDefinition, subprocesses.get(0));
+                                ExecutionContext subExecutionContext = new ExecutionContext(parsedSubProcessDefinition, subprocesses.get(0));
                                 value = subExecutionContext.getVariableValue(subprocessVariableName);
                             } else {
                                 value = null;

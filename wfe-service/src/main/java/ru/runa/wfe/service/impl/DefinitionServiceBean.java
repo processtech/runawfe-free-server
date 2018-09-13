@@ -38,7 +38,7 @@ import ru.runa.wfe.definition.logic.DefinitionLogic;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.dto.WfNode;
 import ru.runa.wfe.presentation.BatchPresentation;
@@ -74,28 +74,28 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @Override
     @WebResult(name = "result")
     public WfDefinition redeployProcessDefinition(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId, @WebParam(name = "par") byte[] par,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId, @WebParam(name = "par") byte[] par,
             @WebParam(name = "categories") List<String> categories) {
-        return definitionLogic.redeployProcessDefinition(user, deploymentVersionId, par, categories);
+        return definitionLogic.redeployProcessDefinition(user, processDefinitionVersionId, par, categories);
     }
 
     @Override
     @WebResult(name = "result")
     public WfDefinition updateProcessDefinition(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
             @WebParam(name = "processArchive") @NonNull byte[] processArchive
     ) {
-        return definitionLogic.updateProcessDefinition(user, deploymentVersionId, processArchive);
+        return definitionLogic.updateProcessDefinition(user, processDefinitionVersionId, processArchive);
     }
 
     @Override
     public void setProcessDefinitionSubprocessBindingDate(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
             @WebParam(name = "date") Date date
     ) throws DefinitionDoesNotExistException {
-        definitionLogic.setProcessDefinitionSubprocessBindingDate(user, deploymentVersionId, date);
+        definitionLogic.setProcessDefinitionSubprocessBindingDate(user, processDefinitionVersionId, date);
     }
 
     @Override
@@ -116,25 +116,25 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @Override
     @WebResult(name = "result")
     public WfDefinition getProcessDefinition(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId) {
-        return definitionLogic.getProcessDefinition(user, deploymentVersionId);
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId) {
+        return definitionLogic.getProcessDefinition(user, processDefinitionVersionId);
     }
 
     @Override
     @WebResult(name = "result")
-    public ProcessDefinition getParsedProcessDefinition(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId) {
-        return definitionLogic.getParsedProcessDefinition(user, deploymentVersionId);
+    public ParsedProcessDefinition getParsedProcessDefinition(@WebParam(name = "user") @NonNull User user,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId) {
+        return definitionLogic.getParsedProcessDefinition(user, processDefinitionVersionId);
     }
 
     @Override
     @WebResult(name = "result")
     public WfNode getNode(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
             @WebParam(name = "nodeId") @NonNull String nodeId
     ) {
-        ProcessDefinition pd = definitionLogic.getDefinition(deploymentVersionId);
+        ParsedProcessDefinition pd = definitionLogic.getDefinition(processDefinitionVersionId);
         Node node = pd.getNode(nodeId);
         if (node != null) {
             return new WfNode(node);
@@ -179,19 +179,19 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @WebResult(name = "result")
     public Interaction getStartInteraction(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId
     ) {
-        return definitionLogic.getStartInteraction(user, deploymentVersionId);
+        return definitionLogic.getStartInteraction(user, processDefinitionVersionId);
     }
 
     @Override
     @WebResult(name = "result")
     public Interaction getTaskNodeInteraction(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
             @NonNull String nodeId
     ) {
-        ProcessDefinition pd = definitionLogic.getDefinition(deploymentVersionId);
+        ParsedProcessDefinition pd = definitionLogic.getDefinition(processDefinitionVersionId);
         return pd.getInteractionNotNull(nodeId);
     }
 
@@ -199,20 +199,20 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @WebResult(name = "result")
     public byte[] getProcessDefinitionFile(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
             @WebParam(name = "fileName") @NonNull String fileName
     ) {
-        return definitionLogic.getFile(user, deploymentVersionId, fileName);
+        return definitionLogic.getFile(user, processDefinitionVersionId, fileName);
     }
 
     @Override
     @WebResult(name = "result")
     public byte[] getProcessDefinitionGraph(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
             @WebParam(name = "subprocessId") String subprocessId
     ) {
-        return definitionLogic.getGraph(user, deploymentVersionId, subprocessId);
+        return definitionLogic.getGraph(user, processDefinitionVersionId, subprocessId);
     }
 
     @Override
@@ -226,44 +226,44 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @WebResult(name = "result")
     public List<UserType> getUserTypes(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId
     ) {
-        return definitionLogic.getDefinition(deploymentVersionId).getUserTypes();
+        return definitionLogic.getDefinition(processDefinitionVersionId).getUserTypes();
     }
 
     @Override
     @WebResult(name = "result")
     public UserType getUserType(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
             @WebParam(name = "name") @NonNull String name) {
-        return definitionLogic.getDefinition(deploymentVersionId).getUserType(name);
+        return definitionLogic.getDefinition(processDefinitionVersionId).getUserType(name);
     }
 
     @Override
     @WebMethod(exclude = true)
-    public List<VariableDefinition> getVariableDefinitions(@NonNull User user, @NonNull Long deploymentVersionId) {
-        return definitionLogic.getProcessDefinitionVariables(user, deploymentVersionId);
+    public List<VariableDefinition> getVariableDefinitions(@NonNull User user, @NonNull Long processDefinitionVersionId) {
+        return definitionLogic.getProcessDefinitionVariables(user, processDefinitionVersionId);
     }
 
     @Override
     @WebResult(name = "result")
-    public List<Variable> getVariableDefinitionsWS(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long deploymentVersionId) {
-        List<VariableDefinition> variableDefinitions = getVariableDefinitions(user, deploymentVersionId);
+    public List<Variable> getVariableDefinitionsWS(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long processDefinitionVersionId) {
+        List<VariableDefinition> variableDefinitions = getVariableDefinitions(user, processDefinitionVersionId);
         return VariableConverter.marshalDefinitions(variableDefinitions);
     }
 
     @Override
     @WebMethod(exclude = true)
-    public VariableDefinition getVariableDefinition(@NonNull User user, @NonNull Long deploymentVersionId, @NonNull String variableName) {
-        return definitionLogic.getProcessDefinitionVariable(user, deploymentVersionId, variableName);
+    public VariableDefinition getVariableDefinition(@NonNull User user, @NonNull Long processDefinitionVersionId, @NonNull String variableName) {
+        return definitionLogic.getProcessDefinitionVariable(user, processDefinitionVersionId, variableName);
     }
 
     @Override
     @WebResult(name = "result")
-    public Variable getVariableDefinitionWS(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long deploymentVersionId,
+    public Variable getVariableDefinitionWS(@WebParam(name = "user") User user, @WebParam(name = "definitionId") Long processDefinitionVersionId,
             @WebParam(name = "variableName") String variableName) {
-        VariableDefinition variableDefinition = getVariableDefinition(user, deploymentVersionId, variableName);
+        VariableDefinition variableDefinition = getVariableDefinition(user, processDefinitionVersionId, variableName);
         if (variableDefinition != null) {
             return VariableConverter.marshal(variableDefinition, null);
         }
@@ -273,8 +273,8 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     @Override
     @WebResult(name = "result")
     public List<NodeGraphElement> getProcessDefinitionGraphElements(@WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId, @WebParam(name = "subprocessId") String subprocessId) {
-        return definitionLogic.getProcessDefinitionGraphElements(user, deploymentVersionId, subprocessId);
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId, @WebParam(name = "subprocessId") String subprocessId) {
+        return definitionLogic.getProcessDefinitionGraphElements(user, processDefinitionVersionId, subprocessId);
     }
 
     @Override
@@ -285,13 +285,13 @@ public class DefinitionServiceBean implements DefinitionServiceLocal, Definition
     }
 
     @Override
-    public List<ProcessDefinitionChange> getChanges(@WebParam(name = "definitionId") @NonNull Long deploymentVersionId) {
-        return definitionLogic.getChanges(deploymentVersionId);
+    public List<ProcessDefinitionChange> getChanges(@WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId) {
+        return definitionLogic.getChanges(processDefinitionVersionId);
     }
 
     @Override
-    public List<ProcessDefinitionChange> getLastChanges(@WebParam(name = "definitionId") @NonNull Long deploymentVersionId, @NonNull Long n) {
-        return definitionLogic.getLastChanges(deploymentVersionId, n.intValue());
+    public List<ProcessDefinitionChange> getLastChanges(@WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId, @NonNull Long n) {
+        return definitionLogic.getLastChanges(processDefinitionVersionId, n.intValue());
     }
 
     @Override

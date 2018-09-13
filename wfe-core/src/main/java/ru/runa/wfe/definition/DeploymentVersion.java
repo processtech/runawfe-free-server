@@ -4,7 +4,6 @@ import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -128,6 +127,19 @@ public class DeploymentVersion implements Serializable {
 
     public void setSubprocessBindingDate(Date subprocessBindingDate) {
         this.subprocessBindingDate = subprocessBindingDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DeploymentVersion)) return false;
+        DeploymentVersion x = (DeploymentVersion) o;
+        return Objects.equal(id, x.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override

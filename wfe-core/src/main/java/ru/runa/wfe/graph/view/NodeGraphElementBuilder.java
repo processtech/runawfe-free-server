@@ -3,7 +3,7 @@ package ru.runa.wfe.graph.view;
 import com.google.common.collect.Lists;
 import java.util.List;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class NodeGraphElementBuilder {
 
@@ -12,7 +12,7 @@ public class NodeGraphElementBuilder {
      *
      * @return List of graph elements for nodes.
      */
-    public static List<NodeGraphElement> createElements(ProcessDefinition definition) {
+    public static List<NodeGraphElement> createElements(ParsedProcessDefinition definition) {
         List<NodeGraphElement> result = Lists.newArrayList();
         for (Node node : definition.getNodes(false)) {
             result.add(createElement(node));

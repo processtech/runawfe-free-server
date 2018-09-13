@@ -115,10 +115,10 @@ public class MapDelegableVariableProvider extends DelegableVariableProvider {
     private void mergeListVariable(String variableName, List<Object> list, VariableDefinition variableDefinition) {
         // TODO sneaky code
         if (variableDefinition == null) {
-            if (getProcessDefinition() == null) {
+            if (getParsedProcessDefinition() == null) {
                 return;
             }
-            variableDefinition = getProcessDefinition().getVariable(variableName, false);
+            variableDefinition = getParsedProcessDefinition().getVariable(variableName, false);
             if (variableDefinition == null) {
                 // for MultiTask
                 return;

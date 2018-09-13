@@ -38,8 +38,8 @@ import ru.runa.wfe.definition.DefinitionArchiveFormatException;
 import ru.runa.wfe.definition.Deployment;
 import ru.runa.wfe.definition.DeploymentVersion;
 import ru.runa.wfe.definition.IFileDataProvider;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 
 public class ProcessArchive {
     public static final List<String> UNSECURED_FILE_NAMES = new ArrayList<String>() {{
@@ -86,29 +86,29 @@ public class ProcessArchive {
         }
     }
 
-    public ProcessDefinition parseProcessDefinition() {
-        ProcessDefinition processDefinition = new ProcessDefinition(deployment, deploymentVersion);
+    public ParsedProcessDefinition parseProcessDefinition() {
+        ParsedProcessDefinition parsedProcessDefinition = new ParsedProcessDefinition(deployment, deploymentVersion);
 
         for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
-            processArchiveParser.readFromArchive(this, processDefinition);
+            processArchiveParser.readFromArchive(this, parsedProcessDefinition);
         }
 
-        for (Map.Entry<String, byte[]> entry : processDefinition.getProcessFiles().entrySet()) {
+        for (Map.Entry<String, byte[]> entry : parsedProcessDefinition.getProcessFiles().entrySet()) {
             Matcher matcher = SUBPROCESS_DEFINITION_PATTERN.matcher(entry.getKey());
             if (matcher.matches()) {
                 int subprocessIndex = Integer.parseInt(matcher.group(1));
-                SubprocessDefinition subprocessDefinition = new SubprocessDefinition(processDefinition);
+                ParsedSubprocessDefinition subprocessDefinition = new ParsedSubprocessDefinition(parsedProcessDefinition);
                 subprocessDefinition.setNodeId(IFileDataProvider.SUBPROCESS_DEFINITION_PREFIX + subprocessIndex);
                 for (ProcessArchiveParser processArchiveParser : processArchiveParsers) {
                     if (processArchiveParser.isApplicableToEmbeddedSubprocess()) {
                         processArchiveParser.readFromArchive(this, subprocessDefinition);
                     }
                 }
-                processDefinition.addEmbeddedSubprocess(subprocessDefinition);
+                parsedProcessDefinition.addEmbeddedSubprocess(subprocessDefinition);
             }
         }
-        processDefinition.mergeWithEmbeddedSubprocesses();
-        return processDefinition;
+        parsedProcessDefinition.mergeWithEmbeddedSubprocesses();
+        return parsedProcessDefinition;
     }
 
     public Map<String, byte[]> getFileData() {

@@ -7,8 +7,8 @@ import ru.runa.wfe.audit.ProcessLogs;
 import ru.runa.wfe.commons.ApplicationContextFactory;
 import ru.runa.wfe.execution.NodeProcess;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.security.Permission;
 import ru.runa.wfe.security.dao.PermissionDAO;
 import ru.runa.wfe.user.User;
@@ -29,14 +29,14 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
      * Instances of subprocesses, which must be added to graph elements.
      */
     private final List<NodeProcess> nodeProcesses;
-    private final ProcessDefinition definition;
+    private final ParsedProcessDefinition definition;
     private final Process process;
     private final ProcessLogs processLogs;
 
     /**
      * Create instance of operation to set starting process readable flag.
      */
-    public ProcessGraphInfoVisitor(User user, ProcessDefinition definition, Process process, ProcessLogs processLogs, List<NodeProcess> nodeProcesses) {
+    public ProcessGraphInfoVisitor(User user, ParsedProcessDefinition definition, Process process, ProcessLogs processLogs, List<NodeProcess> nodeProcesses) {
         this.user = user;
         this.definition = definition;
         this.process = process;
@@ -71,7 +71,7 @@ public class ProcessGraphInfoVisitor extends NodeGraphElementVisitor {
             boolean b = ApplicationContextFactory.getProcessLogDAO().isNodeEntered(process, element.getNodeId());
             element.setSubprocessAccessible(b);
             element.setSubprocessId(process.getId());
-            SubprocessDefinition subprocessDefinition = definition.getEmbeddedSubprocessByNameNotNull(element.getSubprocessName());
+            ParsedSubprocessDefinition subprocessDefinition = definition.getEmbeddedSubprocessByNameNotNull(element.getSubprocessName());
             element.setEmbeddedSubprocessId(subprocessDefinition.getNodeId());
             element.setEmbeddedSubprocessGraphWidth(subprocessDefinition.getGraphConstraints()[2]);
             element.setEmbeddedSubprocessGraphHeight(subprocessDefinition.getGraphConstraints()[3]);

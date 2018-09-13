@@ -1,6 +1,6 @@
 package ru.runa.wfe.execution;
 
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.var.AbstractVariableProvider;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.dto.WfVariable;
@@ -14,17 +14,17 @@ public class ExecutionVariableProvider extends AbstractVariableProvider {
 
     @Override
     public Long getDeploymentVersionId() {
-        return executionContext.getProcessDefinition().getId();
+        return executionContext.getParsedProcessDefinition().getId();
     }
 
     @Override
     public String getProcessDefinitionName() {
-        return executionContext.getProcessDefinition().getName();
+        return executionContext.getParsedProcessDefinition().getName();
     }
 
     @Override
-    public ProcessDefinition getProcessDefinition() {
-        return executionContext.getProcessDefinition();
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        return executionContext.getParsedProcessDefinition();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ExecutionVariableProvider extends AbstractVariableProvider {
 
     @Override
     public UserType getUserType(String name) {
-        return getProcessDefinition().getUserType(name);
+        return getParsedProcessDefinition().getUserType(name);
     }
 
     @Override

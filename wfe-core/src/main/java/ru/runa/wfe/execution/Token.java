@@ -57,14 +57,14 @@ import ru.runa.wfe.lang.BaseTaskNode;
 import ru.runa.wfe.lang.BoundaryEvent;
 import ru.runa.wfe.lang.Node;
 import ru.runa.wfe.lang.NodeType;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SubprocessNode;
 import ru.runa.wfe.task.TaskCompletionInfo;
 import ru.runa.wfe.user.Actor;
 
 /**
- * represents one path of execution and maintains a pointer to a node in the {@link ru.runa.wfe.lang.ProcessDefinition}.
+ * represents one path of execution and maintains a pointer to a node in the {@link ParsedProcessDefinition}.
  */
 @Entity
 @Table(name = "BPM_TOKEN")
@@ -95,10 +95,10 @@ public class Token implements Serializable {
     /**
      * creates a root token.
      */
-    public Token(ProcessDefinition processDefinition, Process process) {
+    public Token(ParsedProcessDefinition parsedProcessDefinition, Process process) {
         setStartDate(new Date());
         setProcess(process);
-        StartNode startNode = processDefinition.getStartStateNotNull();
+        StartNode startNode = parsedProcessDefinition.getStartStateNotNull();
         setNodeId(startNode.getNodeId());
         setNodeType(startNode.getNodeType());
         setAbleToReactivateParent(true);
@@ -293,8 +293,8 @@ public class Token implements Serializable {
         return stateChanged;
     }
 
-    public Node getNodeNotNull(ProcessDefinition processDefinition) {
-        return processDefinition.getNodeNotNull(nodeId);
+    public Node getNodeNotNull(ParsedProcessDefinition parsedProcessDefinition) {
+        return parsedProcessDefinition.getNodeNotNull(nodeId);
     }
 
     private void addChild(Token token) {
@@ -307,7 +307,7 @@ public class Token implements Serializable {
                 throw new InternalApplicationException("Unexpected token node " + nodeId + " of type " + nodeType + " on subprocess end");
             }
             NodeProcess parentNodeProcess = subExecutionContext.getParentNodeProcess();
-            ProcessDefinition superDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(parentNodeProcess.getProcess());
+            ParsedProcessDefinition superDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(parentNodeProcess.getProcess());
             getNodeNotNull(superDefinition).leave(subExecutionContext, null);
         }
     }
@@ -318,8 +318,8 @@ public class Token implements Serializable {
      * @param canceller
      *            actor who cancels process (if any), can be <code>null</code>
      */
-    public void end(ProcessDefinition processDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
-        ExecutionContext executionContext = new ExecutionContext(processDefinition, this);
+    public void end(ParsedProcessDefinition parsedProcessDefinition, Actor canceller, TaskCompletionInfo taskCompletionInfo, boolean recursive) {
+        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, this);
         if (hasEnded()) {
             log.debug(this + " already ended");
             return;
@@ -327,11 +327,11 @@ public class Token implements Serializable {
         log.info("Ending " + this + " by " + canceller);
         setEndDate(new Date());
         setExecutionStatus(ExecutionStatus.ENDED);
-        Node node = processDefinition.getNode(getNodeId());
+        Node node = parsedProcessDefinition.getNode(getNodeId());
         if (node instanceof SubprocessNode) {
             for (Process subProcess : executionContext.getTokenSubprocesses()) {
-                ProcessDefinition subProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
-                subProcess.end(new ExecutionContext(subProcessDefinition, subProcess), canceller);
+                ParsedProcessDefinition parsedSubProcessDefinition = ApplicationContextFactory.getProcessDefinitionLoader().getDefinition(subProcess);
+                subProcess.end(new ExecutionContext(parsedSubProcessDefinition, subProcess), canceller);
             }
         } else if (node instanceof BaseTaskNode) {
             ((BaseTaskNode) node).endTokenTasks(executionContext, taskCompletionInfo);
@@ -343,7 +343,7 @@ public class Token implements Serializable {
         }
         if (recursive) {
             for (Token child : getChildren()) {
-                child.end(executionContext.getProcessDefinition(), canceller, taskCompletionInfo, true);
+                child.end(executionContext.getParsedProcessDefinition(), canceller, taskCompletionInfo, true);
             }
         }
     }

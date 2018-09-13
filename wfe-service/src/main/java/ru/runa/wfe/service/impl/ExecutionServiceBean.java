@@ -43,7 +43,7 @@ import ru.runa.wfe.execution.dto.WfToken;
 import ru.runa.wfe.execution.logic.ExecutionLogic;
 import ru.runa.wfe.graph.view.NodeGraphElement;
 import ru.runa.wfe.job.dto.WfJob;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.decl.ExecutionServiceLocal;
@@ -86,9 +86,9 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
 
     @WebMethod(exclude = true)
     @Override
-    public Long startProcessById(@NonNull User user, @NonNull Long deploymentVersionId, Map<String, Object> variables) {
+    public Long startProcessById(@NonNull User user, @NonNull Long processDefinitionVersionId, Map<String, Object> variables) {
         FileVariablesUtil.unproxyFileVariables(user, null, null, variables);
-        return executionLogic.startProcess(user, deploymentVersionId, variables);
+        return executionLogic.startProcess(user, processDefinitionVersionId, variables);
     }
 
     @Override
@@ -96,8 +96,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public Long startProcessWS(@WebParam(name = "user") User user, @WebParam(name = "definitionName") String definitionName,
             @WebParam(name = "variables") List<Variable> variables) {
         WfDefinition definition = definitionLogic.getLatestProcessDefinition(user, definitionName);
-        ProcessDefinition processDefinition = executionLogic.getDefinition(definition.getId());
-        return startProcess(user, definitionName, VariableConverter.unmarshal(processDefinition, variables));
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(definition.getId());
+        return startProcess(user, definitionName, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }
 
     @Override
@@ -297,10 +297,10 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     @WebResult(name = "result")
     public int upgradeProcessesToDefinitionVersion(
             @WebParam(name = "user") @NonNull User user,
-            @WebParam(name = "definitionId") @NonNull Long deploymentVersionId,
+            @WebParam(name = "definitionId") @NonNull Long processDefinitionVersionId,
             @WebParam(name = "version") @NonNull Long newVersion
     ) {
-        return executionLogic.upgradeProcessesToDefinitionVersion(user, deploymentVersionId, newVersion);
+        return executionLogic.upgradeProcessesToDefinitionVersion(user, processDefinitionVersionId, newVersion);
     }
 
     @Override
@@ -308,8 +308,8 @@ public class ExecutionServiceBean implements ExecutionServiceLocal, ExecutionSer
     public void updateVariablesWS(@WebParam(name = "user") User user, @WebParam(name = "processId") Long processId,
             @WebParam(name = "variables") List<Variable> variables) {
         WfProcess process = executionLogic.getProcess(user, processId);
-        ProcessDefinition processDefinition = executionLogic.getDefinition(process.getDefinitionId());
-        updateVariables(user, processId, VariableConverter.unmarshal(processDefinition, variables));
+        ParsedProcessDefinition parsedProcessDefinition = executionLogic.getDefinition(process.getDefinitionId());
+        updateVariables(user, processId, VariableConverter.unmarshal(parsedProcessDefinition, variables));
     }
 
     @Override

@@ -25,7 +25,7 @@ public class EndToken extends Node {
 
     @Override
     protected void execute(ExecutionContext executionContext) throws Exception {
-        executionContext.getToken().end(executionContext.getProcessDefinition(), null, null, false);
+        executionContext.getToken().end(executionContext.getParsedProcessDefinition(), null, null, false);
         if (!executionContext.getProcess().hasEnded() && executionContext.getProcess().getRootToken().hasEnded()) {
             executionContext.getProcess().end(executionContext, null);
         }
@@ -35,7 +35,7 @@ public class EndToken extends Node {
             Set<Join> joins = Sets.newHashSet();
             for (Token childToken : parentToken.getChildren()) {
                 if (childToken.getNodeType() == NodeType.JOIN) {
-                    joins.add((Join) childToken.getNodeNotNull(executionContext.getProcessDefinition()));
+                    joins.add((Join) childToken.getNodeNotNull(executionContext.getParsedProcessDefinition()));
                 }
             }
             for (Join join : joins) {

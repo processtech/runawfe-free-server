@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import org.testng.collections.Sets;
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.definition.dao.IProcessDefinitionLoader;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dto.IWfTaskFactory;
@@ -65,7 +65,7 @@ public class GetAcceptableTaskBoundConditionsTests extends AbstractTestNGSpringC
         protected Task task = mock(Task.class);
         protected Executor taskExecutor = mock(Executor.class);
         protected ru.runa.wfe.execution.Process process = mock(ru.runa.wfe.execution.Process.class);
-        protected ProcessDefinition definition = mock(ProcessDefinition.class);
+        protected ParsedProcessDefinition definition = mock(ParsedProcessDefinition.class);
         protected Actor actor = mock(Actor.class);
         protected BatchPresentation batchPresentation = mock(BatchPresentation.class);
         protected Set<Executor> executorsToGetTasksByMembership = Sets.newHashSet();

@@ -20,7 +20,7 @@ public class JavaScriptActionHandler extends ActionHandlerBase {
     @Override
     public void execute(ExecutionContext executionContext) throws ScriptException {
         List<VariableDefinition> rawDefinitions = Lists.newArrayList();
-        for (VariableDefinition definition : executionContext.getProcessDefinition().getVariables()) {
+        for (VariableDefinition definition : executionContext.getParsedProcessDefinition().getVariables()) {
             if (definition.isUserType()) {
                 rawDefinitions.addAll(definition.expandUserType(false));
             } else {

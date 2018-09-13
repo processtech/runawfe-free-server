@@ -26,7 +26,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.Transition;
 
 /**
@@ -64,9 +64,9 @@ public class TransitionLog extends ProcessLog {
         return getAttributeNotNull(ATTR_TRANSITION_ID);
     }
 
-    public Transition getTransitionOrNull(ProcessDefinition processDefinition) {
+    public Transition getTransitionOrNull(ParsedProcessDefinition parsedProcessDefinition) {
         // due to process definition version update it can be null
-        Node node = processDefinition.getNode(getFromNodeId());
+        Node node = parsedProcessDefinition.getNode(getFromNodeId());
         if (node == null) {
             return null;
         }

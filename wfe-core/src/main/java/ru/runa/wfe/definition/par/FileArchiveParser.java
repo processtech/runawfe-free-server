@@ -23,7 +23,7 @@ package ru.runa.wfe.definition.par;
 
 import java.util.Map;
 
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class FileArchiveParser implements ProcessArchiveParser {
 
@@ -33,9 +33,9 @@ public class FileArchiveParser implements ProcessArchiveParser {
     }
     
     @Override
-    public void readFromArchive(ProcessArchive processArchive, ProcessDefinition processDefinition) {
+    public void readFromArchive(ProcessArchive processArchive, ParsedProcessDefinition parsedProcessDefinition) {
         for (Map.Entry<String, byte[]> entry : processArchive.getFileData().entrySet()) {
-            processDefinition.addFile(entry.getKey(), entry.getValue());
+            parsedProcessDefinition.addFile(entry.getKey(), entry.getValue());
         }
     }
 

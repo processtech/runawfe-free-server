@@ -28,8 +28,8 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.form.Interaction;
 import ru.runa.wfe.lang.MultiTaskNode;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.var.UserType;
 import ru.runa.wfe.var.VariableDefinition;
 import ru.runa.wfe.var.VariableMapping;
@@ -58,22 +58,22 @@ public class InteractionsParser implements ProcessArchiveParser {
     }
 
     @Override
-    public void readFromArchive(ProcessArchive archive, ProcessDefinition processDefinition) {
+    public void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition) {
         try {
             String formsFileName = IFileDataProvider.FORMS_XML_FILE_NAME;
-            if (processDefinition instanceof SubprocessDefinition) {
-                formsFileName = processDefinition.getNodeId() + "." + formsFileName;
+            if (parsedProcessDefinition instanceof ParsedSubprocessDefinition) {
+                formsFileName = parsedProcessDefinition.getNodeId() + "." + formsFileName;
             }
-            byte[] formsXml = processDefinition.getFileData(formsFileName);
+            byte[] formsXml = parsedProcessDefinition.getFileData(formsFileName);
             if (formsXml == null) {
                 return;
             }
-            byte[] processScriptData = processDefinition.getFileData(IFileDataProvider.FORM_JS_FILE_NAME);
+            byte[] processScriptData = parsedProcessDefinition.getFileData(IFileDataProvider.FORM_JS_FILE_NAME);
             Document document = XmlUtils.parseWithoutValidation(formsXml);
             List<Element> formElements = document.getRootElement().elements(FORM_ELEMENT_NAME);
             for (Element formElement : formElements) {
                 String stateId = formElement.attributeValue(STATE_ATTRIBUTE_NAME);
-                Node node = processDefinition.getNodeNotNull(stateId);
+                Node node = parsedProcessDefinition.getNodeNotNull(stateId);
                 String fileName = formElement.attributeValue(FILE_ATTRIBUTE_NAME);
                 String type = formElement.attributeValue(TYPE_ATTRIBUTE_NAME);
                 if (type != null) {
@@ -86,62 +86,62 @@ public class InteractionsParser implements ProcessArchiveParser {
 
                 byte[] formCode = null;
                 if (!Strings.isNullOrEmpty(fileName)) {
-                    formCode = processDefinition.getFileDataNotNull(fileName);
+                    formCode = parsedProcessDefinition.getFileDataNotNull(fileName);
                 }
                 byte[] validationXml = null;
                 if (!Strings.isNullOrEmpty(validationFileName)) {
-                    validationXml = processDefinition.getFileDataNotNull(validationFileName);
+                    validationXml = parsedProcessDefinition.getFileDataNotNull(validationFileName);
                 }
                 byte[] formScriptData = null;
                 if (!Strings.isNullOrEmpty(scriptFileName)) {
-                    formScriptData = processDefinition.getFileDataNotNull(scriptFileName);
+                    formScriptData = parsedProcessDefinition.getFileDataNotNull(scriptFileName);
                 }
-                byte[] css = processDefinition.getFileData(IFileDataProvider.FORM_CSS_FILE_NAME);
+                byte[] css = parsedProcessDefinition.getFileData(IFileDataProvider.FORM_CSS_FILE_NAME);
                 byte[] template = null;
                 if (!Strings.isNullOrEmpty(templateFileName)) {
-                    template = processDefinition.getFileDataNotNull(templateFileName);
+                    template = parsedProcessDefinition.getFileDataNotNull(templateFileName);
                 }
                 Interaction interaction = new Interaction(node, type, formCode, validationXml, jsValidationEnabled, processScriptData,
                         formScriptData, css, template);
                 if (validationXml != null) {
-                    List<String> variableNames = ValidationXmlParser.readVariableNames(processDefinition, validationFileName, validationXml);
-                    List<String> requiredVarNames = ValidationXmlParser.readRequiredVariableNames(processDefinition, validationXml);
+                    List<String> variableNames = ValidationXmlParser.readVariableNames(parsedProcessDefinition, validationFileName, validationXml);
+                    List<String> requiredVarNames = ValidationXmlParser.readRequiredVariableNames(parsedProcessDefinition, validationXml);
                     for (String varName : requiredVarNames) {
                         interaction.getRequiredVariableNames().add(varName);
                     }
                     for (String name : variableNames) {
-                        VariableDefinition variableDefinition = processDefinition.getVariable(name, true);
+                        VariableDefinition variableDefinition = parsedProcessDefinition.getVariable(name, true);
                         if (variableDefinition == null && node instanceof MultiTaskNode) {
                             for (VariableMapping mapping : ((MultiTaskNode) node).getVariableMappings()) {
                                 boolean strictMatch = Objects.equal(mapping.getMappedName(), name);
                                 boolean userTypeMatch = name.startsWith(mapping.getMappedName() + UserType.DELIM);
                                 if (strictMatch || userTypeMatch) {
-                                    VariableDefinition mappedVariableDefinition = processDefinition.getVariable(mapping.getName(), true);
+                                    VariableDefinition mappedVariableDefinition = parsedProcessDefinition.getVariable(mapping.getName(), true);
                                     String format = mappedVariableDefinition.getFormatComponentClassNames()[0];
                                     if (userTypeMatch) {
                                         String attributeName = name.substring((mapping.getMappedName() + UserType.DELIM).length());
-                                        UserType userType = processDefinition.getUserTypeNotNull(format);
+                                        UserType userType = parsedProcessDefinition.getUserTypeNotNull(format);
                                         VariableDefinition attributeDefinition = userType.getAttributeNotNull(attributeName);
                                         format = attributeDefinition.getFormat();
                                     }
-                                    variableDefinition = new VariableDefinition(name, null, format, processDefinition.getUserType(format));
-                                    variableDefinition.initComponentUserTypes(processDefinition);
+                                    variableDefinition = new VariableDefinition(name, null, format, parsedProcessDefinition.getUserType(format));
+                                    variableDefinition.initComponentUserTypes(parsedProcessDefinition);
                                     break;
                                 }
                             }
                         }
                         if (variableDefinition == null) {
-                            throw new InvalidDefinitionException(processDefinition.getName(), "Variable '" + name + "' is defined in '"
-                                    + validationFileName + "' but not defined in " + processDefinition);
+                            throw new InvalidDefinitionException(parsedProcessDefinition.getName(), "Variable '" + name + "' is defined in '"
+                                    + validationFileName + "' but not defined in " + parsedProcessDefinition);
                         }
                         interaction.getVariables().put(name, variableDefinition);
                     }
                 }
-                processDefinition.addInteraction(stateId, interaction);
+                parsedProcessDefinition.addInteraction(stateId, interaction);
             }
         } catch (Exception e) {
             Throwables.propagateIfInstanceOf(e, InvalidDefinitionException.class);
-            throw new InvalidDefinitionException(processDefinition.getName(), e);
+            throw new InvalidDefinitionException(parsedProcessDefinition.getName(), e);
         }
     }
 }

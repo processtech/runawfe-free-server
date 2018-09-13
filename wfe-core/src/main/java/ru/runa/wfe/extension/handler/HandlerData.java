@@ -64,7 +64,7 @@ public class HandlerData {
 
     public String getDefinitionName() {
         if (executionContext != null) {
-            return executionContext.getProcessDefinition().getName();
+            return executionContext.getParsedProcessDefinition().getName();
         }
         return task.getDefinitionName();
     }

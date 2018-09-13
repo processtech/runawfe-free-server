@@ -11,8 +11,8 @@ import ru.runa.wfe.definition.InvalidDefinitionException;
 import ru.runa.wfe.lang.Bendpoint;
 import ru.runa.wfe.lang.GraphElement;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
 
@@ -29,24 +29,24 @@ public class GraphXmlParser implements ProcessArchiveParser {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void readFromArchive(ProcessArchive archive, ProcessDefinition processDefinition) {
+    public void readFromArchive(ProcessArchive archive, ParsedProcessDefinition parsedProcessDefinition) {
         try {
             String fileName = IFileDataProvider.GPD_XML_FILE_NAME;
-            if (processDefinition instanceof SubprocessDefinition) {
-                fileName = processDefinition.getNodeId() + "." + fileName;
+            if (parsedProcessDefinition instanceof ParsedSubprocessDefinition) {
+                fileName = parsedProcessDefinition.getNodeId() + "." + fileName;
             }
-            byte[] gpdBytes = processDefinition.getFileDataNotNull(fileName);
+            byte[] gpdBytes = parsedProcessDefinition.getFileDataNotNull(fileName);
             Document document = XmlUtils.parseWithoutValidation(gpdBytes);
             Element root = document.getRootElement();
-            processDefinition.setGraphConstraints(0, 0, Integer.parseInt(root.attributeValue("width")),
+            parsedProcessDefinition.setGraphConstraints(0, 0, Integer.parseInt(root.attributeValue("width")),
                     Integer.parseInt(root.attributeValue("height")));
             int xOffset = Integer.parseInt(root.attributeValue("x", "0"));
             int yOffset = Integer.parseInt(root.attributeValue("y", "0"));
-            processDefinition.setGraphActionsEnabled(Boolean.parseBoolean(root.attributeValue("showActions", "true")));
+            parsedProcessDefinition.setGraphActionsEnabled(Boolean.parseBoolean(root.attributeValue("showActions", "true")));
             List<Element> nodeElements = root.elements(NODE_ELEMENT);
             for (Element nodeElement : nodeElements) {
                 String nodeId = nodeElement.attributeValue("name");
-                GraphElement graphElement = processDefinition.getGraphElementNotNull(nodeId);
+                GraphElement graphElement = parsedProcessDefinition.getGraphElementNotNull(nodeId);
                 graphElement.setGraphConstraints(Integer.parseInt(nodeElement.attributeValue("x")) - xOffset,
                         Integer.parseInt(nodeElement.attributeValue("y")) - yOffset, Integer.parseInt(nodeElement.attributeValue("width")),
                         Integer.parseInt(nodeElement.attributeValue("height")));
@@ -57,7 +57,7 @@ public class GraphXmlParser implements ProcessArchiveParser {
                     transitionSource = (Node) graphElement;
                 } else {
                     if (!(graphElement instanceof SwimlaneDefinition)) {
-                        log.warn("Ignored graph element " + graphElement + " in " + processDefinition);
+                        log.warn("Ignored graph element " + graphElement + " in " + parsedProcessDefinition);
                     }
                     continue;
                 }
@@ -75,7 +75,7 @@ public class GraphXmlParser implements ProcessArchiveParser {
             }
         } catch (Exception e) {
             Throwables.propagateIfInstanceOf(e, InvalidDefinitionException.class);
-            throw new InvalidDefinitionException(processDefinition.getName(), e);
+            throw new InvalidDefinitionException(parsedProcessDefinition.getName(), e);
         }
     }
 }

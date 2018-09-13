@@ -78,7 +78,7 @@ public class TransitionFigure {
         this.transition = transition;
         this.figureFrom = figureFrom;
         this.figureTo = figureTo;
-        if (transition.getFrom().getProcessDefinition().isGraphActionsEnabled()) {
+        if (transition.getFrom().getParsedProcessDefinition().isGraphActionsEnabled()) {
             this.actionsCount = GraphImageHelper.getNodeActionsCount(transition);
         }
         this.smoothLines = smoothLines;
@@ -188,7 +188,7 @@ public class TransitionFigure {
         graphics.setStroke(new BasicStroke(DrawProperties.TRANSITION_DRAW_WIDTH));
         graphics.setColor(color);
 
-        if (actionsCount > 0 && !isJpdlCanvas() && transition.getProcessDefinition().isGraphActionsEnabled()) {
+        if (actionsCount > 0 && !isJpdlCanvas() && transition.getParsedProcessDefinition().isGraphActionsEnabled()) {
             for (int i = 1; i <= actionsCount; i++) {
                 Point point = getConnectionMidpoint(start, end, i * .1);
                 graphics.drawImage(BPMN_ACTION_ICON, null, point.x - BPMN_ACTION_ICON.getWidth() / 2, point.y - BPMN_ACTION_ICON.getHeight() / 2);
@@ -285,7 +285,7 @@ public class TransitionFigure {
     }
 
     protected boolean isJpdlCanvas() {
-        return transition.getProcessDefinition().getDeployment().getLanguage().equals(Language.JPDL);
+        return transition.getParsedProcessDefinition().getDeployment().getLanguage().equals(Language.JPDL);
     }
 
     private Point getConnectionMidpoint(Point start, Point end, double part) {

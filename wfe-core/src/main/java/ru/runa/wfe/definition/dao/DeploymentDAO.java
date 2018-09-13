@@ -104,12 +104,12 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
      * Eager load both Deployment and DeploymentVersion. Probably this could be done "more Hibernate way" (like marking @ManyToOne field
      * DeploymentVersion.deployment as eager loaded if that's possible), but this implementation is a step closer to getting rid of Hibernate.
      */
-    public DeploymentWithVersion findDeployment(long deploymentVersionId) {
+    public DeploymentWithVersion findDeployment(long processDefinitionVersionId) {
         QDeployment d = QDeployment.deployment;
         QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
-        Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.deployment, d).where(dv.id.eq(deploymentVersionId)).fetchFirst();
+        Tuple t = queryFactory.select(d, dv).from(dv).innerJoin(dv.deployment, d).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
         if (t == null) {
-            throw new DefinitionDoesNotExistException("deploymentVersionId = " + deploymentVersionId);
+            throw new DefinitionDoesNotExistException("processDefinitionVersionId = " + processDefinitionVersionId);
         }
         return new DeploymentWithVersion(t.get(d), t.get(dv));
     }
@@ -123,13 +123,13 @@ public class DeploymentDAO extends GenericDAO<Deployment> {
     }
 
     /**
-     * Returns ids of all DeploymentVersion-s which belong to same Deployment as deploymentVersionId, ordered by version.
+     * Returns ids of all DeploymentVersion-s which belong to same Deployment as processDefinitionVersionId, ordered by version.
      */
-    public List<Long> findAllDeploymentVersionIds(long deploymentVersionId, boolean ascending) {
+    public List<Long> findAllDeploymentVersionIds(long processDefinitionVersionId, boolean ascending) {
         QDeploymentVersion dv = QDeploymentVersion.deploymentVersion;
 
         // TODO This can be implemented as subquery (hopefully in Hibernate):
-        Long deploymentId = queryFactory.select(dv.deployment.id).from(dv).where(dv.id.eq(deploymentVersionId)).fetchFirst();
+        Long deploymentId = queryFactory.select(dv.deployment.id).from(dv).where(dv.id.eq(processDefinitionVersionId)).fetchFirst();
         Preconditions.checkNotNull(deploymentId);
 
         return queryFactory.select(dv.id)

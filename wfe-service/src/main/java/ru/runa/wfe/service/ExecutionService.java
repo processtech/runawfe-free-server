@@ -67,7 +67,7 @@ public interface ExecutionService {
      *            initial variable values
      * @return id of started process
      */
-    Long startProcessById(User user, Long deploymentVersionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
+    Long startProcessById(User user, Long processDefinitionVersionId, Map<String, Object> variables) throws DefinitionDoesNotExistException,
             ValidationException;
 
     /**
@@ -318,7 +318,7 @@ public interface ExecutionService {
      * 
      * @return upgraded processes count
      */
-    int upgradeProcessesToDefinitionVersion(User user, Long deploymentVersionId, Long newVersion);
+    int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionVersionId, Long newVersion);
 
     /**
      * Get all active jobs (recursively) by process id.

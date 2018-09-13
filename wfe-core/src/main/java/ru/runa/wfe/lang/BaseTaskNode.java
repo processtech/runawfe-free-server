@@ -74,11 +74,11 @@ public abstract class BaseTaskNode extends InteractionNode implements BoundaryEv
     }
 
     @Override
-    protected void onBoundaryEvent(ProcessDefinition processDefinition, Token token, BoundaryEvent boundaryEvent) {
+    protected void onBoundaryEvent(ParsedProcessDefinition parsedProcessDefinition, Token token, BoundaryEvent boundaryEvent) {
         if (async) {
-            endTokenTasks(new ExecutionContext(processDefinition, token), boundaryEvent.getTaskCompletionInfoIfInterrupting());
+            endTokenTasks(new ExecutionContext(parsedProcessDefinition, token), boundaryEvent.getTaskCompletionInfoIfInterrupting());
         } else {
-            super.onBoundaryEvent(processDefinition, token, boundaryEvent);
+            super.onBoundaryEvent(parsedProcessDefinition, token, boundaryEvent);
         }
     }
 }

@@ -11,7 +11,7 @@ import ru.runa.wfe.commons.CalendarUtil;
 import ru.runa.wfe.commons.xml.XmlUtils;
 import ru.runa.wfe.definition.IFileDataProvider;
 import ru.runa.wfe.definition.ProcessDefinitionChange;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class CommentsParser implements ProcessArchiveParser {
     private static final String VERSION = "version";
@@ -25,10 +25,10 @@ public class CommentsParser implements ProcessArchiveParser {
     }
 
     @Override
-    public void readFromArchive(ProcessArchive processArchive, ProcessDefinition processDefinition) {
-        byte[] definitionXml = processDefinition.getFileData(IFileDataProvider.COMMENTS_XML_FILE_NAME);
+    public void readFromArchive(ProcessArchive processArchive, ParsedProcessDefinition parsedProcessDefinition) {
+        byte[] definitionXml = parsedProcessDefinition.getFileData(IFileDataProvider.COMMENTS_XML_FILE_NAME);
         if (definitionXml != null) {
-            processDefinition.setChanges(parse(definitionXml));
+            parsedProcessDefinition.setChanges(parse(definitionXml));
         }
     }
 

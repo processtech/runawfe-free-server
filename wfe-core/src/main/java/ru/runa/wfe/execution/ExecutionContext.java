@@ -48,7 +48,7 @@ import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dao.JobDAO;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.task.Task;
 import ru.runa.wfe.task.dao.TaskDAO;
@@ -69,7 +69,7 @@ import ru.runa.wfe.var.format.VariableFormat;
 
 @CommonsLog
 public class ExecutionContext {
-    private final ProcessDefinition processDefinition;
+    private final ParsedProcessDefinition parsedProcessDefinition;
     private final Token token;
     private final Map<String, Object> transientVariables = Maps.newHashMap();
 
@@ -98,9 +98,9 @@ public class ExecutionContext {
     @Autowired
     private SwimlaneDAO swimlaneDAO;
 
-    protected ExecutionContext(ProcessDefinition processDefinition, Token token,
+    protected ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token,
             Map<Process, Map<String, Variable<?>>> loadedVariables, boolean disableVariableDaoLoading) {
-        this.processDefinition = processDefinition;
+        this.parsedProcessDefinition = parsedProcessDefinition;
         this.token = token;
         Preconditions.checkNotNull(token, "token");
         ApplicationContextFactory.getContext().getAutowireCapableBeanFactory().autowireBean(this);
@@ -109,28 +109,28 @@ public class ExecutionContext {
         } else {
             this.variableLoader = new VariableLoaderDAOFallback(variableDAO, loadedVariables);
         }
-        this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getProcessDefinition(), getProcess());
+        this.baseProcessVariableLoader = new BaseProcessVariableLoader(variableLoader, getParsedProcessDefinition(), getProcess());
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
-        this(processDefinition, token, loadedVariables, false);
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token, Map<Process, Map<String, Variable<?>>> loadedVariables) {
+        this(parsedProcessDefinition, token, loadedVariables, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables,
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Process process, Map<Process, Map<String, Variable<?>>> loadedVariables,
             boolean disableVariableDaoLoading) {
-        this(processDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
+        this(parsedProcessDefinition, process.getRootToken(), loadedVariables, disableVariableDaoLoading);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Token token) {
-        this(processDefinition, token, null, false);
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Token token) {
+        this(parsedProcessDefinition, token, null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Process process) {
-        this(processDefinition, process.getRootToken(), null, false);
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Process process) {
+        this(parsedProcessDefinition, process.getRootToken(), null, false);
     }
 
-    public ExecutionContext(ProcessDefinition processDefinition, Task task) {
-        this(processDefinition, task.getToken(), null, false);
+    public ExecutionContext(ParsedProcessDefinition parsedProcessDefinition, Task task) {
+        this(parsedProcessDefinition, task.getToken(), null, false);
     }
 
     /**
@@ -148,11 +148,11 @@ public class ExecutionContext {
     }
 
     public Node getNode() {
-        return getToken().getNodeNotNull(getProcessDefinition());
+        return getToken().getNodeNotNull(getParsedProcessDefinition());
     }
 
-    public ProcessDefinition getProcessDefinition() {
-        return processDefinition;
+    public ParsedProcessDefinition getParsedProcessDefinition() {
+        return parsedProcessDefinition;
     }
 
     public Process getProcess() {
@@ -198,7 +198,7 @@ public class ExecutionContext {
      */
     public WfVariable getVariable(String name, boolean searchInSwimlanes) {
         if (searchInSwimlanes) {
-            SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
+            SwimlaneDefinition swimlaneDefinition = getParsedProcessDefinition().getSwimlane(name);
             if (swimlaneDefinition != null) {
                 Swimlane swimlane = swimlaneDAO.findByProcessAndName(getProcess(), swimlaneDefinition.getName());
                 if (swimlane == null && SystemProperties.isSwimlaneAutoInitializationEnabled()) {
@@ -223,14 +223,14 @@ public class ExecutionContext {
 
     public void setVariableValue(String name, Object value) {
         Preconditions.checkNotNull(name, "name");
-        SwimlaneDefinition swimlaneDefinition = getProcessDefinition().getSwimlane(name);
+        SwimlaneDefinition swimlaneDefinition = getParsedProcessDefinition().getSwimlane(name);
         if (swimlaneDefinition != null) {
             log.debug("Assigning swimlane '" + name + "' value '" + value + "'");
             Swimlane swimlane = swimlaneDAO.findOrCreate(getProcess(), swimlaneDefinition);
             swimlane.assignExecutor(this, (Executor) convertValueForVariableType(swimlaneDefinition.toVariableDefinition(), value), true);
             return;
         }
-        VariableDefinition variableDefinition = getProcessDefinition().getVariable(name, false);
+        VariableDefinition variableDefinition = getParsedProcessDefinition().getVariable(name, false);
         if (variableDefinition == null) {
             if (value == null) {
                 return;
@@ -278,7 +278,7 @@ public class ExecutionContext {
         Preconditions.checkNotNull(variableDefinition, "variableDefinition");
         switch (variableDefinition.getStoreType()) {
         case BLOB: {
-            setSimpleVariableValue(getProcessDefinition(), getToken(), variableDefinition, value);
+            setSimpleVariableValue(getParsedProcessDefinition(), getToken(), variableDefinition, value);
             break;
         }
         case TRANSIENT: {
@@ -291,7 +291,7 @@ public class ExecutionContext {
             VariableFormat variableFormat = variableDefinition.getFormatNotNull();
             for (ConvertToSimpleVariablesResult simpleVariables : variableFormat.processBy(new ConvertToSimpleVariables(), context)) {
                 Object convertedValue = convertValueForVariableType(simpleVariables.variableDefinition, simpleVariables.value);
-                setSimpleVariableValue(getProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
+                setSimpleVariableValue(getParsedProcessDefinition(), getToken(), simpleVariables.variableDefinition, convertedValue);
             }
             break;
         }
@@ -334,7 +334,7 @@ public class ExecutionContext {
         return value;
     }
 
-    private VariableLog setSimpleVariableValue(ProcessDefinition processDefinition, Token token, VariableDefinition variableDefinition, Object value) {
+    private VariableLog setSimpleVariableValue(ParsedProcessDefinition parsedProcessDefinition, Token token, VariableDefinition variableDefinition, Object value) {
         VariableLog resultingVariableLog = null;
         Variable<?> variable = variableLoader.get(token.getProcess(), variableDefinition.getName());
         // if there is exist variable and it doesn't support the current type
@@ -349,14 +349,14 @@ public class ExecutionContext {
         }
         final BaseProcessVariableLoader.SubprocessSyncCache subprocessSyncCache = baseProcessVariableLoader.getSubprocessSyncCache();
         if (variable == null) {
-            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
+            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(parsedProcessDefinition,
                     token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
                 Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
-                ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
+                ParsedProcessDefinition parsedParentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
                 log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
                         + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
-                VariableLog parentVariableLog = setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
+                VariableLog parentVariableLog = setSimpleVariableValue(parsedParentProcessDefinition, parentToken, syncVariableDefinition, value);
                 if (parentVariableLog != null) {
                     VariableLog markingVariableLog = parentVariableLog.getContentCopy();
                     markingVariableLog.setVariableName(variableDefinition.getName());
@@ -382,14 +382,14 @@ public class ExecutionContext {
             log.debug("Updating variable '" + variableDefinition.getName() + "' in '" + getProcess() + "' to '" + value + "'"
                     + (value != null ? " of " + value.getClass() : ""));
             resultingVariableLog = variable.setValue(this, value, variableDefinition);
-            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(processDefinition,
+            VariableDefinition syncVariableDefinition = subprocessSyncCache.getParentProcessSyncVariableDefinition(parsedProcessDefinition,
                     token.getProcess(), variableDefinition);
             if (syncVariableDefinition != null) {
                 Token parentToken = subprocessSyncCache.getParentProcessToken(token.getProcess());
-                ProcessDefinition parentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
+                ParsedProcessDefinition parsedParentProcessDefinition = processDefinitionLoader.getDefinition(parentToken.getProcess());
                 log.debug("Setting " + token.getProcess().getId() + "." + variableDefinition.getName() + " in parent process "
                         + parentToken.getProcess().getId() + "." + syncVariableDefinition.getName());
-                setSimpleVariableValue(parentProcessDefinition, parentToken, syncVariableDefinition, value);
+                setSimpleVariableValue(parsedParentProcessDefinition, parentToken, syncVariableDefinition, value);
             }
         }
         if (value instanceof Date) {

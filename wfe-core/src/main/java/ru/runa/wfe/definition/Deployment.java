@@ -110,17 +110,16 @@ public class Deployment extends SecuredObject {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Deployment)) return false;
+        Deployment x = (Deployment) o;
+        return Objects.equal(id, x.id);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Deployment) {
-            Deployment d = (Deployment) obj;
-            return Objects.equal(id, d.id);
-        }
-        return super.equals(obj);
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override

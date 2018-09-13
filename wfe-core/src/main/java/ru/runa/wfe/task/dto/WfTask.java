@@ -55,7 +55,7 @@ public class WfTask implements Serializable {
     private Actor targetActor;
 
     /**
-     * In fact, this is deploymentVersionId. But I cannot change structure which is part of the API.
+     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
      */
     private Long definitionId;
 
@@ -139,7 +139,7 @@ public class WfTask implements Serializable {
     }
 
     /**
-     * In fact, this is deploymentVersionId. But I cannot change structure which is part of the API.
+     * In fact, this is processDefinitionVersionId. But I cannot change structure which is part of the API.
      */
     public Long getDefinitionId() {
         return definitionId;

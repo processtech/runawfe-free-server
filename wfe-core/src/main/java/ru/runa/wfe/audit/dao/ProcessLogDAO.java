@@ -20,8 +20,8 @@ import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.dao.GenericDAO;
 import ru.runa.wfe.execution.Process;
 import ru.runa.wfe.execution.Token;
-import ru.runa.wfe.lang.ProcessDefinition;
-import ru.runa.wfe.lang.SubprocessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
+import ru.runa.wfe.lang.ParsedSubprocessDefinition;
 
 /**
  * DAO for {@link ProcessLog}.
@@ -44,7 +44,7 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<ProcessLog> get(Long processId, ProcessDefinition definition) {
+    public List<ProcessLog> get(Long processId, ParsedProcessDefinition definition) {
         QTransitionLog tl = QTransitionLog.transitionLog;
         boolean haveOldLogs = queryFactory.select(tl.id).from(tl).where(tl.processId.eq(processId).and(tl.nodeId.isNull())).fetchFirst() != null;
 
@@ -52,9 +52,9 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
             // TODO Pre 01.02.2014, remove when obsolete.
             log.debug("fallbackToOldAlgorithm in " + processId);
             List<ProcessLog> logs = getAll(processId);
-            if (definition instanceof SubprocessDefinition) {
-                SubprocessDefinition subprocessDefinition = (SubprocessDefinition) definition;
-                String subprocessNodeId = subprocessDefinition.getParentProcessDefinition().getEmbeddedSubprocessNodeIdNotNull(
+            if (definition instanceof ParsedSubprocessDefinition) {
+                ParsedSubprocessDefinition subprocessDefinition = (ParsedSubprocessDefinition) definition;
+                String subprocessNodeId = subprocessDefinition.getParentParsedProcessDefinition().getEmbeddedSubprocessNodeIdNotNull(
                         subprocessDefinition.getName());
                 boolean embeddedSubprocessLogs = false;
                 boolean childSubprocessLogs = false;
@@ -99,7 +99,7 @@ public class ProcessLogDAO extends GenericDAO<ProcessLog> implements IProcessLog
         QProcessLog pl = QProcessLog.processLog;
         return queryFactory.selectFrom(pl)
                 .where(pl.processId.eq(processId))
-                .where(definition instanceof SubprocessDefinition ? pl.nodeId.like(definition.getNodeId() + ".%") : pl.nodeId.notLike("sub%"))
+                .where(definition instanceof ParsedSubprocessDefinition ? pl.nodeId.like(definition.getNodeId() + ".%") : pl.nodeId.notLike("sub%"))
                 .orderBy(pl.id.asc())
                 .fetch();
     }

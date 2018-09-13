@@ -15,7 +15,7 @@ import ru.runa.wfe.execution.dao.NodeProcessDAO;
 import ru.runa.wfe.execution.dao.ProcessDAO;
 import ru.runa.wfe.execution.dao.SwimlaneDAO;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.StartNode;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.lang.Transition;
@@ -43,11 +43,11 @@ public class ProcessFactory {
         put(Permission.CANCEL_PROCESS, Permission.CANCEL);
     }};
 
-    private Set<Permission> getProcessPermissions(Executor executor, ProcessDefinition processDefinition) {
+    private Set<Permission> getProcessPermissions(Executor executor, ParsedProcessDefinition parsedProcessDefinition) {
         Set<Permission> result = new HashSet<>();
         for (Map.Entry<Permission, Permission> kv : DEFINITION_TO_PROCESS_PERMISSION_MAP.entrySet()) {
             // Using isAllowed() because it takes DEFINITIONS list & executor groups into account.
-            if (permissionDAO.isAllowed(executor, kv.getKey(), processDefinition.getDeployment(), false)) {
+            if (permissionDAO.isAllowed(executor, kv.getKey(), parsedProcessDefinition.getDeployment(), false)) {
                 result.add(kv.getValue());
             }
         }
@@ -62,21 +62,21 @@ public class ProcessFactory {
      *            will be inserted into the context variables after the context submodule has been created and before the process-start event is
      *            fired, which is also before the execution of the initial node.
      */
-    public Process startProcess(ProcessDefinition processDefinition, Map<String, Object> variables, Actor actor, String transitionName,
+    public Process startProcess(ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables, Actor actor, String transitionName,
             Map<String, Object> transientVariables) {
         Preconditions.checkNotNull(actor, "can't start a process when actor is null");
-        ExecutionContext executionContext = createProcessInternal(processDefinition, variables, actor, null, transientVariables);
-        grantProcessPermissions(processDefinition, executionContext.getProcess(), actor);
+        ExecutionContext executionContext = createProcessInternal(parsedProcessDefinition, variables, actor, null, transientVariables);
+        grantProcessPermissions(parsedProcessDefinition, executionContext.getProcess(), actor);
         startProcessInternal(executionContext, transitionName);
         return executionContext.getProcess();
     }
 
-    private void grantProcessPermissions(ProcessDefinition processDefinition, Process process, Actor actor) {
+    private void grantProcessPermissions(ParsedProcessDefinition parsedProcessDefinition, Process process, Actor actor) {
         boolean permissionsAreSetToProcessStarter = false;
         Executor processStarter = executorDAO.getExecutor(SystemExecutors.PROCESS_STARTER_NAME);
-        Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, processDefinition);
-        for (Executor executor : permissionDAO.getExecutorsWithPermission(processDefinition.getDeployment())) {
-            Set<Permission> permissions = getProcessPermissions(executor, processDefinition);
+        Set<Permission> processStarterPermissions = getProcessPermissions(processStarter, parsedProcessDefinition);
+        for (Executor executor : permissionDAO.getExecutorsWithPermission(parsedProcessDefinition.getDeployment())) {
+            Set<Permission> permissions = getProcessPermissions(executor, parsedProcessDefinition);
             if (Objects.equal(actor, executor)) {
                 permissions = CollectionUtil.unionSet(permissions, processStarterPermissions);
                 permissionsAreSetToProcessStarter = true;
@@ -90,11 +90,11 @@ public class ProcessFactory {
         }
     }
 
-    public Process createSubprocess(ExecutionContext parentExecutionContext, ProcessDefinition processDefinition, Map<String, Object> variables,
+    public Process createSubprocess(ExecutionContext parentExecutionContext, ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables,
             int index) {
         Process parentProcess = parentExecutionContext.getProcess();
         Node subProcessNode = parentExecutionContext.getNode();
-        ExecutionContext subExecutionContext = createProcessInternal(processDefinition, variables, null, parentProcess, null);
+        ExecutionContext subExecutionContext = createProcessInternal(parsedProcessDefinition, variables, null, parentProcess, null);
         nodeProcessDAO.create(new NodeProcess(subProcessNode, parentExecutionContext.getToken(), subExecutionContext.getProcess(), index));
         return subExecutionContext.getProcess();
     }
@@ -102,17 +102,17 @@ public class ProcessFactory {
     public void startSubprocess(ExecutionContext parentExecutionContext, ExecutionContext executionContext) {
         parentExecutionContext
                 .addLog(new SubprocessStartLog(parentExecutionContext.getNode(), parentExecutionContext.getToken(), executionContext.getProcess()));
-        grantSubprocessPermissions(executionContext.getProcessDefinition(), executionContext.getProcess(), parentExecutionContext.getProcess());
+        grantSubprocessPermissions(executionContext.getParsedProcessDefinition(), executionContext.getProcess(), parentExecutionContext.getProcess());
         startProcessInternal(executionContext, null);
     }
 
-    private void grantSubprocessPermissions(ProcessDefinition processDefinition, Process subProcess, Process parentProcess) {
+    private void grantSubprocessPermissions(ParsedProcessDefinition parsedProcessDefinition, Process subProcess, Process parentProcess) {
         Set<Executor> executors = new HashSet<>();
-        executors.addAll(permissionDAO.getExecutorsWithPermission(processDefinition.getDeployment()));
+        executors.addAll(permissionDAO.getExecutorsWithPermission(parsedProcessDefinition.getDeployment()));
         executors.addAll(permissionDAO.getExecutorsWithPermission(parentProcess));
         for (Executor executor : executors) {
             List<Permission> permissionsByParentProcess = permissionDAO.getIssuedPermissions(executor, parentProcess);
-            Set<Permission> permissionsByDefinition = getProcessPermissions(executor, processDefinition);
+            Set<Permission> permissionsByDefinition = getProcessPermissions(executor, parsedProcessDefinition);
             Set<Permission> permissions = CollectionUtil.unionSet(permissionsByParentProcess, permissionsByDefinition);
             if (permissions.size() > 0) {
                 permissionDAO.setPermissions(executor, permissions, subProcess);
@@ -120,11 +120,11 @@ public class ProcessFactory {
         }
     }
 
-    private ExecutionContext createProcessInternal(ProcessDefinition processDefinition, Map<String, Object> variables, Actor actor,
+    private ExecutionContext createProcessInternal(ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables, Actor actor,
             Process parentProcess, Map<String, Object> transientVariables) {
-        Preconditions.checkNotNull(processDefinition, "can't create a process when processDefinition is null");
-        Process process = new Process(processDefinition.getDeploymentVersion());
-        Token rootToken = new Token(processDefinition, process);
+        Preconditions.checkNotNull(parsedProcessDefinition, "can't create a process when parsedProcessDefinition is null");
+        Process process = new Process(parsedProcessDefinition.getDeploymentVersion());
+        Token rootToken = new Token(parsedProcessDefinition, process);
         process.setRootToken(rootToken);
         processDAO.create(process);
         if (parentProcess != null) {
@@ -132,7 +132,7 @@ public class ProcessFactory {
         }
         process.setHierarchyIds(
                 ProcessHierarchyUtils.createHierarchy(parentProcess != null ? parentProcess.getHierarchyIds() : null, process.getId()));
-        ExecutionContext executionContext = new ExecutionContext(processDefinition, rootToken);
+        ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, rootToken);
         if (actor != null) {
             executionContext.addLog(new ProcessStartLog(actor));
         }
@@ -143,7 +143,7 @@ public class ProcessFactory {
         }
         executionContext.setVariableValues(variables);
         if (actor != null) {
-            SwimlaneDefinition swimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
+            SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
             Swimlane swimlane = swimlaneDAO.findOrCreate(process, swimlaneDefinition);
             swimlane.assignExecutor(executionContext, actor, false);
         }
@@ -152,11 +152,11 @@ public class ProcessFactory {
 
     private void startProcessInternal(ExecutionContext executionContext, String transitionName) {
         // execute the start node
-        StartNode startNode = executionContext.getProcessDefinition().getStartStateNotNull();
+        StartNode startNode = executionContext.getParsedProcessDefinition().getStartStateNotNull();
         // startNode.enter(executionContext);
         Transition transition = null;
         if (transitionName != null) {
-            transition = executionContext.getProcessDefinition().getStartStateNotNull().getLeavingTransitionNotNull(transitionName);
+            transition = executionContext.getParsedProcessDefinition().getStartStateNotNull().getLeavingTransitionNotNull(transitionName);
         }
         startNode.leave(executionContext, transition);
     }

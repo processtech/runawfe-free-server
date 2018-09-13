@@ -11,7 +11,7 @@ import ru.runa.wfe.execution.ExecutionContext;
 import ru.runa.wfe.execution.Token;
 import ru.runa.wfe.execution.dao.TokenDAO;
 import ru.runa.wfe.lang.BaseMessageNode;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public class AddTokenMessageSelectorPatch extends DBPatch implements IDbPatchPostProcessor {
     @Autowired
@@ -32,9 +32,9 @@ public class AddTokenMessageSelectorPatch extends DBPatch implements IDbPatchPos
         List<Token> tokens = tokenDAO.findByMessageSelectorIsNullAndExecutionStatusIsActive();
         log.info("Updating " + tokens.size() + " tokens message selector");
         for (Token token : tokens) {
-            ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(token.getProcess());
-            BaseMessageNode messageNode = (BaseMessageNode) processDefinition.getNodeNotNull(token.getNodeId());
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, token.getProcess());
+            ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(token.getProcess());
+            BaseMessageNode messageNode = (BaseMessageNode) parsedProcessDefinition.getNodeNotNull(token.getNodeId());
+            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, token.getProcess());
             String messageSelector = Utils.getReceiveMessageNodeSelector(executionContext.getVariableProvider(), messageNode);
             token.setMessageSelector(messageSelector);
         }

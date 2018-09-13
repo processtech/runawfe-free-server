@@ -68,7 +68,7 @@ import ru.runa.wfe.graph.view.ProcessGraphInfoVisitor;
 import ru.runa.wfe.job.Job;
 import ru.runa.wfe.job.dto.WfJob;
 import ru.runa.wfe.lang.Node;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 import ru.runa.wfe.lang.SwimlaneDefinition;
 import ru.runa.wfe.presentation.BatchPresentation;
 import ru.runa.wfe.presentation.BatchPresentationFactory;
@@ -128,8 +128,8 @@ public class ExecutionLogic extends WFCommonLogic {
         List<Process> processes = getProcessesInternal(user, filter);
         processes = filterSecuredObject(user, processes, Permission.CANCEL);
         for (Process process : processes) {
-            ProcessDefinition processDefinition = getDefinition(process);
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
+            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process);
             process.end(executionContext, user.getActor());
             log.info(process + " was cancelled by " + user);
         }
@@ -196,30 +196,30 @@ public class ExecutionLogic extends WFCommonLogic {
         return startProcessImpl(user, getLatestDefinition(definitionName), variables);
     }
 
-    public Long startProcess(User user, Long deploymentVersionId, Map<String, Object> variables) {
-        return startProcessImpl(user, getDefinition(deploymentVersionId), variables);
+    public Long startProcess(User user, Long processDefinitionVersionId, Map<String, Object> variables) {
+        return startProcessImpl(user, getDefinition(processDefinitionVersionId), variables);
     }
 
-    private Long startProcessImpl(User user, ProcessDefinition processDefinition, Map<String, Object> variables) {
+    private Long startProcessImpl(User user, ParsedProcessDefinition parsedProcessDefinition, Map<String, Object> variables) {
         if (variables == null) {
             variables = Maps.newHashMap();
         }
         if (SystemProperties.isCheckProcessStartPermissions()) {
-            permissionDAO.checkAllowed(user, Permission.START, processDefinition.getDeployment());
+            permissionDAO.checkAllowed(user, Permission.START, parsedProcessDefinition.getDeployment());
         }
         String transitionName = (String) variables.remove(WfProcess.SELECTED_TRANSITION_KEY);
         val extraVariablesMap = new HashMap<String, Object>();
         extraVariablesMap.put(WfProcess.SELECTED_TRANSITION_KEY, transitionName);
-        IVariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(processDefinition));
-        validateVariables(user, null, variableProvider, processDefinition, processDefinition.getStartStateNotNull().getNodeId(), variables);
+        IVariableProvider variableProvider = new MapDelegableVariableProvider(extraVariablesMap, new DefinitionVariableProvider(parsedProcessDefinition));
+        validateVariables(user, null, variableProvider, parsedProcessDefinition, parsedProcessDefinition.getStartStateNotNull().getNodeId(), variables);
         // transient variables
         Map<String, Object> transientVariables = (Map<String, Object>) variables.remove(WfProcess.TRANSIENT_VARIABLES);
-        Process process = processFactory.startProcess(processDefinition, variables, user.getActor(), transitionName, transientVariables);
-        SwimlaneDefinition startTaskSwimlaneDefinition = processDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
+        Process process = processFactory.startProcess(parsedProcessDefinition, variables, user.getActor(), transitionName, transientVariables);
+        SwimlaneDefinition startTaskSwimlaneDefinition = parsedProcessDefinition.getStartStateNotNull().getFirstTaskNotNull().getSwimlane();
         Object predefinedProcessStarterObject = variables.get(startTaskSwimlaneDefinition.getName());
         if (predefinedProcessStarterObject != null) {
             Executor predefinedProcessStarter = TypeConversionUtil.convertTo(Executor.class, predefinedProcessStarterObject);
-            ExecutionContext executionContext = new ExecutionContext(processDefinition, process);
+            ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process);
             Swimlane swimlane = swimlaneDAO.findOrCreate(process, startTaskSwimlaneDefinition);
             swimlane.assignExecutor(executionContext, predefinedProcessStarter, true);
         }
@@ -231,7 +231,7 @@ public class ExecutionLogic extends WFCommonLogic {
         try {
             Process process = processDAO.getNotNull(processId);
             permissionDAO.checkAllowed(user, Permission.LIST, process);
-            ProcessDefinition processDefinition = getDefinition(process);
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             Token highlightedToken = null;
             if (taskId != null) {
                 Task task = taskDAO.get(taskId);
@@ -244,11 +244,11 @@ public class ExecutionLogic extends WFCommonLogic {
                 highlightedToken = nodeProcessDAO.findBySubProcessId(childProcessId).getParentToken();
             }
             if (subprocessId != null) {
-                processDefinition = processDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
+                parsedProcessDefinition = parsedProcessDefinition.getEmbeddedSubprocessByIdNotNull(subprocessId);
             }
             ProcessLogs processLogs = new ProcessLogs(processId);
-            processLogs.addLogs(processLogDAO.get(processId, processDefinition), false);
-            GraphImageBuilder builder = new GraphImageBuilder(processDefinition);
+            processLogs.addLogs(processLogDAO.get(processId, parsedProcessDefinition), false);
+            GraphImageBuilder builder = new GraphImageBuilder(parsedProcessDefinition);
             builder.setHighlightedToken(highlightedToken);
             return builder.createDiagram(process, processLogs);
         } catch (Exception e) {
@@ -258,7 +258,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public List<NodeGraphElement> getProcessDiagramElements(User user, Long processId, String subprocessId) {
         Process process = processDAO.getNotNull(processId);
-        ProcessDefinition definition = getDefinition(process.getDeploymentVersion().getId());
+        ParsedProcessDefinition definition = getDefinition(process.getDeploymentVersion().getId());
         if (subprocessId != null) {
             definition = definition.getEmbeddedSubprocessByIdNotNull(subprocessId);
         }
@@ -276,7 +276,7 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public NodeGraphElement getProcessDiagramElement(User user, Long processId, String nodeId) {
         Process process = processDAO.getNotNull(processId);
-        ProcessDefinition definition = getDefinition(process.getDeploymentVersion().getId());
+        ParsedProcessDefinition definition = getDefinition(process.getDeploymentVersion().getId());
         List<NodeProcess> nodeProcesses = nodeProcessDAO.getNodeProcesses(process, null, nodeId, null);
         ProcessLogs processLogs = null;
         if (DrawProperties.isLogsInGraphEnabled()) {
@@ -301,10 +301,10 @@ public class ExecutionLogic extends WFCommonLogic {
         try {
             Process process = processDAO.getNotNull(processId);
             permissionDAO.checkAllowed(user, Permission.LIST, process);
-            ProcessDefinition processDefinition = getDefinition(process);
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDAO.getAll(processId);
             List<Executor> executors = executorDAO.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
-            return new GraphHistoryBuilder(executors, process, processDefinition, logs, subprocessId).createDiagram();
+            return new GraphHistoryBuilder(executors, process, parsedProcessDefinition, logs, subprocessId).createDiagram();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
@@ -315,23 +315,23 @@ public class ExecutionLogic extends WFCommonLogic {
         try {
             Process process = processDAO.getNotNull(processId);
             permissionDAO.checkAllowed(user, Permission.LIST, process);
-            ProcessDefinition processDefinition = getDefinition(process);
+            ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
             List<ProcessLog> logs = processLogDAO.getAll(processId);
             List<Executor> executors = executorDAO.getAllExecutors(BatchPresentationFactory.EXECUTORS.createNonPaged());
-            return new GraphHistoryBuilder(executors, process, processDefinition, logs, subprocessId).getElements();
+            return new GraphHistoryBuilder(executors, process, parsedProcessDefinition, logs, subprocessId).getElements();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
     }
 
-    public int upgradeProcessesToDefinitionVersion(User user, Long deploymentVersionId, long newVersion) {
+    public int upgradeProcessesToDefinitionVersion(User user, Long processDefinitionVersionId, long newVersion) {
         if (!SystemProperties.isUpgradeProcessToDefinitionVersionEnabled()) {
             throw new ConfigurationException(
                     "In order to enable process definition version upgrade set property 'upgrade.process.to.definition.version.enabled' " +
                     "to 'true' in system.properties or wfe.custom.system.properties"
             );
         }
-        DeploymentWithVersion dwv = deploymentDAO.findDeployment(deploymentVersionId);
+        DeploymentWithVersion dwv = deploymentDAO.findDeployment(processDefinitionVersionId);
         DeploymentWithVersion nextDWV = deploymentDAO.findDeployment(dwv.deployment.getName(), newVersion);
         ProcessFilter filter = new ProcessFilter();
         filter.setDefinitionName(dwv.deployment.getName());
@@ -371,9 +371,9 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public List<WfSwimlane> getSwimlanes(User user, Long processId) throws ProcessDoesNotExistException {
         Process process = processDAO.getNotNull(processId);
-        ProcessDefinition processDefinition = getDefinition(process);
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
         permissionDAO.checkAllowed(user, Permission.LIST, process);
-        List<SwimlaneDefinition> swimlanes = processDefinition.getSwimlanes();
+        List<SwimlaneDefinition> swimlanes = parsedProcessDefinition.getSwimlanes();
         List<WfSwimlane> result = Lists.newArrayListWithExpectedSize(swimlanes.size());
         for (SwimlaneDefinition swimlaneDefinition : swimlanes) {
             Swimlane swimlane = swimlaneDAO.findByProcessAndName(process, swimlaneDefinition.getName());
@@ -392,11 +392,11 @@ public class ExecutionLogic extends WFCommonLogic {
 
     public void assignSwimlane(User user, Long processId, String swimlaneName, Executor executor) {
         Process process = processDAO.getNotNull(processId);
-        ProcessDefinition processDefinition = getDefinition(process);
-        SwimlaneDefinition swimlaneDefinition = processDefinition.getSwimlaneNotNull(swimlaneName);
+        ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
+        SwimlaneDefinition swimlaneDefinition = parsedProcessDefinition.getSwimlaneNotNull(swimlaneName);
         Swimlane swimlane = swimlaneDAO.findOrCreate(process, swimlaneDefinition);
         List<Executor> executors = executor != null ? Lists.newArrayList(executor) : null;
-        AssignmentHelper.assign(new ExecutionContext(processDefinition, process), swimlane, executors);
+        AssignmentHelper.assign(new ExecutionContext(parsedProcessDefinition, process), swimlane, executors);
     }
 
     public void activateProcess(User user, Long processId) {
@@ -435,9 +435,9 @@ public class ExecutionLogic extends WFCommonLogic {
     private List<WfToken> getTokens(Process process) throws ProcessDoesNotExistException {
         List<WfToken> result = Lists.newArrayList();
         List<Token> tokens = tokenDAO.findByProcessAndExecutionStatusIsNotEnded(process);
-        ProcessDefinition processDefinition = processDefinitionLoader.getDefinition(process);
+        ParsedProcessDefinition parsedProcessDefinition = processDefinitionLoader.getDefinition(process);
         for (Token token : tokens) {
-            result.add(new WfToken(token, processDefinition));
+            result.add(new WfToken(token, parsedProcessDefinition));
         }
         return result;
     }
@@ -455,8 +455,8 @@ public class ExecutionLogic extends WFCommonLogic {
             WfProcess wfProcess = new WfProcess(process);
             if (!Utils.isNullOrEmpty(variableNamesToInclude)) {
                 try {
-                    ProcessDefinition processDefinition = getDefinition(process);
-                    ExecutionContext executionContext = new ExecutionContext(processDefinition, process, variables, false);
+                    ParsedProcessDefinition parsedProcessDefinition = getDefinition(process);
+                    ExecutionContext executionContext = new ExecutionContext(parsedProcessDefinition, process, variables, false);
                     for (String variableName : variableNamesToInclude) {
                         try {
                             wfProcess.addVariable(executionContext.getVariableProvider().getVariable(variableName));

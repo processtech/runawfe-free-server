@@ -2,15 +2,15 @@ package ru.runa.wfe.definition.dao;
 
 import ru.runa.wfe.definition.DefinitionDoesNotExistException;
 import ru.runa.wfe.execution.Process;
-import ru.runa.wfe.lang.ProcessDefinition;
+import ru.runa.wfe.lang.ParsedProcessDefinition;
 
 public interface IProcessDefinitionLoader {
 
-    ProcessDefinition getDefinition(long deploymentVersionId) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getDefinition(long processDefinitionVersionId) throws DefinitionDoesNotExistException;
 
-    ProcessDefinition getDefinition(Process process) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getDefinition(Process process) throws DefinitionDoesNotExistException;
 
-    ProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getLatestDefinition(String definitionName) throws DefinitionDoesNotExistException;
 
-    ProcessDefinition getLatestDefinition(long deploymentId) throws DefinitionDoesNotExistException;
+    ParsedProcessDefinition getLatestDefinition(long deploymentId) throws DefinitionDoesNotExistException;
 }
